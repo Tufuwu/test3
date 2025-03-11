@@ -1,16 +1,48 @@
-from pathlib import Path
-
+from flux.timeline import Timeline
+import flux
 import pytest
-import sphinx
-from packaging.version import Version
+import time
+
+from functools import partial
+from forge import Forge
 
 
-pytest_plugins = 'sphinx.testing.fixtures'
+@pytest.fixture
+def forge(request):
+
+    returned = Forge()
+
+    @request.addfinalizer
+    def cleanup():  # pylint: disable=unused-variable
+        returned.verify()
+        returned.restore_all_replacements()
+
+    return returned
 
 
-@pytest.fixture(scope='session')
-def rootdir():
-    if Version(sphinx.__version__) < Version('7.0.0'):
-        from sphinx.testing.path import path
-        return path(__file__).parent.abspath() / 'roots'
-    return Path(__file__).parent.absolute() / 'roots'
+@pytest.fixture
+def mocked_time_module():
+
+    class _Mocked():
+
+        def __init__(self):
+            self._time = time.time()
+
+        def time(self):
+            return self._time
+
+        def __set_time__(self, value):
+            self._time = value
+
+        def __advance__(self, increment=30):
+            self._time += increment
+
+    return _Mocked()
+
+
+@pytest.fixture
+def timeline(request):
+    request.addfinalizer(partial(flux.current_timeline.set, flux.current_timeline.get()))
+    timeline = Timeline()
+    flux.current_timeline.set(timeline)
+    return timeline
