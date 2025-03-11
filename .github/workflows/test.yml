@@ -1,28 +1,33 @@
-name: CI
-
+name: Tufuwu/test2
 on:
   push:
+    branches:
+    - "**/*"
   pull_request:
-  workflow_dispatch:
-    # manually triggered
-
+#   # This item has no matching transformer
+#   maximum_number_of_builds: 0
 jobs:
-  build:
-
-    runs-on: ubuntu-latest
+  test:
+    runs-on: ubuntu-16.04
+    steps:
+    - name: checkout
+      uses: actions/checkout@v4.1.0
+    - uses: actions/setup-python@v5.0.0
+      with:
+        python-version: "${{ matrix.python }}"
+#     # 'sudo' was not transformed because there is no suitable equivalent in GitHub Actions
+    - run: pip install -e .[testing]
+    - run: pytest tests
+#     # This item has no matching transformer
+#     - pypi:
+#         provider: pypi
+#         user: vmalloc
+#         password:
+#           secure: IiRY8I5mIBebKxMUNygddVLyyd0j9gRG5hly5r07nIeqqB01cUhrHgTnfqQPBbVYsDzFYRNM4p2+D94YlsRyO/ylGXehNpA/Dmb5tVDLtycbQVBx4rkRwEa0nfcXaF3MO1P0NHbEi3scVhLiaYqTGWsEKGIhUrgWyckuAh99FKo=
+#         'on':
+#           tags: true
+#           repo: getslash/flux
+#       if: "${{ github.event_name == 'push' && ${{ github.ref }} }}"
     strategy:
       matrix:
-        python-version: ["3.9", "3.10"]
-
-    steps:
-      - uses: actions/checkout@v3
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
-        with:
-          python-version: ${{ matrix.python-version }}
-      - name: Tests
-        run: |
-          python -m venv .env
-          .env/bin/pip install -U setuptools pip
-          .env/bin/pip install '.[testing]'
-          .env/bin/pytest tests
+        python: ["3.9", "3.10", "3.11"]
