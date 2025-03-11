@@ -1,394 +1,1021 @@
-# 🗂️[context_menu](https://github.com/saleguas/context_menu) [![build passing](https://github.com/saleguas/context_menu/actions/workflows/ci.yml/badge.svg)](https://github.com/saleguas/context_menu/actions/workflows/ci.yml)   [![readthedocs](https://img.shields.io/readthedocs/context_menu)](https://context-menu.readthedocs.io/en/latest/) ![pip](https://img.shields.io/badge/pip-context__menu-blue) [![Downloads](https://pepy.tech/badge/context-menu)](https://pepy.tech/project/context-menu)
+[![Vakt logo](logo.png)](logo.png)
 
-![logo](media/logo.png)
+Attribute-based access control (ABAC) SDK for Python.
 
-💻 A Python library to create and deploy cross-platform native context menus. 💻
+[![CI Status](https://github.com/kolotaev/vakt/workflows/CI/badge.svg?branch=master)](https://github.com/kolotaev/vakt/actions)
+[![codecov.io](https://codecov.io/github/kolotaev/vakt/coverage.svg?branch=master)](https://app.codecov.io/gh/kolotaev/vakt/tree/master)
+[![PyPI version](https://badge.fury.io/py/vakt.svg)](https://badge.fury.io/py/vakt)
+[![Apache 2.0 licensed](https://img.shields.io/badge/License-Apache%202.0-yellow.svg)](https://raw.githubusercontent.com/kolotaev/vakt/master/LICENSE)
+
+------
+
+## Documentation
+
+- [Documentation](#documentation)
+  - [Description](#description)
+  - [Concepts](#concepts)
+  - [Install](#install)
+  - [Usage](#usage)
+  - [Components](#components)
+    - [Policy](#policy)
+    - [Inquiry](#inquiry)
+    - [Rules](#rules)
+      - [Comparison-related](#comparison-related)
+      - [Logic-related](#logic-related)
+      - [List-related](#list-related)
+      - [Network-related](#network-related)
+      - [String-related](#string-related)
+      - [Inquiry-related](#inquiry-related)
+    - [Checker](#checker)
+    - [Guard](#guard)
+    - [Storage](#storage)
+      - [Memory](#memory)
+      - [MongoDB](#mongodb)
+      - [SQL](#sql)
+      - [Redis](#redis)
+    - [Migration](#migration)
+  - [Caching](#caching)
+      - [Caching `RegexChecker`](#caching-regexchecker)
+      - [Caching the entire Storage backend](#caching-the-entire-storage-backend)
+      - [Caching the Guard](#caching-the-guard)
+  - [JSON](#json)
+  - [Logging](#logging)
+  - [Audit](#audit)
+  - [Milestones](#milestones)
+  - [Benchmark](#benchmark)
+  - [Acknowledgements](#acknowledgements)
+  - [Development](#development)
+  - [License](#license)
 
 
-Documentation available at: https://context-menu.readthedocs.io/en/latest/
+### Description
 
-* * *
+Vakt is an attribute-based and policy-based access control ([ABAC](https://en.wikipedia.org/wiki/Attribute-based_access_control))
+toolkit that is based on policies.
+ABAC stands aside of RBAC and ACL models, giving you
+a fine-grained control on definition of the rules that restrict an access to resources and is generally considered a
+"next generation" authorization model.
+In its form Vakt resembles [IAM Policies](https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies.html), but
+has a way nicer attribute managing.
 
-![example usage](media/thumbnail2.gif)
+See [concepts](#concepts) section for more details.
 
-* * *
+*[Back to top](#documentation)*
 
-# Table of Contents
-- [⚙ Features ⚙](#-features-)
-  * [🙋 What is the context menu? 🙋](#-what-is-the-context-menu-)
-  * [🖥️ What Operating Systems are supported? 🖥️](#%EF%B8%8F-what-operating-systems-are-supported-%EF%B8%8F)
-  * [🐍 What Python versions are supported? 🐍](#-what-python-versions-are-supported-)
-- [💽 Installation 💽](#-installation-)
-- [🕹️ Quickstart 🕹️](#%EF%B8%8F-quickstart-%EF%B8%8F)
-- [🤖 Advanced Usage 🤖](#-advanced-usage-)
-  * [The `ContextMenu` Class](#the-contextmenu-class)
-  * [The `ContextCommand` Class](#the-contextcommand-class)
-  * [The `FastCommand` Class](#the-fastcommand-class)
-  * [The `removeMenu` method](#the-removemenu-method)
-  * [The `params` Command Parameter](#the-params-command-parameter)
-  * [`command_vars` Command Parameter](#command_vars-command-parameter)
-  * [Opening on Files](#opening-on-files)
-  * [Activation Types](#activation-types)
-- [🏁 Goals 🏁](#-goals-)
-- [🙌 Contribution 🙌](#-contribution-)
-- [📓 Important notes 📓](#-important-notes-)
-- [💻 Freshen - A context_menu project! 💻](#-freshen---a-context_menu-project-)
-- [💙 Support 💙](#-support-)
 
-# ⚙ Features ⚙
-This library lets you edit the entries on the right click menu for Windows and Linux using pure Python. It also allows you to make cascading context menus!
+### Concepts
 
-context_menu was created as due to the lack of an intuitive and easy to use cross-platform context menu library. The
-library allows you to create your own context menu entries and control their behavior seamlessly in native Python. The
-library has the following features:
+Given you have some set of resources, you can define a number of policies that will describe access to them
+answering the following questions:
 
-* Written in pure python with no other dependencies
-* Extremely intuitive design inspired by Keras Tensorflow
-* Swift installation from Python's Package Manager (pip)
-* Painless context menu creation
-* Cascading context menu support
-* The ability to natively integrate python functions from a context entry call
-* Detailed documentation
+1. *What resources (resource) are being requested?*
+1. *Who is requesting the resource?*
+1. *What actions (action) are requested to be done on the asked resources?*
+1. *What are the rules that should be satisfied in the context of the request itself?*
+1. *What is resulting effect of the answer on the above questions?*
 
-## 🙋 What is the context menu? 🙋
 
-The context menu is the window that is displayed when you right click:
+The overall diagram of `vakt` workflow is:
 
-![img.png](media/context_menu.png)
+[![Vakt diagram](diagram.svg)](diagram.svg)
 
-The context menu is different depending on what was right clicked. For example, right clicking a folder will give you
-different options than right clicking a file.
 
-## 🖥️ What Operating Systems are supported? 🖥️ 
+Vakt allows you to gain:
 
-Currently, the only operating systems supported are:
+* Policy Based Access Control _(vakt is based on Policies that describe access rules, strategies to your resources)_
+* Fine-Grained Authorization _(vakt Policies give you fine-grained control over resource's, subject's, action's and context's attributes)_
+* Dynamic Authorization Management _(you can add Policies and change their attributes)_
+* Externalized Authorization Management _(you can build own external AuthZ server with vakt, see examples)_
 
-- Windows 7
-- Windows 10
-- Windows 11
-- Linux (Using Nautilus)
+*[Back to top](#documentation)*
 
-## 🐍 What Python versions are supported? 🐍
 
-**All python versions 3.7 and above** are supported.
+### Install
 
-# 💽 Installation 💽
+Vakt runs on Python >= 3.6.
+PyPy implementation is supported as well.
 
-If you haven't installed Python, download and run an installer from the official
-website: https://www.python.org/downloads/
-
-Once you have Python, the rest is super simple. Simply just run the following command in a terminal to install the
-package:
-
-```commandline
-python -m pip install context_menu
+Bare-bones installation with in-memory storage:
+```bash
+pip install vakt
 ```
 
-or if you're on Linux:
-
-```commandline
-python3 -m pip install context_menu
+For MongoDB storage:
+```bash
+pip install vakt[mongo]
 ```
 
-_Note: If you're on Windows and it says the command isn't recognized, make sure to
-add [Python to your path](https://datatofish.com/add-python-to-windows-path/) and run the command prompt as
-administrator_
-
-# 🕹️ Quickstart 🕹️
-
-Let's say you want to make a basic context menu entry when you right click a file.
-
-1. If you haven't already Install the library via pip:
-
-```commandline
-python -m pip install context_menu
+For SQL storage:
+```bash
+pip install vakt[sql]
+pip install $ANY_DB_DRIVER_OF_YOUR_CHOICE_SUPPORTED_BY_SQLALCHEMY
 ```
 
-2. Create and compile the menu:
+For Redis storage:
+```bash
+pip install vakt[redis]
+```
+Also see [redis-py](https://redis.readthedocs.io/en/stable/index.html) docs.
+For example if `hiredis` is found in the system, it will be used as a faster parser.
+However vakt doesn't enforce this dependency.
 
-It's super easy!
-You can create entries in as little as 3 lines:
+
+*[Back to top](#documentation)*
+
+
+### Usage
+
+A quick dive-in:
 
 ```python
-from context_menu import menus
+import vakt
+from vakt.rules import Eq, Any, StartsWith, And, Greater, Less
 
-fc = menus.FastCommand('Example Fast Command 1', type='FILES', command='echo Hello')
-fc.compile()
+policy = vakt.Policy(
+    123456,
+    actions=[Eq('fork'), Eq('clone')],
+    resources=[StartsWith('repos/Google', ci=True)],
+    subjects=[{'name': Any(), 'stars': And(Greater(50), Less(999))}],
+    effect=vakt.ALLOW_ACCESS,
+    context={'referer': Eq('https://github.com')},
+    description="""
+    Allow to fork or clone any Google repository for
+    users that have > 50 and < 999 stars and came from Github
+    """
+)
+storage = vakt.MemoryStorage()
+storage.add(policy)
+guard = vakt.Guard(storage, vakt.RulesChecker())
+
+inq = vakt.Inquiry(action='fork',
+                   resource='repos/google/tensorflow',
+                   subject={'name': 'larry', 'stars': 80},
+                   context={'referer': 'https://github.com'})
+
+assert guard.is_allowed(inq)
 ```
 
-![example fast command](media/example_fast_command.png)
-
-> **Note:** On Windows, the command `echo Hello` may not work as expected because `echo` is a built-in command of the cmd shell. To execute such commands on Windows, you need to prefix them with `cmd /c`. So the command becomes:
-> 
-> ```python
-> fc = menus.FastCommand('Example Fast Command 1', type='FILES', command='cmd /c echo Hello')
-> ```
-> 
-> This ensures that the command is run within the cmd shell.
-
-All you have to do is import the library and define the type of context entry you want. The options are:
-
-* A context menu (an entry that has more entries)
-* A fast command (a single context menu entry to kick a running script)
-* A context command which can be added to menus for more complex commands
-
-You can also create much more complicated nested menus:
-
-```Python
-def foo2(filenames, params):
-    print('foo2')
-    print(filenames)
-    input()
-
-
-def foo3(filenames, params):
-    print('foo3')
-    print(filenames)
-    input()
-
-
-if __name__ == '__main__':
-    from context_menu import menus
-
-    cm = menus.ContextMenu('Foo menu', type='FILES')
-    cm2 = menus.ContextMenu('Foo Menu 2')
-    cm3 = menus.ContextMenu('Foo Menu 3')
-
-    cm3.add_items([
-        menus.ContextCommand('Foo One', command='echo hello > example.txt'),
-    ])
-    cm2.add_items([
-        menus.ContextCommand('Foo Two', python=foo2),
-        cm3,
-    ])
-    cm.add_items([
-        cm2,
-        menus.ContextCommand('Foo Three', python=foo3)
-    ])
-
-    cm.compile()
-```
-
-![second Example](media/second_example.png)
-
-All context menus are **permanent** unless you remove them.
-
-# 🤖 Advanced Usage 🤖
-
-## The `ContextMenu` Class
-
-The [ContextMenu](https://context-menu.readthedocs.io/en/latest/context_menu.html#context_menu.menus.ContextMenu) object
-holds other context objects. It expects a name, **the activation type** if it is the root menu(the first menu), and an optional icon path. Only
-compile the root menu.
-
-```Python
-ContextMenu(name: str, type: str = None, icon_path: str = None)
-```
-
-Menus can be added to menus, creating cascading context menus. You can use
-the [{MENU}.add_items{ITEMS}](https://context-menu.readthedocs.io/en/latest/context_menu.html#context_menu.menus.ContextMenu.add_items)
-function to add context elements together, for example:
-
-```Python
-cm = menus.ContextMenu('Foo menu', type='DIRECTORY_BACKGROUND')
-cm.add_items([
-    menus.ContextMenu(...),
-    menus.ContextCommand(...),
-    menus.ContextCommand(...)
-])
-cm.compile()
-```
-
-You have to
-call [{MENU}.compile()](https://context-menu.readthedocs.io/en/latest/context_menu.html#context_menu.menus.ContextMenu.compile)
-in order to create the menu.
-
-## The `ContextCommand` Class
-
-The [ContextCommand](https://context-menu.readthedocs.io/en/latest/context_menu.html#context_menu.menus.ContextCommand)
-class creates the selectable part of the menu (you can click it). It requires a name, and either a Python function or a
-command **(but NOT both)** and has various other options
-
-```Python
-ContextCommand(name: str, command: str = None, python: 'function' = None, params: str = None, command_vars: list = None, icon_path: str = None)
-```
-
-Python functions can be passed to this method, regardless of their location. **However, the function must accept only
-two parameters `filenames`, which is a list of paths\*, and `params`, the parameters passed to the function**. and if
-the function is in the same file as the menu, you have to surround it with `if __name__ == '__main__':`
+Or if you prefer Amazon IAM Policies style:
 
 ```python
-# An example of a valid function
-def valid_function(filenames, params):
-    print('Im valid!')
-    print(filenames)
-    print(params)
+import vakt
+from vakt.rules import CIDR
 
+policy = vakt.Policy(
+    123457,
+    effect=vakt.ALLOW_ACCESS,
+    subjects=[r'<[a-zA-Z]+ M[a-z]+>'],
+    resources=['library:books:<.+>', 'office:magazines:<.+>'],
+    actions=['read', 'get'],
+    context={
+        'ip': CIDR('192.168.0.0/24'),
+    },
+    description="""
+    Allow all readers of the book library whose surnames start with M get and read any book or magazine,
+    but only when they connect from local library's computer
+    """,
+)
+storage = vakt.MemoryStorage()
+storage.add(policy)
+guard = vakt.Guard(storage, vakt.RegexChecker())
 
-# Examples of invalid functions
-def invalid_function_1(filenames, param1, param2):
-    print('Im invalid!')
-    print(filenames)
+inq = vakt.Inquiry(action='read',
+                   resource='library:books:Hobbit',
+                   subject='Jim Morrison',
+                   context={'ip': '192.168.0.220'})
 
-
-def invalid_function_2(params):
-    print('Im invalid!')
-    print(params)
+assert guard.is_allowed(inq)
 ```
 
-Any command passed (as a string) will be directly ran from the shell.
+For more examples see [here](./examples).
 
-## The `FastCommand` Class
+*[Back to top](#documentation)*
 
-The [FastCommand](https://context-menu.readthedocs.io/en/latest/context_menu.html#context_menu.menus.FastCommand) class
-is an extension of the ContextMenu class and allows you to quickly create a single entry menu. It expects a name, type,
-command/function and an optional icon path.
+### Components
+
+#### Policy
+Policy is a main object for defining rules for accessing resources.
+The main parts reflect questions described in [Concepts](#concepts) section:
+
+* resources - a list of resources. Answers: what is asked?
+* subjects  - a list of subjects. Answers: who asks access to resources?
+* actions - a list of actions. Answers: what actions are asked to be performed on resources?
+* context - rules that should be satisfied by the given inquiry's context.
+* effect - If policy matches all the above conditions, what effect does it imply?
+Can be either `vakt.ALLOW_ACCESS` or `vakt.DENY_ACCESS`
+
+All `resources`, `subjects` and `actions` are described with
+a list containing strings, regexes, [Rules](#rules) or dictionaries of strings (attributes) to [Rules](#rules).
+Each element in list acts as logical OR. Each key in a dictionary of Rules acts as logical AND.
+`context` can be described only with a dictionary of [Rules](#rules).
+
+Depending on a way `resources`, `subjects`, `actions` are described, Policy can have either
+String-based or Rule-based type. Can be inspected by `policy.type`.
+This enforces the use of a concrete Checker implementation. See [Checker](#checker) for more.
 
 ```python
-FastCommand(
-    name: str, type: str, command: str = None, python: 'function' = None, params: str = '', command_vars: list = None, icon_path: str = None)
+from vakt import Policy, ALLOW_ACCESS
+from vakt.rules import CIDR, Any, Eq, NotEq, In
+
+# Rule-based policy (defined with Rules and dictionaries of Rules)
+Policy(
+    1,
+    description="""
+    Allow access to administration interface subcategories: 'panel', 'switch' if user is not
+    a developer and came from local IP address.
+    """,
+    actions=[Any()],
+    resources=[{'category': Eq('administration'), 'sub': In('panel', 'switch')}],
+    subjects=[{'name': Any(), 'role': NotEq('developer')}],
+    effect=ALLOW_ACCESS,
+    context={'ip': CIDR('127.0.0.1/32')}
+)
+
+# String-based policy (defined with regular expressions)
+Policy(
+    2,
+    description="""
+    Allow all readers of the book library whose surnames start with M get and read any book or magazine,
+    but only when they connect from local library's computer
+    """,
+    effect=ALLOW_ACCESS,
+    subjects=['<[\w]+ M[\w]+>'],
+    resources=('library:books:<.+>', 'office:magazines:<.+>'),
+    actions=['<read|get>'],
+    context={'ip': CIDR('192.168.2.0/24')}
+)
 ```
+
+Basically you want to create some set of Policies that encompass access rules for your domain and store them for
+making future decisions by the [Guard](#guard) component.
 
 ```python
-def foo1(filenames, params):
-    print(filenames)
-    input()
-
-
-if __name__ == '__main__':
-    from context_menu import menus
-
-    fc = menus.FastCommand('Example Fast Command 1', type='FILES', python=foo1)
-    fc.compile()
+st = MemoryStorage()
+for p in policies:
+    st.add(p)
 ```
 
-## The `removeMenu` method
+Additionally you can create Policies with predefined effect classes:
+```python
+from vakt import PolicyAllow, PolicyDeny, ALLOW_ACCESS, DENY_ACCESS
 
-You can remove a context menu entry easily as well. Simply call the ['menus.removeMenu()'](<>) method.
+p = PolicyAllow(1, actions=['<read|get>'], resources=['library:books:<.+>'], subjects=['<[\w]+ M[\w]+>'])
+assert ALLOW_ACCESS == p.effect
+
+
+p = PolicyDeny(2, actions=['<read|get>'], resources=['library:books:<.+>'], subjects=['<[\w]+ M[\w]+>'])
+assert DENY_ACCESS == p.effect
+```
+
+*[Back to top](#documentation)*
+
+
+#### Inquiry
+Inquiry is an object that serves as a mediator between Vakt and outer world request for resource access. All you need
+to do is take any kind of incoming request (REST request, SOAP, etc.) and build an `Inquiry` out of it in order to
+feed it to Vakt. There are no concrete builders for Inquiry from various request types, since it's a very meticulous
+process and you have hands on control for doing it by yourself. Let's see an example:
 
 ```python
-removeMenu(name: str, type: str)
+from vakt import Inquiry
+from flask import request, session
+
+...
+
+# if policies are defined on some subject's and resource's attributes with dictionaries of Rules:
+inquiry2 = Inquiry(subject={'login': request.form['username'], 'role': request.form['user_role']},
+                   action=request.form['action'],
+                   resource={'book': session.get('book'), 'chapter': request.form['chapter']},
+                   context={'ip': request.remote_addr})
+
+# if policies are defined with strings or regular expressions:
+inquiry = Inquiry(subject=request.form['username'],
+                  action=request.form['action'],
+                  resource=request.form['page'],
+                  context={'ip': request.remote_addr})
 ```
 
-For example, if I wanted to remove the menu 'Foo Menu' that activated on type 'FILES':
+Here we are taking form params from Flask request and additional request information. Then we transform them
+to Inquiry. That's it.
+
+Inquiry has several constructor arguments:
+
+* resource - any | dictionary of str -> any. What resource is being asked to be accessed?
+* action - any | dictionary str -> any. What is being asked to be done on the resource?
+* subject - any | dictionary str -> any. Who asks for it?
+* context - dictionary str -> any. What is the context of the request?
+
+If you were observant enough you might have noticed that Inquiry resembles Policy, where Policy describes multiple
+variants of resource access from the owner side and Inquiry describes an concrete access scenario from consumer side.
+
+*[Back to top](#documentation)*
+
+
+#### Rules
+Rules allow you to describe conditions directly on `action`, `subject`, `resource` and `context`
+or on their attributes.
+If at least one Rule in the Rule-set is not satisfied Inquiry is rejected by given Policy.
+
+Attaching a Rule-set to a Policy is simple. Here are some examples:
 
 ```python
-from context_menu import menus
+from vakt import Policy, rules
 
-menus.removeMenu('Foo Menu', 'FILES')
+Policy(
+    ...,
+    subjects=[{'name': rules.Eq('Tommy')}],
+),
+
+Policy(
+    ...,
+    actions=[rules.Eq('get'), rules.Eq('list'), rules.Eq('read')],
+),
+
+Policy(
+    ...,
+    context={
+        'secret': rules.string.Equal('.KIMZihH0gsrc'),
+        'ip': rules.net.CIDR('192.168.0.15/24')
+    },
+)
 ```
 
-and boom! It's gone 😎
+There are a number of different Rule types, see below.
 
-## The `params` Command Parameter
+If the existing Rules are not enough for you, feel free to define your [own](./examples/extending.py).
 
-In both the `ContextCommand` class and `FastCommand` class you can pass in a parameter, defined by the `parameter=None`
-variable. **This value MUST be a string!** This means instead of passing a list or numbers, pass it as a string
-separated by spaces or whatever to delimitate it.
+##### Comparison-related
 
-```Python
-fc = menus.FastCommand('Example Fast Command 1', type='FILES', python=foo1, params='a b c d e')
-fc.compile()
+| Rule          | Example in Policy  |  Example in Inquiry  | Notes |
+| ------------- |-------------|-------------|-------------|
+| Eq      | `'age': Eq(40)` | `'age': 40`| |
+| NotEq      | `'age': NotEq(40)` | `'age': 40`| |
+| Greater      | `'height': Greater(6.2)` | `'height': 5.8`| |
+| Less      | `'height': Less(6.2)` | `'height': 5.8`| |
+| GreaterOrEqual      | `'stars': GreaterOrEqual(300)` | `'stars': 77`| |
+| LessOrEqual      | `'stars': LessOrEqual(300)` | `'stars': 300`| |
+
+##### Logic-related
+
+| Rule          | Example in Policy  |  Example in Inquiry  | Notes |
+| ------------- |-------------|-------------|-------------|
+| Truthy    | `'admin': Truthy()` | `'admin': user.is_admin()`| Evaluates on Inquiry creation |
+| Falsy     | `'admin': Falsy()` | `'admin': lambda x: x.is_admin()`| Evaluates on Inquiry creation |
+| Not   | `'age': Not(Greater(90))` | `'age': 40` | |
+| And   | `'stars': And(Greater(50), Less(89))` | `'stars': 78` | Also, attributes in dictionary of Rules act as AND logic |
+| Or    | `'stars': Or(Greater(50), Less(120), Eq(8888))` | `'stars': 78` | Also, rules in a list of, say, `actions` act as OR logic |
+| Any      | `actions=[Any()]` | `action='get'`, `action='foo'` | Placeholder that fits any value |
+| Neither      | `subjects=[Neither()]` | `subject='Max'`,  `subject='Joe'` | Not very useful, left only as a counterpart of Any |
+
+##### List-related
+| Rule          | Example in Policy  |  Example in Inquiry  | Notes |
+| ------------- |-------------|-------------|-------------|
+| In    | `'method': In('get', 'post')` | `'method': 'get'`| |
+| NotIn    | `'method': NotIn('get', 'post')` | `'method': 'get'`| |
+| AllIn    | `'name': AllIn('Max', 'Joe')` | `'name': ['Max', 'Joe']`| |
+| AllNotIn    | `'name': AllNotIn('Max', 'Joe')` | `'name': ['Max', 'Joe']`| |
+| AnyIn    | `'height': AnyIn(5.9, 7.5, 4.9)` | `'height': [7.55]`| |
+| AnyNotIn    | `'height': AnyNotIn(5.9, 7.5, 4.9)` | `'height': [7.55]`| |
+
+##### Network-related
+
+| Rule          | Example in Policy  |  Example in Inquiry  | Notes |
+| ------------- |-------------|-------------|-------------|
+| CIDR    | `'ip': CIDR('192.168.2.0/24')` | `'ip': 192.168.2.4`| |
+
+##### String-related
+| Rule          | Example in Policy  |  Example in Inquiry  | Notes |
+| ------------- |-------------|-------------|-------------|
+| Equal    | `'name': Equal('max', ci=True)` | `'name': 'Max'`| Aliased as `StrEqual`. Use instead of `Eq` it you want string-type check and case-insensitivity |
+| PairsEqual    | `'names': PairsEqual()` | `'names': ['Bob', 'Bob']`| Aliased as `StrPairsEqual` |
+| RegexMatch    | `'file': RegexMatch(r'\.rb$')` | `'file': 'test.rb'`| |
+| StartsWith    | `'file': StartsWith('logs-')` | `'file': 'logs-data-101967.log'`| Supports case-insensitivity |
+| EndsWith    | `'file': EndsWith('.log')` | `'file': 'logs-data-101967.log'`| Supports case-insensitivity |
+| Contains    | `'file': Contains('sun')` | `'file': 'observations-sunny-days.csv'`| Supports case-insensitivity |
+
+##### Inquiry-related
+
+Inquiry-related rules are useful if you want to express equality relation between inquiry elements or their attributes.
+
+| Rule          | Example in Policy  |  Example in Inquiry  | Notes |
+| ------------- |-------------|-------------|-------------|
+| SubjectMatch | `resources=[{'id': SubjectMatch()}]` | `Inquiry(subject='Max', resource={'id': 'Max'})`| Works for the whole subject value or one of its attributes |
+| ActionMatch  | `subjects=[ActionMatch('id')]` | `Inquiry(subject='Max', action={'method': 'get', id': 'Max'})`| Works for the whole action value or one of its attributes |
+| ResourceMatch  | `subjects=[ResourceMatch('id')]` | `Inquiry(subject='Max', resource={'res': 'book', id': 'Max'})`| Works for the whole resource value or one of its attributes |
+| SubjectEqual  | `'data': SubjectEqual()` | `Inquiry(subject='Max')`| Works only for strings. Favor SubjectMatch |
+| ActionEqual  | `'data': ActionEqual()` | `Inquiry(action='get')`| Works only for strings. Favor ActionMatch |
+| ResourceIn  | `'data': ResourceIn()` | `Inquiry(resource='/books/')`| Works only for strings. Favor ResourceMatch |
+
+
+*[Back to top](#documentation)*
+
+
+#### Checker
+Checker allows you to check whether Policy matches Inquiry by concrete field (`subject`, `action`, etc.). It's used
+internally by [Guard](#guard), but you should be aware of Checker types:
+
+* RulesChecker - universal type that is used to check match of Policies defined with Rules or dictionaries of Rules
+(Rule-based Policy type). It gives you the highest flexibility.
+Most of the time you will use this type of Polices and thus this type of a Checker.
+Besides, it's much more performant than RegexChecker. See [benchmark](#benchmark) for more details.
+
+```python
+from vakt import RulesChecker
+
+ch = RulesChecker()
+# etc.
 ```
 
-For more information, [see this.](https://github.com/saleguas/context_menu/issues/4)
+* RegexChecker - checks match by regex test for policies defined with strings and regexps (String-based Policy type).
+This means that all you Policies
+can be defined in regex syntax (but if no regex defined in Policy falls back to simple string equality test) - it
+gives you better flexibility compared to simple strings, but carries a burden of relatively slow performance.
+You can configure a LRU cache size to adjust performance to your needs:
 
-Works on the `FastCommand` and `ContextCommand` class.
+```python
+from vakt import RegexChecker
 
-## `command_vars` Command Parameter
+ch = RegexChecker(2048)
+ch2 = RegexChecker(512)
+# etc.
+```
+See [benchmark](#benchmark) for more details.
 
-If you decide to pass a shell command, you can access a list of special variables. For example, if I wanted to run a
-custom command with the file selected, I could use the following:
+Syntax for description of Policy fields is:
+```
+ '<foo.*>'
+ 'foo<[abc]{2}>bar'
+ 'foo<\w+>'
+ 'foo'
+```
+Where `<>` are delimiters of a regular expression boundaries part. Custom Policy can redefine them by overriding
+`start_tag` and `end_tag` properties. Generally you always want to use the first variant: `<foo.*>`.
 
-```Python
-fc = menus.FastCommand('Weird Copy', type='FILES', command='touch ?x', command_vars=['FILENAME'])
-fc.compile()
+Due to relatively slow performance of regular expressions execution we recommend to define your policies in
+regex syntax only when you really need it, in other cases use simple strings:
+both will work perfectly (and now swiftly!) with RegexChecker.
+
+**NOTE. All regex checks are performed in a case-sensitive way by default.
+Even thought some storages (e.g. MemoryStorage) allow you to specify regex modifiers within the regex string, we do not translate regex modifiers to all storages (e.g. SQLStorage). Also see warning below**
+
+**WARNING. Please note, that storages have varying level of regexp support. For example,
+most SQL databases allow to use POSIX metacharacters whereas python `re` module
+and thus MemoryStorage does not. So, while defining policies you're safe and sound
+as long as you understand how storage of your choice handles the regexps you specified.**
+
+* StringExactChecker - the most quick checker:
+```
+Checker that uses exact string equality. Case-sensitive.
+E.g. 'sun' in 'sunny' - False
+     'sun' in 'sun' - True
+```
+* StringFuzzyChecker - quick checker with some extent of flexibility:
+```
+Checker that uses fuzzy substring equality. Case-sensitive.
+E.g. 'sun' in 'sunny' - True
+     'sun' in 'sun' - True
 ```
 
-which would create a new file with the name of whatever I selected with an 'x' on the end. The `?` variable is
-interpreted from left to right and replaced with the selected
-values [(see this)](https://github.com/saleguas/context_menu/issues/3).
+Note, that some [Storage](#storage) handlers can already check if Policy fits Inquiry in
+`find_for_inquiry()` method by performing specific to that storage queries - Storage can (and generally should)
+decide on the type of actions based on the checker class passed to [Guard](#guard) constructor
+(or to `find_for_inquiry()` directly).
 
-All of the preset values are as follows:
+Regardless of the results returned by a Storage the Checker is always the last row of control
+before Vakt makes a decision.
 
-| Name          | Function                                |
-| ------------- | --------------------------------------- |
-| FILENAME      | The path to the file selected           |
-| DIR/DIRECTORY | The directory the script was ran in.    |
-| PYTHONLOC     | The location of the python interpreter. |
+*[Back to top](#documentation)*
 
-Works on the `FastCommand` and `ContextCommand` class.
 
-## Opening on Files
+#### Guard
+Guard component is a main entry point for Vakt to make a decision. It has one method `is_allowed` that passed an
+[Inquiry](#inquiry) gives you a boolean answer: is that Inquiry allowed or not?
 
-Let's say you only want your context menu entry to open on a certain type of file, such as a `.txt` file. You can do
-this by adding a `type` variable to the `ContextCommand` or `FastCommand` class.
+Guard is constructed with [Storage](#storage) and [Checker](#checker).
 
-```Python
-fc = menus.FastCommand('Weird Copy', type='.txt', command='touch ?x',
-                       command_vars=['FILENAME'])  # opens only on .txt files
-fc.compile()
+__Policies that have String-based type won't match if RulesChecker is used and vise-versa.__
+
+```python
+st = MemoryStorage()
+# And persist all our Policies so that to start serving our library.
+for p in policies:
+    st.add(p)
+
+guard = Guard(st, RulesChecker())
+
+if guard.is_allowed(inquiry):
+    return "You've been logged-in", 200
+else:
+    return "Go away, you violator!", 401
 ```
 
-Now you'll only see the "Weird Copy" menu entry when you right click a .txt file.
+To gain best performance read [Caching](#caching) section.
 
-## Activation Types
-
-There are different locations where a context menu can fire. For example, if you right click on a folder you'll get
-different options than if you right click on a file. The `type` variable controls this behavior in the library, and you
-can reference this table to determine the `type`:
-
-| Name                 | Location                                                           | Action                                   |
-| -------------------- | ------------------------------------------------------------------ | ---------------------------------------- |
-| FILES                | HKEY_CURRENT_USER\\Software\\Classes\\\*\\shell\\                  | Opens on a file                          |
-| DIRECTORY            | HKEY_CURRENT_USER\\Software\\Classes\\Directory\\shell             | Opens on a directory                     |
-| DIRECTORY_BACKGROUND | HKEY_CURRENT_USER\\Software\\Classes\\Directory\\Background\\shell | Opens on the background of the Directory |
-| DRIVE                | HKEY_CURRENT_USER\\Software\\Classes\\Drive\\shell                 | Opens on the drives(think USBs)          |
-| DESKTOP              | Software\\Classes\\DesktopBackground\\shell                        | Opens on the background of the desktop   |
-
-* * *
-
-I strongly recommend checking out the [examples folder](examples) for more complicated examples and usage.
-
-You can check out the official documentation [here](https://context-menu.readthedocs.io/en/latest/index.html).
+*[Back to top](#documentation)*
 
 
-* * *
+#### Storage
+Storage is a component that gives an interface for manipulating [Policies](#policy) persistence in various places.
 
-# 🏁 Goals 🏁
+It provides the following methods:
+```python
+add(policy)                 # Store a Policy
+get(uid)                    # Retrieve a Policy by its ID
+get_all(limit, offset)      # Retrieve all stored Policies (with pagination)
+retrieve_all(batch)         # Retrieve all existing stored Policies (without pagination)
+update(policy)              # Store an updated Policy
+delete(uid)                 # Delete Policy from storage by its ID
+find_for_inquiry(inquiry)   # Retrieve Policies that match the given Inquiry
+```
 
-This project tackles some pretty big issues, and there's definetly some goals that I'd like to accomplish. The current roadmap is as follows:
+Storage may have various backend implementations (RDBMS, NoSQL databases, etc.), they also may vary in performance
+characteristics, so see [Caching](#caching) and [Benchmark](#benchmark) sections.
 
-* Support for other Linux distributions
-* Better approach to the Linux GNOME integration
-* Mac support
-* Bypass 16 entry limit on windows
+Vakt ships some Storage implementations out of the box. See below:
 
-If by all means you want to help reach these milestones, see contribution below.
+##### Memory
+Implementation that stores Policies in memory. It's not backed by any file or something, so every restart of your
+application will swipe out everything that was stored. Useful for testing.
 
-# 🙌 Contribution 🙌
+```python
+from vakt import MemoryStorage
 
-**I _really_ want to add support for MacOS, but I don't have the experience required to implement it.**
+storage = MemoryStorage()
+```
 
-Contributing is super simple! Create an additional branch and make a pull request with your changes. If the changes past the automated tests, it will be manually reviewed and merged accordingly.
+##### MongoDB
+MongoDB is chosen as the most popular and widespread NO-SQL database.
 
-Any and all help is appreciated, and if you have any questions, feel free to contact me directly.
 
-# 📓 Important notes 📓
+```python
+from pymongo import MongoClient
+from vakt.storage.mongo import MongoStorage
 
-- Almost all the errors I've encountered in testing were when the code and the functions were in the same file. You
-  should make a separate file for the code or surround it with `if __name__ == '__main__':`.
-- On windows, there's currently a 16 entry limit on the context menu.
+client = MongoClient('localhost', 27017)
+storage = MongoStorage(client, 'database-name', collection='optional-collection-name')
+```
 
-# 💻 Freshen - A context_menu project! 💻
+Default collection name is 'vakt_policies'.
 
-Feel free to check out a [file sorter](https://github.com/saleguas/freshen) program I made that directly implements this library.
+Actions are the same as for any Storage that conforms interface of `vakt.storage.abc.Storage` base class.
 
-[![Readme Card](https://github-readme-stats.vercel.app/api/pin/?username=saleguas&repo=freshen)](https://github.com/saleguas/freshen)
+Beware that currently MongoStorage supports indexed and filtered-out `find_for_inquiry()` only for
+StringExact, StringFuzzy and Regex (since MongoDB version 4.2 and onwards) checkers.
+When used with the RulesChecker it simply returns all the Policies from the database.
 
-# 💙 Support 💙
 
-All my work is and always will be free and open source. If you'd like to support me, **please consider leaving a ⭐ star ⭐**, as it motivates me and the community to keep working on this project.
+##### SQL
+SQL storage is backed by SQLAlchemy, thus it should support any RDBMS available for it:
+MySQL, Postgres, Oracle, MSSQL, Sqlite, etc.
 
-Thanks for reading!
+Given that we support various SQL databases via SQLAlchemy, we don't specify any DB-specific drivers in the vakt
+dependencies. It's up to the user to provide a desired one. For example: `psycopg2` or `PyMySQL`.
 
+Example for MySQL.
+
+```python
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker, scoped_session
+from vakt.storage.sql import SQLStorage
+
+engine = create_engine('mysql://root:root@localhost/vakt_db')
+storage = SQLStorage(scoped_session=scoped_session(sessionmaker(bind=engine)))
+
+# Don't forget to run migrations here (especially for the first time)
+...
+```
+
+Beware that currently SQLStorage supports indexed and filtered-out `find_for_inquiry()` only for
+StringExact, StringFuzzy and Regex checkers.
+When used with the RulesChecker it simply returns all the Policies from the database.
+
+Note that vakt focuses on testing SQLStorage functionality only for two most popular open-source databases:
+MySQL and Postgres. Other databases support may have worse performance characteristics and/or bugs.
+Feel free to report any issues.
+
+
+##### Redis
+Redis storage.
+
+RedisStorate stores all Policies in a hash whose key is the collection name and the hash'es key value pairs are
+Policy UID -> serialized Policy representation.
+
+Default collection name is "vakt_policies".
+
+You can use different Serializers. Any custom or one of the vakt's native.
+Just pass it to the `RedisStorage` constructor.
+
+Vakt is shipped with:
+- `JSONSerializer`
+- `PickleSerializer` - the fastest. Used as the default one.
+
+Due to serialization/deserialization Redis is not as fast as simple `MemoryStorage`.
+You can run the [benchmark](#benchmark) and check performance for your use-case.
+
+```python
+from redis import Redis
+from vakt.storage.redis import RedisStorage
+
+client = Redis('127.0.0.1', 6379)
+yield RedisStorage(client, collection='optional-policies-collection-name')
+client.flushdb()
+client.close()
+...
+```
+
+*[Back to top](#documentation)*
+
+
+#### Migration
+
+`vakt.migration` is a set of components that are useful from the perspective of the [Storage](#storage).
+It's recommended to favor it over manual actions on DB schema/data
+since it's aware of Vakt requirements to Policies data. But it's not mandatory, anyway.
+However it's up to a particular Storage to decide whether it needs migrations or not.
+It consists of 3 components:
+* `Migration`
+* `MigrationSet`
+* `Migrator`
+
+`Migration` allows you to describe data modifications between versions.
+Each storage can have a number of `Migration` classes to address different releases with the order of the migration
+specified in `order` property.
+Should be located inside particular storage module and implement `vakt.storage.migration.Migration`.
+Migration has 2 main methods (as you might guess) and 1 property:
+- `up` - runs db "schema" upwards
+- `down` - runs db "schema" downwards (rolls back the actions of `up`)
+- `order` - tells the number of the current migration in a row
+
+`MigrationSet` is a component that represents a collection of Migrations for a Storage.
+You should define your own migration-set. It should be located inside particular storage module and implement
+`vakt.storage.migration.MigrationSet`. It has 3 methods that lest unimplemented:
+- `migrations` - should return all initialized Migration objects
+- `save_applied_number` - saves a number of a lst applied up migration in the Storage for later reference
+- `last_applied` - returns a number of a lst applied up migration from the Storage
+
+`Migrator` is an executor of a migrations. It can execute all migrations up or down, or execute a particular migration
+if `number` argument is provided.
+
+Example usage:
+
+```python
+from pymongo import MongoClient
+from vakt.storage.mongo import MongoStorage, MongoMigrationSet
+from vakt.storage.migration import Migrator
+
+client = MongoClient('localhost', 27017)
+storage = MongoStorage(client, 'database-name', collection='optional-collection-name')
+
+migrator = Migrator(MongoMigrationSet(storage))
+migrator.up()
+...
+migrator.down()
+...
+migrator.up(number=2)
+...
+migrator.down(number=2)
+```
+
+*[Back to top](#documentation)*
+
+
+### Caching
+
+Vakt has several layers of caching, that serve a single purpose: speed up policy enforcement decisions.
+In most situations and use-cases you might want to use them all, thus they are designed not to
+interact with each other, but rather work in tandem
+(nonetheless you are free to use any single layer alone or any combination of them).
+That said let's look at all those layers.
+
+
+##### Caching [`RegexChecker`](#checker)
+
+It's relevant only for `RegexChecker` and allows to cache parsing and execution of regex-defined Policies,
+which can be very expensive
+due to inherently slow computational performance of regular expressions and vakt's parsing. When creating a `RegexChecker`
+you can specify a cache size for an in-memory
+[LRU (least recently used)](https://docs.python.org/3/library/functools.html#functools.lru_cache) cache. Currently
+only python's native LRU cache is supported.
+
+```python
+# preferably size is a power of 2
+chk = RegexChecker(cache_size=2048)
+
+# or simply
+chk = RegexChecker(2048)
+
+# or 512 by default
+chk = RegexChecker()
+```
+
+##### Caching the entire Storage backend
+
+Some vakt's Storages may be not very clever at filtering Policies at `find_for_inquiry` especially when dealing with
+Rule-based policies. In this case they return the whole set of the existing policies stored in the external storage.
+Needless to say that it makes your application very heavy IO-bound and decreases performance for large policy sets
+drastically. See [benchmark](#benchmark) for more details and exact numbers.
+
+In such a case you can use `EnfoldCache` that wraps your main storage (e.g. MongoStorage) into another one
+(it's meant to be some in-memory Storage). It returns you a Storage that behind the scene routes all the read-calls
+(get, get_all, find_for_inquiry, ...) to an in-memory one and all modify-calls (add, update, delete) to your main Storage (
+don't worry, in-memory Storage is kept up-to date with the main Storage). In case a requested policy is not found in in-memory Storage
+it's considered a cache miss and a request is routed to a main Storage.
+
+Also, in order to keep Storages in sync,
+when you initialize `EnfoldCache` the in-memory Storage will fetch all the existing Policies from a main one -
+therefore be forewarned that it might take some amount of time depending on the size of a policy-set.
+Optionally you can call `populate` method after initialization, but in this case __do not ever call any modify-related methods of
+EnfoldCache'd storage before `populate()`, otherwise Storages will be in an unsynchronized state and it'll
+result in broken `Guard` functionality.__
+
+```python
+from vakt import EnfoldCache, MemoryStorage, Policy, Guard, RegexChecker
+from vakt.storage.mongo import MongoStorage
+
+storage = EnfoldCache(MongoStorage(...), cache=MemoryStorage())
+storage.add(Policy(1, actions=['get']))
+
+...
+
+guard = Guard(storage, RegexChecker())
+```
+
+##### Caching the Guard
+
+`Guard.is_allowed` it the the centerpiece of vakt. Therefore it makes ultimate sense to cache it.
+And `create_cached_guard()` function allows you to do exactly that. You need to pass it a Storage, a Checker and a
+maximum size of a cache. It will return you a tuple of: Guard, Storage and AllowanceCache instance:
+
+- You must do all policies operations with the returned storage
+(which is a slightly enhanced version of a Storage you provided to the function).
+- The returned Guard is a normal vakt's `Guard`, but its `is_allowed` is cached with `AllowaceCache`.
+- The returned cache is an instance of `AllowaceCache` and has a handy method `info` that provides current state of the cache.
+
+How it works?
+
+Only the first Inquiry will be passed to `is_allowed`, all the subsequent answers for similar Inquiries will be taken
+from cache. `AllowanceCache` is rather coarse-grained and if you call Storage's `add`, `update` or `delete` the whole
+cache will be invalided because the policy-set has changed. However for stable policy-sets it is a good performance boost.
+
+By default `AllowanceCache` uses in-memory LRU cache and `maxsize` param is it's size. If for some reason it does not satisfy
+your needs, you can pass your own implementation of a cache backend that is a subclass of
+`vakt.cache.AllowanceCacheBackend` to `create_cached_guard` as a `cache` keyword argument.
+
+```python
+guard, storage, cache = create_cached_guard(MongoStorage(...), RulesChecker(), maxsize=256)
+
+p1 = Policy(1, actions=[Eq('get')], resources=[Eq('book')], subjects=[Eq('Max')], effect=ALLOW_ACCESS)
+storage.add(p1)
+
+# Given we have some inquiries that tend to repeat
+inq1 = Inquiry(action='get', resource='book', subject='Max')
+inq2 = Inquiry(action='get', resource='book', subject='Jamey')
+
+assert guard.is_allowed(inq1)
+assert guard.is_allowed(inq1)
+assert guard.is_allowed(inq1)
+assert not guard.is_allowed(inq2)
+assert guard.is_allowed(inq1)
+assert guard.is_allowed(inq1)
+
+# You can check cache state
+assert 4 == cache.info().hits
+assert 2 == cache.info().misses
+assert 2 == cache.info().currsize
+```
+
+*[Back to top](#documentation)*
+
+
+### JSON
+
+All Policies, Inquiries and Rules can be JSON-serialized and deserialized.
+
+For example, for a Policy all you need is just run:
+```python
+from vakt.policy import Policy
+
+policy = Policy('1')
+
+json_policy = policy.to_json()
+print(json_policy)
+# {"actions": [], "description": null, "effect": "deny", "uid": "1",
+# "resources": [], "context": {}, "subjects": []}
+
+policy = Policy.from_json(json_policy)
+print(policy)
+# <vakt.policy.Policy object at 0x1023ca198>
+```
+
+The same goes for Rules, Inquiries.
+All custom classes derived from them support this functionality as well.
+If you do not derive from Vakt's classes, but want this option, you can mix-in `vakt.util.JsonSerializer` class.
+
+```python
+from vakt.util import JsonSerializer
+
+class CustomInquiry(JsonSerializer):
+    pass
+```
+
+*[Back to top](#documentation)*
+
+
+### Logging
+
+Vakt follows a common logging pattern for libraries:
+
+Its corresponding modules log all the events that happen but the log messages by default are handled by `NullHandler`.
+It's up to the outer code/application to provide desired log handlers, filters, levels, etc.
+
+For example:
+
+```python
+import logging
+
+root = logging.getLogger()
+root.setLevel(logging.INFO)
+root.addHandler(logging.StreamHandler())
+
+... # here go all the Vakt calls.
+```
+
+Vakt logs can be comprehended in 2 basic levels:
+1. *Error/Exception* - informs about exceptions and errors during Vakt work.
+2. *Info* - informs about incoming inquiries, their resolution and policies responsible for this decisions
+('vakt.guard' and 'vakt.audit' streams).
+
+*[Back to top](#documentation)*
+
+
+### Audit
+
+Vakt allows you to not only watch the incoming inquiries and their resolution, but also keep track of the policies
+that were responsible for allowing or rejecting the inquiry. It's done via audit logging.
+
+Audit logging is implemented within a standard Python logging framework.
+You can enable it by subscribing to an audit ('vakt.audit') logging "stream".
+
+Example of configuration in the code:
+
+```python
+import logging
+
+logger = logging.getLogger('vakt.audit')
+logger.setLevel(logging.INFO)
+
+fmt = 'msg: %(message)s | effect: %(effect)s | deciders: %(deciders)s | candidates: %(candidates)s | inquiry: %(inquiry)s'
+fileHandler = logging.FileHandler('test.log')
+fileHandler.setFormatter(logging.Formatter(fmt))
+fileHandler.setLevel(logging.INFO)
+logger.addHandler(fileHandler)
+
+... # here go all the Vakt calls.
+```
+
+Vakt logs all audit records at the `INFO` level.
+
+The formatter supports the following fields:
+
+- message - the message that tells what and why happened in the audit.
+- effect - effect that this decision has: 'allow' or 'deny'.
+- candidates - potential policies that were filtered by storage and checkers and may be responsible for the decision.
+- deciders - policies that are responsible for the final decision.
+- inquiry - the inquiry in question.
+- all the standard Python logging fields like time, level, module name, etc.
+
+The `deciders` and `candidates` field can be logged in various ways depending on the the `audit_policies_cls`.
+It can be passed to the `Guard` constructor.
+
+Vakt has the following Audit Policies messages classes out of the box:
+
+- PoliciesNopMsg
+- PoliciesUidMsg (is the default one)
+- PoliciesDescriptionMsg
+- PoliciesCountMsg
+
+Refer to their documentation on how they represent the policies.
+
+**WARNING. Please note, that if you have Guard caching enabled, then audit records for the same subsequent inquiries won't be
+logged because the calls are cached. However the log records from 'vakt.guard' stream will be always logged -
+they will tell only was the inquiry allowed or not.**
+
+*[Back to top](#documentation)*
+
+
+### Milestones
+
+Most valuable features to be implemented in the order of importance:
+
+- [x] SQL Storage
+- [x] Rules that reference Inquiry data for Rule-based policies
+- [x] Caching mechanisms (for Storage and Guard)
+- [ ] YAML-based language for declarative policy definitions
+- [x] Enhanced audit logging
+- [x] Redis Storage
+
+*[Back to top](#documentation)*
+
+
+### Benchmark
+
+You can see how much time it takes for a single Inquiry to be processed given we have a number of unique Policies in a
+Storage.
+For [MemoryStorage](#memory) it measures the runtime of a decision-making process for all
+the existing Policies when [Guard's](#guard) code iterates the whole list of Policies to decide if
+Inquiry is allowed or not. In case of other Storages the mileage
+may vary since they may return a smaller subset of Policies that fit the given Inquiry.
+Don't forget that most external Storages add some time penalty to perform I/O operations.
+The runtime also depends on a Policy-type used (and thus checker): RulesChecker performs much better than RegexChecker.
+
+Example:
+
+```bash
+python3 benchmark.py --checker regex --storage memory -n 1000
+```
+
+Output is:
+> Populating MemoryStorage with Policies<br />
+> ......................<br />
+> START BENCHMARK!<br />
+> Number of unique Policies in DB: 1,000<br />
+> Among them Policies with the same regexp pattern: 0<br />
+> Checker used: RegexChecker<br />
+> Storage used: MemoryStorage<br />
+> Number of concurrent threads: 1<br />
+> Decision for Inquiry took (mean: 0.2062 seconds. stdev: 0.0000)<br />
+> Inquiry passed the guard? False<br />
+
+Script usage:
+```
+usage: benchmark.py [-h] [-n [POLICIES_NUMBER]] [-s {mongo,memory,sql,redis}] [-d [SQL_DSN]] [-c {regex,rules,exact,fuzzy}]
+                    [-t [THREADS]] [--regexp] [--same SAME] [--cache CACHE] [--serializer {json,pickle}]
+
+Run vakt benchmark.
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -n [POLICIES_NUMBER], --number [POLICIES_NUMBER]
+                        number of policies to create in DB (default: 100000)
+  -s {mongo,memory,sql,redis}, --storage {mongo,memory,sql,redis}
+                        type of storage (default: memory)
+  -d [SQL_DSN], --dsn [SQL_DSN]
+                        DSN connection string for sql storage (default: sqlite:///:memory:)
+  -c {regex,rules,exact,fuzzy}, --checker {regex,rules,exact,fuzzy}
+                        type of checker (default: regex)
+  -t [THREADS], --threads [THREADS]
+                        number of concurrent requests (default: 1)
+
+regex policy related:
+  --regexp              should Policies be defined without Regex syntax? (default: True)
+  --same SAME           number of similar regexps in Policy
+  --cache CACHE         number of LRU-cache for RegexChecker (default: RegexChecker's default cache-size)
+
+Redis Storage related:
+  --serializer {json,pickle}
+                        type of serializer for policies stored in Redis (default: json)
+```
+
+*[Back to top](#documentation)*
+
+
+### Acknowledgements
+
+Initial code ideas of Vakt are based on
+[Amazon IAM Policies](https://github.com/awsdocs/iam-user-guide/blob/master/doc_source/access_policies.md) and
+[Ladon](https://github.com/ory/ladon) Policies SDK as its reference implementation.
+
+*[Back to top](#documentation)*
+
+
+### Development
+
+To hack Vakt locally run:
+
+```bash
+$ ...                              # activate virtual environment w/ preferred method (optional)
+$ pip install -e .[dev,mongo,sql,redis]  # to install all dependencies
+$ pytest -m "not integration"      # to run non-integration tests with coverage report
+$ pytest --cov=vakt tests/         # to get coverage report
+$ pylint vakt                      # to check code quality with PyLint
+```
+
+To run only integration tests (for Storage adapters other than `MemoryStorage`):
+
+```bash
+$ docker run --rm -d -p 27017:27017 mongo
+$ # run sql and Redis database here as well...
+$ pytest -m integration
+$ pytest -m sql_integration
+```
+
+Optionally you can use `make` to perform development tasks.
+
+*[Back to top](#documentation)*
+
+
+### License
+
+The source code is licensed under Apache License Version 2.0
+
+*[Back to top](#documentation)*
