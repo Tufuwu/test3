@@ -1,237 +1,212 @@
-## marshmallow-jsonschema: JSON Schema formatting with marshmallow
+About
+=====
 
-![Build Status](https://github.com/fuhrysteve/marshmallow-jsonschema/workflows/build/badge.svg)
-[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/python/black)
+This is a Japanese-English dictionary based on the
+[JMdict](http://www.edrdg.org/jmdict/j_jmdict.html) and [JMnedict](https://www.edrdg.org/enamdict/enamdict_doc.html) and [Tatoeba](https://tatoeba.org/) database for
+_e-Ink_ Kindle devices.
 
- marshmallow-jsonschema translates marshmallow schemas into
- JSON Schema Draft v7 compliant jsonschema. See http://json-schema.org/
+Features:
 
-#### Why would I want my schema translated to JSON?
+* lookup of inflected verbs.
+* lookup for Japanese names.
+* Example sentences
+* Pronunciation
+* the dictionaries can be downloaded as separate files or as one big dictionary
 
-What are the use cases for this? Let's say you have a
-marshmallow schema in python, but you want to render your
-schema as a form in another system (for example: a web browser
-or mobile device).
+<!--
+Screenshots were captured inside the Kindle device as explained in
+http://blog.blankbaby.com/2012/10/take-a-screenshot-on-a-kindle-paperwhite.html
+then processed with ImageMagick's
+`mogrify -colorspace gray -level 0%,111.11% -define PNG:compression-level=9`
+to look like E-Ink display.
+-->
 
-#### Installation
+| ![Inflection lookup screenshot](screenshots/inflection.png) | ![Sentence lookup screenshot](screenshots/sentences.png) |
+|-------------------------------------------------------------|----------------------------------------------------------|
+| ![Word lookup screenshot](screenshots/word.png)             | ![Name lookup screenshot](screenshots/name.png)          |
 
-Requires python>=3.6 and marshmallow>=3.11. (For python 2 & marshmallow 2 support, please use marshmallow-jsonschema<0.11)
+Supported Devices
+=================
 
-```
-pip install marshmallow-jsonschema
-```
+The dictionary has been tested on _Kindle Paperwhite_ and _Kindle Oasis_.  It _should_ also work
+well with other _e-ink_ Kindle devices
 
-#### Some Client tools can render forms using JSON Schema
-
-* [react-jsonschema-form](https://github.com/mozilla-services/react-jsonschema-form) (recommended)
-  * See below extension for this excellent library!
-* https://github.com/brutusin/json-forms
-* https://github.com/jdorn/json-editor
-* https://github.com/ulion/jsonform
-
-### Examples
-
-#### Simple Example
-
-```python
-from marshmallow import Schema, fields
-from marshmallow_jsonschema import JSONSchema
-
-class UserSchema(Schema):
-    username = fields.String()
-    age = fields.Integer()
-    birthday = fields.Date()
-
-user_schema = UserSchema()
-
-json_schema = JSONSchema()
-json_schema.dump(user_schema)
-```
-
-Yields:
-
-```python
-{'properties': {'age': {'format': 'integer',
-                        'title': 'age',
-                        'type': 'number'},
-                'birthday': {'format': 'date',
-                             'title': 'birthday',
-                             'type': 'string'},
-                'username': {'title': 'username', 'type': 'string'}},
- 'required': [],
- 'type': 'object'}
-```
-
-#### Nested Example
-
-```python
-from marshmallow import Schema, fields
-from marshmallow_jsonschema import JSONSchema
-from tests import UserSchema
+The dictionary will *not* work well on _Kindle Fire_ or _Kindle Android App_,
+or any Android based Kindle, because the Kindle software on those platforms
+does not support inflection lookups.
 
 
-class Athlete(object):
-    user_schema = UserSchema()
+Download
+========
 
-    def __init__(self):
-        self.name = 'sam'
-
-
-class AthleteSchema(Schema):
-    user_schema = fields.Nested(JSONSchema)
-    name = fields.String()
-
-    
-athlete = Athlete()
-athlete_schema = AthleteSchema()
-
-athlete_schema.dump(athlete)
-```
-
-#### Complete example Flask application using brutisin/json-forms
-
-![Screenshot](http://i.imgur.com/jJv1wFk.png)
-
-This example renders a form not dissimilar to how [wtforms](https://github.com/wtforms/wtforms) might render a form.
-
-However rather than rendering the form in python, the JSON Schema is rendered using the
-javascript library [brutusin/json-forms](https://github.com/brutusin/json-forms).
+You can download the latest version of the dictionary from
+[here](https://github.com/jrfonseca/jmdict-kindle/releases).
 
 
-```python
-from flask import Flask, jsonify
-from marshmallow import Schema, fields
-from marshmallow_jsonschema import JSONSchema
+Install
+=======
 
-app = Flask(__name__)
+_e-Ink_ Kindle
+-----------------
 
+There are in total 3 dictionaries:
 
-class UserSchema(Schema):
-    name = fields.String()
-    address = fields.String()
+* `jmdict.mobi`: Contains data from the JMedict database, with additional examples. It does not contain proper names.
+* `jmnedict.mobi`: Contains Japanese proper names from the JMnedict databse.
+* `combined.mobi`: Contains the data from both of the above dictionaries. _Please note that a lot of features are missing from the combined dictionary (sentences, pronunciation, ...) due to size constraints. Therefore, it is not suggested to use this dictionary_.
 
+To install any of the dictionaries (you can also install all three of them) into your device follow these steps:
 
-@app.route('/schema')
-def schema():
-    schema = UserSchema()
-    return jsonify(JSONSchema().dump(schema))
+* for 1st-generation Kindle Paperwhite devices, ensure you have
+  [firmware version 5.3.9 or higher](http://www.amazon.com/gp/help/customer/display.html/ref=hp_left_cn?ie=UTF8&nodeId=201064850) as it includes improved homonym lookup for Japanese;
+* connect your Kindle device via USB;
+* copy the the `.mobi` file for the dictionary you want to use to the `documents/dictionaries` sub-folder;
+* eject the USB device;
+* on your device go to
+  _Home > Settings > Device Options > Language and Dictionaries > Dictionaries_
+  and set _JMdict Japanese-English Dictionary_ as the default dictionary for
+  Japanese.
 
+Kindle Android App
+------------------
 
-@app.route('/')
-def home():
-    return '''<!DOCTYPE html>
-<head>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/brutusin.json-forms/1.3.0/css/brutusin-json-forms.css"><Paste>
-<script src="https://code.jquery.com/jquery-1.12.1.min.js" integrity="sha256-I1nTg78tSrZev3kjvfdM5A5Ak/blglGzlaZANLPDl3I=" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.string/3.3.4/underscore.string.min.js"></script>
-<script src="https://cdn.jsdelivr.net/brutusin.json-forms/1.3.0/js/brutusin-json-forms.min.js"></script>
-<script>
-$(document).ready(function() {
-    $.ajax({
-        url: '/schema'
-        , success: function(data) {
-            var container = document.getElementById('myform');
-            var BrutusinForms = brutusin["json-forms"];
-            var bf = BrutusinForms.create(data);
-            bf.render(container);
-        }
-    });
-});
-</script>
-</head>
-<body>
-<div id="myform"></div>
-</body>
-</html>
-'''
+**NOTE: Unfortunately the Kindle Android App does not support dictionary inflections, yielding verbs lookup practically impossible. No known workaround.**
 
+* rename `jmdict.mobi` or any of the other two dictionaries as `B005FNK020_EBOK.prc`
 
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', debug=True)
+* connect your Android device via USB
 
-```
+* copy `B005FNK020_EBOK.prc` into `Internal Storage/Android/data/com.amazon.kindle/files/` or `/sdcard/android/data/com.amazon.kindle/files`
 
+This will override the
+[default Japanese-Japanese dictionary](https://kindle.amazon.com/work/daijisen-x5927-x8f9e-japanese-edition-ebook/B005FNK020/B005FNK020).
 
-### Advanced usage
-#### Custom Type support
+Kindle iOS App
+------------------
 
-Simply add a `_jsonschema_type_mapping` method to your field
-so we know how it ought to get serialized to JSON Schema.
+The steps for iOS App are [similar](https://learnoutlive.com/add-german-english-dictionary-to-kindle-on-your-ipad-or-iphone-ios/) the Android App above.  **Unfortunately the Kindle iOS App [seems to suffer from the same limitations regarding inflections](https://github.com/jrfonseca/jmdict-kindle/issues/15).**
 
-A common use case for this is creating a dropdown menu using
-enum (see Gender below).
+Pitch accent information
+====================
 
+The pitch accent information is encoded in the following way:
+* <ins>Underline</ins> for __Low__
+* No Formatting for __High__
+* ꜜ for a sudden __Drop__ in pitch
+* ° for a __Nasal__ sound
+* If no formatting whatsoever is present then we do not have pitch information for that particular entry
 
-```python
-class Colour(fields.Field):
+Examples: 
+* <ins>じ</ins>たい means L-H-H
+* <ins>ね</ins>が°ꜜ<ins>い</ins> means L-Hꜜ-L
+* <ins>ぜ</ins>んしん means L-H-H-H
+* <ins>ひ</ins>とꜜ means L-Hꜜ-(L) _[The (L) means the next sound after ひと will be low. E.g. ひとが (L-H-L)]_
 
-    def _jsonschema_type_mapping(self):
-        return {
-            'type': 'string',
-        }
+For more information see [Japanese pitch accent - Wikipedia](https://en.wikipedia.org/wiki/Japanese_pitch_accent)
 
-    def _serialize(self, value, attr, obj):
-        r, g, b = value
-        r = "%02X" % (r,)
-        g = "%02X" % (g,)
-        b = "%02X" % (b,)
-        return '#' + r + g + b 
+Building from source
+====================
 
-class Gender(fields.String):
-    def _jsonschema_type_mapping(self):
-        return {
-            'type': 'string',
-            'enum': ['Male', 'Female']
-        }
+[![Build](https://github.com/jrfonseca/jmdict-kindle/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/jrfonseca/jmdict-kindle/actions/workflows/build.yml)
 
+Requirements:
 
-class UserSchema(Schema):
-    name = fields.String(required=True)
-    favourite_colour = Colour()
-    gender = Gender()
+* Linux, Windows with Cygwin or WSL (might also work on macOS with a few changes)
+* Kindle Previewer if building on Windows or WSL [Kindle Previewer](https://kdp.amazon.com/en_US/help/topic/G202131170)
 
-schema = UserSchema()
-json_schema = JSONSchema()
-json_schema.dump(schema)
+  * Kindle Previewer has to be added to PATH. If normally installed add it by executing (for this change to take effect, please close all cmd and powershell windows):
+  ```powershell
+  Set-ItemProperty -Path 'Registry::HKEY_CURRENT_USER\Environment' -Name PATH -Value ((Get-ItemProperty -Path 'Registry::HKEY_CURRENT_USER\Environment' -Name PATH).path + ";$env:APPDATA\Amazon")
+  ```
+
+* Python version 3
+
+  * [Pycairo](http://www.cairographics.org/pycairo)
+  * [Pillow](http://pillow.readthedocs.io/en/latest/)
+  * [htmlmin](https://htmlmin.readthedocs.io/en/latest/index.html)
+
+Inside of the makefile you can change the max number of sentences per entry, compression, as well as which sentences to include:
+
+```makefile
+# The Kindle Publishing Guidelines recommend -c2 (huffdic compression),
+# but it is excruciatingly slow. That's why -c1 is selected by default.
+# Compression currently is not officially supported by Kindle Previewer according to the documentation
+COMPRESSION ?= 1
+
+# Sets the max sentences per entry only for the jmdict.mobi.
+# It is ignored by combined.mobi due to size restrictions.
+# If there are too many sentences for the combined dictionary,
+# it will not build (exceeds 650MB size limit). The amount is limited to 0 in this makefile for the combined.mobi
+SENTENCES ?= 5
+
+# This flag determines wheter only good and verified sentences are used in the
+# dictionary. Set it to TRUE if you only want those sentences.
+# It is only used by jmdict.mobi
+# It is ignored bei combined.mobi. There it is always true
+# This is due to size constraints.
+ONLY_CHECKED_SENTENCES ?= FALSE
+
+# If true adds pronunciations to entries. The combined dictionary ignores this flag due to size constraints
+PRONUNCIATIONS ?= TRUE
+
+# If true adds additional information to entries. The combined dictionary ignores this flag due to size constraints
+ADDITIONAL_INFO ?= TRUE
 ```
 
+Build with make to create all 3 dictionaries (_Note the combined dictionary will not build with Kindle Previewer due to size constraints_):
+```
+make
+```
+or use any of the following commands to create a specific one:
+```
+make jmdict.mobi
+make jmnedict.mobi
+make combined.mobi
+```
 
-### React-JSONSchema-Form Extension
+If you build it on WSL the commands are as follows:
+```
+make ISWSL=TRUE
+```
+or use any of the following commands to create a specific one:
+```
+make jmdict.mobi ISWSL=TRUE
+make jmnedict.mobi ISWSL=TRUE
+make combined.mobi ISWSL=TRUE
+```
 
-[react-jsonschema-form](https://react-jsonschema-form.readthedocs.io/en/latest/)
-is a library for rendering jsonschemas as a form using React. It is very powerful
-and full featured.. the catch is that it requires a proprietary
-[`uiSchema`](https://react-jsonschema-form.readthedocs.io/en/latest/form-customization/#the-uischema-object)
-to provide advanced control how the form is rendered.
-[Here's a live playground](https://rjsf-team.github.io/react-jsonschema-form/)
+Create a Pull Request
+=====
+Before making a pull request please ensure the formatting of your python code is correct. To do this please install [black](https://pypi.org/project/black/) and run
 
-*(new in version 0.10.0)*
+```powershell
+black .
+```
 
-```python
-from marshmallow_jsonschema.extensions import ReactJsonSchemaFormJSONSchema
+To do
+=====
 
-class MySchema(Schema):
-    first_name = fields.String(
-        metadata={
-            'ui:autofocus': True,
-        }
-    )
-    last_name = fields.String()
+* Leverage more of the JMdict data:
 
-    class Meta:
-        react_uischema_extra = {
-            'ui:order': [
-                'first_name',
-                'last_name',
-            ]
-        }
+  * cross references
+* Add Furigana to example sentences
+* Create better covers
 
 
-json_schema_obj = ReactJsonSchemaFormJSONSchema()
-schema = MySchema()
+Credits
+=======
 
-# here's your jsonschema
-data = json_schema_obj.dump(schema)
+* Jim Breen and the [JMdict/EDICT project](http://www.edrdg.org/jmdict/j_jmdict.html) as well as the [ENAMDICT/JMnedict](https://www.edrdg.org/enamdict/enamdict_doc.html)
+* The [Tatoeba](https://tatoeba.org/) project
+* John Mettraux for his [EDICT2 Japanese-English Kindle dictionary](https://github.com/jmettraux/edict2-kindle)
+* Choplair-network for their [Nihongo conjugator](http://www.choplair.org/?Nihongo%20conjugator)
+* javdejong for the [pronunciation data and the parser](https://github.com/javdejong/nhk-pronunciation)
+* mifunetoshiro for the [additional pronunciation data](https://github.com/mifunetoshiro/kanjium/blob/main/data/source_files/raw/accents.txt)
 
-# ..and here's your uiSchema!
-ui_schema_json = json_schema_obj.dump_uischema(schema)
+
+Alternatives
+============
+
+* [John Mettraux's EDICT2 Japanese-English Kindle dictionary](https://github.com/jmettraux/edict2-kindle)
+
+* [Amazon Kindle Store](http://www.amazon.com/s/url=search-alias%3Ddigital-text&field-keywords=japanese+english+dictionary)
