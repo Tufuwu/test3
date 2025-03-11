@@ -1,19 +1,218 @@
-name: Run tests
-on: [push]
+name: Tufuwu/test2
+on:
+  push:
+    branches:
+    - "**/*"
+  pull_request:
+#   # This item has no matching transformer
+#   maximum_number_of_builds: 0
 jobs:
-  tests:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
-        python: ["3.9", "3.10"]
+  test:
+    runs-on: ubuntu-latest
+    env:
+      TOX_ENV: py27
     steps:
-      - uses: actions/checkout@v2
-      - name: Setup Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: ${{ matrix.python }}
-      - name: Install tox and any other packages
-        run: pip install tox
-      - name: Run tox
-        run: tox -e py,flake8
+    - name: checkout
+      uses: actions/checkout@v4.1.0
+    - run: rm -rf ${{ github.workspace }}/.cache/pip/log
+    - name: Set up cache
+      uses: actions/cache@v3.3.2
+      with:
+        path: "${{ github.workspace }}/.cache/pip"
+        key: "${{ runner.os }}-path"
+    - uses: actions/setup-python@v5.0.0
+      with:
+        python-version: 3.9
+#     # 'sudo' was not transformed because there is no suitable equivalent in GitHub Actions
+    - run: pip install tox
+    - run: tox -e $TOX_ENV
+  test_2:
+    runs-on: ubuntu-latest
+    env:
+      TOX_ENV: py33
+    steps:
+    - name: checkout
+      uses: actions/checkout@v4.1.0
+    - run: rm -rf ${{ github.workspace }}/.cache/pip/log
+    - name: Set up cache
+      uses: actions/cache@v3.3.2
+      with:
+        path: "${{ github.workspace }}/.cache/pip"
+        key: "${{ runner.os }}-path"
+    - uses: actions/setup-python@v5.0.0
+      with:
+        python-version: 3.9
+#     # 'sudo' was not transformed because there is no suitable equivalent in GitHub Actions
+    - run: pip install tox
+    - run: tox -e $TOX_ENV
+  test_3:
+    runs-on: ubuntu-latest
+    env:
+      TOX_ENV: py34
+    steps:
+    - name: checkout
+      uses: actions/checkout@v4.1.0
+    - run: rm -rf ${{ github.workspace }}/.cache/pip/log
+    - name: Set up cache
+      uses: actions/cache@v3.3.2
+      with:
+        path: "${{ github.workspace }}/.cache/pip"
+        key: "${{ runner.os }}-path"
+    - uses: actions/setup-python@v5.0.0
+      with:
+        python-version: 3.9
+#     # 'sudo' was not transformed because there is no suitable equivalent in GitHub Actions
+    - run: pip install tox
+    - run: tox -e $TOX_ENV
+  test_4:
+    runs-on: ubuntu-latest
+    env:
+      TOX_ENV: py35
+    steps:
+    - name: checkout
+      uses: actions/checkout@v4.1.0
+    - run: rm -rf ${{ github.workspace }}/.cache/pip/log
+    - name: Set up cache
+      uses: actions/cache@v3.3.2
+      with:
+        path: "${{ github.workspace }}/.cache/pip"
+        key: "${{ runner.os }}-path"
+    - uses: actions/setup-python@v5.0.0
+      with:
+        python-version: 3.9
+#     # 'sudo' was not transformed because there is no suitable equivalent in GitHub Actions
+    - run: pip install tox
+    - run: tox -e $TOX_ENV
+  test_5:
+    runs-on: ubuntu-latest
+    env:
+      TOX_ENV: py36
+    steps:
+    - name: checkout
+      uses: actions/checkout@v4.1.0
+    - run: rm -rf ${{ github.workspace }}/.cache/pip/log
+    - name: Set up cache
+      uses: actions/cache@v3.3.2
+      with:
+        path: "${{ github.workspace }}/.cache/pip"
+        key: "${{ runner.os }}-path"
+    - uses: actions/setup-python@v5.0.0
+      with:
+        python-version: 3.9
+#     # 'sudo' was not transformed because there is no suitable equivalent in GitHub Actions
+    - run: pip install tox
+    - run: tox -e $TOX_ENV
+  test_6:
+    runs-on: ubuntu-latest
+    env:
+      TOX_ENV: py37
+    steps:
+    - name: checkout
+      uses: actions/checkout@v4.1.0
+    - run: rm -rf ${{ github.workspace }}/.cache/pip/log
+    - name: Set up cache
+      uses: actions/cache@v3.3.2
+      with:
+        path: "${{ github.workspace }}/.cache/pip"
+        key: "${{ runner.os }}-path"
+    - uses: actions/setup-python@v5.0.0
+      with:
+        python-version: 3.9
+#     # 'sudo' was not transformed because there is no suitable equivalent in GitHub Actions
+    - run: pip install tox
+    - run: tox -e $TOX_ENV
+  test_7:
+    runs-on: ubuntu-latest
+    env:
+      TOX_ENV: py38
+    steps:
+    - name: checkout
+      uses: actions/checkout@v4.1.0
+    - run: rm -rf ${{ github.workspace }}/.cache/pip/log
+    - name: Set up cache
+      uses: actions/cache@v3.3.2
+      with:
+        path: "${{ github.workspace }}/.cache/pip"
+        key: "${{ runner.os }}-path"
+    - uses: actions/setup-python@v5.0.0
+      with:
+        python-version: 3.9
+#     # 'sudo' was not transformed because there is no suitable equivalent in GitHub Actions
+    - run: pip install tox
+    - run: tox -e $TOX_ENV
+  test_8:
+    runs-on: ubuntu-latest
+    env:
+      TOX_ENV: py39
+    steps:
+    - name: checkout
+      uses: actions/checkout@v4.1.0
+    - run: rm -rf ${{ github.workspace }}/.cache/pip/log
+    - name: Set up cache
+      uses: actions/cache@v3.3.2
+      with:
+        path: "${{ github.workspace }}/.cache/pip"
+        key: "${{ runner.os }}-path"
+    - uses: actions/setup-python@v5.0.0
+      with:
+        python-version: 3.9
+#     # 'sudo' was not transformed because there is no suitable equivalent in GitHub Actions
+    - run: pip install tox
+    - run: tox -e $TOX_ENV
+  test_9:
+    runs-on: ubuntu-latest
+    env:
+      TOX_ENV: py310
+    steps:
+    - name: checkout
+      uses: actions/checkout@v4.1.0
+    - run: rm -rf ${{ github.workspace }}/.cache/pip/log
+    - name: Set up cache
+      uses: actions/cache@v3.3.2
+      with:
+        path: "${{ github.workspace }}/.cache/pip"
+        key: "${{ runner.os }}-path"
+    - uses: actions/setup-python@v5.0.0
+      with:
+        python-version: 3.9
+#     # 'sudo' was not transformed because there is no suitable equivalent in GitHub Actions
+    - run: pip install tox
+    - run: tox -e $TOX_ENV
+  test_10:
+    runs-on: ubuntu-latest
+    env:
+      TOX_ENV: pypy
+    steps:
+    - name: checkout
+      uses: actions/checkout@v4.1.0
+    - run: rm -rf ${{ github.workspace }}/.cache/pip/log
+    - name: Set up cache
+      uses: actions/cache@v3.3.2
+      with:
+        path: "${{ github.workspace }}/.cache/pip"
+        key: "${{ runner.os }}-path"
+    - uses: actions/setup-python@v5.0.0
+      with:
+        python-version: pypy
+#     # 'sudo' was not transformed because there is no suitable equivalent in GitHub Actions
+    - run: pip install tox
+    - run: tox -e $TOX_ENV
+  test_11:
+    runs-on: ubuntu-latest
+    env:
+      TOX_ENV: flake8
+    steps:
+    - name: checkout
+      uses: actions/checkout@v4.1.0
+    - run: rm -rf ${{ github.workspace }}/.cache/pip/log
+    - name: Set up cache
+      uses: actions/cache@v3.3.2
+      with:
+        path: "${{ github.workspace }}/.cache/pip"
+        key: "${{ runner.os }}-path"
+    - uses: actions/setup-python@v5.0.0
+      with:
+        python-version: 3.9
+#     # 'sudo' was not transformed because there is no suitable equivalent in GitHub Actions
+    - run: pip install tox
+    - run: tox -e $TOX_ENV
