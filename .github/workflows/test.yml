@@ -1,24 +1,30 @@
-name: Tufuwu/test2
-on:
-  push:
-    branches:
-    - "**/*"
-  pull_request:
-#   # This item has no matching transformer
-#   maximum_number_of_builds: 0
+name: Python CI
+
+on: [push, pull_request]
+
 jobs:
-  test:
+  build:
     runs-on: ubuntu-latest
-    steps:
-    - name: checkout
-      uses: actions/checkout@v4.1.0
-    - uses: actions/setup-python@v5.0.0
-      with:
-        python-version: "${{ matrix.python }}"
-    - run: travis_retry pip install coverage coveralls
-    - run: python -m coverage run --source=cologne_phonetics test_cologne_phonetics.py
-    - run: coveralls
-      if: "${{ success() }}"
+
     strategy:
       matrix:
-        python: ["3.9", "3.10", "3.11"]
+        python-version: ['3.9', '3.10']
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install coverage coveralls
+
+      - name: Run tests
+        run: |
+          python -m coverage run --source=cologne_phonetics test_cologne_phonetics.py
+
+      - name: Upload coverage to coveralls
+        run: coveralls
