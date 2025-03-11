@@ -1,24 +1,19 @@
-name: Python CI
-
-on: [push, pull_request]
-
+name: Tests
+on: [push]
 jobs:
-  build:
-
+  tests:
+    name: ${{ matrix.python-version }}
     runs-on: ubuntu-latest
-
     strategy:
+      fail-fast: false
       matrix:
-        python-version: ['3.9', '3.10', '3.11']
-
+        python-version: ["3.9", "3.10"]
     steps:
-    - uses: actions/checkout@v2
-    - name: Set up Python
-      uses: actions/setup-python@v2
-      with:
-        python-version: ${{ matrix.python-version }}
-    - name: Install dependencies
-      run: |
-        pip install peewee flask wtforms wtf-peewee
-    - name: Run tests
-      run: python runtests.py
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: pip deps
+        run: pip install peewee wtforms
+      - name: runtests
+        run: python runtests.py

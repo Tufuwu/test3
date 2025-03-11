@@ -1,9 +1,8 @@
 #!/usr/bin/env python
-import os
 import sys
 import unittest
 
-from flask_peewee import tests
+from wtfpeewee import tests
 
 def runtests(*test_args):
     suite = unittest.TestLoader().loadTestsFromModule(tests)

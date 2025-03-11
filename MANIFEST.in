@@ -1,6 +1,4 @@
 include LICENSE
-include README.rst
-recursive-include docs *
+include README.md
+include runtests.py
 recursive-include example *
-recursive-include flask_peewee *
-prune docs/_build
