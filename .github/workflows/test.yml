@@ -1,18 +1,22 @@
-on: [push]
-name: tests
+name: Tufuwu/test2
+on:
+  push:
+    branches:
+    - "**/*"
+  pull_request:
+#   # This item has no matching transformer
+#   maximum_number_of_builds: 0
 jobs:
-  tests:
+  test:
     runs-on: ubuntu-latest
     steps:
-      - name: checkout
-        uses: actions/checkout@v2
-        with:
-          submodules: "recursive"
-      - name: pip
-        run: |
-          pip install codecov
-          pip install coverage
-      - name: test
-        run: |
-          coverage run jsn.py -i example.jsn -o test.json -I import_dir
-          codecov
+    - name: checkout
+      uses: actions/checkout@v4.1.0
+    - uses: actions/setup-python@v5.0.0
+      with:
+        python-version: '3.9'
+    - run: pip install codecov
+    - run: pip install coverage
+    - run: coverage run jsn.py -i example.jsn -o test.json -I import_dir
+    - run: codecov
+      if: "${{ success() }}"
