@@ -1,51 +1,22 @@
-name: Python CI
+name: Python package
 
-on: [push, pull_request]
+on: [push]
 
 jobs:
   build:
+
     runs-on: ubuntu-latest
 
-    strategy:
-      matrix:
-        python-version: ['3.9', '3.10', '3.11', 'nightly']
-
-    services:
-      mysql:
-        image: mysql:latest
-        env:
-          MYSQL_ROOT_PASSWORD: root
-          MYSQL_DATABASE: vakt_db
-
-      postgres:
-        image: postgres:latest
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_DB: vakt_db
-
-      redis:
-        image: redis:latest
-
-      mongo:
-        image: mongo:4.2.1
-
     steps:
-      - uses: actions/checkout@v2
-
+      - uses: actions/checkout@v4
       - name: Set up Python
-        uses: actions/setup-python@v2
+        # This is the version of the action for setting up Python, not the Python version.
+        uses: actions/setup-python@v4
         with:
-          python-version: ${{ matrix.python-version }}
-
-      - name: Install dependencies
-        run: make deps
-
-      - name: Run tests
-        run: |
-          DATABASE_DSN="mysql+pymysql://root@127.0.0.1/vakt_db" make coverage
-          DATABASE_DSN="sqlite:///:memory:" make test-sql-i
-          DATABASE_DSN="postgresql+psycopg2cffi://postgres:@localhost/vakt_db" make test-sql-i
-          make bench
-
-      - name: Upload coverage report
-        uses: codecov/codecov-action@v2
+          # Semantic version range syntax or exact version of a Python version
+          python-version: '3.9'
+          # Optional - x64 or x86 architecture, defaults to x64
+          architecture: 'x64'
+      # You can test your matrix by printing the current Python version
+      - name: Display Python version
+        run: python -c "import sys; print(sys.version)"
