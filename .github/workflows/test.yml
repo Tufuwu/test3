@@ -1,46 +1,26 @@
-name: Python CI
-
 on:
-  push:
-    branches:
-      - main
+  push: {}
   pull_request:
-    branches:
-      - main
-
+    types: [opened, reopened, synchronize]
+name: CI
 jobs:
-  build:
-
+  test:
     runs-on: ubuntu-latest
-
     strategy:
       matrix:
-        python-version: ['3.9', '3.10']
-
+        python-version: ["3.9", "3.10"]
     steps:
-    - uses: actions/checkout@v2
-
-    - name: Set up Python ${{ matrix.python-version }}
+    - name: Check out source code
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+    - name: Set up Python
       uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python-version }}
-
     - name: Install dependencies
       run: |
-        python -m pip install --upgrade pip
-        pip install -r test_requirements.txt
-        pip install .
-        pip install coveralls
-        pip install codeclimate-test-reporter
-        pip install pytest-cov
-
+        pip install -e .
     - name: Run tests
       run: |
-        py.test --cov=pycec tests/
-        coverage run --source=pycec setup.py test
-        coverage run --source=pycec `which py.test`
-
-    - name: Generate reports
-      run: |
-        codeclimate-test-reporter
-        coveralls
+        python -m unittest discover

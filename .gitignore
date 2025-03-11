@@ -1,8 +1,18 @@
-.idea
-build
-.eggs
-.cache
-.coverage
-pyCEC.egg-info
-dist
-__pycache__
+# Python
+__pycache__/
+*.egg-info
+/dist
+
+# pdm
+/.pdm-plugins
+/.pdm-python
+/.venv
+/pdm.lock
+
+# coverage
+/.coverage
+/htmlcov
+
+# tests
+*.vcd
+*.gtkw
