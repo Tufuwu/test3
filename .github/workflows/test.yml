@@ -1,42 +1,25 @@
-# This workflow will install Python dependencies, run tests and lint with a variety of Python versions
-# For more information see: https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
-
-name: test
-
-on: [ push, pull_request]
-
+name: Tufuwu/test2
+on:
+  push:
+    branches:
+    - "**/*"
+  pull_request:
+#   # This item has no matching transformer
+#   maximum_number_of_builds: 0
 jobs:
-  build:
-
+  test:
     runs-on: ubuntu-latest
+    steps:
+    - name: checkout
+      uses: actions/checkout@v4.1.0
+    - uses: actions/setup-python@v5.0.0
+      with:
+        python-version: "${{ matrix.python }}"
+    - run: pip install -r requirements-test.txt
+    - run: python -m unittest discover -s tests
+    - run: coverage run run_tests.py && coverage report -m
+#     # This item has no matching transformer
+#     - email: false
     strategy:
       matrix:
-        python-version: ["3.9", "3.10"]
-
-    steps:
-    - uses: actions/checkout@v2
-
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
-      with:
-        python-version: ${{ matrix.python-version }}
-
-    - name: Install dependencies
-      run: |
-        sudo apt install -y libgirepository1.0-dev
-        python -m pip install --upgrade pip
-        python -m pip install flake8 pytest
-        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-
-    - name: Lint with flake8
-      run: |
-        # stop the build if there are Python syntax errors or undefined names
-        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-        # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
-        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
-
-    - name: Run tests
-      run: |
-        if [ -f requirements-test.txt ]; then pip install -r requirements-test.txt; fi
-        python -m unittest discover -s tests
-        coverage run run_tests.py && coverage report -m
+        python: ["3.9", "3.10", "3.11"]
