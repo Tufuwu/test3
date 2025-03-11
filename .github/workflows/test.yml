@@ -1,33 +1,86 @@
-name: Build
-
+name: Tufuwu/test2
 on:
   push:
-    branches: [main]
+    branches:
+    - "**/*"
   pull_request:
-    branches: [main]
-
+#   # This item has no matching transformer
+#   maximum_number_of_builds: 0
 jobs:
-  build:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest]
-        python: ["3.9", "3.10"]
-        include:
-          - os: ubuntu-latest
-            python: 3.9
-          - os: ubuntu-latest
-            python: 3.9
-          - os: ubuntu-latest
-            python: 3.9
-
+  test:
+    runs-on: ubuntu-18.04
     steps:
-      - uses: actions/checkout@v2
-      - name: Setup Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: ${{ matrix.python }}
-      - name: Display the Python version
-        run: python -VV
-      - name: Run tests
-        run: python runtests.py --current --verbose
+    - name: checkout
+      uses: actions/checkout@v4.1.0
+    - uses: actions/setup-python@v5.0.0
+      with:
+        python-version: '3.9'
+    - run: pip install -r requirements.txt
+    - run: python -VV
+    - run: python runtests.py --current --verbose
+  test_2:
+    runs-on: ubuntu-18.04
+    steps:
+    - name: checkout
+      uses: actions/checkout@v4.1.0
+    - uses: actions/setup-python@v5.0.0
+      with:
+        python-version: '3.9'
+    - run: pip install -r requirements.txt
+    - run: python -VV
+    - run: python runtests.py --current --verbose
+  test_3:
+    runs-on: ubuntu-18.04
+    steps:
+    - name: checkout
+      uses: actions/checkout@v4.1.0
+    - uses: actions/setup-python@v5.0.0
+      with:
+        python-version: '3.9'
+    - run: pip install -r requirements.txt
+    - run: python -VV
+    - run: python runtests.py --current --verbose
+  test_4:
+    runs-on: ubuntu-18.04
+    steps:
+    - name: checkout
+      uses: actions/checkout@v4.1.0
+    - uses: actions/setup-python@v5.0.0
+      with:
+        python-version: '3.9'
+    - run: pip install -r requirements.txt
+    - run: python -VV
+    - run: python runtests.py --current --verbose
+  test_5:
+    runs-on: ubuntu-18.04
+    steps:
+    - name: checkout
+      uses: actions/checkout@v4.1.0
+    - uses: actions/setup-python@v5.0.0
+      with:
+        python-version: '3.9'
+    - run: pip install -r requirements.txt
+    - run: python -VV
+    - run: python runtests.py --current --verbose
+  test_6:
+    runs-on: ubuntu-18.04
+    steps:
+    - name: checkout
+      uses: actions/checkout@v4.1.0
+    - uses: actions/setup-python@v5.0.0
+      with:
+        python-version: '3.9'
+    - run: pip install -r requirements.txt
+    - run: python -VV
+    - run: python runtests.py --current --verbose
+  test_7:
+    runs-on: ubuntu-18.04
+    steps:
+    - name: checkout
+      uses: actions/checkout@v4.1.0
+    - uses: actions/setup-python@v5.0.0
+      with:
+        python-version: nightly
+    - run: pip install -r requirements.txt
+    - run: python -VV
+    - run: python runtests.py --current --verbose
