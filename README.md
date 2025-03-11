@@ -1,148 +1,115 @@
-# django-sendgrid-v5
+# Aztec Code generator
 
-[![Latest Release](https://img.shields.io/pypi/v/django-sendgrid-v5.svg)](https://pypi.python.org/pypi/django-sendgrid-v5/)
+[![PyPI](https://img.shields.io/pypi/v/aztec_code_generator.svg)](https://pypi.python.org/pypi/aztec_code_generator)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Build Status](https://github.com/dlenski/aztec_code_generator/workflows/test_and_release/badge.svg)](https://github.com/dlenski/aztec_code_generator/actions?query=workflow%3Atest_and_release)
 
-This package implements an email backend for Django that relies on sendgrid's REST API for message delivery.
+This is a pure-Python library to generate [Aztec Code](https://en.wikipedia.org/wiki/Aztec_code) 2D barcodes.
 
-It is under active development, and pull requests are more than welcome\!
+## Changelog
 
-To use the backend, simply install the package (using pip), set the `EMAIL_BACKEND` setting in Django, and add a `SENDGRID_API_KEY` key (set to the appropriate value) to your Django settings.
+- `v0.1`-`v0.2`: initial Python packaging
+- `v0.3`: allow optional border, more efficient matrix representation
+- `v0.4`: merge https://github.com/delimitry/aztec_code_generator/pull/5 and fix tests
+- `v0.5`:
+  - code simplification
+  - more efficient internal data structures (`Enum`)
+  - encoding of `FLG(n)`
+  - correct handling of Python 3 `str` vs. `bytes` (Aztec Code natively encodes _bytes_, not characters, and a reader's default interpretation of those bytes should be [ISO-8859-1 aka Latin-1](https://en.wikipedia.org/wiki/Iso-8859-1))
+- `v0.6`:
+  - more code simplification
+  - make Pillow dependency optional
+  - add `print_fancy` for UTF-8 output (inspired by `qrencode -t ansiutf8`)
+  - bugfix for `DIGIT`→`PUNCT` transition (and add missed test case)
+  - allow customization of error correction percentage level
+- `v0.7`:
+  - support standard-compliant encoding of strings in character sets other than [ISO-8859-1](https://en.wikipedia.org/wiki/ISO-8859-1)
+    via [ECI indications](https://en.wikipedia.org/wiki/Extended_Channel_Interpretation)
+- `v0.8`-`v0.9`:
+  - replace Travis-CI with Github Actions for CI
+- `v0.10`
+  - bugfix for lowercase → uppercase transition (fixes encoding of strings like `abcABC`)
+- `v0.11`
+  - fix docstrings
+  - change default `module_size` in image output to 2 pixels; ZXing can't read with `module_size=1`
 
-## How to Install
 
-1. `pip install django-sendgrid-v5`
-2. In your project's settings.py script:
-    1. Set `EMAIL_BACKEND = "sendgrid_backend.SendgridBackend"`
-    2. Set the SENDGRID\_API\_KEY in settings.py to your api key that was provided to you by sendgrid. `SENDGRID_API_KEY = os.environ["SENDGRID_API_KEY"]`
+## Installation
 
-### Other settings
+Releases [from PyPi](https://pypi.org/project/aztec-code-generator/) may be installed with `pip3 install aztec_code_generator`.
 
-1. To toggle sandbox mode (when django is running in DEBUG mode), set `SENDGRID_SANDBOX_MODE_IN_DEBUG = True/False`.
-    1. To err on the side of caution, this defaults to True, so emails sent in DEBUG mode will not be delivered, unless this setting is explicitly set to False.
-1. `SENDGRID_ECHO_TO_STDOUT` will echo to stdout or any other file-like
-    object that is passed to the backend via the `stream` kwarg.
-1. `SENDGRID_TRACK_EMAIL_OPENS` - defaults to true and tracks email open events via the Sendgrid service. These events are logged in the Statistics UI, Email Activity interface, and are reported by the Event Webhook.
-1. `SENDGRID_TRACK_CLICKS_HTML` - defaults to true and, if enabled in your Sendgrid account, will tracks click events on links found in the HTML message sent.
-1. `SENDGRID_TRACK_CLICKS_PLAIN` - defaults to true and, if enabled in your Sendgrid account, will tracks click events on links found in the plain text message sent.
-1. `SENDGRID_HOST_URL` - Allows changing the base API URI. Set to `https://api.eu.sendgrid.com` to use the EU region.
+Bleeding-edge version from `master` branch of this repository can be installed with
+`pip3 install https://github.com/dlenski/aztec_code_generator/archive/master.zip`.
+
+### Dependencies
+
+[Pillow](https://pillow.readthedocs.io) (Python image generation library) is required if you want to generate image objects and files.
 
 ## Usage
 
-### Simple
+### Creating and encoding
 
 ```python
-from django.core.mail import send_mail
-
-send_mail(
-    'Subject here',
-    'Here is the message.',
-    'from@example.com',
-    ['to@example.com'],
-    fail_silently=False,
-)
+from aztec_code_generator import AztecCode
+data = 'Aztec Code 2D :)'
+aztec_code = AztecCode(data)
 ```
 
-### Dynamic Template with JSON Data
+The `AztecCode()` constructor takes additional, optional arguments:
 
-First, create a [dynamic template](https://mc.sendgrid.com/dynamic-templates) and copy the ID.
+- `size` and `compact`: to set a specific symbol size (e.g. `19, True` for a compact 19×19 symbol); see `keys(aztec_code_generator.configs)` for possible values
+- `ec_percent` for error correction percentage (default is the recommended 23), plus `size` a
 
-```python
-from django.core.mail import EmailMessage
+### Saving an image file
 
-msg = EmailMessage(
-  from_email='to@example.com',
-  to=['to@example.com'],
-)
-msg.template_id = "your-dynamic-template-id"
-msg.dynamic_template_data = {
-  "title": foo
-}
-msg.send(fail_silently=False)
-```
+`aztec_code.save('aztec_code.png', module_size=4, border=1)` will save an image file `aztec_code.png` of the symbol, with 4×4 blocks of white/black pixels in
+the output, and with a 1-block border.
 
-### The kitchen sink EmailMessage (all of the supported sendgrid-specific properties)
+![Aztec Code](https://1.bp.blogspot.com/-OZIo4dGwAM4/V7BaYoBaH2I/AAAAAAAAAwc/WBdTV6osTb4TxNf2f6v7bCfXM4EuO4OdwCLcB/s1600/aztec_code.png "Aztec Code with data")
 
-```python
-from django.core.mail import EmailMessage
+### Creating an image object
 
-msg = EmailMessage(
-  from_email='to@example.com',
-  to=['to@example.com'],
-  cc=['cc@example.com'],
-  bcc=['bcc@example.com'],
-)
+`aztec_code.image()` will yield a monochrome-mode [PIL `Image` object](https://pillow.readthedocs.io/en/stable/reference/Image.html) representing the image
+in-memory. It also accepts optional `module_size` and `border`.
 
-# Personalization custom args
-# https://sendgrid.com/docs/for-developers/sending-email/personalizations/
-msg.custom_args = {'arg1': 'value1', 'arg2': 'value2'}
+### Text-based output
 
-# Reply to email address (sendgrid only supports 1 reply-to email address)
-msg.reply_to = 'reply-to@example.com'
+`aztec_code.print_fancy()` will print the resulting Aztec Code to standard output using
+[Unicode half-height block elements](https://en.wikipedia.org/wiki/Block_Elements) encoded
+with UTF-8 and ANSI color escapes. It accepts optional `border`.
 
-# Send at (accepts an integer per the sendgrid docs)
-# https://docs.sendgrid.com/for-developers/sending-email/scheduling-parameters#send-at
-msg.send_at = 1600188812
-
-# Transactional templates
-# https://sendgrid.com/docs/ui/sending-email/how-to-send-an-email-with-dynamic-transactional-templates/
-msg.template_id = "your-dynamic-template-id"
-msg.dynamic_template_data = {  # Sendgrid v6+ only
-  "title": foo
-}
-msg.substitutions = {
-  "title": bar
-}
-
-# Unsubscribe groups
-# https://sendgrid.com/docs/ui/sending-email/unsubscribe-groups/
-msg.asm = {'group_id': 123, 'groups_to_display': ['group1', 'group2']}
-
-# Categories
-# https://sendgrid.com/docs/glossary/categories/
-msg.categories = ['category1', 'category2']
-
-# IP Pools
-# https://sendgrid.com/docs/ui/account-and-settings/ip-pools/
-msg.ip_pool_name = 'my-ip-pool'
-
-
-msg.send(fail_silently=False)
-```
-
-
-### FAQ
-**How to change a Sender's Name ?**
-
-
-`from_email="John Smith <john.smith@example.org>"`
-You can just include the name in the from_email field of the _```EmailMessage```_ class 
+`aztec_code.print_out()` will print out the resulting Aztec Code to standard
+output as plain ASCII text, using `#` and ` ` characters:
 
 ```
-msg = EmailMessage(
-  from_email='Sender Name <from@example.com>',
-  to=['to@example.com'],
-)
+##  # ## ####
+ #   ## #####  ###
+ #  ##  # #   # ###
+## #  #    ## ##
+    ## # #    # #
+## ############ # #
+ ### #       ###  #
+##   # ##### # ## #
+ #   # #   # ##
+ # # # # # # ###
+    ## #   # ## ##
+#### # ##### ## #
+  # ##       ## ##
+ ##  ########### #
+  ##    # ##   ## #
+     ## # ### #  ##
+      ############
+##   #     # ##   #
+##  #    ## ###   #
 ```
 
-**How to make mails to multiple users private (hide all the email addresses to which the mail is sent) to each person (personalization) ?**
+## Authors:
 
+Originally written by [Dmitry Alimov (delimtry)](https://github.com/delimitry).
 
-Setting the `make_private` attribute to `True` will help us achieve it
-```
-msg = EmailMessage(
-  from_email='Sender Name <from@example.com>',
-  to=['to@example.com','abc@example.com','xyz@example.com'],
-)
-msg.make_private = True
-```
+Updates, bug fixes, Python 3-ification, and careful `bytes`-vs.-`str` handling
+by [Daniel Lenski (dlenski)](https://github.com/dlenski).
 
-## Examples
+## License:
 
-- Marcelo Canina [(@marcanuy)](https://github.com/marcanuy) wrote a great article demonstrating how to integrate `django-sendgrid-v5` into your Django application on his site: [https://simpleit.rocks/python/django/adding-email-to-django-the-easiest-way/](https://simpleit.rocks/python/django/adding-email-to-django-the-easiest-way/)
-- RX-36 [(@DevWoody856)](https://github.com/DevWoody856) demonstrates how to use `django-sendgrid-v5` to make a contact form for your web application: https://rx-36.life/create-a-contact-form-using-sendgrid-with-django/
-
-
-## Stargazers over time
-
-[![Stargazers over time](https://starchart.cc/sklarsa/django-sendgrid-v5.svg)](https://starchart.cc/sklarsa/django-sendgrid-v5)
-
+Released under [The MIT License](https://github.com/delimitry/aztec_code_generator/blob/master/LICENSE).
