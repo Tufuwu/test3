@@ -1,156 +1,124 @@
-# Py.test plugin for validating Jupyter notebooks
+# Vault
 
-[![Tests](https://github.com/computationalmodelling/nbval/actions/workflows/tests.yml/badge.svg)](https://github.com/computationalmodelling/nbval/actions/workflows/tests.yml)
-[![PyPI Version](https://badge.fury.io/py/nbval.svg)](https://pypi.python.org/pypi/nbval)
-[![Documentation Status](https://readthedocs.org/projects/nbval/badge/)](https://nbval.readthedocs.io/)
+[![Pypi](https://img.shields.io/pypi/v/pyvault.svg)](https://pypi.org/project/pyvault)
+[![Build Status](https://github.com/gabfl/vault/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/gabfl/vault/actions)
+[![codecov](https://codecov.io/gh/gabfl/vault/branch/main/graph/badge.svg)](https://codecov.io/gh/gabfl/vault)
+[![MIT licensed](https://img.shields.io/badge/license-MIT-green.svg)](https://raw.githubusercontent.com/gabfl/vault/main/LICENSE)
 
-The plugin adds functionality to py.test to recognise and collect Jupyter
-notebooks. The intended purpose of the tests is to determine whether execution
-of the stored inputs match the stored outputs of the `.ipynb` file. Whilst also
-ensuring that the notebooks are running without errors.
+Vault is a simple Python password manager. It allows you to securely save secrets with a simple CLI interface.
 
-The tests were designed to ensure that Jupyter notebooks (especially those for
-reference and documentation), are executing consistently.
+## Features
 
-Each cell is taken as a test, a cell that doesn't reproduce the expected
-output will fail.
+ - Secrets are stored in an encrypted SQLite database with [SQLCipher](https://www.zetetic.net/sqlcipher/)
+ - Within the database, each password and notes are encrypted with a unique salt using AES-256 encryption with [pycryptodome](http://legrandin.github.io/pycryptodome/)
+ - Master key is hashed with a unique salt
+ - Possibility to create an unlimited number of vaults
+ - Clipboard cleared automatically
+ - Automatic vault locking after inactivity
+ - Password suggestions with [password-generator-py](https://github.com/gabfl/password-generator-py)
+ - Import / Export in Json
 
-See [`docs/source/index.ipynb`](http://nbviewer.jupyter.org/github/computationalmodelling/nbval/blob/HEAD/docs/source/index.ipynb) for the full documentation.
+## Basic usage
 
-## Installation
-Available on PyPi:
+![Demo](https://github.com/gabfl/vault/blob/main/img/demo.gif?raw=true)
 
-    pip install nbval
+## Installation and setup
 
-or install the latest version from cloning the repository and running:
+Vault 2.x requires `sqlcipher` to be installed on your machine.
 
-    pip install .
+### MacOS
 
-from the main directory. To uninstall:
+On MacOS, you can install `sqlcipher` with [brew](https://brew.sh/):
+```bash
+brew install sqlcipher
 
-    pip uninstall nbval
+# Install sqlcipher3
+SQLCIPHER_VERSION="0.5.3"
+pip3 install sqlcipher3==$SQLCIPHER_VERSION
 
-
-## How it works
-The extension looks through every cell that contains code in an IPython notebook
-and then the `py.test` system compares the outputs stored in the notebook
-with the outputs of the cells when they are executed. Thus, the notebook itself is
-used as a testing function.
-The output lines when executing the notebook can be sanitized passing an
-extra option and file, when calling the `py.test` command. This file
-is a usual configuration file for the `ConfigParser` library.
-
-Regarding the execution, roughly, the script initiates an
-IPython Kernel with a `shell` and
-an `iopub` sockets. The `shell` is needed to execute the cells in
-the notebook (it sends requests to the Kernel) and the `iopub` provides
-an interface to get the messages from the outputs. The contents
-of the messages obtained from the Kernel are organised in dictionaries
-with different information, such as time stamps of executions,
-cell data types, cell types, the status of the Kernel, username, etc.
-
-In general, the functionality of the IPython notebook system is
-quite complex, but a detailed explanation of the messages
-and how the system works, can be found here
-
-https://jupyter-client.readthedocs.io/en/latest/messaging.html#messaging
-
-## Execution
-To execute this plugin, you need to execute `py.test` with the `nbval` flag
-to differentiate the testing from the usual python files:
-
-    py.test --nbval
-
-You can also specify `--nbval-lax`, which runs notebooks and checks for
-errors, but only compares the outputs of cells with a `#NBVAL_CHECK_OUTPUT`
-marker comment.
-
-    py.test --nbval-lax
-
-The commands above will execute all the `.ipynb` files and 'pytest' tests in the current folder.
-Specify `-p no:python` if you would like to execute notebooks only. Alternatively, you can execute a specific notebook:
-
-    py.test --nbval my_notebook.ipynb
-
-By default, each `.ipynb` file will be executed using the kernel
-specified in its metadata. You can override this behavior by passing
-either `--nbval-kernel-name mykernel` to run all the notebooks using
-`mykernel`, or `--current-env` to use a kernel in the same environment
-in which pytest itself was launched.
-
-If the output lines are going to be sanitized, an extra flag, `--nbval-sanitize-with`
-together with the path to a confguration file with regex expressions, must be passed,
-i.e.
-
-    py.test --nbval my_notebook.ipynb --nbval-sanitize-with path/to/my_sanitize_file
-
-where `my_sanitize_file` has the following structure.
-
-```
-[Section1]
-regex: [a-z]*
-replace: abcd
-
-regex: [1-9]*
-replace: 0000
-
-[Section2]
-regex: foo
-replace: bar
+# If you are getting an error "Failed to build sqlcipher3", you would need to fix the build flags:
+SQLCIPHER_PATH="$(brew --cellar sqlcipher)/$(brew list --versions sqlcipher | tr ' ' '\n' | tail -1)"
+C_INCLUDE_PATH=$SQLCIPHER_PATH/include LIBRARY_PATH=$SQLCIPHER_PATH/lib pip3 install sqlcipher3==$SQLCIPHER_VERSION
 ```
 
-The `regex` option contains the expression that is going to be matched in the outputs, and
-`replace` is the string that will replace the `regex` match. Currently, the section
-names do not have any meaning or influence in the testing system, it will take
-all the sections and replace the corresponding options.
+Then install the vault:
 
+```bash
+pip3 install pyvault
 
-### Coverage
+# Run setup
+vault
+```
 
-To use notebooks to generate coverage for imported code, use the pytest-cov plugin.
-nbval should automatically detect the relevant options and configure itself with it.
+### Ubuntu / Debian
 
+On Ubuntu/Debian, you can install `sqlcipher` with apt:
+```bash
+sudo apt update
+sudo apt install -y gcc python3-dev libsqlcipher-dev xclip
+```
 
-### Parallel execution
+Then install the vault:
 
-nbval is compatible with the pytest-xdist plugin for parallel running of tests. It does
-however require the use of the `--dist loadscope` flag to ensure that all cells of one
-notebook are run on the same kernel.
+```bash
+pip3 install pyvault
 
-## Documentation
+# Run setup
+vault
+```
 
-The narrative documentation for nbval can be found at https://nbval.readthedocs.io.
+### Using Docker
 
-## Help
-The `py.test` system help can be obtained with `py.test -h`, which will
-show all the flags that can be passed to the command, such as the
-verbose `-v` option. Nbval's options can be found under the
-`Jupyter Notebook validation` section.
+```bash
+# Pull the image
+docker pull gabfl/vault
 
+# Create local directory
+mkdir ~/.vault
 
-## Acknowledgements
-This plugin was inspired by Andrea Zonca's py.test plugin for collecting unit
-tests in the IPython notebooks (https://github.com/zonca/pytest-ipynb).
+# Launch image
+docker run -v ~/.vault:/root/.vault -ti gabfl/vault
+```
 
-The original prototype was based on the template in
-https://gist.github.com/timo/2621679 and the code of a testing system
-for notebooks https://gist.github.com/minrk/2620735 which we
-integrated and mixed with the `py.test` system.
+### Cloning the project
 
-We acknowledge financial support from
+```bash
+# Clone project
+git clone https://github.com/gabfl/vault && cd vault
 
-- OpenDreamKit Horizon 2020 European Research Infrastructures project (#676541), http://opendreamkit.org
+# Installation
+pip3 install .
 
-- EPSRC's Centre for Doctoral Training in Next Generation
-  Computational Modelling, http://ngcm.soton.ac.uk (#EP/L015382/1) and
-  EPSRC's Doctoral Training Centre in Complex System Simulation
-  ((EP/G03690X/1),
+# Run setup
+vault
+```
 
-- The Gordon and Betty Moore Foundation through Grant GBMF #4856, by the
-  Alfred P. Sloan Foundation and by the Helmsley Trust.
+## Advanced settings:
 
+```
+usage: vault [-h] [-t [CLIPBOARD_TTL]] [-p [HIDE_SECRET_TTL]]
+             [-a [AUTO_LOCK_TTL]] [-v VAULT_LOCATION] [-c CONFIG_LOCATION]
+             [-k] [-i IMPORT_ITEMS] [-x EXPORT] [-f [{json}]] [-e]
 
-## Authors
-
-2014 - 2017 David Cortes-Ortuno, Oliver Laslett, T. Kluyver, Vidar
-Fauske, Maximilian Albert, MinRK, Ondrej Hovorka, Hans Fangohr
+optional arguments:
+  -h, --help            show this help message and exit
+  -t [CLIPBOARD_TTL], --clipboard_TTL [CLIPBOARD_TTL]
+                        Set clipboard TTL (in seconds, default: 15)
+  -p [HIDE_SECRET_TTL], --hide_secret_TTL [HIDE_SECRET_TTL]
+                        Set delay before hiding a printed password (in
+                        seconds, default: 15)
+  -a [AUTO_LOCK_TTL], --auto_lock_TTL [AUTO_LOCK_TTL]
+                        Set auto lock TTL (in seconds, default: 900)
+  -v VAULT_LOCATION, --vault_location VAULT_LOCATION
+                        Set vault path
+  -c CONFIG_LOCATION, --config_location CONFIG_LOCATION
+                        Set config path
+  -k, --change_key      Change master key
+  -i IMPORT_ITEMS, --import_items IMPORT_ITEMS
+                        File to import credentials from
+  -x EXPORT, --export EXPORT
+                        File to export credentials to
+  -f [{json}], --file_format [{json}]
+                        Import/export file format (default: 'json')
+  -e, --erase_vault     Erase the vault and config file
+```

@@ -1,10 +1,24 @@
-__pycache__
-*.pyc
-.ipynb_checkpoints/
-/dist/
-**/build/
+# Python
+__pycache__/
+*.py[cod]
+.Python
 *.egg-info
-.cache
+build/
+dist/
 .pytest_cache
-.doit.db*
-.coverage*
+venv/
+
+# Codecov
+.coverage
+coverage.xml
+
+# Mac
+.DS_Store
+
+# Misc
+tests/
+
+# Legacy migration
+src/unittest/assets/migration/legacy-config2
+src/unittest/assets/migration/legacy-vault2
+src/unittest/assets/migration/legacy-vault.db
