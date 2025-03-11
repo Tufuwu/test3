@@ -1,58 +1,26 @@
-"""
-Import tests.
-"""
+import importlib
+import marshmallow_jsonschema
 
 
-#
-# Fimfarchive, preserves stories from Fimfiction.
-# Copyright (C) 2015  Joakim Soderlund
-#
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
+def test_import_marshmallow_union(monkeypatch):
+    monkeypatch.delattr("marshmallow_union.Union")
+
+    base = importlib.reload(marshmallow_jsonschema.base)
+
+    assert not base.ALLOW_UNIONS
+
+    monkeypatch.undo()
+
+    importlib.reload(marshmallow_jsonschema.base)
 
 
-import pytest
+def test_import_marshmallow_enum(monkeypatch):
+    monkeypatch.delattr("marshmallow_enum.EnumField")
 
+    base = importlib.reload(marshmallow_jsonschema.base)
 
-MODULES = (
-    'commands',
-    'converters',
-    'exceptions',
-    'fetchers',
-    'flavors',
-    'mappers',
-    'selectors',
-    'signals',
-    'stampers',
-    'stories',
-    'tasks',
-    'utils',
-    'writers',
-)
+    assert not base.ALLOW_ENUMS
 
+    monkeypatch.undo()
 
-class TestImport:
-    """
-    Tests import.
-    """
-
-    @pytest.mark.parametrize('module', MODULES)
-    def test_wildcard_import(self, module):
-        """
-        Tests wildcard import.
-        """
-        template = 'from fimfarchive.{} import *'
-        statement = template.format(module)
-
-        exec(statement)
+    importlib.reload(marshmallow_jsonschema.base)

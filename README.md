@@ -1,188 +1,237 @@
-# Fimfarchive
+## marshmallow-jsonschema: JSON Schema formatting with marshmallow
 
-Fimfarchive aims to release all stories on Fimfiction as a single ZIP-file. The
-archive contains not only stories, but also metadata such as tags, ratings, and
-descriptions. It is organized by author and could be used for backup, offline
-reading, or data mining.
+![Build Status](https://github.com/fuhrysteve/marshmallow-jsonschema/workflows/build/badge.svg)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/python/black)
 
-Releases can be found on Fimfarchive's [user profile] at [Fimfiction]. Note
-that this is **not** an official Fimfiction project, so do not send questions
-to Fimfiction staff. Instead, send a private message or post a comment to the
-Fimfarchive user profile.
+ marshmallow-jsonschema translates marshmallow schemas into
+ JSON Schema Draft v7 compliant jsonschema. See http://json-schema.org/
 
-A new version will be released each season via BitTorrent, approximately once
-every three months. When suitable, an xdelta3 patch will also be provided for
-users who do not wish to redownload unchanged stories.
+#### Why would I want my schema translated to JSON?
 
-Note that the archive contains a large number of files. Unzipping it to your
-file system may not be necessary if the archive is to be used together with
-some application. If you are a developer, reading directly from the ZIP-file
-may be preferable.
+What are the use cases for this? Let's say you have a
+marshmallow schema in python, but you want to render your
+schema as a form in another system (for example: a web browser
+or mobile device).
 
-This repository contains code for updating and building the archive. While the
-API is not guaranteed to be stable, it can also be used as a library for easy
-access to stories and metadata within the archive. A [Fimfiction API] key is
-however needed to stories directly from Fimfiction.
+#### Installation
 
-[Fimfiction]: https://www.fimfiction.net
-[Fimfiction API]: https://www.fimfiction.net/developers/api/v2/docs
-[user profile]: https://www.fimfiction.net/user/116950/Fimfarchive
+Requires python>=3.6 and marshmallow>=3.11. (For python 2 & marshmallow 2 support, please use marshmallow-jsonschema<0.11)
 
-
-# Installation
-
-There are primarily two ways to install this tool. The first is installation as
-a library for use within other projects, and the second is installation for
-development of Fimfarchive. Using a [virtual environment] is recommended for
-both cases in order to avoid contaminating the rest of the Python installation.
-
-## Installation as a Library
-
-Make sure a virtual environment has been created and activated. When done,
-simply install the library directly from the `master` branch on GitHub.
-
-```bash
-python3 -m pip install git+https://github.com/JockeTF/fimfarchive.git
+```
+pip install marshmallow-jsonschema
 ```
 
-Optionally also install `lz4` to lower the memory footprint of open archives.
+#### Some Client tools can render forms using JSON Schema
 
-```bash
-python3 -m pip install lz4
-```
+* [react-jsonschema-form](https://github.com/mozilla-services/react-jsonschema-form) (recommended)
+  * See below extension for this excellent library!
+* https://github.com/brutusin/json-forms
+* https://github.com/jdorn/json-editor
+* https://github.com/ulion/jsonform
 
-That's it! Import a class to make sure things work as expected.
+### Examples
+
+#### Simple Example
 
 ```python
-from fimfarchive.fetchers import FimfarchiveFetcher
+from marshmallow import Schema, fields
+from marshmallow_jsonschema import JSONSchema
+
+class UserSchema(Schema):
+    username = fields.String()
+    age = fields.Integer()
+    birthday = fields.Date()
+
+user_schema = UserSchema()
+
+json_schema = JSONSchema()
+json_schema.dump(user_schema)
 ```
 
-## Installation for Development
+Yields:
 
-Start by creating a clone of the Fimfarchive repository.
-
-```bash
-git clone https://github.com/JockeTF/fimfarchive.git
+```python
+{'properties': {'age': {'format': 'integer',
+                        'title': 'age',
+                        'type': 'number'},
+                'birthday': {'format': 'date',
+                             'title': 'birthday',
+                             'type': 'string'},
+                'username': {'title': 'username', 'type': 'string'}},
+ 'required': [],
+ 'type': 'object'}
 ```
 
-Enter the cloned repository and install the development dependencies.
+#### Nested Example
 
-```bash
-uv sync
+```python
+from marshmallow import Schema, fields
+from marshmallow_jsonschema import JSONSchema
+from tests import UserSchema
+
+
+class Athlete(object):
+    user_schema = UserSchema()
+
+    def __init__(self):
+        self.name = 'sam'
+
+
+class AthleteSchema(Schema):
+    user_schema = fields.Nested(JSONSchema)
+    name = fields.String()
+
+    
+athlete = Athlete()
+athlete_schema = AthleteSchema()
+
+athlete_schema.dump(athlete)
 ```
 
-Optionally also install `lz4` to lower the memory footprint of open archives.
+#### Complete example Flask application using brutisin/json-forms
 
-```bash
-uv sync --extra lz4
+![Screenshot](http://i.imgur.com/jJv1wFk.png)
+
+This example renders a form not dissimilar to how [wtforms](https://github.com/wtforms/wtforms) might render a form.
+
+However rather than rendering the form in python, the JSON Schema is rendered using the
+javascript library [brutusin/json-forms](https://github.com/brutusin/json-forms).
+
+
+```python
+from flask import Flask, jsonify
+from marshmallow import Schema, fields
+from marshmallow_jsonschema import JSONSchema
+
+app = Flask(__name__)
+
+
+class UserSchema(Schema):
+    name = fields.String()
+    address = fields.String()
+
+
+@app.route('/schema')
+def schema():
+    schema = UserSchema()
+    return jsonify(JSONSchema().dump(schema))
+
+
+@app.route('/')
+def home():
+    return '''<!DOCTYPE html>
+<head>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/brutusin.json-forms/1.3.0/css/brutusin-json-forms.css"><Paste>
+<script src="https://code.jquery.com/jquery-1.12.1.min.js" integrity="sha256-I1nTg78tSrZev3kjvfdM5A5Ak/blglGzlaZANLPDl3I=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.string/3.3.4/underscore.string.min.js"></script>
+<script src="https://cdn.jsdelivr.net/brutusin.json-forms/1.3.0/js/brutusin-json-forms.min.js"></script>
+<script>
+$(document).ready(function() {
+    $.ajax({
+        url: '/schema'
+        , success: function(data) {
+            var container = document.getElementById('myform');
+            var BrutusinForms = brutusin["json-forms"];
+            var bf = BrutusinForms.create(data);
+            bf.render(container);
+        }
+    });
+});
+</script>
+</head>
+<body>
+<div id="myform"></div>
+</body>
+</html>
+'''
+
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', debug=True)
+
 ```
 
-All done! Run the test suite to make sure everything works as expected.
 
-```bash
-uv run pytest
+### Advanced usage
+#### Custom Type support
+
+Simply add a `_jsonschema_type_mapping` method to your field
+so we know how it ought to get serialized to JSON Schema.
+
+A common use case for this is creating a dropdown menu using
+enum (see Gender below).
+
+
+```python
+class Colour(fields.Field):
+
+    def _jsonschema_type_mapping(self):
+        return {
+            'type': 'string',
+        }
+
+    def _serialize(self, value, attr, obj):
+        r, g, b = value
+        r = "%02X" % (r,)
+        g = "%02X" % (g,)
+        b = "%02X" % (b,)
+        return '#' + r + g + b 
+
+class Gender(fields.String):
+    def _jsonschema_type_mapping(self):
+        return {
+            'type': 'string',
+            'enum': ['Male', 'Female']
+        }
+
+
+class UserSchema(Schema):
+    name = fields.String(required=True)
+    favourite_colour = Colour()
+    gender = Gender()
+
+schema = UserSchema()
+json_schema = JSONSchema()
+json_schema.dump(schema)
 ```
 
-[virtual environment]: https://docs.python.org/3/tutorial/venv.html
+
+### React-JSONSchema-Form Extension
+
+[react-jsonschema-form](https://react-jsonschema-form.readthedocs.io/en/latest/)
+is a library for rendering jsonschemas as a form using React. It is very powerful
+and full featured.. the catch is that it requires a proprietary
+[`uiSchema`](https://react-jsonschema-form.readthedocs.io/en/latest/form-customization/#the-uischema-object)
+to provide advanced control how the form is rendered.
+[Here's a live playground](https://rjsf-team.github.io/react-jsonschema-form/)
+
+*(new in version 0.10.0)*
+
+```python
+from marshmallow_jsonschema.extensions import ReactJsonSchemaFormJSONSchema
+
+class MySchema(Schema):
+    first_name = fields.String(
+        metadata={
+            'ui:autofocus': True,
+        }
+    )
+    last_name = fields.String()
+
+    class Meta:
+        react_uischema_extra = {
+            'ui:order': [
+                'first_name',
+                'last_name',
+            ]
+        }
 
 
-# Running
+json_schema_obj = ReactJsonSchemaFormJSONSchema()
+schema = MySchema()
 
-Fimfarchive has a command line interface which is invoked as a Python module.
-It can't do much except prepare new Fimfarchive releases. For archive browsing
-you will need to use third-party tools, or make your own.
+# here's your jsonschema
+data = json_schema_obj.dump(schema)
 
-```
-$ uv run python -m fimfarchive
-Usage: COMMAND [PARAMETERS]
-
-Fimfarchive, ensuring that history is preseved.
-
-Commands:
-  build   Builds a new Fimfarchive release.
-  update  Updates stories for Fimfarchive.
-```
-
-The command line interface features multiple subcommands, each with its own
-brief help text. The subcommand is specified as the second program argument.
-
-```
-$ uv run python -m fimfarchive update --help
-usage: [-h] [--alpha] --archive PATH [--refetch]
-
-Updates stories for Fimfarchive.
-
-optional arguments:
-  -h, --help      show this help message and exit
-  --alpha         fetch from Fimfiction APIv1
-  --archive PATH  previous version of the archive
-  --refetch       refetch all available stories
-```
-
-Some commands (such as `update`) require a Fimfiction API key. The program
-reads this key from the environment variable `FIMFICTION_ACCESS_TOKEN`. Any
-data downloaded from Fimfiction is stored in the current working directory,
-typically in the `worktree` subdirectory. The same thing goes for rendered
-stories, built archives, or anything else related to the release process.
-
-
-# Process
-
-The process for building a new Fimfarchive release consists of a few simple
-steps. Before starting, make sure you have the previous version of Fimfarchive
-nearby, as well as a Fimfiction APIv2 key. Also, remove any previous `worktree`
-directory from the current working directory. Some of the commands mentioned
-below are currently only available in feature branches.
-
-- **Update**: Invoke the `update` subcommand to refresh all stories. This takes
-  about one month since _all_ story metadata has to be traversed. Story data
-  isn't downloaded unless changes have been made since the last release. Use
-  the `--refetch` flag if all data should be updated regardless of if there
-  have been any changes. Write down the `Started` and `Done` dates for later.
-
-- **Render**: Use the `render` subcommand to generate EPUB-files for all
-  stories with updated content. The subcommand requires `ebook-convert` from
-  Calibre to be installed and accessible from the command line. Fimfarchive
-  will usually keep the CPU maxed out for a few hours during this step.
-
-- **Count**: The `count` subcommand compares the upcoming release with the
-  previous one. The output mainly consists of statistics for the changelog.
-
-- **Document**: Update the documentation in `docs/readme.tex` for the upcoming
-  release. Change the document title, add a row to the changelog table, and a
-  new changelog subsection. Render the document _a few times_ with `lualatex`
-  and place the results in `worktree/extras` as `readme.pdf`.
-
-- **About**: Create an `about.json` file in `worktree/extras`. The file has
-  three keys named `version`, `start`, and `end`. Each key has a simple date
-  string like `20201201` as its value. Preferably use the file included with
-  the previous release as a template to keep things consistent.
-
-- **Build**: Create a `build` directory in `worktree`, and then run the `build`
-  subcommand. Expect this to take up to 15 minutes depending on the machine.
-  The resulting archive will be written to the `build` directory.
-
-- **Verify**: Go through the archive to check that everything looks good. One
-  tip is to test the CRC checksums of both the outer ZIP-archive and internal
-  EPUB-files. Sample some old and new stories to check that they look right.
-  Successfully opening the archive with [Fimfareader] can help prove that the
-  metadata has all of the required fields with the correct data types.
-
-- **Patch**: Create an [xdelta3] patch if applicable. It's important to allow
-  `xdelta3` to use a lot of memory since it otherwise has trouble seeing the
-  similarities between the archives. For example, `xdelta3 -B 2147483648 -e -s
-  <old> <new> <patch>` uses the maximum allowed value of 2 GiB.
-
-- **Torrent**: Create a torrent file if applicable. Using a private tracker
-  with a whitelist is preferable since public ones could be flaky or have poor
-  response times. However, it's usually a good idea to include a few public
-  trackers as well to improve availability. Set the chunk size so that the
-  torrent is split into somewhere between 1000 and 2000 pieces. Values outside
-  that range could cause performance issues or prevent the torrent from being
-  easily distributed via magnet links.
-
-- **Release**: Upload, announce, and distribute the release!
-
-[Calibre]: https://calibre-ebook.com
-[Fimfareader]: https://github.com/JockeTF/fimfareader
-[xdelta3]: http://xdelta.org
+# ..and here's your uiSchema!
+ui_schema_json = json_schema_obj.dump_uischema(schema)
