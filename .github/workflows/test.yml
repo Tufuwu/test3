@@ -1,24 +1,24 @@
-name: Tufuwu/test2
-on:
-  push:
-    branches:
-    - "**/*"
-  pull_request:
-#   # This item has no matching transformer
-#   maximum_number_of_builds: 0
+name: Python CI
+
+on: [push, pull_request]
+
 jobs:
-  test:
+  build:
+
     runs-on: ubuntu-latest
-    steps:
-    - name: checkout
-      uses: actions/checkout@v4.1.0
-    - uses: actions/setup-python@v5.0.0
-      with:
-        python-version: "${{ matrix.python }}"
-    - run: pip install peewee wtforms
-    - run: python runtests.py
-#     # This item has no matching transformer
-#     - email: false
+
     strategy:
       matrix:
-        python: ["3.9", "3.10", "3.11"]
+        python-version: ['3.9', '3.10', '3.11']
+
+    steps:
+    - name: Set up Python
+      uses: actions/setup-python@v3
+      with:
+        python-version: ${{ matrix.python-version }}
+        
+    - name: Install dependencies
+      run: pip install peewee wtforms
+
+    - name: Run tests
+      run: python runtests.py
