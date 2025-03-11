@@ -1,11 +1,10 @@
-include CONTRIBUTING.rst
-include CHANGELOG.rst
-include LICENSE
-include README.rst
+include CONTRIBUTORS.txt
+include install.bat
+include LICENSE.txt
+include README.md
+include setup.py
 
-global-exclude *.pyc
-recursive-include nvd3 *
-recursive-exclude * __pycache__
-recursive-exclude * *.py[co]
+graft doc
+prune doc/_build
 
-recursive-include docs *.rst conf.py Makefile make.bat
+graft tests
