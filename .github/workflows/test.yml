@@ -1,22 +1,37 @@
-name: Tufuwu/test2
+name: Python CI
+
 on:
   push:
     branches:
-    - "**/*"
+      - main
   pull_request:
-#   # This item has no matching transformer
-#   maximum_number_of_builds: 0
+    branches:
+      - main
+
 jobs:
-  test:
-    runs-on: ubuntu-16.04
+  build:
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        python-version: ['3.9', '3.10']
+
     steps:
-    - name: checkout
-      uses: actions/checkout@v4.1.0
-    - run: sudo apt-get -qq update
-    - run: sudo apt-get -qq install shellcheck
-    - run: sudo apt-get -qq install libperl-critic-perl
-    - run: sudo apt-get -qq install python-flake8
-    - run: sudo apt-get -qq install flake8
-    - run: gem install bundler
-    - run: bundle install --jobs=3 --retry=3
-    - run: make test
+      - uses: actions/checkout@v2
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get -qq update
+          sudo apt-get -qq install shellcheck
+          sudo apt-get -qq install libperl-critic-perl
+          sudo apt-get -qq install python-flake8
+          sudo apt-get -qq install flake8
+
+      - name: Run tests
+        run: make test
