@@ -1,7 +1,14 @@
+# global
 *.pyc
-/_virtualenv
-*.dist-info
-*.egg-info
+*.pyo
+__pycache__
+
+# /
+/*.egg
+/*.egg-info
+/.coverage
 /.tox
-/MANIFEST
-/examples/**/_vendor
+/build
+/coverage
+/dist
+/output.pskcxml
