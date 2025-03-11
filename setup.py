@@ -1,88 +1,81 @@
 #!/usr/bin/env python
 
-# setup.py - python-stdnum installation script
+# Prepare a release:
 #
-# Copyright (C) 2010-2025 Arthur de Jong
+#  - git pull --rebase  # check that there is no incoming changesets
+#  - check version in ptrace/version.py and doc/conf.py
+#  - set release date in doc/changelog.rst
+#  - check that "python3 setup.py sdist" contains all files tracked by
+#    the SCM (Git): update MANIFEST.in if needed
+#  - git commit -a -m "prepare release VERSION"
+#  - Remove untracked files/dirs: git clean -fdx
+#  - run tests, type: tox --parallel auto
+#  - git push
+#  - check GitHub Actions status:
+#    https://github.com/vstinner/python-ptrace/actions
 #
-# This library is free software; you can redistribute it and/or
-# modify it under the terms of the GNU Lesser General Public
-# License as published by the Free Software Foundation; either
-# version 2.1 of the License, or (at your option) any later version.
+# Release a new version:
 #
-# This library is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-# Lesser General Public License for more details.
+#  - git tag VERSION
+#  - Remove untracked files/dirs: git clean -fdx
+#  - python3 setup.py sdist bdist_wheel
+#  - git push --tags
+#  - twine upload dist/*
 #
-# You should have received a copy of the GNU Lesser General Public
-# License along with this library; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
-# 02110-1301 USA
+# After the release:
+#
+#  - increment version in  ptrace/version.py and doc/conf.py
+#  - git commit -a -m "post-release"
+#  - git push
 
-"""python-stdnum installation script."""
+import importlib.util
+from os import path
+try:
+    # setuptools supports bdist_wheel
+    from setuptools import setup
+except ImportError:
+    from distutils.core import setup
 
-import os
-import sys
 
-from setuptools import find_packages, setup
+MODULES = ["ptrace", "ptrace.binding", "ptrace.syscall", "ptrace.syscall.linux", "ptrace.debugger"]
 
-import stdnum
+SCRIPTS = ("strace.py", "gdb.py")
 
+CLASSIFIERS = [
+    'Intended Audience :: Developers',
+    'Development Status :: 4 - Beta',
+    'Environment :: Console',
+    'License :: OSI Approved :: GNU General Public License v2 (GPLv2)',
+    'Operating System :: OS Independent',
+    'Natural Language :: English',
+    'Programming Language :: Python',
+    'Programming Language :: Python :: 3',
+]
 
-# fix permissions for sdist
-if 'sdist' in sys.argv:
-    os.system('chmod -R a+rX .')
-    os.umask(int('022', 8))
+with open('README.rst') as fp:
+    LONG_DESCRIPTION = fp.read()
 
-base_dir = os.path.dirname(__file__)
+ptrace_spec = importlib.util.spec_from_file_location("version", path.join("ptrace", "version.py"))
+ptrace = importlib.util.module_from_spec(ptrace_spec)
+ptrace_spec.loader.exec_module(ptrace)
 
-with open(os.path.join(base_dir, 'README.md'), 'rb') as fp:
-    long_description = fp.read().decode('utf-8')
+PACKAGES = {}
+for name in MODULES:
+    PACKAGES[name] = name.replace(".", "/")
 
-setup(
-    name='python-stdnum',
-    version=stdnum.__version__,
-    description='Python module to handle standardized numbers and codes',
-    long_description=long_description,
-    long_description_content_type='text/markdown',
-    author='Arthur de Jong',
-    author_email='arthur@arthurdejong.org',
-    url='https://arthurdejong.org/python-stdnum/',
-    project_urls={
-        'Documentation': 'https://arthurdejong.org/python-stdnum/doc/',
-        'GitHub': 'https://github.com/arthurdejong/python-stdnum/',
-    },
-    license='LGPL',
-    classifiers=[
-        'Development Status :: 5 - Production/Stable',
-        'Intended Audience :: Developers',
-        'Intended Audience :: Financial and Insurance Industry',
-        'Intended Audience :: Information Technology',
-        'Intended Audience :: Telecommunications Industry',
-        'License :: OSI Approved :: GNU Lesser General Public License v2 or later (LGPLv2+)',
-        'Operating System :: OS Independent',
-        'Programming Language :: Python',
-        'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.6',
-        'Programming Language :: Python :: 3.7',
-        'Programming Language :: Python :: 3.8',
-        'Programming Language :: Python :: 3.9',
-        'Programming Language :: Python :: 3.10',
-        'Programming Language :: Python :: 3.11',
-        'Programming Language :: Python :: 3.12',
-        'Programming Language :: Python :: 3.13',
-        'Programming Language :: Python :: Implementation :: PyPy',
-        'Topic :: Office/Business :: Financial',
-        'Topic :: Software Development :: Libraries :: Python Modules',
-        'Topic :: Text Processing :: General',
-    ],
-    packages=find_packages(),
-    install_requires=[],
-    package_data={'': ['*.dat', '*.crt']},
-    extras_require={
-        # The SOAP feature is only required for a number of online tests
-        # of numbers such as the EU VAT VIES lookup, the Dominican Republic
-        # DGII services or the Turkish T.C. Kimlik validation.
-        'SOAP': ['zeep'],
-    },
-)
+install_options = {
+    "name": ptrace.PACKAGE,
+    "version": ptrace.__version__,
+    "url": ptrace.WEBSITE,
+    "download_url": ptrace.WEBSITE,
+    "author": "Victor Stinner",
+    "description": "python binding of ptrace",
+    "long_description": LONG_DESCRIPTION,
+    "classifiers": CLASSIFIERS,
+    "license": ptrace.LICENSE,
+    "packages": list(PACKAGES.keys()),
+    "package_dir": PACKAGES,
+    "scripts": SCRIPTS,
+}
+
+setup(**install_options)
