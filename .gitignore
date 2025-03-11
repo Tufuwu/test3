@@ -1,3 +1,6 @@
-/build/
-/venv/
-__pycache__
+build
+build/*
+dist
+dist/*
+*.pyc
+zxing/java/

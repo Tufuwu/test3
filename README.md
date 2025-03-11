@@ -1,80 +1,73 @@
-# SoundCloud Add-on for [Kodi](https://github.com/xbmc/xbmc)
+# python-zxing
 
-<img align="right" src="https://github.com/xbmc/xbmc/raw/master/addons/webinterface.default/icon-128.png" alt="Kodi logo">
+[![PyPI](https://img.shields.io/pypi/v/zxing.svg)](https://pypi.python.org/pypi/zxing)
+[![Build Status](https://github.com/dlenski/python-zxing/workflows/test_and_release/badge.svg)](https://github.com/dlenski/python-zxing/actions/workflows/test_and_release.yml)
+[![License: LGPL v3](https://img.shields.io/badge/License-LGPL%20v3-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0)
 
-[![GitHub tag (latest SemVer)](https://img.shields.io/github/tag/jaylinski/kodi-addon-soundcloud.svg)](https://github.com/jaylinski/kodi-addon-soundcloud/releases)
-[![CI Build Status](https://github.com/jaylinski/kodi-addon-soundcloud/actions/workflows/ci.yml/badge.svg)](https://github.com/jaylinski/kodi-addon-soundcloud/actions)
-[![Link to Kodi forum](https://img.shields.io/badge/Kodi-Forum-informational.svg)](https://forum.kodi.tv/showthread.php?tid=206635)
-[![Link to Kodi wiki](https://img.shields.io/badge/Kodi-Wiki-informational.svg)](https://kodi.wiki/view/Add-on:SoundCloud)
-[![Link to Kodi releases](https://img.shields.io/badge/Kodi-v19%20%22Matrix%22-green.svg)](https://kodi.wiki/view/Releases)
+This is a wrapper for the [ZXing barcode library](https://github.com/zxing/zxing).
+It will allow you to read and decode barcode images from Python.
 
-This [Kodi](https://github.com/xbmc/xbmc) Add-on provides a minimal interface for SoundCloud.
+It was originally a "slightly less quick-and-dirty" fork of [oostendo/python-zxing](https://github.com/oostendo/python-zxing), but has since
+evolved considerably beyond that ancestral package.
 
-## Features
+## Dependencies and installation
 
-* Search
-* Discover new music
-* Play tracks, albums and playlists
+Use the Python 3 version of pip (usually invoked via `pip3`) to install: `pip3 install zxing`
 
-## Installation
+* You'll neeed to have a recent `java` binary somewhere in your path. (Tested with OpenJDK v7, v8, v11.)
+* pip will automatically download the relevant [JAR](https://en.wikipedia.org/wiki/JAR_(file_format)) files for the Java ZXing libraries (currently v3.5.3)
 
-### Kodi Repository
+## Usage
 
-Follow the instructions on [https://kodi.wiki/view/Add-on:SoundCloud](https://kodi.wiki/view/Add-on:SoundCloud).
+The `BarCodeReader` class is used to decode images:
 
-### Manual
+```python
+>>> import zxing
+>>> reader = zxing.BarCodeReader()
+>>> print(reader.zxing_version, reader.zxing_version_info)
+3.5.1 (3, 5, 1)
+>>> barcode = reader.decode("test/barcodes/QR_CODE-easy.png")
+>>> print(barcode)
+BarCode(raw='This should be QR_CODE', parsed='This should be QR_CODE', path='test/barcodes/QR_CODE-easy.png', format='QR_CODE', type='TEXT', points=[(15.0, 87.0), (15.0, 15.0), (87.0, 15.0), (75.0, 75.0)])
+```
 
-* [Download the latest release](https://github.com/jaylinski/kodi-addon-soundcloud/releases) (`plugin.audio.soundcloud.zip`)
-* Copy the zip file to your Kodi system
-* Open Kodi, go to Add-ons and select "Install from zip file"
-* Select the file `plugin.audio.soundcloud.zip`
+The attributes of the decoded `BarCode` object are `raw`, `parsed`, `path`, `format`, `type`, `points`, and `raw_bits`.
+The list of formats which ZXing can decode is [here](https://zxing.github.io/zxing/apidocs/com/google/zxing/BarcodeFormat.html).
 
-## API
+The `decode()` method accepts an image path or [PIL Image object](https://pillow.readthedocs.io/en/stable/reference/Image.html) (or list thereof)
+and takes optional parameters `try_harder` (boolean), `possible_formats` (list of formats to consider), and `pure_barcode` (boolean).
+If no barcode is found, it returns a `False`-y `BarCode` object with all fields except `path` set to `None`.
+If it encounters any other recognizable error from the Java ZXing library, it raises `BarCodeReaderException`.
 
-Documentation of the **public** interface.
+## Command-line interface
 
-### plugin://plugin.audio.soundcloud/play/?[track_id|playlist_id|url]
+The command-line interface can decode images into barcodes and output in either a human-readable or CSV format:
 
-Examples:
+```
+usage: zxing [-h] [-c] [--try-harder] [--pure-barcode] [-V] image [image ...]
+```
 
-* `plugin://plugin.audio.soundcloud/play/?track_id=1`
-* `plugin://plugin.audio.soundcloud/play/?playlist_id=1`
-* `plugin://plugin.audio.soundcloud/play/?url=https%3A%2F%2Fsoundcloud.com%2Fpslwave%2Fallwithit`
+Human-readable:
 
-Legacy (will be removed in v5.0):
+```sh
+$ zxing /tmp/barcode.png
+/tmp/barcode.png
+================
+  Decoded TEXT barcode in QR_CODE format.
+  Raw text:    'Testing 123'
+  Parsed text: 'Testing 123'
+```
 
-* `plugin://plugin.audio.soundcloud/play/?audio_id=1` Use `track_id=1` instead.
+CSV output (can be opened by LibreOffice or Excel):
 
-## Development
+```sh
+$ zxing /tmp/barcode1.png /tmp/barcode2.png /tmp/barcode3.png
+Filename,Format,Type,Raw,Parsed
+/tmp/barcode1.png,CODE_128,TEXT,Testing 123,Testing 123
+/tmp/barcode2.png,QR_CODE,URI,http://zxing.org,http://zxing.org
+/tmp/barcode3.png,QR_CODE,TEXT,"This text, ""Has stuff in it!"" Wow⏎Yes it does!","This text, ""Has stuff in it!"" Wow⏎Yes it does!"
+```
 
-This add-on uses [Pipenv](https://pypi.org/project/pipenv/) to manage its dependencies.
+## License
 
-### Setup
-
-[Install Pipenv](https://pipenv.pypa.io/en/latest/installation.html#installing-pipenv) and run `pipenv install --dev`.
-
-### Build
-
-Run `pipenv run build`.
-
-### Lint
-
-Run `pipenv run lint`.
-
-### Test
-
-Run `pipenv run test`.
-
-## Roadmap
-
-* Re-implement all features from original add-on
-* Implement [enhancements](https://github.com/jaylinski/kodi-addon-soundcloud/issues?q=is%3Aopen+is%3Aissue+label%3Aenhancement)
-
-## Attributions
-
-This add-on is strongly inspired by the [original add-on](https://github.com/SLiX69/plugin.audio.soundcloud)
-developed by [bromix](https://kodi.tv/addon-author/bromix) and [SLiX](https://github.com/SLiX69).
-
-## Copyright and license
-
-This add-on is licensed under the MIT License - see `LICENSE.txt` for details.
+LGPLv3
