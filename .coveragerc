@@ -1,6 +1,6 @@
 [run]
-source = appconf
-branch = 1
-
-[report]
-omit = *tests*
+include =
+    kazoo/*
+omit =
+    kazoo/tests/*
+    kazoo/testing/*

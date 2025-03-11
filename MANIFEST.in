@@ -1,6 +1,21 @@
-include README.rst
+global-exclude *pyc *pyo __pycache__
+# Git files
+exclude .gitignore
+# CI/CD files
+exclude .travis.yml.bak
+exclude .clog.toml
+prune .github
+
+exclude Makefile
+exclude run_failure.py
+
+include CHANGES.md
+include CONTRIBUTING.md
+include README.md
 include LICENSE
-include AUTHORS
+include MANIFEST.in
+
+include tox.ini
+
+recursive-include kazoo *
 recursive-include docs *
-recursive-include tests *
-recursive-exclude */__pycache__ *
