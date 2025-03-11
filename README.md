@@ -1,116 +1,145 @@
-# click-man
+olefile
+=======
 
-[![Build Status](https://github.com/click-contrib/click-man/actions/workflows/ci.yaml/badge.svg)](https://github.com/click-contrib/click-man/actions/workflows/ci.yaml) [![PyPI Package version](https://badge.fury.io/py/click-man.svg)](https://pypi.python.org/pypi/click-man)
+[![Test](https://github.com/decalage2/olefile/actions/workflows/test.yml/badge.svg)](https://github.com/decalage2/olefile/actions)
+[![Build Status AppVeyor](https://ci.appveyor.com/api/projects/status/github/decalage2/olefile?svg=true)](https://ci.appveyor.com/project/decalage2/olefile)
+[![codecov](https://codecov.io/gh/decalage2/olefile/branch/main/graph/badge.svg)](https://codecov.io/gh/decalage2/olefile)
+[![Documentation Status](http://readthedocs.org/projects/olefile/badge/?version=latest)](http://olefile.readthedocs.io/en/latest/?badge=latest)
+[![PyPI](https://img.shields.io/pypi/v/olefile.svg)](https://pypi.org/project/olefile/)
+[![Say Thanks!](https://img.shields.io/badge/Say%20Thanks-!-1EAEDB.svg)](https://saythanks.io/to/decalage2)
 
-Create **man pages** for [click](https://github.com/pallets/click) application as easy as this:
+[olefile](https://www.decalage.info/olefile) is a Python package to parse, read and write
+[Microsoft OLE2 files](http://en.wikipedia.org/wiki/Compound_File_Binary_Format)
+(also called Structured Storage, Compound File Binary Format or Compound Document File Format),
+such as Microsoft Office 97-2003 documents, vbaProject.bin in MS Office 2007+ files, Image Composer
+and FlashPix files, Outlook messages, StickyNotes, several Microscopy file formats, McAfee antivirus quarantine files,
+etc.
 
-```bash
-click-man foo
-```
 
-where `foo` is the name of your script, as defined in [`console_scripts`](https://python-packaging.readthedocs.io/en/latest/command-line-scripts.html#the-console-scripts-entry-point).
+**Quick links:** [Home page](https://www.decalage.info/olefile) -
+[Download/Install](http://olefile.readthedocs.io/en/latest/Install.html) -
+[Documentation](http://olefile.readthedocs.io/en/latest) -
+[Report Issues/Suggestions/Questions](https://github.com/decalage2/olefile/issues) -
+[Contact the author](https://www.decalage.info/contact) -
+[Repository](https://github.com/decalage2/olefile) -
+[Updates on Twitter](https://twitter.com/decalage2)
 
-→ Checkout the [debian packaging example](#debian-packages)
 
-## What it does
+News
+----
 
-*click-man* will generate one man page per command of your click CLI application specified in `console_scripts` in your `setup.py` / `setup.cfg` / `pyproject.toml`.
+Follow all updates and news on Twitter: <https://twitter.com/decalage2>
 
-## Installation
+- **2023-12-01 v0.47**: now distributed as wheel package, added VT_VECTOR support for properties,
+  added get_userdefined_properties, fixed bugs in isOleFile and write_sect, improved file closure
+- 2018-09-09 v0.46: OleFileIO can now be used as a context manager
+(with...as), to close the file automatically
+(see [doc](https://olefile.readthedocs.io/en/latest/Howto.html#open-an-ole-file-from-disk)).
+Improved handling of malformed files, fixed several bugs.
+- 2018-01-24 v0.45: olefile can now overwrite streams of any size, improved handling of malformed files,
+fixed several [bugs](https://github.com/decalage2/olefile/milestone/4?closed=1), end of support for Python 2.6 and 3.3.
+- 2017-01-06 v0.44: several bugfixes, removed support for Python 2.5 (olefile2),
+added support for incomplete streams and incorrect directory entries (to read malformed documents),
+added getclsid, improved [documentation](http://olefile.readthedocs.io/en/latest) with API reference.
+- 2017-01-04: moved the documentation to [ReadTheDocs](http://olefile.readthedocs.io/en/latest)
+- 2016-05-20: moved olefile repository to [GitHub](https://github.com/decalage2/olefile)
+- 2016-02-02 v0.43: fixed issues [#26](https://github.com/decalage2/olefile/issues/26)
+    and [#27](https://github.com/decalage2/olefile/issues/27),
+    better handling of malformed files, use python logging.
+- see [changelog](https://github.com/decalage2/olefile/blob/master/CHANGELOG.md) for more detailed information and
+the latest changes.
 
-```bash
-pip install click-man
-```
+Download/Install
+----------------
 
-## Usage
+If you have pip or setuptools installed (pip is included in Python 2.7.9+), you may simply run **pip install olefile**
+or **easy_install olefile** for the first installation.
 
-The following sections describe different usage example for *click-man*.
+To update olefile, run **pip install -U olefile**.
 
-### CLI
+Otherwise, see http://olefile.readthedocs.io/en/latest/Install.html
 
-**click-man** provides its own command line tool which can be passed the name of an installed script:
+Features
+--------
 
-```bash
-click-man commandname
-```
+- Parse, read and write any OLE file such as Microsoft Office 97-2003 legacy document formats (Word .doc, Excel .xls,
+    PowerPoint .ppt, Visio .vsd, Project .mpp), MSI files, Image Composer and FlashPix files, Outlook messages, StickyNotes,
+    Zeiss AxioVision ZVI files, Olympus FluoView OIB files, etc
+- List all the streams and storages contained in an OLE file
+- Open streams as files
+- Parse and read property streams, containing metadata of the file
+- Portable, pure Python module, no dependency
 
-where `commandname` is the name of an installed `console_script` entry point.
+olefile can be used as an independent package or with PIL/Pillow.
 
-To specify a target directory for the man pages, use the `--target` option:
+olefile is mostly meant for developers. If you are looking for tools to analyze OLE files or to extract data (especially
+for security purposes such as malware analysis and forensics), then please also check my
+[python-oletools](https://www.decalage.info/python/oletools), which are built upon olefile and provide a higher-level interface.
 
-```bash
-click-man --target path/to/man/pages commandname
-```
 
-You can use the `manpath` command or `MANPATH` environment variable to identify where man pages can be placed.
+Documentation
+-------------
 
-### Automatic man page installation with setuptools and pip
+Please see the [online documentation](http://olefile.readthedocs.io/en/latest) for more information.
 
-While earlier version of click-man provided a distutils hook that could be used to automatically install man pages,
-this approach had a number of caveats as outlined [below][issues-with-automatic-man-page-installation].
-distutils was removed from Python stdlib in Python 3.12 and the distutils hook was removed from **click-man** in v0.5.0.
 
-### Debian packages
+## Real-life examples ##
 
-The `debhelper` packages provides a very convenient script called `dh_installman`.
-It checks for the `debian/(pkg_name.)manpages` file and it's content which is basically a line by line list of man pages or globs:
+A real-life example: [using OleFileIO_PL for malware analysis and forensics](http://blog.gregback.net/2011/03/using-remnux-for-forensic-puzzle-6/).
 
-```
-debian/tmp/manpages/*
-```
+See also [this paper](https://computer-forensics.sans.org/community/papers/gcfa/grow-forensic-tools-taxonomy-python-libraries-helpful-forensic-analysis_6879) about python tools for forensics, which features olefile.
 
-We override the rule provided by `dh_installman` to generate our man pages in advance, like this:
 
-```Makefile
-override_dh_installman:
-	click-man <executable> --target debian/tmp/manpages
-	dh_installman -O--buildsystem=pybuild
-```
+License
+-------
 
-Now we are able to build a Debian package with the tool of our choice, e.g.:
+olefile (formerly OleFileIO_PL) is copyright (c) 2005-2023 Philippe Lagadec
+([https://www.decalage.info](https://www.decalage.info))
 
-```bash
-debuild -us -uc
-```
+All rights reserved.
 
-Checkout a working example here: [repo debian package](https://github.com/click-contrib/click-man/tree/master/examples/debian_pkg)
+Redistribution and use in source and binary forms, with or without modification,
+are permitted provided that the following conditions are met:
 
-### Other distro packages
+ * Redistributions of source code must retain the above copyright notice, this
+   list of conditions and the following disclaimer.
+ * Redistributions in binary form must reproduce the above copyright notice,
+   this list of conditions and the following disclaimer in the documentation
+   and/or other materials provided with the distribution.
 
-To include man pages in packages for other package managers like `dnf`, `zypper`, or `pacman`, you will likely need to do one of the following:
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-* For upstream maintainers: generate man pages as part of a build release process and include them in version control or your generated sdists
-* For packagers: generate man pages as part of the package build process and include these in the RPMs or tarballs, along with the relevant stanzas in the package definition
 
-If you are packaging utilities, we would welcome PRs documenting best practices for those using **click-man** to document their utilities.
+----------
 
-## Issues with automatic man page installation
+olefile is based on source code from the OleFileIO module of the Python Imaging Library (PIL) published by Fredrik
+Lundh under the following license:
 
-### Man pages are a UNIX thing
+The Python Imaging Library (PIL) is
 
-Python in general and with that pip and setuptools are aimed to be platform independent.
-Man pages are **not**: they are a UNIX thing which means setuptools does not provide a sane solution to generate and install man pages.
-We should consider using automatic man page installation only with vendor specific packaging, e.g. for `*.deb` or `*.rpm` packages.
+- Copyright (c) 1997-2009 by Secret Labs AB
+- Copyright (c) 1995-2009 by Fredrik Lundh
 
-### Man pages are not compatible with Python virtualenvs
+By obtaining, using, and/or copying this software and/or its associated documentation, you agree that you have read,
+understood, and will comply with the following terms and conditions:
 
-Even on systems that support man pages, Python packages can be installed in
-virtualenvs via pip and setuptools, which do not make commands available
-globally. In fact, one of the "features" of a virtualenv is the ability to
-install a package without affecting the main system. As it is imposable to
-ensure a man page is only generated when not installing into a virtualenv,
-auto-generated man pages would pollute the main system and not stay contained in
-the virtualenv. Additionally, as a user could install multiple different
-versions of the same package into multiple different virtualenvs on the same
-system, there is no guarantee that a globally installed man page will document
-the version and behavior available in any given virtualenv.
+Permission to use, copy, modify, and distribute this software and its associated documentation for any purpose and
+without fee is hereby granted, provided that the above copyright notice appears in all copies, and that both that
+copyright notice and this permission notice appear in supporting documentation, and that the name of Secret Labs AB or
+the author not be used in advertising or publicity pertaining to distribution of the software without specific, written
+prior permission.
 
-### We want to generate man pages on the fly
-
-First, we do not want to commit man pages to our source control.
-We want to generate them on the fly, either during build or installation time.
-
-With setuptools and pip we face two problems:
-
-1. If we generate and install them during installation of the package pip does not know about the man pages and thus cannot uninstall it.
-2. If we generate them in our build process and add them to your distribution we do not have a way to prevent installation to */usr/share/man* for non-UNIX-like Operating Systems or from within virtualenvs.
+SECRET LABS AB AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE, INCLUDING ALL IMPLIED WARRANTIES
+OF MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL SECRET LABS AB OR THE AUTHOR BE LIABLE FOR ANY SPECIAL, INDIRECT OR
+CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF
+CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS
+SOFTWARE.

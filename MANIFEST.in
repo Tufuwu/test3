@@ -1,5 +1,10 @@
-include *.md
-include *.rst
-include *.txt
-include LICENSE
-recursive-include tests *
+include CONTRIBUTORS.txt
+include install.bat
+include LICENSE.txt
+include README.md
+include setup.py
+
+graft doc
+prune doc/_build
+
+graft tests
