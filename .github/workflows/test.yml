@@ -1,38 +1,39 @@
-name: CI
-
-on: [ push, pull_request ]
-
+name: Tufuwu/test2
+on:
+  push:
+    branches:
+    - "**/*"
+  pull_request:
+#   # This item has no matching transformer
+#   maximum_number_of_builds: 0
+env:
+  VIPS_VERSION_MAJOR: '8'
+  VIPS_VERSION_MINOR: '9'
+  VIPS_VERSION_MICRO: '0'
+  PATH: "${{ github.workspace }}/vips/bin:$PATH"
+  LD_LIBRARY_PATH: "${{ github.workspace }}/vips/lib:$LD_LIBRARY_PATH"
+  PKG_CONFIG_PATH: "${{ github.workspace }}/vips/lib/pkgconfig:$PKG_CONFIG_PATH"
 jobs:
-  CI:
-    name: "Linux x64 (Ubuntu 22.04) - Python ${{ matrix.python-version }}"
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        # Only test supported Python versions:
-        # https://endoflife.date/python
-        python-version: ["3.9", "3.10"]
-
+  test:
+    runs-on: ubuntu-16.04
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
-        with:
-          python-version: ${{ matrix.python-version }}
-
-      - name: Install libvips
-        run: sudo apt-get install --no-install-recommends libvips
-
-      - name: Lint with flake8
-        run: |
-          pip install flake8
-          flake8 .
-
-      - name: Install tox and any other packages
-        run: pip install tox
-
-      - name: Run tox
-        # Run tox using the version of Python in `PATH`
-        run: tox -e py
+    - name: checkout
+      uses: actions/checkout@v4.1.0
+    - uses: actions/setup-python@v5.0.0
+      with:
+        python-version: "${{ matrix.python }}"
+    - name: Set up cache
+      uses: actions/cache@v3.3.2
+      with:
+        path: "${{ github.workspace }}/vips"
+        key: "${{ runner.os }}-path"
+    - run: apt-get -y install libexpat1-dev gettext liblcms2-dev libmagickwand-dev libopenexr-dev libcfitsio3-dev libfftw3-dev libgif-dev libgs-dev libgsf-1-dev libmatio-dev libopenslide-dev liborc-0.4-dev libpango1.0-dev libpoppler-glib-dev librsvg2-dev libwebp-dev libtiff5-dev libglib2.0-dev
+    - run: uname -a
+    - run: bash install-vips.sh --without-python
+    - run: pip install -U setuptools
+    - run: pip install -U .[test]
+    - run: python setup.py test
+    strategy:
+      matrix:
+        python: ["3.9", "3.10", "3.11"]
+#       # 'allow_failures' transformations are currently unsupported.
