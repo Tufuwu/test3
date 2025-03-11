@@ -1,34 +1,44 @@
-# Configuration file for the Sphinx documentation builder.
-#
-# For the full list of built-in configuration values, see the documentation:
-# https://www.sphinx-doc.org/en/master/usage/configuration.html
+"""Configuration file for the Sphinx documentation builder."""
 
-# -- Project information -----------------------------------------------------
-# https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
-project = 'fcache'
-copyright = '2024, Thomas Roten'
-author = 'Thomas Roten'
-release = '0.6.0'
+import os
+import sys
+from datetime import date
 
-# -- General configuration ---------------------------------------------------
-# https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
+from sphinx_pyproject import SphinxConfig
+
+current_year = date.today().year
+
+config = SphinxConfig("../pyproject.toml")
+
+# -- Project information
+
+project = config.name
+author = config.author
+copyright = f"2010—{current_year}, {author}"
+version = config.version
+release = version
+
+# -- General configuration
+
+# let autodoc discover the module
+sys.path.insert(0, os.path.abspath("../../src"))
+
+master_doc = "index"
 
 extensions = [
-    'sphinx.ext.autodoc',
-    'sphinx.ext.intersphinx',
-    'sphinx.ext.viewcode',
+    "sphinx.ext.autodoc",
+    "sphinx.ext.coverage",
+    "sphinx.ext.intersphinx",
 ]
 
-templates_path = ['_templates']
-exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
+templates_path = ["_templates"]
 
-# -- Options for HTML output -------------------------------------------------
-# https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
+html_theme = "sphinx_rtd_theme"
 
-html_theme = 'alabaster'
-html_static_path = ['_static']
+intersphinx_mapping = {
+    "python": ("https://docs.python.org/3", None),
+}
 
-# -- Options for intersphinx links -------------------------------------------
-# https://www.sphinx-doc.org/en/master/usage/extensions/intersphinx.html#configuration
+nitpicky = True
 
-intersphinx_mapping = {'python': ('https://docs.python.org/3', None)}
+autodoc_typehints = "both"
