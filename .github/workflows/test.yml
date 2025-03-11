@@ -1,39 +1,26 @@
-name: Build
-
+name: Tufuwu/test2
 on:
-  - push
-  - pull_request
-
+  push:
+    branches:
+    - "**/*"
+  pull_request:
+#   # This item has no matching transformer
+#   maximum_number_of_builds: 0
 jobs:
-  build:
-    runs-on: ${{ matrix.platform }}
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - name: checkout
+      uses: actions/checkout@v4.1.0
+    - uses: actions/setup-python@v5.0.0
+      with:
+        python-version: "${{ matrix.python }}"
+    - run: pip install tox-travis codecov
+    - run: tox
+    - run: codecov
+      if: "${{ success() }}"
+#     # This item has no matching transformer
+#     - email: false
     strategy:
       matrix:
-        platform:
-          - ubuntu-latest  # ubuntu-latest
-          - macos-latest  # macOS-11
-          - windows-latest  # windows-2022
-        python-version: ["3.9", "3.10"]
-
-    steps:
-    - uses: actions/checkout@v3
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v4
-      with:
-        python-version: ${{ matrix.python-version }}
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        python -m pip install tox tox-gh-actions
-    - name: Test with tox
-      run: tox -vv
-    - name: Upload coverage.xml
-      if: ${{ matrix.platform == 'ubuntu-latest' && matrix.python-version == '3.10' }}
-      uses: actions/upload-artifact@v4
-      with:
-        name: tox-gh-actions-coverage
-        path: coverage.xml
-        if-no-files-found: error
-    - name: Upload coverage.xml to codecov
-      if: ${{ matrix.platform == 'ubuntu-latest' && matrix.python-version == '3.10' }}
-      uses: codecov/codecov-action@v2
+        python: ["3.9", "3.10", "3.11"]
