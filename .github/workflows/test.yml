@@ -1,40 +1,29 @@
-name: Python package CI
+name: build
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - '*'
   pull_request:
-    branches: [ main ]
+    branches:
+      - master
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
     strategy:
       matrix:
-        python-version: ['3.9', '3.10']
+        python-version: ["3.9", "3.10"]
 
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v1
       with:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -e .[dev]
-    - name: Run tests
-      run: pytest
-    - name: Deploy to PyPI
-      env:
-        TWINE_USERNAME: __token__
-        TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
-      run: |
-        if [ -z "${{ secrets.PYPI_API_TOKEN }}" ]; then
-          echo "Set the PYPI_API_TOKEN secret";
-          exit 1;
-        fi
-        python setup.py sdist bdist_wheel
-        twine upload --skip-existing dist/*
+      run: pip install -r requirements-dev.txt
+    - name: Link with flake8
+      run: flake8 aioapns
+    - name: Run black
+      run: black --check .
