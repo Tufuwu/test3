@@ -1,37 +1,50 @@
-name: Python package CI
-
+name: Tests
 on:
   push:
-    branches: [ main ]
   pull_request:
-    branches: [ main ]
 
 jobs:
-  build:
-
-    runs-on: ubuntu-latest
-
+  test:
     strategy:
+      fail-fast: false
       matrix:
-        python-version: ['3.9', '3.10']
+        python: ["3.9", "3.10"]
+        os:
+          - macos-latest
+          - ubuntu-latest
+          - windows-latest
+    runs-on: ${{ matrix.os }}
 
     steps:
-    - uses: actions/checkout@v3
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
-      with:
-        python-version: ${{ matrix.python-version }}
-    - name: Install dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install --yes gcc python3-dev libsqlcipher-dev
-        python -m pip install --upgrade pip
-        python -m pip install pycodestyle codecov
-        python setup.py install
-    - name: Run tests
-      run: |
-        pycodestyle --exclude=venv --ignore=E501 .
-        coverage run --source=. -m pytest
-        coverage report -m
-    - name: Upload coverage to Codecov
-      run: codecov
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python }}
+
+      - run: pip install build
+      - run: python -m build .
+
+      - run: pip install dist/*.whl
+        shell: bash
+
+      - run: pip install pytest
+      - run: pytest
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist ${{ matrix.os }} ${{ matrix.python }}
+          path: dist/
+
+  deploy:
+    needs: test
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v2
+        with:
+          name: dist ubuntu-latest 3.10
+          path: dist/
+      - uses: pypa/gh-action-pypi-publish@master
+        with:
+          user: __token__
+          password: ${{ secrets.PYPI_TOKEN }}
