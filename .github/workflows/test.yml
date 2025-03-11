@@ -1,24 +1,40 @@
-name: Tufuwu/test2
+name: Python CI
+
 on:
   push:
     branches:
-    - "**/*"
+      - main
   pull_request:
-#   # This item has no matching transformer
-#   maximum_number_of_builds: 0
+    branches:
+      - main
+
 jobs:
-  test:
+  build:
     runs-on: ubuntu-latest
-    steps:
-    - name: checkout
-      uses: actions/checkout@v4.1.0
-#     # 'sudo' was not transformed because there is no suitable equivalent in GitHub Actions
-    - run: pip install -U tox
-    - run: tox
+
     strategy:
       matrix:
-        TOXENV:
-        - pep8
-        - py3
+        python-version: ['3.9', '3.10']
+
     env:
-      TOXENV: "${{ matrix.TOXENV }}"
+      TOXENV: pep8
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install tox
+        run: pip install -U tox
+
+      # SYS_PTRACE capability is not available in default containers,
+      # use sudo to work around the issue:
+      # https://github.com/travis-ci/travis-ci/issues/9033
+      - name: Run tox
+        run: |
+          if ${{ matrix.python-version }} == '3.9' || ${{ matrix.python-version }} == '3.10' ; then
+            sudo tox
+          fi
