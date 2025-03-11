@@ -1,59 +1,47 @@
-import re
+from setuptools import find_packages, setup
 
-try:
-    from setuptools import setup
-except ImportError:
-    from distutils.core import setup
+with open("README.rst") as readme_file:
+    readme = readme_file.read()
 
-with open("src/win32_setctime/__init__.py", "r") as file:
-    regex_version = r'^__version__\s*=\s*[\'"]([^\'"]*)[\'"]'
-    version = re.search(regex_version, file.read(), re.MULTILINE).group(1)
-
-with open("README.md", "rb") as file:
-    readme = file.read().decode("utf-8")
+with open("HISTORY.rst") as history_file:
+    history = history_file.read()
 
 setup(
-    name="win32_setctime",
-    version=version,
-    packages=["win32_setctime"],
-    package_dir={"": "src"},
-    package_data={"win32_setctime": ["py.typed"]},
-    description="A small Python utility to set file creation time on Windows",
-    long_description=readme,
-    long_description_content_type="text/markdown",
-    author="Delgan",
-    author_email="delgan.py@gmail.com",
-    url="https://github.com/Delgan/win32-setctime",
-    download_url="https://github.com/Delgan/win32-setctime/archive/{}.tar.gz".format(version),
-    keywords=["win32", "windows", "filesystem", "filetime"],
-    license="MIT license",
+    # Project information
+    name="mixsea",
+    version="0.1.2",
+    author="mixsea Developers",
+    author_email="",
+    url="https://github.com/modscripps/mixsea",
+    license="MIT License",
+    # Description
+    description="Ocean mixing parameterizations",
+    long_description=f"{readme}",
+    long_description_content_type="text/x-rst",
+    # Requirements
+    python_requires=">=3.6",
+    install_requires=["numpy", "gsw", "scipy"],
+    extras_require={
+        "test": ["pytest"],  # install these with: pip install mixsea[test]
+    },
+    # Packaging
+    packages=find_packages(include=["mixsea", "mixsea.*"], exclude=["*.tests"]),
+    package_data={"mixsea": ["tests/data/*.csv"]},
+    include_package_data=True,
+    zip_safe=False,
+    platforms=["any"],  # or more specific, e.g. "win32", "cygwin", "osx"
+    # Metadata
+    project_urls={"Documentation": "https://mixsea.readthedocs.io"},
     classifiers=[
-        "Development Status :: 5 - Production/Stable",
-        "Topic :: System :: Filesystems",
-        "Intended Audience :: Developers",
-        "Environment :: Win32 (MS Windows)",
-        "Natural Language :: English",
+        "Development Status :: 4 - Beta",
+        "Intended Audience :: Science/Research",
+        "Topic :: Scientific/Engineering :: Physics",
         "License :: OSI Approved :: MIT License",
-        "Operating System :: Microsoft",
-        "Programming Language :: Python",
+        "Natural Language :: English",
+        "Programming Language :: Python :: 3 :: Only",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.5",
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
-        "Programming Language :: Python :: 3.9",
-        "Programming Language :: Python :: 3.10",
-        "Programming Language :: Python :: 3.11",
-        "Programming Language :: Python :: 3.12",
-        "Programming Language :: Python :: 3.13",
-        "Programming Language :: Python :: 3 :: Only",
-        "Programming Language :: Python :: Implementation :: CPython",
     ],
-    extras_require={
-        "dev": [
-            "black>=19.3b0 ; python_version>='3.6'",
-            "pytest>=4.6.2",
-        ]
-    },
-    python_requires=">=3.5",
 )
