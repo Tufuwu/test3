@@ -1,85 +1,56 @@
-#!/usr/bin/env python3
-
-import sys
-from os import R_OK, access, makedirs, path
-from urllib.error import URLError
-from urllib.request import urlretrieve
-
+import codecs
+import re
+from os import path
 from setuptools import setup
 
-if not sys.version_info[0] == 3:
-    sys.exit("Python 2.x is not supported; Python 3.x is required.")
 
-########################################
-
-version_py = path.join(path.dirname(__file__), 'zxing', 'version.py')
-
-d = {}
-with open(version_py, 'r') as fh:
-    exec(fh.read(), d)
-    version_pep = d['__version__']
-
-########################################
+def read(*parts):
+    file_path = path.join(path.dirname(__file__), *parts)
+    return codecs.open(file_path, encoding='utf-8').read()
 
 
-def download_java_files(force=False):
-    files = {'java/javase.jar': 'https://repo1.maven.org/maven2/com/google/zxing/javase/3.5.3/javase-3.5.3.jar',
-             'java/core.jar': 'https://repo1.maven.org/maven2/com/google/zxing/core/3.5.3/core-3.5.3.jar',
-             'java/jcommander.jar': 'https://repo1.maven.org/maven2/com/beust/jcommander/1.82/jcommander-1.82.jar'}
-
-    for fn, url in files.items():
-        p = path.join(path.dirname(__file__), 'zxing', fn)
-        d = path.dirname(p)
-        if not force and access(p, R_OK):
-            print("Already have %s." % p)
-        else:
-            print("Downloading %s from %s ..." % (p, url))
-            try:
-                makedirs(d, exist_ok=True)
-                urlretrieve(url, p)
-            except (OSError, URLError) as e:
-                raise
-    return list(files.keys())
+def find_version(*parts):
+    version_file = read(*parts)
+    version_match = re.search(r"^__version__ = ['\"]([^'\"]*)['\"]",
+                              version_file, re.M)
+    if version_match:
+        return version_match.group(1)
+    raise RuntimeError("Unable to find version string.")
 
 
 setup(
-    name='zxing',
-    version=version_pep,
-    description="Wrapper for decoding/reading barcodes with ZXing (Zebra Crossing) library",
-    long_description=open('README.md', encoding='utf-8').read(),
-    long_description_content_type='text/markdown',
-    url="https://github.com/dlenski/python-zxing",
-    author='Daniel Lenski',
-    author_email='dlenski@gmail.com',
-    packages=['zxing'],
-    package_data={'zxing': download_java_files()},
-    entry_points={'console_scripts': ['zxing=zxing.__main__:main']},
-    extras_require={
-        "Image": [
-            "pillow>=3.0,<6.0; python_version < '3.5'",
-            "pillow>=3.0,<8.0; python_version >= '3.5' and python_version < '3.6'",
-            "pillow>=8.0; python_version >= '3.6'",
-        ]
-    },
-    install_requires=open('requirements.txt').readlines(),
-    python_requires=">=3",
-    tests_require=open('requirements-test.txt').readlines(),
-    test_suite='nose2.collector.collector',
-    license='LGPL v3 or later',
+    name='django-appconf',
+    version=find_version('appconf', '__init__.py'),
+    description='A helper class for handling configuration defaults '
+                'of packaged apps gracefully.',
+    long_description=read('README.rst'),
+    author='Jannis Leidel',
+    author_email='jannis@leidel.info',
+    license='BSD',
+    url='https://django-appconf.readthedocs.io/',
+    packages=['appconf'],
+    python_requires='>=3.9',
+    install_requires=['django'],
     classifiers=[
-        'Development Status :: 4 - Beta',
+        'Development Status :: 5 - Production/Stable',
+        'Environment :: Web Environment',
+        'Framework :: Django',
+        'Framework :: Django :: 4.2',
+        'Framework :: Django :: 5.1',
+        'Framework :: Django :: 5.2',
         'Intended Audience :: Developers',
-        'License :: OSI Approved :: GNU Lesser General Public License v3 or later (LGPLv3+)',
-        'Topic :: Multimedia :: Graphics :: Capture',
-        'Topic :: Scientific/Engineering :: Image Recognition',
-        'Topic :: Software Development :: Libraries :: Java Libraries',
-        'Topic :: Software Development :: Libraries :: Python Modules',
-        'Topic :: Utilities',
-        'Programming Language :: Python :: 3.6',
-        'Programming Language :: Python :: 3.7',
-        'Programming Language :: Python :: 3.8',
+        'License :: OSI Approved :: BSD License',
+        'Operating System :: OS Independent',
+        'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.9',
         'Programming Language :: Python :: 3.10',
         'Programming Language :: Python :: 3.11',
+        'Programming Language :: Python :: 3.12',
+        'Programming Language :: Python :: 3.13',
+        'Programming Language :: Python :: 3 :: Only',
+        'Topic :: Utilities',
     ],
+    project_urls={
+        'Source': 'https://github.com/django-compressor/django-appconf',
+    }
 )

@@ -1,6 +1,9 @@
 build
-build/*
 dist
-dist/*
+MANIFEST
 *.pyc
-zxing/java/
+*.egg-info
+*.egg
+docs/_build/
+.coverage
+.tox/
