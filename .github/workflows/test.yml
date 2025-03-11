@@ -1,79 +1,60 @@
+name: Test & Checks
 
-name: CI
-
-on:
-  push:
-    branches:
-      - main
-    tags:
-      - '*'
+on: [push, pull_request]
 
 jobs:
-  Testing:
+  tests:
+    name: Tests & Checks
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ['3.9', '3.10']
+        python: ["3.9", "3.10"]
 
     steps:
-      - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
+    - name: Set up Python
+      uses: actions/setup-python@v3
+      with:
+        python-version: ${{matrix.python}}
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install tox pbr
+        pip install -r doc/requirements.txt .[test]
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+    - name: Check doc
+      run: tox -e docs
+    - name: Check with linters
+      run: tox -e pep8
+    - name: Check covering
+      run: tox -e cover
+    - name: Test with tox
+      run: tox
 
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v2
-        with:
-          python-version: ${{ matrix.python-version }}
-
-      - name: Install dependencies
-        run: |
-          python -m pip install pre-commit setuptools wheel
-          python -m pip install -r requirements.txt
-          python setup.py install
-
-      - name: Pre-commit checks
-        run: pre-commit run --all-files --show-diff-on-failure
-
-      - name: Run unit tests
-        run: python -m unittest --verbose
-
-      - name: Build documentation
-        run: |
-          mkdir html
-          python -I -m sphinx_multiversion -W docs html
-          python setup.py build sdist bdist_wheel
-
-  Deployment:
-    needs: Testing
+  build-and-publish:
+    name: Build a new package and publish it to pypi if necessary
     runs-on: ubuntu-latest
-    if: github.event_name != 'pull_request' && (github.ref == 'refs/heads/main' || github.event_name == 'tag')
+    needs: tests
+    permissions:
+      id-token: write
 
     steps:
-      - uses: actions/checkout@v2
-
-      - name: Set up Python 3.9
-        uses: actions/setup-python@v2
-        with:
-          python-version: 3.9
-
-      - name: Install dependencies
-        run: |
-          python -m pip install pre-commit setuptools wheel
-          python -m pip install -r requirements.txt
-          python setup.py install
-
-      - name: Deploy to PyPI
-        run: |
-          echo ${{ secrets.PYPI_API_KEY }} > ~/.pypirc
-          python -m twine upload dist/*
-
-      - name: Create GitHub release
-        uses: softprops/action-gh-release@v1
-        with:
-          files: dist/*
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Deploy documentation
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./html
-
+    - uses: actions/checkout@v4
+    - uses: actions/setup-python@v4
+      with:
+        python-version: "3.x"
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install build
+    - name: Build package
+      run: python -m build
+    - name: upload windows dists
+      uses: actions/upload-artifact@v4
+      with:
+        name: release-dists
+        path: dist/
+    - name: Publish release distributions to PyPI
+      # deploy only when a new tag is pushed to github
+      if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
+      uses: pypa/gh-action-pypi-publish@release/v1
