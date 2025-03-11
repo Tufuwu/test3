@@ -1,10 +1,1 @@
-.pytest_cache
-build
-dist
-context_menu.egg-info
-__pycache__
-.test_cm
-direct_test.py
-.idea
-.coverage
-pytest-report.html
+*.swp
