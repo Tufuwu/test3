@@ -1,42 +1,45 @@
+import io
 import os
-import re
-from setuptools import setup, find_packages
+from setuptools import find_packages, setup
 
 
-def read(filename):
-    return open(os.path.join(os.path.dirname(__file__), filename)).read()
-
-
-def read_version():
-    with open('filestack/__init__.py') as f:
-        return re.search(r'__version__ = \'(.+)\'$', f.readline()).group(1)
-
+here = os.path.abspath(os.path.dirname(__file__))
+with io.open(os.path.join(here, 'README.md'), encoding='utf-8') as f:
+    README = '\n' + f.read()
 
 setup(
-    name='filestack-python',
-    version=read_version(),
-    license='Apache 2.0',
-    description='Filestack Python SDK',
-    long_description='Visit: https://github.com/filestack/filestack-python',
-    url='https://github.com/filestack/filestack-python',
-    author='filestack.com',
-    author_email='support@filestack.com',
-    packages=find_packages(),
+    name='drf-multitokenauth',
+    version=os.getenv('PACKAGE_VERSION', '2.1.0').replace('refs/tags/', ''),
+    packages=find_packages(exclude=["tests", "*.tests", "*.tests.*", "tests.*"]),
     install_requires=[
-        'requests>=2.31.0',
-        'trafaret==2.0.2'
+        'django-ipware==3.0.*',
     ],
+    include_package_data=True,
+    license='BSD License',
+    description='An extension of django rest frameworks token auth, providing multiple authentication tokens per user',
+    long_description=README,
+    long_description_content_type='text/markdown',
+    url='https://github.com/anexia/drf-multitokenauth',
+    author='Harald Nezbeda',
+    author_email='hnezbeda@anexia-it.com',
     classifiers=[
-        'Development Status :: 4 - Beta',
+        'Development Status :: 5 - Production/Stable',
+        'Environment :: Web Environment',
+        'Framework :: Django',
+        'Framework :: Django :: 4.2',
+        'Framework :: Django :: 5.0',
+        'Framework :: Django :: 5.1',
         'Intended Audience :: Developers',
-        'License :: OSI Approved :: Apache Software License',
+        'License :: OSI Approved :: BSD License',
+        'Operating System :: OS Independent',
         'Programming Language :: Python',
-        'Programming Language :: Python :: 3.7',
-        'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.9',
         'Programming Language :: Python :: 3.10',
         'Programming Language :: Python :: 3.11',
         'Programming Language :: Python :: 3.12',
+        'Programming Language :: Python :: 3.13',
         'Topic :: Internet :: WWW/HTTP',
+        'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
     ],
 )

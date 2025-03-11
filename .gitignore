@@ -1,14 +1,11 @@
-.DS_Store
 *.pyc
-.cache/
-temp_files/
-.vscode/
-test.zip
-tests/data/test_download.jpg
-.coverage
-.idea
-.venv
+__pycache__
+*.pyo
+dist/**
+*.egg-info*
+.idea/
+venv/
+build/
+db.sqlite3
+dist/
 
-docs/build/*
-
-venv

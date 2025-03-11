@@ -1,176 +1,139 @@
-<p align="center"><img src="logo.svg" align="center" width="100"/></p>
-<h1 align="center">Filestack Python</h1>
-<p align="center">
-  <a href="https://img.shields.io/pypi/pyversions/filestack-python.svg">
-    <img src="https://github.com/filestack/filestack-python/actions/workflows/tests.yml/badge.svg">
-  </a>
-  <a href="https://pypi.python.org/pypi/filestack-python">
-    <img src="https://img.shields.io/pypi/v/filestack-python.svg">
-  </a>
-    <img src="https://img.shields.io/pypi/pyversions/filestack-python.svg">
-</p>
-This is the official Python SDK for Filestack - API and content management system that makes it easy to add powerful file uploading and transformation capabilities to any web or mobile application.
+# Django Rest Multi Token Auth
 
-## Resources
+[![PyPI](https://img.shields.io/pypi/v/drf-multitokenauth)](https://pypi.org/project/drf-multitokenauth/)
+[![Test status](https://github.com/anexia/drf-multitokenauth/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/anexia/drf-multitokenauth/actions/workflows/test.yml)
+[![Codecov](https://img.shields.io/codecov/c/gh/anexia/drf-multitokenauth)](https://codecov.io/gh/anexia/drf-multitokenauth)
 
-To learn more about this SDK, please visit our API Reference
+This django app is an extension for the Django Rest Framework.
+It tries to overcome the limitation of Token Authentication, which only uses a single token per user. 
 
-* [API Reference](https://filestack-python.readthedocs.io)
+## How to use
 
-## Installing
-
-Install ``filestack`` with pip
-
-```shell
-pip install filestack-python
+Install:
+```bash
+pip install drf-multitokenauth
 ```
 
-or directly from GitHub
-
-```shell
-pip install git+https://github.com/filestack/filestack-python.git
-```
-
-## Quickstart
-
-The Filestack SDK allows you to upload and handle filelinks using two main classes: Client and Filelink.
-
-### Uploading files with `filestack.Client`
-``` python
-from filestack import Client
-client = Client('<YOUR_API_KEY>')
-
-new_filelink = client.upload(filepath='path/to/file')
-print(new_filelink.url)
-```
-
-#### Uploading files using Filestack Intelligent Ingestion
-To upload files using Filestack Intelligent Ingestion, simply add `intelligent=True` argument
+Add ``'drf_multitokenauth'`` to your ``INSTALLED_APPS`` in your Django settings file:
 ```python
-new_filelink = client.upload(filepath='path/to/file', intelligent=True)
-```
-FII always uses multipart uploads. In case of network issues, it will dynamically split file parts into smaller chunks (sacrificing upload speed in favour of upload reliability).
-
-### Working with Filelinks
-Filelink objects can by created by uploading new files, or by initializing `filestack.Filelink` with already existing file handle
-```python
-from filestack import Filelink, Client
-
-client = Client('<APIKEY>')
-filelink = client.upload(filepath='path/to/file')
-filelink.url  # 'https://cdn.filestackcontent.com/FILE_HANDLE
-
-# work with previously uploaded file
-filelink = Filelink('FILE_HANDLE')
-```
-
-### Basic Filelink Functions
-
-With a Filelink, you can download to a local path or get the content of a file. You can also perform various transformations.
-
-```python
-file_content = new_filelink.get_content()
-
-size_in_bytes = new_filelink.download('/path/to/file')
-
-filelink.overwrite(filepath='path/to/new/file')
-
-filelink.resize(width=400).flip()
-
-filelink.delete()
-```
-
-### Transformations
-
-You can chain transformations on both Filelinks and external URLs. Storing transformations will return a new Filelink object.
-
-```python
-transform = client.transform_external('http://<SOME_URL>')
-new_filelink = transform.resize(width=500, height=500).flip().enhance().store()
-
-filelink = Filelink('<YOUR_HANDLE'>)
-new_filelink = filelink.resize(width=500, height=500).flip().enhance().store()
-```
-
-You can also retrieve the transformation url at any point.
-
- ```python
-transform_candidate = client.transform_external('http://<SOME_URL>')
-transform = transform_candidate.resize(width=500, height=500).flip().enhance()
-print(transform.url)
-```
-
-### Audio/Video Convert
-
-Audio and video conversion works just like any transformation, except it returns an instance of class AudioVisual, which allows you to check the status of your video conversion, as well as get its UUID and timestamp. 
-
-```python
-av_object = filelink.av_convert(width=100, height=100)
-while (av_object.status != 'completed'):
-    print(av_object.status)
-    print(av_object.uuid)
-    print(av_object.timestamp)
-```
-
-The status property makes a call to the API to check its current status, and you can call to_filelink() once video is complete (this function checks its status first and will fail if not completed yet).
-
-```python
-filelink = av_object.to_filelink()
-```
-
-### Security Objects
-
-Security is set on Client or Filelink classes upon instantiation and is used to sign all API calls.
-
-```python
-from filestack import Security
-
-policy = {'expiry': 253381964415}  # 'expiry' is the only required key
-security = Security(policy, '<YOUR_APP_SECRET>')
-client = Client('<YOUR_API_KEY', security=security)
-
-# new Filelink object inherits security and will use for all calls
-new_filelink = client.upload(filepath='path/to/file')
-
-# you can also provide Security objects explicitly for some methods
-size_in_bytes = filelink.download(security=security)
-```
-
-You can also retrieve security details straight from the object:
-```python
->>> policy = {'expiry': 253381964415, 'call': ['read']}
->>> security = Security(policy, 'SECURITY-SECRET')
->>> security.policy_b64
-'eyJjYWxsIjogWyJyZWFkIl0sICJleHBpcnkiOiAyNTMzODE5NjQ0MTV9'
->>> security.signature
-'f61fa1effb0638ab5b6e208d5d2fd9343f8557d8a0bf529c6d8542935f77bb3c'
-```
-
-### Webhook verification
-
-You can use `filestack.helpers.verify_webhook_signature` method to make sure that the webhooks you receive are sent by Filestack.
-
-```python
-from filestack.helpers import verify_webhook_signature
-
-# webhook_data is raw content you receive
-webhook_data = b'{"action": "fp.upload", "text": {"container": "some-bucket", "url": "https://cdn.filestackcontent.com/Handle", "filename": "filename.png", "client": "Computer", "key": "key_filename.png", "type": "image/png", "size": 1000000}, "id": 50006}'
-
-result, details = verify_webhook_signature(
-    '<YOUR_WEBHOOK_SECRET>',
-    webhook_data,
-    {
-      'FS-Signature': '<SIGNATURE-FROM-REQUEST-HEADERS>',
-      'FS-Timestamp': '<TIMESTAMP-FROM-REQUEST-HEADERS>'
-    }
+INSTALLED_APPS = (
+    ...
+    'django.contrib.auth',
+    ...
+    'rest_framework',
+    ...
+    'drf_multitokenauth',
+    ...
 )
 
-if result is True:
-    print('Webhook is valid and was generated by Filestack')
-else:
-    raise Exception(details['error'])
 ```
 
-## Versioning
+Configure Django REST Framework to use ``'drf_multitokenauth.coreauthentication.MultiTokenAuthentication'``:
+```python
+REST_FRAMEWORK = {
+    ...
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        ...
+        'drf_multitokenauth.coreauthentication.MultiTokenAuthentication',
+        ...
+    ],
+    ...
+}
+```
 
-Filestack Python SDK follows the [Semantic Versioning](http://semver.org/).
+
+And add the auth urls to your Django url settings:
+```python
+from django.conf.urls import include
+from django.urls import re_path
+
+
+urlpatterns = [
+    ...
+    re_path(r'^api/auth/', include('drf_multitokenauth.urls', namespace='multi_token_auth')),
+    ...
+]    
+```
+
+
+The following endpoints are provided:
+
+ * `login` - takes username, password and an optional token_name; on success an auth token is returned
+ * `logout`
+
+## Signals
+
+* ``pre_auth(username, password)`` - Fired when an authentication (login) is starting
+* ``post_auth(user)`` - Fired on successful auth
+
+## Tests
+
+See folder [tests/](tests/). Basically, all endpoints are covered with multiple
+unit tests.
+
+Follow below instructions to run the tests.
+You may exchange the installed Django and DRF versions according to your requirements. 
+:warning: Depending on your local environment settings you might need to explicitly call `python3` instead of `python`.
+```bash
+# install dependencies
+python -m pip install --upgrade pip
+pip install -r requirements.txt
+
+# setup environment
+pip install -e .
+python setup.py install
+
+# run tests
+cd tests && python manage.py test
+```
+
+## Cache Backend
+
+If you want to use a cache for the session store, you can install [django-memoize](https://pythonhosted.org/django-memoize/) and add `'memoize'` to `INSTALLED_APPS`.
+
+Then you need to use ``CachedMultiTokenAuthentication`` instead of ``MultiTokenAuthentication``.
+
+```bash
+pip install django-memoize
+```
+
+## Django Compatibility Matrix
+
+If your project uses an older verison of Django or Django Rest Framework, you can choose an older version of this project.
+
+| This Project | Python Version | Django Version | Django Rest Framework |
+|--------------|----------------|----------------|-----------------------|
+| 2.1.*        | 3.9+           | 4.2, 5.0, 5.1  | 3.15                  |
+| 2.0.*        | 3.7+           | 3.2, 4.0, 4.1  | 3.12, 3.13            |
+| 1.5.*        | 3.7+           | 3.2, 4.0, 4.1  | 3.12, 3.13            |
+| 1.4.*        | 3.6+           | 2.2, 3.2       | 3.9, 3.10, 3.11, 3.12 |
+| 1.3.*        | 2.7, 3.4+      | 1.11, 2.0      | 3.6, 3.7, 3.8         |
+| 1.2.*        | 2.7, 3.4+      | 1.8, 1.11, 2.0 | 3.6, 3.7, 3.8         |
+
+Make sure to use at least `DRF 3.10` when using `Django 3.0` or newer.
+
+Releases prior to `2.0.0` where published as [django-rest-multitokenauth](https://pypi.org/project/django-rest-multitokenauth/).
+Newer releases are published as [drf-multitokenauth](https://pypi.org/project/drf-multitokenauth/).
+
+## Migrating from 1.x to 2.x
+
+1. Uninstall `django-rest-multitokenauth`
+2. Install `drf-multitokenauth`
+3. Run the migration SQL bellow:
+    ```
+    ALTER TABLE django_rest_multitokenauth_multitoken RENAME to drf_multitokenauth_multitoken;
+    UPDATE django_migrations SET app = 'drf_multitokenauth' WHERE app = 'django_rest_multitokenauth';
+    UPDATE django_content_type SET app_label = 'drf_multitokenauth' WHERE app_label = 'django_rest_multitokenauth';
+    ```
+4. Run Django migrations
+
+## Changelog / Releases
+
+All releases should be listed in the [releases tab on github](https://github.com/anexia/drf-multitokenauth/releases).
+
+See [CHANGELOG.md](CHANGELOG.md) for a more detailed listing.
+
+
+## License
+
+This project is published with the [BSD 3 Clause License](LICENSE). See [https://choosealicense.com/licenses/bsd-3-clause-clear/](https://choosealicense.com/licenses/bsd-3-clause-clear/) for more information about what this means.
