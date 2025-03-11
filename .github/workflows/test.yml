@@ -1,40 +1,29 @@
-# This workflow will install Python dependencies, run tests and lint with a single version of Python
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-python
-
-name: Python application
-
+name: Tufuwu/test2
 on:
   push:
-    branches: [ "main" ]
+    branches:
+    - "**/*"
   pull_request:
-    branches: [ "main" ]
-
-permissions:
-  contents: read
-
+#   # This item has no matching transformer
+#   maximum_number_of_builds: 0
 jobs:
-  build:
-
+  test:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ["3.9", "3.10"]
-
     steps:
-    - uses: actions/checkout@v4
-    - name: Set up Python 3
-      uses: actions/setup-python@v3
+    - name: checkout
+      uses: actions/checkout@v4.1.0
+    - uses: actions/setup-python@v5.0.0
       with:
-        python-version: ${{ matrix.python-version }}
-    - name: Install dependencies
-      run: |
-        python -m pip install poetry==2.0.0
-        poetry add flake8 pytest coverage
-        poetry install --no-interaction --no-root
-    - name: Lint with flake8
-      run: |
-        poetry run flake8 .
-    - name: unittests
-      run: |
-        poetry run coverage run -m pytest
-        poetry run coverage report -m
+        python-version: '3.9'
+#     # 'sudo' was not transformed because there is no suitable equivalent in GitHub Actions
+    - run: pip install -r requirements.txt
+    - run: wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ${{ github.workspace }}/miniconda.sh
+    - run: bash ${{ github.workspace }}/miniconda.sh -b -u -p ${{ github.workspace }}/miniconda
+    - run: export PATH="${{ github.workspace }}/minicoonda/bin:$PATH"
+    - run: hash -r
+    - run: pip install nose coverage coveralls flake8 scikit-image
+    - run: pip install -e .
+    - run: flake8
+    - run: nosetests -sv --with-doctest --no-byte-compile --with-coverage --cover-package=tftb
+    - run: coveralls
+      if: "${{ success() }}"
