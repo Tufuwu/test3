@@ -1,11 +1,5 @@
-*.swp
-*.pyc
-.idea/
-*.egg-info/
+*.py[cow]
+.idea
 build/
 dist/
-*.egg
-.python-env/
-.coverage
-.cache
-.vscode/
+django_node_assets.egg-info/
