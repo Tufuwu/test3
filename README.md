@@ -1,121 +1,70 @@
-# moira-trigger-role
+# <div align="center"> SAPHanaSR-angi - SAP HANA System Replication <br> A Next Generation Interface </div>
 
-If you're new here, better check out our main [README](https://github.com/moira-alert/moira/blob/master/README.md).
+The SUSE resource agents to control the SAP HANA database in system replication setups
 
-Ansible role to create, update and delete Moira triggers based on
-[python-moira-client](https://github.com/moira-alert/python-moira-client)
+[![Build Status](https://github.com/SUSE/SAPHanaSR/actions/workflows/ChecksAndLinters.yml/badge.svg)](https://github.com/SUSE/SAPHanaSR/actions/workflows/ChecksAndLinters.yml/badge.svg)
 
-## Role usage
 
-[Installation](#installation)
--   [Ansible Galaxy](#ansible-galaxy)
--   [Ansible Role with Makefile](#ansible-role)
+## Introduction
 
-[Configuration](#configuration)
--   [Authentication](#authentication)
--   [Trigger state](#trigger-state)
+SAPHanaSR-angi is "SAP HANA SR - An Next Generation Interface" for SUSE high availabilty clusters to manage SAP HANA databases with system replication.
+It provides an automatic failover between SAP HANA nodes with configured System Replication in HANA. The current version of SAPHanaSR-angi is targeting SAP HANA SR scale-up and scale-out setups.
 
-[Role tasks](#role-tasks)
--   [Manage dependencies](#manage-dependencies)
--   [Manage triggers](#manage-triggers)
+CIB attributes are not backward compatible between SAPHanaSR-angi and the classic SAPHanaSR. Nevertheless, SAPHanaSR and SAPHanaSR-ScaleOut can be upgraded to SAPHanaSR-angi by following the documented procedure.
 
-## <a name="installation"></a> Installation
+This technology is included in the SUSE Linux Enterprise Server for SAP Applications 15, via the RPM package with the same name.
 
-### <a name="ansible-galaxy"></a> Ansible Galaxy
+System replication will help to replicate the database data from one node to another node in order to compensate for database failures. With this mode of operation, internal SAP HANA high-availability (HA) mechanisms and the Linux cluster have to work together.
 
-```
-ansible-galaxy install moira-alert.moira-trigger-role
-```
+The SAPHanaController resource agent performs the actual check of the SAP HANA database instances and is configured as a promotable multi-state resource.
+Managing the two SAP HANA instances means that the resource agent controls the start/stop of the instances. In addition the resource agent is able to monitor the SAP HANA databases on landscape host configuration level.
 
-### <a name="ansible-role"></a> Ansible Role with Makefile
+For this monitoring the resource agent relies on interfaces provided by SAP.
 
-Place the contents from [example](https://github.com/moira-alert/moira-trigger-role/blob/master/tests/Makefile) inside your Makefile to download role from Ansible Galaxy <br>
-and create playbook to manage triggers with predefined parameters inside your vars files:
+As long as the HANA landscape status is not "ERROR" the Linux cluster will not act. The main purpose of the Linux cluster is to handle the takeover to the other site.
 
-```
-- name: manage moira triggers
-  hosts: serviceName
-  roles:
-    - role: moira-alert.moira-trigger-role
-      moira_api: http://localhost:8081/api
-      moira_triggers: '{{ ServiceNameTriggers }}'
-      delegate_to: 127.0.0.1
-      run_once: True
-      dry_run: False
-```
+Only if the HANA landscape status indicates that HANA can not recover from the failure and the replication is in sync, then Linux will act.
 
-> **Note:** All tasks must be done from your ansible control machine
+An important task of the resource agent is to check the synchronisation status of the two SAP HANA databases. If the synchronisation is not "SOK", then the
+cluster avoids to take over to the secondary side, if the primary fails. This is to improve the data consistency.
 
-## <a name="configuration"></a> Configuration
+For more information, refer to the ["Supported High Availability Solutions by SLES for SAP Applications"](https://documentation.suse.com/sles-sap/sap-ha-support/html/sap-ha-support/article-sap-ha-support.html) and all the manual pages shipped with the package.
 
-Predefine following parameters inside your vars files. Working examples can be found [here](https://github.com/moira-alert/moira-trigger-role/tree/master/tests/group_vars)
+For SAP HANA Databases in System Replication only the listed scenarios at ["Supported High Availability Solutions by SLES for SAP Applications"](https://documentation.suse.com/sles-sap/sap-ha-support/html/sap-ha-support/article-sap-ha-support.html) are supported. For any scenario not matching the scenarios named or referenced in our setup guides please contact SUSE services.
 
-### <a name="authentication"></a> Authentication
+The following SUSE blog series gives a good overview about running SAP HANA in System Replication in the SUSE cluster:
+["towardszerodowntime"](https://www.suse.com/c/tag/towardszerodowntime/)
 
-| Parameter         | Description                  | Type       | Required | Default | Example                 |
-|-------------------|------------------------------|------------|----------|---------|-------------------------|
-| moira_api         | Url of Moira API             | String     | True     | N/A     | <http://localhost/api/> |
-| moira_auth_custom | Custom authorization headers | Dictionary | False    | None    | Authorization: apiKey   |
-| moira_auth_user   | Auth User (Basic Auth)       | String     | False    | None    | admin                   |
-| moira_auth_pass   | Auth Password (Basic Auth)   | String     | False    | None    | pass                    |
-| moira_auth_login  | Auth Login (Basic Auth)      | String     | False    | None    | admin                   |
+## File structure of installed package
 
-> **Note:** Use moira_auth_custom if you're using additional authentication mechanisms instead of <br>
-> single basic auth, use moira_auth_user, moira_auth_pass and moira_auth_login otherwise. <br>
-> moira_auth_login must contain value for X-Webauth-User header.
+- `/usr/share/SAPHanaSR-angi/doc` contains readme and license;
+- `/usr/share/man` and it's subdirectories contains manual pages;
+- `/usr/lib/ocf/resource.d/suse` contains the actual resource agents, `SAPHanaController` and `SAPHanaTopology`;
+- `/usr/lib/SAPHanaSR-angi` contains the libraries for the resource agents;
+- `/usr/share/SAPHanaSR-angi` contains SAP HA/DR provider hook scripts;
+- `/usr/share/SAPHanaSR-angi/samples` contains examples for global ini configuration and various additional stuff;
+- `/usr/bin` contains tools;
 
-### <a name="trigger-state"></a> Trigger state
 
-| Parameter        | Description                                                                                                                                      | Type       | Required | Choices                                                     | Default                                    | Example                                  |
-|------------------|--------------------------------------------------------------------------------------------------------------------------------------------------|------------|----------|-------------------------------------------------------------|--------------------------------------------|------------------------------------------|
-| state            | Desired state of a trigger                                                                                                                       | String     | True     | present <br> absent                                         | N/A                                        | present                                  |
-| id               | Trigger id                                                                                                                                       | String     | True     | N/A                                                         | N/A                                        | trigger_1                                |
-| name             | Trigger name                                                                                                                                     | String     | True     | N/A                                                         | N/A                                        | Trigger 1                                |
-| tags             | List of trigger tags                                                                                                                             | List       | True     | N/A                                                         | N/A                                        | - Project <br> - Service                 |
-| targets          | List of trigger targets <br> [See available graphite functions](https://github.com/go-graphite/carbonapi/blob/master/COMPATIBILITY.md#functions) | List       | True     | N/A                                                         | N/A                                        | - prefix.*.postfix                       |
-| warn_value       | Value to set WARN status                                                                                                                         | Float      | False    | N/A                                                         | None                                       | 300                                      |
-| error_value      | Value to set ERROR status                                                                                                                        | Float      | False    | N/A                                                         | None                                       | 600                                      |
-| trigger_type     | Type of a trigger                                                                                                                                | String     | False    | rising <br> falling <br> expression                         | N/A                                        | rising                                   |
-| expression       | [C-like expression](https://github.com/Knetic/govaluate)                                                                                         | String     | False    | N/A                                                         | Empty string                               | t1 >= 10 ? ERROR : (t1 >= 1 ? WARN : OK) |
-| ttl              | When there are no metrics for trigger, Moira will switch metric to TTLState state after TTL seconds                                              | Int        | False    | N/A                                                         | 600                                        | 600                                      |
-| ttl_state        | Trigger state at the expiration of 'ttl'                                                                                                         | String     | False    | NODATA <br> DEL <br> ERROR <br> WARN <br> OK                | NODATA                                     | WARN                                     |
-| is_remote        | Use remote storage. **Deprecated, use `trigger_source` instead**                                                                                 | Bool       | False    | True <br> False                                             | False                                      | False                                    |
-| trigger_source   | Specify trigger source, overrides is_remote                                                                                                      | String     | False    | graphite_local <br>  graphite_remote <br> prometheus_remote | None                                       | graphite_local                           |
-| cluster_id       | Specify cluster id                                                                                                                               | String     | False    | N/A                                                         | None                                       | default                                  |
-| desc             | Trigger description                                                                                                                              | String     | False    | N/A                                                         | Empty string                               | trigger test description                 |
-| mute_new_metrics | If true, first event NODATA → OK will be omitted                                                                                                 | Bool       | False    | True <br> False                                             | False                                      | False                                    |
-| disabled_days    | Days for trigger to be in silent mode                                                                                                            | List       | False    | N/A                                                         | Empty list                                 | - Mon <br> - Wed                         |
-| timezone_offset  | Timezone offset (minutes)                                                                                                                        | Int        | False    | N/A                                                         | 0                                          | -180                                     |
-| start_hour       | Start hour to send alerts                                                                                                                        | Int        | False    | N/A                                                         | 0                                          | 9                                        |
-| start_minute     | Start minute to send alerts                                                                                                                      | Int        | False    | N/A                                                         | 0                                          | 0                                        |
-| end_hour         | End hour to send alerts                                                                                                                          | Int        | False    | N/A                                                         | 23                                         | 17                                       |
-| end_minute       | End minute to send alerts                                                                                                                        | Int        | False    | N/A                                                         | 59                                         | 0                                        |
-| alone_metrics    | Set some target as single metric                                                                                                                 | Dictionary | False    | N/A                                                         | t1: false<br> t2: true<br>...<br> tN: true | t1: false<br> t2: false                  |
+## License
 
-## <a name="role-tasks"></a> Role tasks
+See the [LICENSE](LICENSE) file for license rights and limitations.
 
-### <a name="manage-dependencies"></a> Manage dependencies
 
-Task to check [python-moira-client](https://github.com/moira-alert/python-moira-client) is  installed (via pip)
+## Contributing
 
-### <a name="manage-triggers"></a> Manage triggers
+If you are interested in contributing to this project, read the [CONTRIBUTING.md](CONTRIBUTING.md) for more information.
 
-Use state 'present' to create and edit existing triggers:
 
-```
- - name: create trigger
-   moira_trigger:
-      ...
-      state: present
-      ...  
-```
+## Feedback
+Do you have suggestions for improvement? Let us know!
 
-To delete existing triggers use state 'absent':
+Go to Issues, create a [new issue](https://github.com/SUSE/SAPHanaSR/issues) and describe what you think could be improved.
 
-```
- - name: remove trigger
-   moira_trigger:
-      ...
-      state: absent
-      ...  
-```
+Feedback is always welcome!
+
+
+## Development and Branches
+Please read [development.md](development.md) for more information.
+
+
