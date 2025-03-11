@@ -1,39 +1,53 @@
-name: Tufuwu/test2
+name: Python CI
+
 on:
   push:
     branches:
-    - "**/*"
+      - main
   pull_request:
-#   # This item has no matching transformer
-#   maximum_number_of_builds: 0
-env:
-  VIPS_VERSION_MAJOR: '8'
-  VIPS_VERSION_MINOR: '9'
-  VIPS_VERSION_MICRO: '0'
-  PATH: "${{ github.workspace }}/vips/bin:$PATH"
-  LD_LIBRARY_PATH: "${{ github.workspace }}/vips/lib:$LD_LIBRARY_PATH"
-  PKG_CONFIG_PATH: "${{ github.workspace }}/vips/lib/pkgconfig:$PKG_CONFIG_PATH"
+    branches:
+      - main
+
 jobs:
-  test:
-    runs-on: ubuntu-16.04
-    steps:
-    - name: checkout
-      uses: actions/checkout@v4.1.0
-    - uses: actions/setup-python@v5.0.0
-      with:
-        python-version: "${{ matrix.python }}"
-    - name: Set up cache
-      uses: actions/cache@v3.3.2
-      with:
-        path: "${{ github.workspace }}/vips"
-        key: "${{ runner.os }}-path"
-    - run: apt-get -y install libexpat1-dev gettext liblcms2-dev libmagickwand-dev libopenexr-dev libcfitsio3-dev libfftw3-dev libgif-dev libgs-dev libgsf-1-dev libmatio-dev libopenslide-dev liborc-0.4-dev libpango1.0-dev libpoppler-glib-dev librsvg2-dev libwebp-dev libtiff5-dev libglib2.0-dev
-    - run: uname -a
-    - run: bash install-vips.sh --without-python
-    - run: pip install -U setuptools
-    - run: pip install -U .[test]
-    - run: python setup.py test
+  build:
+    runs-on: ubuntu-latest
+
     strategy:
       matrix:
-        python: ["3.9", "3.10", "3.11"]
-#       # 'allow_failures' transformations are currently unsupported.
+        python: ['3.9', '3.10']
+
+    env:
+      VIPS_VERSION_MAJOR: 8
+      VIPS_VERSION_MINOR: 9
+      VIPS_VERSION_MICRO: 0
+      PATH: $HOME/vips/bin:$PATH
+      LD_LIBRARY_PATH: $HOME/vips/lib:$LD_LIBRARY_PATH
+      PKG_CONFIG_PATH: $HOME/vips/lib/pkgconfig:$PKG_CONFIG_PATH
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python }}
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get install -y libexpat1-dev gettext liblcms2-dev libmagickwand-dev libopenexr-dev libcfitsio3-dev libfftw3-dev libgif-dev libgs-dev libgsf-1-dev libmatio-dev libopenslide-dev liborc-0.4-dev libpango1.0-dev libpoppler-glib-dev librsvg2-dev libwebp-dev libtiff5-dev libglib2.0-dev
+          pip install -U .[test]
+
+      - name: Run tests
+        run: python setup.py test
+
+      - name: Install VIPS
+        run: |
+          uname -a
+          bash install-vips.sh --without-python
+          pip install -U setuptools
+
+      - name: Cache VIPS directory
+        uses: actions/cache@v2
+        with:
+          path: $HOME/vips
+          key: vips-directory-${{ runner.os }}-${{ hashFiles('**/requirements.txt') }}
