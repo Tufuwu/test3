@@ -1,35 +1,81 @@
-name: "Continuous Integration"
+name: Tufuwu/test2
 on:
-  - pull_request
-  - push
-
+  push:
+    branches:
+    - "**/*"
+  pull_request:
+#   # This item has no matching transformer
+#   maximum_number_of_builds: 0
 jobs:
-  run:
-    name: "Test"
-    runs-on: ${{ matrix.operating-system }}
-    strategy:
-      fail-fast: false
-      matrix:
-        operating-system: ['ubuntu-latest']
-        python-version: ["3.9", "3.10"]
-
+  test:
+    runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-
-      - name: Install Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: ${{ matrix.python-version }}
-
-      - name: Install pipenv
-        run: pip install pipenv
-
-      - name: Install dependencies
-        run: pipenv install --dev
-
-      - name: Test
-        run: pipenv run test
-
-      - name: Lint
-        run: pipenv run lint
+    - name: checkout
+      uses: actions/checkout@v4.1.0
+    - run: pip install pipenv
+    - run: pipenv install --dev
+    - run: pipenv run lint
+    - run: pipenv run test
+    strategy:
+      matrix: {}
+#       # 'allow_failures' transformations are currently unsupported.
+  test_2:
+    runs-on: ubuntu-latest
+    steps:
+    - name: checkout
+      uses: actions/checkout@v4.1.0
+    - uses: actions/setup-python@v5.0.0
+      with:
+        python-version: '3.9'
+    - run: pip install pipenv
+    - run: pipenv install --dev
+    - run: pipenv run lint
+    - run: pipenv run test
+  test_3:
+    runs-on: ubuntu-latest
+    steps:
+    - name: checkout
+      uses: actions/checkout@v4.1.0
+    - uses: actions/setup-python@v5.0.0
+      with:
+        python-version: '3.9'
+    - run: pip install pipenv
+    - run: pipenv install --dev
+    - run: pipenv run lint
+    - run: pipenv run test
+  test_4:
+    runs-on: ubuntu-latest
+    steps:
+    - name: checkout
+      uses: actions/checkout@v4.1.0
+    - uses: actions/setup-python@v5.0.0
+      with:
+        python-version: '3.9'
+    - run: pip install pipenv
+    - run: pipenv install --dev
+    - run: pipenv run lint
+    - run: pipenv run test
+  test_5:
+    runs-on: ubuntu-latest
+    steps:
+    - name: checkout
+      uses: actions/checkout@v4.1.0
+    - uses: actions/setup-python@v5.0.0
+      with:
+        python-version: '3.9'
+    - run: pip install pipenv
+    - run: pipenv install --dev
+    - run: pipenv run lint
+    - run: pipenv run test
+  test_6:
+    runs-on: ubuntu-latest
+    steps:
+    - name: checkout
+      uses: actions/checkout@v4.1.0
+    - uses: actions/setup-python@v5.0.0
+      with:
+        python-version: nightly
+    - run: pip install pipenv
+    - run: pipenv install --dev
+    - run: pipenv run lint
+    - run: pipenv run test
