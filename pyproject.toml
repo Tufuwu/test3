@@ -1,25 +1,44 @@
 [project]
-name = "tftb"
-version = "0.2.0"
-description = "A Python library for time-frquency analysis and visualization."
-authors = [
-    {name = "deshpande.jaidev@gmail.com",email = "deshpande.jaidev@gmail.com"}
+name = "webassets-elm"
+version = "0.2.1"
+description = "Elm filter for webassets"
+readme = "README.rst"
+license = { text = "MIT" }
+authors = [{ name = "Eduardo Cuducos", email = "cuducos@users.noreply.github.com" }]
+keywords = ["elm", "webassets", "assets", "django", "flask"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Web Environment",
+    "Framework :: Django",
+    "Framework :: Flask",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
 ]
-license = {text = "MIT"}
-readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.9,<3.14"
 dependencies = [
-    "numpy (>=1.22.4,<2.0.0)",
-    "scipy (>=1.9.0,<2.0.0)",
-    "matplotlib (>=3.6.0,<4.0.0)"
+    "webassets>=2.0,<3",
 ]
 
+[project.urls]
+Repository = "https://github.com/cuducos/webassets-elm"
+
+[dependency-groups]
+dev = [
+    "pytest-ruff>=0.4.1",
+    "pytest>=8.3.3",
+]
+
+[tool.pytest.ini_options]
+addopts = "--ruff --ruff-format"
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]
 
 [build-system]
-requires = ["poetry-core>=2.0.0,<3.0.0"]
-build-backend = "poetry.core.masonry.api"
-
-[tool.poetry.group.test.dependencies]
-pytest = "^8.3.4"
-scikit-image = "^0.24.0"
-
+requires = ["hatchling"]
+build-backend = "hatchling.build"
