@@ -1,44 +1,30 @@
-.. walrus documentation master file, created by
-   sphinx-quickstart on Sun Jan  4 00:39:19 2015.
+.. flask-peewee documentation master file, created by
+   sphinx-quickstart on Tue Sep 20 13:19:30 2011.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-walrus
-======
+flask-peewee
+============
 
-.. image:: http://media.charlesleifer.com/blog/photos/walrus-logo-0.png
+.. warning::
 
-.. py:module:: walrus
+    This package is in maintenance-only mode!
+    -----------------------------------------
 
-Lightweight Python utilities for working with `Redis <http://redis.io>`_.
+    I'm sorry to announce that flask-peewee will now be in maintenance-only mode. This decision is motivated by a number of factors:
 
-The purpose of `walrus <https://github.com/coleifer/walrus>`_ is to make
-working with Redis in Python a little easier. Rather than ask you to learn a
-new library, walrus subclasses and extends the popular ``redis-py`` client,
-allowing it to be used as a drop-in replacement. In addition to all the
-features in ``redis-py``, walrus adds support for some newer commands,
-including full support for streams and consumer groups.
+    * `Flask-Admin <https://flask-admin.readthedocs.io/en/latest/>`_ provides a superior admin interface and has support for peewee models.
+    * `Flask-Security <https://pythonhosted.org/Flask-Security/>`_ and `Flask-Login <https://flask-login.readthedocs.io/en/latest/>`_ both provide authentication functionality, and work well with Peewee.
+    * Most importantly, though, I do not find myself wanting to work on flask-peewee.
 
-walrus consists of:
+    I plan on rewriting the ``Database`` and ``REST API`` portions of flask-peewee and repackaging them as a new library, but flask-peewee as it stands currently will be in maintenance-only mode.
 
-* pythonic container classes for the Redis data-types.
-* support for stream APIs, plus regular and blocking ``zpop`` variants.
-* autocomplete
-* bloom filter
-* cache
-* full-text search
-* graph store
-* rate limiting
-* locks
-* **experimental** active-record models (secondary indexes, full-text search, composable query filters, etc)
-* more? more!
+------------------------------
 
-My hope is that walrus saves you time developing your application by providing
-useful Redis-specific components. If you have an idea for a new feature, please
-don't hesitate to `tell me about it <https://github.com/coleifer/walrus/issues/new>`_.
+Welcome to the flask-peewee documentation!
 
-Table of contents
------------------
+provides a layer of integration between the `flask <http://flask.pocoo.org/>`_
+web framework and the `peewee orm <https://peewee.readthedocs.io/>`_.
 
 Contents:
 
@@ -48,18 +34,20 @@ Contents:
 
    installation
    getting-started
-   containers
-   autocomplete
-   cache
-   full-text-search
-   graph
-   rate-limit
-   streams
-   models
-   api
-   alt-backends
-   contributing
+   database
+   admin
+   auth
+   rest-api
+   utils
+   gevent
 
+API in depth:
+
+.. toctree::
+    :maxdepth: 2
+    :glob:
+
+    api/
 
 Indices and tables
 ==================
@@ -67,4 +55,3 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
-

@@ -1,36 +1,36 @@
 .. _installation:
 
-Installing and Testing
-======================
+Installing
+==========
 
-Most users will want to simply install the latest version, hosted on PyPI:
+flask-peewee can be installed very easily using `pip <http://www.pip-installer.org/en/latest/index.html>`_.
 
-.. code-block:: console
+.. code-block:: shell
 
-    pip install walrus
+    pip install flask-peewee
+
+If you do not have the dependencies installed already, pip will install them
+for you, but for reference they are:
+
+* `flask <https://github.com/mitsuhiko/flask>`_
+* `peewee <https://github.com/coleifer/peewee>`_
+* `wtforms <https://bitbucket.org/simplecodes/wtforms>`_
+* `wtf-peewee <https://github.com/coleifer/wtf-peewee>`_
+* python 2.5 or greater
 
 
-Installing with git
--------------------
+Using git
+---------
 
-The project is hosted at https://github.com/coleifer/walrus and can be installed
-using git:
+If you want to run the very latest, feel free to pull down the repo from github
+and install by hand.
 
-.. code-block:: console
+.. code-block:: shell
 
-    git clone https://github.com/coleifer/walrus.git
-    cd walrus
+    git clone https://github.com/coleifer/flask-peewee.git
+    cd flask-peewee
     python setup.py install
 
-.. note::
-    On some systems you may need to use ``sudo python setup.py install`` to
-    install walrus system-wide.
+You can run the tests using the test-runner::
 
-Running tests
--------------
-
-You can test your installation by running the test suite. Requires a running Redis server.
-
-.. code-block:: console
-
-    python runtests.py
+    python setup.py test
