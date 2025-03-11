@@ -1,36 +1,38 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+from setuptools import setup
 
+from nbval._version import __version__
 
-from setuptools import setup, find_packages
-
-
-with open('README.rst', 'rb') as f:
-    readme = f.read().decode('utf-8')
-
-with open('requirements.txt') as f:
-    requires = f.readlines()
+with open('README.md') as f:
+    readme = f.read()
 
 setup(
-    name='greenswitch',
-    version='0.0.16',
-    description=u'Battle proven FreeSWITCH Event Socket Protocol client implementation with Gevent.',
+    name="nbval",
+    version=__version__,
+    author="Laslett, Cortes, Fauske, Kluyver, Pepper, Fangohr",
+    description='A py.test plugin to validate Jupyter notebooks',
     long_description=readme,
-    author=u'Ítalo Rossi',
-    author_email=u'italorossib@gmail.com',
-    url=u'https://github.com/evoluxbr/greenswitch',
-    license=u'MIT',
-    packages=find_packages(exclude=('tests', 'docs')),
-    classifiers=[
-        'Development Status :: 5 - Production/Stable',
-        'Intended Audience :: Developers',
-        'Programming Language :: Python',
-        'License :: OSI Approved :: MIT License',
-        'Programming Language :: Python :: 3.6',
-        'Programming Language :: Python :: 3.7',
-        'Programming Language :: Python :: 3.8',
-        'Programming Language :: Python :: 3.9',
-        'Programming Language :: Python :: 3.10',
+    long_description_content_type="text/markdown",
+    packages = ['nbval'],
+    url='https://github.com/computationalmodelling/nbval',
+    # the following makes a plugin available to pytest
+    entry_points = {
+        'pytest11': [
+            'nbval = nbval.plugin',
+        ]
+    },
+    install_requires = [
+        'pytest >= 7',
+        'jupyter_client',
+        'nbformat',
+        'ipykernel',
+        'coverage',
     ],
-    install_requires=requires
+    python_requires='>=3.8, <4',
+    classifiers = [
+        'Framework :: IPython',
+        'Framework :: Pytest',
+        'License :: OSI Approved :: BSD License',
+        'Programming Language :: Python :: 3',
+        'Topic :: Software Development :: Testing',
+    ]
 )
