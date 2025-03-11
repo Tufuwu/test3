@@ -1,38 +1,33 @@
-name: Tufuwu/test2
+name: Python package CI
+
 on:
   push:
     branches:
-    - "**/*"
-    - main
-    - stable
-  pull_request:
-#   # This item has no matching transformer
-#   maximum_number_of_builds: 0
+      - main
+      - stable
+
 jobs:
-  test:
+  build:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.9', '3.10']
+
     steps:
-    - name: checkout
-      uses: actions/checkout@v4.1.0
-    - uses: actions/setup-python@v5.0.0
-      with:
-        python-version: '3.9'
-#     # 'sudo' was not transformed because there is no suitable equivalent in GitHub Actions
-    - run: export MINICONDA=${{ github.workspace }}/miniconda
-    - run: export PATH="$MINICONDA/bin:$PATH"
-    - run: hash -r
-    - run: wget http://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
-    - run: bash miniconda.sh -b -f -p $MINICONDA
-    - run: conda config --set always_yes yes
-    - run: conda config --add channels conda-forge
-    - run: conda update -q conda
-    - run: conda info -a
-    - run: echo "Python version var"
-    - run: echo $TRAVIS_PYTHON_VERSION
-    - run: sed -i -E 's/(python=)(.*)/\1'$TRAVIS_PYTHON_VERSION'/' ./environment.yml
-    - run: conda env create -f environment.yml
-    - run: source activate mixsea
-    - run: python setup.py install
-    - run: python --version
-    - run: pytest
-    - run: black --check mixsea/
+      - uses: actions/checkout@v2
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run tests
+        run: |
+          python --version
+          pytest
+          black --check mixsea/
