@@ -1,212 +1,215 @@
-About
-=====
+# SQLLineage
+SQL Lineage Analysis Tool powered by Python
 
-This is a Japanese-English dictionary based on the
-[JMdict](http://www.edrdg.org/jmdict/j_jmdict.html) and [JMnedict](https://www.edrdg.org/enamdict/enamdict_doc.html) and [Tatoeba](https://tatoeba.org/) database for
-_e-Ink_ Kindle devices.
+[![image](https://img.shields.io/pypi/v/sqllineage.svg)](https://pypi.org/project/sqllineage/)
+[![image](https://img.shields.io/pypi/status/sqllineage.svg)](https://pypi.org/project/sqllineage/)
+[![image](https://img.shields.io/pypi/pyversions/sqllineage.svg)](https://pypi.org/project/sqllineage/)
+[![image](https://img.shields.io/pypi/l/sqllineage.svg)](https://pypi.org/project/sqllineage/)
+[![Build Status](https://github.com/reata/sqllineage/workflows/build/badge.svg)](https://github.com/reata/sqllineage/actions)
+[![Documentation Status](https://readthedocs.org/projects/sqllineage/badge/?version=latest)](https://sqllineage.readthedocs.io/en/latest/?badge=latest)
+[![codecov](https://codecov.io/gh/reata/sqllineage/branch/master/graph/badge.svg)](https://codecov.io/gh/reata/sqllineage)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![security: bandit](https://img.shields.io/badge/security-bandit-yellow.svg)](https://github.com/PyCQA/bandit)
 
-Features:
+Never get the hang of a SQL parser? SQLLineage comes to the rescue. Given a SQL command, SQLLineage will tell you its
+source and target tables, without worrying about Tokens, Keyword, Identifier and all the jagons used by SQL parsers.
 
-* lookup of inflected verbs.
-* lookup for Japanese names.
-* Example sentences
-* Pronunciation
-* the dictionaries can be downloaded as separate files or as one big dictionary
+Behind the scene, SQLLineage pluggable leverages parser library ([`sqlfluff`](https://github.com/sqlfluff/sqlfluff) 
+and [`sqlparse`](https://github.com/andialbrecht/sqlparse)) to parse the SQL command, analyze the AST, stores the lineage
+information in a graph (using graph library [`networkx`](https://github.com/networkx/networkx)), and brings you all the 
+human-readable result with ease.
 
-<!--
-Screenshots were captured inside the Kindle device as explained in
-http://blog.blankbaby.com/2012/10/take-a-screenshot-on-a-kindle-paperwhite.html
-then processed with ImageMagick's
-`mogrify -colorspace gray -level 0%,111.11% -define PNG:compression-level=9`
-to look like E-Ink display.
--->
+## Demo & Documentation
+Talk is cheap, show me a [demo](https://reata.github.io/sqllineage/).
 
-| ![Inflection lookup screenshot](screenshots/inflection.png) | ![Sentence lookup screenshot](screenshots/sentences.png) |
-|-------------------------------------------------------------|----------------------------------------------------------|
-| ![Word lookup screenshot](screenshots/word.png)             | ![Name lookup screenshot](screenshots/name.png)          |
-
-Supported Devices
-=================
-
-The dictionary has been tested on _Kindle Paperwhite_ and _Kindle Oasis_.  It _should_ also work
-well with other _e-ink_ Kindle devices
-
-The dictionary will *not* work well on _Kindle Fire_ or _Kindle Android App_,
-or any Android based Kindle, because the Kindle software on those platforms
-does not support inflection lookups.
+[Documentation](https://sqllineage.readthedocs.io) is online hosted by readthedocs, and you can check the 
+[release note](https://sqllineage.readthedocs.io/en/latest/release_note/changelog.html) there.
 
 
-Download
-========
-
-You can download the latest version of the dictionary from
-[here](https://github.com/jrfonseca/jmdict-kindle/releases).
-
-
-Install
-=======
-
-_e-Ink_ Kindle
------------------
-
-There are in total 3 dictionaries:
-
-* `jmdict.mobi`: Contains data from the JMedict database, with additional examples. It does not contain proper names.
-* `jmnedict.mobi`: Contains Japanese proper names from the JMnedict databse.
-* `combined.mobi`: Contains the data from both of the above dictionaries. _Please note that a lot of features are missing from the combined dictionary (sentences, pronunciation, ...) due to size constraints. Therefore, it is not suggested to use this dictionary_.
-
-To install any of the dictionaries (you can also install all three of them) into your device follow these steps:
-
-* for 1st-generation Kindle Paperwhite devices, ensure you have
-  [firmware version 5.3.9 or higher](http://www.amazon.com/gp/help/customer/display.html/ref=hp_left_cn?ie=UTF8&nodeId=201064850) as it includes improved homonym lookup for Japanese;
-* connect your Kindle device via USB;
-* copy the the `.mobi` file for the dictionary you want to use to the `documents/dictionaries` sub-folder;
-* eject the USB device;
-* on your device go to
-  _Home > Settings > Device Options > Language and Dictionaries > Dictionaries_
-  and set _JMdict Japanese-English Dictionary_ as the default dictionary for
-  Japanese.
-
-Kindle Android App
-------------------
-
-**NOTE: Unfortunately the Kindle Android App does not support dictionary inflections, yielding verbs lookup practically impossible. No known workaround.**
-
-* rename `jmdict.mobi` or any of the other two dictionaries as `B005FNK020_EBOK.prc`
-
-* connect your Android device via USB
-
-* copy `B005FNK020_EBOK.prc` into `Internal Storage/Android/data/com.amazon.kindle/files/` or `/sdcard/android/data/com.amazon.kindle/files`
-
-This will override the
-[default Japanese-Japanese dictionary](https://kindle.amazon.com/work/daijisen-x5927-x8f9e-japanese-edition-ebook/B005FNK020/B005FNK020).
-
-Kindle iOS App
-------------------
-
-The steps for iOS App are [similar](https://learnoutlive.com/add-german-english-dictionary-to-kindle-on-your-ipad-or-iphone-ios/) the Android App above.  **Unfortunately the Kindle iOS App [seems to suffer from the same limitations regarding inflections](https://github.com/jrfonseca/jmdict-kindle/issues/15).**
-
-Pitch accent information
-====================
-
-The pitch accent information is encoded in the following way:
-* <ins>Underline</ins> for __Low__
-* No Formatting for __High__
-* ꜜ for a sudden __Drop__ in pitch
-* ° for a __Nasal__ sound
-* If no formatting whatsoever is present then we do not have pitch information for that particular entry
-
-Examples: 
-* <ins>じ</ins>たい means L-H-H
-* <ins>ね</ins>が°ꜜ<ins>い</ins> means L-Hꜜ-L
-* <ins>ぜ</ins>んしん means L-H-H-H
-* <ins>ひ</ins>とꜜ means L-Hꜜ-(L) _[The (L) means the next sound after ひと will be low. E.g. ひとが (L-H-L)]_
-
-For more information see [Japanese pitch accent - Wikipedia](https://en.wikipedia.org/wiki/Japanese_pitch_accent)
-
-Building from source
-====================
-
-[![Build](https://github.com/jrfonseca/jmdict-kindle/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/jrfonseca/jmdict-kindle/actions/workflows/build.yml)
-
-Requirements:
-
-* Linux, Windows with Cygwin or WSL (might also work on macOS with a few changes)
-* Kindle Previewer if building on Windows or WSL [Kindle Previewer](https://kdp.amazon.com/en_US/help/topic/G202131170)
-
-  * Kindle Previewer has to be added to PATH. If normally installed add it by executing (for this change to take effect, please close all cmd and powershell windows):
-  ```powershell
-  Set-ItemProperty -Path 'Registry::HKEY_CURRENT_USER\Environment' -Name PATH -Value ((Get-ItemProperty -Path 'Registry::HKEY_CURRENT_USER\Environment' -Name PATH).path + ";$env:APPDATA\Amazon")
-  ```
-
-* Python version 3
-
-  * [Pycairo](http://www.cairographics.org/pycairo)
-  * [Pillow](http://pillow.readthedocs.io/en/latest/)
-  * [htmlmin](https://htmlmin.readthedocs.io/en/latest/index.html)
-
-Inside of the makefile you can change the max number of sentences per entry, compression, as well as which sentences to include:
-
-```makefile
-# The Kindle Publishing Guidelines recommend -c2 (huffdic compression),
-# but it is excruciatingly slow. That's why -c1 is selected by default.
-# Compression currently is not officially supported by Kindle Previewer according to the documentation
-COMPRESSION ?= 1
-
-# Sets the max sentences per entry only for the jmdict.mobi.
-# It is ignored by combined.mobi due to size restrictions.
-# If there are too many sentences for the combined dictionary,
-# it will not build (exceeds 650MB size limit). The amount is limited to 0 in this makefile for the combined.mobi
-SENTENCES ?= 5
-
-# This flag determines wheter only good and verified sentences are used in the
-# dictionary. Set it to TRUE if you only want those sentences.
-# It is only used by jmdict.mobi
-# It is ignored bei combined.mobi. There it is always true
-# This is due to size constraints.
-ONLY_CHECKED_SENTENCES ?= FALSE
-
-# If true adds pronunciations to entries. The combined dictionary ignores this flag due to size constraints
-PRONUNCIATIONS ?= TRUE
-
-# If true adds additional information to entries. The combined dictionary ignores this flag due to size constraints
-ADDITIONAL_INFO ?= TRUE
+## Quick Start
+Install sqllineage via PyPI:
+```bash
+$ pip install sqllineage
 ```
 
-Build with make to create all 3 dictionaries (_Note the combined dictionary will not build with Kindle Previewer due to size constraints_):
+Using sqllineage command to parse a quoted-query-string:
 ```
-make
-```
-or use any of the following commands to create a specific one:
-```
-make jmdict.mobi
-make jmnedict.mobi
-make combined.mobi
-```
-
-If you build it on WSL the commands are as follows:
-```
-make ISWSL=TRUE
-```
-or use any of the following commands to create a specific one:
-```
-make jmdict.mobi ISWSL=TRUE
-make jmnedict.mobi ISWSL=TRUE
-make combined.mobi ISWSL=TRUE
+$ sqllineage -e "insert into db1.table1 select * from db2.table2"
+Statements(#): 1
+Source Tables:
+    db2.table2
+Target Tables:
+    db1.table1
 ```
 
-Create a Pull Request
-=====
-Before making a pull request please ensure the formatting of your python code is correct. To do this please install [black](https://pypi.org/project/black/) and run
-
-```powershell
-black .
+Or you can parse a SQL file with -f option:
+```
+$ sqllineage -f foo.sql
+Statements(#): 1
+Source Tables:
+    db1.table_foo
+    db1.table_bar
+Target Tables:
+    db2.table_baz
 ```
 
-To do
-=====
+## Advanced Usage
 
-* Leverage more of the JMdict data:
+### Multiple SQL Statements
+Lineage is combined from multiple SQL statements, with intermediate tables identified:
+```
+$ sqllineage -e "insert into db1.table1 select * from db2.table2; insert into db3.table3 select * from db1.table1;"
+Statements(#): 2
+Source Tables:
+    db2.table2
+Target Tables:
+    db3.table3
+Intermediate Tables:
+    db1.table1
+```
 
-  * cross references
-* Add Furigana to example sentences
-* Create better covers
+### Verbose Lineage Result
+And if you want to see lineage for each SQL statement, just toggle verbose option
+```
+$ sqllineage -v -e "insert into db1.table1 select * from db2.table2; insert into db3.table3 select * from db1.table1;"
+Statement #1: insert into db1.table1 select * from db2.table2;
+    table read: [Table: db2.table2]
+    table write: [Table: db1.table1]
+    table cte: []
+    table rename: []
+    table drop: []
+Statement #2: insert into db3.table3 select * from db1.table1;
+    table read: [Table: db1.table1]
+    table write: [Table: db3.table3]
+    table cte: []
+    table rename: []
+    table drop: []
+==========
+Summary:
+Statements(#): 2
+Source Tables:
+    db2.table2
+Target Tables:
+    db3.table3
+Intermediate Tables:
+    db1.table1
+```
+
+### Dialect-Awareness Lineage
+By default, sqllineage use `ansi` dialect to parse and validate your SQL. However, some SQL syntax you take for granted
+in daily life might not be in ANSI standard. In addition, different SQL dialects have different set of SQL keywords,
+further weakening sqllineage's capabilities when keyword used as table name or column name. To get the most out of
+sqllineage, we strongly encourage you to pass the dialect to assist the lineage analyzing.
+
+Take below example, `INSERT OVERWRITE` statement is only supported by big data solutions like Hive/SparkSQL, and `MAP`
+is a reserved keyword in Hive thus can not be used as table name while it is not for SparkSQL. Both ansi and hive dialect
+tell you this causes syntax error and sparksql gives the correct result:
+```
+$ sqllineage -e "INSERT OVERWRITE TABLE map SELECT * FROM foo"
+...
+sqllineage.exceptions.InvalidSyntaxException: This SQL statement is unparsable, please check potential syntax error for SQL
+
+$ sqllineage -e "INSERT OVERWRITE TABLE map SELECT * FROM foo" --dialect=hive
+...
+sqllineage.exceptions.InvalidSyntaxException: This SQL statement is unparsable, please check potential syntax error for SQL
+
+$ sqllineage -e "INSERT OVERWRITE TABLE map SELECT * FROM foo" --dialect=sparksql
+Statements(#): 1
+Source Tables:
+    <default>.foo
+Target Tables:
+    <default>.map
+```
+
+Use `sqllineage --dialects` to see all available dialects.
+
+### Column-Level Lineage
+We also support column level lineage in command line interface, set level option to column, all column lineage path will 
+be printed.
+
+```sql
+INSERT INTO foo
+SELECT a.col1,
+       b.col1     AS col2,
+       c.col3_sum AS col3,
+       col4,
+       d.*
+FROM bar a
+         JOIN baz b
+              ON a.id = b.bar_id
+         LEFT JOIN (SELECT bar_id, sum(col3) AS col3_sum
+                    FROM qux
+                    GROUP BY bar_id) c
+                   ON a.id = sq.bar_id
+         CROSS JOIN quux d;
+
+INSERT INTO corge
+SELECT a.col1,
+       a.col2 + b.col2 AS col2
+FROM foo a
+         LEFT JOIN grault b
+              ON a.col1 = b.col1;
+```
+
+Suppose this sql is stored in a file called test.sql
+
+```
+$ sqllineage -f test.sql -l column
+<default>.corge.col1 <- <default>.foo.col1 <- <default>.bar.col1
+<default>.corge.col2 <- <default>.foo.col2 <- <default>.baz.col1
+<default>.corge.col2 <- <default>.grault.col2
+<default>.foo.* <- <default>.quux.*
+<default>.foo.col3 <- c.col3_sum <- <default>.qux.col3
+<default>.foo.col4 <- col4
+```
+
+### MetaData-Awareness Lineage
+By observing the column lineage generated from previous step, you'll possibly notice that:
+1. `<default>.foo.* <- <default>.quux.*`: the wildcard is not expanded.
+2. `<default>.foo.col4 <- col4`: col4 is not assigned with source table.
+
+It's not perfect because we don't know the columns encoded in `*` of table `quux`. Likewise, given the context,
+col4 could be coming from `bar`, `baz` or `quux`. Without metadata, this is the best sqllineage can do.
+
+User can optionally provide the metadata information to sqllineage to improve the lineage result.
+
+Suppose all the tables are created in sqlite database with a file called `db.db`. In particular, 
+table `quux` has columns `col5` and `col6` and `baz` has column `col4`. 
+```shell
+sqlite3 db.db 'CREATE TABLE IF NOT EXISTS baz (bar_id int, col1 int, col4 int)';
+sqlite3 db.db 'CREATE TABLE IF NOT EXISTS quux (quux_id int, col5 int, col6 int)';
+```
+
+Now given the same SQL, column lineage is fully resolved.
+```shell
+$ SQLLINEAGE_DEFAULT_SCHEMA=main sqllineage -f test.sql -l column --sqlalchemy_url=sqlite:///db.db
+main.corge.col1 <- main.foo.col1 <- main.bar.col1
+main.corge.col2 <- main.foo.col2 <- main.bar.col1
+main.corge.col2 <- main.grault.col2
+main.foo.col3 <- c.col3_sum <- main.qux.col3
+main.foo.col4 <- main.baz.col4
+main.foo.col5 <- main.quux.col5
+main.foo.col6 <- main.quux.col6
+```
+The default schema name in sqlite is called `main`, we have to specify here because the tables in SQL file are unqualified.
+
+SQLLineage leverages [`sqlalchemy`](https://github.com/sqlalchemy/sqlalchemy) to retrieve metadata from different SQL databases. 
+Check for more details on SQLLineage [MetaData](https://sqllineage.readthedocs.io/en/latest/gear_up/metadata.html).
 
 
-Credits
-=======
+### Lineage Visualization
+One more cool feature, if you want a graph visualization for the lineage result, toggle graph-visualization option
 
-* Jim Breen and the [JMdict/EDICT project](http://www.edrdg.org/jmdict/j_jmdict.html) as well as the [ENAMDICT/JMnedict](https://www.edrdg.org/enamdict/enamdict_doc.html)
-* The [Tatoeba](https://tatoeba.org/) project
-* John Mettraux for his [EDICT2 Japanese-English Kindle dictionary](https://github.com/jmettraux/edict2-kindle)
-* Choplair-network for their [Nihongo conjugator](http://www.choplair.org/?Nihongo%20conjugator)
-* javdejong for the [pronunciation data and the parser](https://github.com/javdejong/nhk-pronunciation)
-* mifunetoshiro for the [additional pronunciation data](https://github.com/mifunetoshiro/kanjium/blob/main/data/source_files/raw/accents.txt)
+Still using the above SQL file
+```
+sqllineage -g -f foo.sql
+```
+A webserver will be started, showing DAG representation of the lineage result in browser:
 
+- Table-Level Lineage
 
-Alternatives
-============
+<img src="https://raw.githubusercontent.com/reata/sqllineage/master/docs/_static/table.jpg" alt="Table-Level Lineage">
 
-* [John Mettraux's EDICT2 Japanese-English Kindle dictionary](https://github.com/jmettraux/edict2-kindle)
+- Column-Level Lineage
 
-* [Amazon Kindle Store](http://www.amazon.com/s/url=search-alias%3Ddigital-text&field-keywords=japanese+english+dictionary)
+<img src="https://raw.githubusercontent.com/reata/sqllineage/master/docs/_static/column.jpg" alt="Column-Level Lineage">
