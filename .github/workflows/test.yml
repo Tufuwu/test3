@@ -1,77 +1,35 @@
-name: Tufuwu/test2
+name: Python CI
+
 on:
   push:
     branches:
-    - "**/*"
+      - main
   pull_request:
-#   # This item has no matching transformer
-#   maximum_number_of_builds: 0
+    branches:
+      - main
+
 jobs:
-  test:
-    runs-on: ubuntu-20.04
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        python: ['3.9', '3.10']
+
     steps:
-    - name: checkout
-      uses: actions/checkout@v4.1.0
-    - uses: actions/setup-python@v5.0.0
-      with:
-        python-version: '3.9'
-    - run: pip install jeepney cryptography codecov pyflakes mypy
-    - run: git clone https://gitlab.gnome.org/GNOME/libsecret.git
-    - run: dbus-run-session -- coverage run tests/run_tests.py libsecret/libsecret/mock-service-normal.py
-    - run: dbus-run-session -- coverage run -a tests/run_tests.py libsecret/libsecret/mock-service-only-plain.py
-    - run: dbus-run-session -- coverage run -a tests/run_tests.py libsecret/libsecret/mock-service-lock.py
-    - run: pyflakes secretstorage/ tests/
-    - run: mypy --strict --ignore-missing-imports secretstorage/ tests/
-    - run: codecov
-      if: "${{ success() }}"
-  test_2:
-    runs-on: ubuntu-20.04
-    steps:
-    - name: checkout
-      uses: actions/checkout@v4.1.0
-    - uses: actions/setup-python@v5.0.0
-      with:
-        python-version: '3.9'
-    - run: pip install jeepney cryptography codecov pyflakes mypy
-    - run: git clone https://gitlab.gnome.org/GNOME/libsecret.git
-    - run: dbus-run-session -- coverage run tests/run_tests.py libsecret/libsecret/mock-service-normal.py
-    - run: dbus-run-session -- coverage run -a tests/run_tests.py libsecret/libsecret/mock-service-only-plain.py
-    - run: dbus-run-session -- coverage run -a tests/run_tests.py libsecret/libsecret/mock-service-lock.py
-    - run: pyflakes secretstorage/ tests/
-    - run: mypy --strict --ignore-missing-imports secretstorage/ tests/
-    - run: codecov
-      if: "${{ success() }}"
-  test_3:
-    runs-on: ubuntu-20.04
-    steps:
-    - name: checkout
-      uses: actions/checkout@v4.1.0
-    - uses: actions/setup-python@v5.0.0
-      with:
-        python-version: '3.9'
-    - run: pip install jeepney cryptography codecov pyflakes mypy
-    - run: git clone https://gitlab.gnome.org/GNOME/libsecret.git
-    - run: dbus-run-session -- coverage run tests/run_tests.py libsecret/libsecret/mock-service-normal.py
-    - run: dbus-run-session -- coverage run -a tests/run_tests.py libsecret/libsecret/mock-service-only-plain.py
-    - run: dbus-run-session -- coverage run -a tests/run_tests.py libsecret/libsecret/mock-service-lock.py
-    - run: pyflakes secretstorage/ tests/
-    - run: mypy --strict --ignore-missing-imports secretstorage/ tests/
-    - run: codecov
-      if: "${{ success() }}"
-  test_4:
-    runs-on: ubuntu-20.04
-    steps:
-    - name: checkout
-      uses: actions/checkout@v4.1.0
-    - uses: actions/setup-python@v5.0.0
-      with:
-        python-version: '3.9'
-    - run: pip install jeepney cryptography codecov pyflakes mypy
-    - run: git clone https://gitlab.gnome.org/GNOME/libsecret.git
-    - run: dbus-run-session -- coverage run tests/run_tests.py libsecret/libsecret/mock-service-normal.py
-    - run: dbus-run-session -- coverage run -a tests/run_tests.py libsecret/libsecret/mock-service-only-plain.py
-    - run: dbus-run-session -- coverage run -a tests/run_tests.py libsecret/libsecret/mock-service-lock.py
-    - run: pyflakes secretstorage/ tests/
-    - run: mypy --strict --ignore-missing-imports secretstorage/ tests/
-    - run: codecov
-      if: "${{ success() }}"
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '${{ matrix.python }}'
+      - name: Install dependencies
+        run: |
+          pip install jeepney cryptography codecov pyflakes mypy
+          git clone https://gitlab.gnome.org/GNOME/libsecret.git
+      - name: Run tests
+        run: |
+          dbus-run-session -- coverage run tests/run_tests.py libsecret/libsecret/mock-service-normal.py
+          dbus-run-session -- coverage run -a tests/run_tests.py libsecret/libsecret/mock-service-only-plain.py
+          dbus-run-session -- coverage run -a tests/run_tests.py libsecret/libsecret/mock-service-lock.py
+          pyflakes secretstorage/ tests/
+          mypy --strict --ignore-missing-imports secretstorage/ tests/
+      - name: Upload coverage
+        run: codecov
