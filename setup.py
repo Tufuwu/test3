@@ -1,34 +1,61 @@
-#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+from setuptools import setup
+import os
+import re
 
-from setuptools import find_packages, setup
+# Lovingly adapted from https://github.com/kennethreitz/requests/blob/39d693548892057adad703fda630f925e61ee557/setup.py#L50-L55
+with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'pusher/version.py'), 'r') as fd:
+    VERSION = re.search(r'^VERSION = [\']([^\']*)[\']',
+                        fd.read(), re.MULTILINE).group(1)
+
+if not VERSION:
+    raise RuntimeError('Ensure `VERSION` is correctly set in ./pusher/version.py')
 
 setup(
-    name="aioapns",
-    version="3.3.1",
-    description="An efficient APNs Client Library for Python/asyncio",
-    long_description=open("README.rst").read(),
-    platforms="all",
+    name='pusher',
+    version=VERSION,
+    description='A Python library to interract with the Pusher Channels API',
+    long_description='A Python library to interract with the Pusher Channels API',
+    long_description_type='text/x-rst',
+    url='https://github.com/pusher/pusher-http-python',
+    author='Pusher',
+    author_email='support@pusher.com',
     classifiers=[
-        "License :: OSI Approved :: Apache Software License",
-        "Intended Audience :: Developers",
-        "Operating System :: MacOS :: MacOS X",
-        "Operating System :: POSIX",
-        "Programming Language :: Python :: 3 :: Only",
-        "Programming Language :: Python :: 3.8",
-        "Programming Language :: Python :: 3.9",
-        "Programming Language :: Python :: 3.10",
-        "Programming Language :: Python :: 3.11",
-        "Development Status :: 5 - Production/Stable",
+        'License :: OSI Approved :: MIT License',
+        'Programming Language :: Python',
+        'Development Status :: 4 - Beta',
+        'Intended Audience :: Developers',
+        'Topic :: Internet :: WWW/HTTP',
+        'Programming Language :: Python :: 2',
+        'Programming Language :: Python :: 3',
     ],
-    license="Apache License, Version 2.0",
-    author="Alexander Tikhonov",
-    author_email="random.gauss@gmail.com",
-    url="https://github.com/Fatal1ty/aioapns",
-    packages=find_packages(exclude=("tests",)),
-    package_data={"aioapns": ["py.typed"]},
+    keywords='pusher rest realtime websockets service',
+    license='MIT',
+
+    packages=[
+        'pusher'
+    ],
+
     install_requires=[
-        "h2>=4.0.0",
-        "pyOpenSSL>=17.5.0",
-        "pyjwt>=2.0.0",
+        'six',
+        'requests>=2.3.0',
+        'urllib3',
+        'pyopenssl',
+        'ndg-httpsclient',
+        'pyasn1',
+        'pynacl'
     ],
+
+    tests_require=['nose', 'mock', 'HTTPretty'],
+
+    extras_require={
+        'aiohttp': ['aiohttp>=0.20.0'],
+        'tornado': ['tornado>=5.0.0']
+    },
+
+    package_data={
+        'pusher': ['cacert.pem']
+    },
+
+    test_suite='pusher_tests',
 )
