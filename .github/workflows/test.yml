@@ -1,39 +1,27 @@
-name: Python package CI
+name: Tests
 
 on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
+  - push
+  - pull_request
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-
+  test:
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        python-version: ['3.9', '3.10']
+        os: [ubuntu-latest, windows-latest]
+        python-version: ["3.9", "3.10"]
+        click-version: ['7.1.2', '8.1.2']
 
     steps:
-      - uses: actions/checkout@v2
-
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v2
-        with:
-          python-version: ${{ matrix.python-version }}
-
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r reqs-dev.txt
-          pip install coveralls
-          pip install 'pytest>=2.7.3'
-
-      - name: Run tests
-        run: |
-          python -m pytest --cov=argh
-
-      - name: Upload coverage report
-        run: coveralls
+    - uses: actions/checkout@v3
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install tox tox-gh-actions click==${{ matrix.click-version }}
+    - name: Test with tox
+      run: tox
