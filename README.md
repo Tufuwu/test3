@@ -1,96 +1,148 @@
-Beneficial Ownership Data Standard (BODS)
-========================================
+# django-sendgrid-v5
 
-[![Documentation Status](https://readthedocs.org/projects/beneficial-ownership-data-standard/badge/?version=latest)](https://standard.openownership.org/en/latest/?badge=latest)
+[![Latest Release](https://img.shields.io/pypi/v/django-sendgrid-v5.svg)](https://pypi.python.org/pypi/django-sendgrid-v5/)
 
-The Beneficial Ownership Data Standard (BODS) is an open standard providing a specification for modelling and publishing information on the beneficial ownership and control of corporate vehicles. 
+This package implements an email backend for Django that relies on sendgrid's REST API for message delivery.
 
-You can find the latest version of the schema and documentation at [https://standard.openownership.org](https://standard.openownership.org)
+It is under active development, and pull requests are more than welcome\!
 
-## Governance
+To use the backend, simply install the package (using pip), set the `EMAIL_BACKEND` setting in Django, and add a `SENDGRID_API_KEY` key (set to the appropriate value) to your Django settings.
 
-BODS has been created by [Open Ownership](https://www.openownership.org) in partnership with [Open Data Services](https://opendataservices.coop/), and is provided under an open license for re-use. 
+## How to Install
 
-An [open data standard working group](https://standard.openownership.org/en/latest/about/governance.html) of data experts, beneficial ownership specialists and other interested parties also provides advice and helps guide the development of BODS.
+1. `pip install django-sendgrid-v5`
+2. In your project's settings.py script:
+    1. Set `EMAIL_BACKEND = "sendgrid_backend.SendgridBackend"`
+    2. Set the SENDGRID\_API\_KEY in settings.py to your api key that was provided to you by sendgrid. `SENDGRID_API_KEY = os.environ["SENDGRID_API_KEY"]`
 
-The working group is co-chaired by Open Ownership and Open Data Services - and anyone can apply to join the group by [filling out this form](https://docs.google.com/forms/d/e/1FAIpQLSdRSmSUxyyv2t1k3vWXZ_3EhTW_f603MeGxgyjKnbNNE9vvbQ/viewform). Virtual group meetings are held quarterly and communication is coordinated through a [Google group](https://groups.google.com/a/openownership.org/g/data-standard-wg?pli=1).
+### Other settings
 
-All changes to the BODS schema and documentation take place this GitHub repo. A [feature tracker](https://github.com/openownership/data-standard/projects/4) is available which documents all new BODS features being researched, proposed or implemented. 
+1. To toggle sandbox mode (when django is running in DEBUG mode), set `SENDGRID_SANDBOX_MODE_IN_DEBUG = True/False`.
+    1. To err on the side of caution, this defaults to True, so emails sent in DEBUG mode will not be delivered, unless this setting is explicitly set to False.
+1. `SENDGRID_ECHO_TO_STDOUT` will echo to stdout or any other file-like
+    object that is passed to the backend via the `stream` kwarg.
+1. `SENDGRID_TRACK_EMAIL_OPENS` - defaults to true and tracks email open events via the Sendgrid service. These events are logged in the Statistics UI, Email Activity interface, and are reported by the Event Webhook.
+1. `SENDGRID_TRACK_CLICKS_HTML` - defaults to true and, if enabled in your Sendgrid account, will tracks click events on links found in the HTML message sent.
+1. `SENDGRID_TRACK_CLICKS_PLAIN` - defaults to true and, if enabled in your Sendgrid account, will tracks click events on links found in the plain text message sent.
+1. `SENDGRID_HOST_URL` - Allows changing the base API URI. Set to `https://api.eu.sendgrid.com` to use the EU region.
 
-Features currently on the tracker are those adopted for development by the Open Ownership and Open Data Services teams following work with implementers of beneficial ownership reforms and in consultation with the Data Standard Working Group. 
+## Usage
 
-However, anyone can submit a [feature request ticket](https://github.com/openownership/data-standard/issues/new?assignees=&labels=feature+request&template=feature_request.md&title=%5BFeature+request%5D), contribute to a feature development ticket, or make an [implementation proposal](https://github.com/openownership/data-standard/issues/new?assignees=&labels=&template=implementation-proposal-template.md&title=Implementation+proposal%3A+%5BFEATURE+NAME%5D+no.X). The data standard support team at Open Ownership will consider and reply to any submitted feature requests within a month from submission.
+### Simple
 
-See the [project issue tracker](https://github.com/openownership/data-standard/issues) for a list of feature requests and issues.
+```python
+from django.core.mail import send_mail
 
-## Contact
+send_mail(
+    'Subject here',
+    'Here is the message.',
+    'from@example.com',
+    ['to@example.com'],
+    fail_silently=False,
+)
+```
 
-Please direct any correspondence to [support@openownership.org](mailto:support@openownership.org)
+### Dynamic Template with JSON Data
 
-# Technical documentation
+First, create a [dynamic template](https://mc.sendgrid.com/dynamic-templates) and copy the ID.
 
-### Installation & setup
+```python
+from django.core.mail import EmailMessage
 
-First, clone this repository so that you can work locally on your machine.
+msg = EmailMessage(
+  from_email='to@example.com',
+  to=['to@example.com'],
+)
+msg.template_id = "your-dynamic-template-id"
+msg.dynamic_template_data = {
+  "title": foo
+}
+msg.send(fail_silently=False)
+```
 
-The frontend uses **docson** JavaScript library to visualise the JSON schema. BODS uses [a specific patched fork of docson](https://github.com/OpenDataServices/docson/tree/master-bods) (which is different from the patched fork used by other standards). This is included in the `data-standard` repo rather than as part of the [Sphinx theme](https://github.com/openownership/data-standard-sphinx-theme) because it is necessary regardless of which theme is used to build the docs. See [data-standard-sphinx-theme#36](https://github.com/openownership/data-standard-sphinx-theme/issues/36) for the particulars of the patches. The situation with the various branches and patches of docson is in need of serious improvement.
+### The kitchen sink EmailMessage (all of the supported sendgrid-specific properties)
 
-Meanwhile, to include the appropriate version of docson JS after you clone this repo, you need to change directory into the cloned repository and run:
+```python
+from django.core.mail import EmailMessage
+
+msg = EmailMessage(
+  from_email='to@example.com',
+  to=['to@example.com'],
+  cc=['cc@example.com'],
+  bcc=['bcc@example.com'],
+)
+
+# Personalization custom args
+# https://sendgrid.com/docs/for-developers/sending-email/personalizations/
+msg.custom_args = {'arg1': 'value1', 'arg2': 'value2'}
+
+# Reply to email address (sendgrid only supports 1 reply-to email address)
+msg.reply_to = 'reply-to@example.com'
+
+# Send at (accepts an integer per the sendgrid docs)
+# https://docs.sendgrid.com/for-developers/sending-email/scheduling-parameters#send-at
+msg.send_at = 1600188812
+
+# Transactional templates
+# https://sendgrid.com/docs/ui/sending-email/how-to-send-an-email-with-dynamic-transactional-templates/
+msg.template_id = "your-dynamic-template-id"
+msg.dynamic_template_data = {  # Sendgrid v6+ only
+  "title": foo
+}
+msg.substitutions = {
+  "title": bar
+}
+
+# Unsubscribe groups
+# https://sendgrid.com/docs/ui/sending-email/unsubscribe-groups/
+msg.asm = {'group_id': 123, 'groups_to_display': ['group1', 'group2']}
+
+# Categories
+# https://sendgrid.com/docs/glossary/categories/
+msg.categories = ['category1', 'category2']
+
+# IP Pools
+# https://sendgrid.com/docs/ui/account-and-settings/ip-pools/
+msg.ip_pool_name = 'my-ip-pool'
+
+
+msg.send(fail_silently=False)
+```
+
+
+### FAQ
+**How to change a Sender's Name ?**
+
+
+`from_email="John Smith <john.smith@example.org>"`
+You can just include the name in the from_email field of the _```EmailMessage```_ class 
 
 ```
-git submodule init
-git submodule update
+msg = EmailMessage(
+  from_email='Sender Name <from@example.com>',
+  to=['to@example.com'],
+)
 ```
-Create a Python Virtual Environment. It should be python3.9 to match our build server.
 
-    python3 -m virtualenv -p python3.9 .ve
-
-(If you don't have python3.9 installed [see here](https://launchpad.net/~deadsnakes/+archive/ubuntu/ppa).)
-
-Activate the virtual environment:
-
-    source .ve/bin/activate
-
-Install Python libraries:
-
-    pip install -r requirements_test.txt
+**How to make mails to multiple users private (hide all the email addresses to which the mail is sent) to each person (personalization) ?**
 
 
-### Building the documentation locally
+Setting the `make_private` attribute to `True` will help us achieve it
+```
+msg = EmailMessage(
+  from_email='Sender Name <from@example.com>',
+  to=['to@example.com','abc@example.com','xyz@example.com'],
+)
+msg.make_private = True
+```
 
-(Note if you need to change the theme you must instead use https://github.com/openownership/data-standard-sphinx-theme . If you only need to change the content, read on).
+## Examples
 
-Once you have followed the installation and setup instructions above, you just need to change directory to that of your local repository and activate the virtual environement:
+- Marcelo Canina [(@marcanuy)](https://github.com/marcanuy) wrote a great article demonstrating how to integrate `django-sendgrid-v5` into your Django application on his site: [https://simpleit.rocks/python/django/adding-email-to-django-the-easiest-way/](https://simpleit.rocks/python/django/adding-email-to-django-the-easiest-way/)
+- RX-36 [(@DevWoody856)](https://github.com/DevWoody856) demonstrates how to use `django-sendgrid-v5` to make a contact form for your web application: https://rx-36.life/create-a-contact-form-using-sendgrid-with-django/
 
-    source .ve/bin/activate
 
-To actually build the docs:
+## Stargazers over time
 
-    sphinx-build  docs/ _build
+[![Stargazers over time](https://starchart.cc/sklarsa/django-sendgrid-v5.svg)](https://starchart.cc/sklarsa/django-sendgrid-v5)
 
-To see the docs, open a new terminal window and run a development webserver:
-
-    cd _build
-    python3 -m http.server
-
-Leave this command running, and you can now go to http://127.0.0.1:8000/ to see the docs.
-
-Edit source files as needed. Return to your original window and rerun the build command above. Reload in web browser. Repeat!
-
-To build another language, instead use this build command:
-
-    sphinx-build  -D language=ru  docs/ _build
-
-### Running schema and json tests
-
-Once you have followed the installation and setup instructions above, you just need to change directory to that of your local repository and activate the virtual environement:
-
-    source .ve/bin/activate
-    
-To run the tests:
-
-    pytest tests
-
-### Managing the translation workflow
-
-Translation consists of generating strings to be translated from the English docs, pushing them to Transifex, fetching translations back from Transifex, and then you can build the docs in the other languages you need. There are [full instructions for the translation workflow](https://openownership.github.io/bods-dev-handbook/translations.html) in the bods-dev-handbook.
