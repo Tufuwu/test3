@@ -1,71 +1,34 @@
----
-name: CI
+name: Tufuwu/test2
 on:
   push:
+    branches:
+    - "**/*"
   pull_request:
-  schedule:
-    - cron: '30 0 * * 1'
+#   # This item has no matching transformer
+#   maximum_number_of_builds: 0
 jobs:
   test:
-    name: Run unit tests
     runs-on: ubuntu-latest
+    steps:
+    - name: checkout
+      uses: actions/checkout@v4.1.0
+    - uses: actions/setup-python@v5.0.0
+      with:
+        python-version: "${{ matrix.python }}"
+    - run: python setup.py build sdist
+    - run: pip install -r requirements-dev.txt
+    - run: nosetests --verbosity 2
+#     # This item has no matching transformer
+#     - pypi:
+#         provider: pypi
+#         user: tuxtimo
+#         password:
+#           secure: eNrDuSAQuR0xVFb+ZfHZ93mZBEKGWNnidSHTM+8DkuA3OKGTD/Gf3TGAVLaqqURtChukopOANvoBqTWSHMXe6mDSiTn6cPpqxa7WBcOkF4yzzSVQ+ch/wjgpabzgi+XfT6tTo7KI8JYwgxg4NivN/Iv6uxzVqmc7hxwrSJbwruav1ddvonGb+I4M1LYcvUWTFEwlCvBxr+a9CdQ0+JHTtgdCF0T/71NwQJKmA7NtDaS6hex7kJY/CADBsowECURraB4jsbbqnw8sKUDsi6M5/aHSrC0KlpPrSxoESy4EFB7x77WVQxLTcTOqnQQ1ZazNc0g9YfZ7TqcH6cXjcAxqmx/rsmE9EDpauml4IySJWYvEyCMkS2LsqWZI4Em8t2MRO96Zoou3FPgabuUmwEpLlBIfLxTW+XDt2M3fa7wtHP4rIA3e6ruSmVitdC6gFG0nMdGIC/o6s/99Qqx/05eNm1BQ5PdFCzKyVg82mZsqyoSV/37qaVic3pDYIYmGpsm1G/pS4UdH9qGcjP8P0n/986EBAenOeExg9a53XoDms6C/mkeMqJHkJ6WrEKDmaFiUHWz2D3mFTdpL+xWnpOP/b/4/2XSQVh86z+5wW0iXb+wxMdmMSv9T8VBb5kDWj6/6D/y0V90k1i8d2pkmJ3sJAqWNBfw2pC5D03J7qH8zPdU=
+#         'on':
+#           tags: true
+#           distributions: sdist bdist_wheel
+#           repo: timofurrer/click-man
+#       if: "${{ github.event_name == 'push' && ${{ github.ref }} }}"
     strategy:
       matrix:
-        python: ["3.9", "3.10"]
-    steps:
-      - name: Checkout source code
-        uses: actions/checkout@v3
-      - name: Set up Python ${{ matrix.python }}
-        uses: actions/setup-python@v4
-        with:
-          python-version: ${{ matrix.python }}
-      - name: Install dependencies
-        run: python -m pip install tox
-      - name: Run unit tests (via tox)
-        # Run tox using the version of Python in `PATH`
-        run: tox -e py
-  release:
-    name: Upload release artifacts
-    runs-on: ubuntu-latest
-    needs: test
-    if: github.event_name == 'push'
-    steps:
-      - name: Checkout source code
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.9'
-      - name: Install dependencies
-        run: python -m pip install build
-      - name: Build a binary wheel and a source tarball
-        run: python -m build --sdist --wheel --outdir dist/ .
-      - name: Publish distribution to PyPI
-        if: startsWith(github.ref, 'refs/tags')
-        uses: pypa/gh-action-pypi-publish@master
-        with:
-          password: ${{ secrets.PYPI_API_TOKEN }}
-      - name: Create release on GitHub
-        id: create_release
-        if: startsWith(github.ref, 'refs/tags')
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ github.ref }}
-          release_name: ${{ github.ref }}
-          draft: false
-          prerelease: false
-      - name: Add sdist to release
-        id: upload-release-asset
-        if: startsWith(github.ref, 'refs/tags')
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./dist/git-pw-${{ github.ref }}.tar.gz
-          asset_name: git-pw-${{ github.ref }}.tar.gz
-          asset_content_type: application/gzip
+        python: ["3.9", "3.10", "3.11"]
