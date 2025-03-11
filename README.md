@@ -1,50 +1,39 @@
-Introduction
-============
-This package provides a Python API to open, create, and manipulate [NeXus 
-data](http://www.nexusformat.org/) written in the HDF5 format. The 
-'nexusformat' package provides the underlying API for 
-[NeXpy](http://nexpy.github.io/nexpy), which provides a GUI interface for
-visualizing and analyzing NeXus data. 
+# A sample Python project
 
-The latest development version is always available from [NeXpy's GitHub
-repository](https://github.com/nexpy/nexusformat).
+![Python Logo](https://www.python.org/static/community_logos/python-logo.png "Sample inline image")
 
-Installing and Running
-======================
-Released versions of `nexusformat` can be installed using either
+A sample project that exists as an aid to the [Python Packaging User
+Guide][packaging guide]'s [Tutorial on Packaging and Distributing
+Projects][distribution tutorial].
 
-```
-    $ pip install nexusformat
-```
+This project does not aim to cover best practices for Python project
+development as a whole. For example, it does not provide guidance or tool
+recommendations for version control, documentation, or testing.
 
-or, if you are in a conda environment::
+[The source for this project is available here][src].
 
-```
-    $ conda install -c conda-forge nexusformat
-```
+The metadata for a Python project is defined in the `pyproject.toml` file,
+an example of which is included in this project. You should edit this file
+accordingly to adapt this sample project to your needs.
 
-The source code can be downloaded from the NeXpy Git repository:
+----
 
-```
-    $ git clone http://github.com/nexpy/nexusformat.git
-```
-Prerequisites
-=============
-The following libraries are used by the full installation of NeXpy. There is 
-more details of the nature of these dependencies in the 
-[NeXpy documentation](http://nexpy.github.io/nexpy).
+This is the README file for the project.
 
-* h5py                 http://www.h5py.org
-* numpy                http://numpy.org
-* scipy                http://scipy.org
+The file should use UTF-8 encoding and can be written using
+[reStructuredText][rst] or [markdown][md use] with the appropriate [key set][md
+use]. It will be used to generate the project webpage on PyPI and will be
+displayed as the project homepage on common code-hosting services, and should be
+written for that purpose.
 
-User Support
-============
-Consult the [NeXpy documentation](http://nexpy.github.io/nexpy) for details 
-of both the Python command-line API and how to use the NeXpy GUI. If you have 
-any general questions concerning the use of NeXpy, please address 
-them to the 
-[NeXus Mailing List](http://download.nexusformat.org/doc/html/mailinglist.html). 
-If you discover any bugs, please submit a 
-[Github issue](https://github.com/nexpy/nexusformat/issues), preferably with 
-relevant tracebacks.
+Typical contents for this file would include an overview of the project, basic
+usage examples, etc. Generally, including the project changelog in here is not a
+good idea, although a simple “What's New” section for the most recent version
+may be appropriate.
+
+[packaging guide]: https://packaging.python.org
+[distribution tutorial]: https://packaging.python.org/tutorials/packaging-projects/
+[src]: https://github.com/pypa/sampleproject
+[rst]: http://docutils.sourceforge.net/rst.html
+[md]: https://tools.ietf.org/html/rfc7764#section-3.5 "CommonMark variant"
+[md use]: https://packaging.python.org/specifications/core-metadata/#description-content-type-optional
