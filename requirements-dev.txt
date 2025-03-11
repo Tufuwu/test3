@@ -1,6 +1,3 @@
-coverage
-flake8
-flask
-fido2
-pylint
+-r requirements.txt
 pytest
+pytest-cov
