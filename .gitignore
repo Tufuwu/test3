@@ -1,6 +1,2 @@
-*.tgz
-*.tar.gz
-osc
-ibs
-test.log
-misc
+_build
+*pyc
