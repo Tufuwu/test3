@@ -1,12 +1,5 @@
-venv*/
-.mypy_cache/
-.idea/
-*.pyc
-.precommit_hashes
-*.egg-info
-.tox/
-dist/
-.coverage
-htmlcov
-README.html
-build/
+build
+*.swp
+tests/build/
+*.py[cod]
+__pycache__
