@@ -1,44 +1,29 @@
+name: Tests
 
-name: Python package
-
-on:
-  push:
-    branches:
-      - main
-      - main
+on: [push]
 
 jobs:
-  build:
-
-    runs-on: ubuntu-latest
-
+  tests:
+    runs-on: windows-latest
     strategy:
+      fail-fast: false
       matrix:
-        python-version: ['3.9', '3.10']
-
+        python-version: ["3.9", "3.10"]
+  
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout the repository
+        uses: actions/checkout@v2
 
-      - name: Set up Python
+      - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
 
       - name: Install dependencies
         run: |
-          python setup.py sdist bdist_wheel
-          pip install dist/*.whl
-          pip install twine flake8 pytest
+          python -m pip install --user --upgrade pip setuptools
+          python -m pip install --user -e .[dev]
 
-      - name: Run tests
+      - name: Run unit tests
         run: |
-          twine check dist/*
-          flake8
-          pytest
-
-      - name: Upload to PyPI
-        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
-        run: twine upload dist/*
-        env:
-          TWINE_USERNAME: pyqtconsole
-          TWINE_PASSWORD: ${{ secrets.PYPI_API_KEY }}
+          python -m pytest tests
