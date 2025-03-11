@@ -1,30 +1,46 @@
-name: Python CI
+name: Tests
 
 on: [push, pull_request]
 
 jobs:
-  build:
+  pytest:
     runs-on: ubuntu-latest
-
     strategy:
       matrix:
-        python-version: ['3.9', '3.10']
-
+        python-version: ["3.9", "3.10"]
     steps:
       - uses: actions/checkout@v2
-      - name: Set up Python ${{ matrix.python-version }}
+      - name: Setup Python ${{ matrix.python-version }}
         uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
-
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          python -m pip install coverage coveralls
-
-      - name: Run tests
+          pip install -r test_requirements.txt
+          pip install coveralls==2.1.2
+      - name: Run Tests
         run: |
-          python -m coverage run --source=cologne_phonetics test_cologne_phonetics.py
-
-      - name: Upload coverage to coveralls
+          pytest -vvv --cov=pycec tests/
+          coverage run --source=pycec setup.py test
+      - name: Upload Coverage
         run: coveralls
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          COVERALLS_FLAG_NAME: ${{ matrix.test-name }}-${{ matrix.python-version }}
+          COVERALLS_PARALLEL: true
+
+  style:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup Python 3.8
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.9
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r lint_requirements.txt
+      - name: Run Flake8
+        run: flake8 .
