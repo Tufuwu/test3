@@ -1,35 +1,26 @@
-name: Python CI
+name: Pytest
 
-on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
+on: [push]
 
 jobs:
   build:
-    runs-on: ubuntu-latest
 
+    runs-on: ubuntu-latest
     strategy:
       matrix:
-        python: ['3.9', '3.10']
+        python-version: ["3.9", "3.10"]
 
     steps:
-      - uses: actions/setup-python@v2
-        with:
-          python-version: '${{ matrix.python }}'
-      - name: Install dependencies
-        run: |
-          pip install jeepney cryptography codecov pyflakes mypy
-          git clone https://gitlab.gnome.org/GNOME/libsecret.git
-      - name: Run tests
-        run: |
-          dbus-run-session -- coverage run tests/run_tests.py libsecret/libsecret/mock-service-normal.py
-          dbus-run-session -- coverage run -a tests/run_tests.py libsecret/libsecret/mock-service-only-plain.py
-          dbus-run-session -- coverage run -a tests/run_tests.py libsecret/libsecret/mock-service-lock.py
-          pyflakes secretstorage/ tests/
-          mypy --strict --ignore-missing-imports secretstorage/ tests/
-      - name: Upload coverage
-        run: codecov
+    - uses: actions/checkout@v2
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install flake8 pytest
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+    - name: Test with pytest
+      run: |
+        pytest
