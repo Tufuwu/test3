@@ -1,145 +1,343 @@
-olefile
-=======
+## Introduction &middot; [![Build status](https://github.com/BenBrostoff/draftfast/actions/workflows/main.yml/badge.svg)](https://github.com/BenBrostoff/draftfast/actions/workflows/main.yml)  &middot; [![](https://draftfast.herokuapp.com/badge.svg)](https://draftfast.herokuapp.com/)
 
-[![Test](https://github.com/decalage2/olefile/actions/workflows/test.yml/badge.svg)](https://github.com/decalage2/olefile/actions)
-[![Build Status AppVeyor](https://ci.appveyor.com/api/projects/status/github/decalage2/olefile?svg=true)](https://ci.appveyor.com/project/decalage2/olefile)
-[![codecov](https://codecov.io/gh/decalage2/olefile/branch/main/graph/badge.svg)](https://codecov.io/gh/decalage2/olefile)
-[![Documentation Status](http://readthedocs.org/projects/olefile/badge/?version=latest)](http://olefile.readthedocs.io/en/latest/?badge=latest)
-[![PyPI](https://img.shields.io/pypi/v/olefile.svg)](https://pypi.org/project/olefile/)
-[![Say Thanks!](https://img.shields.io/badge/Say%20Thanks-!-1EAEDB.svg)](https://saythanks.io/to/decalage2)
+![](marketing/MAIN_WORKFLOW.png)
+![](marketing/USE_CASES.png)
 
-[olefile](https://www.decalage.info/olefile) is a Python package to parse, read and write
-[Microsoft OLE2 files](http://en.wikipedia.org/wiki/Compound_File_Binary_Format)
-(also called Structured Storage, Compound File Binary Format or Compound Document File Format),
-such as Microsoft Office 97-2003 documents, vbaProject.bin in MS Office 2007+ files, Image Composer
-and FlashPix files, Outlook messages, StickyNotes, several Microscopy file formats, McAfee antivirus quarantine files,
-etc.
+An incredibly powerful tool that automates and optimizes lineup building, allowing you to enter thousands of lineups in any DraftKings or FanDuel contest in the time it takes you to grab a coffee.
+
+## Installation
+
+Requires Python 3.12+.
+
+```bash
+pip install draftfast
+```
+
+## Usage
+
+Example usage ([you can experiment with these examples in repl.it](https://repl.it/@BenBrostoff/AllWarlikeDemoware)):
+
+```python
+from draftfast import rules
+from draftfast.optimize import run
+from draftfast.orm import Player
+from draftfast.csv_parse import salary_download
+
+# Create players for a classic DraftKings game
+player_pool = [
+    Player(name='A1', cost=5500, proj=55, pos='PG'),
+    Player(name='A2', cost=5500, proj=55, pos='PG'),
+    Player(name='A3', cost=5500, proj=55, pos='SG'),
+    Player(name='A4', cost=5500, proj=55, pos='SG'),
+    Player(name='A5', cost=5500, proj=55, pos='SF'),
+    Player(name='A6', cost=5500, proj=55, pos='SF'),
+    Player(name='A7', cost=5500, proj=55, pos='PF'),
+    Player(name='A8', cost=5500, proj=55, pos='PF'),
+    Player(name='A9', cost=5500, proj=55, pos='C'),
+    Player(name='A10', cost=5500, proj=55, pos='C'),
+]
+
+roster = run(
+    rule_set=rules.DK_NBA_RULE_SET,
+    player_pool=player_pool,
+    verbose=True,
+)
+
+# Or, alternatively, generate players from a CSV
+players = salary_download.generate_players_from_csvs(
+  salary_file_location='./salaries.csv',
+  game=rules.DRAFT_KINGS,
+)
+
+roster = run(
+  rule_set=rules.DK_NBA_RULE_SET,
+  player_pool=players,
+  verbose=True,
+)
+```
+
+You can see more examples in the [`examples` directory](https://github.com/BenBrostoff/draftfast/tree/master/examples).
+
+## Game Rules
+
+Optimizing for a particular game is as easy as setting the `RuleSet` (see the example above). Game rules in the library are in the table below:
+
+| League       | Site           | Reference  |
+| ------------- |:-------------:| :-----:|
+| NFL | DraftKings | `DK_NFL_RULE_SET` |
+| NFL | FanDuel | `FD_NFL_RULE_SET` |
+| NBA | DraftKings | `DK_NBA_RULE_SET` |
+| NBA | FanDuel | `FD_NBA_RULE_SET` |
+| MLB | DraftKings | `DK_MLB_RULE_SET` |
+| MLB | FanDuel | `FD_MLB_RULE_SET` |
+| WNBA | DraftKings | `DK_WNBA_RULE_SET` |
+| WNBA | FanDuel | `FD_WNBA_RULE_SET` |
+| PGA | FanDuel | `FD_PGA_RULE_SET` |
+| PGA | DraftKings | `DK_PGA_RULE_SET` |
+| PGA_CAPTAIN | DraftKings | `DK_PGA_CAPTAIN_RULE_SET` |
+| NASCAR | FanDuel | `FD_NASCAR_RULE_SET` |
+| NASCAR | DraftKings | `DK_NASCAR_RULE_SET` |
+| SOCCER | DraftKings | `DK_SOCCER_RULE_SET` |
+| EuroLeague | DraftKings | `DK_EURO_LEAGUE_RULE_SET` |
+| NHL | DraftKings | `DK_NHL_RULE_SET` |
+| NBA Pickem | DraftKings | `DK_NBA_PICKEM_RULE_SET` |
+| NFL Showdown | DraftKings | `DK_NFL_SHOWDOWN_RULE_SET` |
+| NBA Showdown | DraftKings | `DK_NBA_SHOWDOWN_RULE_SET` |
+| MLB Showdown | DraftKings | `DK_MLB_SHOWDOWN_RULE_SET` |
+| XFL | DraftKings | `DK_XFL_CLASSIC_RULE_SET` |
+| Tennis | DraftKings | `DK_TEN_CLASSIC_RULE_SET` |
+| CS:GO | DraftKings | `DK_CSGO_SHOWDOWN` |
+| F1 | DraftKings | `DK_F1_SHOWDOWN` |
+| NFL MVP | FanDuel | `FD_NFL_MVP_RULE_SET` |
+| MLB MVP | FanDuel | `FD_MLB_MVP_RULE_SET` |
+| NBA MVP | FanDuel | `FD_NBA_MVP_RULE_SET` |
+
+Note that you can also tune `draftfast` for any game of your choice even if it's not implemented in the library (PRs welcome!). Using the `RuleSet` class, you can generate your own game rules that specific number of players, salary, etc. Example:
+
+```python
+from draftfast import rules
+
+golf_rules = rules.RuleSet(
+    site=rules.DRAFT_KINGS,
+    league='PGA',
+    roster_size='6',
+    position_limits=[['G', 6, 6]],
+    salary_max=50_000,
+)
+```
+
+## Settings
+
+Usage example:
+
+```python
+class Showdown(Roster):
+    POSITION_ORDER = {
+        'M': 0,
+        'F': 1,
+        'D': 2,
+        'GK': 3,
+    }
 
 
-**Quick links:** [Home page](https://www.decalage.info/olefile) -
-[Download/Install](http://olefile.readthedocs.io/en/latest/Install.html) -
-[Documentation](http://olefile.readthedocs.io/en/latest) -
-[Report Issues/Suggestions/Questions](https://github.com/decalage2/olefile/issues) -
-[Contact the author](https://www.decalage.info/contact) -
-[Repository](https://github.com/decalage2/olefile) -
-[Updates on Twitter](https://twitter.com/decalage2)
+showdown_limits = [
+    ['M', 0, 6],
+    ['F', 0, 6],
+    ['D', 0, 6],
+    ['GK', 0, 6],
+]
+
+soccer_rules = rules.RuleSet(
+    site=rules.DRAFT_KINGS,
+    league='SOCCER_SHOWDOWN',
+    roster_size=6,
+    position_limits=showdown_limits,
+    salary_max=50_000,
+    general_position_limits=[],
+)
+player_pool = salary_download.generate_players_from_csvs(
+    salary_file_location=salary_file,
+    game=rules.DRAFT_KINGS,
+)
+roster = run(
+    rule_set=soccer_rules,
+    player_pool=player_pool,
+    verbose=True,
+    roster_gen=Showdown,
+)
+```
+
+`PlayerPoolSettings`
+
+- `min_proj`
+- `max_proj`
+- `min_salary`
+- `max_salary`
+- `min_avg`
+- `max_avg`
+
+`OptimizerSettings`
+
+- `stacks` - A list of `Stack` objects. Example:
+
+```python
+roster = run(
+    rule_set=rules.DK_NHL_RULE_SET,
+    player_pool=player_pool,
+    verbose=True,
+    optimizer_settings=OptimizerSettings(
+        stacks=[
+            Stack(team='PHI', count=3),
+            Stack(team='FLA', count=3),
+            Stack(team='NSH', count=2),
+        ]
+    ),
+)
+```
+
+`Stack` can also be tuned to support different combinations of positions. For NFL,
+to only specify a QB-WRs based stack of five:
+
+```python
+Stack(
+    team='NE',
+    count=5,
+    stack_lock_pos=['QB'],
+    stack_eligible_pos=['WR'],
+)
+```
+
+- `custom_rules` - Define rules that set if / then conditions for lineups.
 
 
-News
-----
+For example, if two WRs from the same team are in a naturally optimized lineup, then the QB must also be in the lineup. You can find some good examples of rules in `draftfast/test/test_custom_rules.py`.
 
-Follow all updates and news on Twitter: <https://twitter.com/decalage2>
+```python
+from draftfast.optimize import run
+from draftfast.settings import OptimizerSettings, CustomRule
 
-- **2023-12-01 v0.47**: now distributed as wheel package, added VT_VECTOR support for properties,
-  added get_userdefined_properties, fixed bugs in isOleFile and write_sect, improved file closure
-- 2018-09-09 v0.46: OleFileIO can now be used as a context manager
-(with...as), to close the file automatically
-(see [doc](https://olefile.readthedocs.io/en/latest/Howto.html#open-an-ole-file-from-disk)).
-Improved handling of malformed files, fixed several bugs.
-- 2018-01-24 v0.45: olefile can now overwrite streams of any size, improved handling of malformed files,
-fixed several [bugs](https://github.com/decalage2/olefile/milestone/4?closed=1), end of support for Python 2.6 and 3.3.
-- 2017-01-06 v0.44: several bugfixes, removed support for Python 2.5 (olefile2),
-added support for incomplete streams and incorrect directory entries (to read malformed documents),
-added getclsid, improved [documentation](http://olefile.readthedocs.io/en/latest) with API reference.
-- 2017-01-04: moved the documentation to [ReadTheDocs](http://olefile.readthedocs.io/en/latest)
-- 2016-05-20: moved olefile repository to [GitHub](https://github.com/decalage2/olefile)
-- 2016-02-02 v0.43: fixed issues [#26](https://github.com/decalage2/olefile/issues/26)
-    and [#27](https://github.com/decalage2/olefile/issues/27),
-    better handling of malformed files, use python logging.
-- see [changelog](https://github.com/decalage2/olefile/blob/master/CHANGELOG.md) for more detailed information and
-the latest changes.
+# If two WRs on one team, play the QB from same team
+settings = OptimizerSettings(
+    custom_rules=[
+        CustomRule(
+            group_a=lambda p: p.pos == 'WR' and p.team == 'Patriots',
+            group_b=lambda p: p.pos == 'QB' and p.team == 'Patriots',
+            comparison=lambda sum, a, b: sum(a) + 1 <= sum(b)
+        )
+    ]
+)
+roster = run(
+    rule_set=rules.DK_NFL_RULE_SET,
+    player_pool=nfl_pool,
+    verbose=True,
+    optimizer_settings=settings,
+)
+```
 
-Download/Install
-----------------
+Another common use case is given one player is in a lineup, always play another player:
 
-If you have pip or setuptools installed (pip is included in Python 2.7.9+), you may simply run **pip install olefile**
-or **easy_install olefile** for the first installation.
+```python
+from draftfast.optimize import run
+from draftfast.settings import OptimizerSettings, CustomRule
 
-To update olefile, run **pip install -U olefile**.
+# If Player A, always play Player B and vice versa
+settings = OptimizerSettings(
+    custom_rules=[
+        CustomRule(
+            group_a=lambda p: p.name == 'Tom Brady',
+            group_b=lambda p: p.name == 'Rob Gronkowski',
+            comparison=lambda sum, a, b: sum(a) == sum(b)
+        )
+    ]
+)
+roster = run(
+    rule_set=rules.DK_NFL_RULE_SET,
+    player_pool=nfl_pool,
+    verbose=True,
+    optimizer_settings=settings,
+)
+```
 
-Otherwise, see http://olefile.readthedocs.io/en/latest/Install.html
+Custom rules also don't have to make a comparison between two groups. You can say "never play these two players in the same lineup" by using the `CustomRule#comparison` property.
 
-Features
---------
+```python
+# Never play these two players together
+settings = OptimizerSettings(
+    custom_rules=[
+        CustomRule(
+            group_a=lambda p: p,
+            group_b=lambda p: p.name == 'Devon Booker' or p.name == 'Chris Paul',
+            comparison=lambda sum, a, b: sum(b) <= 1
+        )
+    ]
+)
+roster = run(
+    rule_set=rules.DK_NBA_RULE_SET,
+    player_pool=nba_pool,
+    verbose=True,
+    optimizer_settings=settings,
+)
+```
 
-- Parse, read and write any OLE file such as Microsoft Office 97-2003 legacy document formats (Word .doc, Excel .xls,
-    PowerPoint .ppt, Visio .vsd, Project .mpp), MSI files, Image Composer and FlashPix files, Outlook messages, StickyNotes,
-    Zeiss AxioVision ZVI files, Olympus FluoView OIB files, etc
-- List all the streams and storages contained in an OLE file
-- Open streams as files
-- Parse and read property streams, containing metadata of the file
-- Portable, pure Python module, no dependency
+Importantly, as of this writing, passing closures into `CustomRule`s does not work (ex. `lambda p: p.team == team`),
+so dynamically generating rules is not possible. PRs welcome for a fix here, I believe this is a limitation of `ortools`.
 
-olefile can be used as an independent package or with PIL/Pillow.
+`LineupConstraints`
 
-olefile is mostly meant for developers. If you are looking for tools to analyze OLE files or to extract data (especially
-for security purposes such as malware analysis and forensics), then please also check my
-[python-oletools](https://www.decalage.info/python/oletools), which are built upon olefile and provide a higher-level interface.
+- `locked` - list of players to lock
+- `banned` - list of players to ban
+- `groups` - list of player groups constraints. See below
 
+```python
+roster = run(
+    rule_set=rules.DK_NFL_RULE_SET,
+    player_pool=player_pool,
+    verbose=True,
+    constraints=LineupConstraints(
+        locked=['Rob Gronkowski'],
+        banned=['Mark Ingram', 'Doug Martin'],
+        groups=[
+            [('Todd Gurley', 'Melvin Gordon', 'Christian McCaffrey'), (2, 3)],
+            [('Chris Carson', 'Mike Davis'), 1],
+        ]
+    )
+)
+```
 
-Documentation
--------------
+- `no_offense_against_defense` - Do not allow offensive players to be matched up against defensive players in the optimized lineup. Currently only implemented for soccer, NHL, and NFL -- PRs welcome!
 
-Please see the [online documentation](http://olefile.readthedocs.io/en/latest) for more information.
+## CSV Upload
 
+```python
+from draftfast.csv_parse import uploaders
 
-## Real-life examples ##
+uploader = uploaders.DraftKingsNBAUploader(
+    pid_file='./pid_file.csv',
+)
+uploader.write_rosters(rosters)
 
-A real-life example: [using OleFileIO_PL for malware analysis and forensics](http://blog.gregback.net/2011/03/using-remnux-for-forensic-puzzle-6/).
+```
 
-See also [this paper](https://computer-forensics.sans.org/community/papers/gcfa/grow-forensic-tools-taxonomy-python-libraries-helpful-forensic-analysis_6879) about python tools for forensics, which features olefile.
+## Support and Consulting
 
+DFS optimization is only one part of a sustainable strategy. Long-term DFS winners have the best:
 
-License
--------
+- Player projections
+- Bankroll management
+- Diversification in contests played
+- Diversification across lineups (see `draftfast.exposure`)
+- Research process
+- 1 hour before gametime lineup changes
+- ...and so much more
 
-olefile (formerly OleFileIO_PL) is copyright (c) 2005-2023 Philippe Lagadec
-([https://www.decalage.info](https://www.decalage.info))
+DraftFast provides support and consulting services that can help with all of these. [Let's get in touch today](mailto:ben.brostoff@gmail.com).
 
-All rights reserved.
+# Contributing
 
-Redistribution and use in source and binary forms, with or without modification,
-are permitted provided that the following conditions are met:
+Run tests or set of tests:
 
- * Redistributions of source code must retain the above copyright notice, this
-   list of conditions and the following disclaimer.
- * Redistributions in binary form must reproduce the above copyright notice,
-   this list of conditions and the following disclaimer in the documentation
-   and/or other materials provided with the distribution.
+```sh
+# All tests
+nose2
 
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+# Single file
+nose2 draftfast.test.test_soccer
 
+# Single test
+nosetests draftfast.test.test_soccer.test_soccer_dk_no_opp_d
+```
 
-----------
+Run linting
 
-olefile is based on source code from the OleFileIO module of the Python Imaging Library (PIL) published by Fredrik
-Lundh under the following license:
+```
+flake8 draftfast
+```
 
-The Python Imaging Library (PIL) is
+# Credits
 
-- Copyright (c) 1997-2009 by Secret Labs AB
-- Copyright (c) 1995-2009 by Fredrik Lundh
+Special thanks to [swanson](https://github.com/swanson/), who authored [this repo](https://github.com/swanson/degenerate), which was the inspiration for this one.
 
-By obtaining, using, and/or copying this software and/or its associated documentation, you agree that you have read,
-understood, and will comply with the following terms and conditions:
+Current project maintainers:
 
-Permission to use, copy, modify, and distribute this software and its associated documentation for any purpose and
-without fee is hereby granted, provided that the above copyright notice appears in all copies, and that both that
-copyright notice and this permission notice appear in supporting documentation, and that the name of Secret Labs AB or
-the author not be used in advertising or publicity pertaining to distribution of the software without specific, written
-prior permission.
-
-SECRET LABS AB AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE, INCLUDING ALL IMPLIED WARRANTIES
-OF MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL SECRET LABS AB OR THE AUTHOR BE LIABLE FOR ANY SPECIAL, INDIRECT OR
-CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF
-CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS
-SOFTWARE.
+- [BenBrostoff](https://github.com/BenBrostoff)
+- [sharkiteuthis](https://github.com/sharkiteuthis)
