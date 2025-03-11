@@ -1,2 +1,4 @@
-# Include the license file
+include pyproject.toml
+include *.md
 include LICENSE.txt
+include setup.py

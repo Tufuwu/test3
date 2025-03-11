@@ -1,53 +1,39 @@
-name: Python CI
+name: Build
 
 on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
+  - push
+  - pull_request
 
 jobs:
   build:
-    runs-on: ubuntu-latest
-
+    runs-on: ${{ matrix.platform }}
     strategy:
       matrix:
-        python: ['3.9', '3.10']
-
-    env:
-      VIPS_VERSION_MAJOR: 8
-      VIPS_VERSION_MINOR: 9
-      VIPS_VERSION_MICRO: 0
-      PATH: $HOME/vips/bin:$PATH
-      LD_LIBRARY_PATH: $HOME/vips/lib:$LD_LIBRARY_PATH
-      PKG_CONFIG_PATH: $HOME/vips/lib/pkgconfig:$PKG_CONFIG_PATH
+        platform:
+          - ubuntu-latest  # ubuntu-latest
+          - macos-latest  # macOS-11
+          - windows-latest  # windows-2022
+        python-version: ["3.9", "3.10"]
 
     steps:
-      - uses: actions/checkout@v2
-
-      - name: Set up Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: ${{ matrix.python }}
-
-      - name: Install dependencies
-        run: |
-          sudo apt-get install -y libexpat1-dev gettext liblcms2-dev libmagickwand-dev libopenexr-dev libcfitsio3-dev libfftw3-dev libgif-dev libgs-dev libgsf-1-dev libmatio-dev libopenslide-dev liborc-0.4-dev libpango1.0-dev libpoppler-glib-dev librsvg2-dev libwebp-dev libtiff5-dev libglib2.0-dev
-          pip install -U .[test]
-
-      - name: Run tests
-        run: python setup.py test
-
-      - name: Install VIPS
-        run: |
-          uname -a
-          bash install-vips.sh --without-python
-          pip install -U setuptools
-
-      - name: Cache VIPS directory
-        uses: actions/cache@v2
-        with:
-          path: $HOME/vips
-          key: vips-directory-${{ runner.os }}-${{ hashFiles('**/requirements.txt') }}
+    - uses: actions/checkout@v3
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install tox tox-gh-actions
+    - name: Test with tox
+      run: tox -vv
+    - name: Upload coverage.xml
+      if: ${{ matrix.platform == 'ubuntu-latest' && matrix.python-version == '3.10' }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: tox-gh-actions-coverage
+        path: coverage.xml
+        if-no-files-found: error
+    - name: Upload coverage.xml to codecov
+      if: ${{ matrix.platform == 'ubuntu-latest' && matrix.python-version == '3.10' }}
+      uses: codecov/codecov-action@v2
