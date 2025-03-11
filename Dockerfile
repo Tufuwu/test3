@@ -1,12 +1,19 @@
-FROM ubuntu:20.04
+# Use an official Python runtime as a parent image
+FROM python:3.10-slim
 
-RUN apt-get -y update
-RUN apt-get install -y vim python3 python3-pip python3-wheel python3-six python3-pip
+# Set the working directory to /app
+WORKDIR /app
 
-RUN mkdir /dk
-COPY . /dk
-WORKDIR /dk
-RUN python3 -m pip install -r requirements.txt
-RUN python3 -m pip install autopep8
+# Copy the current directory contents into the container at /app
+COPY . /app
 
-CMD ["/bin/bash"]
+# Install any needed packages specified in requirements.txt and deploy app
+RUN pip install --trusted-host pypi.python.org -r requirements/dev && \
+    python setup.py develop
+
+# Make port 80 available to the world outside this container
+EXPOSE 80
+
+# Start the web service when the container launches
+ENTRYPOINT ["checkqc-ws", "--port=80", "--debug"]
+CMD ["/app/tests/resources"]

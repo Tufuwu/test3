@@ -1,343 +1,296 @@
-## Introduction &middot; [![Build status](https://github.com/BenBrostoff/draftfast/actions/workflows/main.yml/badge.svg)](https://github.com/BenBrostoff/draftfast/actions/workflows/main.yml)  &middot; [![](https://draftfast.herokuapp.com/badge.svg)](https://draftfast.herokuapp.com/)
+checkQC
+=======
+[![Build Status](https://travis-ci.org/Molmed/checkQC.svg?branch=master)](https://travis-ci.org/Molmed/checkQC)
+[![codecov](https://codecov.io/gh/Molmed/checkQC/branch/master/graph/badge.svg)](https://codecov.io/gh/Molmed/checkQC)
+[![PyPI](https://img.shields.io/pypi/v/checkqc.svg)](https://pypi.python.org/pypi/checkQC)
+[![Conda](https://img.shields.io/conda/v/bioconda/checkqc)](https://anaconda.org/bioconda/checkqc)
+[![Documentation Status](https://readthedocs.org/projects/checkqc/badge/?version=latest)](http://checkqc.readthedocs.io/en/latest/?badge=latest)
+[![DOI](http://joss.theoj.org/papers/10.21105/joss.00556/status.svg)](https://doi.org/10.21105/joss.00556)
 
-![](marketing/MAIN_WORKFLOW.png)
-![](marketing/USE_CASES.png)
+More documentation is available at [http://checkqc.readthedocs.io/](http://checkqc.readthedocs.io/en/latest/)
 
-An incredibly powerful tool that automates and optimizes lineup building, allowing you to enter thousands of lineups in any DraftKings or FanDuel contest in the time it takes you to grab a coffee.
+CheckQC is a program designed to check a set of quality criteria against an Illumina runfolder.
 
-## Installation
+This is useful as part of a pipeline, where one needs to evaluate a set of quality criteria after demultiplexing. CheckQC is fast, and
+should finish within a few seconds. It will warn if there are problems breaching warning criteria, and will emit a non-zero exit status if it finds
+any errors, thus making it easy to stop further processing if the run that is being evaluated needs troubleshooting.
 
-Requires Python 3.12+.
+CheckQC has been designed to be modular, and exactly which "qc handlers" are executed with which parameters for a specific run type (i.e. machine
+type and run length) is determined by a configuration file.
 
-```bash
-pip install draftfast
+Instrument types supported in checkQC are the following:
+ - HiSeqX
+ - HiSeq2500
+ - iSeq
+ - MiSeq
+ - NovaSeq
+ - NovaSeq X Plus
+
+Install instructions
+--------------------
+CheckQC requires **Python 3.10**. CheckQC can be installed with pip.
+
+```
+pip install checkqc
 ```
 
-## Usage
+Alternatively it can be installed with conda using the bioconda channel:
 
-Example usage ([you can experiment with these examples in repl.it](https://repl.it/@BenBrostoff/AllWarlikeDemoware)):
-
-```python
-from draftfast import rules
-from draftfast.optimize import run
-from draftfast.orm import Player
-from draftfast.csv_parse import salary_download
-
-# Create players for a classic DraftKings game
-player_pool = [
-    Player(name='A1', cost=5500, proj=55, pos='PG'),
-    Player(name='A2', cost=5500, proj=55, pos='PG'),
-    Player(name='A3', cost=5500, proj=55, pos='SG'),
-    Player(name='A4', cost=5500, proj=55, pos='SG'),
-    Player(name='A5', cost=5500, proj=55, pos='SF'),
-    Player(name='A6', cost=5500, proj=55, pos='SF'),
-    Player(name='A7', cost=5500, proj=55, pos='PF'),
-    Player(name='A8', cost=5500, proj=55, pos='PF'),
-    Player(name='A9', cost=5500, proj=55, pos='C'),
-    Player(name='A10', cost=5500, proj=55, pos='C'),
-]
-
-roster = run(
-    rule_set=rules.DK_NBA_RULE_SET,
-    player_pool=player_pool,
-    verbose=True,
-)
-
-# Or, alternatively, generate players from a CSV
-players = salary_download.generate_players_from_csvs(
-  salary_file_location='./salaries.csv',
-  game=rules.DRAFT_KINGS,
-)
-
-roster = run(
-  rule_set=rules.DK_NBA_RULE_SET,
-  player_pool=players,
-  verbose=True,
-)
+```
+conda install -c bioconda checkqc
 ```
 
-You can see more examples in the [`examples` directory](https://github.com/BenBrostoff/draftfast/tree/master/examples).
+Running CheckQC
+---------------
 
-## Game Rules
+After installing CheckQC you can run it by specifying the path to the runfolder you want to
+analyze like this:
 
-Optimizing for a particular game is as easy as setting the `RuleSet` (see the example above). Game rules in the library are in the table below:
-
-| League       | Site           | Reference  |
-| ------------- |:-------------:| :-----:|
-| NFL | DraftKings | `DK_NFL_RULE_SET` |
-| NFL | FanDuel | `FD_NFL_RULE_SET` |
-| NBA | DraftKings | `DK_NBA_RULE_SET` |
-| NBA | FanDuel | `FD_NBA_RULE_SET` |
-| MLB | DraftKings | `DK_MLB_RULE_SET` |
-| MLB | FanDuel | `FD_MLB_RULE_SET` |
-| WNBA | DraftKings | `DK_WNBA_RULE_SET` |
-| WNBA | FanDuel | `FD_WNBA_RULE_SET` |
-| PGA | FanDuel | `FD_PGA_RULE_SET` |
-| PGA | DraftKings | `DK_PGA_RULE_SET` |
-| PGA_CAPTAIN | DraftKings | `DK_PGA_CAPTAIN_RULE_SET` |
-| NASCAR | FanDuel | `FD_NASCAR_RULE_SET` |
-| NASCAR | DraftKings | `DK_NASCAR_RULE_SET` |
-| SOCCER | DraftKings | `DK_SOCCER_RULE_SET` |
-| EuroLeague | DraftKings | `DK_EURO_LEAGUE_RULE_SET` |
-| NHL | DraftKings | `DK_NHL_RULE_SET` |
-| NBA Pickem | DraftKings | `DK_NBA_PICKEM_RULE_SET` |
-| NFL Showdown | DraftKings | `DK_NFL_SHOWDOWN_RULE_SET` |
-| NBA Showdown | DraftKings | `DK_NBA_SHOWDOWN_RULE_SET` |
-| MLB Showdown | DraftKings | `DK_MLB_SHOWDOWN_RULE_SET` |
-| XFL | DraftKings | `DK_XFL_CLASSIC_RULE_SET` |
-| Tennis | DraftKings | `DK_TEN_CLASSIC_RULE_SET` |
-| CS:GO | DraftKings | `DK_CSGO_SHOWDOWN` |
-| F1 | DraftKings | `DK_F1_SHOWDOWN` |
-| NFL MVP | FanDuel | `FD_NFL_MVP_RULE_SET` |
-| MLB MVP | FanDuel | `FD_MLB_MVP_RULE_SET` |
-| NBA MVP | FanDuel | `FD_NBA_MVP_RULE_SET` |
-
-Note that you can also tune `draftfast` for any game of your choice even if it's not implemented in the library (PRs welcome!). Using the `RuleSet` class, you can generate your own game rules that specific number of players, salary, etc. Example:
-
-```python
-from draftfast import rules
-
-golf_rules = rules.RuleSet(
-    site=rules.DRAFT_KINGS,
-    league='PGA',
-    roster_size='6',
-    position_limits=[['G', 6, 6]],
-    salary_max=50_000,
-)
+```
+checkqc <RUNFOLDER>
 ```
 
-## Settings
+This will use the default configuration file packaged with CheckQC if you want to specify
+your own custom file, you can do so by adding a path to the config like this:
 
-Usage example:
+```
+checkqc --config_file <path to your config> <RUNFOLDER>
+```
 
-```python
-class Showdown(Roster):
-    POSITION_ORDER = {
-        'M': 0,
-        'F': 1,
-        'D': 2,
-        'GK': 3,
+When CheckQC starts and no path to the config file is specified it will give you
+the path to where the default file is located on your system, if you want a template
+that you can customize according to your own needs.
+
+When you run CheckQC you can expect to see output similar to this:
+
+```
+checkqc  tests/resources/170726_D00118_0303_BCB1TVANXX/
+INFO     ------------------------
+INFO     Starting checkQC (1.1.2)
+INFO     ------------------------
+INFO     Runfolder is: tests/resources/170726_D00118_0303_BCB1TVANXX/
+INFO     No config file specified, using default config from /home/MOLMED/johda411/workspace/checkQC/checkQC/default_config/config.yaml.
+INFO     Run summary
+INFO     -----------
+INFO     Instrument and reagent version: hiseq2500_rapidhighoutput_v4
+INFO     Read length: 125-125
+INFO     Enabled handlers and their config values were:
+INFO            ClusterPFHandler Error=unknown Warning=180
+INFO            Q30Handler Error=unknown Warning=80
+INFO            ErrorRateHandler Error=unknown Warning=2
+INFO            ReadsPerSampleHandler Error=90 Warning=unknown
+INFO            UndeterminedPercentageHandler Error=10 Warning=unknown
+WARNING  QC warning: Cluster PF was to low on lane 1, it was: 117.93 M
+WARNING  QC warning: Cluster PF was to low on lane 7, it was: 122.26 M
+WARNING  QC warning: Cluster PF was to low on lane 8, it was: 177.02 M
+ERROR    Fatal QC error: Number of reads for sample Sample_pq-27 was too low on lane 7, it was: 6.893 M
+ERROR    Fatal QC error: Number of reads for sample Sample_pq-28 was too low on lane 7, it was: 7.104 M
+INFO     Finished with fatal qc errors and will exit with non-zero exit status.
+```
+
+The program will summarize the type of run it has identified and output any warnings and/or errors in finds.
+If any qc errors were found the CheckQC will output a non-zero exit status. This means it can easily be used to
+decide if a further steps should run or not, e.g. in a workflow.
+
+In addition to the normal output CheckQC has a json mode, enabled by adding `--json` to the commandline.
+This outputs the results normally shown in the log as json on `stdout` (while the log itself is written to `stderr`),
+so that this can either be written to a file, or redirected to other programs which can parse the data further.
+In this example we use the python json tool to pretty print the json output:
+
+```
+checkqc --json tests/resources/170726_D00118_0303_BCB1TVANXX/  | python -m json.tool
+INFO     ------------------------
+INFO     Starting checkQC (1.1.2)
+INFO     ------------------------
+INFO     Runfolder is: tests/resources/170726_D00118_0303_BCB1TVANXX/
+INFO     No config file specified, using default config from /home/MOLMED/johda411/workspace/checkQC/checkQC/default_config/config.yaml.
+INFO     Run summary
+INFO     -----------
+INFO     Instrument and reagent version: hiseq2500_rapidhighoutput_v4
+INFO     Read length: 125-125
+INFO     Enabled handlers and their config values were:
+INFO     	ClusterPFHandler Error=unknown Warning=180
+INFO     	Q30Handler Error=unknown Warning=80
+INFO     	ErrorRateHandler Error=unknown Warning=2
+INFO     	ReadsPerSampleHandler Error=90 Warning=unknown
+INFO     	UndeterminedPercentageHandler Error=10 Warning=unknown
+WARNING  QC warning: Cluster PF was to low on lane 1, it was: 117.93 M
+WARNING  QC warning: Cluster PF was to low on lane 7, it was: 122.26 M
+WARNING  QC warning: Cluster PF was to low on lane 8, it was: 177.02 M
+ERROR    Fatal QC error: Number of reads for sample Sample_pq-27 was too low on lane 7, it was: 6.893 M
+ERROR    Fatal QC error: Number of reads for sample Sample_pq-28 was too low on lane 7, it was: 7.104 M
+INFO     Finished with fatal qc errors and will exit with non-zero exit status.
+{
+    "exit_status": 1,
+    "ClusterPFHandler": [
+        {
+            "type": "warning",
+            "message": "Cluster PF was to low on lane 1, it was: 117.93 M",
+            "data": {
+                "lane": 1,
+                "lane_pf": 117929896,
+                "threshold": 180
+            }
+        },
+        {
+            "type": "warning",
+            "message": "Cluster PF was to low on lane 7, it was: 122.26 M",
+            "data": {
+                "lane": 7,
+                "lane_pf": 122263375,
+                "threshold": 180
+            }
+        },
+        {
+            "type": "warning",
+            "message": "Cluster PF was to low on lane 8, it was: 177.02 M",
+            "data": {
+                "lane": 8,
+                "lane_pf": 177018999,
+                "threshold": 180
+            }
+        }
+    ],
+    "ReadsPerSampleHandler": [
+        {
+            "type": "error",
+            "message": "Number of reads for sample Sample_pq-27 was too low on lane 7, it was: 6.893 M",
+            "data": {
+                "lane": 7,
+                "number_of_samples": 12,
+                "sample_id": "Sample_pq-27",
+                "sample_reads": 6.893002,
+                "threshold": 90
+            }
+        },
+        {
+            "type": "error",
+            "message": "Number of reads for sample Sample_pq-28 was too low on lane 7, it was: 7.104 M",
+            "data": {
+                "lane": 7,
+                "number_of_samples": 12,
+                "sample_id": "Sample_pq-28",
+                "sample_reads": 7.10447,
+                "threshold": 90
+            }
+        }
+    ],
+    "run_summary": {
+        "instrument_and_reagent_type": "hiseq2500_rapidhighoutput_v4",
+        "read_length": "125-125",
+        "handlers": [
+            {
+                "handler": "ClusterPFHandler",
+                "error": "unknown",
+                "warning": 180
+            },
+            {
+                "handler": "Q30Handler",
+                "error": "unknown",
+                "warning": 80
+            },
+            {
+                "handler": "ErrorRateHandler",
+                "error": "unknown",
+                "warning": 2
+            },
+            {
+                "handler": "ReadsPerSampleHandler",
+                "error": 90,
+                "warning": "unknown"
+            },
+            {
+                "handler": "UndeterminedPercentageHandler",
+                "error": 10,
+                "warning": "unknown"
+            }
+        ]
     }
-
-
-showdown_limits = [
-    ['M', 0, 6],
-    ['F', 0, 6],
-    ['D', 0, 6],
-    ['GK', 0, 6],
-]
-
-soccer_rules = rules.RuleSet(
-    site=rules.DRAFT_KINGS,
-    league='SOCCER_SHOWDOWN',
-    roster_size=6,
-    position_limits=showdown_limits,
-    salary_max=50_000,
-    general_position_limits=[],
-)
-player_pool = salary_download.generate_players_from_csvs(
-    salary_file_location=salary_file,
-    game=rules.DRAFT_KINGS,
-)
-roster = run(
-    rule_set=soccer_rules,
-    player_pool=player_pool,
-    verbose=True,
-    roster_gen=Showdown,
-)
+}
 ```
 
-`PlayerPoolSettings`
+Running CheckQC as a webservice
+-------------------------------
 
-- `min_proj`
-- `max_proj`
-- `min_salary`
-- `max_salary`
-- `min_avg`
-- `max_avg`
+In addition to running like a commandline application, CheckQC can be run as a simple webservice.
 
-`OptimizerSettings`
+To run it you simply need to provide the path to a directory where runfolders that you want to
+be able to check are located. This is given as `MONITOR_PATH` below. There are also a number
+of optional arguments that can be passed to the service.
 
-- `stacks` - A list of `Stack` objects. Example:
-
-```python
-roster = run(
-    rule_set=rules.DK_NHL_RULE_SET,
-    player_pool=player_pool,
-    verbose=True,
-    optimizer_settings=OptimizerSettings(
-        stacks=[
-            Stack(team='PHI', count=3),
-            Stack(team='FLA', count=3),
-            Stack(team='NSH', count=2),
-        ]
-    ),
-)
 ```
+$ checkqc-ws --help
+Usage: checkqc-ws [OPTIONS] MONITOR_PATH
 
-`Stack` can also be tuned to support different combinations of positions. For NFL,
-to only specify a QB-WRs based stack of five:
-
-```python
-Stack(
-    team='NE',
-    count=5,
-    stack_lock_pos=['QB'],
-    stack_eligible_pos=['WR'],
-)
-```
-
-- `custom_rules` - Define rules that set if / then conditions for lineups.
-
-
-For example, if two WRs from the same team are in a naturally optimized lineup, then the QB must also be in the lineup. You can find some good examples of rules in `draftfast/test/test_custom_rules.py`.
-
-```python
-from draftfast.optimize import run
-from draftfast.settings import OptimizerSettings, CustomRule
-
-# If two WRs on one team, play the QB from same team
-settings = OptimizerSettings(
-    custom_rules=[
-        CustomRule(
-            group_a=lambda p: p.pos == 'WR' and p.team == 'Patriots',
-            group_b=lambda p: p.pos == 'QB' and p.team == 'Patriots',
-            comparison=lambda sum, a, b: sum(a) + 1 <= sum(b)
-        )
-    ]
-)
-roster = run(
-    rule_set=rules.DK_NFL_RULE_SET,
-    player_pool=nfl_pool,
-    verbose=True,
-    optimizer_settings=settings,
-)
-```
-
-Another common use case is given one player is in a lineup, always play another player:
-
-```python
-from draftfast.optimize import run
-from draftfast.settings import OptimizerSettings, CustomRule
-
-# If Player A, always play Player B and vice versa
-settings = OptimizerSettings(
-    custom_rules=[
-        CustomRule(
-            group_a=lambda p: p.name == 'Tom Brady',
-            group_b=lambda p: p.name == 'Rob Gronkowski',
-            comparison=lambda sum, a, b: sum(a) == sum(b)
-        )
-    ]
-)
-roster = run(
-    rule_set=rules.DK_NFL_RULE_SET,
-    player_pool=nfl_pool,
-    verbose=True,
-    optimizer_settings=settings,
-)
-```
-
-Custom rules also don't have to make a comparison between two groups. You can say "never play these two players in the same lineup" by using the `CustomRule#comparison` property.
-
-```python
-# Never play these two players together
-settings = OptimizerSettings(
-    custom_rules=[
-        CustomRule(
-            group_a=lambda p: p,
-            group_b=lambda p: p.name == 'Devon Booker' or p.name == 'Chris Paul',
-            comparison=lambda sum, a, b: sum(b) <= 1
-        )
-    ]
-)
-roster = run(
-    rule_set=rules.DK_NBA_RULE_SET,
-    player_pool=nba_pool,
-    verbose=True,
-    optimizer_settings=settings,
-)
-```
-
-Importantly, as of this writing, passing closures into `CustomRule`s does not work (ex. `lambda p: p.team == team`),
-so dynamically generating rules is not possible. PRs welcome for a fix here, I believe this is a limitation of `ortools`.
-
-`LineupConstraints`
-
-- `locked` - list of players to lock
-- `banned` - list of players to ban
-- `groups` - list of player groups constraints. See below
-
-```python
-roster = run(
-    rule_set=rules.DK_NFL_RULE_SET,
-    player_pool=player_pool,
-    verbose=True,
-    constraints=LineupConstraints(
-        locked=['Rob Gronkowski'],
-        banned=['Mark Ingram', 'Doug Martin'],
-        groups=[
-            [('Todd Gurley', 'Melvin Gordon', 'Christian McCaffrey'), (2, 3)],
-            [('Chris Carson', 'Mike Davis'), 1],
-        ]
-    )
-)
-```
-
-- `no_offense_against_defense` - Do not allow offensive players to be matched up against defensive players in the optimized lineup. Currently only implemented for soccer, NHL, and NFL -- PRs welcome!
-
-## CSV Upload
-
-```python
-from draftfast.csv_parse import uploaders
-
-uploader = uploaders.DraftKingsNBAUploader(
-    pid_file='./pid_file.csv',
-)
-uploader.write_rosters(rosters)
+Options:
+  --port INTEGER     Port which checkqc-ws will listen to (default: 9999).
+  --config PATH      Path to the checkQC configuration file (optional)
+  --log_config PATH  Path to the checkQC logging configuration file (optional)
+  --debug            Enable debug mode.
+  --help             Show this message and exit.
 
 ```
 
-## Support and Consulting
-
-DFS optimization is only one part of a sustainable strategy. Long-term DFS winners have the best:
-
-- Player projections
-- Bankroll management
-- Diversification in contests played
-- Diversification across lineups (see `draftfast.exposure`)
-- Research process
-- 1 hour before gametime lineup changes
-- ...and so much more
-
-DraftFast provides support and consulting services that can help with all of these. [Let's get in touch today](mailto:ben.brostoff@gmail.com).
-
-# Contributing
-
-Run tests or set of tests:
-
-```sh
-# All tests
-nose2
-
-# Single file
-nose2 draftfast.test.test_soccer
-
-# Single test
-nosetests draftfast.test.test_soccer.test_soccer_dk_no_opp_d
-```
-
-Run linting
+Once the webserver is running you can query the `/qc/` endpoint and get any errors and warnings back as json.
+Here is an example how to query the endpoint, and what type of results it will return:
 
 ```
-flake8 draftfast
+$ curl -s -w'\n' localhost:9999/qc/170726_D00118_0303_BCB1TVANXX | python -m json.tool
+{
+    "ClusterPFHandler": [
+        {
+            "data": {
+                "lane": 1,
+                "lane_pf": 117929896,
+                "threshold": 180
+            },
+            "message": "Cluster PF was to low on lane 1, it was: 117.93 M",
+            "type": "warning"
+        },
+        {
+            "data": {
+                "lane": 7,
+                "lane_pf": 122263375,
+                "threshold": 180
+            },
+            "message": "Cluster PF was to low on lane 7, it was: 122.26 M",
+            "type": "warning"
+        },
+        {
+            "data": {
+                "lane": 8,
+                "lane_pf": 177018999,
+                "threshold": 180
+            },
+            "message": "Cluster PF was to low on lane 8, it was: 177.02 M",
+            "type": "warning"
+        }
+    ],
+    "ReadsPerSampleHandler": [
+        {
+            "data": {
+                "lane": 7,
+                "number_of_samples": 12,
+                "sample_id": "Sample_pq-27",
+                "sample_reads": 6.893002,
+                "threshold": 90
+            },
+            "message": "Number of reads for sample Sample_pq-27 was too low on lane 7, it was: 6.893 M",
+            "type": "warning"
+        },
+        {
+            "data": {
+                "lane": 7,
+                "number_of_samples": 12,
+                "sample_id": "Sample_pq-28",
+                "sample_reads": 7.10447,
+                "threshold": 90
+            },
+            "message": "Number of reads for sample Sample_pq-28 was too low on lane 7, it was: 7.104 M",
+            "type": "warning"
+        }
+    ],
+    "exit_status": 0,
+    "version": "1.1.0"
+}
 ```
-
-# Credits
-
-Special thanks to [swanson](https://github.com/swanson/), who authored [this repo](https://github.com/swanson/degenerate), which was the inspiration for this one.
-
-Current project maintainers:
-
-- [BenBrostoff](https://github.com/BenBrostoff)
-- [sharkiteuthis](https://github.com/sharkiteuthis)
