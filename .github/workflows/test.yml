@@ -1,36 +1,53 @@
-name: Python application
+name: CI
 
-on: [push]
+on:
+  push:
+    branches: [ master, main ]
+    tags: [ "**" ]
+  pull_request:
+    branches: [ "**" ]
 
 jobs:
-  build:
-
+  Execute:
     runs-on: ubuntu-latest
-
     strategy:
       matrix:
-        python-version: ['3.9', '3.10']
+        python-version: ["3.9", "3.10"]
 
     steps:
-    - uses: actions/checkout@v2
+      - uses: actions/checkout@master
 
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
-      with:
-        python-version: ${{ matrix.python-version }}
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
 
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        python setup.py bdist_wheel sdist
-        python -m pip install dist/*.whl coverage
-        python -m pip freeze
+      - name: Install dependencies
+        run: |
+          python3 -m pip install --upgrade pip
+          pip3 install --upgrade coveralls
+          pip3 install -e .[dev]
 
-    - name: Run tests
-      run: |
-        jupyter kernelgateway --help
-        nosetests -x --process-restartworker --with-coverage --cover-package=kernel_gateway
-        python -m pip uninstall -y jupyter_kernel_gateway
+      - name: Run checks
+        run: |
+          python3 precommit.py
 
-    env:
-      ASYNC_TEST_TIMEOUT: 10
+      - name: Upload Coverage
+        run: coveralls --service=github
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          COVERALLS_FLAG_NAME: ${{ matrix.python-version }}
+          COVERALLS_PARALLEL: true
+
+  Finish-Coveralls:
+    name: Finish Coveralls
+    needs: Execute
+    runs-on: ubuntu-latest
+    container: python:3-slim
+    steps:
+      - name: Finish Coveralls
+        run: |
+          pip3 install --upgrade coveralls
+          coveralls --finish --service=github
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
