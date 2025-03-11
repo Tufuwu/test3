@@ -1,31 +1,24 @@
-name: Tests
-
+name: Tufuwu/test2
 on:
-  pull_request:
   push:
-    branches: [master, main]
-
+    branches:
+    - "**/*"
+  pull_request:
+#   # This item has no matching transformer
+#   maximum_number_of_builds: 0
 jobs:
   test:
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        python: ["3.9", "3.10"]
-
-    name: Python ${{ matrix.python }} Test
-
+    runs-on: ubuntu-16.04
     steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-
-      - name: Setup Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: ${{ matrix.python }}
-
-      - name: Install dependencies
-        run: pip install -r requirements.txt
-
-      - name: Run test suite
-        run: python setup.py test
+    - name: checkout
+      uses: actions/checkout@v4.1.0
+    - uses: actions/setup-python@v5.0.0
+      with:
+        python-version: "${{ matrix.python }}"
+#     # 'sudo' was not transformed because there is no suitable equivalent in GitHub Actions
+    - run: pip install --upgrade setuptools
+    - run: pip install -r requirements.txt
+    - run: python setup.py test
+    strategy:
+      matrix:
+        python: ["3.9", "3.10", "3.11"]
