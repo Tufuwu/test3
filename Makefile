@@ -1,28 +1,22 @@
-FILES=*.py tests/*.py
+.PHONY: check-code fix-code build-dist check-dist upload-dist clean
 
-.PHONY: all
-all: black flake8 pylint pytest mypy
+check-code:
+	@python -m flake8 django_node_assets
+	@python -m isort django_node_assets --check
+	@python -m black django_node_assets --check
 
-.PHONY: black
-black:
-	@black --check $(FILES)
+fix-code:
+	@python -m isort django_node_assets
+	@python -m black django_node_assets
 
-.PHONY: flake8
-flake8:
-	@flake8 --ignore=E501 $(FILES)
+build-dist: clean
+	@python -m build
 
-.PHONY: pylint
-pylint:
-	@pylint --disable=line-too-long $(FILES)
+check-dist:
+	@python -m twine check dist/*
 
-.PHONY: pytest
-pytest:
-	@pytest --capture=sys -v --cov --cov-report term-missing
+upload-dist:
+	@python -m twine upload dist/*
 
-.PHONY: mypy
-mypy:
-	@mypy $(FILES)
-
-.PHONY: e2e
-e2e:
-	@bash tests/e2e.sh
+clean:
+	@rm -rf dist/ django_node_assets.egg-info/
