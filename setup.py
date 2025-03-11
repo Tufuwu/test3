@@ -1,31 +1,22 @@
-import os
-from setuptools import setup, find_packages
+import sys
 
-readme_path = os.path.join(
-    os.path.dirname(os.path.abspath(__file__)),
-    'README.md')
+from os import path
+from setuptools import setup
 
+base_dir = path.dirname(__file__)
+src_dir = path.join(base_dir, 'pyvips')
 
-def get_content(path):
-    with open(path, 'r') as f:
-        return f.read()
+# When executing the setup.py, we need to be able to import ourselves, this
+# means that we need to add the pyvips/ directory to the sys.path.
+sys.path.insert(0, src_dir)
 
+# Try to install in API mode first, then if that fails, fall back to ABI
 
-setup(name='k8s-handle',
-      version=os.environ.get('RELEASE_TAG', '0.0.0'),
-      long_description=get_content(readme_path),
-      long_description_content_type='text/markdown',
-      description='Provisioning tool for Kubernetes apps',
-      url='http://github.com/2gis/k8s-handle',
-      author='Vadim Reyder',
-      author_email='vadim.reyder@gmail.com',
-      license='Apache 2.0',
-      packages=find_packages(exclude=("tests",)),
-      data_files=['requirements.txt'],
-      entry_points={
-          "console_scripts": [
-              "k8s-handle=k8s_handle:main",
-          ]
-      },
-      install_requires=get_content('requirements.txt').split('\n'),
-      zip_safe=False)
+# API mode requires a working C compiler plus all the libvips headers whereas
+# ABI only needs the libvips shared library to be on the system
+
+try:
+    setup(cffi_modules=['pyvips/pyvips_build.py:ffibuilder'])
+except Exception as e:
+    print(f'Falling back to ABI mode. Details: {e}')
+    setup()
