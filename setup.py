@@ -1,84 +1,59 @@
-# -*- coding: utf-8 -*-
-# Copyright (c) 2003, Taro Ogawa.  All Rights Reserved.
-# Copyright (c) 2013, Savoir-faire Linux inc.  All Rights Reserved.
+#! /usr/bin/env python
 
-# This library is free software; you can redistribute it and/or
-# modify it under the terms of the GNU Lesser General Public
-# License as published by the Free Software Foundation; either
-# version 2.1 of the License, or (at your option) any later version.
-# This library is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-# Lesser General Public License for more details.
-# You should have received a copy of the GNU Lesser General Public
-# License along with this library; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
-# MA 02110-1301 USA
+import importlib
 
-import re
-from io import open
-
-from setuptools import find_packages, setup
-
-PACKAGE_NAME = "num2words"
-
-CLASSIFIERS = [
-    'Development Status :: 5 - Production/Stable',
-    'Intended Audience :: Developers',
-    'License :: OSI Approved :: GNU Library or Lesser General Public License '
-    '(LGPL)',
-    'Programming Language :: Python :: 3.8',
-    'Programming Language :: Python :: 3.9',
-    'Programming Language :: Python :: 3.10',
-    'Programming Language :: Python :: 3.11',
-    'Programming Language :: Python :: 3.12',
-    'Programming Language :: Python :: 3.13',
-    'Topic :: Software Development :: Internationalization',
-    'Topic :: Software Development :: Libraries :: Python Modules',
-    'Topic :: Software Development :: Localization',
-    'Topic :: Text Processing :: Linguistic',
-]
-
-LONG_DESC = open('README.rst', 'rt', encoding="utf-8").read() + '\n\n' + \
-            open('CHANGES.rst', 'rt', encoding="utf-8").read()
+from setuptools import setup
 
 
-def find_version(fname):
-    """Parse file & return version number matching 0.0.1 regex
-    Returns str or raises RuntimeError
-    """
-    version = ''
-    with open(fname, 'r', encoding="utf-8") as fp:
-        reg = re.compile(r'__version__ = [\'"]([^\'"]*)[\'"]')
-        for line in fp:
-            m = reg.match(line)
-            if m:
-                version = m.group(1)
-                break
-    if not version:
-        raise RuntimeError('Cannot find version information')
-    return version
+def get_version():
+    ver_file = None
+    try:
+        vermod = importlib.import_module('cmakelint.__version__')
+        version = vermod.VERSION
+        return version
+    finally:
+        if ver_file is not None:
+            ver_file.close()
 
 
-setup(
-    name=PACKAGE_NAME,
-    version=find_version("bin/num2words"),
-    description='Modules to convert numbers to words. Easily extensible.',
-    long_description=LONG_DESC,
-    long_description_content_type="text/markdown",
-    license='LGPL',
-    author='Taro Ogawa <tso at users sourceforge net>',
-    author_email='tos@users.sourceforge.net',
-    maintainer='Savoir-faire Linux inc.',
-    maintainer_email='support@savoirfairelinux.com',
-    keywords=' number word numbers words convert conversion i18n '
-             'localisation localization internationalisation '
-             'internationalization',
-    url='https://github.com/savoirfairelinux/num2words',
-    packages=find_packages(exclude=['tests']),
-    test_suite='tests',
-    classifiers=CLASSIFIERS,
-    scripts=['bin/num2words'],
-    install_requires=["docopt>=0.6.2"],
-    tests_require=['delegator.py'],
-)
+def read_without_comments(filename):
+    """some pip versions bark on comments (e.g. on travis)"""
+    with open(filename) as f:
+        return [line for line in f.read().splitlines() if not len(line) == 0 and not line.startswith('#')]
+
+
+test_required = read_without_comments('test-requirements')
+
+setup(name='cmakelint',
+      version=get_version(),
+      packages=['cmakelint'],
+      entry_points={
+          'console_scripts': [
+              'cmakelint = cmakelint.main:main'
+          ]
+      },
+      install_requires=[],
+      setup_requires=[],
+      tests_require=test_required,
+      # extras_require allow pip install .[dev]
+      extras_require={
+          'test': test_required,
+          'dev': read_without_comments('dev-requirements') + test_required
+      },
+      author="Richard Quirk",
+      author_email="richard.quirk@gmail.com",
+      url="https://github.com/cmake-lint/cmake-lint",
+      download_url="https://github.com/cmake-lint/cmake-lint",
+      keywords=["cmake", "lint"],
+      classifiers=[
+        "Topic :: Software Development",
+        "Development Status :: 5 - Production/Stable",
+        "Environment :: Console",
+        "Programming Language :: Other",
+        "Programming Language :: Python",
+        "License :: OSI Approved :: Apache Software License"],
+      description="Static code checker for CMake files",
+      long_description=open('README.md').read(),
+      long_description_content_type="text/markdown",
+      license="Apache 2.0"
+      )
