@@ -1,37 +1,32 @@
-name: Test
-
-on: [push, pull_request]
-
-env:
-  FORCE_COLOR: 1
-
+name: Tufuwu/test2
+on:
+  push:
+    branches:
+    - "**/*"
+  pull_request:
+#   # This item has no matching transformer
+#   maximum_number_of_builds: 0
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version: ["3.9", "3.10"]
+  test:
+    runs-on: ubuntu-16.04
     steps:
-      - uses: actions/checkout@v2
-
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v2
-        with:
-          python-version: ${{ matrix.python-version }}
-
-      - name: Install dependencies
-        run: |
-          python -m pip install -U pip
-          python -m pip install -U wheel
-          python -m pip install -U black flake8
-          python -m pip install -U -r requirements.txt
-
-      - name: Dry run
-        run: |
-          python random_street_view.py --help
-
-      - name: Lint
-        run: |
-          flake8 --statistics --count
-          black --check --diff .
+    - name: checkout
+      uses: actions/checkout@v4.1.0
+    - uses: actions/setup-python@v5.0.0
+      with:
+        python-version: "${{ matrix.python }}"
+    - name: Set up pip cache
+      uses: actions/cache@v3.3.2
+      with:
+        path: "~/.cache/pip"
+        key: "${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}"
+        restore-keys: "${{ runner.os }}-pip-"
+    - run: pip install --upgrade black
+    - run: pip install --upgrade flake8
+    - run: pip install --upgrade -r requirements.txt
+    - run: flake8 --statistics --count
+    - run: black --check --diff --target-version py36 .
+    - run: python random_street_view.py --help
+    strategy:
+      matrix:
+        python: ["3.9", "3.10", "3.11"]
