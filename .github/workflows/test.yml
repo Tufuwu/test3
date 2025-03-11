@@ -1,39 +1,26 @@
-name: Python CI
+name: Run Unit Tests
 
-on: [push, pull_request]
+on: [push]
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        python-version: ['3.9']
-
-    services:
-      docker:
-
     steps:
-    - uses: actions/checkout@v2
-
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python 3.10
+      uses: actions/setup-python@v4
       with:
-        python-version: ${{ matrix.python-version }}
-
+        python-version: '3.9'
+    
     - name: Install dependencies
       run: |
-        curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
-        sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
-        sudo apt-get update
-        sudo apt-get -y -o Dpkg::Options::="--force-confnew" install docker-ce
-
-    - name: Build Docker image
-      run: docker build -t draft-kings-fun .
-
-    - name: Run flake8
-      run: docker run draft-kings-fun flake8 draftfast
-
-    - name: Run tests
-      run: docker run draft-kings-fun nosetests --with-coverage --cover-package=.
+        python3 -m pip install --upgrade pip
+        pip install -r requirements/dev .
+    
+    - name: Launch tests
+      run: |
+        pytest --cov=checkQC --cov-report=xml tests/
+    
+    - name: Update data on codecov
+      uses: codecov/codecov-action@v3
