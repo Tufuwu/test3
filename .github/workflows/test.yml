@@ -1,37 +1,55 @@
-name: Tests
+name: Tufuwu/test2
 on:
   push:
     branches:
-      - main
+    - "**/*"
   pull_request:
-
+#   # This item has no matching transformer
+#   maximum_number_of_builds: 0
 jobs:
-  build:
-    runs-on: ubuntu-latest
+  test:
+    runs-on: ubuntu-16.04
+    steps:
+    - name: checkout
+      uses: actions/checkout@v4.1.0
+    - uses: actions/setup-python@v5.0.0
+      with:
+        python-version: "${{ matrix.python }}"
+    - run: npm i -g elm
+    - run: pip install tox-travis
+    - run: tox
+    - run: coveralls
+      if: "${{ success() }}"
     strategy:
       matrix:
-        python-version: ["3.9", "3.10"]
+        python: ["3.9", "3.10", "3.11"]
+  test_2:
+    runs-on: ubuntu-16.04
+    env:
+      TOXENV: cover
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
-        with:
-          python-version: ${{ matrix.python-version }}
-      - run: |
-          npm install -g elm
-          pip install tox
-      - name: Run Tox
-        run: |
-          if [[ "${{ matrix.python-version }}" == "3.7" ]]; then
-            if [[ "${{ github.event_name }}" == "push" ]]; then
-              echo "Running tests for cover and black"
-              tox -e cover
-              tox -e black
-            else
-              tox
-            fi
-          else
-            tox
-          fi
-      - name: Coveralls
-        if: success() && github.event_name == 'push' && matrix.python-version == '3.7'
-        run: coveralls
+    - name: checkout
+      uses: actions/checkout@v4.1.0
+    - uses: actions/setup-python@v5.0.0
+      with:
+        python-version: '3.9'
+    - run: npm i -g elm
+    - run: pip install tox-travis
+    - run: tox
+    - run: coveralls
+      if: "${{ success() }}"
+  test_3:
+    runs-on: ubuntu-16.04
+    env:
+      TOXENV: black
+    steps:
+    - name: checkout
+      uses: actions/checkout@v4.1.0
+    - uses: actions/setup-python@v5.0.0
+      with:
+        python-version: '3.9'
+    - run: npm i -g elm
+    - run: pip install tox-travis
+    - run: tox
+    - run: coveralls
+      if: "${{ success() }}"
