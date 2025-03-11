@@ -1,52 +1,141 @@
-# Changes
+# Change Log
+All notable changes to this project will be documented in this file.
+This project adheres to [Semantic Versioning](http://semver.org/).
 
-## 1.4.3
 
-- support for python 3.12
-- use ruff for linking the codebase
+## Unreleased
 
-## 1.4.2
+## [0.7.2] - 2024-09-17
+### Fixed
+- API change in numpy 2.X: np.alltrue replaced with np.all
 
-- add ability to override settings in $PWD/.cmakelintrc, ideally placing it in the project root folder.
+## [0.7.1] - 2022-06-01
+### Fixed
+- API change in astropy.io.fits
+  
+## [0.7.0] - 2022-01-31
+### Added
+- Information on conda-forge availability
+- Citation file on GitHub and on the docs
+### Changed
+- Continuous integration switch from TravisCI to GitHub actions
+- All links now reference to the GitHub page for the project
 
-## 1.4.1
+### Removed
+- Support for Python 2.7
 
-- Add missing error package/stdargs category
-- NOBUG: code linted
+## [0.6.4] - 2016-12-22
+### Added
+- Unit tests and continuous integration with TravisCI.
 
-## 1.4
+### Fixed
+- Issue with the parity of the image size when resampling images.
 
-- Add --quiet flag to suppress "Total Errors: 0"
-- Add --linelength=N flag to allow longer default lines (default remains 80)
+### Removed
+- Support for Python 3.3
 
-## 1.3.4
+## [0.6.3] - 2016-10-06
+### Added
+- DOI badge of the v0.6.2 release to README
+- arXiv badge for the companion paper
 
-- fix false positives in indented blocks
+### Removed
+- Dependency on deprecated `pyfits` library for FITS I/O.
+Now defaults to `astropy.io.fits`
 
-## 1.3.3
+## [0.6.2] - 2016-09-01
+### Added
+- CHANGELOG.md (this file)
+- Paper name to README file to prepare for code release
 
-- fix crash on invalid `# lint_cmake: pragma` line
-- fix deprecation warning with Python 3.4
-- fix false positive warnings related to non-CMake quoted chunks (Issue #2)
+## [0.6.1] - 2016-03-10
+### Added
+- Link to pypi
+- Badges to the README file
 
-## 1.3.2
+### Changed
+- Figure on angles in the docs to clarify inputs
 
-- return error code 0, 1, 32 on error
+### Fixed
+- Needed import for the logging module
 
-## 1.3.1
+## [0.6] - 2016-03-04
+### Added
+- Python3 compliancy\
+- Sphinx Documentation built on ReadTheDocs
+- `setup.py` for code packaging
+- `MANIFEST.in`, `requirements.txt` and `setup.cfg` to configure setup
+- BSD license and copyright info in the code
+- New `addpixscl` script to add pixel scale info to custom FITS file
 
-- fix version number
+### Changed
+- Major renaming of the code `make_psf_kernel` => `pypher`
+- Refactoring of the code => methods into separate "topic" files
+- ArgumentParser simplified
+- Simplify and order import statements
+- Clarify variable and method names for readability and disambiguity
+- Log filename now use output filename
 
-## 1.3
+### Fixed
+- Unnecessary indentation in `psf2otf` method
+- PEP8 issues
+- pylint issues
 
-- individual CMake files can control filters with `# lint_cmake: pragma` comment
-- improved `SetFilters` function to allow spaces around the commas
-- use `${XDG_CONFIG_HOME}` for the cmakelintrc file, with backwards compatible check for `~/.cmakelintrc`
+### Removed
+- Outdated comments
+- Unused supervised method
 
-## 1.2.01
 
-- Published on pypi
+## 0.5 - 2015-11-24 (not tagged)
+### Added
+- Estimation of the regularization parameter
+- README update
 
-## 1.2
+### Changed
+- Clarified input names of deconvolution methods
+- Verbosity options deprecated and replaced with logging
+- `printhelp` method depracated for the same reasons
 
-- Moved to github
+### Fixed
+- FITS header comment displaying filename modified to fit in a single line
+
+### Fixed
+
+## [0.4] - 2015-05-13
+### Added
+- Logging abilities
+- Requirement on the `pyfits` version due to incompatibilities
+- Exception corresponding to the resampling ratio off limits
+
+### Changed
+- README updated
+- Fourier transform of PSF is no longer saved in memory
+- `pixel_scale` value is read from the FITS header keywords `CD1_1` & `CD2_2`
+
+### Fixed
+- Resampling method
+- General typos
+
+## [0.3] - 2015-04-02
+### Added
+- Pep8 compliancy
+- `astropy.io.fits` compatibility in parallel to `pyfits`
+- Example running script
+
+### Fixed
+- Typos
+- Markup language
+
+## 0.1 - 2015-02-23
+### Added
+- Initial commit of the code.
+
+
+[Unreleased]: https://github.com/aboucaud/pypher/compare/v0.6.4...HEAD
+[0.6.4]: https://github.com/aboucaud/pypher/compare/v0.6.3...v0.6.4
+[0.6.3]: https://github.com/aboucaud/pypher/compare/v0.6.2...v0.6.3
+[0.6.2]: https://github.com/aboucaud/pypher/compare/v0.6.1...v0.6.2
+[0.6.1]: https://github.com/aboucaud/pypher/compare/v0.6...v0.6.1
+[0.6]: https://github.com/aboucaud/pypher/compare/v0.4...v0.6
+[0.4]: https://github.com/aboucaud/pypher/compare/v0.3...v0.4
+[0.3]: https://github.com/aboucaud/pypher/compare/v0.1...v0.3

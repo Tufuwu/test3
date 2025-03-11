@@ -1,21 +1,18 @@
-# MANIFEST.in file required to deliver test files with source tar
-include *.py
+include README.rst
 include LICENSE
-include README.md
-include test-requirements
-include dev-requirements
-recursive-include test *
+include CHANGELOG.md
 
-# all samples for clitest
-graft samples
+include docs/Makefile
+include docs/conf.py
+recursive-include docs *.rst
 
-include tox.ini
+exclude *.sh
+exclude .gitignore
+exclude Makefile
+exclude tox.ini
+exclude TODO
+exclude .pylintrc
+exclude .travis.yml
 
-global-exclude .tox
-global-exclude *~
-global-exclude __pycache__
-global-exclude .coverage
-global-exclude *.py[co]
-global-exclude *.db
-global-exclude .git*
-global-exclude *.orig
+global-exclude *.pyc
+global-exclude *.DS_Store
