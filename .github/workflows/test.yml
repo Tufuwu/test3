@@ -1,71 +1,22 @@
-name: checkers_and_linters
-
-# Controls when the workflow will run
+name: Tufuwu/test2
 on:
-  # Triggers the workflow on push or pull request events but only for some branches
   push:
-    branches: [ main, angi ]
+    branches:
+    - "**/*"
   pull_request:
-    branches: [ main, stable, angi ]
-
+#   # This item has no matching transformer
+#   maximum_number_of_builds: 0
 jobs:
-  # This workflow contains a single job called "checksAndlinters"
-  ChecksAndLinters:
-    # The type of runner that the job will run on
-    runs-on: ubuntu-latest
-
-    # Steps represent a sequence of tasks that will be executed as part of the job
+  test:
+    runs-on: ubuntu-16.04
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
-
-      - name: Install needed packages
-        run: |
-          echo "Perl Linter"
-          echo "Install perlcritic..."
-          id -a
-          sudo apt-get -y install libtest-perl-critic-perl
-          which perlcritic
-          echo "Flake8"
-          echo "Install cke8..."
-          id -a
-          sudo apt-get -y install flake8
-          which flake8
-          echo "Pylint"
-          echo "Install pylint..."
-          id -a
-          sudo apt-get -y install pylint
-          which pylint
-        continue-on-error: true
-
-      # Runs a set of commands using the runners shell
-      - name: Checks scripts with shellcheck
-        shell: bash
-        run: |
-          echo "Running Shellcheck..."
-          find . -type f  -name '*' ! -path './ra/old-*' ! -path './test/*' -exec awk ' /^#!.*bash/{print FILENAME} {nextfile}' {} + | xargs shellcheck -s bash && echo "Everything is OK!"
-        continue-on-error: true
-
-      # Runs a perl linter
-      - name: Running perl linter
-        shell: bash
-        run: |
-          echo "Running perlcritic..."
-          find . -type f -name '*' ! -path './test/*' -exec awk ' /^#!.*perl/{print FILENAME} {nextfile}' {} + | xargs perlcritic --gentle && echo "Everything is OK!"
-        continue-on-error: true
-
-      # Runs flake8
-      - name: Running flake8
-        shell: bash
-        run: |
-          echo "Running flake8..."
-          find . -type f  -name '*.py' ! -path './test/*' | xargs flake8 --ignore=E501 && echo "Everything is OK!"
-        continue-on-error: true
-
-      # Runs pylint
-      - name: Running pylint
-        shell: bash
-        run: |
-          echo "Running pylint..."
-          find . -type f  -name '*.py' ! -path './test/*' | xargs pylint --disable=line-too-long && echo "Everything is OK!"
-        continue-on-error: true
+    - name: checkout
+      uses: actions/checkout@v4.1.0
+    - run: sudo apt-get -qq update
+    - run: sudo apt-get -qq install shellcheck
+    - run: sudo apt-get -qq install libperl-critic-perl
+    - run: sudo apt-get -qq install python-flake8
+    - run: sudo apt-get -qq install flake8
+    - run: gem install bundler
+    - run: bundle install --jobs=3 --retry=3
+    - run: make test
