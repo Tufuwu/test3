@@ -1,143 +1,188 @@
-python-fitparse
-===============
+# Fimfarchive
 
-> :warning: **NOTE:** *I have **limited to no time** to work on this package
-> these days!*
-> 
-> I am looking for a maintainer to help with issues and updating/releasing the package.
-> Please reach out via email at <david@dtcooper.com> if you have interest in helping.
->
-> If you're having trouble using this package for whatever reason, might we suggest using
-> an alternative library: [fitdecode](https://github.com/polyvertex/fitdecode) by
-> [polyvertex](https://github.com/polyvertex).
->
-> Cheers,
->
-> David
+Fimfarchive aims to release all stories on Fimfiction as a single ZIP-file. The
+archive contains not only stories, but also metadata such as tags, ratings, and
+descriptions. It is organized by author and could be used for backup, offline
+reading, or data mining.
 
-Here's a Python library to parse ANT/Garmin `.FIT` files.
-[![Build Status](https://github.com/dtcooper/python-fitparse/workflows/test/badge.svg)](https://github.com/dtcooper/python-fitparse/actions?query=workflow%3Atest)
+Releases can be found on Fimfarchive's [user profile] at [Fimfiction]. Note
+that this is **not** an official Fimfiction project, so do not send questions
+to Fimfiction staff. Instead, send a private message or post a comment to the
+Fimfarchive user profile.
+
+A new version will be released each season via BitTorrent, approximately once
+every three months. When suitable, an xdelta3 patch will also be provided for
+users who do not wish to redownload unchanged stories.
+
+Note that the archive contains a large number of files. Unzipping it to your
+file system may not be necessary if the archive is to be used together with
+some application. If you are a developer, reading directly from the ZIP-file
+may be preferable.
+
+This repository contains code for updating and building the archive. While the
+API is not guaranteed to be stable, it can also be used as a library for easy
+access to stories and metadata within the archive. A [Fimfiction API] key is
+however needed to stories directly from Fimfiction.
+
+[Fimfiction]: https://www.fimfiction.net
+[Fimfiction API]: https://www.fimfiction.net/developers/api/v2/docs
+[user profile]: https://www.fimfiction.net/user/116950/Fimfarchive
 
 
-Install from [![PyPI](https://img.shields.io/pypi/v/fitparse.svg)](https://pypi.python.org/pypi/fitparse/):
+# Installation
+
+There are primarily two ways to install this tool. The first is installation as
+a library for use within other projects, and the second is installation for
+development of Fimfarchive. Using a [virtual environment] is recommended for
+both cases in order to avoid contaminating the rest of the Python installation.
+
+## Installation as a Library
+
+Make sure a virtual environment has been created and activated. When done,
+simply install the library directly from the `master` branch on GitHub.
+
+```bash
+python3 -m pip install git+https://github.com/JockeTF/fimfarchive.git
 ```
-pip install fitparse
+
+Optionally also install `lz4` to lower the memory footprint of open archives.
+
+```bash
+python3 -m pip install lz4
 ```
 
-FIT files
-------------
-- FIT files contain data stored in a binary file format.
-- The FIT (Flexible and Interoperable Data Transfer) file protocol is specified
-  by [ANT](http://www.thisisant.com/).
-- The SDK, code examples, and detailed documentation can be found in the
-  [ANT FIT SDK](http://www.thisisant.com/resources/fit).
-
-
-Usage
------
-A simple example of printing records from a fit file:
+That's it! Import a class to make sure things work as expected.
 
 ```python
-import fitparse
-
-# Load the FIT file
-fitfile = fitparse.FitFile("my_activity.fit")
-
-# Iterate over all messages of type "record"
-# (other types include "device_info", "file_creator", "event", etc)
-for record in fitfile.get_messages("record"):
-
-    # Records can contain multiple pieces of data (ex: timestamp, latitude, longitude, etc)
-    for data in record:
-
-        # Print the name and value of the data (and the units if it has any)
-        if data.units:
-            print(" * {}: {} ({})".format(data.name, data.value, data.units))
-        else:
-            print(" * {}: {}".format(data.name, data.value))
-
-    print("---")
+from fimfarchive.fetchers import FimfarchiveFetcher
 ```
 
-The library also provides a `fitdump` script for command line usage:
+## Installation for Development
+
+Start by creating a clone of the Fimfarchive repository.
+
+```bash
+git clone https://github.com/JockeTF/fimfarchive.git
 ```
-$ fitdump --help
-usage: fitdump [-h] [-v] [-o OUTPUT] [-t {readable,json}] [-n NAME] [--ignore-crc] FITFILE
 
-Dump .FIT files to various formats
+Enter the cloned repository and install the development dependencies.
 
-positional arguments:
-  FITFILE               Input .FIT file (Use - for stdin)
+```bash
+uv sync
+```
+
+Optionally also install `lz4` to lower the memory footprint of open archives.
+
+```bash
+uv sync --extra lz4
+```
+
+All done! Run the test suite to make sure everything works as expected.
+
+```bash
+uv run pytest
+```
+
+[virtual environment]: https://docs.python.org/3/tutorial/venv.html
+
+
+# Running
+
+Fimfarchive has a command line interface which is invoked as a Python module.
+It can't do much except prepare new Fimfarchive releases. For archive browsing
+you will need to use third-party tools, or make your own.
+
+```
+$ uv run python -m fimfarchive
+Usage: COMMAND [PARAMETERS]
+
+Fimfarchive, ensuring that history is preseved.
+
+Commands:
+  build   Builds a new Fimfarchive release.
+  update  Updates stories for Fimfarchive.
+```
+
+The command line interface features multiple subcommands, each with its own
+brief help text. The subcommand is specified as the second program argument.
+
+```
+$ uv run python -m fimfarchive update --help
+usage: [-h] [--alpha] --archive PATH [--refetch]
+
+Updates stories for Fimfarchive.
 
 optional arguments:
-  -h, --help            show this help message and exit
-  -v, --verbose
-  -o OUTPUT, --output OUTPUT
-                        File to output data into (defaults to stdout)
-  -t {readable,json}, --type {readable,json}
-                        File type to output. (DEFAULT: readable)
-  -n NAME, --name NAME  Message name (or number) to filter
-  --ignore-crc          Some devices can write invalid crc's, ignore these.
+  -h, --help      show this help message and exit
+  --alpha         fetch from Fimfiction APIv1
+  --archive PATH  previous version of the archive
+  --refetch       refetch all available stories
 ```
 
-See the documentation for more: http://dtcooper.github.io/python-fitparse
+Some commands (such as `update`) require a Fimfiction API key. The program
+reads this key from the environment variable `FIMFICTION_ACCESS_TOKEN`. Any
+data downloaded from Fimfiction is stored in the current working directory,
+typically in the `worktree` subdirectory. The same thing goes for rendered
+stories, built archives, or anything else related to the release process.
 
 
-Major Changes From Original Version
------------------------------------
+# Process
 
-After a few years of laying dormant we are back to active development!
-The old version is archived as
-[`v1-archive`](https://github.com/dtcooper/python-fitparse/releases/tag/v1-archive).
+The process for building a new Fimfarchive release consists of a few simple
+steps. Before starting, make sure you have the previous version of Fimfarchive
+nearby, as well as a Fimfiction APIv2 key. Also, remove any previous `worktree`
+directory from the current working directory. Some of the commands mentioned
+below are currently only available in feature branches.
 
-  * New, hopefully cleaner public API with a clear division between accessible
-    and internal parts. (Still unstable and partially complete.)
+- **Update**: Invoke the `update` subcommand to refresh all stories. This takes
+  about one month since _all_ story metadata has to be traversed. Story data
+  isn't downloaded unless changes have been made since the last release. Use
+  the `--refetch` flag if all data should be updated regardless of if there
+  have been any changes. Write down the `Started` and `Done` dates for later.
 
-  * Proper documentation!
-    [Available here](https://dtcooper.github.io/python-fitparse/).
+- **Render**: Use the `render` subcommand to generate EPUB-files for all
+  stories with updated content. The subcommand requires `ebook-convert` from
+  Calibre to be installed and accessible from the command line. Fimfarchive
+  will usually keep the CPU maxed out for a few hours during this step.
 
-  * Unit tests and example programs.
+- **Count**: The `count` subcommand compares the upcoming release with the
+  previous one. The output mainly consists of statistics for the changelog.
 
-  * **(WIP)** Command line tools (eg a `.FIT` to `.CSV` converter).
+- **Document**: Update the documentation in `docs/readme.tex` for the upcoming
+  release. Change the document title, add a row to the changelog table, and a
+  new changelog subsection. Render the document _a few times_ with `lualatex`
+  and place the results in `worktree/extras` as `readme.pdf`.
 
-  * Component fields and compressed timestamp headers now supported and not
-    just an afterthought. Closes issues #6 and #7.
+- **About**: Create an `about.json` file in `worktree/extras`. The file has
+  three keys named `version`, `start`, and `end`. Each key has a simple date
+  string like `20201201` as its value. Preferably use the file included with
+  the previous release as a template to keep things consistent.
 
-  * FIT file parsing is generic enough to support all types. Going to have
-    specific `FitFile` subclasses for more popular file types like activities.
+- **Build**: Create a `build` directory in `worktree`, and then run the `build`
+  subcommand. Expect this to take up to 15 minutes depending on the machine.
+  The resulting archive will be written to the `build` directory.
 
-  * **(WIP)** Converting field types to normalized values (for example,
-    `bool`, `date_time`, etc) done in a consistent way, that's easy to
-    customize by subclassing the converter class. I'm going to use something
-    like the Django form-style `convert_<field name>` idiom on this class.
+- **Verify**: Go through the archive to check that everything looks good. One
+  tip is to test the CRC checksums of both the outer ZIP-archive and internal
+  EPUB-files. Sample some old and new stories to check that they look right.
+  Successfully opening the archive with [Fimfareader] can help prove that the
+  metadata has all of the required fields with the correct data types.
 
-  * The FIT profile is its own complete python module, rather than using
-    `profile.def`.
+- **Patch**: Create an [xdelta3] patch if applicable. It's important to allow
+  `xdelta3` to use a lot of memory since it otherwise has trouble seeing the
+  similarities between the archives. For example, `xdelta3 -B 2147483648 -e -s
+  <old> <new> <patch>` uses the maximum allowed value of 2 GiB.
 
-    * Bonus! The profile generation script is _less_ ugly (but still an
-      atrocity) and supports every
-      [ANT FIT SDK](http://www.thisisant.com/resources/fit) from version 1.00
-      up to 5.10.
+- **Torrent**: Create a torrent file if applicable. Using a private tracker
+  with a whitelist is preferable since public ones could be flaky or have poor
+  response times. However, it's usually a good idea to include a few public
+  trackers as well to improve availability. Set the chunk size so that the
+  torrent is split into somewhere between 1000 and 2000 pieces. Values outside
+  that range could cause performance issues or prevent the torrent from being
+  easily distributed via magnet links.
 
-  * A working `setup.py` module. Closes issue #2, finally! I'll upload the
-    package to [PyPI](http://pypi.python.org/) when it's done.
+- **Release**: Upload, announce, and distribute the release!
 
-  * Support for parsing one record at a time. This can be done using
-    `<FitFile>.parse_one()` for now, but I'm not sure of the exact
-    implementation yet.
-
-
-Updating to new FIT SDK versions
---------------------------------
-- Download the latest [ANT FIT SDK](http://www.thisisant.com/resources/fit).
-- Update the profile:
-```
-python3 scripts/generate_profile.py /path/to/fit_sdk.zip fitparse/profile.py
-```
-
-
-License
--------
-
-This project is licensed under the MIT License - see the [`LICENSE`](LICENSE)
-file for details.
+[Calibre]: https://calibre-ebook.com
+[Fimfareader]: https://github.com/JockeTF/fimfareader
+[xdelta3]: http://xdelta.org

@@ -1,35 +1,29 @@
-name: Python CI
+name: Main
 
-on: [push, pull_request]
+on:
+  - pull_request
+  - push
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
     strategy:
       matrix:
-        python-version: ['3.9', '3.10', '3.11']
+        python-version: ["3.9", "3.10"]
 
     steps:
-    - uses: actions/checkout@v2
+    - name: Clone Repository
+      uses: actions/checkout@v1
 
-    - name: Set up Python ${{ matrix.python-version }}
+    - name: Setup Python ${{ matrix.python-version }}
       uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python-version }}
 
-    - name: Install dependencies
+    - name: Install Tox
       run: |
         python -m pip install --upgrade pip
-        pip install -r requirements-test.txt
+        pip install tox tox-gh-actions
 
-    - name: Run tests
-      run: |
-        python -m unittest discover -s tests
-        coverage run run_tests.py && coverage report -m
-
-    - name: Upload coverage report
-      uses: actions/upload-artifact@v2
-      with:
-        name: coverage
-        path: coverage.xml
+    - name: Invoke Tox
+      run: tox

@@ -1,62 +1,53 @@
-# Byte-compiled / optimized / DLL files
-__pycache__/
-*.py[cod]
+# Common files.
+.DS_Store
+Thumbs.db
 
-# C extensions
-*.so
-
-# Distribution / packaging
-.Python
-env/
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-*.egg-info/
-.installed.cfg
-*.egg
-Pipfile.lock
-Pipfile*
-
-# PyInstaller
-#  Usually these files are written by a python script from a template
-#  before PyInstaller builds the exe, so as to inject date/other infos into it.
-*.manifest
-*.spec
-
-# Installer logs
-pip-log.txt
-pip-delete-this-directory.txt
-
-# Unit test / coverage reports
-htmlcov/
-.tox/
-.coverage
-.cache
-nosetests.xml
-coverage.xml
-
-# Translations
-*.mo
-*.pot
-
-# Django stuff:
+# Common extensions.
+*.diff
+*.err
+*.orig
 *.log
+*.rej
+*.swo
+*.swp
+*.vi
+*~
 
-# Sphinx documentation
-docs/_build/
+# Python cache.
+__pycache__/
 
-# PyBuilder
-target/
+# Lock files.
+uv.lock
 
-# Various IDEs
-/.idea
+# Virtual environment.
+.venv/
 
-# python-fitparse specific
-FitSDK*
+# Vim settings.
+.vim/
+
+# PyCharm project.
+/.idea/
+*.iml
+
+# Eclipse project.
+.project
+.pydevproject
+.settings/
+
+# Rope project.
+.ropeproject/
+
+# Mypy cache.
+.mypy_cache/
+
+# Coverage output.
+.coverage
+coverage.xml
+htmlcov/
+*.py,cover
+
+# Fimfarchive data.
+fimfarchive.zip
+
+# Operations configuration.
+operations/inventory.yml
