@@ -1,39 +1,77 @@
-name: tests
-
-on: [push, pull_request]
-
+name: Tufuwu/test2
+on:
+  push:
+    branches:
+    - "**/*"
+  pull_request:
+#   # This item has no matching transformer
+#   maximum_number_of_builds: 0
 jobs:
   test:
-    strategy:
-      matrix:
-        python: ["3.9", "3.10"]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     steps:
-      - uses: actions/checkout@v2
-      - name: Setup Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: ${{ matrix.python }}
-      - name: Install Python dependencies
-        run: pip install jeepney cryptography codecov
-      - name: Clone libsecret repository
-        run: git clone https://gitlab.gnome.org/GNOME/libsecret.git
-      - name: Run tests
-        run: |
-          dbus-run-session -- coverage run tests/run_tests.py libsecret/libsecret/mock-service-normal.py
-          dbus-run-session -- coverage run -a tests/run_tests.py libsecret/libsecret/mock-service-only-plain.py
-          dbus-run-session -- coverage run -a tests/run_tests.py libsecret/libsecret/mock-service-lock.py
-      - name: Upload reports to Codecov
-        if: ${{ matrix.python == 3.9 }}
-        run: codecov
-  static-analysis:
-    runs-on: ubuntu-latest
+    - name: checkout
+      uses: actions/checkout@v4.1.0
+    - uses: actions/setup-python@v5.0.0
+      with:
+        python-version: '3.9'
+    - run: pip install jeepney cryptography codecov pyflakes mypy
+    - run: git clone https://gitlab.gnome.org/GNOME/libsecret.git
+    - run: dbus-run-session -- coverage run tests/run_tests.py libsecret/libsecret/mock-service-normal.py
+    - run: dbus-run-session -- coverage run -a tests/run_tests.py libsecret/libsecret/mock-service-only-plain.py
+    - run: dbus-run-session -- coverage run -a tests/run_tests.py libsecret/libsecret/mock-service-lock.py
+    - run: pyflakes secretstorage/ tests/
+    - run: mypy --strict --ignore-missing-imports secretstorage/ tests/
+    - run: codecov
+      if: "${{ success() }}"
+  test_2:
+    runs-on: ubuntu-20.04
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
-      - name: Install mypy and pyflakes
-        run: pip install mypy pyflakes
-      - name: Run pyflakes
-        run: pyflakes secretstorage/ tests/
-      - name: Run mypy
-        run: mypy --strict --ignore-missing-imports secretstorage/ tests/
+    - name: checkout
+      uses: actions/checkout@v4.1.0
+    - uses: actions/setup-python@v5.0.0
+      with:
+        python-version: '3.9'
+    - run: pip install jeepney cryptography codecov pyflakes mypy
+    - run: git clone https://gitlab.gnome.org/GNOME/libsecret.git
+    - run: dbus-run-session -- coverage run tests/run_tests.py libsecret/libsecret/mock-service-normal.py
+    - run: dbus-run-session -- coverage run -a tests/run_tests.py libsecret/libsecret/mock-service-only-plain.py
+    - run: dbus-run-session -- coverage run -a tests/run_tests.py libsecret/libsecret/mock-service-lock.py
+    - run: pyflakes secretstorage/ tests/
+    - run: mypy --strict --ignore-missing-imports secretstorage/ tests/
+    - run: codecov
+      if: "${{ success() }}"
+  test_3:
+    runs-on: ubuntu-20.04
+    steps:
+    - name: checkout
+      uses: actions/checkout@v4.1.0
+    - uses: actions/setup-python@v5.0.0
+      with:
+        python-version: '3.9'
+    - run: pip install jeepney cryptography codecov pyflakes mypy
+    - run: git clone https://gitlab.gnome.org/GNOME/libsecret.git
+    - run: dbus-run-session -- coverage run tests/run_tests.py libsecret/libsecret/mock-service-normal.py
+    - run: dbus-run-session -- coverage run -a tests/run_tests.py libsecret/libsecret/mock-service-only-plain.py
+    - run: dbus-run-session -- coverage run -a tests/run_tests.py libsecret/libsecret/mock-service-lock.py
+    - run: pyflakes secretstorage/ tests/
+    - run: mypy --strict --ignore-missing-imports secretstorage/ tests/
+    - run: codecov
+      if: "${{ success() }}"
+  test_4:
+    runs-on: ubuntu-20.04
+    steps:
+    - name: checkout
+      uses: actions/checkout@v4.1.0
+    - uses: actions/setup-python@v5.0.0
+      with:
+        python-version: '3.9'
+    - run: pip install jeepney cryptography codecov pyflakes mypy
+    - run: git clone https://gitlab.gnome.org/GNOME/libsecret.git
+    - run: dbus-run-session -- coverage run tests/run_tests.py libsecret/libsecret/mock-service-normal.py
+    - run: dbus-run-session -- coverage run -a tests/run_tests.py libsecret/libsecret/mock-service-only-plain.py
+    - run: dbus-run-session -- coverage run -a tests/run_tests.py libsecret/libsecret/mock-service-lock.py
+    - run: pyflakes secretstorage/ tests/
+    - run: mypy --strict --ignore-missing-imports secretstorage/ tests/
+    - run: codecov
+      if: "${{ success() }}"
