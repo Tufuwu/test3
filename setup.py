@@ -1,51 +1,36 @@
-# SPDX-FileCopyrightText: Nir Soffer <nirsof@gmail.com>
-#
-# SPDX-License-Identifier: MIT
-
-import os
-import io
-from setuptools import setup
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 
-def read(fname):
-    path = os.path.join(os.path.dirname(__file__), fname)
-    with io.open(path, encoding="utf8") as f:
-        return f.read()
+from setuptools import setup, find_packages
 
+
+with open('README.rst', 'rb') as f:
+    readme = f.read().decode('utf-8')
+
+with open('requirements.txt') as f:
+    requires = f.readlines()
 
 setup(
-    name="pytest-threadleak",
-    version="0.5.0",
-    author="Nir Soffer",
-    author_email="nirsof@gmail.com",
-    maintainer="Nir Soffer",
-    maintainer_email="nirsof@gmail.com",
-    license="MIT",
-    url="https://github.com/nirs/pytest-threadleak",
-    description="Detects thread leaks",
-    long_description=read("README.rst"),
-    py_modules=["pytest_threadleak"],
-    install_requires=["pytest>=3.1.1"],
+    name='greenswitch',
+    version='0.0.16',
+    description=u'Battle proven FreeSWITCH Event Socket Protocol client implementation with Gevent.',
+    long_description=readme,
+    author=u'Ítalo Rossi',
+    author_email=u'italorossib@gmail.com',
+    url=u'https://github.com/evoluxbr/greenswitch',
+    license=u'MIT',
+    packages=find_packages(exclude=('tests', 'docs')),
     classifiers=[
-        "Development Status :: 4 - Beta",
-        "Framework :: Pytest",
-        "Intended Audience :: Developers",
-        "Topic :: Software Development :: Testing",
-        "Programming Language :: Python",
-        "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.8",
-        "Programming Language :: Python :: 3.9",
-        "Programming Language :: Python :: 3.10",
-        "Programming Language :: Python :: 3.11",
-        "Programming Language :: Python :: 3.12",
-        "Programming Language :: Python :: Implementation :: CPython",
-        "Programming Language :: Python :: Implementation :: PyPy",
-        "Operating System :: OS Independent",
-        "License :: OSI Approved :: MIT License",
+        'Development Status :: 5 - Production/Stable',
+        'Intended Audience :: Developers',
+        'Programming Language :: Python',
+        'License :: OSI Approved :: MIT License',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
+        'Programming Language :: Python :: 3.10',
     ],
-    entry_points={
-        "pytest11": [
-            "threadleak = pytest_threadleak",
-        ],
-    },
+    install_requires=requires
 )

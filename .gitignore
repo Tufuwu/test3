@@ -1,23 +1,28 @@
-# SPDX-FileCopyrightText: Nir Soffer <nirsof@gmail.com>
-#
-# SPDX-License-Identifier: MIT
-
-# Byte-compiled / optimized / DLL files
-__pycache__/
-*.py[cod]
-*$py.class
-
-# C extensions
-*.so
+*.pyc
 
 # Distribution / packaging
+.Python
+env/
 build/
+develop-eggs/
 dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
 *.egg-info/
+.installed.cfg
+*.egg
+.idea/*
+.pytest_cache/*
+.tags*
+.vscode/
 
-# Unit test / coverage reports
-htmlcov/
-.tox/
+# pytest coverage plugin
 .coverage
-.cache
-.venv
+
+.tool-versions

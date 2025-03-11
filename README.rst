@@ -1,172 +1,149 @@
-.. SPDX-FileCopyrightText: Nir Soffer <nirsof@gmail.com>
-..
-.. SPDX-License-Identifier: MIT
+GreenSWITCH: FreeSWITCH Event Socket Protocol
+=============================================
 
-=================
-pytest-threadleak
-=================
+.. image:: https://github.com/EvoluxBR/greenswitch/actions/workflows/tests.yml/badge.svg
+    :target: https://github.com/EvoluxBR/greenswitch/actions
 
-.. image:: https://img.shields.io/pypi/v/pytest-threadleak.svg
-    :target: https://pypi.python.org/pypi/pytest-threadleak
-    :alt: Current version
-.. image:: https://img.shields.io/pypi/pyversions/pytest-threadleak
-    :target: https://pypi.python.org/pypi/pytest-threadleak
-    :alt: Supports Python 3.12, 3.11, 3.10, 3.9, 3.8
-.. image:: https://img.shields.io/pypi/dm/pytest-threadleak
-    :target: https://pypi.python.org/pypi/pytest-threadleak
-    :alt: Downloads per month
-.. image:: https://github.com/nirs/pytest-threadleak/actions/workflows/ci.yml/badge.svg
-    :target: https://github.com/nirs/pytest-threadleak/actions/workflows/ci.yml
-    :alt: Tests status
-.. image:: https://img.shields.io/pypi/l/pytest-threadleak
-    :target: https://pypi.python.org/pypi/pytest-threadleak
-    :alt: MIT license
+.. image:: https://img.shields.io/pypi/v/greenswitch.svg
+    :target: https://pypi.python.org/pypi/greenswitch
 
+.. image:: https://img.shields.io/pypi/dm/greenswitch.svg
+    :target: https://pypi.python.org/pypi/greenswitch
 
-Detects tests leaking threads
-=============================
+Battle proven FreeSWITCH Event Socket Protocol client implementation with Gevent.
 
-Installation
-------------
+This is an implementation of FreeSWITCH Event Socket Protocol using Gevent
+Greenlets. It is already in production and processing hundreds of calls per day.
 
-You can install "pytest-threadleak" via `pip`_ from `PyPI`_:
+Full Python3 support!
 
-.. code-block:: bash
-
-    $ pip install pytest-threadleak
-
-
-Usage
------
-
-The threadleak pytest plugin will fail leaking threads. This can be an issue in
-the test, or in the tested code.
-
-Here is an example leaking test:
+Inbound Socket Mode
+===================
 
 .. code-block:: python
 
-    # leak_test.py
-    import threading
-    import time
+    >>> import greenswitch
+    >>> fs = greenswitch.InboundESL(host='127.0.0.1', port=8021, password='ClueCon')
+    >>> fs.connect()
+    >>> r = fs.send('api list_users')
+    >>> print r.data
 
-    def test_leak():
-        threading.Thread(target=time.sleep, args=(1,)).start()
 
-Here is an example run with thread leak plugin enabled:
+Outbound Socket Mode
+====================
 
-.. code-block:: bash
+Outbound is implemented with sync and async support. The main idea is to create
+an Application that will be called passing an OutboundSession as argument.
+This OutboundSession represents a call that is handled by the ESL connection.
+Basic functions are implemented already:
 
-    $ pytest --threadleak leak_test.py
-    ...
-    leak_test.py::test_leak FAILED
-    ...
-    >   ???
-    E   Failed: Test leaked [<Thread(Thread-1, started 139762716391168)>]
+ - playback
+ - play_and_get_digits
+ - hangup
+ - park
+ - uuid_kill
+ - answer
+ - sleep
 
-If you want to enable thread leak by default, you can enable it in your
-pytest.ini or tox.ini:
+With current api, it's easy to mix sync and async actions, for example:
+play_and_get_digits method will return the pressed DTMF digits in a block mode,
+that means as soon as you call that method in your Python code the execution
+flow will block and wait for the application to end only returning to the next
+line after ending the application. But after getting digits, if you need to consume
+an external system, like posting this to an external API you can leave the caller
+hearing MOH while the API call is being done, you can call the playback method
+with block=False, playback('my_moh.wav', block=False), after your API end we need
+to tell FreeSWITCH to stop playing the file and give us back the call control,
+for that we can use uuid_kill method.
 
-.. code-block:: ini
-
-    [pytest]
-    threadleak = True
-
-If you want to enable thread leak on a per test/module basis, you can
-use the `threadleak` pytest marker:
-
-To enable it for a single test:
-
-.. code-block:: python
-
-    @pytest.mark.threadleak
-    def test_leak():
-       ...
-
-To disable it for a single test:
+Example of Outbound Socket Mode:
 
 .. code-block:: python
 
-    @pytest.mark.threadleak(enabled=False)
-    def test_leak():
-       ...
+    '''
+    Add a extension on your dialplan to bound the outbound socket on FS channel
+    as example below
 
-For an entire test module:
+    <extension name="out socket">
+        <condition>
+            <action application="socket" data="<outbound socket server host>:<outbound socket server port> async full"/>
+        </condition>
+    </extension>
 
-.. code-block:: python
+    Or see the complete doc on https://freeswitch.org/confluence/display/FREESWITCH/mod_event_socket
+    '''
+    import gevent
+    import greenswitch
 
-    import pytest
-
-    pytestmark = pytest.mark.threadleak(enabled=False)
-
-If you want to exclude some threads from the leak check, you can specify a
-regex to match excluded thread names:
-
-.. code-block:: ini
-
-    [pytest]
-    threadleak = True
-    threadleak_exclude = pool/\d+
-
-If you want to ignore leaked daemon threads, specify
-`threadleak_exclude_daemons` (defaults to `False`):
-
-.. code-block:: ini
-
-    [pytest]
-    threadleak = True
-    threadleak_exclude_daemons = True
-
-The `exclude` and `exclude_daemons` options can also be used in module marker,
-class marker or function markers, to enable the option only for certain moudle,
-test class, or test function:
-
-.. code-block:: python
-
-    @pytest.mark.threadleak(exclude=r"pool/\d+")
-    def test_exclude_leaked_threads_by_regrex():
-        ...
-
-    @pytest.mark.threadleak(exclude_daemons=True)
-    def test_exclude_leaked_daemon_threads():
-        ...
-
-    def test_no_leaked_threads_here():
-        ...
-
-In this example, thread "pool/42" is allowed to leak in the first test, and all
-daemon threads are allowed to leak in the second test. No threads area allowed
-to leak in the last test.
-
-Contributing
-------------
-
-Running the tests:
-
-.. code-block:: bash
-
-    $ tox
+    import logging
+    logging.basicConfig(level=logging.DEBUG)
 
 
-License
--------
+    class MyApplication(object):
+        def __init__(self, session):
+            self.session = session
 
-Distributed under the terms of the `MIT`_ license, "pytest-threadleak" is free
-and open source software
+        def run(self):
+            """
+            Main function that is called when a call comes in.
+            """
+            try:
+                self.handle_call()
+            except:
+                logging.exception('Exception raised when handling call')
+                self.session.stop()
+
+        def handle_call(self):
+            # We want to receive events related to this call
+            # They are also needed to know when an application is done running
+            # for example playback
+            self.session.myevents()
+            print("myevents")
+            # Send me all the events related to this call even if the call is already
+            # hangup
+            self.session.linger()
+            print("linger")
+            self.session.answer()
+            print("answer")
+            gevent.sleep(1)
+            print("sleep")
+            # Now block until the end of the file. pass block=False to
+            # return immediately.
+            self.session.playback('ivr/ivr-welcome')
+            print("welcome")
+            # blocks until the caller presses a digit, see response_timeout and take
+            # the audio length in consideration when choosing this number
+            digit = self.session.play_and_get_digits('1', '1', '3', '5000', '#',
+                                                     'conference/conf-pin.wav',
+                                                     'invalid.wav',
+                                                     'test', '\d', '1000', "''",
+                                                     block=True, response_timeout=5)
+            print("User typed: %s" % digit)
+            # Start music on hold in background without blocking code execution
+            # block=False makes the playback function return immediately.
+            self.session.playback('local_stream://default', block=False)
+            print("moh")
+            # Now we can do a long task, for example, processing a payment,
+            # consuming an APIs or even some database query to find our customer :)
+            gevent.sleep(5)
+            print("sleep 5")
+            # We finished processing, stop the music on hold and do whatever you want
+            # Note uuid_break is a general API and requires full permission
+            self.session.uuid_break()
+            print("break")
+            # Bye caller
+            self.session.hangup()
+            print("hangup")
+            # Close the socket so freeswitch can leave us alone
+            self.session.stop()
+
+        server = greenswitch.OutboundESLServer(bind_address='0.0.0.0',
+                                       bind_port=5000,
+                                       application=MyApplication,
+                                       max_connections=5)
+        server.listen()
 
 
-Credits
--------
+Enjoy!
 
-This `Pytest`_ plugin was generated with `Cookiecutter`_ along with
-`@hackebrot`_'s `Cookiecutter-pytest-plugin`_ template.
-
-
-.. _`Cookiecutter`: https://github.com/audreyr/cookiecutter
-.. _`@hackebrot`: https://github.com/hackebrot
-.. _`MIT`: http://opensource.org/licenses/MIT
-.. _`cookiecutter-pytest-plugin`: https://github.com/pytest-dev/cookiecutter-pytest-plugin
-.. _`pytest`: https://github.com/pytest-dev/pytest
-.. _`tox`: https://tox.readthedocs.io/en/latest/
-.. _`pip`: https://pypi.python.org/pypi/pip/
-.. _`PyPI`: https://pypi.python.org/pypi
+Feedbacks always welcome.
