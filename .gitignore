@@ -1,13 +1,9 @@
-# Python
+*.egg-info
 *.pyc
-/*.egg-info
-/.eggs
-/dist
-
-# coverage
-/.coverage
-/htmlcov
-
-# tests
-*.vcd
-*.gtkw
+.coverage
+.DS_Store
+docs/_build/
+dist/
+build/
+.idea
+venv
