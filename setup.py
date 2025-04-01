@@ -1,29 +1,26 @@
-#!/usr/bin/env python
-from setuptools import setup, find_packages  # This setup relies on setuptools since distutils is insufficient and badly hacked code
-
-version = '0.1.0'
-author = 'Pascal Wolf'
-author_email = 'wolf@physik.uni-bonn.de'
-
-with open('requirements.txt') as f:
-    required = f.read().splitlines()
+from setuptools import setup, find_packages
 
 setup(
-    name='irrad_spectroscopy',
-    version=version,
-    description='Gamma spectroscopy of irradiated sensors, chips and PCBs.',
-    url='https://github.com/SiLab-Bonn/irrad_spectroscopy',
-    license='MIT License',
-    long_description='',
-    author=author,
-    maintainer=author,
-    author_email=author_email,
-    maintainer_email=author_email,
+    name='aiochan',
+    version='0.2.6',
     packages=find_packages(),
-    setup_requires=['setuptools'],
-    install_requires=required,
-    include_package_data=True,  # accept all data files and directories matched by MANIFEST.in or found in source control
-    package_data={'': ['README.*', 'VERSION'], 'docs': ['*'], 'examples': ['*']},
-    keywords=['silicon', 'irradiation', 'radioactivity', 'gamma', 'spectroscopy'],
-    platforms='any'
+    platforms='any',
+    classifiers=[
+        'Development Status :: 4 - Beta',
+        'License :: OSI Approved :: Apache Software License',
+        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
+    ],
+    license='Apache',
+    python_requires='>=3.5.3',
+    install_requires=[],
+    setup_requires=['pytest-runner'],
+    tests_require=['pytest', 'pytest-asyncio'],
+    author='Ziyang Hu',
+    author_email='hu.ziyang@cantab.net',
+    description='CSP-style concurrency for Python',
+    url='https://github.com/zh217/aiochan',
+    project_urls={},
+    long_description=open('README.md').read(),
+    long_description_content_type='text/markdown',
 )

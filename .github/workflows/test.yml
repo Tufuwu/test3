@@ -1,4 +1,4 @@
-name: Python application
+name: Python package
 
 on:
   push:
@@ -11,31 +11,18 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-
     strategy:
       matrix:
-        python-version: ['3.6', '3.8']
-
+        python-version: ['3.5.3', '3.6', '3.7', 'pypy3.5']
     steps:
     - uses: actions/checkout@v2
-
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python-version }}
-
     - name: Install dependencies
-      run: |
-        wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
-        chmod +x miniconda.sh
-        bash miniconda.sh -b -p $HOME/miniconda
-        export PATH="$HOME/miniconda/bin:$PATH"
-        conda update --yes conda
-        conda install --yes numpy scipy pyyaml matplotlib nose jupyter pandas
-        conda info -a
-        pip install --upgrade pip
-        pip install -r requirements.txt
-        python setup.py develop
-
-    - name: Test with nosetests
-      run: nosetests
+      run: pip install -r test_req.txt
+    - name: Test with pytest
+      run: py.test --verbose --cov=./aiochan
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v2
