@@ -1,9 +1,13 @@
+# Package Details
+include README.md
 include LICENSE
-include src/aeolus/const/store/*.json
-recursive-include docs *
-recursive-include tests *
-include tests/data/*
-prune docs/html
-prune docs/doctrees
-include versioneer.py
-global-exclude *.py[cod]
+
+# Package Example
+include example.py
+
+# Package Code
+graft content_hash
+
+# Ignore Cache
+global-exclude *.py[co]
+global-exclude __pycache__
