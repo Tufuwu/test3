@@ -4,9 +4,9 @@
 # You can set these variables from the command line.
 SPHINXOPTS    =
 SPHINXBUILD   = sphinx-build
-SPHINXPROJ    = simple-pid
-SOURCEDIR     = source
-BUILDDIR      = build
+SPHINXPROJ    = Sphinxcontrib-mesmaiddemo
+SOURCEDIR     = .
+BUILDDIR      = _build
 
 # Put it first so that "make" without argument is like "make help".
 help:

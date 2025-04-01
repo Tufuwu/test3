@@ -1,2 +1,2 @@
-m2r
-sphinx-rtd-theme
+Sphinx>=3.2.1
+myst-parser>=0.15.1
