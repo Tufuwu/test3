@@ -8,17 +8,9 @@ __pycache__/
 
 # Distribution / packaging
 .Python
-.vscode/
-p2/
-p3/
-env/
-venv/
-python2.7/
 build/
 develop-eggs/
 dist/
-# The doc directory is currently only used for temporary stuff
-doc/
 downloads/
 eggs/
 .eggs/
@@ -31,17 +23,13 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+MANIFEST
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
 #  before PyInstaller builds the exe, so as to inject date/other infos into it.
 *.manifest
 *.spec
-
-# Sublime and VSCode
-*.sublime-project
-*.sublime-workspace
-*.code-workspace
 
 # Installer logs
 pip-log.txt
@@ -53,12 +41,11 @@ htmlcov/
 .coverage
 .coverage.*
 .cache
-.pytest_cache/
 nosetests.xml
 coverage.xml
 *.cover
 .hypothesis/
-tokout.txt
+.pytest_cache/
 
 # Translations
 *.mo
@@ -67,6 +54,7 @@ tokout.txt
 # Django stuff:
 *.log
 local_settings.py
+db.sqlite3
 
 # Flask stuff:
 instance/
@@ -93,13 +81,14 @@ celerybeat-schedule
 # SageMath parsed files
 *.sage.py
 
-# dotenv
+# Environments
 .env
-
-# virtualenv
 .venv
+env/
 venv/
 ENV/
+env.bak/
+venv.bak/
 
 # Spyder project settings
 .spyderproject
@@ -113,4 +102,15 @@ ENV/
 
 # mypy
 .mypy_cache/
-mypy.ini
+upload.sh
+
+# testing
+test.sh
+.vscode/
+sandbox/
+.DS_Store
+.vscode/settings.json
+devices.json
+tinytuya.json
+snapshot.json
+tuya-raw.json
