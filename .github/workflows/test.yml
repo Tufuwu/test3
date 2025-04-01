@@ -1,42 +1,45 @@
-name: Python package
+name: CI
 
 on:
   push:
-    branches:
-      - main
+    branches-ignore:
+      - config
+      - notebooks
   pull_request:
-    branches:
-      - main
+    branches-ignore:
+      - config
+      - notebooks
 
 jobs:
-  test:
-    runs-on: ubuntu-18.04
+  build:
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        python-version: ['3.6', '3.7', '3.8', '3.9', 'pypy3']
-        toxenv: [py, typing]
-      exclude:
-        - python-version: '3.7'
-          toxenv: typing
-        - python-version: '3.8'
-          toxenv: typing
-        - python-version: '3.9'
-          toxenv: typing
-        - python-version: 'pypy3'
-          toxenv: typing
+        os: [ubuntu-latest, windows-latest]
+        python-version: ['3.6', '3.7', '3.8']
 
     steps:
-    - uses: actions/checkout@v2
+    - name: Checkout code
+      uses: actions/checkout@v2
+
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python-version }}
+
+    - name: Run pre-install script
+      run: source ./preinstall.sh
+      shell: bash
+
     - name: Install dependencies
+      run: source ./postinstall.sh
+      shell: bash
+
+    - name: Build and test
       run: |
-        python -m pip install --upgrade pip
-        pip install codecov tox
-    - name: Run tests
-      run: tox -e ${{ matrix.toxenv }}
-    - name: Upload coverage to Codecov
+        python installer/setup.py build_ext -i
+        nosetests -v --with-coverage --cover-package=.
+
+    - name: Coveralls
       if: success()
-      run: codecov
+      run: coveralls

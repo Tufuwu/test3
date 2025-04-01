@@ -1,16 +1,32 @@
-*.egg
-*.egg-info/
-*.pyc
-.cache/
-.coverage
-.eggs/
-.mypy_cache/
-.nox/
-.pytest_cache/
-.tox/
+# Byte-compiled / optimized / DLL files
 __pycache__/
+*.py[cod]
+
+# C extensions
+*.o
+*.so
+*.dylib
+
+# Distribution/packaging
 build/
 dist/
-docs/.doctrees/
-docs/_build/
-venv/
+*.egg-info
+
+# Input/output
+input/
+output/
+
+# Installer logs
+pip-log.txt
+
+# Unit test / coverage reports
+htmlcov/
+.coverage
+.coverage.*
+
+# Miscellaneous
+.DS_Store
+*.ini
+*.py~
+MSLP/*.nc
+*~

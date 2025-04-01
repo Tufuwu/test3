@@ -1,119 +1,110 @@
-.. image:: http://www.repostatus.org/badges/latest/active.svg
-    :target: http://www.repostatus.org/#active
-    :alt: Project Status: Active — The project has reached a stable, usable
-          state and is being actively developed.
+The Tropical Cyclone Risk Model
+===============================
 
-.. image:: https://github.com/jwodder/wheel-filename/workflows/Test/badge.svg?branch=master
-    :target: https://github.com/jwodder/wheel-filename/actions?workflow=Test
-    :alt: CI Status
+The **Tropical Cyclone Risk Model** is a stochastic tropical cyclone
+model developed by `Geoscience Australia <http://www.ga.gov.au>`_ for estimating the wind hazard from tropical cyclones.
 
-.. image:: https://codecov.io/gh/jwodder/wheel-filename/branch/master/graph/badge.svg
-    :target: https://codecov.io/gh/jwodder/wheel-filename
-
-.. image:: https://img.shields.io/pypi/pyversions/wheel-filename.svg
-    :target: https://pypi.org/project/wheel-filename/
-
-.. image:: https://img.shields.io/github/license/jwodder/wheel-filename.svg
-    :target: https://opensource.org/licenses/MIT
-    :alt: MIT License
-
-.. image:: https://img.shields.io/badge/Say%20Thanks-!-1EAEDB.svg
-    :target: https://saythanks.io/to/jwodder
-
-`GitHub <https://github.com/jwodder/wheel-filename>`_
-| `PyPI <https://pypi.org/project/wheel-filename/>`_
-| `Issues <https://github.com/jwodder/wheel-filename/issues>`_
-| `Changelog <https://github.com/jwodder/wheel-filename/blob/master/CHANGELOG.md>`_
-
-``wheel-filename`` lets you verify `wheel
-<https://www.python.org/dev/peps/pep-0427/>`_ filenames and parse them into
-their component fields.
-
-This package adheres strictly to the relevant PEPs, with the following
-exceptions:
-
-- Unlike other filename components, version components may contain the
-  characters ``!`` and ``+`` for full PEP 440 support.
-
-- Version components may be any sequence of the relevant set of characters;
-  they are not verified for PEP 440 compliance.
-
-- The ``.whl`` file extension is matched case-insensitively.
+Due to the relatively short record of quality-controlled, consistent
+tropical cyclone observations, it is difficult to estimate average
+recurrence interval wind speeds ue to tropical cyclones. To overcome
+the restriction of observed data, TCRM uses an autoregressive model to
+generate thousands of years of events that are statistically similar
+to the historical record. To translate these events to estimated wind
+speeds, TCRM applies a parametric windfield and boundary layer model
+to each event. Finally an extreme value distribution is fitted to the
+aggregated windfields at each grid point in the model domain to
+provide ARI wind speed estimates.
 
 
-Installation
+Features
+========
+* **Multi-platform**: TCRM can run on desktop machines through to massively-parallel systems (tested on Windows XP/Vista/7, \*NIX);
+* **Multiple options for wind field & boundary layer models**: A number of radial profiles and simple boundary layer models have been included to allow users to test sensitivity to these options.
+* **Globally applicable**: Users can set up a domain in any TC basin in the globe. The model is not tuned to any one region of the globe. Rather, the model is designed to draw sufficient information from best-track archives;
+* **Evaluation metrics**: Offers capability to run objective evaluation of track model metrics (e.g. landfall rates);
+* **Single scenarios**: Users can run a single TC event (e.g. using a b-deck format track file) at high temporal resolution and extract time series data at chosen locations;
+
+
+Changelog
+=========
+
+New features:
+-------------
+
+* Added empirical ARI calculation
+
+
+Bug fixes:
+----------
+
+* Correction in landfall decay model for unit conversions
+
+Dependencies
 ============
-``wheel-filename`` requires Python 3.6 or higher.  Just use `pip
-<https://pip.pypa.io>`_ for Python 3 (You have pip, right?) to install
-``wheel-filename``::
 
-    python3 -m pip install wheel-filename
+TCRM requires:
+
+ * `Python 3.7 <https://www.python.org/>`_;
+ * `numpy <http://www.numpy.org/>`_; 
+ * `scipy <http://www.scipy.org/>`_;
+ * `matplotlib <http://matplotlib.org/>`_; 
+ * `Basemap <http://matplotlib.org/basemap/index.html>`_; 
+ * `netcdf4-python <https://unidata.github.io/netcdf4-python/netCDF4/index.html>`_; 
+ * `cftime <https://unidata.github.io/cftime/>`_;
+ * `pandas <http://pandas.pydata.org/>`_; 
+ * `Shapely <https://shapely.readthedocs.io/en/latest/manual.html>`_; 
+ * `seaborn <https://seaborn.pydata.org/>`_;
+ * `statsmodels <http://statsmodels.sourceforge.net>`_;
+ * `GitPython <http://gitpython.readthedocs.io>`_;
+ * `GDAL/OGR <https://pypi.org/project/GDAL/>`_;
+ * `mpi4py <https://mpi4py.readthedocs.io/en/stable/>`_;
+ * and `gcc`.  
 
 
-Example
+
+Status
+======
+
+.. image:: https://github.com/GeoscienceAustralia/tcrm/actions/workflows/tcrm-tests.yml/badge.svg?branch=master
+    :target: https://github.com/GeoscienceAustralia/tcrm/actions/workflows/tcrm-tests.yml
+    :alt: Build status
+
+
+.. image:: https://coveralls.io/repos/GeoscienceAustralia/tcrm/badge.svg?branch=master
+  :target: https://coveralls.io/r/GeoscienceAustralia/tcrm?branch=master
+  :alt: Test coverage
+
+    
+.. image:: https://landscape.io/github/GeoscienceAustralia/tcrm/master/landscape.svg?style=flat
+    :target: https://landscape.io/github/GeoscienceAustralia/tcrm/master
+    :alt: Code Health
+    
+.. image:: https://zenodo.org/badge/10637300.svg
+   :target: https://zenodo.org/badge/latestdoi/10637300
+
+Screenshot
+==========
+
+.. image:: docs/screenshot.png
+
+Contributing to TCRM
+====================
+
+If you would like to take part in TCRM development, take a look at the `Contributing guide <docs/contributing.rst>`_.
+
+License
 =======
 
-::
+This repository is licensed under the GNU General Public License. See
+the file `LICENSE.rst <LICENSE.rst>`_
+for information on the history of this software, terms and conditions
+for usage, and a DISCLAIMER OF ALL WARRANTIES.
 
-    >>> from wheel_filename import parse_wheel_filename
-    >>> pwf = parse_wheel_filename('pip-18.0-py2.py3-none-any.whl')
-    >>> str(pwf)
-    'pip-18.0-py2.py3-none-any.whl'
-    >>> pwf.project
-    'pip'
-    >>> pwf.version
-    '18.0'
-    >>> pwf.build is None
-    True
-    >>> pwf.python_tags
-    ['py2', 'py3']
-    >>> pwf.abi_tags
-    ['none']
-    >>> pwf.platform_tags
-    ['any']
-    >>> list(pwf.tag_triples())
-    ['py2-none-any', 'py3-none-any']
+Contacts
+========
+
+Community Safety Branch
+Geoscience Australia
+hazards@ga.gov.au
 
 
-API
-===
-
-``parse_wheel_filename(filename)``
-   Parses a wheel filename (a ``str`` or ``os.PathLike``) and returns a
-   ``ParsedWheelFilename`` instance.  Any leading directory components are
-   stripped from the argument before processing.  If the filename is not a
-   valid wheel filename, raises an ``InvalidFilenameError``.
-
-``ParsedWheelFilename``
-   A namedtuple representing the components of a wheel filename.  It has the
-   following attributes and methods:
-
-   ``project: str``
-      The name of the project distributed by the wheel
-
-   ``version: str``
-      The version of the project distributed by the wheel
-
-   ``build: Optional[str]``
-      The wheel's build tag (``None`` if not defined)
-
-   ``python_tags: List[str]``
-      A list of Python tags for the wheel
-
-   ``abi_tags: List[str]``
-      A list of ABI tags for the wheel
-
-   ``platform_tags: List[str]``
-      A list of platform tags for the wheel
-
-   ``str(pwf)``
-      Stringifying a ``ParsedWheelFilename`` returns the original filename
-
-   ``tag_triples() -> Iterator[str]``
-      Returns an iterator of all simple tag triples formed from the
-      compatibility tags in the filename
-
-``InvalidFilenameError``
-   A subclass of ``ValueError`` raised when an invalid wheel filename is passed
-   to ``parse_wheel_filename()``.  It has a ``filename`` attribute containing
-   the basename of the invalid filename.
