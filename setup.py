@@ -1,32 +1,23 @@
 from setuptools import setup
-import io
-import os
-
-here = os.path.abspath(os.path.dirname(__file__))
-
-short_description = 'Various BM25 algorithms for document ranking'
-
-try:
-    with io.open(os.path.join(here, 'README.md'), encoding='utf-8') as f:
-        long_description = '\n' + f.read()
-except FileNotFoundError:
-    long_description = short_description
 
 setup(
-    name='rank_bm25',
-    version='0.2.1',
-    description=short_description,
-    long_description=long_description,
-    long_description_content_type='text/markdown',
-    author='D. Brown',
-    author_email='dorianstuartbrown@gmail.com',
-    url="https://github.com/dorianbrown/rank_bm25",
-    license='Apache2.0',
-    py_modules=['rank_bm25'],
-    install_requires=['numpy'],
-    extras_require={
-        'dev': [
-            'pytest'
-        ]
-    }
+    name="pytest-structlog",
+    version="0.5",
+    url="https://github.com/wimglenn/pytest-structlog",
+    description="Structured logging assertions",
+    long_description=open("README.rst").read(),
+    long_description_content_type="text/x-rst; charset=UTF-8",
+    author="Wim Glenn",
+    author_email="hey@wimglenn.com",
+    license="MIT",
+    install_requires=["pytest", "structlog"],
+    py_modules=["pytest_structlog"],
+    entry_points={"pytest11": ["pytest-structlog=pytest_structlog"]},
+    classifiers=[
+        "Framework :: Pytest",
+        "Programming Language :: Python",
+        "Programming Language :: Python :: 2",
+        "Programming Language :: Python :: 3",
+    ],
+    options={"bdist_wheel": {"universal": "1"}},
 )
