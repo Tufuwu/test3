@@ -1,47 +1,46 @@
-#!/usr/bin/env python
+import os
 
-from setuptools import setup
+from setuptools import find_packages, setup
+
+NAME = "georss_ingv_centro_nazionale_terremoti_client"
+AUTHOR = "Malte Franken"
+AUTHOR_EMAIL = "coding@subspace.de"
+DESCRIPTION = "A GeoRSS client library for the INGV Centro Nazionale Terremoti (Earthquakes) feed."
+URL = (
+    "https://github.com/exxamalte/python-georss-ingv-centro-nazionale-terremoti-client"
+)
+
+REQUIRES = [
+    "georss_client>=0.14",
+]
+
+
+with open("README.md", "r") as fh:
+    long_description = fh.read()
+
+HERE = os.path.abspath(os.path.dirname(__file__))
+VERSION = {}
+with open(os.path.join(HERE, NAME, "__version__.py")) as f:
+    exec(f.read(), VERSION)  # pylint: disable=exec-used
 
 setup(
-    name='topy',
-    version='1.1.0',
-
-    # PyPI metadata
-    author='Marti Raudsepp',
-    author_email='marti@juffo.org',
-    url='https://github.com/intgr/topy',
-    download_url='https://pypi.python.org/pypi/topy/',
-    license='MIT, CC-BY-SA',
-    description='Fixes typos in text using regular expressions, based on RegExTypoFix from Wikipedia',
-    long_description=open('README.rst').read(),
-    platforms='any',
-    keywords='typo spelling grammar text',
+    name=NAME,
+    version=VERSION["__version__"],
+    author=AUTHOR,
+    author_email=AUTHOR_EMAIL,
+    description=DESCRIPTION,
+    license="Apache-2.0",
+    long_description=long_description,
+    long_description_content_type="text/markdown",
+    url=URL,
+    packages=find_packages(exclude=("tests*",)),
     classifiers=[
-        # https://pypi.python.org/pypi?%3Aaction=list_classifiers
-        'Development Status :: 5 - Production/Stable',
-        'Environment :: Console',
-        'Intended Audience :: Developers',
-        'License :: OSI Approved :: MIT License',
-        # Until we have a test suite we're conservative about Python version compatibility claims
-        'Programming Language :: Python :: 3.7',
-        'Programming Language :: Python :: 3.8',
-        'Programming Language :: Python :: 3.9',
-        'Programming Language :: Python :: 3.10',
-        'Programming Language :: Python :: 3.11',
-        'Topic :: Documentation',
-        'Topic :: Software Development :: Quality Assurance',
-        'Topic :: Text Processing :: Filters',
+        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
+        "License :: OSI Approved :: Apache Software License",
+        "Operating System :: OS Independent",
     ],
-
-    # Installation settings
-    packages=['topy'],
-    entry_points={'console_scripts': ['topy = topy.topy:main']},
-    package_data={
-        '': ['*.txt']
-    },
-    install_requires=[
-        'regex>=2016.07.14',
-        'beautifulsoup4',
-    ],
-    test_suite='tests',
+    install_requires=REQUIRES,
 )
