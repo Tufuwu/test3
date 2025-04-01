@@ -1,5 +1,15 @@
-gast
-beniget
-nbformat
-nbconvert
-pyyaml
+docutils; sys_platform == "win32"
+pygments; sys_platform == "win32"
+pypiwin32; sys_platform == "win32"
+kivy_deps.sdl2; sys_platform == "win32"
+kivy_deps.glew; sys_platform == "win32"
+kivy
+kivy-garden
+
+contextvars; python_version < "3.7"
+Babel
+numpy
+Pillow
+
+--pre
+--extra-index-url https://kivy.org/downloads/simple/

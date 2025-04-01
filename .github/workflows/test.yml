@@ -1,4 +1,4 @@
-name: Python package
+name: Python application
 
 on:
   push:
@@ -14,7 +14,7 @@ jobs:
 
     strategy:
       matrix:
-        python-version: ['3.5', '3.6', '3.7', '3.8']
+        python-version: ['3.6', '3.7', '3.8', '3.8-dev']
 
     steps:
     - uses: actions/checkout@v2
@@ -26,21 +26,13 @@ jobs:
 
     - name: Install dependencies
       run: |
-        sudo apt-get update
-        wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
-        bash miniconda.sh -b -p $HOME/miniconda
-        source "$HOME/miniconda/etc/profile.d/conda.sh"
-        hash -r
-        conda config --set always_yes yes --set changeps1 no
-        conda update -q conda
-        conda info -a
-        conda create -q -n test-environment -c conda-forge python=${{ matrix.python-version }} pandoc
-        conda activate test-environment
-        pip install -v .[test]
+        sudo apt-get install -y python3-dev libasound2-dev
+        pip install mypy flake8
+        pip install -r requirements.txt
+        garden install navigationdrawer
 
-    - name: Run tests
-      run: |
-        source "$HOME/miniconda/etc/profile.d/conda.sh"
-        conda activate test-environment
-        pytest -v
-        pytest -v
+    - name: Run Mypy
+      run: mypy chisel main.py
+
+    - name: Run Flake8
+      run: flake8 chisel main.py
