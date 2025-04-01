@@ -1,30 +1,32 @@
-import setuptools
+from setuptools import setup, find_packages
 
-with open("README.md", "r") as fh:
-    long_description = fh.read()
 
-import versioneer
+def scm_version():
+    def local_scheme(version):
+        if version.tag and not version.distance:
+            return version.format_with("")
+        else:
+            return version.format_choice("+{node}", "+{node}.dirty")
+    return {
+        "relative_to": __file__,
+        "version_scheme": "guess-next-dev",
+        "local_scheme": local_scheme
+    }
 
-setuptools.setup(
-    name="removestar",
-    version=versioneer.get_version(),
-    cmdclass=versioneer.get_cmdclass(),
-    author="Aaron Meurer",
-    author_email="asmeurer@gmail.com",
-    description="A tool to automatically replace 'import *' imports with explicit imports in files",
-    long_description=long_description,
-    long_description_content_type="text/markdown",
-    url="https://www.asmeurer.com/removestar/",
-    packages=setuptools.find_packages(),
-    classifiers=[
-        "Programming Language :: Python :: 3",
-        "License :: OSI Approved :: MIT License",
-        "Operating System :: OS Independent",
-    ],
-    entry_points={'console_scripts': [ 'removestar = removestar.__main__:main']},
-    python_requires= '>=3.6',
-    install_requires=[
-        'pyflakes'
-    ],
-    license='MIT',
+
+setup(
+    name="nmigen-soc",
+    use_scm_version=scm_version(),
+    author="whitequark",
+    author_email="whitequark@whitequark.org",
+    description="System on Chip toolkit for nMigen",
+    #long_description="""TODO""",
+    license="BSD",
+    setup_requires=["wheel", "setuptools", "setuptools_scm"],
+    install_requires=["nmigen>=0.2,<0.5"],
+    packages=find_packages(),
+    project_urls={
+        "Source Code": "https://github.com/nmigen/nmigen-soc",
+        "Bug Tracker": "https://github.com/nmigen/nmigen-soc/issues",
+    },
 )
