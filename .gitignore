@@ -1,8 +1,23 @@
+# Binaries
 *.pyc
-*.egg-info
-dist/
-.DS_Store
-.mypy_cache
-.coverage
-env/
+.tox/
+.env/
+venv/
+.cache/
+~/
 build/
+dist/
+*.egg-info/
+.eggs/
+docs/_build/doctrees/
+
+# IDE related
+.idea/
+
+# tests
+junit-result.xml
+htmlcov/
+.coverage
+__pycache__/
+.pytest_cache/
+README.html
