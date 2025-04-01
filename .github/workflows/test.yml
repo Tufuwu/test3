@@ -9,12 +9,12 @@ on:
       - main
 
 jobs:
-  test:
+  build:
     runs-on: ubuntu-latest
 
     strategy:
       matrix:
-        python-version: ['3.6', '3.7', '3.8', '3.9']
+        python-version: ['3.7', '3.8']
 
     steps:
     - uses: actions/checkout@v2
@@ -23,10 +23,13 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies
-      run: pip install tox-travis codecov
+      run: |
+        pip install python-coveralls coverage==4.5.4
+        python setup.py install
     - name: Run tests
-      run: tox
-    - name: Upload coverage to Codecov
+      run: |
+        coverage run -m unittest discover ${{ github.workspace }} -v
+    - name: Coveralls
+      run: coveralls
       env:
-        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-      run: codecov
+        COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}

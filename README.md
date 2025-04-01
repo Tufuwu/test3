@@ -1,192 +1,153 @@
-## whodap
+# printree
 
-[![PyPI version](https://badge.fury.io/py/whodap.svg)](https://badge.fury.io/py/whodap)
-[![Build Status](https://app.travis-ci.com/pogzyb/whodap.svg?token=xCoELzvjMvTqZThTS7Va&branch=main)](https://app.travis-ci.com/pogzyb/whodap)
-[![codecov](https://codecov.io/gh/pogzyb/whodap/branch/main/graph/badge.svg?token=NCfdf6ftb9)](https://codecov.io/gh/pogzyb/whodap)
+[![Python CI](https://github.com/chrizzFTD/printree/actions/workflows/python-package.yml/badge.svg)](https://github.com/chrizzFTD/printree/actions/workflows/python-package.yml)
+[![Coverage Status](https://coveralls.io/repos/github/chrizzFTD/printree/badge.svg?branch=master)](https://coveralls.io/github/chrizzFTD/printree?branch=master)
+[![Documentation Status](https://readthedocs.org/projects/printree/badge/?version=latest)](https://printree.readthedocs.io/en/latest/?badge=latest)
+[![PyPI version](https://badge.fury.io/py/printree.svg)](https://badge.fury.io/py/printree)
+[![PyPI](https://img.shields.io/pypi/pyversions/printree.svg)](https://pypi.python.org/pypi/printree)
 
-`whodap` | Simple RDAP Utility for Python
+Tree-like formatting for arbitrary python data structures.
 
-- Support for asyncio HTTP requests ([`httpx`](https://www.python-httpx.org/))
-- Leverages the [`SimpleNamespace`](https://docs.python.org/3/library/types.html#types.SimpleNamespace) type for cleaner RDAP Response traversal
-- Keeps the familiar look of WHOIS via the `to_whois_dict` method for DNS lookups
-
-#### Quickstart
-
-```python
-import asyncio
-from pprint import pprint
-
-import whodap
-
-# Looking up a domain name
-response = whodap.lookup_domain(domain='bitcoin', tld='org') 
-# Equivalent asyncio call
-loop = asyncio.get_event_loop()
-response = loop.run_until_complete(whodap.aio_lookup_domain(domain='bitcoin', tld='org'))
-# "response" is a DomainResponse object. It contains the output from the RDAP lookup.
-print(response)
-# Traverse the DomainResponse via "dot" notation
-print(response.events)
-"""
-[{
-  "eventAction": "last update of RDAP database",
-  "eventDate": "2021-04-23T21:50:03"
-},
- {
-  "eventAction": "registration",
-  "eventDate": "2008-08-18T13:19:55"
-}, ... ]
-"""
-# Retrieving the registration date from above:
-print(response.events[1].eventDate)
-"""
-2008-08-18 13:19:55
-"""
-# Don't want "dot" notation? Use `to_dict` to get the RDAP response as a dictionary
-pprint(response.to_dict())
-# Use `to_whois_dict` for the familiar look of WHOIS output
-pprint(response.to_whois_dict())
-"""
-{abuse_email: 'abuse@namecheap.com',
- abuse_phone: 'tel:+1.6613102107',
- admin_address: 'P.O. Box 0823-03411, Panama, Panama, PA',
- admin_email: '2603423f6ed44178a3b9d728827aa19a.protect@whoisguard.com',
- admin_fax: 'fax:+51.17057182',
- admin_name: 'WhoisGuard Protected',
- admin_organization: 'WhoisGuard, Inc.',
- admin_phone: 'tel:+507.8365503',
- billing_address: None,
- billing_email: None,
- billing_fax: None,
- billing_name: None,
- billing_organization: None,
- billing_phone: None,
- created_date: datetime.datetime(2008, 8, 18, 13, 19, 55),
- domain_name: 'bitcoin.org',
- expires_date: datetime.datetime(2029, 8, 18, 13, 19, 55),
- nameservers: ['dns1.registrar-servers.com', 'dns2.registrar-servers.com'],
- registrant_address: 'P.O. Box 0823-03411, Panama, Panama, PA',
- registrant_email: '2603423f6ed44178a3b9d728827aa19a.protect@whoisguard.com',
- registrant_fax: 'fax:+51.17057182',
- registrant_name: 'WhoisGuard Protected',
- registrant_organization: None,
- registrant_phone: 'tel:+507.8365503',
- registrar_address: '4600 E Washington St #305, Phoenix, Arizona, 85034',
- registrar_email: 'support@namecheap.com',
- registrar_fax: None,
- registrar_name: 'NAMECHEAP INC',
- registrar_phone: 'tel:+1.6613102107',
- status: ['client transfer prohibited'],
- technical_address: 'P.O. Box 0823-03411, Panama, Panama, PA',
- technical_email: '2603423f6ed44178a3b9d728827aa19a.protect@whoisguard.com',
- technical_fax: 'fax:+51.17057182',
- technical_name: 'WhoisGuard Protected',
- technical_organization: 'WhoisGuard, Inc.',
- technical_phone: 'tel:+507.8365503',
- updated_date: datetime.datetime(2019, 11, 24, 13, 58, 35)}
-"""
+## Instalation
+```bash
+pip install printree
 ```
 
-#### Exported Functions and Classes
-
-| Object      | Description |
-| ----------- | ----------- |
-|  `lookup_domain`      | Performs an RDAP query for the given Domain and TLD                     |
-|  `lookup_ipv4`        | Performs an RDAP query for the given IPv4 address                       |
-|  `lookup_ipv6`        | Performs an RDAP query for the given IPv6 address                       |
-|  `lookup_asn`         | Performs an RDAP query for the Autonomous System with the given Number  |
-|  `aio_lookup_domain`  | async counterpart to `lookup_domain`  |
-|  `aio_lookup_ipv4`    | async counterpart to `lookup_ipv4`    |
-|  `aio_lookup_ipv6`    | async counterpart to `lookup_ipv6`    |
-|  `aio_lookup_asn`     | async counterpart to `lookup_asn`     |
-|  `DNSClient`     | Reusable client for RDAP DNS queries    |
-|  `IPv4Client`     | Reusable client for RDAP IPv4 queries     |
-|  `IPv6Client`     | Reusable client for RDAP IPv6 queries     |
-|  `ASNClient`     | Reusable client for RDAP ASN queries     |
-
-
-#### Common Usage Patterns
-
-- Using the DNSClient:
-```python
-import whodap
-
-# Initialize an instance of DNSClient using classmethods: `new_client` or `new_aio_client`
-dns_client = whodap.DNSClient.new_client()
-for domain, tld in [('google', 'com'), ('google', 'buzz')]:
-    response = dns_client.lookup(domain, tld)
-    
-# Equivalent asyncio call
-dns_client = await whodap.DNSClient.new_aio_client()
-for domain, tld in [('google', 'com'), ('google', 'buzz')]:
-    response = await dns_client.aio_lookup(domain, tld)
-    
-# Use the DNSClient contextmanagers: `new_client_context` or `new_aio_client_context`
-with whodap.DNSClient.new_client_context() as dns_client:
-    for domain, tld in [('google', 'com'), ('google', 'buzz')]:
-        response = dns_client.lookup(domain, tld)
-
-# Equivalent asyncio call
-async with whodap.DNSClient.new_aio_client_context() as dns_client:
-    for domain, tld in [('google', 'com'), ('google', 'buzz')]:
-        response = await dns_client.aio_lookup(domain, tld)
-```
-
-- Configurable `httpx` client:
+## Usage
+`printree` aims to be similar to pretty print ([pprint](https://docs.python.org/3/library/pprint.html)) with a format inspired by the [tree command](https://en.wikipedia.org/wiki/Tree_%28command%29):
 
 ```python
-import asyncio
-
-import httpx
-import whodap
-
-# Initialize a custom, pre-configured httpx client ...
-httpx_client = httpx.Client(proxies=httpx.Proxy('https://user:pw@proxy_url.net'))
-# ... or an async client
-aio_httpx_client = httpx.AsyncClient(proxies=httpx.Proxy('http://user:pw@proxy_url.net'))
-
-# Three common methods for leveraging httpx clients are outlined below:
-
-# 1) Pass the httpx client directly into the convenience functions: `lookup_domain` or `aio_lookup_domain`
-# Important: In this scenario, you are responsible for closing the httpx client.
-# In this example, the given httpx client is used as a contextmanager; ensuring it is "closed" when finished.
-async with aio_httpx_client:
-    futures = []
-    for domain, tld in [('google', 'com'), ('google', 'buzz')]:
-        task = whodap.aio_lookup_domain(domain, tld, httpx_client=aio_httpx_client)
-        futures.append(task)
-    await asyncio.gather(*futures)
-
-# 2) Pass the httpx_client into the DNSClient classmethod: `new_client` or `new_aio_client`
-aio_dns_client = await whodap.DNSClient.new_aio_client(aio_httpx_client)
-result = await aio_dns_client.aio_lookup('google', 'buzz')
-await aio_httpx_client.aclose()
-
-# 3) Pass the httpx_client into the DNSClient contextmanagers: `new_client_context` or `new_aio_client_context`
-# This method ensures the underlying httpx_client is closed when exiting the "with" block.
-async with whodap.DNSClient.new_aio_client_context(aio_httpx_client) as dns_client:
-    for domain, tld in [('google', 'com'), ('google', 'buzz')]:
-        response = await dns_client.aio_lookup(domain, tld)
+>>> from printree import ptree, ftree
+>>> ptree({"x", len, 42})  # will print to the output console
+┐
+├── 0: x
+├── 1: <built-in function len>
+└── 2: 42
+>>> ftree({"x", len, 42})  # will return a string representation
+'┐\n├── 0: x\n├── 1: <built-in function len>\n└── 2: 42'
 ```
 
-#### Contributions
-- Interested in contributing? 
-- Have any questions or comments? 
-- Anything that you'd like to see?
-- Anything that doesn't look right?
+Instances of [abc.Iterable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable) (with the exception of [str](https://docs.python.org/3/library/stdtypes.html#text-sequence-type-str) & [bytes](https://docs.python.org/3/library/stdtypes.html#bytes-objects)) will be represented as branches.
+All other objects will be considered leaf nodes:
+```python
+>>> from printree import ptree
+>>> dct = {
+...     "foo": [],
+...     True: {
+...         "uno": {"ABC", "XYZ"},
+...         "dos": r"B:\newline\tab\like.ext",
+...         "tres": {
+...             "leaf": b"bytes",
+...             "numbers": (42, -17, 0.01)
+...         },
+...     },
+...     ("tuple", "as", "key"):
+...         {"multi\nlined\n\ttabbed key": "multi\nline\n\ttabbed value"}
+... }
+>>> dct["recursion"] = [1, dct, 2]
+>>> ptree(dct)
+┐
+├── foo
+├── True
+│   ├── uno
+│   │   ├── 0: XYZ
+│   │   └── 1: ABC
+│   ├── dos: B:\newline\tab\like.ext
+│   └── tres
+│       ├── leaf: b'bytes'
+│       └── numbers
+│           ├── 0: 42
+│           ├── 1: -17
+│           └── 2: 0.01
+├── ('tuple', 'as', 'key')
+│   └── multi
+│       lined
+│               tabbed key: multi
+│                           line
+│                               tabbed value
+└── recursion
+    ├── 0: 1
+    ├── 1: <Recursion on dict with id=2414949505984>
+    └── 2: 2
+```
+The `annotated` and `depth` arguments modify verbosity of the output when creating the tree representation:
+```python
+>>> ptree(dct, depth=2, annotated=True)
+┐ → dict[items=4]
+├── foo → list[empty]
+├── True → dict[items=3]
+│   ├── uno → set[items=2] [...]
+│   ├── dos: B:\newline\tab\like.ext
+│   └── tres → dict[items=2] [...]
+├── ('tuple', 'as', 'key') → dict[items=1]
+│   └── multi
+│       lined
+│               tabbed key: multi
+│                           line
+│                               tabbed value
+└── recursion → list[items=3]
+    ├── 0: 1
+    ├── 1: <Recursion on dict with id=2414949505984>
+    └── 2: 2
+``` 
 
-Please post a question or comment.
+## Customizing formatting
+`TreePrinter` subclasses can change each of the string representations of the tree. The subclass `AsciiPrinter` is provided as an example:
+```python
+>>> from printree import AsciiPrinter
+>>> obj = [42, {"foo": (True, False)}]
+>>> AsciiPrinter(annotated=True).ptree(obj)
+. -> list[items=2]
+|-- 0: 42
+`-- 1 -> dict[items=1]
+    `-- foo -> tuple[items=2]
+        |-- 0: True
+        `-- 1: False
+```
+The main members to override are:
+- `ROOT`
+- `EDGE`
+- `BRANCH_NEXT`
+- `BRANCH_LAST`
+- `ARROW`
 
-#### Roadmap
+The `level` attribute will be automatically set on the printer instance to indicate the current depth in the traversal of the tree.
 
-[alpha] 0.1.X Release:
-- ~~Support for RDAP "domain" queries~~
-- ~~Support for RDAP "ipv4" and "ipv6" queries~~
-- ~~Support for RDAP ASN queries~~
-- Abstract the HTTP Client (`httpx` is the defacto client for now)
-- Add parser utils/helpers for IPv4, IPv6, and ASN Responses (if someone shows interest)
+To print each branch level with a different color, something like the following could be implemented:
+```python
+from printree import TreePrinter
 
-#### RDAP Resources:
-- https://rdap.org/
-- https://tools.ietf.org/html/rfc7483 
-- https://tools.ietf.org/html/rfc6350
+class ColoredTree(TreePrinter):
+    colors = {
+        0: '\033[31m',  # red
+        1: '\033[32m',  # green
+        2: '\033[33m',  # yellow
+        3: '\033[36m',  # cyan
+        4: '\033[35m',  # magenta
+    }
+    _RESET = '\033[0m'
+
+    def __getattribute__(self, item):
+        if item in ("EDGE", "BRANCH_NEXT", "BRANCH_LAST"):
+            return f"{self.color}{getattr(super(), item)}{self._RESET}"
+        return super().__getattribute__(item)
+
+    @property
+    def color(self):
+        return self.colors[self.level % len(self.colors)]
+
+    @property
+    def ROOT(self):  # for root (level 0), prefer the color of the children (level 1) 
+        return f'{self.colors[1]}{super().ROOT}{self._RESET}'
+
+
+multiline = {"foo": {False: {"AB\nCD": "xy", 42:len}, True: []}, ("bar",): []}
+dct = {"A": multiline, "B": (multiline,), "C\nD": "x\ny", "F": (1, "2")}
+
+import os
+os.system("")  # required on windows only
+
+ColoredTree().ptree(dct)
+```
+Which outputs:
+![](https://raw.githubusercontent.com/chrizzFTD/printree/master/colored_example.svg)
