@@ -1,157 +1,112 @@
-ContentHash for Python
-======================
+[<img src="https://cdn.ipregistry.co/icons/icon-72x72.png" alt="Ipregistry" width="64"/>](https://ipregistry.co/) 
+# Ipregistry Python Client Library
 
-[![version][icon-version]][link-pypi]
-[![downloads][icon-downloads]][link-pypi]
-[![license][icon-license]][link-license]
-[![python][icon-python]][link-python]
+[![License](http://img.shields.io/:license-apache-blue.svg)](LICENSE)
+[![Travis](https://travis-ci.com/ipregistry/ipregistry-python.svg?branch=master&style=flat-square)](https://travis-ci.com/ipregistry/ipregistry-python)
+[![PyPI](https://img.shields.io/pypi/v/ipregistry)](https://pypi.org/project/ipregistry/)
 
-[![build][icon-build]][link-build]
-[![coverage][icon-coverage]][link-coverage]
-[![quality][icon-quality]][link-quality]
+This is the official Python client library for the [Ipregistry](https://ipregistry.co) IP geolocation and threat data API, 
+allowing you to lookup your own IP address or specified ones. Responses return up to 65 data points including 
+location, currency, timezone, threat information, and more.
 
-Python implementation of EIP 1577 content hash.
+## Getting Started
 
-## Description
+You'll need an Ipregistry API key, which you can get along with 100,000 free lookups by signing up for a free account at [https://ipregistry.co](https://ipregistry.co).
 
-This is a simple package made for encoding and decoding content hashes has specified in the [EIP 1577][link-eip-1577].
-This package will be useful for every [Ethereum][link-ethereum] developer wanting to interact with [EIP 1577][link-eip-1577] compliant [ENS resolvers][link-resolvers].
+### Installation
 
-For JavaScript implementation, see [`pldespaigne/content-hash`][link-javascript-implementation].
-
-## Installation
-
-### Requirements
-
-ContentHash requires Python 3.5 or higher.
-
-### From PyPI
-
-The recommended way to install ContentHash is from PyPI with PIP.
-
-```bash
-pip install content-hash
+```
+pip install ipregistry
 ```
 
-### From Source
+### Quick Start
 
-Alternatively, you can also install it from the source.
+#### Single IP Lookup
 
-```bash
-git clone https://github.com/filips123/ContentHashPy.git
-cd ContentHashPy
-python setup.py install
+```python
+from ipregistry import IpregistryClient
+
+client = IpregistryClient("YOUR_API_KEY")
+ipInfo = client.lookup("54.85.132.205")
+print(ipInfo)
 ```
 
-## Usage
+#### Batch IP Lookup
 
-### Supported Codecs
+```python
+from ipregistry import IpregistryClient
 
-The following codecs are currently supported:
-
-- `swarm-ns`
-- `ipfs-ns`
-- `ipns-ns`
-
-Every other codec supported by [`multicodec`][link-multicodec] will be encoded by default in `utf-8`. You can see the full list of the supported codecs [here][link-supported-codecs].
-
-### Getting Codec
-
-You can use a `get_codec` function to get codec from the content hash.
-
-It takes a content hash as a HEX string and returns the codec name. A content hash can be prefixed with a `0x`, but it's not mandatory.
-
-```py
-import content_hash
-
-chash = 'bc037a716b746c776934666563766f367269'
-codec = content_hash.get_codec(chash)
-
-print(codec) # onion
+client = IpregistryClient("YOUR_API_KEY")
+results = client.lookup(["54.85.132.205", "8.8.8.8", "2001:67c:2e8:22::c100:68b"])
+for ipInfo in results:
+    print(ipInfo)
 ```
 
-### Decoding
+#### Origin IP Lookup
 
-You can use a `decode` function to decode a content hash.
+```python
+from ipregistry import IpregistryClient
 
-It takes a content hash as a HEX string and returns the decoded content as a string. A content hash can be prefixed with a `0x`, but it's not mandatory.
-
-```py
-import content_hash
-
-chash = 'e3010170122029f2d17be6139079dc48696d1f582a8530eb9805b561eda517e22a892c7e3f1f'
-value = content_hash.decode(chash)
-
-print(value) # QmRAQB6YaCyidP37UdDnjFY5vQuiBrcqdyoW1CuDgwxkD4
+client = IpregistryClient("YOUR_API_KEY")
+ipInfo = client.lookup()
+print(ipInfo)
 ```
 
-### Encoding
+More advanced examples are available in the [samples](https://github.com/ipregistry/ipregistry-python/tree/master/samples) 
+folder.
 
-You can use an `encode` function to encode a content hash.
+### Caching
 
-It takes a supported codec as a string and a value as a string and returns the corresponding content hash as a HEX string. The output will not be prefixed with a `0x`.
+This Ipregistry client library has built-in support for in-memory caching. By default caching is disabled. 
+Below are examples to enable and configure a caching strategy. Once enabled, default cache strategy is to memoize up to 
+2048 lookups for at most 10min. You can change preferences as follows:
 
-```py
-import content_hash
+#### Enabling caching
 
-codec = 'swarm-ns'
-value = 'd1de9994b4d039f6548d191eb26786769f580809256b4685ef316805265ea162'
-chash = content_hash.encode(codec, value)
+Enable caching by passing an instance of `DefaultCache`:
 
-print(chash) # e40101701b20d1de9994b4d039f6548d191eb26786769f580809256b4685ef316805265ea162
+```python
+from ipregistry import DefaultCache, IpregistryClient
+
+client = IpregistryClient("YOUR_API_KEY", cache=DefaultCache(maxsize=2048, ttl=600))
 ```
 
-## Creating Codecs
+#### Disabling caching
 
-All supported codec profiles are available in [`content_hash/profiles/__init__.py`][link-profiles-file], in `PROFILES` dictionary. You need to add a new profile there. You only need to add a new profile if your codec encoding and decoding are different from `utf-8`.
+Disable caching by passing an instance of `NoCache`:
 
-Each profile must have the same name as the corresponding codec in the `multicodec` library.
+```python
+from ipregistry import IpregistryClient, NoCache
 
-A profile must also have decode and encode function. They should be passed as a string containing the name of the module for required decode or encode. All such modules are available in [`content_hash/decodes`][link-decodes-directory] and [`content_hash/encodes`][link-encodes-directory].
+client = IpregistryClient("YOUR_API_KEY", cache=NoCache())
+```
 
-Each module name should describe it as much as possible. Its name can only contain valid characters for Python modules.
+### Errors
 
-Each decode module must have a `decode` function. It must be a function that takes a `bytes` input and returns a `str` result.
+All Ipregistry exceptions inherit `IpregistryError` class.
 
-Each encode module must have an `encode` function. It must be a function that takes a `str` input and returns a `bytes` result.
+Main subtypes are `ApiError` and `ClientError`.
 
-All inputs and outputs must be the same as in the [JavaScript implementation][link-javascript-implementation]. Multiple profiles can share the same decodes and encodes.
+Errors of type _ApiError_ include a code field that maps to the one described in the [Ipregistry documentation](https://ipregistry.co/docs/errors).
 
-## Versioning
+### Filtering bots
 
-This library uses [SemVer][link-semver] for versioning. For the versions available, see [the tags][link-tags] on this repository.
+You might want to prevent Ipregistry API requests for crawlers or bots browsing your pages.
 
-## License
+A manner to proceed is to identify bots using the `User-Agent` header. 
+To ease this process, the library includes a utility method:
 
-This library is licensed under the MIT license. See the [LICENSE][link-license-file] file for details.
+```python
+from ipregistry import UserAgent
 
-[icon-version]: https://img.shields.io/pypi/v/content-hash.svg?style=flat-square&label=version
-[icon-downloads]: https://img.shields.io/pypi/dm/content-hash.svg?style=flat-square&label=downloads
-[icon-license]: https://img.shields.io/pypi/l/content-hash.svg?style=flat-square&label=license
-[icon-python]: https://img.shields.io/pypi/pyversions/content-hash?style=flat-square&label=python
+isBot = UserAgent.isBot('YOUR_USER_AGENT_HEADER_VALUE_HERE')
+```
 
-[icon-build]: https://img.shields.io/github/actions/workflow/status/filips123/ContentHashPy/main.yml?style=flat-square&label=build
-[icon-coverage]: https://img.shields.io/scrutinizer/coverage/g/filips123/ContentHashPy.svg?style=flat-square&label=coverage
-[icon-quality]: https://img.shields.io/scrutinizer/g/filips123/ContentHashPy.svg?style=flat-square&label=quality
+## Other Libraries
 
-[link-pypi]: https://pypi.org/project/content-hash/
-[link-license]: https://choosealicense.com/licenses/mit/
-[link-python]: https://python.org/
-[link-build]: https://github.com/filips123/ContentHashPy/actions
-[link-coverage]: https://scrutinizer-ci.com/g/filips123/ContentHashPy/code-structure/
-[link-quality]: https://scrutinizer-ci.com/g/filips123/ContentHashPy/
-[link-semver]: https://semver.org/
+There are official Ipregistry client libraries available for many languages including 
+[Java](https://github.com/ipregistry/ipregistry-java), 
+[Javascript](https://github.com/ipregistry/ipregistry-javascript), and more.
 
-[link-eip-1577]: https://github.com/ethereum/EIPs/blob/master/EIPS/eip-1577.md
-[link-ethereum]: https://www.ethereum.org/
-[link-resolvers]: http://docs.ens.domains/en/latest/introduction.html
-[link-multicodec]: https://github.com/multiformats/multicodec/
-[link-supported-codecs]: https://github.com/multiformats/multicodec/blob/master/table.csv
-
-[link-tags]: https://github.com/filips123/ContentHashPy/tags/
-[link-license-file]: https://github.com/filips123/ContentHashPy/blob/master/LICENSE
-[link-profiles-file]: https://github.com/filips123/ContentHashPy/blob/master/content_hash/profiles/__init__.py
-[link-decodes-directory]: https://github.com/filips123/ContentHashPy/tree/master/content_hash/decodes/
-[link-encodes-directory]: https://github.com/filips123/ContentHashPy/tree/master/content_hash/encodes/
-
-[link-javascript-implementation]: https://github.com/pldespaigne/content-hash/
+Are you looking for an official client with a programming language or framework we do not support yet? 
+[let us know](mailto:support@ipregistry.co).
