@@ -1,52 +1,40 @@
-# Django-Rest-Durin
+# vtt_to_srt.py
+Convert vtt files to srt subtitle format
 
-[![django-rest-durin on pypi](https://img.shields.io/pypi/v/django-rest-durin)](https://pypi.org/project/django-rest-durin/)
-[![Build Status](https://travis-ci.com/Eshaan7/django-rest-durin.svg?branch=main)](https://travis-ci.com/Eshaan7/django-rest-durin)
-[![codecov](https://codecov.io/gh/Eshaan7/django-rest-durin/branch/main/graph/badge.svg?token=S9KEI0PU05)](https://codecov.io/gh/Eshaan7/django-rest-durin/)
-[![CodeFactor](https://www.codefactor.io/repository/github/eshaan7/django-rest-durin/badge)](https://www.codefactor.io/repository/github/eshaan7/django-rest-durin)
-<a href="https://lgtm.com/projects/g/Eshaan7/django-rest-durin/context:python">
-  <img alt="Language grade: Python" src="https://img.shields.io/lgtm/grade/python/g/Eshaan7/django-rest-durin.svg?logo=lgtm&logoWidth=18"/>
-</a>
+## Note
+For Python 3.7 [you can get version for Python 2.7 here](https://github.com/jansenicus/vtt-to-srt.py)
 
-Per API client token authentication Module for [Django REST Framework](http://www.django-rest-framework.org/).
+## Installation
+```shell
+pip install vtt_to_srt3
+```
 
-The idea is to provide one library that does token auth for multiple Web/CLI/Mobile API clients via one interface but allows different token configuration for each client.
+```cmd
+python -m pip install vtt_to_srt3
+```
 
-Durin authentication is token based, similar to the `TokenAuthentication`
-built in to DRF. However, it adds some extra sauce:
+## Usage from terminal
 
-- Durin allows **multiple tokens per user**. But only one token each user per API client.
-- Each user token is associated with an API Client. 
-   - These API Clients are configurable via Django's Admin Interface. 
-   - Includes permission enforcing to allow only specific clients to make authenticated requests to certain `APIViews` or vice-a-versa.
-- Durin provides an option for a logged in user to **remove all tokens** that the server has - forcing them to re-authenticate for all API clients.
-- Durin **tokens can be renewed** to get a fresh expiry.
-- Durin provides a `CachedTokenAuthentication` backend as well which uses memoization for faster look ups.
+```shell
+python -m vtt_to_srt pathname [-r]
 
-More information can be found in the [Documentation](https://django-rest-durin.readthedocs.io/en/latest/installation.html).
+pathname - a file or directory with files to be converted 
 
-## Django Compatibility Matrix
+-r       - walk path recursively                          
+```
 
-![PyPi versions - Python](https://img.shields.io/pypi/pyversions/django-rest-durin)
+## Usage as a lib
 
-If your project uses an older verison of Django or Django Rest Framework, you can choose an older version of this project.
-
-| This Project | Python Version | Django Version | Django Rest Framework |
-|--------------|----------------|----------------|-----------------------|
-| 0.1.*        | 3.5 - 3.9      | 2.2, 3.0, 3.1  | 3.7>=                 |
-
-Make sure to use at least `DRF 3.10` when using `Django 3.0` or newer.
-
-## Changelog / Releases
-
-All releases should be listed in the [releases tab on GitHub](https://github.com/Eshaan7/django-rest-durin/releases).
-
-See [CHANGELOG](https://django-rest-durin.readthedocs.io/en/latest/changelog.html) for a more detailed listing.
-
-## License
-
-This project is published with the [MIT License](LICENSE). See [https://choosealicense.com/licenses/mit/](https://choosealicense.com/licenses/mit/) for more information about what this means.
-
-## Credits
-
-Durin is inpired by the [django-rest-knox](https://github.com/James1345/django-rest-knox) and [django-rest-multitokenauth](https://github.com/anexia-it/django-rest-multitokenauth) libraries and adopts some learnings, docs and code from both.
+Convert vtt file
+```shell
+from vtt_to_srt.vtt_to_srt import vtt_to_srt
+path = '/path/to/file.vtt'
+vtt_to_srt(path)
+```		
+		
+Recursively convert all vtt files in directory
+```shell
+from vtt_to_srt.vtt_to_srt import vtt_to_srt
+path = '/path/to/directory'
+vtt_to_srt(path, rec = True)
+```
