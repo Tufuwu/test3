@@ -1,4 +1,4 @@
-name: Python package
+name: CI
 
 on:
   push:
@@ -9,25 +9,32 @@ on:
       - main
 
 jobs:
-  test:
+  build:
     runs-on: ubuntu-latest
+
     strategy:
       matrix:
-        python-version: ['3.6', '3.7', '3.8', '3.9']
-        env:
-          TOXENV: [py36, py37, py38, py39, cov]
+        python-version: ['3.9', '3.10']
+
     steps:
     - uses: actions/checkout@v2
+
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python-version }}
+
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install -U tox coveralls
+        pip install scrapy coverage codecov
+
     - name: Run tests
-      run: tox
-    - name: Coveralls
-      if: matrix.env == 'cov'
-      run: coveralls
+      run: |
+        coverage run -m scrapy list
+        coverage run -m scrapy crawl regional -t csv -o regional.csv
+        coverage run -m scrapy crawl hkoforecast -t csv -o hkoforecast.csv
+        coverage run -m scrapy crawl hko9dayforecast -t csv -o hko9dayforecast.csv
+
+    - name: Upload coverage to Codecov
+      run: bash <(curl -s https://codecov.io/bash)

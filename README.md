@@ -1,73 +1,58 @@
-# python-georss-ingv-centro-nazionale-terremoti-client
+[![hk0weather](https://github.com/sammyfung/hk0weather/actions/workflows/hk0weather.yml/badge.svg)](https://github.com/sammyfung/hk0weather/actions/workflows/hk0weather.yml)
+[![codecov](https://codecov.io/gh/sammyfung/hk0weather/branch/master/graph/badge.svg?token=PYnOIj6SwS)](https://codecov.io/gh/sammyfung/hk0weather/)
 
-[![Build Status](https://github.com/exxamalte/python-georss-ingv-centro-nazionale-terremoti-client/workflows/CI/badge.svg?branch=master)](https://github.com/exxamalte/python-georss-ingv-centro-nazionale-terremoti-client/actions?workflow=CI)
-[![codecov](https://codecov.io/gh/exxamalte/python-georss-ingv-centro-nazionale-terremoti-client/branch/master/graph/badge.svg?token=PHASSFXFVU)](https://codecov.io/gh/exxamalte/python-georss-ingv-centro-nazionale-terremoti-client)
-[![PyPi](https://img.shields.io/pypi/v/georss-ingv-centro-nazionale-terremoti-client.svg)](https://pypi.python.org/pypi/georss-ingv-centro-nazionale-terremoti-client)
-[![Version](https://img.shields.io/pypi/pyversions/georss-ingv-centro-nazionale-terremoti-client.svg)](https://pypi.python.org/pypi/georss-ingv-centro-nazionale-terremoti-client)
+hk0weather
+===
 
-This library provides convenient access to the [INGV Centro Nazionale Terremoti (Earthquakes) Feed](http://cnt.rm.ingv.it/).
+hk0weather is an open source web scraper project using Scrapy to collect the useful weather data from Hong Kong Observatory website.
 
-## Installation
-`pip install georss-ingv-centro-nazionale-terremoti-client`
+Scrapy can output collected weather data into the machine-readable formats (eg. CSV, JSON, XML).
 
-## Usage
-See below for an example of how this library can be used. After instantiating 
-the feed class and supplying the required parameters, you can call `update` to 
-retrieve the feed data. The return value will be a tuple of a status code and 
-the actual data in the form of a list of specific feed entries.
+Available Web Crawlers
+---
+1. **regional**: Hong Kong Regional Weather Data in 10-minutes update from HKO.    
+1. **rainfall**: Hong Kong Rainfall Data in hourly update from HKO.    
+1. **hkoforecast**: Hong Kong Next 24 hour Weather Forecast Report from HKO Open Data.   
+1. **hko9dayforecast**: Hong Kong 9-day Weather Report from HKO Open Data.   
 
-**Status Codes**
-* _UPDATE_OK_: Update went fine and data was retrieved. The library may still return empty data, for example because no entries fulfilled the filter criteria.
-* _UPDATE_OK_NO_DATA_: Update went fine but no data was retrieved, for example because the server indicated that there was not update since the last request.
-* _UPDATE_ERROR_: Something went wrong during the update
+Installation
+---
 
-**Supported Filters**
+Cloning and setup hk0weather in a Py3 virtual environment   
+   
+   ```
+   $ git clone https://github.com/sammyfung/hk0weather.git
+   $ cd hk0weather
+   $ python3 -m venv venv
+   $ source venv/bin/activate  
+   $ pip install -r requirements.txt    
+   ```
 
-| Filter            |                            | Description |
-|-------------------|----------------------------|-------------|
-| Radius            | `filter_radius`            | Radius in kilometers around the home coordinates in which events from feed are included. |
-| Minimum Magnitude | `filter_minimum_magnitude` | Minimum magnitude as float value. Only events with a magnitude equal or above this value are included. |
+Run a Scrapy spider
+---
 
-**Example**
-```python
-from georss_ingv_centro_nazionale_terremoti_client import \
-    IngvCentroNazionaleTerremotiFeed
-# Home Coordinates: Latitude: 40.84, Longitude: 14.25
-# Filter radius: 200 km
-# Filter minimum magnitude: 4.0
-feed = IngvCentroNazionaleTerremotiFeed((40.84, 14.25), 
-                                        filter_radius=200, 
-                                        filter_minimum_magnitude=4.0)
-status, entries = feed.update()
+Activate the Py3 virtual environment once before the first running of web spiders.
+
+```
+$ source venv/bin/activate  
+$ cd hk0weather
 ```
 
-## Feed Manager
+Optionally, list all available spiders.
 
-The Feed Manager helps managing feed updates over time, by notifying the 
-consumer of the feed about new feed entries, updates and removed entries 
-compared to the last feed update.
+```
+$ scrapy list 
+```
+  
+Run a regional weather data web crawler and export data to a JSON file.
 
-* If the current feed update is the first one, then all feed entries will be 
-  reported as new. The feed manager will keep track of all feed entries' 
-  external IDs that it has successfully processed.
-* If the current feed update is not the first one, then the feed manager will 
-  produce three sets:
-  * Feed entries that were not in the previous feed update but are in the 
-    current feed update will be reported as new.
-  * Feed entries that were in the previous feed update and are still in the 
-    current feed update will be reported as to be updated.
-  * Feed entries that were in the previous feed update but are not in the 
-    current feed update will be reported to be removed.
-* If the current update fails, then all feed entries processed in the previous
-  feed update will be reported to be removed.
+```
+$ scrapy crawl regional -o regional.json
+```
 
-After a successful update from the feed, the feed manager will provide two
-different dates:
+References
+--
 
-* `last_update` will be the timestamp of the last successful update from the
-  feed. This date may be useful if the consumer of this library wants to
-  treat intermittent errors from feed updates differently.
-* `last_timestamp` will be the latest timestamp extracted from the feed data. 
-  This requires that the underlying feed data actually contains a suitable 
-  date. This date may be useful if the consumer of this library wants to 
-  process feed entries differently if they haven't actually been updated.
+* The background of this project: [開放源碼香港天氣計劃 hk0weather](https://sammy.hk/opensource-hk0weather/) 
+* The presentation slide at BarCampHK 2013: [From Hk0weather to Open Data](http://www.slideshare.net/sammyfung/hk0weather-barcamp)
+
