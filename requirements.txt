@@ -1,2 +1,1 @@
-# dev
-chardet
+websocket-client

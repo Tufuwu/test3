@@ -1,39 +1,59 @@
-#!/usr/bin/env python
-"""Installation script."""
+#!/usr/bin/env python3
+
+from distutils.core import setup
+from setuptools.command.sdist import sdist
+from obswebsocket import VERSION
+
+# Convert README from Markdown to reStructuredText
+description = "Please take a look at README.md"
 try:
-    from setuptools import setup
+    description = open('README.md', 'rt').read()
+    import pypandoc
+    description = pypandoc.convert_text(description, 'rst', 'gfm')
 except ImportError:
-    from distutils.core import setup
+    # If not possible, leave it in Markdown...
+    print("Cannot find pypandoc, not generating README!")
 
-import ast
-import codecs
-import os
-import re
-
-
-CURRENT_DIR = os.path.dirname(__file__)
+requirements = open('requirements.txt', 'rt').readlines()
+requirements = [x.strip() for x in requirements if x]
 
 
-def get_long_description():
-    readme_path = os.path.join(CURRENT_DIR, "README.md")
-    with codecs.open(readme_path, encoding="utf8") as ld_file:
-        return ld_file.read()
-
-
-def get_version():
-    pydot_py = os.path.join(CURRENT_DIR, "src", "pydot", "__init__.py")
-    _version_re = re.compile(r"__version__\s+=\s+(?P<version>.*)")
-    with codecs.open(pydot_py, "r", encoding="utf8") as f:
-        match = _version_re.search(f.read())
-        version = match.group("version") if match is not None else '"unknown"'
-    return str(ast.literal_eval(version))
+# Generate classes
+class UpdateClasses(sdist):
+    def run(self):
+        from os.path import dirname
+        from sys import path
+        path.append(dirname(__file__))
+        from generate_classes import generate_classes
+        generate_classes()
+        sdist.run(self)
 
 
 setup(
-    name="pydot",
-    version=get_version(),
-    package_dir={"": "src"},
-    packages=["pydot"],
-    long_description=get_long_description(),
-    long_description_content_type="text/markdown",
+    name='obs-websocket-py',
+    packages=['obswebsocket'],
+    # cmdclass={'sdist': UpdateClasses},
+    license='MIT',
+    version=VERSION,
+    description='Python library to communicate with an obs-websocket server.',
+    long_description=description,
+    author='Guillaume "Elektordi" Genty',
+    author_email='elektordi@elektordi.net',
+    url='https://github.com/Elektordi/obs-websocket-py',
+    keywords=['obs', 'obs-studio', 'websocket'],
+    classifiers=[
+        'License :: OSI Approved :: MIT License',
+        'Environment :: Plugins',
+        'Intended Audience :: Developers',
+        'Topic :: Software Development :: Libraries',
+
+        'Development Status :: 4 - Beta',
+
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
+        'Programming Language :: Python :: 3.10',
+    ],
+    install_requires=requirements,
 )
