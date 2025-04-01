@@ -1,4 +1,4 @@
-name: Python package
+name: CI
 
 on:
   push:
@@ -13,7 +13,8 @@ jobs:
     runs-on: ubuntu-18.04
     strategy:
       matrix:
-        python-version: ['3.6', '3.7', '3.8']
+        python-version: ['2.7', '3.4', '3.5', '3.6', '3.7']
+
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python ${{ matrix.python-version }}
@@ -22,7 +23,10 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip setuptools wheel tox
-          pip install -r requirements_test.txt
+          pip install tox-travis codecov
       - name: Run tests
         run: tox
+      - name: Upload coverage to Codecov
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+        run: codecov --file .tox/cov-*.xml
