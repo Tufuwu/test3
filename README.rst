@@ -1,324 +1,225 @@
-++++++++++++++++++++++++++
-Python C API compatibility
-++++++++++++++++++++++++++
+.. image:: ../../workflows/Tests/badge.svg
+	:target: ../../actions
 
-.. image:: https://github.com/pythoncapi/pythoncapi_compat/actions/workflows/build.yml/badge.svg
-   :alt: Build status of pythoncapi_compat on GitHub Actions
-   :target: https://github.com/pythoncapi/pythoncapi_compat/actions
+.. image:: https://codecov.io/gh/ApamaCommunity/apama-log-analyzer/branch/master/graph/badge.svg
+	:target: https://codecov.io/gh/ApamaCommunity/apama-log-analyzer
 
-The Python C API compatibility project is made of two parts:
+About the Apama Correlator Log Analyzer
+=======================================
+The log analyzer is a simple but powerful Python 3 script for analyzing a set of Apama correlator log files and extracting useful diagnostic information. 
 
-* ``pythoncapi_compat.h``: Header file providing new functions of the Python C
-  API to old Python versions.
-* ``upgrade_pythoncapi.py``: Script upgrading C extension modules to newer
-  Python API without losing support for old Python versions. It relies on
-  ``pythoncapi_compat.h``.
+Features:
 
-``pythoncapi_compat.h`` supports Python 2.7 to Python 3.10. A C99 subset is
-required, like ``static inline`` functions: see `PEP 7
-<https://www.python.org/dev/peps/pep-0007/>`_. ISO C90 is partially supported
-for Python 2.7: avoid mixed declarations and code (GCC
-``-Werror=declaration-after-statement`` flag) and support Visual Studio 2008.
+- The starting point after analyzing a log is to look at ``overview.html``, an HTML overview containing interactive 
+  charts for the main statistics such as event rate and memory usage, as well as a textual summary (also in ``overview.txt``) of each 
+  log file and details such as host:port, timezone, etc from the correlator's startup lines. This page also has links to 
+  files such as ``logged_errors/warnings.txt`` that you'll also want to look at. The analyzer calculates and plots 
+  some statistics derived from the values in the ``Correlator Status:`` lines such as:
 
-``upgrade_pythoncapi.py`` requires Python 3.6 or newer.
+  * **rx/tx rate /sec**, which are useful for determining typical receive/send rates and any anomalous periods of high/low/zero rates
+  * **log lines /sec**, which is useful for detecting excessive logging
+  * **warn and error lines /sec**, which is useful for identifying periods where bad things happened (error includes both ERROR and FATAL levels)
+  * **is swapping**, which is 1 if any swapping in or out is occurring or 0 if not; swapping is the most common cause of performance problems and disconnections
 
-Homepage:
-https://github.com/pythoncapi/pythoncapi_compat
+  If you have several log files, pass them all to the log analyzer at the same time, as that 
+  makes it easier to notice important differences between the logs (e.g. different timezones 
+  or available memory/CPUs). It's also a good way of confirming which log files actually 
+  contain the time period where the problem occurred!
 
-Latest header file:
-https://raw.githubusercontent.com/pythoncapi/pythoncapi_compat/master/pythoncapi_compat.h
+- ``logged_errors.txt``/``logged_warnings.txt``: Summarizes **WARN and ERROR/FATAL messages** across multiple log files, de-duplicating (by removing numeric bits from the message) and displaying the time range where each error/warning occurred in each log file. 
 
-This project is distributed under the MIT license.
+  This makes it easy to skim past unimportant errors/warnings and spot the ones that really matter, and to correlate them with the times during which the problem occurred. 
 
-This project is covered by the `PSF Code of Conduct
-<https://www.python.org/psf/codeofconduct/>`_.
+- ``receiver_connections.XXX.csv``: Extract log messages about connections, disconnections and slowness in **receivers**. 
+
+  This can be very useful for debugging slow receiver disconnections. 
+
+- Supported Apama releases: **Apama 4.3 through to latest** (10.5+). Also works with correlator logging from `Apama-ctrl`, downloaded from **Cumulocity**. 
+
+- Licensed under the **Apache License 2.0**. 
+
+
+There are also some additional files which may be useful for more advanced cases:
+
+- ``status.XXX.csv``: Extracts all periodic statistics from "Correlator Status:" lines, exporting them to an **Excel-friendly CSV file**. Columns are named in a user-friendly way, and some derived stats such as event rate are calculated. The header line contains additional metadata such as machine info, host:port and timezone. 
+
+- ``summary_status.XXX.csv``: Generates a small **summary CSV** file containing a snapshot of values from the start/middle/end of each log, min/mean/max aggregate values, and deltas between them. This is a good first port of call, to check which columns might be worth graphing from the main status CSV to chase down a memory leak or unresponsive application. 
+
+- ``startup_stanza.XXX.log``: A copy of the first few lines of the log file that contain critical startup information such as host/port/name/configuration. If the log file does not contain startup information (perhaps it only contains recent log messages) this file will be missing. As a missing startup stanza impairs some functionality of this tool, try to obtain the missing startup information if at all possible. 
+
+- **JSON** output mode. Most of the above can also be written in JSON format if desired, for post-processing by other scripts. Alternatively, the ``apamax.log_analyzer.LogAnalyzer`` (or ``LogAnalyzerTool``) Python class can be imported and subclassed or used from your own Python scripts. 
 
 
 Usage
 =====
+Download the latest stable version of the script from https://github.com/ApamaCommunity/apama-log-analyzer/releases
 
-Run upgrade_pythoncapi.py
--------------------------
+To run the script, simply execute the script with Python 3, specifying **all** log file(s) and/or archived log files and/or directories to be analyzed::
 
-Upgrade ``mod.c`` file::
+	> log_analyzer.py mycorrelator1.log mycorrelator2.log my_zipped_logs.zip mylogdirectory/*.log
 
-    python3 upgrade_pythoncapi.py mod.c
+On Linux, make sure ``python3`` is on ``PATH``. On Windows, ensure you have a ``.py`` file association for (or explicitly run it with) ``py.exe`` or ``python.exe`` from a Python 3 installation. Apama releases from 10.3.0 onwards contain Python 3, so an Apama command prompt/apama_env shell will have the correct ``python.exe``/``python3`` on ``PATH``. If you don't have Apama 10.3.0 available, you can download Python 3.6+ yourself. No other Python packages are required. If you get a ``SyntaxError`` or similar, you might be running it with Python 2 by mistake.
 
-Upgrade all ``.c`` and ``.h`` files of a project::
+Start by reviewing the ``overview.txt`` (which is also displayed on stdout when you've run the tool), then identify which logs and columns you'd like to graph (``status_summary.XXX.csv`` may help with this), and then open the relevant ``status.XXX.csv`` file in a spreadsheet such as Excel. The ``logged_errors.txt`` and ``logged_warnings.txt`` files are also worth reviewing carefully. 
 
-    python3 upgrade_pythoncapi.py directory/
+For information about the meaning of the status lines which may be helpful when analyzing the csv files, see the Resources section below. 
 
-WARNING: files are modified in-place! If a file is modified, the original file
-is saved as ``<filename>.old``.
+Note that the ``overview.html`` page uses the http://dygraphs.com JavaScript library to display the charts, and these are downloaded from the internet when the page is opened, so you will need an internet connection to open the ``overview.html`` page correctly (though you don't need one to run the analyzer). 
 
-To see command line options and list available operations, run it with no
-arguments::
+User status lines
+-----------------
+In addition to the standard "Correlator status:" lines, the tool can perform similar extraction for any user-defined 
+status lines. For example this could be used for the correlator's persistence or JMS status lines, or for your own 
+lines logged regularly at INFO level by your own EPL to show some application KPIs. 
 
-    python3 upgrade_pythoncapi.py
+To do this create a .json configuration file containing a "userStatusLines" dicionary and pass it to the tool using 
+``--config``. For example::
 
-For example, to only replace ``op->ob_type`` with ``Py_TYPE(op)``, use::
+	{
+		"userStatusLines":{
+		
+		// This is for a typical application-defined status line. Note that any number (or text) inside [...] brackets (
+		// typically the monitor instance id) is ignored. This is matched against the "message" part of the log line, 
+		// which follows the first " - " in the line (except for [apama-ctrl] messages which have an extra <apama-ctrl> prefix)
+		"com.mycompany.MyMonitor [1] MyApplication Status:": {
+			// This prefix is added to the start of each alias to avoid clashes with other status KPIs
+			"keyPrefix":"myApp.",
+			
+			// Specifying user-friendly aliases for each key is optional. Always include any units (e.g. MB) in the key or alias
+			"key:alias":{
+				"kpi1":"",
+				"kpi2":"kpi2AliasWithUnits",
+				"kpi3":""
+			}},
+		
+		// This detects INFO level lines beginning with "JMS Status:"
+		"JMS Status:": {
+			"keyPrefix":"jms.",
+			"key:alias":{
+				"s":"s=senders",
+				"r":"r=receivers",
+				"rRate":"rx /sec",
+				"sRate":"tx /sec",
+				"rWindow":"receive window",
+				"rRedel":"redelivered",
+				"rMaxDeliverySecs":"",
+				"rDupsDet":"",
+				"rDupIds":"", 
+				"connErr":"",
+				"jvmMB":""
+			}},
 
-    python3 upgrade_pythoncapi.py -o Py_TYPE mod.c
+		"Persistence Status:": {
+			"keyPrefix":"p.",
+			"key:alias":{
+				"numSnapshots":"",
+				"lastSnapshotTime":"",
+				"snapshotWaitTimeEwmaMillis":"",
+				"commitTimeEwmaMillis":"",
+				"lastSnapshotRowsChangedEwma":""
+			}}
+		}
+	}
 
-Or the opposite, to apply all operations but leave ``op->ob_type`` unchanged,
-use::
+Any user-defined status lines should be of the same form as the Correlator status lines, logged at INFO level, 
+for example::
 
-    python3 upgrade_pythoncapi.py -o all,-Py_TYPE mod.c
+	on all wait(5.0) {
+		log "MyApplication Status:"
+			+" kpi1="+kpi1.toString()
+			+" kpi2="+kpi2.toString()
+			+" kpi3=\""+kpi3+"\"" at INFO;
+	}
 
-Copy pythoncapi_compat.h
-------------------------
+Technical detail: the frequency and timing of other status lines may not match when the main "Correlator status:" lines 
+are logged. The analyzer just uses the main status lines for the timing, adding the most recently seen user status 
+values and recording them in a single row with timing and line information from the main status lines. 
 
-Most upgrade_pythoncapi.py operations add ``#include "pythoncapi_compat.h"``.
-You may have to copy the ``pythoncapi_compat.h`` header file to your project.
-It can be copied from::
+User-defined charts
+-------------------
+In addition to the standard charts, you can add charts with an mix of user-defined and standard status values. 
+This is achieved using the JSON configuration file described above with a "userCharts" entry. For example::
 
-    https://raw.githubusercontent.com/pythoncapi/pythoncapi_compat/master/pythoncapi_compat.h
+	{
+		"userStatusLines":{
+		// ... 
+		}, 
+		
+		"userCharts": {
 
+			// Each chart is described by "uniqueid": { "heading": "title", "labels": [keys], other options... }
+			"jms_rates":{
+				"heading":"JMS rates", 
+				"labels":["jms.rx /sec", "jms.tx /sec"],
+				"colors":["red", "pink", "orange"], 
+				"ylabel":"Events/sec", 
 
-Upgrade Operations
-==================
+				// For big numbers this often looks better than exponential notation
+				"labelsKMB":true
+			},
+		
+			// Colors are decided automatically by default, but can be overridden
+			// This example shows how to put some series onto a y axis
+			"persistence":{
+				"heading":"Correlator persistence", 
+				"labels":["p.numSnapshots", "p.snapshotWaitTimeEwmaMillis", "p.commitTimeEwmaMillis"],
+				"colors":["red", "green", "blue"], 
 
-``upgrade_pythoncapi.py`` implements the following operations:
+				"ylabel":"Time (ms)", 
+				"y2label":"Number of snapshots",
+				"series": {"p.numSnapshots":{"axis":"y2"}}
+			}
+		}
 
-* ``Py_TYPE``:
+	}
 
-  * Replace ``op->ob_type`` with ``Py_TYPE(op)``.
-
-* ``Py_SIZE``:
-
-  * Replace ``op->ob_size`` with ``Py_SIZE(op)``.
-
-* ``Py_REFCNT``:
-
-  * Replace ``op->ob_refcnt`` with ``Py_REFCNT(op)``.
-
-* ``Py_SET_TYPE``:
-
-  * Replace ``obj->ob_type = type;`` with ``Py_SET_TYPE(obj, type);``.
-  * Replace ``Py_TYPE(obj) = type;`` with ``Py_SET_TYPE(obj, type);``.
-
-* ``Py_SET_SIZE``:
-
-  * Replace ``obj->ob_size = size;`` with ``Py_SET_SIZE(obj, size);``.
-  * Replace ``Py_SIZE(obj) = size;`` with ``Py_SET_SIZE(obj, size);``.
-
-* ``Py_SET_REFCNT``:
-
-  * Replace ``obj->ob_refcnt = refcnt;`` with ``Py_SET_REFCNT(obj, refcnt);``.
-  * Replace ``Py_REFCNT(obj) = refcnt;`` with ``Py_SET_REFCNT(obj, refcnt);``.
-
-* ``PyObject_NEW``:
-
-  * Replace ``PyObject_NEW(...)`` with ``PyObject_New(...)``.
-  * Replace ``PyObject_NEW_VAR(...)`` with ``PyObject_NewVar(...)``.
-
-* ``PyMem_MALLOC``:
-
-  * Replace ``PyMem_MALLOC(n)`` with ``PyMem_Malloc(n)``.
-  * Replace ``PyMem_REALLOC(ptr, n)`` with ``PyMem_Realloc(ptr, n)``.
-  * Replace ``PyMem_FREE(ptr)``, ``PyMem_DEL(ptr)`` and ``PyMem_Del(ptr)`` .
-    with ``PyMem_Free(n)``.
-
-* ``PyObject_MALLOC``:
-
-  * Replace ``PyObject_MALLOC(n)`` with ``PyObject_Malloc(n)``.
-  * Replace ``PyObject_REALLOC(ptr, n)`` with ``PyObject_Realloc(ptr, n)``.
-  * Replace ``PyObject_FREE(ptr)``, ``PyObject_DEL(ptr)``
-    and ``PyObject_Del(ptr)`` .  with ``PyObject_Free(n)``.
-
-* ``PyFrame_GetBack``:
-
-  * Replace ``frame->f_back`` with ``_PyFrame_GetBackBorrow(frame)``.
-
-* ``PyFrame_GetCode``:
-
-  * Replace ``frame->f_code`` with ``_PyFrame_GetCodeBorrow(frame)``.
-
-* ``PyThreadState_GetInterpreter``:
-
-  * Replace ``tstate->interp`` with ``PyThreadState_GetInterpreter(tstate)``.
-
-* ``PyThreadState_GetFrame``:
-
-  * Replace ``tstate->frame`` with ``_PyThreadState_GetFrameBorrow(tstate)``.
-
-
-pythoncapi_compat.h functions
-=============================
-
-Borrow variant
---------------
-
-To ease migration of C extensions to the new C API, a variant is provided
-to return borrowed references rather than strong references::
-
-    // Similar to "Py_INCREF(ob); return ob;"
-    PyObject* _Py_StealRef(PyObject *ob);
-
-    // Similar to "Py_XINCREF(ob); return ob;"
-    PyObject* _Py_XStealRef(PyObject *ob);
-
-    // PyThreadState_GetFrame()
-    PyFrameObject* _PyThreadState_GetFrameBorrow(PyThreadState *tstate)
-
-    // PyFrame_GetCode()
-    PyCodeObject* _PyFrame_GetCodeBorrow(PyFrameObject *frame)
-
-    // PyFrame_GetBack()
-    PyFrameObject* _PyFrame_GetBackBorrow(PyFrameObject *frame)
-
-For example, ``tstate->frame`` can be replaced with
-``_PyThreadState_GetFrameBorrow(tstate)`` to avoid accessing directly
-``PyThreadState.frame`` member.
-
-These functions are only available in ``pythoncapi_compat.h`` and are not
-part of the Python C API.
-
-Python 3.10
------------
-
-::
-
-    PyObject* Py_NewRef(PyObject *obj);
-    PyObject* Py_XNewRef(PyObject *obj);
-
-    int PyModule_AddObjectRef(PyObject *module, const char *name, PyObject *value);
-
-Python 3.9
+Cumulocity
 ----------
+If you're using Apama inside Cumulocity, to download the log use the App Switcher icon to go to **Administration**, then **Applications > Subscribed applications > Apama-ctrl-XXX**. Assuming Apama-ctrl is running, you'll see a **Logs** tab. You should try to get the full log - to do that click the ``|<<`` button to find out the date of the first entry then click **Download**, and select the time range from the start date to the day after today. 
 
-PyObject
-^^^^^^^^
+Excel/CSV
+---------
+Column sizing
+~~~~~~~~~~~~~
+When you open a CSV file in Excel, to automatically resize all columns so that their contents can be viewed just select all (Ctrl+A), then double-click the separator between any two of the column headings. 
 
-::
+Keeping headers visible
+~~~~~~~~~~~~~~~~~~~~~~~
+In recent versions of Excel, selecting cell B2 and then **View > Freeze Panes > Freeze Panes** is useful for ensuring the datetime column and header row are always visible as you scroll. 
 
-    void Py_SET_REFCNT(PyObject *ob, Py_ssize_t refcnt);
-    void Py_SET_TYPE(PyObject *ob, PyTypeObject *type);
-    void Py_SET_SIZE(PyVarObject *ob, Py_ssize_t size);
-    int Py_IS_TYPE(const PyObject *ob, const PyTypeObject *type);
+Trendlines
+~~~~~~~~~~
+It may be worth adding a trendline to your Excel charts to smooth out any short-term artifacts. For example, given that status lines are logged every 5 seconds, a moving average trendline with a period of 6 samples (=30s), 12 samples (=60s) or 24 samples (=2m) can be useful when graphing the send (tx) rate in cases where the rate appears to be modal over two or three values (as a result of the interaction between the 5 second log sample period and the batching of message sending within the correlator). 
 
-    PyObject* PyObject_CallNoArgs(PyObject *func);
-    PyObject* PyObject_CallOneArg(PyObject *func, PyObject *arg);
+Importing CSVs in a non-English locale (e.g. Germany)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Unfortunately the CSV file format (and Excel in particular) has fairly poor support for use in locales such as German that have different decimal, thousand and date formats to the US/UK format generated by this tool. It is therefore necessary to explicitly tell Excel how to interpret the numeric CSV columns. In Excel 365, the steps are:
 
-PyFrameObject
-^^^^^^^^^^^^^
+  #. Open Excel (it should be displaying an empty spreadsheet; don't open the CSV file yet).
+  #. On the **Data** tab click **From Text/CSV** and select the CSV file to be imported.
+  #. Ensure the **Delimiter** is set to **Comma**, then click **Edit**.
+  #. On the **Home** tab of the Power Query Editor dialog, click **Use First Row as Headers**.
+  #. Select all columns that contain numbers. To do this click the heading for ``epoch secs``, scroll right until you see ``# metadata:`` then hold down **SHIFT** and click the column before ``# metadata:``.
+  #. (Optional: if you plan to use any values containing non-numeric data (e.g. slowest consumer or context name) then deselect those columns by holding down **CTRL** while clicking them; otherwise non-numeric values will show up as _Error_ or blank).
+  #. Right-click the selected column headings, and choose **Change Type > Using Locale...**.
+  #. Set the Data Type to **Decimal Number** and Locale to **English (Australia)** (or United States; any English locale should be fine), then click **OK**.
+  #. On the **Home** tab click **Close & Load**.
 
-::
-
-    PyCodeObject* PyFrame_GetCode(PyFrameObject *frame);
-    PyFrameObject* PyFrame_GetBack(PyFrameObject *frame);
-
-PyThreadState
-^^^^^^^^^^^^^
-
-::
-
-    PyFrameObject* PyThreadState_GetFrame(PyThreadState *tstate);
-    PyInterpreterState* PyThreadState_GetInterpreter(PyThreadState *tstate);
-    // Availability: Python 3.7
-    uint64_t PyThreadState_GetID(PyThreadState *tstate);
-
-PyInterpreterState
-^^^^^^^^^^^^^^^^^^
-
-::
-
-    PyInterpreterState* PyInterpreterState_Get(void);
-
-GC protocol
-^^^^^^^^^^^
-
-::
-
-    int PyObject_GC_IsTracked(PyObject* obj);
-    // Availability: Python 3.4
-    int PyObject_GC_IsFinalized(PyObject *obj);
-
-Module helper
-^^^^^^^^^^^^^
-
-::
-
-    int PyModule_AddType(PyObject *module, PyTypeObject *type);
-
-
-Run tests
+Resources
 =========
 
-Run tests::
+From the Apama documentation:
 
-    python3 runtests.py
+  - `List of Correlator Status Statistics <https://www.apamacommunity.com/documents/10.11.1.1/apama_10.11.1.1_webhelp/apama-webhelp/#page/apama-onlinehelp%2Fre-DepAndManApaApp_list_of_correlator_status_statistics.html>`_ - for understanding the meaning of the statistics available
 
-Only test the current Python version, don't test multiple Python versions
-(``-c``, ``--current``)::
+  - `Inspecting correlator state <https://www.apamacommunity.com/documents/10.11.1.1/apama_10.11.1.1_webhelp/apama-webhelp/#page/apama-onlinehelp%2Fre-DepAndManApaApp_inspecting_correlator_state.html>`_ - for using the engine_inspect tool to get detailed information on the number of monitor instances, listeners, etc, which can help to identify application memory leaks
 
-    python3 runtests.py --current
-
-Verbose mode (``-v``, ``--verbose``)::
-
-    python3 runtests.py --verbose
-
-See tests in the ``tests/`` subdirectory.
+  - `Shutting down and managing components <https://www.apamacommunity.com/documents/10.11.1.1/apama_10.11.1.1_webhelp/apama-webhelp/#page/apama-onlinehelp%2Fre-DepAndManApaApp_shutting_down_and_managing_components.html>`_ and its child topics - contain information on using `dorequest` to get detailed memory/CPU profiles, a string representation of the correlator queues, and various enhanced logging options
 
 
-Links
-=====
 
-* `PEP 620 -- Hide implementation details from the C API
-  <https://www.python.org/dev/peps/pep-0620/>`_
-* Make structures opaque
+Contributions
+=============
+Please feel free to add suggestions as GitHub tickets, or to contribute a fix or feature yourself (just send a pull request). 
 
-  * `bpo-39573: PyObject <https://bugs.python.org/issue39573>`_
-  * `bpo-40170: PyTypeObject <https://bugs.python.org/issue40170>`_
-  * `bpo-39947: PyThreadState <https://bugs.python.org/issue39947>`_
-  * `bpo-40421: PyFrameObject <https://bugs.python.org/issue40421>`_
-
-* `Python/C API Reference Manual <https://docs.python.org/dev/c-api/>`_
-* `HPy: a better API for Python
-  <https://hpy.readthedocs.io/>`_
-* `Cython: C-extensions for Python
-  <https://cython.org/>`_
-
-  * `ModuleSetupCode.c
-    <https://github.com/cython/cython/blob/0.29.x/Cython/Utility/ModuleSetupCode.c>`_
-    provides functions like ``__Pyx_SET_REFCNT()``
-  * Cython doesn't use pythoncapi_compat.h:
-    `see Cython issue #3934
-    <https://github.com/cython/cython/issues/3934>`_
-
-* `Old 2to3c project <https://github.com/davidmalcolm/2to3c>`_ by David Malcolm
-  which uses `Coccinelle <https://coccinelle.gitlabpages.inria.fr/website/>`_
-  to ease migration of C extensions from Python 2 to Python 3. See
-  also `2to3c: an implementation of Python's 2to3 for C code
-  <https://dmalcolm.livejournal.com/3935.html>`_ article (2009).
-
-
-Changelog
-=========
-
-* 2021-02-16: Add ``_Py_StealRef()`` and ``_Py_XStealRef()`` functions.
-* 2021-01-27: Fix compatibility with Visual Studio 2008 for Python 2.7.
-* 2020-11-30: Creation of the ``upgrade_pythoncapi.py`` script.
-* 2020-06-04: Creation of the ``pythoncapi_compat.h`` header file.
-
-
-Examples of projects using pythoncapi_compat.h
-==============================================
-
-* `bitarray <https://github.com/ilanschnell/bitarray/>`_:
-  ``bitarray/_bitarray.c`` uses ``Py_SET_SIZE()``
-  (`pythoncapi_compat.h copy
-  <https://github.com/ilanschnell/bitarray/blob/master/bitarray/pythoncapi_compat.h>`__)
-* `immutables <https://github.com/MagicStack/immutables/>`_:
-  ``immutables/_map.c`` uses ``Py_SET_SIZE()``
-  (`pythoncapi_compat.h copy
-  <https://github.com/MagicStack/immutables/blob/master/immutables/pythoncapi_compat.h>`__)
-* `Mercurial (hg) <https://www.mercurial-scm.org/>`_ uses ``Py_SET_TYPE()``
-  (`commit
-  <https://www.mercurial-scm.org/repo/hg/rev/e92ca942ddca>`__,
-  `pythoncapi_compat.h copy
-  <https://www.mercurial-scm.org/repo/hg/file/tip/mercurial/pythoncapi_compat.h>`__)
-* `python-zstandard <https://github.com/indygreg/python-zstandard/>`_
-  uses ``Py_SET_TYPE()`` and ``Py_SET_SIZE()``
-  (`commit <https://github.com/indygreg/python-zstandard/commit/e5a3baf61b65f3075f250f504ddad9f8612bfedf>`__):
-  Mercurial extension.
+If you want to submit a pull request, be sure to run the existing tests, create new tests (and check the coverage is good), and do a before-and-after run of the performance tests to avoid unwittingly making it slower. 

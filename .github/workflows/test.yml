@@ -1,28 +1,75 @@
-name: Python CI
+# GitHub Actions configuration file
+
+name: CI
 
 on:
   push:
     branches:
       - main
+      - release
   pull_request:
     branches:
       - main
 
 jobs:
   build:
-    runs-on: ubuntu-18.04
+    runs-on: ${{ matrix.os }}
     strategy:
-      fail-fast: false
       matrix:
-        python-version: ['2.7', '3.5', '3.6', '3.7', '3.8', '3.9', 'nightly']
+        include:
+          - name: Python 3.6 Linux + deploy
+            os: ubuntu-latest
+            python-version: '3.6'
+            deploy_job: true
+          - name: Python 3.6 Windows
+            os: windows-latest
+            python-version: '3.6'
+            deploy_job: false
 
     steps:
-    - uses: actions/checkout@v2
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
-      with:
-        python-version: ${{ matrix.python-version }}
-    - name: Display Python version
-      run: python -VV
-    - name: Run tests
-      run: python runtests.py --current --verbose
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install coverage==4.5.4 codecov
+          python -m pip install pysys==2.0
+
+      - name: Run tests
+        run: |
+          cd tests
+          pysys.py run --ci
+          cd ..
+
+      - name: Upload coverage to Codecov
+        if: success()
+        run: |
+          cd tests/coverage-python-*
+          codecov
+          cd ../..
+
+  deploy:
+    if: github.ref == 'refs/heads/release' && matrix.deploy_job == 'true'
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Deploy to GitHub Releases
+        uses: softprops/action-gh-release@v1
+        with:
+          files: apamax/log_analyzer.py
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_API_KEY }}
