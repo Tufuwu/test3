@@ -1,129 +1,324 @@
-pyrax
+++++++++++++++++++++++++++
+Python C API compatibility
+++++++++++++++++++++++++++
+
+.. image:: https://github.com/pythoncapi/pythoncapi_compat/actions/workflows/build.yml/badge.svg
+   :alt: Build status of pythoncapi_compat on GitHub Actions
+   :target: https://github.com/pythoncapi/pythoncapi_compat/actions
+
+The Python C API compatibility project is made of two parts:
+
+* ``pythoncapi_compat.h``: Header file providing new functions of the Python C
+  API to old Python versions.
+* ``upgrade_pythoncapi.py``: Script upgrading C extension modules to newer
+  Python API without losing support for old Python versions. It relies on
+  ``pythoncapi_compat.h``.
+
+``pythoncapi_compat.h`` supports Python 2.7 to Python 3.10. A C99 subset is
+required, like ``static inline`` functions: see `PEP 7
+<https://www.python.org/dev/peps/pep-0007/>`_. ISO C90 is partially supported
+for Python 2.7: avoid mixed declarations and code (GCC
+``-Werror=declaration-after-statement`` flag) and support Visual Studio 2008.
+
+``upgrade_pythoncapi.py`` requires Python 3.6 or newer.
+
+Homepage:
+https://github.com/pythoncapi/pythoncapi_compat
+
+Latest header file:
+https://raw.githubusercontent.com/pythoncapi/pythoncapi_compat/master/pythoncapi_compat.h
+
+This project is distributed under the MIT license.
+
+This project is covered by the `PSF Code of Conduct
+<https://www.python.org/psf/codeofconduct/>`_.
+
+
+Usage
 =====
 
-.. image:: https://img.shields.io/pypi/v/pyrax.svg
-        :target: https://pypi.python.org/pypi/pyrax/
+Run upgrade_pythoncapi.py
+-------------------------
 
-.. image:: https://travis-ci.com/pycontribs/pyrax.svg?branch=master
-        :target: https://travis-ci.com/pycontribs/pyrax
+Upgrade ``mod.c`` file::
 
-Python SDK for OpenStack/Rackspace APIs
+    python3 upgrade_pythoncapi.py mod.c
 
-   **DEPRECATED**: Pyrax is no longer being developed or supported.
-   See `openstacksdk <https://pypi.python.org/pypi/openstacksdk>`__
-   and the `rackspacesdk <https://pypi.python.org/pypi/rackspacesdk>`__
-   plugin in order to interact with Rackspace's OpenStack-based
-   public cloud.
+Upgrade all ``.c`` and ``.h`` files of a project::
 
-See the LICENSE file for license and copyright information.
+    python3 upgrade_pythoncapi.py directory/
 
-**pyrax** should work with most OpenStack-based cloud deployments,
-though it specifically targets the Rackspace public cloud. For example,
-the code for cloudfiles contains the ability to publish your content on
-Rackspace's CDN network, even though CDN support is not part of
-OpenStack Swift. But if you don't use any of the CDN-related code, your
-app will work fine on any standard Swift deployment.
+WARNING: files are modified in-place! If a file is modified, the original file
+is saved as ``<filename>.old``.
 
-See the `Release
-Notes <https://github.com/pycontribs/pyrax/tree/master/RELEASENOTES.md>`_
-for what has changed in the latest release
+To see command line options and list available operations, run it with no
+arguments::
 
-Getting Started with OpenStack/Rackspace
-----------------------------------------
+    python3 upgrade_pythoncapi.py
 
-To sign up for a Rackspace Cloud account, go to
+For example, to only replace ``op->ob_type`` with ``Py_TYPE(op)``, use::
 
-`http://cart.rackspace.com/cloud <http://cart.rackspace.com/cloud>`_
+    python3 upgrade_pythoncapi.py -o Py_TYPE mod.c
 
-and follow the prompts.
+Or the opposite, to apply all operations but leave ``op->ob_type`` unchanged,
+use::
 
-If you are working with an OpenStack deployment, you can find more
-information at `http://www.openstack.org <http://www.openstack.org>`_.
+    python3 upgrade_pythoncapi.py -o all,-Py_TYPE mod.c
 
-Requirements
-------------
+Copy pythoncapi_compat.h
+------------------------
 
--  A Rackspace Cloud account
+Most upgrade_pythoncapi.py operations add ``#include "pythoncapi_compat.h"``.
+You may have to copy the ``pythoncapi_compat.h`` header file to your project.
+It can be copied from::
 
-   -  username
-   -  API key
+    https://raw.githubusercontent.com/pythoncapi/pythoncapi_compat/master/pythoncapi_compat.h
 
--  Python 2.7, 3.4, 3.5, 3.6, or 3.7
 
-   -  Support for Python 3.4 ends in March 2019.
-   -  Support for Python 2.7 ends at the end of 2019.
-   -  pyrax is not yet tested yet with other Python versions. Please
-      post feedback about what works or does not work with other
-      versions. See the **Support and Feedback** section below for where
-      to post.
+Upgrade Operations
+==================
 
-Installation
-------------
+``upgrade_pythoncapi.py`` implements the following operations:
 
-The best way to install **pyrax** is by using
-`pip <http://www.pip-installer.org/en/latest/>`_ to get the latest
-official release:
+* ``Py_TYPE``:
+
+  * Replace ``op->ob_type`` with ``Py_TYPE(op)``.
+
+* ``Py_SIZE``:
+
+  * Replace ``op->ob_size`` with ``Py_SIZE(op)``.
+
+* ``Py_REFCNT``:
+
+  * Replace ``op->ob_refcnt`` with ``Py_REFCNT(op)``.
+
+* ``Py_SET_TYPE``:
+
+  * Replace ``obj->ob_type = type;`` with ``Py_SET_TYPE(obj, type);``.
+  * Replace ``Py_TYPE(obj) = type;`` with ``Py_SET_TYPE(obj, type);``.
+
+* ``Py_SET_SIZE``:
+
+  * Replace ``obj->ob_size = size;`` with ``Py_SET_SIZE(obj, size);``.
+  * Replace ``Py_SIZE(obj) = size;`` with ``Py_SET_SIZE(obj, size);``.
+
+* ``Py_SET_REFCNT``:
+
+  * Replace ``obj->ob_refcnt = refcnt;`` with ``Py_SET_REFCNT(obj, refcnt);``.
+  * Replace ``Py_REFCNT(obj) = refcnt;`` with ``Py_SET_REFCNT(obj, refcnt);``.
+
+* ``PyObject_NEW``:
+
+  * Replace ``PyObject_NEW(...)`` with ``PyObject_New(...)``.
+  * Replace ``PyObject_NEW_VAR(...)`` with ``PyObject_NewVar(...)``.
+
+* ``PyMem_MALLOC``:
+
+  * Replace ``PyMem_MALLOC(n)`` with ``PyMem_Malloc(n)``.
+  * Replace ``PyMem_REALLOC(ptr, n)`` with ``PyMem_Realloc(ptr, n)``.
+  * Replace ``PyMem_FREE(ptr)``, ``PyMem_DEL(ptr)`` and ``PyMem_Del(ptr)`` .
+    with ``PyMem_Free(n)``.
+
+* ``PyObject_MALLOC``:
+
+  * Replace ``PyObject_MALLOC(n)`` with ``PyObject_Malloc(n)``.
+  * Replace ``PyObject_REALLOC(ptr, n)`` with ``PyObject_Realloc(ptr, n)``.
+  * Replace ``PyObject_FREE(ptr)``, ``PyObject_DEL(ptr)``
+    and ``PyObject_Del(ptr)`` .  with ``PyObject_Free(n)``.
+
+* ``PyFrame_GetBack``:
+
+  * Replace ``frame->f_back`` with ``_PyFrame_GetBackBorrow(frame)``.
+
+* ``PyFrame_GetCode``:
+
+  * Replace ``frame->f_code`` with ``_PyFrame_GetCodeBorrow(frame)``.
+
+* ``PyThreadState_GetInterpreter``:
+
+  * Replace ``tstate->interp`` with ``PyThreadState_GetInterpreter(tstate)``.
+
+* ``PyThreadState_GetFrame``:
+
+  * Replace ``tstate->frame`` with ``_PyThreadState_GetFrameBorrow(tstate)``.
+
+
+pythoncapi_compat.h functions
+=============================
+
+Borrow variant
+--------------
+
+To ease migration of C extensions to the new C API, a variant is provided
+to return borrowed references rather than strong references::
+
+    // Similar to "Py_INCREF(ob); return ob;"
+    PyObject* _Py_StealRef(PyObject *ob);
+
+    // Similar to "Py_XINCREF(ob); return ob;"
+    PyObject* _Py_XStealRef(PyObject *ob);
+
+    // PyThreadState_GetFrame()
+    PyFrameObject* _PyThreadState_GetFrameBorrow(PyThreadState *tstate)
+
+    // PyFrame_GetCode()
+    PyCodeObject* _PyFrame_GetCodeBorrow(PyFrameObject *frame)
+
+    // PyFrame_GetBack()
+    PyFrameObject* _PyFrame_GetBackBorrow(PyFrameObject *frame)
+
+For example, ``tstate->frame`` can be replaced with
+``_PyThreadState_GetFrameBorrow(tstate)`` to avoid accessing directly
+``PyThreadState.frame`` member.
+
+These functions are only available in ``pythoncapi_compat.h`` and are not
+part of the Python C API.
+
+Python 3.10
+-----------
 
 ::
 
-    pip install pyrax
+    PyObject* Py_NewRef(PyObject *obj);
+    PyObject* Py_XNewRef(PyObject *obj);
 
-If you would like to work with the current development state of pyrax,
-you can install directly from trunk on GitHub:
+    int PyModule_AddObjectRef(PyObject *module, const char *name, PyObject *value);
 
-::
+Python 3.9
+----------
 
-    pip install git+git://github.com/pycontribs/pyrax.git
-
-If you are not using
-`virtualenv <http://pypi.python.org/pypi/virtualenv>`_, you will need to
-run ``pip install --user`` to install into your user account's site packages.
-
-You may also download and install from source. The source code for
-**pyrax** is available on
-`GitHub <https://github.com/pycontribs/pyrax/>`_.
-
-Once you have the source code, ``cd`` to the base directory of the
-source and run (using ``sudo``, if necessary):
+PyObject
+^^^^^^^^
 
 ::
 
-    python setup.py install
+    void Py_SET_REFCNT(PyObject *ob, Py_ssize_t refcnt);
+    void Py_SET_TYPE(PyObject *ob, PyTypeObject *type);
+    void Py_SET_SIZE(PyVarObject *ob, Py_ssize_t size);
+    int Py_IS_TYPE(const PyObject *ob, const PyTypeObject *type);
 
-For more information on getting started, check out the following
-documentation:
+    PyObject* PyObject_CallNoArgs(PyObject *func);
+    PyObject* PyObject_CallOneArg(PyObject *func, PyObject *arg);
 
-`https://github.com/pycontribs/pyrax/blob/master/docs/getting\_started.md <https://github.com/pycontribs/pyrax/blob/master/docs/getting_started.md>`_
-`https://developer.rackspace.com/sdks/python/ <https://developer.rackspace.com/sdks/python/>`_
-
-Updates
--------
-
-If you installed **pyrax** using pip, it is simple to get the latest
-updates from either PyPI or GitHub:
+PyFrameObject
+^^^^^^^^^^^^^
 
 ::
 
-    # PyPI
-    pip install --upgrade pyrax
-    # GitHub
-    pip install --upgrade git+git://github.com/pycontribs/pyrax.git
+    PyCodeObject* PyFrame_GetCode(PyFrameObject *frame);
+    PyFrameObject* PyFrame_GetBack(PyFrameObject *frame);
 
-Contributing
-------------
+PyThreadState
+^^^^^^^^^^^^^
 
-Please see the `HACKING <HACKING.rst>`_ file for contribution guidelines.
-Make sure pull requests are on the ``master`` branch!
+::
 
-Support and Feedback
---------------------
+    PyFrameObject* PyThreadState_GetFrame(PyThreadState *tstate);
+    PyInterpreterState* PyThreadState_GetInterpreter(PyThreadState *tstate);
+    // Availability: Python 3.7
+    uint64_t PyThreadState_GetID(PyThreadState *tstate);
 
-You can find documentation for using the **pyrax** SDK at
-https://developer.rackspace.com/sdks/python/.
+PyInterpreterState
+^^^^^^^^^^^^^^^^^^
 
-Your feedback is appreciated! If you have specific issues with the
-**pyrax** SDK, developers should file an `issue via
-Github <https://github.com/pycontribs/pyrax/issues>`_.
+::
 
-For general feedback and support requests, contact us at
-https://developer.rackspace.com/support/
+    PyInterpreterState* PyInterpreterState_Get(void);
+
+GC protocol
+^^^^^^^^^^^
+
+::
+
+    int PyObject_GC_IsTracked(PyObject* obj);
+    // Availability: Python 3.4
+    int PyObject_GC_IsFinalized(PyObject *obj);
+
+Module helper
+^^^^^^^^^^^^^
+
+::
+
+    int PyModule_AddType(PyObject *module, PyTypeObject *type);
+
+
+Run tests
+=========
+
+Run tests::
+
+    python3 runtests.py
+
+Only test the current Python version, don't test multiple Python versions
+(``-c``, ``--current``)::
+
+    python3 runtests.py --current
+
+Verbose mode (``-v``, ``--verbose``)::
+
+    python3 runtests.py --verbose
+
+See tests in the ``tests/`` subdirectory.
+
+
+Links
+=====
+
+* `PEP 620 -- Hide implementation details from the C API
+  <https://www.python.org/dev/peps/pep-0620/>`_
+* Make structures opaque
+
+  * `bpo-39573: PyObject <https://bugs.python.org/issue39573>`_
+  * `bpo-40170: PyTypeObject <https://bugs.python.org/issue40170>`_
+  * `bpo-39947: PyThreadState <https://bugs.python.org/issue39947>`_
+  * `bpo-40421: PyFrameObject <https://bugs.python.org/issue40421>`_
+
+* `Python/C API Reference Manual <https://docs.python.org/dev/c-api/>`_
+* `HPy: a better API for Python
+  <https://hpy.readthedocs.io/>`_
+* `Cython: C-extensions for Python
+  <https://cython.org/>`_
+
+  * `ModuleSetupCode.c
+    <https://github.com/cython/cython/blob/0.29.x/Cython/Utility/ModuleSetupCode.c>`_
+    provides functions like ``__Pyx_SET_REFCNT()``
+  * Cython doesn't use pythoncapi_compat.h:
+    `see Cython issue #3934
+    <https://github.com/cython/cython/issues/3934>`_
+
+* `Old 2to3c project <https://github.com/davidmalcolm/2to3c>`_ by David Malcolm
+  which uses `Coccinelle <https://coccinelle.gitlabpages.inria.fr/website/>`_
+  to ease migration of C extensions from Python 2 to Python 3. See
+  also `2to3c: an implementation of Python's 2to3 for C code
+  <https://dmalcolm.livejournal.com/3935.html>`_ article (2009).
+
+
+Changelog
+=========
+
+* 2021-02-16: Add ``_Py_StealRef()`` and ``_Py_XStealRef()`` functions.
+* 2021-01-27: Fix compatibility with Visual Studio 2008 for Python 2.7.
+* 2020-11-30: Creation of the ``upgrade_pythoncapi.py`` script.
+* 2020-06-04: Creation of the ``pythoncapi_compat.h`` header file.
+
+
+Examples of projects using pythoncapi_compat.h
+==============================================
+
+* `bitarray <https://github.com/ilanschnell/bitarray/>`_:
+  ``bitarray/_bitarray.c`` uses ``Py_SET_SIZE()``
+  (`pythoncapi_compat.h copy
+  <https://github.com/ilanschnell/bitarray/blob/master/bitarray/pythoncapi_compat.h>`__)
+* `immutables <https://github.com/MagicStack/immutables/>`_:
+  ``immutables/_map.c`` uses ``Py_SET_SIZE()``
+  (`pythoncapi_compat.h copy
+  <https://github.com/MagicStack/immutables/blob/master/immutables/pythoncapi_compat.h>`__)
+* `Mercurial (hg) <https://www.mercurial-scm.org/>`_ uses ``Py_SET_TYPE()``
+  (`commit
+  <https://www.mercurial-scm.org/repo/hg/rev/e92ca942ddca>`__,
+  `pythoncapi_compat.h copy
+  <https://www.mercurial-scm.org/repo/hg/file/tip/mercurial/pythoncapi_compat.h>`__)
+* `python-zstandard <https://github.com/indygreg/python-zstandard/>`_
+  uses ``Py_SET_TYPE()`` and ``Py_SET_SIZE()``
+  (`commit <https://github.com/indygreg/python-zstandard/commit/e5a3baf61b65f3075f250f504ddad9f8612bfedf>`__):
+  Mercurial extension.
