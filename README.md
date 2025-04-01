@@ -1,58 +1,66 @@
-[![hk0weather](https://github.com/sammyfung/hk0weather/actions/workflows/hk0weather.yml/badge.svg)](https://github.com/sammyfung/hk0weather/actions/workflows/hk0weather.yml)
-[![codecov](https://codecov.io/gh/sammyfung/hk0weather/branch/master/graph/badge.svg?token=PYnOIj6SwS)](https://codecov.io/gh/sammyfung/hk0weather/)
+# buildmaster-config
 
-hk0weather
-===
+[Buildbot](https://buildbot.net/) master configuration for
+[buildbot.python.org](http://buildbot.python.org/all/).
 
-hk0weather is an open source web scraper project using Scrapy to collect the useful weather data from Hong Kong Observatory website.
+[![Build Status](https://travis-ci.org/python/buildmaster-config.svg?branch=master)](https://travis-ci.org/python/buildmaster-config)
 
-Scrapy can output collected weather data into the machine-readable formats (eg. CSV, JSON, XML).
+## Private settings
 
-Available Web Crawlers
----
-1. **regional**: Hong Kong Regional Weather Data in 10-minutes update from HKO.    
-1. **rainfall**: Hong Kong Rainfall Data in hourly update from HKO.    
-1. **hkoforecast**: Hong Kong Next 24 hour Weather Forecast Report from HKO Open Data.   
-1. **hko9dayforecast**: Hong Kong 9-day Weather Report from HKO Open Data.   
+The production server uses /etc/buildbot/settings.yaml configuration file which
+contains secrets like the IRC nickname password.
 
-Installation
----
+## Update requirements
 
-Cloning and setup hk0weather in a Py3 virtual environment   
-   
-   ```
-   $ git clone https://github.com/sammyfung/hk0weather.git
-   $ cd hk0weather
-   $ python3 -m venv venv
-   $ source venv/bin/activate  
-   $ pip install -r requirements.txt    
-   ```
+Run locally:
 
-Run a Scrapy spider
----
+    make regen-requirements
 
-Activate the Py3 virtual environment once before the first running of web spiders.
+Create a PR. Merge the PR. Then recreate the venv on the server:
 
-```
-$ source venv/bin/activate  
-$ cd hk0weather
-```
+    make stop-master
+    mv venv old-venv
+    make venv
+    make start-master
 
-Optionally, list all available spiders.
+Upgrading buildbot sometimes requires to run the command:
 
-```
-$ scrapy list 
-```
-  
-Run a regional weather data web crawler and export data to a JSON file.
+    ./venv/bin/buildbot upgrade-master /data/buildbot/master
 
-```
-$ scrapy crawl regional -o regional.json
-```
+Make sure that the server is running, and then remove the old virtual environment:
 
-References
---
+    rm -rf old-venv
 
-* The background of this project: [開放源碼香港天氣計劃 hk0weather](https://sammy.hk/opensource-hk0weather/) 
-* The presentation slide at BarCampHK 2013: [From Hk0weather to Open Data](http://www.slideshare.net/sammyfung/hk0weather-barcamp)
+## Hosting
 
+The buildbot master is hosted on the PSF Infrastructure and is managed via
+[salt](https://github.com/python/psf-salt/blob/master/salt/buildbot/init.sls).
+
+psycopg2 also requires libpq-dev:
+
+    sudo apt-get install libpq-dev
+
+- Backend host address is `buildbot.nyc1.psf.io`.
+- The host is behind the PSF HaProxy cluster which is CNAMEd by `buildbot.python.org`.
+- Database is hosted on a managed Postgres cluster, including backups.
+- Remote backups of `/etc/buildbot/settings.yaml` are taken hourly and retained for 90 days.
+- No other state for the buildbot host is backed up!
+
+Configurations from this repository are applied from the `master` branch on
+a `*/15` cron interval using the `update-master` target in `Makefile`.
+
+Python 3.9 is installed manually using ``pyenv`` (which was also installed
+manually). Commands to install Python 3.9:
+
+    pyenv update
+    pyenv install 3.9.1
+    pyenv global 3.8.1 3.9.1
+
+
+## Add a worker
+
+The list of workers is stored in `/etc/buildbot/settings.yaml` on the server.
+A worker password should be made of 14 characters (a-z, A-Z, 0-9 and special
+characters), for example using KeePassX.
+
+Documentation: http://docs.buildbot.net/current/manual/configuration/workers.html#defining-workers
