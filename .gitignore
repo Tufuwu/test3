@@ -1,16 +1,3 @@
-# Added by Curtis G. Northcutt
-examples/imagenet/img
-examples/cifar10/img
-examples/amazon_reviews_dataset/pickles
-cleanlab/*.ipynb
-cleanlab/models/*.ipynb
-tests/*.ipynb
-.DS_Store
-*/.DS_Store
-tests/fasttext_data/
-data/
-docs/_build/
-
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -33,6 +20,7 @@ parts/
 sdist/
 var/
 wheels/
+share/python-wheels/
 *.egg-info/
 .installed.cfg
 *.egg
@@ -51,6 +39,7 @@ pip-delete-this-directory.txt
 # Unit test / coverage reports
 htmlcov/
 .tox/
+.nox/
 .coverage
 .coverage.*
 .cache
@@ -65,7 +54,6 @@ coverage.xml
 *.pot
 
 # Django stuff:
-*.log
 local_settings.py
 db.sqlite3
 
@@ -85,8 +73,14 @@ target/
 # Jupyter Notebook
 .ipynb_checkpoints
 
+# IPython
+profile_default/
+ipython_config.py
+
 # pyenv
 .python-version
+# Virtual env as proposed in README
+python-venv
 
 # celery beat schedule file
 celerybeat-schedule
@@ -115,6 +109,14 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+.dmypy.json
+dmypy.json
 
-#sphinx build
-/docs/_build/
+# Pyre type checker
+.pyre/
+
+# JetBrains & Co.
+.idea/
+
+# Visual Studio Code
+.vscode/
