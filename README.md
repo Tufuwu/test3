@@ -1,58 +1,70 @@
-# panda-gym
+# Vimeo Add-on for [Kodi](https://github.com/xbmc/xbmc)
 
-[![PyPI version](https://img.shields.io/pypi/v/panda-gym.svg?logo=pypi&logoColor=FFE873)](https://pypi.org/project/panda-gym/)
-[![PyPI downloads](https://static.pepy.tech/badge/panda-gym)](https://pypistats.org/packages/panda-gym)
-[![GitHub](https://img.shields.io/github/license/qgallouedec/panda-gym.svg)](LICENSE.txt)
-[![Actions Status](https://github.com/qgallouedec/panda-gym/workflows/build/badge.svg)](https://github.com/qgallouedec/panda-gym/actions)
+<img align="right" src="https://github.com/xbmc/xbmc/raw/master/addons/webinterface.default/icon-128.png" alt="Kodi logo">
 
-OpenaAI Gym Franka Emika Panda robot environment based on PyBullet.
+[![GitHub tag (latest SemVer)](https://img.shields.io/github/tag/jaylinski/kodi-addon-vimeo.svg)](https://github.com/jaylinski/kodi-addon-vimeo/releases)
+[![Build Status](https://img.shields.io/github/workflow/status/jaylinski/kodi-addon-vimeo/Continuous%20Integration/master.svg)](https://github.com/jaylinski/kodi-addon-vimeo/actions)
+[![Link to Kodi forum](https://img.shields.io/badge/Kodi-Forum-informational.svg)](https://forum.kodi.tv/showthread.php?tid=220437)
+[![Link to Kodi wiki](https://img.shields.io/badge/Kodi-Wiki-informational.svg)](https://kodi.wiki/view/Add-on:Vimeo)
+[![Link to Kodi releases](https://img.shields.io/badge/Kodi-v19%20%22Leia%22-green.svg)](https://kodi.wiki/view/Releases)
+[![Link to Kodi releases](https://img.shields.io/badge/Kodi-v18%20%22Leia%22-green.svg)](https://kodi.wiki/view/Releases)
+[![Link to Kodi releases](https://img.shields.io/badge/Kodi-v17%20%22Krypton%22-green.svg)](https://kodi.wiki/view/Releases)
 
-![gif_demo](https://raw.githubusercontent.com/qgallouedec/panda-gym/master/docs/demo.gif)
+This [Kodi](https://github.com/xbmc/xbmc) Add-on provides a minimal interface for Vimeo.
+
+## Features
+
+* Search
+* Discover new videos
+* Play videos
 
 ## Installation
 
-Using PyPI:
+### Kodi Repository
 
-```bash
-pip install panda-gym
-```
+Follow the instructions on [https://kodi.wiki/view/Add-on:Vimeo](https://kodi.wiki/view/Add-on:Vimeo).
 
-From source:
+### Manual
 
-```bash
-git clone https://github.com/qgallouedec/panda-gym.git
-pip install -e panda-gym
-```
+* [Download the latest release](https://github.com/jaylinski/kodi-addon-vimeo/releases) (`plugin.video.vimeo.zip`)
+* Copy the zip file to your Kodi system
+* Open Kodi, go to Add-ons and select "Install from zip file"
+* Select the file `plugin.video.vimeo.zip`
 
-## Usage
+## API
 
-```python
-import gym
-import panda_gym
+Documentation of the **public** interface.
 
-env = gym.make('PandaReach-v0', render=True)
+### plugin://plugin.video.vimeo/play/?[video_id]
 
-obs = env.reset()
-done = False
-while not done:
-    action = env.action_space.sample() # random action
-    obs, reward, done, info = env.step(action)
+Examples:
 
-env.close()
-```
+* `plugin://plugin.video.vimeo/play/?video_id=1`
 
-## Environments
+## Development
 
-Following environments are widely inspired from [OpenAI Fetch environments](https://openai.com/blog/ingredients-for-robotics-research/). Video [here](https://youtu.be/TbISn3yu0CM). See my [blog post](https://qgallouedec.github.io/posts/2021/02/openai-environment-for-franka-emika-panda-robot/).
+This add-on uses [Pipenv](https://pypi.org/project/pipenv/) to manage its dependencies.
 
-`PandaReach-v0`: Panda has to move its end-effector to the desired goal position.
-![PandaReach-v0](https://raw.githubusercontent.com/qgallouedec/panda-gym/master/docs/reach.gif)
+### Setup
 
-`PandaSlide-v0`: Panda has to hit a puck across a long table such that it slides and comes to rest on the desired goal.
-![PandaSlide-v0](https://raw.githubusercontent.com/qgallouedec/panda-gym/master/docs/slide.gif)
+[Install Pipenv](https://pipenv.readthedocs.io/en/latest/install/#installing-pipenv) and run `pipenv install --dev`.
 
-`PandaPush-v0`: Panda has to move a box by pushing it until it reaches a desired goal position.
-![PandaPush-v0](https://raw.githubusercontent.com/qgallouedec/panda-gym/master/docs/push.gif)
+### Build
 
-`PandaPickAndPlace-v0`: Panda has to pick up a box from a table using its gripper and move it to a desired goal above the table.
-![PandaPickAndPlace-v0](https://raw.githubusercontent.com/qgallouedec/panda-gym/master/docs/pickandplace.gif)
+Run `pipenv run build`.
+
+### Lint
+
+Run `pipenv run lint`.
+
+### Test
+
+Run `pipenv run test`.
+
+## Attributions
+
+This add-on is strongly inspired by the original add-on developed by bromix.
+
+## Copyright and license
+
+This add-on is licensed under the MIT License - see `LICENSE.txt` for details.
