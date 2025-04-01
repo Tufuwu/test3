@@ -1,35 +1,37 @@
 ---
 name: Bug report
-about: General bug report
-title: ''
-labels: ''
-assignees: ''
+about: Create a report to help us improve
+labels: bug
 
 ---
 
-<!--
-Make sure to read
-https://python-fints.readthedocs.io/en/latest/trouble.html
-before you file a bug
--->
+// REMOVE LINES WITH SLASHES, LIKE THIS
 
-**Describe the bug**
-A clear and concise description of what the bug is.
+**Steps to reproduce**
 
-**Bank I tested this with*
-Name of the bank:
-FinTS URL:
+- // Fill in first step
+- // Fill in second step
+- // ...
 
 **Expected behavior**
-A clear and concise description of what you expected to happen.
 
-**Code required to reproduce**
-```
-Your sample code
-```
+// What do you expect?
 
-**Log output / error message**
-<!-- Please make sure to remove all sensitive private information -->
+**Actual behavior**
 
-**Additional context**
-Add any other context about the problem here.
+// What happens instead?
+
+**Components**
+
+// Fill with NethServer version number and relevant RPM versions. 
+// You can find the RPM version in Software Center page, 
+// under Installed > Packages, or by typing in a shell prompt
+// rpm -qa | grep -F .ns7. | sort
+
+**See also**
+
+// Links to discussion on community.nethserver.org and other web sites
+
+----
+
+// Acknowledgements
