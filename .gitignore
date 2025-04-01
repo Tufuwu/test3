@@ -1,9 +1,7 @@
-*.egg-info
+*.pyo
 *.pyc
-.coverage
-.DS_Store
-docs/_build/
-dist/
-build/
+__pycache__
+*.egg-info
+build
+dist
 .idea
-venv
