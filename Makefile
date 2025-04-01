@@ -1,22 +1,46 @@
-.PHONY: check-code fix-code build-dist check-dist upload-dist clean
+PACKAGE := $(shell basename *.spec .spec)
+ARCH = noarch
+RPMBUILD = rpmbuild --define "_topdir %(pwd)/rpm-build" \
+	--define "_builddir %{_topdir}" \
+	--define "_rpmdir %(pwd)/rpms" \
+	--define "_srcrpmdir %{_rpmdir}" \
+	--define "_sourcedir  %{_topdir}"
+PYTHON = $(which python)
 
-check-code:
-	@python -m flake8 django_node_assets
-	@python -m isort django_node_assets --check
-	@python -m black django_node_assets --check
-
-fix-code:
-	@python -m isort django_node_assets
-	@python -m black django_node_assets
-
-build-dist: clean
-	@python -m build
-
-check-dist:
-	@python -m twine check dist/*
-
-upload-dist:
-	@python -m twine upload dist/*
+all: rpms
 
 clean:
-	@rm -rf dist/ django_node_assets.egg-info/
+	rm -rf dist/ build/ rpm-build/ rpms/
+	rm -rf docs/*.gz MANIFEST *~
+	rm -rf .tox/
+	find . -name '*.pyc' -exec rm -f {} \;
+	find . -name '__pycache__' -exec rm -rf {} \; -prune
+
+build: clean
+	python setup.py build -f
+
+install: build
+	python setup.py install -f
+
+reinstall: uninstall install
+
+uninstall: clean
+	rm -f /usr/bin/${PACKAGE}
+	rm -rf /usr/lib/python2.*/site-packages/${PACKAGE}
+
+uninstall_rpms: clean
+	rpm -e ${PACKAGE}
+
+sdist:
+	python setup.py sdist
+
+prep_rpmbuild: build sdist
+	mkdir -p rpm-build
+	mkdir -p rpms
+	cp dist/*.gz rpm-build/
+
+rpms: prep_rpmbuild
+	${RPMBUILD} -ba ${PACKAGE}.spec
+
+srpm: prep_rpmbuild
+	${RPMBUILD} -bs ${PACKAGE}.spec
