@@ -1,152 +1,112 @@
-cabrillo [![Build Status](https://travis-ci.com/thxo/cabrillo.svg?branch=master)](https://travis-ci.com/thxo/cabrillo)
----------------------
-A Python library to parse Cabrillo-format amateur radio contest logs, with no external dependencies.
+# Tabcmd
 
-# Getting Started
+[![Tableau Supported](https://img.shields.io/badge/Support%20Level-Tableau%20Supported-53bd92.svg)](https://www.tableau.com/support-levels-it-and-developer-tools)
 
-## Basic Parsing
+A Python based app that replicates the functionality of the existing [Tabcmd command line utility](https://help.tableau.com/current/server/en-us/tabcmd.htm).
 
-```python
->>> from cabrillo.parser import parse_log_file
->>> cab = parse_log_file('tests/CQWPX.log')
->>> cab.callsign
-'AA1ZZZ'
->>> cab.qso
-[<cabrillo.qso.QSO object at 0x10cb09f28>, <cabrillo.qso.QSO object at 0x10cbc8860>]
->>> cab.text()
-'START-OF-LOG: 3.0\nCREATED-BY: WriteLog V10.72C\nCALLSIGN: AA1ZZZ\n[...snip...]END-OF-LOG:\n'
-```
+**Important Note:** tabcmd is a work in progress ("beta") which may be useful for test and development purposes, but is not yet recommended for production environments.
 
-You can also write to a file:
+* [Why a Python based tabcmd\?](#whytabcmd)
+* [Demo](#demo)
+* [Get started](#get-started)
+  * [Prerequisites](#prerequisites)
+  * [Installation](#installation)
+* [Run](#run)
+  * [Available Commands](#available-commands)
+* [Contributions](#contributions)
 
-```python
-with open('out.cbr', 'w') as o:
-    cab.write(o)
-```
+## Why a Python based Tabcmd?
 
-The same works for text-file-like objects.
+* Run Tabcmd commands on MacOS (existing Tabcmd does not officially support MacOS)
+* Authenticate using Personal Access Tokens (existing Tabcmd does not support Personal Access Token login)
+* Easily use public endpoints available in Python based [Tableau Server Client](https://github.com/tableau/server-client-python/)
+* Add more functionality and extend script for other automation tasks
 
-Finally, if you desire to parse Cabrillo data already present as a Python string,
-you can do so with, e.g.,
+## Demo/Samples
 
-```python
-from cabrillo.parser import parse_log_text
+_coming soon_
 
-cabrillo_text = """START-OF-LOG: 3.0
-END-OF-LOG:
-"""
+## Get started
 
-cab = parse_log_text(cabrillo_text)
-```
+This section describes how to install and configure tabcmd.
 
-## Ignoring malorder
+### Prerequisites
 
-Cabrillo logs must be time-sorted. If you want to read files that are
-not so sorted, but other than that are Cabrillo files, you can do so by
-adding a keyword argument `ignore_order=False` to either `parse_log_file`
-or `parse_log_text`. If you do that, the resulting Cabrillo object
-will refuse to generate (potentially non-)Cabrillo output.
+To work with tabcmd, you need the following:
 
-## Matching Two QSOs in Contest Scoring
+* MacOS / Windows
+* Python 3.7+ installed
 
-```python
->>> # We start off with a pair with complementary data.
->>> from cabrillo import QSO
->>> from datetime import datetime
->>> qso1 = QSO('14313', 'PH', datetime.strptime('May 30 2018 10:15PM', '%b %d %Y %I:%M%p'), 'KX0XXX', 'KX9XXX', de_exch=['59', '10', 'CO'], dx_exch=['44', '20', 'IN'], t=None)
->>> qso2 = QSO('14313', 'PH', datetime.strptime('May 30 2018 10:10PM', '%b %d %Y %I:%M%p'), 'KX9XXX', 'KX0XXX', de_exch=['44', '20', 'IN'], dx_exch=['59', '10', 'CO'], t=None)
->>> qso1.match_against(qso2)
-True
->>> qso1.freq = '14000'  # Same band, still will match.
->>> qso1.match_against(qso2)
-True
->>> qso1.match_against(qso2, max_time_delta=1)  # Make time checking less lenient.
-False
->>> # All flags.
->>> qso1.match_against(qso2, max_time_delta=30, check_exch=True, check_band=True)
-```
+### Installation
 
-# Attributes
+To install tabcmd, follow these steps:
 
-Use these attributes to access and construct individual objects.
+1. Clone the repo
+2. Run `pip install .`
 
-```python
-class Cabrillo(builtins.object)
- |  Cabrillo(check_categories=True, **d)
- |  
- |  Representation of a Cabrillo log file.
- |  
- |  Attributes:
- |        version: The only supported version is '3.0'.
- |        callsign: Call sign of station.
- |        contest: Contest identification.
- |        category_assisted: One of CATEGORY_ASSISTED.
- |        category_band: One of CATEGORY_BAND.
- |        category_mode: One of CATEGORY_MODE.
- |        category_operator: One of CATEGORY_OPERATOR.
- |        category_power: One of CATEGORY-POWER.
- |        category_station: One of CATEGORY-STATION.
- |        category_time: One of CATEGORY-TIME.
- |        category_transmitter: One of CATEGORY-TRANSMITTER. Optional for
- |          multi-op.
- |        category_overlay: One of CATEGORY-OVERLAY.
- |        certificate: If certificate by post. Boolean.
- |        claimed_score: Claimed score in int.
- |        club: Club represented.
- |        created_by: Software responsible for creating this log file.
- |          Optional, defaults to "cabrillo (Python)".
- |        email: Email address of the submitter.
- |        location: State/section/ID depending on contest.
- |        name: Log submitter's name.
- |        address: Mailing address, as a list, one entry per line.
- |        address_city: Optional granular address info.
- |        address_state_province: Optional granular address info.
- |        address_postalcode: Optional granular address info.
- |        address_country: Optional granular address info.
- |        operators: List of operators' callsigns.
- |        offtime: List containing two datetime objects denoting start and
- |          end of off-time.
- |        soapbox: List of lines of soapbox text.
- |        qso: List of all QSO objects, including ignored QSOs.
- |        valid_qso: List of all valid QSOs (excluding X-QSO) (read-only).
- |        x_qso: List of QSO objects for ignored QSOs (X-QSO only) (read-only).
- |        x_anything: An ordered mapping of ignored/unknown attributes of the Cabrillo file.
-```
+## Run
 
-```python
- class QSO(builtins.object)
- |  QSO(freq, mo, date, de_call, dx_call, de_exch=[], dx_exch=[], t=None, valid=True)
- |  
- |  Representation of a single QSO.
- |  
- |  Attributes:
- |      freq: Frequency in kHz in str representation.
- |      mo: Transmission mode of QSO.
- |      date: UTC time as datetime.datetime object.
- |      de_call: Sent callsign.
- |      de_exch: Sent exchange. List, first item is RST, second tends to be context exchange.
- |      dx_call: Received callsign.
- |      dx_exch: Received exchange. List, first item is RST, second tends to be context exchange.
- |      t: Transmitter ID for multi-transmitter categories in int. 0/1.
- |      valid: True for QSO that counts, False for an X-QSO.
-```
+To run tabcmd, follow these steps:
 
-## Contributors
+1. To run a command:
+    * `tabcmd [command_name] [--flags]`
+    * Examples:
+        * `tabcmd login --username [username] --password [password] --server
+         [server_name] --site [site_name]`
+        * `tabcmd createproject --name [project_name]`
 
-Pull requests are appreciated!
+### Available Commands
 
-The following instructions show how to obtain the sourcecode and execute the tests.
-They assume Python 3.3 or later: 
+This table lists the development status of all commands, listed in the same order as the tabcmd help.
 
-```sh
-git clone https://github.com/thxo/cabrillo.git
-cd cabrillo
-python3 -m venv python-venv
-source python-venv/bin/activate
-pip install -r requirements_test.txt
-python -m pytest --cov-report term-missing --cov cabrillo -v
-```
+These are the column definitions:
 
-On a Windows machine, using `cmd.exe`, substitute
-`python-venv/Scripts/activate` for
-`source python-venv/bin/activate`.
+* TSC: API support is available in [TSC](https://github.com/tableau/server-client-python/)
+* Completed: Code implemented, manually tested, unit tests for parsing added
+* Done: Error handling, all unit tests, logging, code review, can produce docs, merged into master
+
+| Command | TSC | Completed | Done | Notes |
+|-|-|-|-|-|
+| addusers (to group) | Yes (single user) | :heavy_check_mark: |  |  |
+| createextracts | Yes |  |  |  |
+| creategroup | Yes | :heavy_check_mark:  |  |  |
+| createproject | Yes | :heavy_check_mark:  |  |  |
+| createsite | Yes | :heavy_check_mark:  |  |  |
+| createsiteusers | Yes | :heavy_check_mark:  |  |  |
+| createusers | Yes (single user) | :heavy_check_mark:  |  |  |
+| decryptextracts | Yes |  |  |  |
+| delete workbook-name or datasource-name | Yes | :heavy_check_mark:  |  |  |
+| deleteextracts | Yes |  |  |  |
+| deletegroup | Yes | :heavy_check_mark:  |  |  |
+| deleteproject | Yes | :heavy_check_mark:  |  |  |
+| deletesite | Yes | :heavy_check_mark:  |  |  |
+| deletesiteusers | Yes | :heavy_check_mark:  |  |  |
+| deleteusers | No |  |  |  |
+| editdomain | No |  |  |  |
+| editsite | Yes | :heavy_check_mark:  |  |  |
+| encryptextracts | Yes |  |  |  |
+| export | Yes | :heavy_check_mark:  |  |  |
+| get url | Yes |  |  |  |
+| initialuser | No |  |  |  |
+| listdomains | No |  |  |  |
+| listsites | Yes | :heavy_check_mark:  |  |  |
+| login | Yes | :heavy_check_mark:  |  |  |
+| logout | Yes | :heavy_check_mark:  |  |  |
+| publish | Yes | :heavy_check_mark:  |  |  |
+| publishsamples | No |  |  |  |
+| reencryptextracts | Yes |  |  |  |
+| refreshextracts | No |  |  |  |
+| removeusers | Yes | :heavy_check_mark:  |  |  |
+| reset_openid_sub | No |  |  |  |
+| runschedule | No |  |  |  |
+| set | No |  |  |  |
+| syncgroup | No |  |  |  |
+| version | N/A |  |  |  |
+
+## Contributions
+
+Code contributions and improvements by the community are welcomed!
+
+See the LICENSE file for current open-source licensing and use information. See dev information at [contributing.md](./contributing.md)
+
+Before we can accept pull requests from contributors, we require a signed [Contributor License Agreement (CLA)](http://tableau.github.io/contributing.html).

@@ -1,23 +1,41 @@
-import setuptools
+import sys
+try:
+    from setuptools import setup, find_packages
+except ImportError:
+    from distutils.core import setup
 
-with open("README.md", "r") as fh:
-    long_description = fh.read()
+# Only install pytest and runner when test command is run
+# This makes work easier for offline installs or low bandwidth machines
+needs_pytest = {'pytest', 'test', 'ptr'}.intersection(sys.argv)
+pytest_runner = ['pytest-runner'] if needs_pytest else []
+test_requirements = ['mock', 'pycodestyle', 'pytest', 'requests-mock>=1.0,<2.0', 'pyinstaller']
 
-setuptools.setup(
-    name="cabrillo",
-    version="0.0.4",
-    author="Howard Xiao",
-    author_email="thx@thxo.org",
-    description="A Python library to parse Cabrillo-format amateur radio "
-                "contest logs.",
-    long_description=long_description,
-    long_description_content_type="text/markdown",
-    url="https://github.com/thxo/cabrillo",
-    packages=setuptools.find_packages(),
-    classifiers=[
-        "Programming Language :: Python :: 3",
-        "License :: OSI Approved :: BSD License",
-        "Operating System :: OS Independent",
-        "Topic :: Communications :: Ham Radio"
+setup(
+    name='tabcmd',
+    author='Tableau',
+    author_email='github@tableau.com',
+    description='A command line client for working with Tableau Server.',
+    entry_points={
+        'console_scripts': [
+            'tabcmd = tabcmd.tabcmd:main'
+        ]
+    },
+    license='MIT',
+    packages=find_packages(),
+    test_suite='tests',
+    url='https://github.com/tableau/tabcmd',
+
+    extras_require={
+        'test': test_requirements,
+        'package': ['pyinstaller>=4.8']
+    },
+    install_requires=[
+        'requests>=2.11,<3.0',
+        'setuptools>=24.3',
+        'tableauserverclient>=0.12',
+        'urllib3>=1.24.3,<2.0',
     ],
+    python_requires='>=3.6',
+    setup_requires=pytest_runner,
+    tests_require=test_requirements,
 )
