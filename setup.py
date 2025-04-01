@@ -1,59 +1,32 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
+"""Setup logic for pip."""
 
-from distutils.core import setup
-from setuptools.command.sdist import sdist
-from obswebsocket import VERSION
-
-# Convert README from Markdown to reStructuredText
-description = "Please take a look at README.md"
-try:
-    description = open('README.md', 'rt').read()
-    import pypandoc
-    description = pypandoc.convert_text(description, 'rst', 'gfm')
-except ImportError:
-    # If not possible, leave it in Markdown...
-    print("Cannot find pypandoc, not generating README!")
-
-requirements = open('requirements.txt', 'rt').readlines()
-requirements = [x.strip() for x in requirements if x]
+from setuptools import setup
 
 
-# Generate classes
-class UpdateClasses(sdist):
-    def run(self):
-        from os.path import dirname
-        from sys import path
-        path.append(dirname(__file__))
-        from generate_classes import generate_classes
-        generate_classes()
-        sdist.run(self)
+def get_long_description():
+    with open('README.md', 'r') as readme_file:
+        return readme_file.read()
 
 
 setup(
-    name='obs-websocket-py',
-    packages=['obswebsocket'],
-    # cmdclass={'sdist': UpdateClasses},
+    name='automata-lib',
+    version='5.0.0',
+    description='A Python library for simulating automata and Turing machines',
+    long_description=get_long_description(),
+    long_description_content_type='text/markdown',
+    url='https://github.com/caleb531/automata',
+    author='Caleb Evans',
+    author_email='caleb@calebevans.me',
     license='MIT',
-    version=VERSION,
-    description='Python library to communicate with an obs-websocket server.',
-    long_description=description,
-    author='Guillaume "Elektordi" Genty',
-    author_email='elektordi@elektordi.net',
-    url='https://github.com/Elektordi/obs-websocket-py',
-    keywords=['obs', 'obs-studio', 'websocket'],
-    classifiers=[
-        'License :: OSI Approved :: MIT License',
-        'Environment :: Plugins',
-        'Intended Audience :: Developers',
-        'Topic :: Software Development :: Libraries',
-
-        'Development Status :: 4 - Beta',
-
-        'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.7',
-        'Programming Language :: Python :: 3.8',
-        'Programming Language :: Python :: 3.9',
-        'Programming Language :: Python :: 3.10',
+    keywords='automata turing machine',
+    packages=[
+        'automata',
+        'automata.fa',
+        'automata.pda',
+        'automata.base',
+        'automata.tm'
     ],
-    install_requires=requirements,
+    install_requires=['pydot'],
+    entry_points={}
 )
