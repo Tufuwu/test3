@@ -1,4 +1,4 @@
-name: Python package
+name: CI
 
 on:
   push:
@@ -9,11 +9,11 @@ on:
       - main
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ['3.5.3', '3.6', '3.7', 'pypy3.5']
+        python-version: ['2.7', '3.4', '3.5', '3.6', 'pypy']
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python ${{ matrix.python-version }}
@@ -21,8 +21,25 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies
-      run: pip install -r test_req.txt
-    - name: Test with pytest
-      run: py.test --verbose --cov=./aiochan
-    - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v2
+      run: pip install tox-travis
+    - name: Run tests
+      run: tox
+
+  deploy:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python 3.6
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.6'
+    - name: Publish to PyPI
+      env:
+        TWINE_USERNAME: stephenfin
+        TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
+      run: |
+        python -m pip install --upgrade pip
+        pip install twine
+        python setup.py sdist bdist_wheel
+        twine upload dist/*
