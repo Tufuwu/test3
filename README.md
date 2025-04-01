@@ -1,25 +1,30 @@
-# 👨‍🍳 The Grill
-[![Build Status](https://travis-ci.org/thegrill/grill.svg?branch=main)](https://travis-ci.org/thegrill/grill)
-[![codecov](https://codecov.io/gh/thegrill/grill/branch/main/graph/badge.svg)](https://codecov.io/gh/thegrill/grill)
-[![Documentation Status](https://readthedocs.org/projects/grill/badge/?version=latest)](https://grill.readthedocs.io/en/latest/?badge=latest)
-[![PyPI version](https://badge.fury.io/py/grill.svg)](https://badge.fury.io/py/grill)
-[![PyPI](https://img.shields.io/pypi/pyversions/grill.svg)](https://pypi.python.org/pypi/grill)
+# ofxstatement-revolut
 
-> Cook digital.
+![badge](https://github.com/mlaitinen/ofxstatement-revolut/actions/workflows/python-app.yml/badge.svg)
 
-`The Grill` is a toolset that helps with digital content creation. This is the `grill` namespace, a meta-package with core tools and philosophy guidelines.
 
-With future users and readers in mind, `The Grill` aims to stick to the following principles:
+This is a plugin for [ofxstatement](https://github.com/kedder/ofxstatement). It implements
+a parser for the Revolut CSV-formatted bank statement.
 
-- [DRY (don't repeat yourself)](https://en.wikipedia.org/wiki/Don%27t_repeat_yourself)
-- [SSOT (single source of truth)](https://en.wikipedia.org/wiki/Single_source_of_truth)
-- [Convention over configuration (sensible defaults)](https://en.wikipedia.org/wiki/Convention_over_configuration)
-- [SOLID (understandable, flexible and maintainable)](https://en.wikipedia.org/wiki/SOLID)
-- [KISS (keep it simple)](https://en.wikipedia.org/wiki/KISS_principle)
+Issue reports and pull requests are welcome.
 
-Foundational tools:
-- [Python](https://docs.python.org/3/)
-- [USD](https://graphics.pixar.com/usd/docs/index.html)
-- [EdgeDB](https://edgedb.com)
+## Installation
 
-Please [visit the docs](https://grill.rtfd.io) for a full walk-through!
+### From PyPI repositories
+```
+pip3 install ofxstatement-revolut
+```
+
+### From source
+```
+git clone https://github.com/mlaitinen/ofxstatement-revolut.git
+python3 setup.py install
+```
+
+## Configuration options
+
+| Option        | Description                                                                                                                                    |
+|---------------|------------------------------------------------------------------------------------------------------------------------------------------------|
+| `account`     | Define the account of this bank statement                                                                                                      |
+| `currency`    | The base currency of the account                                                                                                               |
+| `date_format` | The date format in the bank statement. Note that you have to use double `%`-marks in the settings file like this: `date_format = %%b %%d, %%Y` |
