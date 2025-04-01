@@ -2,44 +2,55 @@ name: CI
 
 on:
   push:
-    branches-ignore:
-      - config
-      - notebooks
+    branches:
+      - main
   pull_request:
-    branches-ignore:
-      - config
-      - notebooks
+    branches:
+      - main
 
 jobs:
   build:
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
+
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest]
-        python-version: ['3.6', '3.7', '3.8']
+        conda_env: [docs, py38]
+
+    env:
+      GH_PAGES_DIR: ${{ github.workspace }}/gh-pages
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
+    - uses: actions/checkout@v3
 
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
+    - name: Set up Miniconda
+      uses: conda-incubator/setup-miniconda@v2
       with:
-        python-version: ${{ matrix.python-version }}
-
-    - name: Run pre-install script
-      run: source ./preinstall.sh
-      shell: bash
+        auto-update-conda: true
+        use-only-tar-bz2: true
+        channels: conda-forge
+        activate-environment: test_env
+        environment-file: ${{ matrix.conda_env == 'docs' && 'docs/environment.yml' || 'ci/environment-' + matrix.conda_env + '.yml' }}
 
     - name: Install dependencies
-      run: source ./postinstall.sh
-      shell: bash
-
-    - name: Build and test
       run: |
-        python installer/setup.py build_ext -i
-        nosetests -v --with-coverage --cover-package=.
+        conda list
+        python setup.py develop
 
-    - name: Coveralls
+    - name: Run tests
+      run: |
+        if [ "${{ matrix.conda_env }}" == "docs" ]; then
+          sphinx-build -n -b html -d docs/_build/doctrees docs/source docs/_build/html;
+        else
+          pytest -c setup.cfg --flake8 --cov=aeolus --cov-config .coveragerc --cov-report term-missing -v;
+        fi;
+
+    - name: After success
       if: success()
-      run: coveralls
+      run: |
+        if [ "${{ matrix.conda_env }}" == "docs" ]; then
+          bash ci/deploy_docs.sh;
+        elif [ "${{ matrix.conda_env }}" == "py38" ]; then
+          conda install -c conda-forge conda-build conda-verify anaconda-client;
+          conda list;
+          bash conda.recipe/conda_upload.sh;
+        fi;

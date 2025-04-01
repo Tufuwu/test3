@@ -1,4 +1,9 @@
-include input/*
-include MSLP/*.nc
-include docs/*.rst
-include tests/test_data/*
+include LICENSE
+include src/aeolus/const/store/*.json
+recursive-include docs *
+recursive-include tests *
+include tests/data/*
+prune docs/html
+prune docs/doctrees
+include versioneer.py
+global-exclude *.py[cod]

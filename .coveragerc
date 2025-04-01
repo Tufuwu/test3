@@ -1,2 +1,8 @@
-[run]
-include=./*
+[report]
+include = src/aeolus/*
+omit =
+    */setup.py
+    */_version.py
+    docs/*
+    tests/*
+    *__init__*
