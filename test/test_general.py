@@ -1,505 +1,349 @@
-import os
+from   datetime   import datetime, timezone
+from   pathlib    import Path
 import pytest
-from   in_place           import InPlace
-from   test_in_place_util import TEXT, pylistdir
+from   apachelogs import COMBINED, InvalidEntryError, LogEntry, LogParser, \
+                            VHOST_COMBINED, parse, parse_lines
 
-def test_nobackup(tmpdir):
-    assert pylistdir(tmpdir) == []
-    p = tmpdir.join("file.txt")
-    p.write(TEXT)
-    with InPlace(str(p)) as fp:
-        assert not fp.closed
-        for line in fp:
-            assert isinstance(line, str)
-            fp.write(line.swapcase())
-        assert not fp.closed
-    assert fp.closed
-    assert pylistdir(tmpdir) == ['file.txt']
-    assert p.read() == TEXT.swapcase()
+def mkentry(entry, format, **attrs):
+    logentry = LogEntry(entry, format, [], [])
+    logentry.__dict__.update(attrs)
+    return logentry
 
-def test_backup_ext(tmpdir):
-    assert pylistdir(tmpdir) == []
-    p = tmpdir.join("file.txt")
-    p.write(TEXT)
-    with InPlace(str(p), backup_ext='~') as fp:
-        for line in fp:
-            fp.write(line.swapcase())
-    assert pylistdir(tmpdir) == ['file.txt', 'file.txt~']
-    assert p.new(ext='txt~').read() == TEXT
-    assert p.read() == TEXT.swapcase()
+VHOST_COMBINED_LOG_ENTRIES = [
+    mkentry(
+        'www.varonathe.org:80 203.62.1.80 - - [06/May/2019:06:28:20 +0000] "GET / HTTP/1.1" 301 577 "-" "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:58.0) Gecko/20100101 Firefox/58.0"',
+        VHOST_COMBINED,
+        virtual_host="www.varonathe.org",
+        server_port=80,
+        remote_host="203.62.1.80",
+        remote_logname=None,
+        remote_user=None,
+        request_time=datetime(2019, 5, 6, 6, 28, 20, tzinfo=timezone.utc),
+        request_time_fields={
+            "timestamp": datetime(2019, 5, 6, 6, 28, 20, tzinfo=timezone.utc),
+        },
+        request_line="GET / HTTP/1.1",
+        final_status=301,
+        bytes_out=577,
+        headers_in={
+            "Referer": None,
+            "User-Agent": "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:58.0) Gecko/20100101 Firefox/58.0",
+        },
+        directives={
+             "%v": "www.varonathe.org",
+             "%p": 80,
+             "%h": "203.62.1.80",
+             "%l": None,
+             "%u": None,
+             "%t": datetime(2019, 5, 6, 6, 28, 20, tzinfo=timezone.utc),
+             "%r": "GET / HTTP/1.1",
+             "%>s": 301,
+             "%O": 577,
+             "%{Referer}i": None,
+             "%{User-Agent}i": "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:58.0) Gecko/20100101 Firefox/58.0",
+        },
+    ),
 
-def test_backup(tmpdir):
-    assert pylistdir(tmpdir) == []
-    p = tmpdir.join("file.txt")
-    p.write(TEXT)
-    bkp = tmpdir.join('backup.txt')
-    with InPlace(str(p), backup=str(bkp)) as fp:
-        assert not fp.closed
-        for line in fp:
-            fp.write(line.swapcase())
-        assert not fp.closed
-    assert fp.closed
-    assert pylistdir(tmpdir) == ['backup.txt', 'file.txt']
-    assert bkp.read() == TEXT
-    assert p.read() == TEXT.swapcase()
+    mkentry(
+        'www.varonathe.org:80 203.62.1.80 - - [06/May/2019:06:28:20 +0000] "GET /robots.txt HTTP/1.1" 301 596 "-" "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:58.0) Gecko/20100101 Firefox/58.0"',
+        VHOST_COMBINED,
+        virtual_host="www.varonathe.org",
+        server_port=80,
+        remote_host="203.62.1.80",
+        remote_logname=None,
+        remote_user=None,
+        request_time=datetime(2019, 5, 6, 6, 28, 20, tzinfo=timezone.utc),
+        request_time_fields={
+            "timestamp": datetime(2019, 5, 6, 6, 28, 20, tzinfo=timezone.utc),
+        },
+        request_line="GET /robots.txt HTTP/1.1",
+        final_status=301,
+        bytes_out=596,
+        headers_in={
+            "Referer": None,
+            "User-Agent": "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:58.0) Gecko/20100101 Firefox/58.0",
+        },
+        directives={
+             "%v": "www.varonathe.org",
+             "%p": 80,
+             "%h": "203.62.1.80",
+             "%l": None,
+             "%u": None,
+             "%t": datetime(2019, 5, 6, 6, 28, 20, tzinfo=timezone.utc),
+             "%r": "GET /robots.txt HTTP/1.1",
+             "%>s": 301,
+             "%O": 596,
+             "%{Referer}i": None,
+             "%{User-Agent}i": "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:58.0) Gecko/20100101 Firefox/58.0",
+        },
+    ),
 
-def test_backup_ext_and_backup(tmpdir):
-    assert pylistdir(tmpdir) == []
-    p = tmpdir.join("file.txt")
-    p.write(TEXT)
-    bkp = tmpdir.join('backup.txt')
-    with pytest.raises(ValueError):
-        InPlace(str(p), backup=str(bkp), backup_ext='~')
-    assert pylistdir(tmpdir) == ['file.txt']
-    assert p.read() == TEXT
+    mkentry(
+        'www.varonathe.org:80 203.62.1.80 - - [06/May/2019:06:28:21 +0000] "POST /App6079ec68.php HTTP/1.1" 301 606 "-" "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:58.0) Gecko/20100101 Firefox/58.0"',
+        VHOST_COMBINED,
+        virtual_host="www.varonathe.org",
+        server_port=80,
+        remote_host="203.62.1.80",
+        remote_logname=None,
+        remote_user=None,
+        request_time=datetime(2019, 5, 6, 6, 28, 21, tzinfo=timezone.utc),
+        request_time_fields={
+            "timestamp": datetime(2019, 5, 6, 6, 28, 21, tzinfo=timezone.utc),
+        },
+        request_line="POST /App6079ec68.php HTTP/1.1",
+        final_status=301,
+        bytes_out=606,
+        headers_in={
+            "Referer": None,
+            "User-Agent": "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:58.0) Gecko/20100101 Firefox/58.0",
+        },
+        directives={
+             "%v": "www.varonathe.org",
+             "%p": 80,
+             "%h": "203.62.1.80",
+             "%l": None,
+             "%u": None,
+             "%t": datetime(2019, 5, 6, 6, 28, 21, tzinfo=timezone.utc),
+             "%r": "POST /App6079ec68.php HTTP/1.1",
+             "%>s": 301,
+             "%O": 606,
+             "%{Referer}i": None,
+             "%{User-Agent}i": "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:58.0) Gecko/20100101 Firefox/58.0",
+        },
+    ),
 
-def test_empty_backup_ext(tmpdir):
-    assert pylistdir(tmpdir) == []
-    p = tmpdir.join("file.txt")
-    p.write(TEXT)
-    with pytest.raises(ValueError):
-        InPlace(str(p), backup_ext='')
-    assert pylistdir(tmpdir) == ['file.txt']
-    assert p.read() == TEXT
+    mkentry(
+        'www.varonathe.org:80 203.62.1.80 - - [06/May/2019:06:28:21 +0000] "GET /webdav/ HTTP/1.1" 301 554 "-" "Mozilla/5.0"',
+        VHOST_COMBINED,
+        virtual_host="www.varonathe.org",
+        server_port=80,
+        remote_host="203.62.1.80",
+        remote_logname=None,
+        remote_user=None,
+        request_time=datetime(2019, 5, 6, 6, 28, 21, tzinfo=timezone.utc),
+        request_time_fields={
+            "timestamp": datetime(2019, 5, 6, 6, 28, 21, tzinfo=timezone.utc),
+        },
+        request_line="GET /webdav/ HTTP/1.1",
+        final_status=301,
+        bytes_out=554,
+        headers_in={
+            "Referer": None,
+            "User-Agent": "Mozilla/5.0",
+        },
+        directives={
+             "%v": "www.varonathe.org",
+             "%p": 80,
+             "%h": "203.62.1.80",
+             "%l": None,
+             "%u": None,
+             "%t": datetime(2019, 5, 6, 6, 28, 21, tzinfo=timezone.utc),
+             "%r": "GET /webdav/ HTTP/1.1",
+             "%>s": 301,
+             "%O": 554,
+             "%{Referer}i": None,
+             "%{User-Agent}i": "Mozilla/5.0",
+        },
+    ),
 
-def test_error_backup_ext(tmpdir):
-    assert pylistdir(tmpdir) == []
-    p = tmpdir.join("file.txt")
-    p.write(TEXT)
-    with pytest.raises(RuntimeError):
-        with InPlace(str(p), backup_ext='~') as fp:
-            for i, line in enumerate(fp):
-                fp.write(line.swapcase())
-                if i > 5:
-                    raise RuntimeError("I changed my mind.")
-    assert pylistdir(tmpdir) == ['file.txt']
-    assert p.read() == TEXT
+    mkentry(
+        'www.varonathe.org:80 203.62.1.80 - - [06/May/2019:06:28:21 +0000] "GET /help.php HTTP/1.1" 301 592 "-" "Mozilla/5.0 (Windows NT 5.2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36 SE 2.X MetaSr 1.0"',
+        VHOST_COMBINED,
+        virtual_host="www.varonathe.org",
+        server_port=80,
+        remote_host="203.62.1.80",
+        remote_logname=None,
+        remote_user=None,
+        request_time=datetime(2019, 5, 6, 6, 28, 21, tzinfo=timezone.utc),
+        request_time_fields={
+            "timestamp": datetime(2019, 5, 6, 6, 28, 21, tzinfo=timezone.utc),
+        },
+        request_line="GET /help.php HTTP/1.1",
+        final_status=301,
+        bytes_out=592,
+        headers_in={
+            "Referer": None,
+            "User-Agent": "Mozilla/5.0 (Windows NT 5.2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36 SE 2.X MetaSr 1.0",
+        },
+        directives={
+             "%v": "www.varonathe.org",
+             "%p": 80,
+             "%h": "203.62.1.80",
+             "%l": None,
+             "%u": None,
+             "%t": datetime(2019, 5, 6, 6, 28, 21, tzinfo=timezone.utc),
+             "%r": "GET /help.php HTTP/1.1",
+             "%>s": 301,
+             "%O": 592,
+             "%{Referer}i": None,
+             "%{User-Agent}i": "Mozilla/5.0 (Windows NT 5.2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36 SE 2.X MetaSr 1.0",
+        },
+    ),
 
-def test_pass_nobackup(tmpdir):
-    assert pylistdir(tmpdir) == []
-    p = tmpdir.join("file.txt")
-    p.write(TEXT)
-    with InPlace(str(p)):
-        pass
-    assert pylistdir(tmpdir) == ['file.txt']
-    assert p.read() == ''
+    mkentry(
+        'www.varonathe.org:80 203.62.1.80 - - [06/May/2019:06:28:22 +0000] "GET /java.php HTTP/1.1" 301 592 "-" "Mozilla/5.0 (Windows NT 5.2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36 SE 2.X MetaSr 1.0"',
+        VHOST_COMBINED,
+        virtual_host="www.varonathe.org",
+        server_port=80,
+        remote_host="203.62.1.80",
+        remote_logname=None,
+        remote_user=None,
+        request_time=datetime(2019, 5, 6, 6, 28, 22, tzinfo=timezone.utc),
+        request_time_fields={
+            "timestamp": datetime(2019, 5, 6, 6, 28, 22, tzinfo=timezone.utc),
+        },
+        request_line="GET /java.php HTTP/1.1",
+        final_status=301,
+        bytes_out=592,
+        headers_in={
+            "Referer": None,
+            "User-Agent": "Mozilla/5.0 (Windows NT 5.2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36 SE 2.X MetaSr 1.0",
+        },
+        directives={
+             "%v": "www.varonathe.org",
+             "%p": 80,
+             "%h": "203.62.1.80",
+             "%l": None,
+             "%u": None,
+             "%t": datetime(2019, 5, 6, 6, 28, 22, tzinfo=timezone.utc),
+             "%r": "GET /java.php HTTP/1.1",
+             "%>s": 301,
+             "%O": 592,
+             "%{Referer}i": None,
+             "%{User-Agent}i": "Mozilla/5.0 (Windows NT 5.2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36 SE 2.X MetaSr 1.0",
+        },
+    ),
+]
 
-def test_delete_nobackup(tmpdir):
-    assert pylistdir(tmpdir) == []
-    p = tmpdir.join("file.txt")
-    p.write(TEXT)
-    with InPlace(str(p)) as fp:
-        for i, line in enumerate(fp):
-            fp.write(line.swapcase())
-            if i == 5:
-                p.remove()
-    assert pylistdir(tmpdir) == ['file.txt']
-    assert p.read() == TEXT.swapcase()
+@pytest.mark.parametrize('end', ['', '\n', '\r', '\r\n'])
+def test_parse_general(end):
+    ENTRY = '209.126.136.4 - - [01/Nov/2017:07:28:29 +0000] "GET / HTTP/1.1" 301 521 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.133 Safari/537.36"'
+    parser = LogParser(COMBINED, encoding='utf-8')
+    assert parser.format == COMBINED
+    parsed = parser.parse(ENTRY + end)
+    assert parsed.remote_host == "209.126.136.4"
+    assert parsed.remote_logname is None
+    assert parsed.remote_user is None
+    assert parsed.request_time == datetime(2017, 11, 1, 7, 28, 29, tzinfo=timezone.utc)
+    assert parsed.request_line == "GET / HTTP/1.1"
+    assert parsed.final_status == 301
+    assert parsed.bytes_sent == 521
+    assert parsed.headers_in == {
+        "Referer": None,
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.133 Safari/537.36",
+    }
+    assert parsed.headers_in["User-Agent"] \
+        == parsed.headers_in["USER-AGENT"] \
+        == parsed.headers_in["user-agent"] \
+        == "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.133 Safari/537.36"
+    assert parsed.entry == ENTRY
+    assert parsed.format == COMBINED
+    assert parsed.request_time_fields \
+        == {"timestamp": datetime(2017, 11, 1, 7, 28, 29, tzinfo=timezone.utc)}
+    assert parsed.directives == {
+        "%h": "209.126.136.4",
+        "%l": None,
+        "%u": None,
+        "%t": datetime(2017, 11, 1, 7, 28, 29, tzinfo=timezone.utc),
+        "%r": "GET / HTTP/1.1",
+        "%>s": 301,
+        "%b": 521,
+        "%{Referer}i": None,
+        "%{User-Agent}i": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.133 Safari/537.36",
+    }
 
-def test_delete_backup(tmpdir):
-    assert pylistdir(tmpdir) == []
-    p = tmpdir.join("file.txt")
-    p.write(TEXT)
-    bkp = tmpdir.join('backup.txt')
-    with pytest.raises(OSError):
-        with InPlace(str(p), backup=str(bkp)) as fp:
-            for i, line in enumerate(fp):
-                fp.write(line.swapcase())
-                if i == 5:
-                    p.remove()
-    assert pylistdir(tmpdir) == []
+def test_parse_lines_invalid():
+    with (Path(__file__).with_name('data') / 'vhost_combined.log').open() as fp:
+        entries = parse_lines(VHOST_COMBINED, fp)
+        assert next(entries) == VHOST_COMBINED_LOG_ENTRIES[0]
+        assert next(entries) == VHOST_COMBINED_LOG_ENTRIES[1]
+        assert next(entries) == VHOST_COMBINED_LOG_ENTRIES[2]
+        assert next(entries) == VHOST_COMBINED_LOG_ENTRIES[3]
+        with pytest.raises(InvalidEntryError) as excinfo:
+            next(entries)
+        assert str(excinfo.value) == (
+            "Could not match log entry 'Bad line'"
+            " against log format {!r}".format(VHOST_COMBINED)
+        )
+        assert excinfo.value.entry == 'Bad line'
+        assert excinfo.value.format == VHOST_COMBINED
 
-def test_early_close_nobackup(tmpdir):
-    assert pylistdir(tmpdir) == []
-    p = tmpdir.join("file.txt")
-    p.write(TEXT)
-    with InPlace(str(p)) as fp:
-        for line in fp:
-            fp.write(line.swapcase())
-        fp.close()
-    assert pylistdir(tmpdir) == ['file.txt']
-    assert p.read() == TEXT.swapcase()
+def test_parse_lines_ignore_invalid():
+    with (Path(__file__).with_name('data') / 'vhost_combined.log').open() as fp:
+        entries = parse_lines(VHOST_COMBINED, fp, ignore_invalid=True)
+        assert list(entries) == VHOST_COMBINED_LOG_ENTRIES
 
-def test_early_close_and_write_nobackup(tmpdir):
-    assert pylistdir(tmpdir) == []
-    p = tmpdir.join("file.txt")
-    p.write(TEXT)
-    with pytest.raises(ValueError):
-        with InPlace(str(p)) as fp:
-            for line in fp:
-                fp.write(line.swapcase())
-            fp.close()
-            fp.write('And another thing...\n')
-    assert pylistdir(tmpdir) == ['file.txt']
-    assert p.read() == TEXT.swapcase()
+def test_parse_default_enc(mocker):
+    m = mocker.patch('apachelogs.LogParser', spec=LogParser)
+    r = parse('%s', '200')
+    m.assert_called_once_with('%s', encoding='iso-8859-1', errors=None)
+    m.return_value.parse.assert_called_once_with('200')
+    assert r is m.return_value.parse.return_value
 
-def test_early_close_backup(tmpdir):
-    assert pylistdir(tmpdir) == []
-    p = tmpdir.join("file.txt")
-    p.write(TEXT)
-    bkp = tmpdir.join('backup.txt')
-    with InPlace(str(p), backup=str(bkp)) as fp:
-        for line in fp:
-            fp.write(line.swapcase())
-        fp.close()
-    assert pylistdir(tmpdir) == ['backup.txt', 'file.txt']
-    assert bkp.read() == TEXT
-    assert p.read() == TEXT.swapcase()
+def test_parse_custom_enc(mocker):
+    m = mocker.patch('apachelogs.LogParser', spec=LogParser)
+    r = parse('%s', '200', encoding='utf-8', errors='surrogateescape')
+    m.assert_called_once_with('%s', encoding='utf-8', errors='surrogateescape')
+    m.return_value.parse.assert_called_once_with('200')
+    assert r is m.return_value.parse.return_value
 
-def test_early_close_and_write_backup(tmpdir):
-    assert pylistdir(tmpdir) == []
-    p = tmpdir.join("file.txt")
-    p.write(TEXT)
-    bkp = tmpdir.join('backup.txt')
-    with pytest.raises(ValueError):
-        with InPlace(str(p), backup=str(bkp)) as fp:
-            for line in fp:
-                fp.write(line.swapcase())
-            fp.close()
-            fp.write('And another thing...\n')
-    assert pylistdir(tmpdir) == ['backup.txt', 'file.txt']
-    assert bkp.read() == TEXT
-    assert p.read() == TEXT.swapcase()
+def test_parse_lines_default_enc(mocker):
+    m = mocker.patch('apachelogs.LogParser', spec=LogParser)
+    r = parse_lines('%s', ['200'])
+    m.assert_called_once_with('%s', encoding='iso-8859-1', errors=None)
+    m.return_value.parse_lines.assert_called_once_with(['200'], False)
+    assert r is m.return_value.parse_lines.return_value
 
-def test_rollback_nobackup(tmpdir):
-    assert pylistdir(tmpdir) == []
-    p = tmpdir.join("file.txt")
-    p.write(TEXT)
-    with InPlace(str(p)) as fp:
-        for line in fp:
-            fp.write(line.swapcase())
-        fp.rollback()
-    assert pylistdir(tmpdir) == ['file.txt']
-    assert p.read() == TEXT
+def test_parse_lines_custom_enc(mocker):
+    m = mocker.patch('apachelogs.LogParser', spec=LogParser)
+    r = parse_lines('%s', ['200'], encoding='utf-8', errors='surrogateescape')
+    m.assert_called_once_with('%s', encoding='utf-8', errors='surrogateescape')
+    m.return_value.parse_lines.assert_called_once_with(['200'], False)
+    assert r is m.return_value.parse_lines.return_value
 
-def test_rollback_and_write_nobackup(tmpdir):
-    assert pylistdir(tmpdir) == []
-    p = tmpdir.join("file.txt")
-    p.write(TEXT)
-    with pytest.raises(ValueError):
-        with InPlace(str(p)) as fp:
-            for line in fp:
-                fp.write(line.swapcase())
-            fp.rollback()
-            fp.write('And another thing...\n')
-    assert pylistdir(tmpdir) == ['file.txt']
-    assert p.read() == TEXT
-
-def test_rollback_backup(tmpdir):
-    assert pylistdir(tmpdir) == []
-    p = tmpdir.join("file.txt")
-    p.write(TEXT)
-    bkp = tmpdir.join('backup.txt')
-    with InPlace(str(p), backup=str(bkp)) as fp:
-        for line in fp:
-            fp.write(line.swapcase())
-        fp.rollback()
-    assert pylistdir(tmpdir) == ['file.txt']
-    assert p.read() == TEXT
-
-def test_rollback_and_write_backup(tmpdir):
-    assert pylistdir(tmpdir) == []
-    p = tmpdir.join("file.txt")
-    p.write(TEXT)
-    bkp = tmpdir.join('backup.txt')
-    with pytest.raises(ValueError):
-        with InPlace(str(p), backup=str(bkp)) as fp:
-            for line in fp:
-                fp.write(line.swapcase())
-            fp.rollback()
-            fp.write('And another thing...\n')
-    assert pylistdir(tmpdir) == ['file.txt']
-    assert p.read() == TEXT
-
-def test_overwrite_backup(tmpdir):
-    assert pylistdir(tmpdir) == []
-    p = tmpdir.join("file.txt")
-    p.write(TEXT)
-    bkp = tmpdir.join('backup.txt')
-    bkp.write('This is not the file you are looking for.\n')
-    with InPlace(str(p), backup=str(bkp)) as fp:
-        for line in fp:
-            fp.write(line.swapcase())
-    assert pylistdir(tmpdir) == ['backup.txt', 'file.txt']
-    assert bkp.read() == TEXT
-    assert p.read() == TEXT.swapcase()
-
-def test_rollback_overwrite_backup(tmpdir):
-    assert pylistdir(tmpdir) == []
-    p = tmpdir.join("file.txt")
-    p.write(TEXT)
-    bkp = tmpdir.join('backup.txt')
-    bkp.write('This is not the file you are looking for.\n')
-    with InPlace(str(p), backup=str(bkp)) as fp:
-        for line in fp:
-            fp.write(line.swapcase())
-        fp.rollback()
-    assert pylistdir(tmpdir) == ['backup.txt', 'file.txt']
-    assert bkp.read() == 'This is not the file you are looking for.\n'
-    assert p.read() == TEXT
-
-def test_prechdir_backup(tmpdir, monkeypatch):
-    assert pylistdir(tmpdir) == []
-    monkeypatch.chdir(tmpdir)
-    p = tmpdir.join("file.txt")
-    p.write(TEXT)
-    with InPlace(str(p), backup='backup.txt') as fp:
-        for line in fp:
-            fp.write(line.swapcase())
-    assert pylistdir(tmpdir) == ['backup.txt', 'file.txt']
-    assert tmpdir.join('backup.txt').read() == TEXT
-    assert p.read() == TEXT.swapcase()
-
-def test_midchdir_backup(tmpdir, monkeypatch):
-    """
-    Assert that changing directory between creating an InPlace object and
-    opening it works
-    """
-    filedir = tmpdir.mkdir('filedir')
-    wrongdir = tmpdir.mkdir('wrongdir')
-    p = filedir.join("file.txt")
-    p.write(TEXT)
-    monkeypatch.chdir(filedir)
-    fp = InPlace('file.txt', backup='backup.txt', delay_open=True)
-    monkeypatch.chdir(wrongdir)
-    assert fp.closed
-    with fp:
-        assert not fp.closed
-        for line in fp:
-            fp.write(line.swapcase())
-        assert not fp.closed
-    assert fp.closed
-    assert os.getcwd() == str(wrongdir)
-    assert pylistdir(wrongdir) == []
-    assert pylistdir(filedir) == ['backup.txt', 'file.txt']
-    assert filedir.join('backup.txt').read() == TEXT
-    assert p.read() == TEXT.swapcase()
-
-def test_postchdir_backup(tmpdir, monkeypatch):
-    """ Assert that changing directory after opening an InPlace object works """
-    filedir = tmpdir.mkdir('filedir')
-    wrongdir = tmpdir.mkdir('wrongdir')
-    p = filedir.join("file.txt")
-    p.write(TEXT)
-    monkeypatch.chdir(filedir)
-    with InPlace('file.txt', backup='backup.txt') as fp:
-        monkeypatch.chdir(wrongdir)
-        for line in fp:
-            fp.write(line.swapcase())
-    assert os.getcwd() == str(wrongdir)
-    assert pylistdir(wrongdir) == []
-    assert pylistdir(filedir) == ['backup.txt', 'file.txt']
-    assert filedir.join('backup.txt').read() == TEXT
-    assert p.read() == TEXT.swapcase()
-
-def test_different_dir_backup(tmpdir, monkeypatch):
-    monkeypatch.chdir(tmpdir)
-    filedir = tmpdir.mkdir('filedir')
-    bkpdir = tmpdir.mkdir('bkpdir')
-    p = filedir.join("file.txt")
-    p.write(TEXT)
-    with InPlace(
-        os.path.join('filedir', 'file.txt'),
-        backup=os.path.join('bkpdir', 'backup.txt')
-    ) as fp:
-        for line in fp:
-            fp.write(line.swapcase())
-    assert pylistdir(filedir) == ['file.txt']
-    assert pylistdir(bkpdir) == ['backup.txt']
-    assert bkpdir.join('backup.txt').read() == TEXT
-    assert p.read() == TEXT.swapcase()
-
-def test_different_dir_file_backup(tmpdir, monkeypatch):
-    """
-    Assert that if the input filepath contains a directory component and the
-    backup path does not, the backup file will be created in the current
-    directory
-    """
-    monkeypatch.chdir(tmpdir)
-    filedir = tmpdir.mkdir('filedir')
-    p = filedir.join("file.txt")
-    p.write(TEXT)
-    with InPlace(
-        os.path.join('filedir', 'file.txt'),
-        backup='backup.txt',
-    ) as fp:
-        for line in fp:
-            fp.write(line.swapcase())
-    assert pylistdir(tmpdir) == ['backup.txt', 'filedir']
-    assert pylistdir(filedir) == ['file.txt']
-    assert tmpdir.join('backup.txt').read() == TEXT
-    assert p.read() == TEXT.swapcase()
-
-def test_backup_dirpath(tmpdir):
-    """
-    Assert that using a path to a directory as the backup path raises an error
-    when closing
-    """
-    assert pylistdir(tmpdir) == []
-    p = tmpdir.join("file.txt")
-    p.write(TEXT)
-    not_a_file = tmpdir.join('not-a-file')
-    not_a_file.mkdir()
-    assert pylistdir(not_a_file) == []
-    fp = InPlace(str(p), backup=str(not_a_file))
-    fp.write('This will be discarded.\n')
-    with pytest.raises(EnvironmentError):
-        fp.close()
-    assert pylistdir(tmpdir) == ['file.txt', 'not-a-file']
-    assert p.read() == TEXT
-    assert pylistdir(not_a_file) == []
-
-def test_backup_nosuchdir(tmpdir):
-    """
-    Assert that using a path to a file in a nonexistent directory as the backup
-    path raises an error when closing
-    """
-    assert pylistdir(tmpdir) == []
-    p = tmpdir.join("file.txt")
-    p.write(TEXT)
-    fp = InPlace(str(p), backup=str(tmpdir.join('nonexistent', 'backup.txt')))
-    fp.write('This will be discarded.\n')
-    with pytest.raises(EnvironmentError):
-        fp.close()
-    assert pylistdir(tmpdir) == ['file.txt']
-    assert p.read() == TEXT
-
-def test_double_open_nobackup(tmpdir):
-    assert pylistdir(tmpdir) == []
-    p = tmpdir.join("file.txt")
-    p.write(TEXT)
-    with InPlace(str(p)) as fp:
-        with pytest.raises(ValueError):
-            fp.open()
-        assert not fp.closed
-        for line in fp:
-            fp.write(line.swapcase())
-        assert not fp.closed
-    assert fp.closed
-    assert pylistdir(tmpdir) == ['file.txt']
-    assert p.read() == TEXT.swapcase()
-
-def test_nonexistent(tmpdir):
-    assert pylistdir(tmpdir) == []
-    p = tmpdir.join("file.txt")
-    fp = InPlace(str(p), delay_open=True)
-    with pytest.raises(EnvironmentError):
-        fp.open()
-    assert pylistdir(tmpdir) == []
-
-def test_with_nonexistent(tmpdir):
-    assert pylistdir(tmpdir) == []
-    p = tmpdir.join("file.txt")
-    with pytest.raises(EnvironmentError):
-        with InPlace(str(p)):
-            assert False
-    assert pylistdir(tmpdir) == []
-
-def test_nonexistent_backup_ext(tmpdir):
-    assert pylistdir(tmpdir) == []
-    p = tmpdir.join("file.txt")
-    fp = InPlace(str(p), backup_ext='~', delay_open=True)
-    with pytest.raises(EnvironmentError):
-        fp.open()
-    assert pylistdir(tmpdir) == []
-
-def test_with_nonexistent_backup_ext(tmpdir):
-    assert pylistdir(tmpdir) == []
-    p = tmpdir.join("file.txt")
-    with pytest.raises(EnvironmentError):
-        with InPlace(str(p), backup_ext='~'):
-            assert False
-    assert pylistdir(tmpdir) == []
-
-def test_reentrant_backup_ext(tmpdir):
-    assert pylistdir(tmpdir) == []
-    p = tmpdir.join("file.txt")
-    p.write(TEXT)
-    with InPlace(str(p), backup_ext='~') as fp:
-        with fp:
-            for line in fp:
-                fp.write(line.swapcase())
-    assert pylistdir(tmpdir) == ['file.txt', 'file.txt~']
-    assert p.new(ext='txt~').read() == TEXT
-    assert p.read() == TEXT.swapcase()
-
-def test_use_and_reenter_backup_ext(tmpdir):
-    assert pylistdir(tmpdir) == []
-    p = tmpdir.join("file.txt")
-    p.write(TEXT)
-    with InPlace(str(p), backup_ext='~') as fp:
-        fp.write(fp.readline().swapcase())
-        with fp:
-            for line in fp:
-                fp.write(line.swapcase())
-    assert pylistdir(tmpdir) == ['file.txt', 'file.txt~']
-    assert p.new(ext='txt~').read() == TEXT
-    assert p.read() == TEXT.swapcase()
-
-def test_var_changes(tmpdir):
-    assert pylistdir(tmpdir) == []
-    p = tmpdir.join("file.txt")
-    p.write(TEXT)
-    with InPlace(str(p), backup_ext='~') as fp:
-        assert not fp.closed
-        assert fp.input is not None
-        assert fp.output is not None
-        assert fp._tmppath is not None
-        assert fp._state == fp.OPEN
-    assert fp.closed
-    assert fp.input is None
-    assert fp.output is None
-    assert fp._tmppath is None
-    assert fp._state == fp.CLOSED
-
-def test_useless_after_close(tmpdir):
-    assert pylistdir(tmpdir) == []
-    p = tmpdir.join("file.txt")
-    p.write(TEXT)
-    with InPlace(str(p), backup_ext='~') as fp:
-        assert not fp.closed
-    assert fp.closed
-    with pytest.raises(ValueError):
-        fp.flush()
-    with pytest.raises(ValueError):
-        iter(fp)
-    with pytest.raises(ValueError):
-        fp.read()
-    with pytest.raises(ValueError):
-        fp.readline()
-    with pytest.raises(ValueError):
-        fp.readlines()
-    with pytest.raises(ValueError):
-        fp.write('')
-    with pytest.raises(ValueError):
-        fp.writelines([''])
-
-def test_rollback_too_late(tmpdir):
-    assert pylistdir(tmpdir) == []
-    p = tmpdir.join("file.txt")
-    p.write(TEXT)
-    with InPlace(str(p), backup_ext='~') as fp:
-        for line in fp:
-            fp.write(line.swapcase())
-    with pytest.raises(ValueError):
-        fp.rollback()
-    assert pylistdir(tmpdir) == ['file.txt', 'file.txt~']
-    assert p.new(ext='txt~').read() == TEXT
-    assert p.read() == TEXT.swapcase()
-
-def test_rollback_too_early(tmpdir):
-    assert pylistdir(tmpdir) == []
-    p = tmpdir.join("file.txt")
-    p.write(TEXT)
-    fp = InPlace(str(p), backup_ext='~', delay_open=True)
-    with pytest.raises(ValueError):
-        fp.rollback()
-    assert fp.closed
-    assert pylistdir(tmpdir) == ['file.txt']
-    assert p.read() == TEXT
-    with fp:
-        for line in fp:
-            fp.write(line.swapcase())
-    assert pylistdir(tmpdir) == ['file.txt', 'file.txt~']
-    assert p.new(ext='txt~').read() == TEXT
-    assert p.read() == TEXT.swapcase()
+def test_case_insensitive_dicts():
+    entry = parse(
+        "%{USER}e|%{Content-Type}i|%{flavor}C|%{ssl-secure-reneg}n"
+        "|%{Content-Type}o|%{Foo}^ti|%{Baz}^to|%{HTTP_USER_AGENT}x|%{errcode}c",
+        "www-data|application/x-www-form-urlencoded|chocolate|1|text/html"
+        "|Bar|Quux|Web \"Browsy\" Browser|-",
+    )
+    assert entry.env_vars == {"USER": "www-data"}
+    assert entry.env_vars["USER"] \
+        == entry.env_vars["user"] \
+        == entry.env_vars["User"] == "www-data"
+    assert entry.headers_in == {
+        "Content-Type": "application/x-www-form-urlencoded"
+    }
+    assert entry.headers_in["Content-Type"] \
+        == entry.headers_in["CONTENT-TYPE"] \
+        == entry.headers_in["content-type"] \
+        == "application/x-www-form-urlencoded"
+    assert entry.cookies == {"flavor": "chocolate"}
+    assert entry.cookies["flavor"] \
+        == entry.cookies["FLAVOR"] \
+        == entry.cookies["Flavor"] == "chocolate"
+    assert entry.notes == {"ssl-secure-reneg": "1"}
+    assert entry.notes["ssl-secure-reneg"] \
+        == entry.notes["SSL-SECURE-RENEG"] \
+        == entry.notes["SSL-Secure-Reneg"] == "1"
+    assert entry.headers_out == {"Content-Type": "text/html"}
+    assert entry.headers_out["Content-Type"] \
+        == entry.headers_out["CONTENT-TYPE"] \
+        == entry.headers_out["content-type"] == "text/html"
+    assert entry.trailers_in == {"Foo": "Bar"}
+    assert entry.trailers_in["Foo"] \
+        == entry.trailers_in["FOO"] \
+        == entry.trailers_in["foo"] == "Bar"
+    assert entry.trailers_out == {"Baz": "Quux"}
+    assert entry.trailers_out["Baz"] \
+        == entry.trailers_out["BAZ"] \
+        == entry.trailers_out["baz"] == "Quux"
+    assert entry.variables == {"HTTP_USER_AGENT": "Web \"Browsy\" Browser"}
+    assert entry.variables["HTTP_USER_AGENT"] \
+        == entry.variables["http_user_agent"] \
+        == entry.variables["Http_User_Agent"] == "Web \"Browsy\" Browser"
+    assert entry.cryptography == {"errcode": None}
+    assert entry.cryptography["errcode"] \
+        is entry.cryptography["ERRCODE"] \
+        is entry.cryptography["Errcode"] is None

@@ -1,41 +1,35 @@
-- Somewhere document exactly how the module works with regards to creating
-  temporary files and moving things around
+- Research the following:
+    - Is it valid to expect `%h`, `%v`, and `%V` to always be hostnames (or an
+      IP address, for `%h`)?  Failing that, can they at least be expected to
+      not contain whitespace?
+    - Check whether `%a` can be a comma-separated list of IP addresses (in case
+      of proxying/X-Forwarded-For and the like)
 
-- Write more tests:
-    - copying file mode, timestamps, owner, & group
-    - timestamp (and other file attributes?) preservation on rollback
-    - newlines
-    - every I/O method
-        - flush
-        - readall
-    - Assert that the tempfile is created in the right directory
-    - `delay_open=True`
-    - nontrivial (i.e., containing `/` and/or `..`) relative filepaths
-    - `backup_ext` containing a directory separator?
-    - `backup_ext` when the filepath contains a directory separator
-    - relative vs. absolute paths?
-    - context manager non-reusability
-    - nonwritable directories
-    - symlinks pointing to nonexistent files
+- Test every directive
 
-- Add options for:
-    - preserving the tempfile if an error was raised
-    - Don't error if moving the input file to the backup location fails?
-    - `rollback_on_error=True`
-    - `create=False`: If true and the input file doesn't exist, act as though
-      it's simply empty
-    - not resolving symbolic links?
+- For each directive that doesn't match what one would naïvely expect, add a
+  comment explaining why (including what versions of Apache the behavior is
+  observed in)
 
-- When the filename is `-`, read stdin and write to stdout?
-    - Only support this when an `allow_dash=True` argument is given?
-- Copy ACLs etc.
-- Make `InPlace` inherit one of the ABCs in `io`?
-- How should exceptions raised by `_close` be handled?
-- Should calling `rollback` while closed be a no-op?
-- Use `shutil.move` instead of `os.rename` in order to handle cross-filesystem
-  moves?  (But then strange things will happen when moving to a directory)
-- Add a `commit` method that overwrites the input file with the output file's
-  current contents but leaves the instance open afterwards?
-- Give `InPlace` a decent `__repr__`s
-- Make the context manager reusable
-- Add a `seekable()` method that returns `False`?
+- Include instructions in the documentation for adding your own format
+  directives (including `%{*}t` sub-directives)
+    - Instead of having users modify stuff directly, provide functions like
+      `register_plain_directive(directive, name, pattern, converter)`
+        - Add a `DirectiveRegistry` class with methods for registering new
+          directives so that we aren't modifying the global state?
+            - Make the LogParser constructor "private" and have instances
+              instead be constructed through a method of DirectiveRegistry,
+              with a global function version provided that uses a private
+              registry of default values only?
+                - Alternatively, give the LogParser constructor a
+                  `registry=None` argument that defaults to the private default
+                  registry?
+            - Give the DirectiveRegistry class `parse()` and `parse_lines()`
+              methods, with the global functions operating on a private
+              registry of default values only
+
+- Add a console script entry point: `apachelogs2json [--format <format>]
+  [<file> ...]`
+    - The special names "combined" and "common" (et alii?) are accepted as
+      formats.
+    - Default format: combined?  Guess at combined or common?

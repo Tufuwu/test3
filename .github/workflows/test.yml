@@ -9,11 +9,11 @@ on:
       - main
 
 jobs:
-  build:
-    runs-on: ubuntu-16.04
+  test:
+    runs-on: ubuntu-18.04
     strategy:
       matrix:
-        python-version: ['2.7', '3.5', '3.6', '3.7', '3.8', '3.9', 'pypy', 'pypy3']
+        python-version: ['3.5', '3.6', '3.7', '3.8', '3.9', 'pypy3']
 
     steps:
     - uses: actions/checkout@v2
