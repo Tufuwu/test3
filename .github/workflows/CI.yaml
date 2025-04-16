@@ -78,7 +78,7 @@ jobs:
       if: matrix.os == 'macOS-latest'
       shell: bash -l {0}
       run: |
-        conda install -c anaconda gfortran_osx-64
+        brew install gcc
         
     - name: Install package
       # conda setup requires this special shell
