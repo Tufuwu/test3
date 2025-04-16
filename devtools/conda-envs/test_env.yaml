@@ -1,0 +1,27 @@
+name: test
+channels:
+  - defaults
+  - conda-forge
+dependencies:
+    # Base depends
+  - python
+  - pip
+  - numpy
+  - scipy
+  - numba
+  - cython
+
+    # Testing
+  - pytest
+  - pytest-cov
+  - codecov
+
+   # Documentation
+  - sphinx
+  - sphinx_rtd_theme
+  - sphinx-argparse
+
+    # Pip-only installs
+  #- pip:
+  #  - codecov
+
