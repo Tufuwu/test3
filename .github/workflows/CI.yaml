@@ -68,6 +68,10 @@ jobs:
         auto-update-conda: false
         auto-activate-base: false
         show-channel-urls: true
+        condarc: |
+          channels:
+            - conda-forge
+
 
     - name: Testing Dependencies
       shell: bash -l {0}
