@@ -1,99 +1,63 @@
-"""
-DESPASITO
-DESPASITO: Determining Equilibrium State and Parametrization Application for SAFT, Intended for Thermodynamic Output
-"""
-import sys
+# -*- coding: utf-8 -*-
+#
+# setup.py
+#
+# This file is part of NEST.
+#
+# Copyright (C) 2004 The NEST Initiative
+#
+# NEST is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# NEST is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+
 import os
-from setuptools import find_packages
-import versioneer
-from numpy.distutils.core import Extension, setup
-from numpy.distutils.fcompiler import get_default_fcompiler
-import numpy as np
-import glob
+import sys
+from setuptools import setup, find_packages
 
-short_description = __doc__.split("\n")
-fpath = os.path.join("despasito", "equations_of_state", "saft", "compiled_modules")
-extensions = []
+assert sys.version_info.major >= 3, "Python 3 is required to run PyNESTML"
 
-if sys.version_info.minor > 8:
-    raise ValueError(
-        "DESPASITO cannot run on python versions greater than 3.8 due to incompadibilities between python 3.9 and numba."
-    )
+with open("requirements.txt") as f:
+    requirements = f.read().splitlines()
 
-try:
-    from Cython.Build import cythonize
-    flag_cython = True
-except:
-    print('Cython not available on your system. Proceeding without C-extentions.')
-    flag_cython = False
-
-if flag_cython:
-    cython_list = glob.glob(os.path.join(fpath,"*.pyx"))
-    for cyext in cython_list:
-        name = os.path.split(cyext)[-1].split(".")[-2]
-        cy_ext_1 = Extension(name=name, sources=[cyext], include_dirs=[fpath])
-        extensions.extend(cythonize([cy_ext_1],compiler_directives={'language_level': 3}))
-
-# from https://github.com/pytest-dev/pytest-runner#conditional-requirement
-needs_pytest = {"pytest", "test", "ptr"}.intersection(sys.argv)
-pytest_runner = ["pytest-runner"] if needs_pytest else []
-
-try:
-    with open("README.md", "r") as handle:
-        long_description = handle.read()
-except:
-    long_description = "\n".join(short_description[2:])
-
-if get_default_fcompiler() != None:
-    fortran_list = glob.glob(os.path.join(fpath, "*.f90"))
-    for fext in fortran_list:
-        name = os.path.split(fext)[-1].split(".")[-2]
-        ext1 = Extension(name=name, sources=[fext], include_dirs=[fpath])
-        extensions.append(ext1)
-else:
-    print("Fortran compiler is not found, default will use numba")
-
-# try Extension and compile
-# !!!! Note that we have fortran modules that need to be compiled with "f2py3 -m solv_assoc -c solve_assoc.f90" and the same with solve_assoc_matrix.f90
+data_files = []
+for dir_to_include in ["doc", "models", "extras"]:
+    for dirname, dirnames, filenames in os.walk(dir_to_include):
+        fileslist = []
+        for filename in filenames:
+            fullname = os.path.join(dirname, filename)
+            fileslist.append(fullname)
+        data_files.append((dirname, fileslist))
 
 setup(
-    # Self-descriptive entries which should always be present
-    name="despasito",
-    author="Jennifer A Clark",
-    author_email="jennifer.clark@gnarlyoak.com",
-    description=short_description[0],
-    long_description=long_description,
-    long_description_content_type="text/markdown",
-    version=versioneer.get_version(),
-    cmdclass=versioneer.get_cmdclass(),
-    license="BSD-3-Clause",
-    # Which Python importable modules should be included when your package is installed
-    # Handled automatically by setuptools. Use 'exclude' to prevent some specific
-    # subpackage(s) from being added, if needed
+    name="NESTML",
+    version="3.1-post-dev",
+    description="NESTML is a domain specific language that supports the specification of neuron models in a"
+                " precise and concise syntax, based on the syntax of Python. Model equations can either be given"
+                " as a simple string of mathematical notation or as an algorithm written in the built-in procedural"
+                " language. The equations are analyzed by NESTML to compute an exact solution if possible or use an "
+                " appropriate numeric solver otherwise.",
+    license="GNU General Public License v2.0",
+    url="https://github.com/nest/nestml",
     packages=find_packages(),
-    # Optional include package data to ship with your package
-    # Customize MANIFEST.in if the general case does not suit your needs
-    # Comment out this line to prevent the files from being packaged with your software
-    include_package_data=True,
-    # Allows `setup.py test` to work correctly with pytest
-    setup_requires=["numpy", "scipy"] + pytest_runner,
-    ext_package=fpath,
-    ext_modules=extensions,
-    extras_require={"extra": ["pytest", "numba", "cython"]},
-    # Additional entries you may want simply uncomment the lines you want and fill in the data
-    # url='http://www.my_package.com',  # Website
-    install_requires=[
-        "numpy",
-        "scipy",
-        "numba",
-        "cython",
-    ],  # Required packages, pulls from pip if needed; do not use for Conda deployment
-    # platforms=['Linux',
-    #            'Mac OS-X',
-    #            'Unix',
-    #            'Windows'],            # Valid platforms your code works on, adjust to your flavor
-    python_requires=">=3.6, <=3.8.8",          # Python version restrictions
+    package_data={"pynestml": ["codegeneration/resources_nest/*.jinja2",
+                               "codegeneration/resources_nest/setup/*.jinja2",
+                               "codegeneration/resources_nest/directives/*.jinja2"]},
+    data_files=data_files,
+    entry_points={
+        "console_scripts": [
+            "nestml = pynestml.frontend.pynestml_frontend:main",
+        ],
+    },
 
-    # Manual control if final package is compressible or not, set False to prevent the .egg from being made
-    zip_safe=False,
+    install_requires=requirements,
+    test_suite="tests",
 )

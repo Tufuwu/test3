@@ -1,50 +1,33 @@
-DESPASITO
-==============================
-[//]: # (Badges)
-[![License](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
-[![GitHub Actions Build Status](https://github.com/jaclark5/despasito/workflows/CI/badge.svg)](https://github.com/jaclark5/despasito/actions?query=workflow%3ACI)
-[![codecov](https://codecov.io/gh/jaclark5/DESPASITO/branch/master/graph/badge.svg)](https://codecov.io/gh/jaclark5/DESPASITO/branch/master)
-[![Documentation Status](https://readthedocs.org/projects/despasito/badge/?version=latest)](https://despasito.readthedocs.io)
-[![Language grade: Python](https://img.shields.io/lgtm/grade/python/g/jaclark5/despasito.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/jaclark5/despasito/context:python)
+[![astropy](http://img.shields.io/badge/powered%20by-AstroPy-orange.svg?style=flat)](http://www.astropy.org/) [![Build Status](https://travis-ci.org/nest/nestml.svg?branch=master)](https://travis-ci.org/nest/nestml)
 
-DESPASITO: Determining Equilibrium State and Parametrization Application for SAFT, Intended for Thermodynamic Output
+# NESTML: The NEST Modelling Language
 
-**WARNING!** This package is not ready for distribution.
+NESTML is a domain-specific language that supports the specification of neuron models in a precise and concise syntax, based on the syntax of Python. Model equations can either be given as a simple string of mathematical notation or as an algorithm written in the built-in procedural language. The equations are analyzed by the associated toolchain, written in Python, to compute an exact solution if possible or use an appropriate numeric solver otherwise.
 
-First open-source application for thermodynamic calculations and parameter fitting for the Statistical Associating Fluid Theory (SAFT) EOS and SAFT-𝛾-Mie coarse-grained simulations. This software has two primary facets. 
+## Documentation
 
-The first facet is a means to evaluate the SAFT-𝛾-Mie EOS for binary VLE. This framework allows easy implementation of more advanced thermodynamic calculations as well as additional forms of SAFT or other equations of state. Feel free to contribute!
+Full documentation can be found at:
 
-The second facet is parameterization, not only of the equation of state (EOS) but also for simulations. The SAFT-𝛾-Mie formalism is an attractive source of simulation parameters as it offers a means to directly link the intermolecular potential with thermodynamic properties. This application has the ability to fit EOS parameters to experimental thermodynamic data in a top down approach for self and cross interaction parameters. We also process an expanded multipole mixing rule for cross interaction parameters. It should be noted that it is recommended to fine tune simulation parameters in an iterative fashion, but previous works have found close agreement with those fit to the EOS.
+<pre><p align="center"><a href="https://nestml.readthedocs.io/">https://nestml.readthedocs.io/</a></p></pre>
 
-Installation
-------------
-**NOTE:** DESPASITO is not yet available conda-forge, but it is available with pip.
+## Directory structure
 
-**Prerequisites**:
-  * [NumPy](https://numpy.org): needed for running setup (distutils). Follow instructions outlined [here](https://docs.scipy.org/doc/numpy/user/install.html) for installation.
-  * [SetupTools](https://pypi.org/project/setuptools): needed for running setup (find_packages). Follow instructions outlined [here](https://pythonhosted.org/an_example_pypi_project/setuptools.html) for installation. 
+`models` - Example neuron models in NESTML format.
 
-**Step 1:** Install the prerequisites listed above.
+`pynestml` - The source code of the PyNESTML toolchain.
 
-**Step 2:** Install using pip with ``pip install -i https://test.pypi.org/simple/ despasito``
+`tests` - A collection of tests for testing of the toolchain's behavior.
 
-**NOTE** If [pip](https://pip.pypa.io/en/stable/) is unavailable, follow the instructions outlined [here](https://pip.pypa.io/en/stable/installing/) for installation. Alternatively, download the master branch from our github page as a zip file, or clone it with git via ``git clone https://github.com/jaclark5/despasito`` in your working directory. Install DESPASITO locally from the working directory with ``python setup.py install --user``.
+`doc` - The documentation of the modeling language NESTML as well as processing toolchain PyNESTML.
 
-Command Line Use
-----------------
-This package has been primarily designed as a command line tool but can be used as an imported package.
+`extras` - Miscellaneous development tools, editor syntax highlighting rules, etc.
 
-In any directory with the appropriate .json input files, run DESPASITO with ``python -m despasito input.json``
+## License
 
-See [examples](despasito/examples) directory for input file structures.
+Copyright (C) 2017 The NEST Initiative
 
-### Copyright
+NESTML is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 2 of the License, or (at your option) any later version.
 
-Copyright (c) 2019, Jennifer A Clark
+NESTML is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
 
-
-#### Acknowledgements
- 
-Project based on the 
-[Computational Molecular Science Python Cookiecutter](https://github.com/molssi/cookiecutter-cms) version 1.0.
+You should have received a copy of the GNU General Public License along with NESTML. If not, see <http://www.gnu.org/licenses/>.
