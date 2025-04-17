@@ -68,7 +68,7 @@ jobs:
           tox --parallel --develop
       - name: Archive tox logs on failure
         if: failure()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: tox-logs
           path: tox_logs/*
