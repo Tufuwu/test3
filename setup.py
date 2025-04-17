@@ -1,124 +1,51 @@
 #!/usr/bin/env python
-"""Setup script to make PUDL directly installable with pip."""
-
+# -*- coding: utf-8 -*-
+import io
 import os
-from pathlib import Path
+import re
 
-from setuptools import find_packages, setup
+from setuptools import setup
 
-install_requires = [
-    "addfips",
-    "coloredlogs",
-    "contextily",
-    "datapackage>=1.11",
-    "dbfread @ git+https://github.com/catalyst-cooperative/dbfread.git#egg=dbfread-2.1.0",
-    "geopandas>=0.8.0",
-    "goodtables>=2.4.2",
-    "matplotlib",
-    "networkx>=2.2",
-    "numpy",
-    "pandas>=1.1",
-    "pyarrow<1.0.0",
-    "pyyaml",
-    "scikit-learn>=0.20",
-    "scipy",
-    "sqlalchemy>=1.3.0",
-    "tableschema>=1.12.3",
-    "tableschema-sql>=1.3.1",
-    "timezonefinder",
-    "tqdm",
-    "xlsxwriter",
-]
+with open(os.path.join(os.path.dirname(__file__), 'README.md')) as f:
+    readme = f.read()
 
-# We are installing the PUDL module to build the docs, but the C libraries
-# required to build snappy aren"t available on RTD, so we need to exclude it
-# from the installed dependencies here, and mock it for import in docs/conf.py
-# using the autodoc_mock_imports parameter:
-if not os.getenv("READTHEDOCS"):
-    install_requires.append("python-snappy")
+with io.open('unityparser/__init__.py', 'rt', encoding='utf8') as f:
+    version = re.search(
+        r'^__version__\s*=\s*[\'"]([^\'"]*)[\'"]',
+        f.read(),
+        re.MULTILINE
+    ).group(1)
 
-doc_requires = [
-    "doc8",
-    "sphinx>=3.0",
-    "sphinx-issues",
-    "sphinx_rtd_theme",
-]
+requirements = {'base': None, 'test': None, 'ci': None}
+for k in requirements:
+    with open("requirements/{}.txt".format(k)) as f:
+        requirements[k] = list(filter(lambda x: bool(x.strip()) and not x.strip().startswith('-r '), f.read().splitlines()))
 
-test_requires = [
-    "bandit",
-    "coverage",
-    "doc8",
-    "flake8",
-    "flake8-docstrings",
-    "flake8-builtins",
-    "nbval",
-    "pep8-naming",
-    "pre-commit",
-    "pydocstyle",
-    "pytest",
-    "pytest-cov",
-    "seaborn",
-]
-
-
-readme_path = Path(__file__).parent / "README.rst"
-long_description = readme_path.read_text()
-
+# allow setup.py to be run from any path
+os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 
 setup(
-    name="catalystcoop.pudl",
-    description="An open data processing pipeline for public US utility data.",
-    long_description=long_description,
-    long_description_content_type="text/x-rst",
-    use_scm_version=True,
-    author="Catalyst Cooperative",
-    author_email="pudl@catalyst.coop",
-    maintainer="Zane A. Selvans",
-    maintainer_email="zane.selvans@catalyst.coop",
-    url="https://catalyst.coop/pudl",
-    project_urls={
-        "Source": "https://github.com/catalyst-cooperative/pudl",
-        "Documentation": "https://catalystcoop-pudl.readthedocs.io",
-        "Issue Tracker": "https://github.com/catalyst-cooperative/pudl/issues",
-    },
-    license="MIT",
-    keywords=[
-        "electricity", "energy", "data", "analysis", "mcoe", "climate change",
-        "finance", "eia 923", "eia 860", "ferc", "form 1", "epa ampd",
-        "epa cems", "coal", "natural gas", "eia 861", "ferc 714"],
-    python_requires=">=3.8",
-    setup_requires=["setuptools_scm"],
-    install_requires=install_requires,
-    extras_require={
-        "doc": doc_requires,
-        "test": test_requires,
-    },
+    name='unityparser',
+    version=version,
+    description='A python library to parse and dump Unity YAML files',
+    long_description=readme,
+    long_description_content_type='text/markdown',
+    author='Ricard Valverde',
+    author_email='ricard.valverde@socialpoint.es',
+    url='https://github.com/socialpoint-labs/unity-yaml-parser',
+    license='MIT License',
+    python_requires='>=3.6.0',
+    packages=['unityparser'],
+    keywords=['unity', 'yaml', 'parser', 'serializer'],
+    install_requires=requirements.pop('base'),
+    extras_require=requirements,
     classifiers=[
-        "Development Status :: 3 - Alpha",
-        "Environment :: Console",
-        "Intended Audience :: Science/Research",
-        "Intended Audience :: Developers",
-        "License :: OSI Approved :: MIT License",
-        "Natural Language :: English",
-        "Operating System :: OS Independent",
-        "Programming Language :: Python :: 3.8",
-        "Topic :: Scientific/Engineering",
-    ],
-    packages=find_packages("src"),
-    package_dir={"": "src"},
-    # package_data is data that is deployed within the python package on the
-    # user"s system. setuptools will get whatever is listed in MANIFEST.in
-    include_package_data=True,
-    # This defines the interfaces to the command line scripts we"re including:
-    entry_points={
-        'console_scripts': [
-            'pudl_datastore = pudl.workspace.datastore:main',
-            'pudl_setup = pudl.workspace.setup_cli:main',
-            'pudl_etl = pudl.cli:main',
-            'datapkg_to_sqlite = pudl.convert.datapkg_to_sqlite:main',
-            'ferc1_to_sqlite = pudl.convert.ferc1_to_sqlite:main',
-            'epacems_to_parquet = pudl.convert.epacems_to_parquet:main',
-            'pudl_territories = pudl.analysis.service_territory:main',
-        ]
-    },
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3 :: Only',
+        'License :: OSI Approved :: MIT License',
+        'Operating System :: OS Independent',
+        'Development Status :: 3 - Alpha',
+        'Intended Audience :: Developers',
+        'Topic :: Software Development :: Libraries :: Python Modules'
+    ]
 )
