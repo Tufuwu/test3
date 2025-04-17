@@ -1,0 +1,67 @@
+name: pudl-dev
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - autopep8            # dev
+  - bandit              # dev
+  - coloredlogs         # base
+  - contextily          # base (OSM basemap) TODO: Is this needed?
+  - coverage            # dev
+  - dask                # user
+  - dask-labextension   # user (allows dask control within JupyterLab)
+  - datapackage>=1.11.0 # base We depend on features introduced in v1.9.0
+  - doc8                # dev
+  - flake8              # dev
+  - flake8-colors       # dev
+  - flake8-docstrings   # dev
+  - flake8-builtins     # dev
+  - geopandas>=0.8.0    # base
+  - goodtables>=2.4.2   # base
+  - ipdb                # dev
+  - isort>=5.0          # dev
+  - jedi                # dev
+  - jupyter             # user
+  - jupyterlab          # user
+  - lxml                # dev -- used for pd.read_html
+  - matplotlib          # base
+  - nbdime              # dev
+  - nbval               # dev
+  - networkx>=2.2       # base We depend on features introduced in v2.2
+  - numpy               # base
+  - pandas>=1.1         # base Extensive nullable data type use
+  - pandoc              # dev
+  - pdbpp               # dev
+  - pep8-naming         # dev
+  - pip                 # N/A
+  - pre_commit          # dev
+  - pyarrow<1.0.0       # base Some issue with schema definitions in 1.0.0
+  - pydocstyle          # dev
+  - pygeos              # user (speeds up geopandas operations)
+  - pysal               # user (required for making maps w/ geopandas)
+  - pytest              # dev
+  - pytest-cov          # dev
+  - python>=3.8         # N/A zipfile.Path() use requires 3.8
+  - python-graphviz     # user (for use with dask)
+  - python-snappy       # base
+  - pyyaml              # base
+  - seaborn             # dev
+  - scikit-learn>=0.20  # base pandas integration added in v0.20
+  - scipy               # base
+  - setuptools_scm      # dev
+  - sphinx>=3.0         # dev
+  - sphinx-issues       # dev
+  - sphinx_rtd_theme    # dev
+  - sqlalchemy>=1.3.0   # base Security issues below v1.3.0
+  - tableschema>=1.12   # base
+  - tableschema-sql>=1.1.0 # base
+  - timezonefinder      # base
+  - tox                 # dev
+  - tqdm                # base TODO: find usage. Does it need to be in base?
+  - twine               # dev
+  - xlsxwriter          # base
+  - pip:
+    - addfips
+    - git+https://github.com/catalyst-cooperative/dbfread/
+    - recordlinkage     # dev for now... base if it ends up in ETL
+    - fredapi           # dev
