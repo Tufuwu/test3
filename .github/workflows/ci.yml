@@ -12,7 +12,7 @@ jobs:
   commitlint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - uses: wagoid/commitlint-github-action@v4
@@ -34,7 +34,7 @@ jobs:
         shell: bash -l {0}
     steps:
       - name: Checkout project
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
       - name: Export workspace path
         run: |
           echo $GITHUB_WORKSPACE >> $GITHUB_PATH
@@ -43,7 +43,7 @@ jobs:
         run: |
            echo "::set-output name=MD5_CACHE_KEY::$(${{ matrix.md5_command }} tox.ini setup.py requirements/*.txt | ${{ matrix.md5_command }} | head -c 32)"
       - name: Restore cache
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         id: restore-cache
         env:
           CACHE_NUMBER: 0 # increase this number to force invalidate cache
