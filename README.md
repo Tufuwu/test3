@@ -1,99 +1,138 @@
-# Unity YAML Parser #
+# Datatable View
 
-This project aims to provide a python3 API to load and dump Unity YAML 
-files(configurations, prefabs, scenes, serialized data, etc) in the exact same 
-format the internal Unity YAML serializer does.
+This package is used in conjunction with the jQuery plugin [DataTables](http://datatables.net/), and supports state-saving detection with [fnSetFilteringDelay](http://datatables.net/plug-ins/api).  The package consists of a class-based view, and a small collection of utilities for rendering table data from models.
 
-Using this API you will be able to easily manipulate(as python objects) 
-Unity YAML files and save them just the same, keeping the YAML structure
-exactly as Unity does. This has the advantages of, first not having to
-configure PyYAML beforehand to deal with Unity YAMLs, and second as the
-modified file keeps the same structure and formatting that Unity does, 
-when the YAML file is loaded by Unity it won't make formatting changes 
-to it that will make any VCS report unexpected file changes.
+[![PyPI Downloads][pypi-dl-image]][pypi-dl-link]
+[![PyPI Version][pypi-v-image]][pypi-v-link]
+[![Build Status][travis-image]][travis-link]
+[![Documentation Status][rtfd-image]][rtfd-link]
 
-## Installing ##
+[pypi-dl-link]: https://pypi.python.org/pypi/django-datatable-view
+[pypi-dl-image]: https://img.shields.io/pypi/dm/django-datatable-view.png
+[pypi-v-link]: https://pypi.python.org/pypi/django-datatable-view
+[pypi-v-image]: https://img.shields.io/pypi/v/django-datatable-view.png
+[travis-link]: https://travis-ci.org/pivotal-energy-solutions/django-datatable-view
+[travis-image]: https://travis-ci.org/pivotal-energy-solutions/django-datatable-view.svg?branch=traviscl
+[rtfd-link]: http://django-datatable-view.readthedocs.org/en/latest/?badge=latest
+[rtfd-image]: https://readthedocs.org/projects/django-datatable-view/badge/?version=latest
 
-Install and update using [pip](https://pip.pypa.io/en/stable/quickstart/):
-````
-pip install -U unityparser
-````
-## A Simple Example ##
-````python
-from unityparser import UnityDocument
+Dependencies:
 
-# Loading and modifying a config file with a single YAML document
-project_settings_file = 'UnityProject/ProjectSettings/ProjectSettings.asset'
-doc = UnityDocument.load_yaml(project_settings_file)
-ProjectSettings = doc.entry
-ProjectSettings.scriptingDefineSymbols[1] += ';CUSTOM_DEFINE'
-ProjectSettings.scriptingDefineSymbols[7] = ProjectSettings.scriptingDefineSymbols[1]
-doc.dump_yaml()
+* Python 3.8 or later
+* [Django](http://www.djangoproject.com/) >= 2.2
+* [dateutil](http://labix.org/python-dateutil) library for flexible, fault-tolerant date parsing.
+* [jQuery](https://jquery.com/) >= 2
+* [dataTables.js](https://datatables.net/) >= 1.10
 
-# You can also load YAML files with multiple documents and filter for a single or multiple entries
-hero_prefab_file = 'UnityProject/Assets/Prefabs/Hero.prefab'
-doc = UnityDocument.load_yaml(hero_prefab_file)
-# accessing all entries
-doc.entries
-# [<UnityClass>, <UnityClass>, ...]
-# accessing first entry
-doc.entry
-# <UnityClass>
-# get single entry uniquely defined by filters
-entry = doc.get(class_name='MonoBehaviour', attributes=('m_MaxHealth',))
-entry.m_MaxHealth += 10
-# get multiple entries matching a filter
-entries = doc.filter(class_names=('MonoBehaviour',), attributes=('m_Enabled',))
-for entry in entries:
-    entry.m_Enabled = 1
-doc.dump_yaml()
-# calling entry method for a doc with multiple document will return the first one
-print(doc.entry.__class__.__name__)
-# 'Prefab'
-````
+# Getting Started
 
-## Classes ##
+Install the package:
 
-### unityparser.UnityDocument ###
+```bash
+pip install django-datatable-view
+```
 
-Main class to load and dump files.
+Add to ``INSTALLED_APPS`` (so default templates and js can be discovered), and use the ``DatatableView`` like a Django ``ListView``:
 
-#### unityparser.UnityDocument.load_yaml(file_path) ####
+```python
+# settings.py
+INSTALLED_APPS = [
+    'datatableview',
+    # ...
+]
 
-_**Classmethod**_: Load the given YAML file_path and return a UnityDocument file
 
-#### unityparser.UnityDocument.dump_yaml(file_path=None) ####
+# views.py
+from datatableview.views import DatatableView
+class ZeroConfigurationDatatableView(DatatableView):
+    model = MyModel
+```
 
-Dump the UnityDocument to the previously loaded file location(overwrite). 
-If *file_path* argument is provided, dump the document to the specified location instead.
+Use the ``{{ datatable }}`` provided in the template context to render the table and initialize from server ajax:
 
-This method **keeps line endings** of the original file when it dumps.
+```html
+<!-- myapp/mymodel_list.html -->
 
-#### unityparser.UnityDocument.entries ####
+<!-- Load dependencies -->
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"
+        integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+        crossorigin="anonymous"></script>
+<link rel="stylesheet" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css">
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
 
-_**Property**_: Return the _list_ of documents found in the YAML. The objects in the _list_ are of _types_ Class named after the serialized Unity class(ie. MonoBehaviour, GameObject, Prefab, CustomName, etc).
+<!-- Load js for initializing tables via their server-side options -->
+<script type="text/javascript" charset="utf8" src="{% static 'js/datatableview.js' %}"></script>
+<script type="text/javascript">
+    $(function(){
+        datatableview.initialize($('.datatable'));
+    });
+</script>
 
-#### unityparser.UnityDocument.entry ####
+<!-- Render the table skeleton, includes the .datatable class for the on-ready initializer. -->
+{{ datatable }}
+```
 
-_**Property**_: Return the first document in the YAML, useful if there is only one. Equivalent of doing `UnityDocument.entries[0]`.
+# Features at a glance
 
-#### unityparser.UnityDocument.get(class_name=None, attributes=None) ####
+* ``DatatableView``, a drop-in replacement for ``ListView`` that allows options to be specified for the datatable that will be rendered on the page.
+* ``MultipleDatatableView`` for configurating multiple Datatable specifications on a single view
+* ``ModelForm``-like declarative table design.
+* Support for ``ValuesQuerySet`` execution mode instead of object instances
+* Queryset caching between requests
+* Customizable table headers
+* Compound columns (columns representing more than one model field)
+* Columns backed by methods or callbacks instead of model fields
+* Easy related fields
+* Automatic search and sort support
+* Total control over cell contents (HTML, processing of raw values)
+* Search data fields that aren't present on the table
+* Support for DT_RowData
+* Customization hook for full JSON response object
+* Drop-in x-editable support, per-column
+* Customizable table templates
+* Easy Bootstrap integration
+* Allows all normal dataTables.js and x-editable Javascript options
+* Small library of common column markup processors
+* Full test suite
 
-_**Method**_: Return a single entry uniquely matching the given filters. Must exist exactly one.
+# Documentation and Live Demos
+Read the module documentation at http://django-datatable-view.readthedocs.org.
 
-#### unityparser.UnityDocument.filter(class_names=None, attributes=None) ####
+A public live demo server is in the works.  For version 0.8, we will continue to keep the live demo site alive at http://django-datatable-view.appspot.com/  Please note that 0.8 does not reflect the current state or direction of the project.
 
-_**Method**_: Return a list of entries matching the given filters. Many or none can be matched.
+You can run the live demos locally from the included example project, using a few common setup steps.
 
-### unityparser.loader.UnityLoader ###
+```bash
+$ git clone https://github.com/pivotal-energy-solutions/django-datatable-view.git
+$ cd django-datatable-view
+$ mkvirtualenv datatableview
+(datatableview)$ pip install -r requirements.txt
+(datatableview)$ datatableview/tests/example_project/manage.py migrate
+(datatableview)$ datatableview/tests/example_project/manage.py loaddata initial_data
+(datatableview)$ datatableview/tests/example_project/manage.py runserver
+```
 
-PyYAML's Loader class, can be used directly with PyYAML to customise loading. 
+The example project is configured to use a local sqlite3 database, and relies on the ``django-datatable-view`` app itself, which is made available in the python path by simply running the project from the distributed directory root.
 
-### unityparser.dumper.UnityDumper ###
 
-PyYAML's Dumper class, can be used directly with PyYAML to customise dumping. 
+## Authors
 
-## Considerations ##
+* Autumn Valenta
+* Steven Klass
 
-Text scalars which are single or double quoted that span multiple lines are not being dumped exactly as Unity does. There's a difference in the maximum length allowed per line and the logic to wrap them.
 
+## Copyright and license
+
+Copyright 2011-2023 Pivotal Energy Solutions.  All rights reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this work except in compliance with the License.
+You may obtain a copy of the License in the LICENSE file, or at:
+
+   http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
