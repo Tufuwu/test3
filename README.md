@@ -1,138 +1,98 @@
-# Datatable View
+# JILL.py
 
-This package is used in conjunction with the jQuery plugin [DataTables](http://datatables.net/), and supports state-saving detection with [fnSetFilteringDelay](http://datatables.net/plug-ins/api).  The package consists of a class-based view, and a small collection of utilities for rendering table data from models.
+[![py version](https://img.shields.io/pypi/pyversions/jill.svg?logo=python&logoColor=white)](https://pypi.org/project/jill)
+[![version](https://img.shields.io/pypi/v/jill.svg)](https://github.com/johnnychen94/jill.py/releases)
+[![Actions Status](https://github.com/johnnychen94/jill.py/workflows/Unit%20test/badge.svg
+)](https://github.com/johnnychen94/jill.py/actions)
+[![codecov](https://codecov.io/gh/johnnychen94/jill.py/branch/master/graph/badge.svg)](https://codecov.io/gh/johnnychen94/jill.py)
 
-[![PyPI Downloads][pypi-dl-image]][pypi-dl-link]
-[![PyPI Version][pypi-v-image]][pypi-v-link]
-[![Build Status][travis-image]][travis-link]
-[![Documentation Status][rtfd-image]][rtfd-link]
+The Python fork of [JILL](https://github.com/abelsiqueira/jill) - Julia Installer 4 Linux (and MacOS) - Light
 
-[pypi-dl-link]: https://pypi.python.org/pypi/django-datatable-view
-[pypi-dl-image]: https://img.shields.io/pypi/dm/django-datatable-view.png
-[pypi-v-link]: https://pypi.python.org/pypi/django-datatable-view
-[pypi-v-image]: https://img.shields.io/pypi/v/django-datatable-view.png
-[travis-link]: https://travis-ci.org/pivotal-energy-solutions/django-datatable-view
-[travis-image]: https://travis-ci.org/pivotal-energy-solutions/django-datatable-view.svg?branch=traviscl
-[rtfd-link]: http://django-datatable-view.readthedocs.org/en/latest/?badge=latest
-[rtfd-image]: https://readthedocs.org/projects/django-datatable-view/badge/?version=latest
+## Features
 
-Dependencies:
+* download *latest* Julia release from *nearest* mirror server. Check [sources](jill/config/sources.json) for the list of all registered mirrors.
+* install julia for Linux and MacOS (including nightly build: `latest`)
+* easily set up a new release mirror 🚧
 
-* Python 3.8 or later
-* [Django](http://www.djangoproject.com/) >= 2.2
-* [dateutil](http://labix.org/python-dateutil) library for flexible, fault-tolerant date parsing.
-* [jQuery](https://jquery.com/) >= 2
-* [dataTables.js](https://datatables.net/) >= 1.10
+## Installation
 
-# Getting Started
+`pip install jill --user -U`
 
-Install the package:
+Note that `Python >= 3.6` is required.
 
-```bash
-pip install django-datatable-view
-```
+## Basic usage examples
 
-Add to ``INSTALLED_APPS`` (so default templates and js can be discovered), and use the ``DatatableView`` like a Django ``ListView``:
+* download:
+    - latest stable release for current system: `jill download`
+    - latest `1.y` version: `jill download 1`
+    - latest `1.3.z` version: `jill download 1.3`
+    - from specific upstream: `jill download --upstream Official`
+    - specific release version: `jill download --version 1.3.0`
+    - specific system: `jill download --sys freebsd`
+    - specific architecture: `jill download --arch i686`
+    - download Julia to specific dir: `jill download --outdir another/dir`
+* install Julia for current system:
+    - system-wide: `sudo jill install` (make symlink in `/usr/bin`)
+    - only for current user: `jill install` (make symlink in `~/.local/bin`)
+    - don't need interactive promopt: `jill install --confirm`
+* check if there're new Julia versions:
+    - `jill update`
+    - add `--update` flag to `download` or `install` commands
+* find out all registered upstreams: `jill upstream`
+* check the not-so-elaborative documentation: `jill [COMMAND] -h` (e.g., `jill download -h`)
 
-```python
-# settings.py
-INSTALLED_APPS = [
-    'datatableview',
-    # ...
-]
+## Mirror 🚧
 
+`jill mirror [outdir]` downloads all Julia releases into `outdir`(default `./julia_pkg`)
 
-# views.py
-from datatableview.views import DatatableView
-class ZeroConfigurationDatatableView(DatatableView):
-    model = MyModel
-```
+You can create a `mirror.json` in current folder to override the default mirror
+behaviors. The [mirror configuration example](mirror.example.json) shows all possible
+configurable items, where only `version` is required.
 
-Use the ``{{ datatable }}`` provided in the template context to render the table and initialize from server ajax:
+## Register new mirror
 
-```html
-<!-- myapp/mymodel_list.html -->
+If it's an public mirror and you want to share it worldwide. You can add an entry to the
+[public registry](jill/config/sources.json), make a PR, then I will tag a new release for that.
 
-<!-- Load dependencies -->
-<script src="https://code.jquery.com/jquery-3.3.1.min.js"
-        integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
-        crossorigin="anonymous"></script>
-<link rel="stylesheet" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css">
-<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+If it's an internal mirror and you don't plan to make it public, you can create a config
+file at `~/.config/jill/sources.json` locally. The contents will be appended to
+the public registry and overwrite already existing items if there are.
 
-<!-- Load js for initializing tables via their server-side options -->
-<script type="text/javascript" charset="utf8" src="{% static 'js/datatableview.js' %}"></script>
-<script type="text/javascript">
-    $(function(){
-        datatableview.initialize($('.datatable'));
-    });
-</script>
+In the registry config file, a new mirror is a dictionary in the `upstream` field:
 
-<!-- Render the table skeleton, includes the .datatable class for the on-ready initializer. -->
-{{ datatable }}
-```
+* `name`: a distinguishable mirror name
+* `urls`: URL template to retrive Julia release
+* `latest_urls`: URL template to retrive the nightly build of Julia release
 
-# Features at a glance
+## Placeholders
 
-* ``DatatableView``, a drop-in replacement for ``ListView`` that allows options to be specified for the datatable that will be rendered on the page.
-* ``MultipleDatatableView`` for configurating multiple Datatable specifications on a single view
-* ``ModelForm``-like declarative table design.
-* Support for ``ValuesQuerySet`` execution mode instead of object instances
-* Queryset caching between requests
-* Customizable table headers
-* Compound columns (columns representing more than one model field)
-* Columns backed by methods or callbacks instead of model fields
-* Easy related fields
-* Automatic search and sort support
-* Total control over cell contents (HTML, processing of raw values)
-* Search data fields that aren't present on the table
-* Support for DT_RowData
-* Customization hook for full JSON response object
-* Drop-in x-editable support, per-column
-* Customizable table templates
-* Easy Bootstrap integration
-* Allows all normal dataTables.js and x-editable Javascript options
-* Small library of common column markup processors
-* Full test suite
+Placeholders are used to register new mirrors. For example, the stable release url of
+the "Official" release server owned by [JuliaComputing](https://juliacomputing.com) is
+`"https://julialang2.s3.amazonaws.com/bin/$sys/$arch/$minor_version/$filename"`
 
-# Documentation and Live Demos
-Read the module documentation at http://django-datatable-view.readthedocs.org.
+There're several predefined placeholders for various systems and architectures:
 
-A public live demo server is in the works.  For version 0.8, we will continue to keep the live demo site alive at http://django-datatable-view.appspot.com/  Please note that 0.8 does not reflect the current state or direction of the project.
+* `system`: `windows`, `macos`, `linux`, `freebsd`
+* `sys`: `winnt`, `mac`, `linux`, `freebsd`
+* `os`: `win`, `mac`, `linux`, `freebsd`
+* `architecture`: `x86_64`, `i686`, `ARMv7`, `ARMv8`
+* `arch`: `x86`, `x64`, `armv7l`, `aarch64`
+* `osarch`: `win32`, `win64`, `mac64`, `linux-armv7l`, `linux-aarch64`
+* `osbit`: `win32`, `win64`, `linux32`, `linux64`, `linuxaarch64`
+* `bit`: `32`, `64`
+* `extension`: `exe`, `tar.gz`, `dmg` (no leading `.`)
 
-You can run the live demos locally from the included example project, using a few common setup steps.
+There're also placeholders for versions:
 
-```bash
-$ git clone https://github.com/pivotal-energy-solutions/django-datatable-view.git
-$ cd django-datatable-view
-$ mkvirtualenv datatableview
-(datatableview)$ pip install -r requirements.txt
-(datatableview)$ datatableview/tests/example_project/manage.py migrate
-(datatableview)$ datatableview/tests/example_project/manage.py loaddata initial_data
-(datatableview)$ datatableview/tests/example_project/manage.py runserver
-```
+* `patch_version`: `1.2.3`, `latest`
+* `minor_version`: `1.2`, `latest`
+* `major_version`: `1`
+* `version`: `v1.2.3-pre`, `latest`
+* `vpatch_version`: `v1.2.3`, `latest`
+* `vminor_version`: `v1.2`, `latest`
+* `vmajor_version`: `v1`, `latest`
 
-The example project is configured to use a local sqlite3 database, and relies on the ``django-datatable-view`` app itself, which is made available in the python path by simply running the project from the distributed directory root.
+To keep consistent names with official releases, you can use predefined name placeholders:
 
-
-## Authors
-
-* Autumn Valenta
-* Steven Klass
-
-
-## Copyright and license
-
-Copyright 2011-2023 Pivotal Energy Solutions.  All rights reserved.
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this work except in compliance with the License.
-You may obtain a copy of the License in the LICENSE file, or at:
-
-   http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
+* stable release `filename`: `julia-$patch_version-$osarch.$extension`
+* nightly release `latest_filename`: `"julia-latest-$osbit.$extension"`
