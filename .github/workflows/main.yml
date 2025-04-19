@@ -12,16 +12,16 @@ on:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
-        python-version: ['3.6', '3.7', '3.8', '3.8-dev', 'nightly']
+        python-version: ['3.7', '3.8', '3.8-dev', 'nightly']
         include:
-          - python-version: '3.6'
+          - python-version: '3.7'
             build: docs
-          - python-version: '3.6'
+          - python-version: '3.7'
             build: pep8
-          - python-version: '3.6'
+          - python-version: '3.7'
             build: cover
           - python-version: 'nightly'
             continue-on-error: true
