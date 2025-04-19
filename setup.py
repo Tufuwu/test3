@@ -1,60 +1,30 @@
-from os import path
-from setuptools import setup, find_packages
+import setuptools
 
-this_directory = path.abspath(path.dirname(__file__))
+with open("README.md", "r") as fh:
+    long_description = fh.read()
 
-with open(path.join(this_directory, 'README.md')) as f:
-    long_description = f.read()
+import versioneer
 
-
-DISTNAME = 'lexpy'
-
-AUTHOR = 'Abhishek Singh'
-MAINTAINER = 'Abhishek Singh'
-MAINTAINER_EMAIL = 'abhishek.singh20141@gmail.com'
-DESCRIPTION = 'Python package for lexicon.'
-LICENSE = 'GNU GPLv3'
-URL = 'https://github.com/aosingh/lexpy'
-VERSION = '1.0.0'
-
-PACKAGES = ['lexpy']
-
-
-classifiers = [
-    'Development Status :: 5 - Production/Stable',
-    'Intended Audience :: Education',
-    'Intended Audience :: Developers',
-    'Intended Audience :: Science/Research',
-    'Topic :: Text Processing :: Linguistic',
-    'Topic :: Text Processing :: Indexing',
-    'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
-    'Programming Language :: Python :: 3.7',
-    'Programming Language :: Python :: 3.8',
-    'Programming Language :: Python :: 3.9',
-    'Programming Language :: Python :: 3.10',
-    'Operating System :: POSIX :: Linux',
-    'Operating System :: Unix',
-    'Operating System :: Microsoft :: Windows',
-    'Operating System :: MacOS'
-]
-keywords = 'trie suffix-trees lexicon directed-acyclic-word-graph dawg'
-
-
-setup(
-    name=DISTNAME,
+setuptools.setup(
+    name="removestar",
+    version=versioneer.get_version(),
+    cmdclass=versioneer.get_cmdclass(),
+    author="Aaron Meurer",
+    author_email="asmeurer@gmail.com",
+    description="A tool to automatically replace 'import *' imports with explicit imports in files",
     long_description=long_description,
-    long_description_content_type='text/markdown',
-    author=AUTHOR,
-    author_email=MAINTAINER_EMAIL,
-    maintainer=MAINTAINER,
-    maintainer_email=MAINTAINER_EMAIL,
-    description=DESCRIPTION,
-    license=LICENSE,
-    url=URL,
-    version=VERSION,
-    packages=find_packages(exclude=("tests",)),
-    package_dir={'lexpy': 'lexpy'},
-    include_package_data=True,
-    classifiers=classifiers,
-    keywords=keywords.split(),
+    long_description_content_type="text/markdown",
+    url="https://www.asmeurer.com/removestar/",
+    packages=setuptools.find_packages(),
+    classifiers=[
+        "Programming Language :: Python :: 3",
+        "License :: OSI Approved :: MIT License",
+        "Operating System :: OS Independent",
+    ],
+    entry_points={'console_scripts': [ 'removestar = removestar.__main__:main']},
+    python_requires= '>=3.6',
+    install_requires=[
+        'pyflakes'
+    ],
+    license='MIT',
 )

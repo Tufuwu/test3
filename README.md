@@ -1,344 +1,204 @@
-# Lexpy
+# removestar
 
-[![lexpy](https://github.com/aosingh/lexpy/actions/workflows/lexpy_build.yaml/badge.svg)](https://github.com/aosingh/lexpy/actions)
-[![Downloads](https://pepy.tech/badge/lexpy)](https://pepy.tech/project/lexpy)
-[![PyPI version](https://badge.fury.io/py/lexpy.svg)](https://pypi.python.org/pypi/lexpy)
+[![Build Status](https://github.com/asmeurer/removestar/actions/workflows/main.yml/badge.svg?branch=master)](https://github.com/asmeurer/removestar/actions?query=branch:master)
 
-[![Python 3.7](https://img.shields.io/badge/python-3.7-blue.svg)](https://www.python.org/downloads/release/python-370/)
-[![Python 3.8](https://img.shields.io/badge/python-3.8-blue.svg)](https://www.python.org/downloads/release/python-380/)
-[![Python 3.9](https://img.shields.io/badge/python-3.9-blue.svg)](https://www.python.org/downloads/release/python-390/)
-[![Python 3.10](https://img.shields.io/badge/python-3.10-blue.svg)](https://www.python.org/downloads/release/python-3100/)
-[![PyPy3.7](https://img.shields.io/badge/python-PyPy3.7-blue.svg)](https://www.pypy.org/download.html)
-[![PyPy3.8](https://img.shields.io/badge/python-PyPy3.8-blue.svg)](https://www.pypy.org/download.html)
-[![PyPy3.9](https://img.shields.io/badge/python-PyPy3.9-blue.svg)](https://www.pypy.org/download.html)
+Tool to automatically replace `import *` imports in Python files with explicit imports
 
+Requires pyflakes.
 
+Current limitations:
 
-- A lexicon is a data-structure which stores a set of words. The difference between 
-a dictionary and a lexicon is that in a lexicon there are **no values** associated with the words. 
+- Assumes only names in the current file are used by star imports (e.g., it
+  won't work to replace star imports in `__init__.py`).
 
-- A lexicon is similar to a list of words or a set, but the internal representation is different and optimized
-for faster searches of words, prefixes and wildcard patterns. 
+For files within the same module, removestar determines missing imported names
+statically. For external library imports, including imports of standard
+library modules, it dynamically imports the module to determine the names.
+This can be disabled with the `--no-dynamic-importing` flag.
 
-- Given a word, precisely the search time is O(W) where W is the length of the word. 
+See the [issue tracker](https://github.com/asmeurer/removestar/issues). Pull
+requests are welcome.
 
-- 2 important lexicon data-structures are:
-
-    - Trie.
-    - Directed Acyclic Word Graph (DAWG).
-
-Both Trie and DAWG are Finite State Automaton (FSA)
-
-
-# Install
-```commandline
-pip install lexpy
-```
-
-# Interface
-
-| **Interface Description**                                                                                                     	| **Trie** method                           	| **DAWG** method                           	|
-|-------------------------------------------------------------------------------------------------------------------------------	|-------------------------------------------	|-------------------------------------------	|
-| Add a single word                                                                                                             	| `add('apple', count=2)`                            	| `add('apple', count=2)`                            	|
-| Add multiple words                                                                                                            	| `add_all(['advantage', 'courage'])`       	| `add_all(['advantage', 'courage'])`       	|
-| Check if exists?                                                                                                              	| `in` operator                             	| `in` operator                             	|
-| Search using wildcard expression                                                                                              	| `search('a?b*', with_count=True)`             | `search('a?b*, with_count=True)`              |
-| Search for prefix matches                                                                                                     	| `search_with_prefix('bar', with_count=True)`  | `search_with_prefix('bar')`               	|
-| Search for similar words within  given edit distance. Here, the notion of edit distance  is same as Levenshtein distance 	| `search_within_distance('apble', dist=1, with_count=True)` 	| `search_within_distance('apble', dist=1, with_count=True)` 	|
-| Get the number of nodes in the automaton 	| `len(trie)` 	| `len(dawg)` 	|
-
-
-# Examples
-
-## Trie
-
-### Build from an input list, set, or tuple of words.
-
-```python
-from lexpy.trie import Trie
-
-trie = Trie()
-
-input_words = ['ampyx', 'abuzz', 'athie', 'athie', 'athie', 'amato', 'amato', 'aneto', 'aneto', 'aruba', 
-               'arrow', 'agony', 'altai', 'alisa', 'acorn', 'abhor', 'aurum', 'albay', 'arbil', 'albin', 
-               'almug', 'artha', 'algin', 'auric', 'sore', 'quilt', 'psychotic', 'eyes', 'cap', 'suit', 
-               'tank', 'common', 'lonely', 'likeable' 'language', 'shock', 'look', 'pet', 'dime', 'small' 
-               'dusty', 'accept', 'nasty', 'thrill', 'foot', 'steel', 'steel', 'steel', 'steel', 'abuzz']
-
-trie.add_all(input_words) # You can pass any sequence types of a file like object here
-
-print(trie.get_word_count())
-
->>> 48
-```
-
-### Build from a file or file path.
-
-In the file, words should be newline separated.
-
-```python
-
-from lexpy.trie import Trie
-
-# Either
-trie = Trie()
-trie.add_all('/path/to/file.txt')
-
-# Or
-with open('/path/to/file.txt', 'r') as infile:
-     trie.add_all(infile)
+## Installation
 
 ```
-
-### Check if exists using the `in` operator
-
-```python
-print('ampyx' in trie)
-
->>> True
+pip install removestar
 ```
 
-### Prefix search
-
-```python
-print(trie.search_with_prefix('ab'))
-
->>> ['abhor', 'abuzz']
-```
-
-```python
-
-print(trie.search_with_prefix('ab', with_count=True))
-
->>> [('abuzz', 2), ('abhor', 1)]
+or if you use conda
 
 ```
-
-### Wildcard search using `?` and `*`
-
-- `?` = 0 or 1 occurrence of any character
-
-- `*` = 0 or more occurrence of any character
-
-```python
-print(trie.search('a*o*'))
-
->>> ['amato', 'abhor', 'aneto', 'arrow', 'agony', 'acorn']
-
-print(trie.search('a*o*', with_count=True))
-
->>> [('amato', 2), ('abhor', 1), ('aneto', 2), ('arrow', 1), ('agony', 1), ('acorn', 1)]
-
-print(trie.search('su?t'))
-
->>> ['suit']
-
-print(trie.search('su?t', with_count=True))
-
->>> [('suit', 1)]
-
+conda install -c conda-forge removestar
 ```
 
-### Search for similar words using the notion of Levenshtein distance
+## Usage
 
-```python
-print(trie.search_within_distance('arie', dist=2))
+```
+$ removestar file.py # Shows diff but does not edit file.py
 
->>> ['athie', 'arbil', 'auric']
+$ removestar -i file.py # Edits file.py in-place
 
-print(trie.search_within_distance('arie', dist=2, with_count=True))
+$ removestar -i module/ # Modifies every Python file in module/ recursively
+```
 
->>> [('athie', 3), ('arbil', 1), ('auric', 1)]
+## Why is `import *` so bad?
+
+Doing `from module import *` is generally frowned upon in Python. It is
+considered acceptable when working interactively at a `python` prompt, or in
+`__init__.py` files (removestar skips `__init__.py` files by default).
+
+Some reasons why `import *` is bad:
+
+- It hides which names are actually imported.
+- It is difficult both for human readers and static analyzers such as
+  pyflakes to tell where a given name comes from when `import *` is used. For
+  example, pyflakes cannot detect unused names (for instance, from typos) in
+  the presence of `import *`.
+- If there are multiple `import *` statements, it may not be clear which names
+  come from which module. In some cases, both modules may have a given name,
+  but only the second import will end up being used. This can break people's
+  intuition that the order of imports in a Python file generally does not
+  matter.
+- `import *` often imports more names than you would expect. Unless the module
+  you import defines `__all__` or carefully `del`s unused names at the module
+  level, `import *` will import every public (doesn't start with an
+  underscore) name defined in the module file. This can often include things
+  like standard library imports or loop variables defined at the top-level of
+  the file. For imports from modules (from `__init__.py`), `from module import
+  *` will include every submodule defined in that module. Using `__all__` in
+  modules and `__init__.py` files is also good practice, as these things are
+  also often confusing even for interactive use where `import *` is
+  acceptable.
+- In Python 3, `import *` is syntactically not allowed inside of a function.
+
+Here are some official Python references stating not to use `import *` in
+files:
+
+- [The official Python
+  FAQ](https://docs.python.org/3/faq/programming.html?highlight=faq#what-are-the-best-practices-for-using-import-in-a-module):
+
+  > In general, don’t use `from modulename import *`. Doing so clutters the
+  > importer’s namespace, and makes it much harder for linters to detect
+  > undefined names.
+
+- [PEP 8](https://www.python.org/dev/peps/pep-0008/#imports) (the official
+  Python style guide):
+
+  > Wildcard imports (`from <module> import *`) should be avoided, as they
+  > make it unclear which names are present in the namespace, confusing both
+  > readers and many automated tools.
+
+Unfortunately, if you come across a file in the wild that uses `import *`, it
+can be hard to fix it, because you need to find every name in the file that is
+imported from the `*`. Removestar makes this easy by finding which names come
+from `*` imports and replacing the import lines in the file automatically.
+
+## Example
+
+Suppose you have a module `mymod` like
+
+```
+mymod/
+  | __init__.py
+  | a.py
+  | b.py
+```
+
+With
+
+```py
+# mymod/a.py
+from .b import *
+
+def func(x):
+    return x + y
+```
+
+```py
+# mymod/b.py
+x = 1
+y = 2
+```
+
+Then `removestar` works like:
+
+```
+$ removestar mymod/
+
+--- original/mymod/a.py
++++ fixed/mymod/a.py
+@@ -1,5 +1,5 @@
+ # mymod/a.py
+-from .b import *
++from .b import y
+
+ def func(x):
+     return x + y
 
 ```
 
-### Increment word count
-
-- You can either add a new word or increment the counter for an existing word.
-
-```python
-
-trie.add('athie', count=1000)
-
-print(trie.search_within_distance('arie', dist=2, with_count=True))
-
->>> [('athie', 1003), ('arbil', 1), ('auric', 1)]
-```
-
-# Directed Acyclic Word Graph (DAWG)
-
-- DAWG supports the same set of operations as a Trie. The difference is the number of nodes in a DAWG is always
-less than or equal to the number of nodes in Trie. 
-
-- They both are Deterministic Finite State Automata. However, DAWG is a minimized version of the Trie DFA.
-
-- In a Trie, prefix redundancy is removed. In a DAWG, both prefix and suffix redundancies are removed.
-
-- In the current implementation of DAWG, the insertion order of the words should be **alphabetical**.
-
-- The implementation idea of DAWG is borrowed from http://stevehanov.ca/blog/?id=115
-
-
-```python
-from lexpy.trie import Trie
-from lexpy.dawg import DAWG
-
-trie = Trie()
-trie.add_all(['advantageous', 'courageous'])
-
-dawg = DAWG()
-dawg.add_all(['advantageous', 'courageous'])
-
-len(trie) # Number of Nodes in Trie
-23
-
-dawg.reduce() # Perform DFA minimization. Call this every time a chunk of words are uploaded in DAWG.
-
-len(dawg) # Number of nodes in DAWG
-21
+This does not edit `a.py` by default. The `-i` flag causes it to edit `a.py` in-place:
 
 ```
+$ removestar -i mymod/
+$ cat mymod/a.py
+# mymod/a.py
+from .b import y
 
-## DAWG
-
-The APIs are exactly same as the Trie APIs
-
-### Build a DAWG
-
-```python
-from lexpy.dawg import DAWG
-dawg = DAWG()
-
-input_words = ['ampyx', 'abuzz', 'athie', 'athie', 'athie', 'amato', 'amato', 'aneto', 'aneto', 'aruba', 
-               'arrow', 'agony', 'altai', 'alisa', 'acorn', 'abhor', 'aurum', 'albay', 'arbil', 'albin', 
-               'almug', 'artha', 'algin', 'auric', 'sore', 'quilt', 'psychotic', 'eyes', 'cap', 'suit', 
-               'tank', 'common', 'lonely', 'likeable' 'language', 'shock', 'look', 'pet', 'dime', 'small' 
-               'dusty', 'accept', 'nasty', 'thrill', 'foot', 'steel', 'steel', 'steel', 'steel', 'abuzz']
-
-
-dawg.add_all(input_words)
-dawg.reduce()
-
-dawg.get_word_count()
-
->>> 48
-
+def func(x):
+    return x + y
 ```
 
-### Check if exists using the `in` operator
+## Command line options
 
-```python
-print('ampyx' in dawg)
-
->>> True
-```
-
-### Prefix search
-
-```python
-print(dawg.search_with_prefix('ab'))
-
->>> ['abhor', 'abuzz']
-```
-
-```python
-
-print(dawg.search_with_prefix('ab', with_count=True))
-
->>> [('abuzz', 2), ('abhor', 1)]
+<!-- TODO: Autogenerate this somehow -->
 
 ```
+$ removestar --help
+usage: removestar [-h] [-i] [--version] [--no-skip-init]
+                  [--no-dynamic-importing] [-v] [-q]
+                  [--max-line-length MAX_LINE_LENGTH]
+                  PATH [PATH ...]
 
-### Wildcard search using `?` and `*`
+Tool to automatically replace "import *" imports with explicit imports
 
-`?` = 0 or 1 occurance of any character
+Requires pyflakes.
 
-`*` = 0 or more occurance of any character
+Usage:
 
-```python
-print(dawg.search('a*o*'))
+$ removestar file.py # Shows diff but does not edit file.py
 
->>> ['amato', 'abhor', 'aneto', 'arrow', 'agony', 'acorn']
+$ removestar -i file.py # Edits file.py in-place
 
-print(dawg.search('a*o*', with_count=True))
+$ removestar -i module/ # Modifies every Python file in module/ recursively
 
->>> [('amato', 2), ('abhor', 1), ('aneto', 2), ('arrow', 1), ('agony', 1), ('acorn', 1)]
+positional arguments:
+  PATH                  Files or directories to fix
 
-print(dawg.search('su?t'))
-
->>> ['suit']
-
-print(dawg.search('su?t', with_count=True))
-
->>> [('suit', 1)]
-
+optional arguments:
+  -h, --help            show this help message and exit
+  -i, --in-place        Edit the files in-place. (default: False)
+  --version             Show removestar version number and exit.
+  --no-skip-init        Don't skip __init__.py files (they are skipped by
+                        default) (default: True)
+  --no-dynamic-importing
+                        Don't dynamically import modules to determine the list
+                        of names. This is required for star imports from
+                        external modules and modules in the standard library.
+                        (default: True)
+  -v, --verbose         Print information about every imported name that is
+                        replaced. (default: False)
+  -q, --quiet           Don't print any warning messages. (default: False)
+  --max-line-length MAX_LINE_LENGTH
+                        The maximum line length for replaced imports before
+                        they are wrapped. Set to 0 to disable line wrapping.
+                        (default: 100)
 ```
 
-### Search for similar words using the notion of Levenshtein distance
+## Changelog
 
-```python
-print(dawg.search_within_distance('arie', dist=2))
+See the [CHANGELOG](CHANGELOG.md) file.
 
->>> ['athie', 'arbil', 'auric']
+## License
 
-print(dawg.search_within_distance('arie', dist=2, with_count=True))
-
->>> [('athie', 3), ('arbil', 1), ('auric', 1)]
-
-```
-
-### Alphabetical order insertion
-
-If you insert a word which is lexicographically out-of-order, ``ValueError`` will be raised.
-```python
-dawg.add('athie', count=1000)
-```
-ValueError
-
-```text
-ValueError: Words should be inserted in Alphabetical order. <Previous word - thrill>, <Current word - athie>
-```
-
-### Increment the word count
-
-- You can either add an alphabetically greater word with a specific count or increment the count of the previous added word.
-
-```python
-
-
-dawg.add_all(['thrill']*20000) # or dawg.add('thrill', count=20000)
-
-print(dawg.search('thrill', with_count=True))
-
->> [('thrill', 20001)]
-
-```
-
-## Trie vs DAWG
-
-
-![Number of nodes comparison](https://github.com/aosingh/lexpy/blob/master/lexpy_trie_dawg_nodes.png)
-
-![Build time comparison](https://github.com/aosingh/lexpy/blob/master/lexpy_trie_dawg_time.png)
-
-
-
-# Future Work
-
-These are some ideas which I would love to work on next in that order. Pull requests or discussions are invited.
-
-- Merge trie and DAWG features in one data structure
-  -  Support all functionalities and still be as compressed as possible.
-- Serialization / Deserialization
-    - Pickle is definitely an option. 
-- Server (TCP or HTTP) to serve queries over the network.
-
-
-# Fun Facts
-1. The 45-letter word pneumonoultramicroscopicsilicovolcanoconiosis is the longest English word that appears in a major dictionary.
-So for all english words, the search time is bounded by O(45). 
-2. The longest technical word(not in dictionary) is the name of a protein called as [titin](https://en.wikipedia.org/wiki/Titin). It has 189,819
-letters and it is disputed whether it is a word.
-
-
-
+[MIT](LICENSE)
