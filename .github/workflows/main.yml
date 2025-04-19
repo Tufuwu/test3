@@ -14,8 +14,6 @@ jobs:
     strategy:
       matrix:
         python-version: [3.7, 3.8, 3.9]
-    container:
-      image: python:3.6
 
     steps:
     - uses: actions/checkout@v2
@@ -40,3 +38,31 @@ jobs:
 
     - name: Install package
       run: python setup.py install
+
+  python36-container:
+    name: Test on Python 3.6 (container)
+    runs-on: ubuntu-22.04
+    container:
+      image: python:3.6
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Check Python version
+        run: python --version
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install pyflakes pytest pytest-doctestplus
+
+      - name: Lint with pyflakes
+        run: pyflakes .
+
+      - name: Compile Python files
+        run: python -We:invalid -We::SyntaxWarning -m compileall -f -q removestar/
+
+      - name: Test with pytest
+        run: pytest
+
+      - name: Install package
+        run: python setup.py install
