@@ -23,8 +23,9 @@ jobs:
             build: pep8
           - python-version: '3.6'
             build: cover
-    allow_failures:
-      - python-version: 'nightly'
+          - python-version: 'nightly'
+            continue-on-error: true
+
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python ${{ matrix.python-version }}
