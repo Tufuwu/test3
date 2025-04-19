@@ -1,98 +1,344 @@
-# JILL.py
+# Lexpy
 
-[![py version](https://img.shields.io/pypi/pyversions/jill.svg?logo=python&logoColor=white)](https://pypi.org/project/jill)
-[![version](https://img.shields.io/pypi/v/jill.svg)](https://github.com/johnnychen94/jill.py/releases)
-[![Actions Status](https://github.com/johnnychen94/jill.py/workflows/Unit%20test/badge.svg
-)](https://github.com/johnnychen94/jill.py/actions)
-[![codecov](https://codecov.io/gh/johnnychen94/jill.py/branch/master/graph/badge.svg)](https://codecov.io/gh/johnnychen94/jill.py)
+[![lexpy](https://github.com/aosingh/lexpy/actions/workflows/lexpy_build.yaml/badge.svg)](https://github.com/aosingh/lexpy/actions)
+[![Downloads](https://pepy.tech/badge/lexpy)](https://pepy.tech/project/lexpy)
+[![PyPI version](https://badge.fury.io/py/lexpy.svg)](https://pypi.python.org/pypi/lexpy)
 
-The Python fork of [JILL](https://github.com/abelsiqueira/jill) - Julia Installer 4 Linux (and MacOS) - Light
+[![Python 3.7](https://img.shields.io/badge/python-3.7-blue.svg)](https://www.python.org/downloads/release/python-370/)
+[![Python 3.8](https://img.shields.io/badge/python-3.8-blue.svg)](https://www.python.org/downloads/release/python-380/)
+[![Python 3.9](https://img.shields.io/badge/python-3.9-blue.svg)](https://www.python.org/downloads/release/python-390/)
+[![Python 3.10](https://img.shields.io/badge/python-3.10-blue.svg)](https://www.python.org/downloads/release/python-3100/)
+[![PyPy3.7](https://img.shields.io/badge/python-PyPy3.7-blue.svg)](https://www.pypy.org/download.html)
+[![PyPy3.8](https://img.shields.io/badge/python-PyPy3.8-blue.svg)](https://www.pypy.org/download.html)
+[![PyPy3.9](https://img.shields.io/badge/python-PyPy3.9-blue.svg)](https://www.pypy.org/download.html)
 
-## Features
 
-* download *latest* Julia release from *nearest* mirror server. Check [sources](jill/config/sources.json) for the list of all registered mirrors.
-* install julia for Linux and MacOS (including nightly build: `latest`)
-* easily set up a new release mirror 🚧
 
-## Installation
+- A lexicon is a data-structure which stores a set of words. The difference between 
+a dictionary and a lexicon is that in a lexicon there are **no values** associated with the words. 
 
-`pip install jill --user -U`
+- A lexicon is similar to a list of words or a set, but the internal representation is different and optimized
+for faster searches of words, prefixes and wildcard patterns. 
 
-Note that `Python >= 3.6` is required.
+- Given a word, precisely the search time is O(W) where W is the length of the word. 
 
-## Basic usage examples
+- 2 important lexicon data-structures are:
 
-* download:
-    - latest stable release for current system: `jill download`
-    - latest `1.y` version: `jill download 1`
-    - latest `1.3.z` version: `jill download 1.3`
-    - from specific upstream: `jill download --upstream Official`
-    - specific release version: `jill download --version 1.3.0`
-    - specific system: `jill download --sys freebsd`
-    - specific architecture: `jill download --arch i686`
-    - download Julia to specific dir: `jill download --outdir another/dir`
-* install Julia for current system:
-    - system-wide: `sudo jill install` (make symlink in `/usr/bin`)
-    - only for current user: `jill install` (make symlink in `~/.local/bin`)
-    - don't need interactive promopt: `jill install --confirm`
-* check if there're new Julia versions:
-    - `jill update`
-    - add `--update` flag to `download` or `install` commands
-* find out all registered upstreams: `jill upstream`
-* check the not-so-elaborative documentation: `jill [COMMAND] -h` (e.g., `jill download -h`)
+    - Trie.
+    - Directed Acyclic Word Graph (DAWG).
 
-## Mirror 🚧
+Both Trie and DAWG are Finite State Automaton (FSA)
 
-`jill mirror [outdir]` downloads all Julia releases into `outdir`(default `./julia_pkg`)
 
-You can create a `mirror.json` in current folder to override the default mirror
-behaviors. The [mirror configuration example](mirror.example.json) shows all possible
-configurable items, where only `version` is required.
+# Install
+```commandline
+pip install lexpy
+```
 
-## Register new mirror
+# Interface
 
-If it's an public mirror and you want to share it worldwide. You can add an entry to the
-[public registry](jill/config/sources.json), make a PR, then I will tag a new release for that.
+| **Interface Description**                                                                                                     	| **Trie** method                           	| **DAWG** method                           	|
+|-------------------------------------------------------------------------------------------------------------------------------	|-------------------------------------------	|-------------------------------------------	|
+| Add a single word                                                                                                             	| `add('apple', count=2)`                            	| `add('apple', count=2)`                            	|
+| Add multiple words                                                                                                            	| `add_all(['advantage', 'courage'])`       	| `add_all(['advantage', 'courage'])`       	|
+| Check if exists?                                                                                                              	| `in` operator                             	| `in` operator                             	|
+| Search using wildcard expression                                                                                              	| `search('a?b*', with_count=True)`             | `search('a?b*, with_count=True)`              |
+| Search for prefix matches                                                                                                     	| `search_with_prefix('bar', with_count=True)`  | `search_with_prefix('bar')`               	|
+| Search for similar words within  given edit distance. Here, the notion of edit distance  is same as Levenshtein distance 	| `search_within_distance('apble', dist=1, with_count=True)` 	| `search_within_distance('apble', dist=1, with_count=True)` 	|
+| Get the number of nodes in the automaton 	| `len(trie)` 	| `len(dawg)` 	|
 
-If it's an internal mirror and you don't plan to make it public, you can create a config
-file at `~/.config/jill/sources.json` locally. The contents will be appended to
-the public registry and overwrite already existing items if there are.
 
-In the registry config file, a new mirror is a dictionary in the `upstream` field:
+# Examples
 
-* `name`: a distinguishable mirror name
-* `urls`: URL template to retrive Julia release
-* `latest_urls`: URL template to retrive the nightly build of Julia release
+## Trie
 
-## Placeholders
+### Build from an input list, set, or tuple of words.
 
-Placeholders are used to register new mirrors. For example, the stable release url of
-the "Official" release server owned by [JuliaComputing](https://juliacomputing.com) is
-`"https://julialang2.s3.amazonaws.com/bin/$sys/$arch/$minor_version/$filename"`
+```python
+from lexpy.trie import Trie
 
-There're several predefined placeholders for various systems and architectures:
+trie = Trie()
 
-* `system`: `windows`, `macos`, `linux`, `freebsd`
-* `sys`: `winnt`, `mac`, `linux`, `freebsd`
-* `os`: `win`, `mac`, `linux`, `freebsd`
-* `architecture`: `x86_64`, `i686`, `ARMv7`, `ARMv8`
-* `arch`: `x86`, `x64`, `armv7l`, `aarch64`
-* `osarch`: `win32`, `win64`, `mac64`, `linux-armv7l`, `linux-aarch64`
-* `osbit`: `win32`, `win64`, `linux32`, `linux64`, `linuxaarch64`
-* `bit`: `32`, `64`
-* `extension`: `exe`, `tar.gz`, `dmg` (no leading `.`)
+input_words = ['ampyx', 'abuzz', 'athie', 'athie', 'athie', 'amato', 'amato', 'aneto', 'aneto', 'aruba', 
+               'arrow', 'agony', 'altai', 'alisa', 'acorn', 'abhor', 'aurum', 'albay', 'arbil', 'albin', 
+               'almug', 'artha', 'algin', 'auric', 'sore', 'quilt', 'psychotic', 'eyes', 'cap', 'suit', 
+               'tank', 'common', 'lonely', 'likeable' 'language', 'shock', 'look', 'pet', 'dime', 'small' 
+               'dusty', 'accept', 'nasty', 'thrill', 'foot', 'steel', 'steel', 'steel', 'steel', 'abuzz']
 
-There're also placeholders for versions:
+trie.add_all(input_words) # You can pass any sequence types of a file like object here
 
-* `patch_version`: `1.2.3`, `latest`
-* `minor_version`: `1.2`, `latest`
-* `major_version`: `1`
-* `version`: `v1.2.3-pre`, `latest`
-* `vpatch_version`: `v1.2.3`, `latest`
-* `vminor_version`: `v1.2`, `latest`
-* `vmajor_version`: `v1`, `latest`
+print(trie.get_word_count())
 
-To keep consistent names with official releases, you can use predefined name placeholders:
+>>> 48
+```
 
-* stable release `filename`: `julia-$patch_version-$osarch.$extension`
-* nightly release `latest_filename`: `"julia-latest-$osbit.$extension"`
+### Build from a file or file path.
+
+In the file, words should be newline separated.
+
+```python
+
+from lexpy.trie import Trie
+
+# Either
+trie = Trie()
+trie.add_all('/path/to/file.txt')
+
+# Or
+with open('/path/to/file.txt', 'r') as infile:
+     trie.add_all(infile)
+
+```
+
+### Check if exists using the `in` operator
+
+```python
+print('ampyx' in trie)
+
+>>> True
+```
+
+### Prefix search
+
+```python
+print(trie.search_with_prefix('ab'))
+
+>>> ['abhor', 'abuzz']
+```
+
+```python
+
+print(trie.search_with_prefix('ab', with_count=True))
+
+>>> [('abuzz', 2), ('abhor', 1)]
+
+```
+
+### Wildcard search using `?` and `*`
+
+- `?` = 0 or 1 occurrence of any character
+
+- `*` = 0 or more occurrence of any character
+
+```python
+print(trie.search('a*o*'))
+
+>>> ['amato', 'abhor', 'aneto', 'arrow', 'agony', 'acorn']
+
+print(trie.search('a*o*', with_count=True))
+
+>>> [('amato', 2), ('abhor', 1), ('aneto', 2), ('arrow', 1), ('agony', 1), ('acorn', 1)]
+
+print(trie.search('su?t'))
+
+>>> ['suit']
+
+print(trie.search('su?t', with_count=True))
+
+>>> [('suit', 1)]
+
+```
+
+### Search for similar words using the notion of Levenshtein distance
+
+```python
+print(trie.search_within_distance('arie', dist=2))
+
+>>> ['athie', 'arbil', 'auric']
+
+print(trie.search_within_distance('arie', dist=2, with_count=True))
+
+>>> [('athie', 3), ('arbil', 1), ('auric', 1)]
+
+```
+
+### Increment word count
+
+- You can either add a new word or increment the counter for an existing word.
+
+```python
+
+trie.add('athie', count=1000)
+
+print(trie.search_within_distance('arie', dist=2, with_count=True))
+
+>>> [('athie', 1003), ('arbil', 1), ('auric', 1)]
+```
+
+# Directed Acyclic Word Graph (DAWG)
+
+- DAWG supports the same set of operations as a Trie. The difference is the number of nodes in a DAWG is always
+less than or equal to the number of nodes in Trie. 
+
+- They both are Deterministic Finite State Automata. However, DAWG is a minimized version of the Trie DFA.
+
+- In a Trie, prefix redundancy is removed. In a DAWG, both prefix and suffix redundancies are removed.
+
+- In the current implementation of DAWG, the insertion order of the words should be **alphabetical**.
+
+- The implementation idea of DAWG is borrowed from http://stevehanov.ca/blog/?id=115
+
+
+```python
+from lexpy.trie import Trie
+from lexpy.dawg import DAWG
+
+trie = Trie()
+trie.add_all(['advantageous', 'courageous'])
+
+dawg = DAWG()
+dawg.add_all(['advantageous', 'courageous'])
+
+len(trie) # Number of Nodes in Trie
+23
+
+dawg.reduce() # Perform DFA minimization. Call this every time a chunk of words are uploaded in DAWG.
+
+len(dawg) # Number of nodes in DAWG
+21
+
+```
+
+## DAWG
+
+The APIs are exactly same as the Trie APIs
+
+### Build a DAWG
+
+```python
+from lexpy.dawg import DAWG
+dawg = DAWG()
+
+input_words = ['ampyx', 'abuzz', 'athie', 'athie', 'athie', 'amato', 'amato', 'aneto', 'aneto', 'aruba', 
+               'arrow', 'agony', 'altai', 'alisa', 'acorn', 'abhor', 'aurum', 'albay', 'arbil', 'albin', 
+               'almug', 'artha', 'algin', 'auric', 'sore', 'quilt', 'psychotic', 'eyes', 'cap', 'suit', 
+               'tank', 'common', 'lonely', 'likeable' 'language', 'shock', 'look', 'pet', 'dime', 'small' 
+               'dusty', 'accept', 'nasty', 'thrill', 'foot', 'steel', 'steel', 'steel', 'steel', 'abuzz']
+
+
+dawg.add_all(input_words)
+dawg.reduce()
+
+dawg.get_word_count()
+
+>>> 48
+
+```
+
+### Check if exists using the `in` operator
+
+```python
+print('ampyx' in dawg)
+
+>>> True
+```
+
+### Prefix search
+
+```python
+print(dawg.search_with_prefix('ab'))
+
+>>> ['abhor', 'abuzz']
+```
+
+```python
+
+print(dawg.search_with_prefix('ab', with_count=True))
+
+>>> [('abuzz', 2), ('abhor', 1)]
+
+```
+
+### Wildcard search using `?` and `*`
+
+`?` = 0 or 1 occurance of any character
+
+`*` = 0 or more occurance of any character
+
+```python
+print(dawg.search('a*o*'))
+
+>>> ['amato', 'abhor', 'aneto', 'arrow', 'agony', 'acorn']
+
+print(dawg.search('a*o*', with_count=True))
+
+>>> [('amato', 2), ('abhor', 1), ('aneto', 2), ('arrow', 1), ('agony', 1), ('acorn', 1)]
+
+print(dawg.search('su?t'))
+
+>>> ['suit']
+
+print(dawg.search('su?t', with_count=True))
+
+>>> [('suit', 1)]
+
+```
+
+### Search for similar words using the notion of Levenshtein distance
+
+```python
+print(dawg.search_within_distance('arie', dist=2))
+
+>>> ['athie', 'arbil', 'auric']
+
+print(dawg.search_within_distance('arie', dist=2, with_count=True))
+
+>>> [('athie', 3), ('arbil', 1), ('auric', 1)]
+
+```
+
+### Alphabetical order insertion
+
+If you insert a word which is lexicographically out-of-order, ``ValueError`` will be raised.
+```python
+dawg.add('athie', count=1000)
+```
+ValueError
+
+```text
+ValueError: Words should be inserted in Alphabetical order. <Previous word - thrill>, <Current word - athie>
+```
+
+### Increment the word count
+
+- You can either add an alphabetically greater word with a specific count or increment the count of the previous added word.
+
+```python
+
+
+dawg.add_all(['thrill']*20000) # or dawg.add('thrill', count=20000)
+
+print(dawg.search('thrill', with_count=True))
+
+>> [('thrill', 20001)]
+
+```
+
+## Trie vs DAWG
+
+
+![Number of nodes comparison](https://github.com/aosingh/lexpy/blob/master/lexpy_trie_dawg_nodes.png)
+
+![Build time comparison](https://github.com/aosingh/lexpy/blob/master/lexpy_trie_dawg_time.png)
+
+
+
+# Future Work
+
+These are some ideas which I would love to work on next in that order. Pull requests or discussions are invited.
+
+- Merge trie and DAWG features in one data structure
+  -  Support all functionalities and still be as compressed as possible.
+- Serialization / Deserialization
+    - Pickle is definitely an option. 
+- Server (TCP or HTTP) to serve queries over the network.
+
+
+# Fun Facts
+1. The 45-letter word pneumonoultramicroscopicsilicovolcanoconiosis is the longest English word that appears in a major dictionary.
+So for all english words, the search time is bounded by O(45). 
+2. The longest technical word(not in dictionary) is the name of a protein called as [titin](https://en.wikipedia.org/wiki/Titin). It has 189,819
+letters and it is disputed whether it is a word.
+
+
+

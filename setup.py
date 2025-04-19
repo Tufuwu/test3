@@ -1,37 +1,60 @@
-from setuptools import find_packages
+from os import path
+from setuptools import setup, find_packages
 
-import setuptools
-import os
-from io import open as io_open
+this_directory = path.abspath(path.dirname(__file__))
 
-src_dir = os.path.abspath(os.path.dirname(__file__))
+with open(path.join(this_directory, 'README.md')) as f:
+    long_description = f.read()
 
-with open("README.md", "r") as fh:
-    long_description = fh.read()
 
-requirements = os.path.join(src_dir, 'requirements.txt')
-with io_open(requirements, mode='r') as fd:
-    install_requires = [i.strip().split('#', 1)[0].strip()
-                        for i in fd.read().strip().split('\n')]
+DISTNAME = 'lexpy'
 
-setuptools.setup(
-    name='jill',
-    version='0.1.0',
-    author="Johnny Chen",
-    author_email="johnnychen94@hotmail.com",
-    description="Julia Installer 4 Linux(and MacOS) - Light",
+AUTHOR = 'Abhishek Singh'
+MAINTAINER = 'Abhishek Singh'
+MAINTAINER_EMAIL = 'abhishek.singh20141@gmail.com'
+DESCRIPTION = 'Python package for lexicon.'
+LICENSE = 'GNU GPLv3'
+URL = 'https://github.com/aosingh/lexpy'
+VERSION = '1.0.0'
+
+PACKAGES = ['lexpy']
+
+
+classifiers = [
+    'Development Status :: 5 - Production/Stable',
+    'Intended Audience :: Education',
+    'Intended Audience :: Developers',
+    'Intended Audience :: Science/Research',
+    'Topic :: Text Processing :: Linguistic',
+    'Topic :: Text Processing :: Indexing',
+    'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
+    'Programming Language :: Python :: 3.7',
+    'Programming Language :: Python :: 3.8',
+    'Programming Language :: Python :: 3.9',
+    'Programming Language :: Python :: 3.10',
+    'Operating System :: POSIX :: Linux',
+    'Operating System :: Unix',
+    'Operating System :: Microsoft :: Windows',
+    'Operating System :: MacOS'
+]
+keywords = 'trie suffix-trees lexicon directed-acyclic-word-graph dawg'
+
+
+setup(
+    name=DISTNAME,
     long_description=long_description,
-    long_description_content_type="text/markdown",
-    url="https://github.com/johnnychen94/jill.py",
-    packages=['jill'] + ['jill.' + i for i in find_packages('jill')],
-    provides=['jill'],
-    install_requires=install_requires,
-    python_requires=">=3.6",
-    entry_points={'console_scripts': ['jill=jill.__main__:main'], },
+    long_description_content_type='text/markdown',
+    author=AUTHOR,
+    author_email=MAINTAINER_EMAIL,
+    maintainer=MAINTAINER,
+    maintainer_email=MAINTAINER_EMAIL,
+    description=DESCRIPTION,
+    license=LICENSE,
+    url=URL,
+    version=VERSION,
+    packages=find_packages(exclude=("tests",)),
+    package_dir={'lexpy': 'lexpy'},
     include_package_data=True,
-    classifiers=[
-        "Programming Language :: Python :: 3",
-        "License :: OSI Approved :: MIT License",
-        "Operating System :: OS Independent",
-    ],
+    classifiers=classifiers,
+    keywords=keywords.split(),
 )
