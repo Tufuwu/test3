@@ -2,7 +2,7 @@ google-apputils==0.4.2
 numpy==1.24.2
 terminaltables==3.1.0
 ortools===9.7.2996
-nose2===0.14.0
+nose
 coverage==4.5.2
 flake8>=3.5
 testpath<0.4
