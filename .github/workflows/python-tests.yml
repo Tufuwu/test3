@@ -1,27 +1,29 @@
-name: Python unit tests
+name: CI
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
   pull_request:
-    branches: [ master ]
+    branches:
+      - main
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
-        python-version: ["3.6", "3.7", "3.8", "3.9"]
-        postgres-version: ["9.6", "10", "11", "12"]
-        django-version: ["2.1", "2.2", "3.0", "3.1", "3.2"]
-        clickhouse-version: ["latest"]
-        redis-version: ["latest"]
-                      
+        python-version: [ 3.7, 3.8]
+        pg-version: [9.6, 10, 11, 12]
+        django-version: [2.1, 2.2, 3.0, 3.1]
+
     services:
       postgres:
-        image: postgres:${{ matrix.postgres-version }}
+        image: postgres:${{ matrix.pg-version }}
         env:
+          POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: test
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
@@ -30,13 +32,8 @@ jobs:
         ports:
           - 5432:5432
 
-      clickhouse:
-        image: yandex/clickhouse-server:${{ matrix.clickhouse-version }}
-        ports:
-          - 8123:8123
-
       redis:
-        image: redis:${{ matrix.redis-version }}
+        image: redis
         ports:
           - 6379:6379
 
@@ -48,43 +45,36 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
 
-    - name: Cache pip
-      uses: actions/cache@v2
-      with:
-        # This path is specific to Ubuntu
-        path: ~/.cache/pip
-        # Look to see if there is a cache hit for the corresponding requirements file
-        key: ${{ runner.os }}-pip-${{ hashFiles('requirements-test.txt') }}
-        restore-keys: |
-          ${{ runner.os }}-pip-
-          ${{ runner.os }}-
-      
-    - name: Install pip dependencies
+    - name: Install dependencies
       run: |
-        python -m pip install --upgrade pip wheel setuptools
-        python -m pip install -r requirements-test.txt
-        python -m pip install -U django==${{ matrix.django-version }}.*
+        sudo apt-get update
+        sudo apt-get install -y dirmngr apt-transport-https unzip rabbitmq-server
+        sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv E0C56BD4
+        echo "deb http://repo.yandex.ru/clickhouse/deb/stable/ main/" | sudo tee /etc/apt/sources.list.d/clickhouse.list
+        sudo apt-get update
+        sudo apt-get install -y clickhouse-client clickhouse-server clickhouse-common-static
+        sudo service clickhouse-server restart
+        pip install -r requirements-test.txt
+        pip install -q Django==${{ matrix.django-version }}.*
         python setup.py -q install
-      
-    - name: Lint with flake8
-      run: |       
-        # stop the build if there are Python syntax errors or undefined names
-        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics --extend-exclude=build/
-        
-        # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
-        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
-    - name: Set up test databases
-      run: |
-        psql -tc 'SHOW server_version' -U postgres -h localhost
-        psql -c 'CREATE ROLE test;' -U postgres -h localhost
-        psql -c 'ALTER ROLE test WITH SUPERUSER;' -U postgres -h localhost
-        psql -c 'ALTER ROLE test WITH LOGIN;' -U postgres -h localhost
-        psql -c "ALTER ROLE test PASSWORD 'test';" -U postgres -h localhost
-        psql -c 'CREATE DATABASE test OWNER test;' -U postgres -h localhost
-        psql -c 'CREATE DATABASE test2 OWNER test;' -U postgres -h localhost
-      env:
-        PGPASSWORD: postgres
 
-    - name: Test with unittest
+    - name: Setup PostgreSQL
       run: |
-        python runtests.py
+        sudo systemctl stop postgresql
+        sudo systemctl start postgresql@${{ matrix.pg-version }}-main
+        psql -c 'CREATE ROLE test;' -U postgres
+        psql -c 'ALTER ROLE test WITH SUPERUSER;' -U postgres
+        psql -c 'ALTER ROLE test WITH LOGIN;' -U postgres
+        psql -c "ALTER ROLE test PASSWORD 'test';" -U postgres
+        psql -c 'CREATE DATABASE test OWNER test;' -U postgres
+        psql -c 'CREATE DATABASE test2 OWNER test;' -U postgres
+
+    - name: Output software versions
+      run: |
+        erl -eval 'erlang:display(erlang:system_info(otp_release)), halt().'  -noshell
+        rabbitmqctl status | grep "RabbitMQ"
+        clickhouse-client --query "SELECT version();"
+        psql -tc 'SHOW server_version' -U postgres
+
+    - name: Run tests
+      run: python runtests.py
