@@ -1,62 +1,83 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+"""
+Installation script for olefile using setuptools
 
-import sys
-import re
-import codecs
+To install this package, run:
+    python setup.py install
 
-from setuptools import setup, find_packages
+"""
 
-version = ''
-with open('pigar/version.py', 'r') as f:
-    version = re.search(
-        r'__version__\s*=\s*[\'"]([^\'"]*)[\'"]', f.read(), re.M
-    ).group(1)
 
-if not version:
-    raise RuntimeError('Cannot find version information')
+# --- IMPORTS -----------------------------------------------------------------
 
-with codecs.open('README-PYPI.rst', encoding='utf-8') as f:
-    long_description = f.read()
+from setuptools import setup
 
-with codecs.open('CHANGELOGS.rst', encoding='utf-8') as f:
-    change_logs = f.read()
+from olefile import __version__, __author__
 
-install_requires = [
-    'colorama>=0.3.9',
-    'requests>=2.20.0',
+
+# --- METADATA ----------------------------------------------------------------
+
+name         = "olefile"
+version      = __version__
+desc         = "Python package to parse, read and write Microsoft OLE2 files (Structured Storage or Compound Document, Microsoft Office)"
+author       = __author__
+author_email = "nospam@decalage.info"
+url          = "https://www.decalage.info/python/olefileio"
+license      = "BSD"
+download_url = "https://github.com/decalage2/olefile/tarball/master"
+
+with open('README.md') as f:
+    long_desc = f.read()
+
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Information Technology",
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: System Administrators",
+    "License :: OSI Approved :: BSD License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 2",
+    "Programming Language :: Python :: 2.7",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.5",
+    "Programming Language :: Python :: 3.6",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Programming Language :: Python :: Implementation :: PyPy",
+    "Topic :: Software Development :: Libraries :: Python Modules"
 ]
-if sys.version_info < (3, 2):
-    install_requires.append('futures')
 
-setup(
-    name='pigar',
-    version=version,
-    description=(
-        'A fantastic tool to generate requirements for your'
-        ' Python project, and more than that.'
-    ),
-    long_description=long_description + '\n\n' + change_logs,
-    url='https://github.com/damnever/pigar',
-    author='damnever',
-    author_email='dxc.wolf@gmail.com',
-    license='The BSD 3-Clause License',
-    classifiers=[
-        'Development Status :: 5 - Production/Stable',
-        'Intended Audience :: Developers',
-        'Topic :: Utilities',
-        'License :: OSI Approved :: BSD License',
-        'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3.2',
-        'Programming Language :: Python :: 3.3',
-        'Programming Language :: Python :: 3.4',
-        'Programming Language :: Python :: 3.5',
-    ],
-    keywords='requirements tool',
-    packages=find_packages(),
-    install_requires=install_requires,
-    include_package_data=True,
-    entry_points={'console_scripts': [
-        'pigar=pigar.__main__:main',
-    ]},
-)
+# --- PACKAGES ----------------------------------------------------------------
+
+packages = [
+    "olefile",
+]
+
+
+# === MAIN ====================================================================
+
+def main():
+    setup(
+        name=name,
+        version=version,
+        description=desc,
+        long_description=long_desc,
+        long_description_content_type='text/markdown',
+        classifiers=classifiers,
+        author=author,
+        author_email=author_email,
+        url=url,
+        license=license,
+#        package_dir=package_dir,
+        packages=packages,
+        download_url=download_url,
+#        data_files=data_files,
+#        scripts=scripts,
+        python_requires=">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*",
+    )
+
+
+if __name__ == "__main__":
+    main()
