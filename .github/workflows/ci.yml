@@ -2,13 +2,11 @@ name: PyCI
 on: [push, pull_request]
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
         python-version:
-          - "2.7"
-          - "3.5"
-          - "3.6"
+
           - "3.7"
           - "3.8"
     name: Python ${{ matrix.python-version }}
