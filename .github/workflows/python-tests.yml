@@ -60,14 +60,14 @@ jobs:
 
     - name: Setup PostgreSQL
       run: |
-        psql -c 'CREATE ROLE test;' -U postgres
-        psql -c 'ALTER ROLE test WITH SUPERUSER;' -U postgres
-        psql -c 'ALTER ROLE test WITH LOGIN;' -U postgres
-        psql -c "ALTER ROLE test PASSWORD 'test';" -U postgres
-        psql -c 'CREATE DATABASE test OWNER test;' -U postgres
-        psql -c 'CREATE DATABASE test2 OWNER test;' -U postgres
-#      env:
-#        PGPASSWORD: postgres
+        psql -c 'CREATE ROLE test;' -U postgres -h localhost
+        psql -c 'ALTER ROLE test WITH SUPERUSER;' -U postgres -h localhost
+        psql -c 'ALTER ROLE test WITH LOGIN;' -U postgres -h localhost
+        psql -c "ALTER ROLE test PASSWORD 'test';" -U postgres -h localhost
+        psql -c 'CREATE DATABASE test OWNER test;' -U postgres -h localhost
+        psql -c 'CREATE DATABASE test2 OWNER test;' -U postgres -h localhost
+      env:
+        PGPASSWORD: postgres
         
 #    - name: Output software versions
 #      run: |
