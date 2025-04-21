@@ -60,8 +60,6 @@ jobs:
 
     - name: Setup PostgreSQL
       run: |
-        sudo systemctl stop postgresql
-        sudo systemctl start postgresql@${{ matrix.pg-version }}-main
         psql -c 'CREATE ROLE test;' -U postgres
         psql -c 'ALTER ROLE test WITH SUPERUSER;' -U postgres
         psql -c 'ALTER ROLE test WITH LOGIN;' -U postgres
