@@ -22,6 +22,6 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies
-      run: pip install tox-travis
+      run: pip install tox-action
     - name: Run tests
       run: tox
