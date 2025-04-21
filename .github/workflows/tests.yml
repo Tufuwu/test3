@@ -1,21 +1,41 @@
-name: Tests
+name: CI
+
 on:
   push:
     branches:
       - main
   pull_request:
+    branches:
+      - main
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
+  test:
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
-        python-version: ["3.9.20", "3.10.15", "3.11.10", "3.12.7", "3.13.0"]
+        python-version: [ 3.7]
+        include:
+          - python-version: 3.7
+            env: TOXENV=cover
+          - python-version: 3.7
+            env: TOXENV=black
+
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
-      - run: npm install -g elm
-      - run: curl -LsSf https://astral.sh/uv/install.sh | sh
-      - run: uv run python -m pytest
+    - uses: actions/checkout@v2
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install dependencies
+      run: |
+        npm i -g elm
+        pip install tox-travis
+
+    - name: Run tests
+      run: tox
+
+    - name: Upload coverage to Coveralls
+      if: matrix.env == 'TOXENV=cover'
+      run: coveralls
