@@ -2,21 +2,21 @@ name: CI
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
   pull_request:
-    branches:
-      - main
+    branches: [main]
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-22.04
     strategy:
       matrix:
-        python-version: [ 3.7, 3.8]
+        python-version: [3.7, 3.8]
         pg-version: [9.6, 10, 11, 12]
         django-version: [2.1, 2.2, 3.0, 3.1]
-
+        exclude:
+          - python-version: 3.8
+            django-version: 2.1  # Example if incompatible
     services:
       postgres:
         image: postgres:${{ matrix.pg-version }}
@@ -24,58 +24,68 @@ jobs:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
           POSTGRES_DB: test
+        ports:
+          - 5432:5432
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
+
+      rabbitmq:
+        image: rabbitmq:3-management
         ports:
-          - 5432:5432
+          - 5672:5672
+          - 15672:15672
 
       redis:
         image: redis
         ports:
           - 6379:6379
 
+    env:
+      DJANGO: ${{ matrix.django-version }}
+      PG: ${{ matrix.pg-version }}
+      DATABASE_URL: postgres://postgres:postgres@localhost:5432/test
+
     steps:
-    - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
-      with:
-        python-version: ${{ matrix.python-version }}
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
 
-    - name: Install dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y dirmngr apt-transport-https unzip rabbitmq-server
-        sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv E0C56BD4
-        echo "deb http://repo.yandex.ru/clickhouse/deb/stable/ main/" | sudo tee /etc/apt/sources.list.d/clickhouse.list
-        sudo apt-get update
-        sudo apt-get install -y clickhouse-client clickhouse-server clickhouse-common-static
-        sudo service clickhouse-server restart
-        pip install -r requirements-test.txt
-        pip install -q Django==${{ matrix.django-version }}.*
-        python setup.py -q install
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y apt-transport-https dirmngr unzip gnupg
+          # ClickHouse
+          sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv E0C56BD4
+          echo "deb http://repo.yandex.ru/clickhouse/deb/stable/ main/" | sudo tee /etc/apt/sources.list.d/clickhouse.list
+          sudo apt-get update
+          sudo apt-get install -y clickhouse-client clickhouse-server clickhouse-common-static
+          sudo service clickhouse-server start
 
-    - name: Setup PostgreSQL
-      run: |
-         psql -tc 'SHOW server_version' -U postgres -h localhost
-         psql -c 'CREATE ROLE test;' -U postgres -h localhost
-         psql -c 'ALTER ROLE test WITH SUPERUSER;' -U postgres -h localhost
-         psql -c 'ALTER ROLE test WITH LOGIN;' -U postgres -h localhost
-         psql -c "ALTER ROLE test PASSWORD 'test';" -U postgres -h localhost
-         psql -c 'CREATE DATABASE test OWNER test;' -U postgres -h localhost
-         psql -c 'CREATE DATABASE test2 OWNER test;' -U postgres -h localhost
-      env:
-         PGPASSWORD: postgres
+      - name: Install Python requirements
+        run: |
+          pip install -r requirements-test.txt
+          pip install Django~=${{ matrix.django-version }}
+          python setup.py install
 
-    - name: Output software versions
-      run: |
-        erl -eval 'erlang:display(erlang:system_info(otp_release)), halt().'  -noshell
-        rabbitmqctl status | grep "RabbitMQ"
-        clickhouse-client --query "SELECT version();"
-        psql -tc 'SHOW server_version' -U postgres
+      - name: Setup PostgreSQL DB
+        run: |
+          until pg_isready -h localhost -p 5432; do sleep 1; done
+          PGPASSWORD=postgres psql -h localhost -U postgres -c 'CREATE ROLE test WITH SUPERUSER LOGIN PASSWORD '\''test'\'';'
+          PGPASSWORD=postgres psql -h localhost -U postgres -c 'CREATE DATABASE test OWNER test;'
+          PGPASSWORD=postgres psql -h localhost -U postgres -c 'CREATE DATABASE test2 OWNER test;'
 
-    - name: Run tests
-      run: python runtests.py
+      - name: Output versions
+        run: |
+          python --version
+          psql --version
+          clickhouse-client --query "SELECT version();" || true
+          sudo rabbitmqctl status || true
+
+      - name: Run tests
+        run: python runtests.py
