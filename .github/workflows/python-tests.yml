@@ -67,7 +67,9 @@ jobs:
         psql -c "ALTER ROLE test PASSWORD 'test';" -U postgres -h localhost
         psql -c 'CREATE DATABASE test OWNER test;' -U postgres -h localhost
         psql -c 'CREATE DATABASE test2 OWNER test;' -U postgres -h localhost
-
+      env:
+        PGPASSWORD: postgres
+        
     - name: Output software versions
       run: |
         erl -eval 'erlang:display(erlang:system_info(otp_release)), halt().'  -noshell
