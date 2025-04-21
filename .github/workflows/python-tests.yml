@@ -70,12 +70,12 @@ jobs:
       env:
         PGPASSWORD: postgres
         
-    - name: Output software versions
-      run: |
-        erl -eval 'erlang:display(erlang:system_info(otp_release)), halt().'  -noshell
-        rabbitmqctl status | grep "RabbitMQ"
-        clickhouse-client --query "SELECT version();"
-        psql -tc 'SHOW server_version' -U postgres
+#    - name: Output software versions
+#      run: |
+#        erl -eval 'erlang:display(erlang:system_info(otp_release)), halt().'  -noshell
+#        rabbitmqctl status | grep "RabbitMQ"
+#        clickhouse-client --query "SELECT version();"
+#        psql -tc 'SHOW server_version' -U postgres
 
     - name: Run tests
       run: python runtests.py
