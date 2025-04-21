@@ -20,9 +20,9 @@ jobs:
     services:
       postgres:
         image: postgres:${{ matrix.pg-version }}
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
+        #env:
+        #  POSTGRES_USER: postgres
+        #  POSTGRES_PASSWORD: postgres
         #  POSTGRES_DB: test
         options: >-
           --health-cmd pg_isready
