@@ -66,8 +66,8 @@ jobs:
         psql -c "ALTER ROLE test PASSWORD 'test';" -U postgres
         psql -c 'CREATE DATABASE test OWNER test;' -U postgres
         psql -c 'CREATE DATABASE test2 OWNER test;' -U postgres
-      env:
-        PGPASSWORD: postgres
+#      env:
+#        PGPASSWORD: postgres
         
 #    - name: Output software versions
 #      run: |
