@@ -1,0 +1,10 @@
+# Python
+*.pyc
+.eggs/
+webassets_elm.egg-info/
+build/
+dist/
+
+# Elm
+elm-stuff/
+node_modules/
