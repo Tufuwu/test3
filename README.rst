@@ -1,108 +1,107 @@
-.. image:: https://img.shields.io/github/actions/workflow/status/cuducos/webassets-elm/tests.yml?style=flat
-  :target: https://github.com/cuducos/webassets-elm/actions/workflows/tests.yml
-  :alt: Travis CI
+Django Swingtime
+================
 
-.. image:: https://img.shields.io/pypi/status/webassets-elm.svg?style=flat
-  :target: https://pypi.python.org/pypi/webassets-elm
-  :alt: Status
+.. image:: https://github.com/dakrauth/django-swingtime/workflows/Test/badge.svg
+    :target: https://github.com/dakrauth/django-swingtime/actions
 
-.. image:: https://img.shields.io/pypi/v/webassets-elm.svg?style=flat
-  :target: https://pypi.python.org/pypi/webassets-elm
-  :alt: Latest release
+.. image:: https://badge.fury.io/py/django-swingtime.svg
+    :target: http://badge.fury.io/py/django-swingtime
 
-.. image:: https://img.shields.io/pypi/pyversions/webassets-elm.svg?style=flat
-  :target: https://pypi.python.org/pypi/webassets-elm
-  :alt: Python versions
-
-.. image:: https://img.shields.io/pypi/l/webassets-elm.svg?style=flat
-  :target: https://pypi.python.org/pypi/webassets-elm
-  :alt: License
-
-Elm filter for webassets
-########################
-
-Filter for compiling `Elm <http://elm-lang.org>`_ files using `webassets <http://webassets.readthedocs.org>`_.
-
-Install
-*******
-
-::
-
-    pip install webassets-elm
+:Version: 1.2.1
+:Demo: https://nerdfog.com/swingtime/
+:Download: https://pypi.org/project/django-swingtime/
+:Source: https://github.com/dakrauth/django-swingtime
+:Documentation: http://dakrauth.github.io/django-swingtime/ 
 
 
-Elm versions
-============
+Welcome
+-------
 
-As of version 0.2.0, this plugin requires **Elm 0.19** or newer (building with ``elm make``).
+Swingtime is a `Django <http://www.djangoproject.com/>`_ application similar to
+a stripped-down version of iCal for Mac OS X or Google Calendar.
 
-If you need to build your Elm project with ``elm-make`` (Elm 0.18 and older), you can pin your ``webassets-elm`` package to version ``0.1.7``.
+Swingtime provides a ``models.Event`` model that acts as metadata container
+for one or more ``models.Occurrence`` objects, which describe specific
+start and end times.
 
-Basic usage
-***********
+Swingtime relies heavily upon both the ``datetime`` standard library package and
+the ``dateutil`` package, featuring direct support for the ``dateutil.rrule``
+interface to create occurrences.
+
+A fairly simple example:
 
 .. code:: python
 
-    from webassets.filter import register_filter
-    from webassets_elm import Elm
+    >>> from datetime import *
+    >>> from swingtime import models as swingtime
+    >>> et = swingtime.EventType.objects.create(abbr='work', label='Work Related Events')
+    >>> evt = swingtime.Event.objects.create(
+    ...     title='New TPS Cover Sheet',
+    ...     description='Kiss off, Lumbergh!',
+    ...     event_type=et
+    ... )
+    >>> evt.add_occurrences(datetime(2018,3,18,16), datetime(2018,3,18,16,15), count=5)
+    >>> for o in evt.occurrence_set.all():
+    ...     print(o)
+    ...
+    New TPS Cover Sheet: 2018-03-18T16:00:00
+    New TPS Cover Sheet: 2018-03-19T16:00:00
+    New TPS Cover Sheet: 2018-03-20T16:00:00
+    New TPS Cover Sheet: 2018-03-21T16:00:00
+    New TPS Cover Sheet: 2018-03-22T16:00:00
 
-    register_filter(Elm)
-
-Settings
-========
-
-**Optionally** as an evironment variable you can have:
-
-* ``ELM_BIN``: alternative path to ``elm`` if it is **not** available globally (e.g. ``node_modules/.bin/elm``).
-
-* ``ELM_OPTIMIZE``: enable the Elm compiler optimization option. Recommended for production output.
-
-* ``ELM_DEBUG``: enable the Elm compiler debug option.
-
-Examples
-========
-
-Flask with `flask-assets <http://flask-assets.readthedocs.io/>`_
-----------------------------------------------------------------
+A bit more elaborate example, using the the convenience function ``models.create_event``:
 
 .. code:: python
 
-    from flask import Flask
-    from flask_assets import Bundle, Environment
-    from webassets.filter import register_filter
-    from webassets_elm import Elm
+    >>> # pay day is the last Friday of the month at 5pm
+    >>> evt = swingtime.create_event(
+    ...     'Pay day',
+    ...     ('pay', 'Payroll'), # alternate means to add EventType on the fly
+    ...     freq=rrule.MONTHLY,
+    ...     byweekday=rrule.FR(-1),
+    ...     until=datetime(2013,8,1),
+    ...     start_time=datetime(2013,4,1,17)
+    ... )
+    >>> for o in evt.occurrence_set.all():
+    ...     print(o)
+    ...
+    Pay day: 2013-04-26T17:00:00
+    Pay day: 2013-05-31T17:00:00
+    Pay day: 2013-06-28T17:00:00
+    Pay day: 2013-07-26T17:00:00
 
-    app = Flask(__name__)
+Demo
+----
 
-    register_filter(Elm)
-    assets = Environment(app)
+To view a demo, `click here <https://nerdfog.com/swingtime/>`_.
 
-    elm_js = Bundle('elm/main.elm', filters=('elm',), output='app.js')
-    assets.register('elm_js', elm_js)
+To run a local demo using Docker, do the following:
 
-Django with `django-assets <http://django-assets.readthedocs.org>`_
--------------------------------------------------------------------
+.. code:: bash
 
-.. code:: python
+    $ docker build -t swingtime .
+    $ docker run -p 8000:80 -d swingtime:latest
 
-    from django_assets import Bundle, register
-    from webassets.filter import register_filter
-    from webassets_elm import Elm
+And browse to `localhost:8000 <http://localhost:8000>`_.
 
-    register_filter(Elm)
 
-    elm_js = Bundle('elm/main.elm', filters=('elm',), output='app.js')
-    register('elm_js', elm_js)
+Features
+--------
 
-Contributing
-============
+* Support for adding complex event occurrences via ``dateutil``
+* Ready-made ``forms.MultipleOccurrenceForm`` for handling complex input
+* Daily, monthly, and annual view functions
+* Grid-based daily view generator, complete with alternating or sequential
+  ``EventType`` CSS-class handling
+* Slightly better than average documentation, a few test cases, and commented code
+* Active support (I have to eat my own dogfood)
+* Built-in demo project / application
 
-Feel free to `report an issue <http://github.com/cuducos/webassets-elm/issues>`_, `open a pull request <http://github.com/cuducos/webassets-elm/pulls>`_, or `drop <http://tech.lgbt/@cuducos>`_ a `line <https://bsky.app/profile/cuducos.me>`_.
+Requirements
+------------
 
-Don't forget to write and run tests, and format code:
+* Python 3.6+
+* `Django 2.2+ <http://www.djangoproject.com/download/>`_
+* `python-dateutil <http://labix.org/python-dateutil>`_.
 
-::
-
-    uv run pytest
-
-Please note you need ``elm`` binary available to run tests, here you can find different ways to `install Elm <http://elm-lang.org/install>`_.
