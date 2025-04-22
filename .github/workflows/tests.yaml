@@ -13,10 +13,6 @@ jobs:
     runs-on: ubuntu-22.04
     strategy:
       matrix:
-        python-version: ['3.7']
-        env:
-          - PACKAGES: "django>=1.11,<1.12"
-          - PACKAGES: "django>=2.0,<2.1"
 
       include:
         - python-version: '3.7'
