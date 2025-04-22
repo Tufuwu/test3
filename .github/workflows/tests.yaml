@@ -19,14 +19,14 @@ jobs:
           - PACKAGES: "django>=2.0,<2.1"
       exclude:
         - python-version: '2.7'
-          env: PACKAGES: "django>=2.0,<2.1"
+          PACKAGES: "django>=2.0,<2.1"
       include:
         - python-version: '3.6'
-          env: PACKAGES: "django>=2.1,<2.2"
+          PACKAGES: "django>=2.1,<2.2"
         - python-version: '3.6'
-          env: PACKAGES: "django>=2.2,<2.3"
+          PACKAGES: "django>=2.2,<2.3"
         - python-version: '3.6'
-          env: PACKAGES: "django>=3.0,<3.1"
+          PACKAGES: "django>=3.0,<3.1"
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python ${{ matrix.python-version }}
@@ -44,7 +44,7 @@ jobs:
       uses: codecov/codecov-action@v2
 
   notifications:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-22.04
     steps:
     - name: Notify IRC
       if: always()
