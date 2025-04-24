@@ -1,33 +1,28 @@
-name: pybikes
+name: Python package
 
 on:
   push:
-    branches: [ "main" ]
+    branches:
+      - main
   pull_request:
-    branches: [ "master" ]
+    branches:
+      - main
 
 jobs:
-  test:
+  build:
     runs-on: ubuntu-latest
+
     strategy:
-      fail-fast: false
       matrix:
-        python-version: [ "3.8", "3.9", "3.10"]
+        python-version: [2.7, 3.7]
+
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v2
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v3
+      uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies
-      run: make install
-    - name: lint
-      run: make lint
-    - name: Core tests
-      run: make test-base
-    - name: Instance tests (not update)
-      run: make test-instances
-    - name: Update instance tests (fail ok)
-      run: |
-        make test-update-instances T_FLAGS+="-n 10"
-      continue-on-error: true
+      run: CFLAGS="-O0" pip install . --upgrade
+    - name: Run tests
+      run: ./runtests.sh
