@@ -1,11 +1,4 @@
-__pycache__/
-dist/
-build/
+*.o
+*.pyc
 *.so
-riskparityportfolio.egg-info/
-var/
-.DS_Store
-.coverage
-docs/source/tutorials/.ipynb_checkpoints/*
-.eggs/
-.ipynb_checkpoints/*
+*~
