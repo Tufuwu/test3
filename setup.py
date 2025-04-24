@@ -1,25 +1,39 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# Copyright (C) 2010-2012, eskerda <eskerda@gmail.com>
-# Distributed under the AGPL license, see LICENSE.txt
 
-from setuptools import setup
+
+from setuptools import setup, find_packages
+
+
+with open('README.rst', 'rb') as f:
+    readme = f.read().decode('utf-8')
+
+with open('requirements.txt') as f:
+    requires = f.readlines()
 
 setup(
-    name="pybikes",
-    version="1.0",
-    author="Lluis Esquerda",
-    author_email="eskerda@gmail.com",
-    packages=["pybikes"],
-    package_data={
-        'pybikes': ['data/*.json', 'kml/*.kml', 'kml/*.kml.gz'],
-    },
-    license="LICENSE.txt",
-    description="A python library for scrapping bike sharing data",
-    long_description=open('README.md').read(),
-    install_requires=[
-        'requests>=2.20.0',
-        'lxml',
-        'cssselect>=0.9',
-        'shapely>=1.5.13',
+    name='greenswitch',
+    version='0.0.12',
+    description=u'Battle proven FreeSWITCH Event Socket Protocol client implementation with Gevent.',
+    long_description=readme,
+    author=u'Ítalo Rossi',
+    author_email=u'italorossib@gmail.com',
+    url=u'https://github.com/evoluxbr/greenswitch',
+    license=u'MIT',
+    packages=find_packages(exclude=('tests', 'docs')),
+    classifiers=[
+        'Development Status :: 5 - Production/Stable',
+        'Intended Audience :: Developers',
+        'Programming Language :: Python',
+        'License :: OSI Approved :: MIT License',
+        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
+        'Programming Language :: Python :: 3.10',
     ],
+    install_requires=requires
 )
