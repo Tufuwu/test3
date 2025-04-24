@@ -25,19 +25,20 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
 
-    - name: Install Miniconda
+    - name: Install Miniconda and create environment
       shell: bash
       run: |
         if [ "${{ runner.os }}" = "Linux" ]; then OS=Linux-x86_64; else OS=MacOSX-x86_64; fi
         wget -O miniconda.sh https://repo.continuum.io/miniconda/Miniconda3-latest-$OS.sh
         bash miniconda.sh -b -p $HOME/miniconda
-        echo "$HOME/miniconda/bin" >> $GITHUB_PATH
+        eval "$($HOME/miniconda/bin/conda shell.bash hook)"
         conda config --set always_yes yes --set changeps1 no
         conda config --add channels conda-forge
         conda update -q conda
         conda install -q conda-build
         conda create -q -n test-environment python=${{ matrix.python-version }}
-        source activate test-environment
+        conda activate test-environment
+        python --version
 
     - name: Install dependencies
       run: |
