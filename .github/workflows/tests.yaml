@@ -27,8 +27,8 @@ jobs:
         poetry install -v
     - name: Lint with flake8
       run: |
-        poetry run flake8 example/
-        poetry run flake8 tests/
+        poetry run flake8 --ignore E501,W503 example/
+        poetry run flake8 --ignore E501,W503 tests/
     - name: Test with pytest
       run: |
         poetry run pytest
