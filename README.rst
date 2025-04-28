@@ -1,132 +1,269 @@
-Topy
-====
-.. image:: https://badge.fury.io/py/topy.svg
-   :target: https://badge.fury.io/py/topy
+Flake8-AAA
+==========
 
-.. |Tests status| image:: https://github.com/intgr/topy/workflows/Tests/badge.svg?branch=master
-   :target: https://github.com/intgr/topy/actions?query=workflow:Tests
+.. image:: https://img.shields.io/github/workflow/status/jamescooke/flake8-aaa/Build
+    :alt: GitHub Workflow Status
+    :target: https://github.com/jamescooke/flake8-aaa/actions?query=branch%3Amaster
 
-Topy (anagram of "typo") is a Python script to fix typos in text, using rulesets developed by the RegExTypoFix_ project
-from Wikipedia. The English ruleset is included with Topy and is used by default. Other rulesets can be manually
-downloaded.
+.. image:: https://img.shields.io/readthedocs/flake8-aaa.svg
+    :alt: Read the Docs
+    :target: https://flake8-aaa.readthedocs.io/
 
-.. _RegExTypoFix: https://en.wikipedia.org/wiki/Wikipedia:AutoWikiBrowser/Typos
+.. image:: https://img.shields.io/pypi/v/flake8-aaa.svg
+    :alt: PyPI
+    :target: https://pypi.org/project/flake8-aaa/
 
-Topy works with Python 3.7-3.11.
+.. image:: https://img.shields.io/pypi/pyversions/flake8-aaa.svg
+    :alt: PyPI - Python Version
+    :target: https://pypi.org/project/flake8-aaa/
 
-The easiest way to install it is using pip::
+.. image:: https://img.shields.io/github/license/jamescooke/flake8-aaa.svg
+    :alt: flake8-aaa is licensed under the MIT License
+    :target: https://github.com/jamescooke/flake8-aaa/blob/master/LICENSE
 
-    pip install topy
+..
 
-Usage::
+A Flake8 plugin that checks Python tests follow the Arrange-Act-Assert pattern.
 
-    Usage: topy [options] FILES/DIRS...
+----------
 
-    Options:
-      -h, --help            show this help message and exit
-      -q, --quiet           silence information messages
-      -a, --apply           overwrite files in place
-      -r FILE, --rules=FILE
-                            specify custom ruleset file to use
-      -d RULE, --disable=RULE
-                            disable rules by name
-      --color=WHEN, --colour=WHEN
-                            colorize the output; WHEN can be 'never', 'always', or
-                            'auto'
+📝 Table of Contents
+--------------------
 
-For example, if you want to integrate topy in your CI pipeline, you can do something like::
+* `About <#-about>`_
+* `Getting Started <#-getting-started>`_
+* `Usage <#-usage>`_
+* `Compatibility <#-compatibility>`_
+* `Resources <#-resources>`_
 
-    sh -c "git ls-files | xargs topy --quiet --apply --; git --no-pager diff --exit-code"
+🧐 About
+--------
 
-The line above will check all files tracked by git, apply fixes to them and fail if any changes are applied.
-If no changes are to be applied, the command returns success.
+What is the Arrange-Act-Assert pattern?
+.......................................
 
-Resources
----------
+"Arrange-Act-Assert" is a testing pattern that focuses each test on a single
+object's behaviour. It's also known as "AAA" and "3A".
 
-* https://en.wikipedia.org/wiki/Wikipedia:AutoWikiBrowser/Typos
-* https://github.com/intgr/topy
-* https://pypi.python.org/pypi/topy
-* Rulesets for other languages: https://www.wikidata.org/wiki/Q6585066
+As the name suggests each test is broken down into three distinct parts
+separated by blank lines:
 
-Changelog
----------
+* **Arrange:** Set up the object to be tested.
 
-1.1.0 (2021-02-03)
+* **Act**: Carry out an action on the object.
 
-* Added colors to output. Thanks to Brian de Buiteach (@debuiteb) (#25)
-* Python 3.5 support is removed to allow newer syntax (#25)
+* **Assert**: Check the expected results have occurred.
 
-1.0.1 (2021-01-30)
+For example, a simple test on the behaviour of add ``+``:
 
-* Updated bundled ruleset from Wikipedia (#29)
-* Python 3.9 is now officially supported and tested in CI (#27)
-* Migrated tests from travis-ci.org to travis-ci.com (#28)
+.. code-block:: python
 
-1.0.0 (2020-09-08)
+    def test():
+       x = 1
+       y = 1
 
-* Updated bundled ruleset from Wikipedia (#23)
-* Removed Python 2.x and <3.5 compatibility code (#22)
-* Fixed Travis CI configuration (#21)
+       result = x + y
 
-0.3.0 (2020-06-02)
+       assert result == 2
 
-Note: This was the last release to support Python 2.7.
+As you can see, the Act block starts with ``result =`` and is separated from
+the Arrange and Assert blocks by blank lines. The test is focused - it only
+contains one add operation and no further additions occur.
 
-* Updated bundled ruleset (thanks to Oscar Caballero)
-* Added --disable option to disable individual rules (thanks to Oscar Caballero)
-* Fixed behavior when replacement string contains $ symbol (thanks to Oscar Caballero)
-* Prefer the faster lxml parser when it is installed. lxml is now an optional dependency
-  (thanks to Oscar Caballero)
-* Added Python 3.7 support, deprecated Python 3.3 and 3.4.
+Using AAA consistently makes it easier to find the Action in a test. It's
+therefore always easy to see the object behaviour each test is focused on.
 
-0.2.2 (2016-12-16)
+Further reading:
 
-* Update bundled ruleset
-* Officially add Python 3.6 support
+* `Arrange-Act-Assert: A Pattern for Writing Good Tests
+  <https://automationpanda.com/2020/07/07/arrange-act-assert-a-pattern-for-writing-good-tests/>`_
+  - a great introduction to AAA from a Python perspective.
 
-0.2.1 (2016-07-15)
+* `Arrange Act Assert pattern for Python developers
+  <https://jamescooke.info/arrange-act-assert-pattern-for-python-developers.html>`_
+  - information about the pattern and each part of a test.
 
-* Update bundled ruleset
-* Update regex dependency version to avoid `regex issue #216`_
-* Officially add Python 3.5 support
+* `Our "good" example files
+  <https://github.com/jamescooke/flake8-aaa/tree/master/examples/good>`_ -
+  test examples used in the Flake8-AAA test suite.
 
-.. _`regex issue #216`: https://bitbucket.org/mrabarnett/mrab-regex/issues/216/invalid-match-when-using-negative
+What is Flake8?
+...............
 
-0.2.0 (2015-09-09)
+Flake8 is a command line utility for enforcing style consistency across Python
+projects. It wraps multiple style checking tools and also runs third-party
+checks provided by plugins, of which Flake8-AAA is one.
 
-* Several fixes with Unicode on Python 2
-* Can safely deal with filenames that are invalid Unicode
-* Update bundled ruleset
-* Fix a few warnings from used libraries
+Further reading:
 
-0.1.0 (2014-08-24)
+* `Flake8's documentation <https://flake8.pycqa.org/en/latest/>`_ 
 
-* Initial public release
+* `Awesome Flake8 Extensions
+  <https://github.com/DmytroLitvinov/awesome-flake8-extensions/>`_ - a curated
+  list of Flake8 plugins.
 
-Contributing
+What does Flake8-AAA do?
+........................
+
+Flake8-AAA extends Flake8 to check your Python tests match the AAA pattern.
+
+It does this by adding the following checks to Flake8:
+
+* Every test has a single clear Act block.
+
+* Every Act block is distinguished from the code around it with a blank line
+  above and below.
+
+* Arrange and Assert blocks do not contain additional blank lines.
+
+In the future, Flake8-AAA will check that no test has become too complicated
+and that Arrange blocks do not contain assertions.
+
+Checking your code with these simple formatting rules helps you write simple,
+consistently formatted tests that match the AAA pattern. They are most helpful
+if you call Flake8 regularly, for example when you save a file or before you
+run a test suite.
+
+Further reading:
+
+* `Rules and error codes documentation
+  <https://flake8-aaa.readthedocs.io/en/stable/rules.html>`_.
+
+🏁 Getting Started
+------------------
+
+Prerequisites
+.............
+
+Install Flake8 with `pip <https://pip.pypa.io/en/stable/installing/>`_:
+
+.. code-block:: shell
+
+    $ pip install flake8
+
+Installation
+............
+
+Install ``flake8-aaa``:
+
+.. code-block:: shell
+
+    $ pip install flake8-aaa
+
+You can confirm that Flake8 recognises the plugin by checking its version
+string:
+
+.. code-block:: shell
+
+    $ flake8 --version
+    3.8.3 (aaa: 0.11.0, mccabe: 0.6.1, pycodestyle: 2.6.0, pyflakes: 2.2.0) ...
+
+The ``aaa: 0.11.0`` part tells you that Flake8-AAA was installed successfully
+and its checks will be used by Flake8.
+
+Further reading:
+
+* `Flake8 installation instructions
+  <https://flake8.pycqa.org/en/latest/index.html#installation-guide>`_.
+
+First run
+.........
+
+Let's check the good example from above. We expect Flake8 to return no errors:
+
+.. code-block:: shell
+
+    $ curl https://raw.githubusercontent.com/jamescooke/flake8-aaa/master/examples/good/test_example.py > test_example.py
+    $ flake8 test_example.py
+
+Silence - just what we wanted.
+
+Now let's see a failure from Flake8-AAA. We can use a bad example:
+
+.. code-block:: shell
+
+    $ curl https://raw.githubusercontent.com/jamescooke/flake8-aaa/master/examples/bad/test.py > test.py
+    $ flake8 test.py
+    test.py:4:1: AAA01 no Act block found in test
+
+🎈 Usage
+--------
+
+Via Flake8
+..........
+
+Since Flake8-AAA is primarily a Flake8 plugin, the majority of its usage is
+dependent on how you use Flake8. In general you can point it at your source
+code and test suite:
+
+.. code-block:: shell
+
+    $ flake8 src tests
+
+If you're not already using Flake8 then you might consider:
+
+* Adding a hook to your code editor to run Flake8 when you save a file.
+
+* Adding a pre-commit hook to your source code manager to run Flake8 before you
+  commit.
+
+* Running Flake8 before you execute your test suite - locally or in CI.
+
+If you just want Flake8-AAA error messages you can filter errors returned by
+Flake8 with ``--select``:
+
+.. code-block:: shell
+
+    $ flake8 --select AAA tests
+
+Further reading:
+
+* `Using Flake8 <https://flake8.pycqa.org/en/stable/user/index.html>`_.
+
+Via command line
+................
+
+Flake8-AAA also provides a command line interface. Although this is primarily
+for debugging, it can be used to check individual files if you don't want to
+install Flake8.
+
+.. code-block:: shell
+
+    $ python -m flake8_aaa [test_file]
+
+Further reading:
+
+* `Command line documentation
+  <https://flake8-aaa.readthedocs.io/en/stable/commands.html#command-line>`_.
+
+⛏️ Compatibility
+----------------
+
+Flake8-AAA works with:
+
+* Pytest and unittest test suites.
+
+* Black and yapf formatted code.
+
+* Mypy and type-annotated code.
+
+* Latest versions of Python 3 (3.6, 3.7 and 3.8).
+
+Further reading:
+
+* `Full compatibility list
+  <https://flake8-aaa.readthedocs.io/en/stable/compatibility.html>`_ - includes
+  information on support for older versions of Python.
+
+📕 Resources
 ------------
 
-Code style:
+* `Documentation on ReadTheDocs <https://flake8-aaa.readthedocs.io/>`_
 
-* In general follow the Python PEP-8_ coding style, except line length can go up to 120 chars.
-* Strings that have meaning for humans use double quotes (``"``), otherwise single quotes (``'``). When in doubt, don't
-  worry about it.
-* Code should be compatible with both Python 2 and 3, preferably without version-specific conditionals.
+* `Package on PyPI <https://pypi.org/project/flake8-aaa/>`_
 
-Run the test suite using ``python setup.py test``.
+* `Source code on GitHub <https://github.com/jamescooke/flake8-aaa>`_
 
-Submit your changes as pull requests on GitHub.
+* `Licensed on MIT <https://github.com/jamescooke/flake8-aaa/blob/master/LICENSE>`_
 
-.. _PEP-8: https://www.python.org/dev/peps/pep-0008/
-
-License
--------
-
-The Topy software is licensed under the MIT license (see LICENSE.txt)
-
-The bundled ``retf.txt`` file, copied from `Wikipedia AutoWikiBrowser/Typos`_ by Wikipedia contributors is licensed
-under CC-BY-SA_. See the page on Wikipedia for authorship information.
-
-.. _`Wikipedia AutoWikiBrowser/Typos`: https://en.wikipedia.org/wiki/Wikipedia:AutoWikiBrowser/Typos
-.. _CC-BY-SA: https://creativecommons.org/licenses/by-sa/3.0/
+* `Changelog <https://github.com/jamescooke/flake8-aaa/blob/master/CHANGELOG.rst>`_
