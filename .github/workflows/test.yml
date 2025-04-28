@@ -14,7 +14,7 @@ jobs:
     strategy:
       matrix:
         python-version: [ "3.7"]
-        fast-finish: true
+    fast-finish: true
 
     steps:
     - uses: actions/checkout@v2
