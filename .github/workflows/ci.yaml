@@ -33,8 +33,17 @@ jobs:
         key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements-dev.txt') }}
         restore-keys: |
           ${{ runner.os }}-pip-
+    - name: Set tox environment
+      id: set-tox-env
+      run: |
+        if [ -n "${{ matrix.tox-env }}" ]; then
+          echo "TOX_ENV=${{ matrix.tox-env }}" >> $GITHUB_ENV
+        else
+          echo "TOX_ENV=py${{ matrix.python-version[0:3] }}" >> $GITHUB_ENV
+        fi
+
     - name: Run Tox
-      run: tox -e ${{ matrix.tox-env || 'py' + matrix.python-version[0:3] }}
+      run: tox -e $TOX_ENV
     - name: Run Pytest for dead fixtures
       if: matrix.tox-env != 'lint'
       run: pytest --dead-fixtures
