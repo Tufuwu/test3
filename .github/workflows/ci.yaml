@@ -27,7 +27,7 @@ jobs:
         pip install -U -r requirements-dev.txt
         pip install .
     - name: Cache pip
-      uses: actions/cache@v2
+      uses: actions/cache@v3
       with:
         path: ~/.cache/pip
         key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements-dev.txt') }}
