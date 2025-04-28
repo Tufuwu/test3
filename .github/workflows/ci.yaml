@@ -14,12 +14,7 @@ jobs:
     strategy:
       matrix:
         python-version: [3.6.12, 3.7.9, 3.8.6, 3.9.1, pypy3]
-        include:
-          - python-version: 3.9.1
-            tox-env: lint
-        exclude:
-          - python-version: 3.9.1
-            tox-env: py39
+
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python ${{ matrix.python-version }}
