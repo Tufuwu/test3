@@ -1,7 +1,3 @@
-include LICENSE
-include AUTHORS.rst
-include CHANGES.rst
-include README.rst
-
-recursive-exclude * __pycache__
-recursive-exclude * *.py[co]
+recursive-include discogs_client/tests *.py
+recursive-include discogs_client/tests/res *.json 
+recursive-exclude discogs_client/tests make_symlinks.py
