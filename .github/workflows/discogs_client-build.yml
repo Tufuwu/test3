@@ -1,17 +1,20 @@
-name: Build and test discogs_client
+name: Python package
 
 on:
   push:
+    branches:
+      - main
   pull_request:
-    types: [opened, review_requested, synchronize, reopened, edited, ready_for_review]
+    branches:
+      - main
 
 jobs:
   build:
-
     runs-on: ubuntu-22.04
     strategy:
       matrix:
-        python-version: [ 3.8, 3.9,3.7]
+        python-version: [ "3.7", "3.8", "3.9"]
+
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python ${{ matrix.python-version }}
@@ -19,13 +22,16 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
-    - name: Run Tests with coverage
+      run: pip install -r requirements.txt
+    - name: Run tests
       run: |
         if [ $(python -c "import sys; print(sys.version_info.minor)") -lt 7 ]; then
-            nosetests
+          nosetests
         else
-            nosetests --with-coverage --cover-package=discogs_client
+          nosetests --with-coverage --cover-package=discogs_client
         fi
+    - name: Upload coverage to Coveralls
+      if: matrix.python-version == '3.9'
+      env:
+        COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
+      run: coveralls
