@@ -1,4 +1,4 @@
-name: Tests
+name: Python package
 
 on:
   push:
@@ -6,36 +6,40 @@ on:
       - main
   pull_request:
     branches:
-      - "*"
+      - main
 
 jobs:
-  tests:
-    name: Python ${{ matrix.python-version }}
-    runs-on: ubuntu-latest
-
+  test:
+    runs-on: ubuntu-22.04
     strategy:
-      fail-fast: false
       matrix:
-        python-version: ["3.7","3.8", "3.9", "3.10", "3.11", "pypy-3.7", "pypy-3.8", "pypy-3.9"]
-
+        python-version: [3.6.12, 3.7.9, 3.8.6, 3.9.1, pypy3]
+        include:
+          - python-version: 3.9.1
+            tox-env: lint
+        exclude:
+          - python-version: 3.9.1
+            tox-env: py39
     steps:
-      - uses: actions/checkout@v3
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
-        with:
-          python-version: ${{ matrix.python-version }}
-          cache: pip
-
-      - name: Install dependencies
-        run: |
-          pip install -U pip
-          pip install -r requirements.txt
-          pip install .
-
-      - name: Run tests
-        run: |
-          tox
-          pytest --dead-fixtures
-
-      - name: Upload coverage reports to Codecov
-        uses: codecov/codecov-action@v3
+    - uses: actions/checkout@v2
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -U -r requirements-dev.txt
+        pip install .
+    - name: Cache pip
+      uses: actions/cache@v2
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements-dev.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+    - name: Run Tox
+      run: tox -e ${{ matrix.tox-env || 'py' + matrix.python-version[0:3] }}
+    - name: Run Pytest for dead fixtures
+      if: matrix.tox-env != 'lint'
+      run: pytest --dead-fixtures
