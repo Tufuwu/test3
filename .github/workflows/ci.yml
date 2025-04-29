@@ -39,11 +39,14 @@ jobs:
       run: bash scripts/run_tests.sh
 
     - name: SonarCloud Scan
-      if: github.event_name == 'push' && github.event.pull_request == null
+      if: github.event_name == 'push'
+      uses: SonarSource/sonarcloud-github-action@v2
+      with:
+        args: >
+          -Dsonar.projectKey=<your_project_key>
+          -Dsonar.organization=<your_org>
       env:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-      run: |
-        sonar-scanner
 
     - name: Cache SonarCloud
       uses: actions/cache@v3
