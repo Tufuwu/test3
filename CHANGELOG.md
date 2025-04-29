@@ -1,27 +1,41 @@
-## Changes
+0.5.0 (in development)
+----------------------
+- Support Python 3.8 and 3.9
+- Drop support for Python 2.7, 3.4, and 3.5
 
-- 0.4
-  * Allow nested structures for stored JSON data.
-  * Functions `get_related_object` and `get_related_queryset` have been moved from module
-    `entangled.forms` into module `entangled.utils`.
+v0.4.0 (2018-10-05)
+-------------------
+- **Breaking**: Combined all classes' functionality into a single `InPlace`
+  class that uses a `mode` argument to determine whether to operate in text or
+  binary mode.
+- `InPlaceBytes` and `InPlaceText` are now deprecated and will be removed in a
+  future version; please use `InPlace` with `mode='b'` or `mode='t'` instead.
+- Support fsencoded-bytes as file paths under Python 3
 
-- 0.3.1
-  * No functional changes.
-  * Add support for Django-3.1 and Python-3.8.
-  * Drop support for Django<2.1 and Python-3.5.
+v0.3.0 (2018-06-28)
+-------------------
+- Handling of symbolic links is changed: Now, if `in_place` is asked to operate
+  on a symlink `link.txt` that points to `realfile.txt`, it will act as though
+  it was asked to operate on `realfile.txt` instead, and the path `link.txt`
+  will only be used when combining with `backup_ext` to construct a backup file
+  path
+- Drop support for Python 2.6 and 3.3
 
-- 0.3
-  * Add support for `ModelMultipleChoiceField`.
-  * Fix: Make a deep copy of `entangled_fields` and `untangled_fields` before merging.
-  * Add covenience class `EntangledModelForm`.
-  * Moving data from entangled fields onto their compressed representation, now is performed after
-    the form has performed its own `clean()`-call, so that accessing form fields is more natural.
-  * Add functions `get_related_object` and `get_related_queryset` to get the model object from its
-    JSON representation.
+v0.2.0 (2017-02-23)
+-------------------
+- Renamed `InPlace` to `InPlaceText` and added a new `InPlace` class for
+  reading & writing `str` objects (whatever those happen to be in the current
+  Python)
+- **Bugfix**: If the given file does not exist and `move_first` is `True`, an
+  empty file will no longer be left behind in the nonexistent file's place.
+- Specifying both `backup` and `backup_ext` will now produce a `ValueError`
+- Specifying an empty `backup_ext` will now produce a `ValueError`
 
-- 0.2
-  * Introduce `Meta`-option `untangled_fields`, because the approach in 0.1 didn't always work.
-  * Use `formfield()`-method, for portability reasons with Django's Postgres JSON field.
+v0.1.1 (2017-01-27)
+-------------------
+Rename package & module from "`inplace`" to "`in_place`"  (I could have sworn I
+had already checked PyPI for name conflicts....)
 
-- 0.1
-  * Initial release.
+v0.1.0 (2017-01-27)
+-------------------
+Initial release
