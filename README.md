@@ -1,140 +1,195 @@
-# Trimmer
+# django-entangled
 
-[![ci](https://github.com/jonlabelle/Trimmer/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/jonlabelle/Trimmer/actions/workflows/ci.yml)
-[![AppVeyor Build status](https://ci.appveyor.com/api/projects/status/fdcdvfsip9d9efg3?svg=true)](https://ci.appveyor.com/project/jonlabelle/trimmer)
-[![Language grade: Python](https://img.shields.io/lgtm/grade/python/g/jonlabelle/Trimmer.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/jonlabelle/Trimmer/context:python)
-[![Package Control Installs](https://img.shields.io/packagecontrol/dt/Trimmer.svg?label=installs)](https://packagecontrol.io/packages/Trimmer)
-[![Latest Release](https://img.shields.io/github/tag/jonlabelle/Trimmer.svg?label=version)](https://github.com/jonlabelle/Trimmer/releases)
-[![MIT License](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/jonlabelle/Trimmer/blob/master/LICENSE.md)
+Edit JSON-Model Fields using a Standard Django Form.
 
-> [Trimmer](https://github.com/jonlabelle/Trimmer) is a [Sublime Text](http://www.sublimetext.com) plug-in for cleaning up whitespace.
+[![Build Status](https://travis-ci.org/jrief/django-entangled.svg?branch=master)](https://travis-ci.org/jrief/django-entangled)
+[![Coverage](https://codecov.io/github/jrief/django-entangled/coverage.svg?branch=master)](https://codecov.io/github/jrief/django-entangled?branch=master)
+[![PyPI](https://img.shields.io/pypi/pyversions/django-entangled.svg)]()
+[![PyPI version](https://img.shields.io/pypi/v/django-entangled.svg)](https://https://pypi.python.org/pypi/django-entangled)
+[![PyPI](https://img.shields.io/pypi/l/django-entangled.svg)]()
 
-## Features
 
-- Trim whitespace at the end of each line.
-- Trim whitespace at the start of each line.
-- Trim whitespace at the start and end of each line.
-- Trim whitespace from selection(s).
-- Delete empty, whitespace only lines.
-- Collapse multiple consecutive empty lines into one empty line.
-- Collapse multiple consecutive spaces into one space.
-- Trim empty, whitespace only lines at the beginning and end of file.
-- Remove blank space characters.
-- Normalize spaces (consecutive spaces reduced, empty lines removed and lines trimmed).
-- Tokenize a string by collapsing consecutive spaces, and trimming leading and trailing spaces.
-- Delete empty, whitespace only HTML and XML tags.
-- Remove code comments and collapse lines.
+## Use-Case
 
-## Additional Features
+A Django Model may contain fields which accept arbitrary data stored as JSON. Django itself, provides a
+[JSON field](https://docs.djangoproject.com/en/stable/ref/models/fields/#django.db.models.JSONField) (it was
+[specific to Postgres before Django-3.1](https://docs.djangoproject.com/en/3.1/ref/contrib/postgres/fields/#jsonfield)).
 
-A **Replace Smart Characters** command that performs the following actions:
+When creating a form from a model, the input field associated with a JSON field, typically is a `<textarea ...></textarea>`.
+This textarea widget is very inpracticable for editing, because it just contains a textual representation of that
+object notation. One possibility is to use a generic [JSON editor](https://github.com/josdejong/jsoneditor),
+which with some JavaScript, transforms the widget into an attribute-value-pair editor. This approach however requires
+to manage the field keys ourself. It furthermore prevents us from utilizing all the nice features provided by the Django
+form framework, such as field validation, normalization of data and the usage of foreign keys.
 
-- **Smart single quotes:** `’` *to* `'`
-- **Smart double quotes:** `“` *to* `"`
-- **Prime:** `′` *to* `'`
-- **Double Prime:** `″` *to* `"`
-- **German quotes:** `„` *to* `"` and `‚` *to* `'`
-- **Ellipsis:** `…` *to* `...`
-- **Em dash:** `—` *to* `---`
-- **En dash:** `–` *to* `--`
-- **Bullet:** `•` *to* `*`
-- **Middle dot:** `·` *to* `-`
-- **Em space** *to* three spaces
-- **En space** *to* two spaces
-- **Non-breaking space** *to* one space
-- **Thin space** *to* one space
-- **Hair space** *to* one space
-- **Left angle quote:** `«` *to* `<<`
-- **Right angle quote:** `»` *to* `>>`
-- **Copyright symbol:** `©` *to* `(C)`
-- **Trademark symbol:** `™` *to* `(T)`
-- **Registered trademark symbol:** `®` *to* `(R)`
+By using **django-entangled**, one can use a Django `ModelForm`, and store all,
+or a subset of that form fields in one or more JSON fields inside of the associated model.
 
-![ScreenShot](https://raw.githubusercontent.com/jonlabelle/Trimmer/master/screenshots/command_palette.png)
 
-Watch a [**Quick Demo**](https://raw.githubusercontent.com/jonlabelle/Trimmer/master/screenshots/demo.gif)
+## Installation
 
-## Install
+Simply install this Django app, for instance by invoking:
 
-Trimmer is compatible with both Sublime Text 2 and 3 and all supported Operating Systems.
-
-### Package Control
-
-The easiest, and recommended way to install Trimmer is using [Package Control](https://packagecontrol.io).
-
-From the main application menu, navigate to:
-
-- `Tools` -> `Command Palette...` -> `Package Control: Install Package`, type
-  the word ***Trimmer***, then select it to complete installation.
-
-### Git
-
-To install Trimmer using Git, change to your **Sublime Text Packages** directory
-and clone the [Trimmer repository](https://github.com/jonlabelle/Trimmer).
-
-For example, on **OS X**... start a new **Terminal** session and enter the following
-commands:
-
-```shell
-$ cd ~/Library/Application\ Support/Sublime\ Text\ 3/Packages/
-$ git clone https://github.com/jonlabelle/Trimmer
+```bash
+pip install django-entangled
 ```
 
-### Manually
+There is no need to add any configuration directives to the project's `settings.py`.
 
-**Download** and **extract** the [zip](https://github.com/jonlabelle/Trimmer/zipball/master)
-or [tarball](https://github.com/jonlabelle/Trimmer/tarball/master) to your
-Sublime Text packages directory.
 
-**Default Sublime Text Packages Paths:**
+## Example
 
-* **OS X:** `~/Library/Application Support/Sublime Text [2|3]/Packages`
-* **Linux:** `~/.Sublime Text [2|3]/Packages`
-* **Windows:** `%APPDATA%/Sublime Text [2|3]/Packages`
+Say, we have a Django model to describe a bunch of different products. The name and the price fields are common to all
+products, whereas the properties can vary depending on its product type. Since we don't want to create a different
+product model for each product type, we use a JSON field to store these arbitrary properties.
 
-> **NOTE** Replace the `[2|3]` part with the appropriate Sublime Text
-> version for your installation.
+```python
+from django.db import models
 
-## Usage
+class Product(models.Model):
+    name = models.CharField(max_length=50)
 
-All commands are accessible from the **Command Palette** using prefix
-***Trimmer***, and in the **Main Menu** under `Edit` -> `Line` -> *Trimmer* command.
+    price = models.DecimalField(max_digits=5, decimal_places=2)
 
-- [Command Palette screenshot](https://raw.githubusercontent.com/jonlabelle/Trimmer/master/screenshots/command_palette.png)
-- [Main Menu screenshot](https://raw.githubusercontent.com/jonlabelle/Trimmer/master/screenshots/main_menu.png)
+    properties = models.JSONField()
+```
 
-### Key Bindings
+In a typical form editing view, we would create a form inheriting from
+[ModelForm](https://docs.djangoproject.com/en/stable/topics/forms/modelforms/#modelform) and refer to this model using
+the `model` attribute in its `Meta`-class. Then the `properties`-field would show up as unstructured JSON, rendered
+inside a `<textarea ...></textarea>`. This definitely is not what we want! Instead we create a typical Django Form using
+the alternative class `EntangledModelForm`.
 
-The *default* key binding will trim trailing whitespace at the end of each of
-line (entire file).
+```python
+from django.contrib.auth import get_user_model
+from django.forms import fields, models
+from entangled.forms import EntangledModelForm
+from .models import Product
 
-- **OS X**: `Ctrl + S`
-- **Linux**: `Ctrl + Alt + S`
-- **Windows**: `Ctrl + Alt + S`
+class ProductForm(EntangledModelForm):
+    color = fields.RegexField(
+        regex=r'^#[0-9a-f]{6}$',
+    )
 
-### Trimmer Command API
+    size = fields.ChoiceField(
+        choices=[('s', "small"), ('m', "medium"), ('l', "large"), ('xl', "extra large")],
+    )
 
-|              Command               |                                              Description                                               |          Context          |
-|------------------------------------|--------------------------------------------------------------------------------------------------------|---------------------------|
-| `trimmer`                          | trim whitespace at the end of each line                                                                | entire file               |
-| `trim_leading_whitespace`          | trim whitespace at the start of each line                                                              | selection, or entire file |
-| `trim_leading_trailing_whitespace` | trim whitespace at the start and end of each line                                                      | selection, or entire file |
-| `trim_selections`                  | trim whitespace from selection(s)                                                                      | selection                 |
-| `delete_empty_lines`               | delete empty, whitespace only lines                                                                    | selection, or entire file |
-| `collapse_lines`                   | collapse multiple consecutive empty lines into one empty line                                          | selection, or entire file |
-| `collapse_spaces`                  | collapse multiple consecutive spaces into one space                                                    | selection, or entire file |
-| `trim_edges`                       | trim empty, whitespace only lines at the beginning and end of the file                                 | entire file               |
-| `remove_blank_spaces`              | remove all blank space characters (tab, cr, ff, vt, space)                                             | selection, or entire file |
-| `normalize_spaces`                 | consecutive spaces reduced, empty lines removed and lines trimmed                                      | selection, or entire file |
-| `replace_smart_characters`         | replace smart characters (smart quotes, em/en dash, ellipsis, nbsp)                                    | selection, or entire file |
-| `tokenize_string`                  | convert a string to a token by collapsing consecutive spaces, and trimming leading and trailing spaces | selection, or entire file |
-| `delete_empty_tags`                | delete empty, whitespace only html and xml tags                                                        | selection, or entire file |
-| `remove_comments`                  | remove code comments and collapse lines                                                                | selection, or entire file |
+    tenant = models.ModelChoiceField(
+        queryset=get_user_model().objects.filter(is_staff=True),
+    )
 
-## Author
+    class Meta:
+        model = Product
+        entangled_fields = {'properties': ['color', 'size', 'tenant']}  # fields provided by this form
+        untangled_fields = ['name', 'price']  # these fields are provided by the Product model
+```
 
-[Jon LaBelle](https://jonlabelle.com)
+In case our form inherits from another `ModelForm`, rewrite the class declarartion as:
 
-## License
+```python
+class ProductForm(EntangledModelFormMixin, BaseProductForm):
+    ...
+```
 
-Trimmer is licensed under the [MIT license](http://opensource.org/licenses/MIT).
+In addition we add a special dictionary named `entangled_fields` to our `Meta`-options. In this dictionary, the key
+(here `'properties'`) refers to the JSON-field in our model `Product`. The value (here `['color', 'size', 'tenant']`)
+is a list of named form fields, declared in our form- or base-class of thereof. This allows us to assign all standard
+Django form fields to arbitrary JSON fields declared in our Django model. Moreover, we can even use a `ModelChoiceField`
+or a `ModelMultipleChoiceField` to refer to another model object using a
+[generic relation](https://docs.djangoproject.com/en/stable/ref/contrib/contenttypes/#generic-relations)
+
+Since in this form we also want to access the non-JSON fields from our Django model, we add a list named
+`untangled_fields` to our `Meta`-options. In this list, (here `['name', 'price']`) we refer to the non-JSON fields
+in our model `Product`. From both of these iterables, `entangled_fields` and `untangled_fields`, the parent class
+`EntangledModelForm` then builds the `Meta`-option `fields`, otherwise required. Therefore you should not
+use `fields` to declare this list, but rather rely on `entangled_fields` and `untangled_fields`.
+
+We can use this form in any Django form view. A typical use-case, is the built-in Django `ModelAdmin`:
+
+```python
+from django.contrib import admin
+from .models import Product
+from .forms import ProductForm
+
+@admin.register(Product)
+class ProductAdmin(admin.ModelAdmin):
+    form = ProductForm
+```
+
+Since the form used by this `ModelAdmin`-class
+[can not be created dynamically](https://docs.djangoproject.com/en/stable/ref/contrib/admin/#django.contrib.admin.ModelAdmin.form),
+we have to declare it explicitly using the `form`-attribute. This is the only change which has to be performed, in
+order to store arbitrary content inside our JSON model-fields.
+
+
+## Nested Data Structures
+
+Sometimes it can be desirable to store the data in a nested hierarchie of dictionaries, rather than having all
+attribute-value-pairs in the first level of our JSON field. This can for instance be handy when merging more than one
+form, all themselves ineriting from `EntangledModelFormMixin`.
+
+Say that we have different types of products, all of which share the same base product form:
+
+```python
+from django.contrib.auth import get_user_model
+from django.forms import models
+from entangled.forms import EntangledModelFormMixin
+from .models import Product
+
+class BaseProductForm(EntangledModelFormMixin):
+    tenant = models.ModelChoiceField(
+        queryset=get_user_model().objects.filter(is_staff=True),
+    )
+
+    class Meta:
+        model = Product
+        entangled_fields = {'properties': ['tenant']}
+        untangled_fields = ['name', 'price']
+```
+
+In order to specialize our base product towards, say clothing, we typically would inherit from the base form
+and add some additional fields, here `color` and `size`:
+
+```python
+from django.forms import fields
+from .forms import BaseProductForm
+from .models import Product
+
+class ClothingProductForm(BaseProductForm):
+    color = fields.RegexField(
+        regex=r'^#[0-9a-f]{6}$',
+    )
+
+    size = fields.ChoiceField(
+        choices=[('s', "small"), ('m', "medium"), ('l', "large"), ('xl', "extra large")],
+    )
+
+    class Meta:
+        model = Product
+        entangled_fields = {'properties': ['color', 'size']}
+        retangled_fields = {'color': 'variants.color', 'size': 'variants.size'}
+```
+
+By adding a name mapping from our existing field names, we can group the fields `color` and `size`
+into a sub-dictionary named `variants` inside our `properties` fields. Such a field mapping is
+declared through the optional Meta-option `retangled_fields`. In this dictionary, all entries are
+optional; if a field name is missing, it just maps to itself.
+
+This mapping table can also be used to map field names to other keys inside the resulting JSON
+datastructure. This for instance is handy to map fields containg an underscore into field-names
+containing instead a dash. 
+
+
+## Caveats
+
+Due to the nature of JSON, indexing and thus building filters or sorting rules based on the fields content is not as
+simple, as with standard model fields. Therefore, this approach is best suited, if the main focus is to store data,
+rather than digging through data.
+
+Foreign keys are stored as `"fieldname": {"model": "appname.modelname", "pk": 1234}` in our JSON field, meaning that
+we have no database constraints. If a target object is deleted, that foreign key points to nowhere. Therefore always
+keep in mind, that we don't have any referential integrity and hence must write our code in a defensive manner.
+
+
+[![Twitter Follow](https://img.shields.io/twitter/follow/jacobrief?style=social)](https://twitter.com/jacobrief)
