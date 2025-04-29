@@ -53,8 +53,8 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-sonar-cache
 
-  notifications:
-    email:
-      if: failure()
-      on_success: never
-      on_failure: always
+notifications:
+  email:
+    if: failure()
+    on_success: never
+    on_failure: always
