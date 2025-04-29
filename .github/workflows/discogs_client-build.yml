@@ -30,8 +30,7 @@ jobs:
         else
           nosetests --with-coverage --cover-package=discogs_client
         fi
-    - name: Upload coverage to Coveralls
-      if: matrix.python-version == '3.9'
-      env:
-        COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
+    - name: 上传覆盖率到 Coveralls
       run: coveralls
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
