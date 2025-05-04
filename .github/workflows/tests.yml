@@ -33,8 +33,7 @@ jobs:
 
     - name: Run tests
       run: |
-        coverage run run_tests.py
-        coverage report -m
+          pytest -raR -n auto --cov --cov-report=
 
     - name: Upload coverage to Codecov
       if: success()
