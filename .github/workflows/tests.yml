@@ -27,6 +27,7 @@ jobs:
     - name: install feedgen
       run: |
         python setup.py install
+        pip install coveralls
 
     - name: run linter
       run: make test
