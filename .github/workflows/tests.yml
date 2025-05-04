@@ -16,8 +16,7 @@ jobs:
         include:
           - python-version: "nightly"
             env: PRE=--pre
-    allow_failures:
-      - python-version: "nightly"
+
 
     runs-on: ubuntu-22.04
 
