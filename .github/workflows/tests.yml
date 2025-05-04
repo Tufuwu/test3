@@ -1,45 +1,45 @@
----
-
-name: Tests
+name: Python package
 
 on:
   push:
-    branches-ignore:
-      - auto-backport-of-pr-[0-9]+
-      - v[0-9]+.[0-9]+.[0-9x]+-doc
+    branches:
+      - main
   pull_request:
+    branches:
+      - main
 
 jobs:
-  test:
-    name: "Python ${{ matrix.python-version }} ${{ matrix.name-suffix }}"
-    runs-on: ubuntu-22.04
-
+  build:
     strategy:
       matrix:
-        python-version: ["3.7", "3.8", "3.9"]
+        python-version: [ 3.7]
+        include:
+          - python-version: "nightly"
+            env: PRE=--pre
+    allow_failures:
+      - python-version: "nightly"
+
+    runs-on: ubuntu-22.04
 
     steps:
-      - uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
+    - uses: actions/checkout@v2
 
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v2
-        with:
-          python-version: ${{ matrix.python-version }}
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
 
-      - name: Install Python dependencies
-        run: |
-          python -m pip install --upgrade pip setuptools wheel
-          python -m pip install --upgrade pytest pytest-cov pytest-xdist
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install -v .
+        python -m pip install ${{ matrix.env.PRE }} --upgrade pytest pytest-cov coverage
 
-      - name: Install cycler
-        run: |
-          python -m pip install --no-deps .
+    - name: Run tests
+      run: |
+        coverage run run_tests.py
+        coverage report -m
 
-      - name: Run pytest
-        run: |
-          pytest -raR -n auto --cov --cov-report=
-
-      - name: Upload code coverage
-        uses: codecov/codecov-action@v1
+    - name: Upload coverage to Codecov
+      if: success()
+      run: bash <(curl -s https://codecov.io/bash)
