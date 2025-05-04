@@ -16,14 +16,7 @@ jobs:
     strategy:
       matrix:
         python-version: ['3.7', '3.8', '3.9']
-        include:
-          - python-version: '3.8'
-            upload: true
 
-          - python-version: '3.7'
-            upload: false
-          - python-version: '3.9'
-            upload: false
 
     steps:
     - uses: actions/checkout@v2
