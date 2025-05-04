@@ -43,7 +43,5 @@ jobs:
         python -m feedgen atom
         python -m feedgen rss
 
-    - name: Upload coverage to Coveralls
-      env:
-        COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
-      run: coveralls
+    - name: run coverage
+      run: coverage report --fail-under=93
