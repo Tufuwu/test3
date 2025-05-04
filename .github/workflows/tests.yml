@@ -33,6 +33,7 @@ jobs:
 
     - name: Run tests
       run: |
+          python -m pip install --no-deps .
           pytest -raR -n auto --cov --cov-report=
 
     - name: Upload coverage to Codecov
