@@ -1,0 +1,42 @@
+# AppVeyor.com is a Continuous Integration service to build and run tests under
+# Windows
+
+environment:
+  matrix:
+     - PYTHON: "C:\\Python27"
+     - PYTHON: "C:\\Python27-x64"
+     - PYTHON: "C:\\Python34"
+     - PYTHON: "C:\\Python34-x64"
+     - PYTHON: "C:\\Python35"
+     - PYTHON: "C:\\Python35-x64"
+     - PYTHON: "C:\\Python36"
+     - PYTHON: "C:\\Python36-x64"
+
+install:
+  - "SET PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%"
+
+  # Check that we have the expected version and architecture for Python
+  - "python --version"
+  - "python -c \"import struct; print(struct.calcsize('P') * 8)\""
+
+  # Install the build and runtime dependencies of the project.
+  - "pip install -v pytest pytest-cov pytest-xdist"
+
+  # Install the generated wheel package to test it
+  - "python setup.py install"
+
+
+# Not a .NET project, we build scikit-image in the install step instead
+build: false
+
+test_script:
+
+  # Run unit tests with pytest
+  - "python -m pytest -raR -n auto"
+
+artifacts:
+  # Archive the generated wheel package in the ci.appveyor.com build report.
+  - path: dist\*
+
+#on_success:
+#  - TODO: upload the content of dist/*.whl to a public wheelhouse
