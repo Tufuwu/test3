@@ -1,4 +1,1 @@
-include test_cycler.py
-include LICENSE
-recursive-include conda-recipe *
-recursive-include doc Makefile make.bat *.rst *.py
+include README.markdown LICENSE
