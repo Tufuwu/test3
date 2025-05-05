@@ -1,64 +1,57 @@
-name: Test
+name: CI
 
 on:
-  pull_request:
   push:
-    branches: [main]
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
-  test:
+  build:
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 45
     strategy:
       matrix:
-        os: [ubuntu-latest]
-        python-version: ['3.8', '3.9', '3.10-dev']
-        coverage: [false]
+        os: [ubuntu-latest, macos-latest]
+        python-version: [ 3.8, 3.9-dev]
         include:
-          # Modify existing configurations:
           - os: ubuntu-latest
-            python-version: '3.9'
-            coverage: false
-            tz: 'XXX-05:30'  # UTC+05:30
-          # Add new configurations:
+            python-version: 3.8
+            env: RUN_COVERAGE=true
           - os: ubuntu-latest
-            python-version: '3.9'
-            coverage: true
-          - os: macos-latest
-            python-version: '3.9'
-            coverage: false
+            python-version: 3.8
+            env: RUN_COVERAGE=false TZ=XXX-05:30
     steps:
+      - uses: actions/checkout@v2
 
-      - name: Checkout repo
-        uses: actions/checkout@v2
-
-      - name: Setup Python
+      - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Install
+      - name: Install dependencies
         run: |
-          pip install --upgrade pip setuptools
+          python -m pip install --upgrade pip setuptools
           pip install -e .[all]
-          pip install pytest-xdist
+          pip install pytest-xdist pycodestyle
 
-      - name: Style test
+      - name: Lint with flake8
         run: flake8 metomi/isodatetime
 
       - name: Run tests
         env:
-          TZ: ${{ matrix.tz }}
+          RUN_COVERAGE: ${{ matrix.env.RUN_COVERAGE }}
         run: |
           PYTEST_ARGS=('-n' '2')
-          if ${{ matrix.coverage }}; then
+          if [ "$RUN_COVERAGE" = "true" ]; then
             PYTEST_ARGS+=('--cov=metomi/isodatetime')
           fi
-
           pytest "${PYTEST_ARGS[@]}"
 
-      - name: Upload coverage report
-        if: matrix.coverage
+      - name: Upload coverage to Codecov
+        if: env.RUN_COVERAGE == 'true'
         run: |
+          pip install coverage
           coverage xml --ignore-errors
           bash <(curl -s https://codecov.io/bash)
