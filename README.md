@@ -1,148 +1,122 @@
-# Fierce
+# [MTGJSON v5](https://mtgjson.com/)
+<p align="center"><a href="https://mtgjson.com/"><img src="https://www.mtgjson.com/images/assets/logo-mtgjson-dark-blue.svg" height="100px" alt="MTGJSON Logo"/></a></p>
+<p align="center">
+    <a href="https://mtgjson.com/changelog/"><img src="https://img.shields.io/badge/dynamic/json.svg?label=Version&url=https%3A%2F%2Fmtgjson.com%2Fapi%2Fv5%2FMeta.json&query=%24.data.version&colorB=blue" alt="MTGJSON Version"/></a> 
+    <a href="https://mtgjson.com/changelog/"><img src="https://img.shields.io/badge/dynamic/json.svg?label=Release%20Date&url=https%3A%2F%2Fmtgjson.com%2Fapi%2Fv5%2FMeta.json&query=%24.data.date&colorB=blue" alt="MTGJSON Version Date"/></a>
+    <br/><br/>
+</p>
 
-[![CI](https://github.com/mschwager/fierce/actions/workflows/ci.yml/badge.svg)](https://github.com/mschwager/fierce/actions/workflows/ci.yml)
-[![Coverage Status](https://coveralls.io/repos/github/mschwager/fierce/badge.svg?branch=master)](https://coveralls.io/github/mschwager/fierce?branch=master)
-[![Dlint](https://github.com/mschwager/fierce/actions/workflows/dlint.yml/badge.svg)](https://github.com/mschwager/fierce/actions/workflows/dlint.yml)
-[![Python Versions](https://img.shields.io/pypi/pyversions/fierce.svg)](https://img.shields.io/pypi/pyversions/fierce.svg)
-[![PyPI Version](https://img.shields.io/pypi/v/fierce.svg)](https://img.shields.io/pypi/v/fierce.svg)
 
-Fierce is a `DNS` reconnaissance tool for locating non-contiguous IP space.
+MTGJSON is an open-source repository of [Magic: The Gathering](https://magic.wizards.com/) card data, specifically in [JSON](https://json.org/) and [CSV](https://en.wikipedia.org/wiki/Comma-separated_values) formats. This repository contains the build scripts we use to create our data sets.
 
-Useful links:
+## How to Contribute
 
-* [Domain Name System (DNS)](https://en.wikipedia.org/wiki/Domain_Name_System)
-  * [Domain Names - Concepts and Facilities](https://tools.ietf.org/html/rfc1034)
-  * [Domain Names - Implementation and Specification](https://tools.ietf.org/html/rfc1035)
-  * [Threat Analysis of the Domain Name System (DNS)](https://tools.ietf.org/html/rfc3833)
-* [Name Servers (NS)](https://en.wikipedia.org/wiki/Domain_Name_System#Name_servers)
-* [State of Authority Record (SOA)](https://en.wikipedia.org/wiki/List_of_DNS_record_types#SOA)
-* [Zone Transfer](https://en.wikipedia.org/wiki/DNS_zone_transfer)
-  * [DNS Zone Transfer Protocol (AXFR)](https://tools.ietf.org/html/rfc5936)
-  * [Incremental Zone Transfer in DNS (IXFR)](https://tools.ietf.org/html/rfc1995)
-* [Wildcard DNS Record](https://en.wikipedia.org/wiki/Wildcard_DNS_record)
+Running a project as large as ours isn't easy, and we rely on the community to help keep our project going. The community can support us through two different ways: financial contributions and code contributions.
 
-# Overview
+[![Github Sponsors](https://img.shields.io/static/v1.svg?label=GitHub%20Sponsors&message=Support%20MTGJSON&color=34d058&logo=github)](https://github.com/sponsors/ZeldaZach)  
+We accept reoccurring donations via GitHub Sponsors, that grant priority support from MTGJSON maintainers and a special role on our Discord indicating your support.
+**This is the preferred approach for financial contributions, as the MTGJSON team pays _no fees_ for these types of donations!**
 
-First, credit where credit is due, `fierce` was originally written by RSnake
-along with others at http://ha.ckers.org/. This is simply a conversion to
-Python 3 to simplify and modernize the codebase.
+[![Patreon](https://img.shields.io/static/v1.svg?label=Patreon&message=Support%20MTGJSON&color=f96854&logo=patreon)](https://patreon.com/mtgjson)  
+We accept reoccurring donations via Patreon, that grant priority support from MTGJSON maintainers and a special role on our Discord indicating your support.  
 
-The original description was very apt, so I'll include it here:
+[![PayPal](https://img.shields.io/static/v1.svg?label=PayPal&message=Support%20MTGJSON&color=009cde&logo=paypal)](https://paypal.me/zachhalpern)  
+We accept one-time donations via PayPal, for those who want to say thank you to the project.
 
-> Fierce is a semi-lightweight scanner that helps locate non-contiguous
-> IP space and hostnames against specified domains. It's really meant
-> as a pre-cursor to nmap, unicornscan, nessus, nikto, etc, since all 
-> of those require that you already know what IP space you are looking 
-> for. This does not perform exploitation and does not scan the whole 
-> internet indiscriminately. It is meant specifically to locate likely 
-> targets both inside and outside a corporate network. Because it uses 
-> DNS primarily you will often find mis-configured networks that leak 
-> internal address space. That's especially useful in targeted malware.
+[![Code Contributions](https://img.shields.io/static/v1.svg?label=GitHub&message=Development&color=aaa&logo=github)](https://github.com/mtgjson)  
+We love it when the community contributes back to the project! If you'd like to help improve our data for the hundreds of projects and stores we support, do reach out via [Discord](https://mtgjson.com/discord)!  
 
-# Installing
+## Connect With Us  
 
+[![Discord](https://img.shields.io/discord/224178957103136779?label=Discord&logo=discord&logoColor=white&color=7289da)](https://mtgjson.com/discord)  
+The team stays in contact via [Discord](https://mtgjson.com/discord). The server is open to the public and is a great place to collaborate with other like-minded people. Stop by today and say hi!  
+
+## About Us
+
+### The Team  
+The MTGJSON team has been led by Zach Halpern since 2018, with support from an awesome group of people. The full team lineup can be found [MTGJSON's homepage](https://mtgjson.com/).  
+
+### Our Product
+MTGJSON at its core is a database that can be downloaded for offline access to Magic: the Gathering card data. We pride ourselves on our [documentation](https://mtgjson.com/data-models/), and aim for full transparency with the community.  
+
+### Our Partners  
+Over time, MTGJSON has gone through a number of transitions to bring the best product for our consumers. We'd like to thank the following groups, in alphabetical order, for helping to support our mission by enriching our data:  
+- [CardHoarder](https://www.cardhoarder.com/?affiliate_id=mtgjson&utm_source=mtgjson&utm_campaign=affiliate&utm_medium=card)
+- [CardKingdom](https://www.cardkingdom.com/?partner=mtgjson&utm_source=mtgjson&utm_medium=affiliate&utm_campaign=mtgjson)
+- [CardMarket](https://www.cardmarket.com/en/Magic?utm_campaign=card_prices&utm_medium=text&utm_source=mtgjson)
+- [Gatherer](https://gatherer.wizards.com)
+- [MTG.wtf](https://mtg.wtf/)
+- [MTGBan](https://www.mtgban.com/)
+- [Scryfall](https://scryfall.com)
+- [TCGPlayer](https://www.tcgplayer.com/?partner=mtgjson&utm_campaign=affiliate&utm_medium=mtgjson&utm_source=mtgjson)
+- [What's in Standard](https://whatsinstandard.com/)
+
+## How to Use  
+### For 99% of our Users  
+MTGJSON supplies precompiled databases at https://mtgjson.com/api/v5/. **This is the recommended way to use our service**.  
+
+As stated before, we pride ourselves on our documentation which can be found at https://mtgjson.com/. If you find anything to be unclear or ambiguous, please [open a ticket](https://github.com/mtgjson/mtgjson-website/issues) on our documentation repository so we can address your concern immediately.
+
+We fully rebuild our API data once a week (on Monday afternoons) and our price dataset once a day. You can poll the [Meta.json](https://mtgjson.com/api/v5/Meta.json) file to see when our data was last updated.  
+
+### For those who want to build MTGJSON locally  
+Most of our users shouldn't have a need to build MTGJSON locally. However, there are always exceptions and we aren't ones to judge.  
+#### Build Box
+While MTGJSON will work on Windows, Mac, and Linux, we prefer working within the Linux environment for lower overheads and less manual dependency management.  
+
+- For **Linux** based build boxes (we recommend Ubuntu 20.04), your build box should have at least 2 cores and 4 GiB of RAM available.  
+- For **Mac** based build boxes, your build box should have at least 2 cores and 4 GiB of RAM available.
+- For **Windows** based build boxes, your build box should have at least 4 cores and 8 GiB of RAM available.
+
+#### Install Python3
+MTGJSON is built on and tested against a wide range of Python3 verisons. Currently, we maintain support for the following versions:
+- Python 3.6
+- Python 3.7
+- Python 3.8
+
+#### Install MTGJSON
+##### Local Installation
+`python3 -m pip install /path/to/mtgjson5/`
+##### PyPi Repository
+We intend to put MTGJSON5 on the pip package archive in the near future, once the first set of revisions takes place.
+
+#### Using MTGJSON
+A fully up-to-date help menu can be achieved via `python3 -m mtgjson5 -h`, but for your convenience here is a recent rundown:  
 ```
-$ python -m pip install fierce
-$ fierce -h
-```
+usage: mtgjson5 [-h] [-s [SET [SET ...]] | -a] [-c] [-x] [-z] [-p]
+                [-SS [SET [SET ...]]] [-PB] [-R] [-NA]
 
-OR
+optional arguments:
+  -h, --help            show this help message and exit
+  -s [SET [SET ...]], --sets [SET [SET ...]]
+                        Set(s) to build, using Scryfall set code notation.
+                        Non-existent sets silently ignored.
+  -a, --all-sets        Build all possible sets, overriding the --sets option.
+  -c, --full-build      Build new prices, MTGSQLive, and compiled outputs like
+                        AllPrintings.
+  -x, --resume-build    While determining what sets to build, ignore
+                        individual set files found in the output directory.
+  -z, --compress        Compress the output folder's contents for
+                        distribution.
+  -p, --pretty          When dumping JSON files, prettify the contents instead
+                        of minifying them.
+  -SS [SET [SET ...]], --skip-sets [SET [SET ...]]
+                        Purposely exclude sets from the build that may have
+                        been set using --sets or --all-sets.
 
-```
-$ git clone https://github.com/mschwager/fierce.git
-$ cd fierce
-$ python -m pip install -r requirements.txt
-$ python fierce/fierce.py -h
-```
-
-*Requires Python 3.*
-
-# Using
-
-Let's start with something basic:
-
-```
-$ fierce --domain google.com --subdomains accounts admin ads
-```
-
-Traverse IPs near discovered domains to search for contiguous blocks with the
-`--traverse` flag:
-
-```
-$ fierce --domain facebook.com --subdomains admin --traverse 10
-```
-
-Limit nearby IP traversal to certain domains with the `--search` flag:
-
-```
-$ fierce --domain facebook.com --subdomains admin --search fb.com fb.net
-```
-
-Attempt an `HTTP` connection on domains discovered with the `--connect` flag:
-
-```
-$ fierce --domain stackoverflow.com --subdomains mail --connect
-```
-
-Exchange speed for breadth with the `--wide` flag, which looks for nearby
-domains on all IPs of the [/24](https://en.wikipedia.org/wiki/Classless_Inter-Domain_Routing#IPv4_CIDR_blocks)
-of a discovered domain:
-
-```
-$ fierce --domain facebook.com --wide
-```
-
-Zone transfers are rare these days, but they give us the keys to the DNS castle.
-[zonetransfer.me](https://digi.ninja/projects/zonetransferme.php) is a very
-useful service for testing for and learning about zone transfers:
-
-```
-$ fierce --domain zonetransfer.me
-```
-
-To save the results to a file for later use we can simply redirect output:
-
-```
-$ fierce --domain zonetransfer.me > output.txt
-```
-
-Internal networks will often have large blocks of contiguous IP space assigned.
-We can scan those as well:
-
-```
-$ fierce --dns-servers 10.0.0.1 --range 10.0.0.0/24
-```
-
-Check out `--help` for further information:
-
-```
-$ fierce --help
+mtgjson maintainer arguments:
+  -PB, --price-build    Build updated pricing data then exit.
+  -R, --referrals       Create and maintain a referral map for referral
+                        linkages.
+  -NA, --no-alerts      Prevent push notifications from sending when property
+                        keys are defined.
 ```
 
-# Developing
+#### MTGJSON Environment Variables
+Due to how the new system is built, a few advanced values can be set by the user in the shell environment.
+- `MTGJSON5_DEBUG` When set to 1 or true, additional logging will be dumped to the output files
+- `MTGJSON5_OUTPUT_PATH` When set, MTGJSON will dump all outputs to a specific directory
+    - Ex:  `MTGJSON5_OUTPUT_PATH=~/Desktop` will dump database files to `/home/USER/Desktop/mtgjson_build_5XXX` and log files to `/home/USER/Desktop/logs`
 
-First, install development packages:
-
-```
-$ python -m pip install -r requirements.txt
-$ python -m pip install -r requirements-dev.txt
-$ python -m pip install -e .
-```
-
-## Testing
-
-```
-$ pytest
-```
-
-## Linting
-
-```
-$ flake8
-```
-
-## Coverage
-
-```
-$ pytest --cov
-```
+## Licensing  
+MTGJSON is a freely available product under the [MIT License](https://github.com/mtgjson/mtgjson/blob/master/LICENSE.txt), allowing our users to enjoy Magic: the Gathering data free of charge, in perpetuity.

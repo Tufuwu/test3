@@ -1,61 +1,63 @@
-from setuptools import setup
+"""
+Installation setup for mtgjson5
+"""
+import configparser
+import pathlib
 
-import os
+import setuptools
 
-requirements_filename = os.path.join(
-    os.path.dirname(os.path.abspath(__file__)), 'requirements.txt')
+# Establish project directory
+project_root: pathlib.Path = pathlib.Path(__file__).resolve().parent
 
-with open(requirements_filename) as fd:
-    install_requires = [i.strip() for i in fd.readlines()]
+# Read config details to determine version-ing
+config_file = project_root.joinpath("mtgjson5/resources/mtgjson.properties")
+config = configparser.ConfigParser()
+if config_file.is_file():
+    config.read(str(config_file))
 
-requirements_dev_filename = os.path.join(
-    os.path.dirname(os.path.abspath(__file__)), 'requirements-dev.txt')
-
-with open(requirements_filename) as fd:
-    tests_require = [i.strip() for i in fd.readlines()]
-
-long_description_filename = os.path.join(
-    os.path.dirname(os.path.abspath(__file__)), 'README.md')
-
-with open(long_description_filename) as fd:
-    long_description = fd.read()
-
-setup(
-    name='fierce',
-    version='1.4.0',
-    description='A DNS reconnaissance tool for locating non-contiguous IP space.',
-    long_description=long_description,
-    long_description_content_type='text/markdown',
-    url='https://github.com/mschwager/fierce',
-    packages=['fierce'],
-    package_dir={'fierce': 'fierce'},
-    license='GPLv3',
+setuptools.setup(
+    name="mtgjson5",
+    version=config.get("MTGJSON", "version", fallback="5.0.0+fallback"),
+    author="Zach Halpern",
+    author_email="zach@mtgjson.com",
+    url="https://mtgjson.com/",
+    description="Magic: the Gathering compiled database generator",
+    long_description=project_root.joinpath("README.md").open(encoding="utf-8").read(),
+    long_description_content_type="text/markdown",
+    license="MIT",
     classifiers=[
-        'Environment :: Console',
-        'Intended Audience :: Information Technology',
-        'Intended Audience :: System Administrators',
-        'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
-        'Operating System :: MacOS :: MacOS X',
-        'Operating System :: Microsoft :: Windows',
-        'Operating System :: POSIX',
-        'Programming Language :: Python :: 3.6',
-        'Programming Language :: Python :: 3.7',
-        'Programming Language :: Python :: 3.8',
-        'Programming Language :: Python :: 3.9',
-        'Programming Language :: Python :: 3.10',
-        'Topic :: Security',
+        "Intended Audience :: Developers",
+        "Intended Audience :: Education",
+        "Intended Audience :: Science/Research",
+        "License :: OSI Approved :: MIT License",
+        "Natural Language :: English",
+        "Operating System :: MacOS :: MacOS X",
+        "Operating System :: Microsoft :: Windows :: Windows 10",
+        "Operating System :: Unix",
+        "Programming Language :: Python :: 3 :: Only",
+        "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python",
+        "Topic :: Database",
+        "Topic :: Software Development :: Version Control :: Git",
     ],
-    install_requires=install_requires,
-    tests_require=tests_require,
-    python_requires='>=3.0',
-    entry_points={
-        'console_scripts': [
-            'fierce = fierce.fierce:main',
-        ],
-    },
-    package_data={
-        'fierce': [
-            'lists/*.txt',
-        ],
-    },
+    keywords=[
+        "Big Data",
+        "Card Games",
+        "Collectible",
+        "Database",
+        "JSON",
+        "MTG",
+        "MTGJSON",
+        "Trading Cards",
+        "Magic: The Gathering",
+    ],
+    include_package_data=True,
+    packages=setuptools.find_packages(),
+    install_requires=project_root.joinpath("requirements.txt")
+    .open(encoding="utf-8")
+    .readlines()
+    if project_root.joinpath("requirements.txt").is_file()
+    else [],  # Use the requirements file, if able
 )
