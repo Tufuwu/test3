@@ -1,0 +1,204 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# 
+# Translators:
+# Nicolae Crefelean, 2016
+msgid ""
+msgstr ""
+"Project-Id-Version: nfoview\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-12-12 22:41+0200\n"
+"PO-Revision-Date: 2018-12-12 20:42+0000\n"
+"Last-Translator: Osmo Salomaa <otsaloma@iki.fi>\n"
+"Language-Team: Romanian (http://www.transifex.com/otsaloma/nfoview/language/ro/)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: ro\n"
+"Plural-Forms: nplurals=3; plural=(n==1?0:(((n%100>19)||((n%100==0)&&(n!=0)))?2:1));\n"
+
+#: nfoview/about.py:31
+msgid "About NFO Viewer"
+msgstr "Despre NFO Viewer"
+
+#: nfoview/about.py:34 data/nfoview.appdata.xml.in:7
+msgid "Viewer for NFO files"
+msgstr "Vizualizare fișiere NFO"
+
+#. TRANSLATORS: The application name "NFO Viewer" has been intentionally
+#. marked as translatable. If you manage to translate the name in a
+#. fluent manner, without changing the meaning, you may use that
+#. translation at your discretion.
+#: nfoview/about.py:42 nfoview/window.py:82 data/nfoview.appdata.xml.in:6
+#: data/nfoview.desktop.in:4
+msgid "NFO Viewer"
+msgstr "NFO Viewer"
+
+#. TRANSLATORS: This is a special message that shouldn't be translated
+#. literally. It is used in the about dialog to give credits to the
+#. translators. Thus, you should translate it to your name and email
+#. address. You can also include other translators who have contributed
+#. to this translation; in that case, please write them on separate
+#. lines seperated by newlines (\n).
+#: nfoview/about.py:49
+msgid "translator-credits"
+msgstr "Nicolae Crefelean, Linux Mint România"
+
+#: nfoview/about.py:52
+msgid "NFO Viewer Website"
+msgstr "Saitul NFO Viewer"
+
+#: nfoview/export.py:29
+msgid "Export Image"
+msgstr "Export imagine"
+
+#: nfoview/export.py:32 nfoview/open.py:32
+msgid "_Cancel"
+msgstr "_Anulează"
+
+#: nfoview/export.py:33
+msgid "_Save"
+msgstr "_Salvează"
+
+#: nfoview/open.py:29
+msgid "Open"
+msgstr "Deschide"
+
+#: nfoview/open.py:33
+msgid "_Open"
+msgstr "_Deschide"
+
+#: nfoview/open.py:37
+msgid "All files"
+msgstr "Toate fișierele"
+
+#: nfoview/open.py:41
+msgid "NFO files (*.nfo)"
+msgstr "Fișierele NFO (*.nfo)"
+
+#: nfoview/schemes.py:46
+msgid "Black on white"
+msgstr "Negru pe alb"
+
+#: nfoview/schemes.py:56
+msgid "Custom"
+msgstr "Personalizat"
+
+#: nfoview/schemes.py:66
+msgid "Dark grey on light grey"
+msgstr "Gri închis pe gri deschis"
+
+#: nfoview/schemes.py:79
+msgid "System theme"
+msgstr "Tematica sistemului"
+
+#: nfoview/schemes.py:89
+msgid "Grey on black"
+msgstr "Gri pe negru"
+
+#: nfoview/schemes.py:99
+msgid "Light grey on dark grey"
+msgstr "Gri deschis pe gri închis"
+
+#: nfoview/schemes.py:109
+msgid "White on black"
+msgstr "Alb pe negru"
+
+#: data/menu.ui:6
+msgid "_Open…"
+msgstr "_Deschide..."
+
+#: data/menu.ui:10
+msgid "_Export Image…"
+msgstr "_Exportă imaginea..."
+
+#: data/menu.ui:16
+msgid "C_opy"
+msgstr "C_opiază"
+
+#: data/menu.ui:20
+msgid "_Select All"
+msgstr "_Selectare integrală"
+
+#: data/menu.ui:24
+msgid "_Wrap Lines"
+msgstr "_Taie liniile"
+
+#: data/menu.ui:30
+msgid "_Preferences"
+msgstr "_Preferințe"
+
+#: data/menu.ui:34
+msgid "_About"
+msgstr "_Despre"
+
+#: data/menu.ui:40
+msgid "_Close"
+msgstr "În_chide"
+
+#: data/menu.ui:44
+msgid "_Quit"
+msgstr "_Ieșire"
+
+#: data/preferences-dialog.ui:51
+msgid "Text"
+msgstr "Text"
+
+#: data/preferences-dialog.ui:75
+msgid "_Font:"
+msgstr "_Font:"
+
+#: data/preferences-dialog.ui:89
+msgid "Li_ne-spacing:"
+msgstr "Spațiere li_nii:"
+
+#: data/preferences-dialog.ui:153
+msgid "Colors"
+msgstr "Culori"
+
+#: data/preferences-dialog.ui:176
+msgid "_Schemes:"
+msgstr "_Scheme:"
+
+#: data/preferences-dialog.ui:190
+msgid "Fo_reground:"
+msgstr "P_rim-plan"
+
+#: data/preferences-dialog.ui:204
+msgid "Bac_kground:"
+msgstr "F_undal"
+
+#: data/preferences-dialog.ui:218
+msgid "_Link:"
+msgstr "_Legătură:"
+
+#: data/preferences-dialog.ui:232
+msgid "_Visited link:"
+msgstr "Legătură _vizitată:"
+
+#: data/preferences-dialog.ui:332
+msgid "Preferences"
+msgstr "Preferințe"
+
+#: data/nfoview.appdata.xml.in:9
+msgid ""
+"NFO Viewer is a simple viewer for NFO files, which are \"ASCII\" art in the "
+"CP437 codepage. The advantages of using NFO Viewer instead of a text editor "
+"are preset font and encoding settings, automatic window size and clickable "
+"hyperlinks."
+msgstr "NFO Viewer este un program simplu pentru vizualizarea fișierelor realizate ca artă „ASCII” în pagina de coduri CP437. Avantajele folosirii NFO Viewer în locul unui editor de text sunt setările implicite, precum fontul, codarea, dimensiunea automată a ferestrei și posibilitatea de a apăsa hiperlegăturile."
+
+#: data/nfoview.appdata.xml.in:34
+msgid "Main window"
+msgstr "Fereastra principală"
+
+#: data/nfoview.desktop.in:5
+msgid "View NFO files"
+msgstr "Vizualizare fișiere NFO"
+
+#. TRANSLATORS: Search terms to find this application. Do NOT translate or
+#. localize the semicolons! The list MUST also end with a semicolon!
+#: data/nfoview.desktop.in:11
+msgid "information;"
+msgstr "informații;"
