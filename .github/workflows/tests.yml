@@ -15,7 +15,7 @@ on:
 jobs:
   tests:
     strategy:
-      faat-fail: false
+      fast-fail: false
       matrix:
         python-version:
           - 3.6
