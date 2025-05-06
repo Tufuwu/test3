@@ -1,20 +1,19 @@
-name: CI
+name: Python package
+
 on:
   push:
     branches:
-      - "*"
+      - main
   pull_request:
     branches:
-      - master
+      - main
+
 jobs:
-  test:
+  build:
+    runs-on: ubuntu-22.04
     strategy:
-      fail-fast: false
       matrix:
-        python-version: [ "3.8", "3.9", "3.10", "pypy3"]
-        os: [ubuntu-latest]
-    runs-on: ${{ matrix.os }}
-    name: "${{ matrix.os }} Python: ${{ matrix.python-version }}"
+        python-version: [ "3.7"]
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python ${{ matrix.python-version }}
@@ -23,10 +22,16 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies
       run: |
-        python setup.py install
-        pip install --quiet coverage coveralls
+        python setup.py --quiet install
     - name: Run tests
-      run: make coverage
-    # - name: Upload Coverage
-    #   run: coveralls
-
+      run: |
+        python test_docformatter.py
+        docformatter setup.py
+    - name: Upload coverage to Coveralls
+      if: success()
+      env:
+        COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
+      run: |
+        pip install --quiet coverage coveralls
+        make coverage
+        coveralls
