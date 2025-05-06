@@ -1,1 +1,5 @@
-include mtgjson5/resources/*
+include README.rst
+include LICENSE
+include MANIFEST.in
+recursive-include swingtime/locale *
+recursive-include tests *.py
