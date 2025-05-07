@@ -16,12 +16,7 @@ jobs:
       matrix:
         os: [ubuntu-latest]
         python-version: [3.5, 3.6, 3.9]
-        arch: [amd64, ppc64le]
-        exclude:
-          - python-version: 3.9
-            arch: amd64
-          - python-version: 3.6
-            arch: ppc64le
+
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python ${{ matrix.python-version }}
