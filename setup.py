@@ -1,83 +1,59 @@
-#!/usr/bin/env python
-"""
-Copyright 2014-2020 Parsely, Inc.
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-"""
+# -*- coding: utf-8 -*-
+from setuptools import setup
+import os
 import re
 
-from setuptools import setup, find_packages
+# Lovingly adapted from https://github.com/kennethreitz/requests/blob/39d693548892057adad703fda630f925e61ee557/setup.py#L50-L55
+with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'pusher/version.py'), 'r') as fd:
+    VERSION = re.search(r'^VERSION = [\']([^\']*)[\']',
+                        fd.read(), re.MULTILINE).group(1)
 
-# Get version without importing, which avoids dependency issues
-def get_version():
-    with open("streamparse/version.py") as version_file:
-        return re.search(
-            r"""__version__\s+=\s+(['"])(?P<version>.+?)\1""", version_file.read()
-        ).group("version")
-
-
-def readme():
-    """ Returns README.rst contents as str """
-    with open("README.rst") as f:
-        return f.read()
-
-
-install_requires = [
-    l.split("#")[0].strip()
-    for l in open("requirements.txt").readlines()
-    if not l.startswith(("#", "-"))
-]
-
-tests_require = ["graphviz", "pytest"]
+if not VERSION:
+    raise RuntimeError('Ensure `VERSION` is correctly set in ./pusher/version.py')
 
 setup(
-    name="streamparse",
-    version=get_version(),
-    author="Parsely, Inc.",
-    author_email="hello@parsely.com",
-    url="https://github.com/Parsely/streamparse",
-    description=(
-        "streamparse lets you run Python code against real-time "
-        "streams of data. Integrates with Apache Storm."
-    ),
-    long_description=readme(),
-    license="Apache License 2.0",
-    packages=find_packages(),
-    entry_points={
-        "console_scripts": [
-            "sparse = streamparse.cli.sparse:main",
-            "streamparse = streamparse.cli.sparse:main",
-            "streamparse_run = streamparse.run:main",
-        ]
-    },
-    install_requires=install_requires,
-    tests_require=tests_require,
-    extras_require={
-        "test": tests_require,
-        "all": install_requires + tests_require,
-        "docs": ["sphinx"] + tests_require,
-    },
-    zip_safe=False,
-    include_package_data=True,
+    name='pusher',
+    version=VERSION,
+    description='A Python library to interract with the Pusher Channels API',
+    url='https://github.com/pusher/pusher-http-python',
+    author='Pusher',
+    author_email='support@pusher.com',
     classifiers=[
-        "License :: OSI Approved :: Apache Software License",
-        "Programming Language :: Python",
-        "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.6",
-        "Programming Language :: Python :: 3.7",
-        "Programming Language :: Python :: 3.8",
-        "Programming Language :: Python :: 3.9",
-        "Programming Language :: Python :: Implementation :: CPython",
-        "Programming Language :: Python :: Implementation :: PyPy",
+        'License :: OSI Approved :: MIT License',
+        'Programming Language :: Python',
+        'Development Status :: 4 - Beta',
+        'Intended Audience :: Developers',
+        'Topic :: Internet :: WWW/HTTP',
+        'Programming Language :: Python :: 2',
+        'Programming Language :: Python :: 3',
     ],
+    keywords='pusher rest realtime websockets service',
+    license='MIT',
+
+    packages=[
+        'pusher'
+    ],
+
+    install_requires=[
+        'six',
+        'requests>=2.3.0',
+        'urllib3',
+        'pyopenssl',
+        'ndg-httpsclient',
+        'pyasn1',
+        'pynacl'
+    ],
+
+    tests_require=['nose', 'mock', 'HTTPretty'],
+
+    extras_require={
+        'aiohttp': ['aiohttp>=0.20.0'],
+        'tornado': ['tornado>=5.0.0']
+    },
+
+    package_data={
+        'pusher': ['cacert.pem']
+    },
+
+    test_suite='pusher_tests',
 )
