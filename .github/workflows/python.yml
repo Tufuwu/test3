@@ -26,7 +26,7 @@ jobs:
 
     - name: Install dependencies
       run: |
-        ./scripts/install_radare2.sh
+
         pip install -r python/requirements_ci.txt
         cd python && ./setup.py install
 
