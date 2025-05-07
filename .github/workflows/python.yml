@@ -28,6 +28,7 @@ jobs:
       run: |
 
         pip install -r python/requirements_ci.txt
+        chmod +x python/setup.py
         cd python && ./setup.py install
 
     - name: Run tests
