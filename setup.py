@@ -1,46 +1,47 @@
-from codecs import open
-from os import path
+from setuptools import setup, find_packages
 
-from fints import version
-from setuptools import find_packages, setup
+version = "3.2.dev0"
 
-here = path.abspath(path.dirname(__file__))
+with open("README.rst", encoding="UTF-8") as file:
+    long_description = file.read() + "\n"
 
-try:
-    # Get the long description from the relevant file
-    with open(path.join(here, 'README.md'), encoding='utf-8') as f:
-        long_description = f.read()
-except:
-    long_description = ''
+with open("HISTORY.txt", encoding="UTF-8") as file:
+    long_description += file.read()
 
 setup(
-    name='fints',
+    name="pyroma",
     version=version,
-    description='Pure-python FinTS 3.0 (formerly known as HBCI) implementation',
+    description="Test your project's packaging friendliness",
     long_description=long_description,
-    url='https://github.com/raphaelm/python-fints',
-    author='Raphael Michel',
-    author_email='mail@raphaelmichel.de',
-    license='GNU Lesser General Public License v3 (LGPLv3)',
+    python_requires=">=3.6",
     classifiers=[
-        'Development Status :: 4 - Beta',
-        'Intended Audience :: Developers',
-        'Intended Audience :: Other Audience',
-        'License :: OSI Approved :: GNU Lesser General Public License v3 (LGPLv3)',
-        'Programming Language :: Python :: 3.6',
-        'Programming Language :: Python :: 3.7',
-        'Programming Language :: Python :: 3.8',
-        'Programming Language :: Python :: 3.9',
-        'Programming Language :: Python :: 3.10',
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3 :: Only",
+        "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: Implementation :: PyPy",
+        "License :: OSI Approved :: MIT License",
+        "Development Status :: 5 - Production/Stable",
     ],
-
-    keywords='hbci banking fints',
+    keywords=["pypi", "quality", "testing"],
+    author="Lennart Regebro",
+    author_email="regebro@gmail.com",
+    url="https://github.com/regebro/pyroma",
+    project_urls={"Source Code": "https://github.com/regebro/pyroma"},
+    license="MIT",
+    packages=find_packages(exclude=["ez_setup"]),
+    include_package_data=True,
+    zip_safe=False,
     install_requires=[
-        'bleach',
-        'mt-940',
-        'requests',
-        'sepaxml~=2.1',
+        "setuptools",
+        "docutils",
+        "pygments",
     ],
-
-    packages=find_packages(include=['fints', 'fints.*']),
+    entry_points={
+        "console_scripts": ["pyroma = pyroma:main"],
+        "zest.releaser.prereleaser.before": ["pyroma = pyroma:zester"],
+    },
+    test_suite="pyroma",
 )
