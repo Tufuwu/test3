@@ -1,3 +1,0 @@
-pip
-Sphinx
-sphinx-tabs
