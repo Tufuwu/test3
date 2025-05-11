@@ -1,36 +1,37 @@
-name: Django CI
+name: Python application
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
   pull_request:
-    branches: [ master ]
+    branches:
+      - main
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
+
     strategy:
-      fail-fast: false
-      max-parallel: 4
+      fail-fast:  false
       matrix:
-        python-version: [3.5, 3.6, 3.7, 3.8]
+        python-version: ['3.5', '3.6', '3.7', '3.8']
 
     steps:
     - uses: actions/checkout@v2
+
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python-version }}
-    - name: Install Dependencies
+
+    - name: Install dependencies
       run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
         pip install flake8
-    - name: Fix settings.py
-      run: |
-        sed -i.bak "s/^SECRET_KEY = ''$/SECRET_KEY = 'randomstring'/g" tramcar/settings.py
-    - name: Run Tests
+        pip install -r requirements.txt
+
+    - name: Run tests
       run: |
         flake8 .
+        sed -i.bak "s/^SECRET_KEY = ''$/SECRET_KEY = 'randomstring'/g" tramcar/settings.py
         python manage.py test
