@@ -1,37 +1,54 @@
-from setuptools import setup
+import os
+from setuptools import setup, find_packages
 
-with open('LONG_DESCRIPTION.rst') as f:
+name = 'querycontacts'
+description = "Query network abuse contacts on the command-line for a given ip address on abuse-contacts.abusix.zone"
+cur_dir = os.path.abspath(os.path.dirname(__file__))
+
+# Read Version
+version_file = '%s/querycontacts/_version.py' % (cur_dir)
+with open(version_file) as f:
+    code = compile(f.read(), version_file, 'exec')
+    exec(code)
+
+with open(os.path.join(cur_dir, 'README.md')) as f:
     long_description = f.read()
 
+with open('%s/requirements.txt' % cur_dir) as f:
+    requires = f.readlines()
+
 setup(
-    name='ably',
-    version='1.1.1',
+    name=name,
+    version=__version__,
+    description=description,
+    long_description=long_description,
+    long_description_content_type="text/markdown",
+    keywords = ['contact', 'query', 'dns', 'abuse contact', 'abuse', 'abusix', 'network'],
+    author='abusix',
+    author_email='fp@abusix.com',
+    python_requires='>=3',
+    url='https://github.com/abusix/querycontacts',
+    install_requires=requires,
+    packages=find_packages(),
+    zip_safe=False,
+    include_package_data=True,
+    scripts=['scripts/querycontacts'],
+    license="GNU General Public License v3 (GPLv3)",
     classifiers=[
-        'Development Status :: 6 - Mature',
+        'Development Status :: 5 - Production/Stable',
+        'Intended Audience :: Customer Service',
+        'Intended Audience :: System Administrators',
         'Intended Audience :: Developers',
-        'License :: OSI Approved :: Apache Software License',
-        'Operating System :: OS Independent',
-        'Programming Language :: Python',
+        'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.9',
-        'Topic :: Software Development :: Libraries :: Python Modules',
+        'Topic :: Security',
     ],
-    packages=['ably', 'ably.http', 'ably.rest', 'ably.transport',
-              'ably.types', 'ably.util'],
-    install_requires=['methoddispatch>=3.0.2,<4',
-                      'msgpack>=1.0.0,<2',
-                      'requests>=2.7.0,<3'],
-    extras_require={
-        'oldcrypto': ['pycrypto>=2.6.1'],
-        'crypto': ['pycryptodome'],
+    project_urls={
+        'Source': 'https://github.com/abusix/querycontacts',
+        'Company': 'https://www.abusix.com/'
     },
-    author="Ably",
-    author_email='support@ably.io',
-    url='https://github.com/ably/ably-python',
-    description="A Python client library for ably.io realtime messaging",
-    long_description=long_description,
 )
