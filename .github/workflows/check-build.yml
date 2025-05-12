@@ -1,7 +1,6 @@
 name: check-build
 
 on:
-
   push
 
 jobs:
@@ -9,7 +8,7 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
     - name: Set up Python 3.7
-      uses: actions/setup-python@v1
+      uses: actions/setup-python@v4
       with:
         python-version: 3.7
     - name: install hugo
