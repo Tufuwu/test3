@@ -19,7 +19,7 @@ jobs:
     strategy:
       matrix:
         ros_distro: [kinetic, melodic, noetic]
-        python_version: [python, python, python3]
+        python_version: [python2, python2, python3]
       exclude:
         - ros_distro: kinetic
           python_version: python3
