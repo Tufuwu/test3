@@ -39,7 +39,9 @@ jobs:
         pip install .[test] codecov
 
     - name: Run tests
-      run: ./run-tests.py
+      run: |
+        chmod +x run-tests.py
+        ./run-tests.py
 
     - name: Upload coverage to Codecov
       if: success()
