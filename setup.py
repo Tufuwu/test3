@@ -1,85 +1,50 @@
-import io
+
 import os
-from os import path
-import re
-from setuptools import setup, find_packages
-# To use consisten encodings
-from codecs import open
-
-# Function from: https://github.com/pytorch/vision/blob/master/setup.py
+try:
+    from setuptools import setup
+except ImportError:
+    from distutils.core import setup
+import platform
 
 
-def read(*names, **kwargs):
-    with io.open(
-        os.path.join(os.path.dirname(__file__), *names),
-        encoding=kwargs.get("encoding", "utf8")
-    ) as fp:
-        return fp.read()
+cmdclass = {}
 
-# Function from: https://github.com/pytorch/vision/blob/master/setup.py
+install_requires = ['flexx >= 0.4.1',
+                    'future',
+                    'normality == 0.6.1',
+                    'dataset == 0.8']
 
 
-def find_version(*file_paths):
-    version_file = read(*file_paths)
-    version_match = re.search(r"^__version__ = ['\"]([^'\"]*)['\"]",
-                              version_file, re.M)
-    if version_match:
-        return version_match.group(1)
-    raise RuntimeError("Unable to find version string.")
+readthedocs = os.environ.get('READTHEDOCS') == 'True'
 
-here = path.abspath(path.dirname(__file__))
+if not readthedocs:
+    if not platform.python_implementation() == "PyPy":
+        install_requires += ['numpy >= 1.10.2p']
+        if ('APPVEYOR' not in os.environ) or ('TRAVIS' not in os.environ):
+            install_requires += ['pandas >= 0.17.1',
+                                 'bokeh == 0.12.16',
+                                 'tornado == 4.3']
 
-# Get the long description from the README file
-with open(path.join(here, 'README.md'), encoding='utf-8') as readme_file:
-    long_description = readme_file.read()
 
-VERSION = find_version('face_alignment', '__init__.py')
+version = '0.9.7b0'
 
-requirements = [
-    'torch',
-    'numpy',
-    'scipy>=0.17',
-    'scikit-image',
-    'opencv-python',
-    'tqdm',
-    'numba',
-    'enum34;python_version<"3.4"'
-]
 
-setup(
-    name='face_alignment',
-    version=VERSION,
-
-    description="Detector 2D or 3D face landmarks from Python",
-    long_description=long_description,
-    long_description_content_type="text/markdown",
-
-    # Author details
-    author="Adrian Bulat",
-    author_email="adrian@adrianbulat.com",
-    url="https://github.com/1adrianb/face-alignment",
-
-    # Package info
-    packages=find_packages(exclude=('test',)),
-
-    python_requires='>=3',
-    install_requires=requirements,
-    license='BSD',
-    zip_safe=True,
-
-    classifiers=[
-        'Development Status :: 5 - Production/Stable',
-        'Operating System :: OS Independent',
-        'License :: OSI Approved :: BSD License',
-        'Natural Language :: English',
-
-        # Supported python versions
-        'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.3',
-        'Programming Language :: Python :: 3.4',
-        'Programming Language :: Python :: 3.5',
-        'Programming Language :: Python :: 3.6',
-        'Programming Language :: Python :: 3.7',
-        'Programming Language :: Python :: 3.8',
-    ],
-)
+setup(name='abcEconomics',
+      version=version,
+      author='Davoud Taghawi-Nejad',
+      author_email='Davoud@Taghawi-Nejad.de',
+      description='Agent-Based Complete Economy modelling platform',
+      url='https://github.com/AB-CE/abce.git',
+      package_dir={'abcEconomics': 'abcEconomics',
+                   'abcEconomics.gui': 'abcEconomics/gui',
+                   'abcEconomics.agents': 'abcEconomics/agents',
+                   'abcEconomics.contracts': 'abcEconomics/contracts',
+                   'abcEconomics.logger': 'abcEconomics/logger',
+                   'abcEconomics.scheduler': 'abcEconomics/scheduler'
+                   },
+      packages=['abcEconomics'],
+      long_description=open('README.rst').read(),
+      setup_requires=['setuptools>=18.0', 'cython'],
+      install_requires=install_requires,
+      include_package_data=True,
+      cmdclass=cmdclass)
