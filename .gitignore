@@ -1,28 +1,52 @@
-#######################################
-# MAC OS X
-.DS_Store
-.AppleDouble
-.LSOverride
+*.py[cod]
 
-# Icon must ends with two \r.
-Icon
+# C extensions
+*.so
 
-# Thumbnails
-._*
+# Packages
+*.egg
+*.egg-info
+dist
+build
+eggs
+parts
+bin
+var
+sdist
+develop-eggs
+.installed.cfg
+lib
+lib64
+virtualenv
+venv
 
-# Files that might appear on external disk
-.Spotlight-V100
-.Trashes
+# Installer logs
+pip-log.txt
 
-# logfiles
-.philog.LOGFILE
+# Unit test / coverage reports
+.coverage
+.tox
+nosetests.xml
 
-# backup files
-*~
-*#
+# Mr Developer
+.mr.developer.cfg
+.project
+.pydevproject
 
-#######################################
-**/__pycache__
+# Complexity
+output/*.html
+output/*/index.html
 
-# generated website
-/build/
+# Sphinx
+docs/_build
+
+# example
+
+example/*.sqlite*
+.idea/
+.python-version
+.cache
+.pytest_cache
+
+# coverage
+htmlcov/
