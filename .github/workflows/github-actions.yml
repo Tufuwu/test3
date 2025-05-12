@@ -17,6 +17,7 @@ jobs:
         options: --privileged
 
     strategy:
+      fail-fast: false
       matrix:
         ros_distro: [kinetic, melodic, noetic]
         python_version: [python2, python2, python3]
