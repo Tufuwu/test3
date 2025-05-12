@@ -17,6 +17,6 @@ jobs:
       run: sudo apt-get update
     - name: install other deps
       run: sudo apt-get install -y jing bibutils openssh-client rsync libyaml-dev libpython3-dev
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v4
     - name: build
       run: make check site
