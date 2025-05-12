@@ -1,110 +1,182 @@
-|actions|_ |pypi|_ |pyversions|_ |womm|_
+Graphviz
+========
 
-.. |actions| image:: https://github.com/wimglenn/pytest-structlog/actions/workflows/tests.yml/badge.svg
-.. _actions: https://github.com/wimglenn/pytest-structlog/actions/workflows/tests.yml/
+|PyPI version| |License| |Supported Python| |Format|
 
-.. |pypi| image:: https://img.shields.io/pypi/v/pytest-structlog.svg
-.. _pypi: https://pypi.org/project/pytest-structlog
+|Build| |Codecov| |Readthedocs-stable| |Readthedocs-latest|
 
-.. |pyversions| image:: https://img.shields.io/pypi/pyversions/pytest-structlog.svg
-.. _pyversions:
+This package facilitates the creation and rendering of graph descriptions in
+the DOT_ language of the Graphviz_ graph drawing software (`upstream repo`_)
+from Python.
 
-.. |womm| image:: https://cdn.rawgit.com/nikku/works-on-my-machine/v0.2.0/badge.svg
-.. _womm: https://github.com/nikku/works-on-my-machine
+Create a graph object, assemble the graph by adding nodes and edges, and
+retrieve its DOT source code string. Save the source code to a file and render
+it with the Graphviz installation of your system.
 
-
-pytest-structlog
-================
-
-Structured logging assertions.  pytest_ + structlog_ = ``pytest-structlog``.
-
-|pytest|    |structlog|
-
-
-Installation:
--------------
-
-.. code-block:: bash
-
-   $ pip install pytest-structlog
-
-Usage:
-------
-
-The fixture name is ``log``. It has two attributes of interest: ``log.events`` is a list of events from captured log calls, and ``log.has`` is a helper function for asserting a single event was logged within the expected context.
-
-Suppose you have some library module, ``your_lib``, which is using ``structlog``:
-
-.. code-block:: python
-
-   # your_lib.py
-   from structlog import get_logger
-
-   logger = get_logger()
-
-   def spline_reticulator():
-       logger.info("reticulating splines")
-       for i in range(3):
-           logger.debug("processing", spline=i)
-       logger.info("reticulated splines", n_splines=3)
+Use the ``view`` option/method to directly inspect the resulting (PDF, PNG,
+SVG, etc.) file with its default application. Graphs can also be rendered
+and displayed within `Jupyter notebooks`_ (formerly known as
+`IPython notebooks`_,
+`example <notebook_>`_, `nbviewer <notebook-nbviewer_>`_)
+as well as the `Jupyter QtConsole`_.
 
 
-Then your test suite might use assertions such as shown below:
+Links
+-----
 
-.. code-block:: python
-
-   # test_your_lib.py
-   from your_lib import spline_reticulator
-
-   def test_spline_reticulator(log):
-       assert len(log.events) == 0
-       spline_reticulator()
-       assert len(log.events) == 5
-
-       # can assert on the event only
-       assert log.has("reticulating splines")
-
-       # can assert with subcontext
-       assert log.has("reticulated splines")
-       assert log.has("reticulated splines", n_splines=3)
-       assert log.has("reticulated splines", n_splines=3, level="info")
-
-       # but not incorrect context
-       assert not log.has("reticulated splines", n_splines=42)
-       assert not log.has("reticulated splines", key="bogus")
-
-       # can assert with the event dicts directly
-       assert log.events == [
-           {"event": "reticulating splines", "level": "info"},
-           {"event": "processing", "level": "debug", "spline": 0},
-           {"event": "processing", "level": "debug", "spline": 1},
-           {"event": "processing", "level": "debug", "spline": 2},
-           {"event": "reticulated splines", "level": "info", "n_splines": 3},
-       ]
-
-       # can use membership to check for a single event's data
-       assert {"event": "reticulating splines", "level": "info"} in log.events
-
-       # can use >= to specify only the events you're interested in
-       assert log.events >= [
-           {"event": "processing", "level": "debug", "spline": 0},
-           {"event": "processing", "level": "debug", "spline": 2},
-       ]
-
-       # or put the comparison the other way around if you prefer
-       assert [
-           {"event": "processing", "level": "debug", "spline": 0},
-           {"event": "processing", "level": "debug", "spline": 2},
-       ] <= log.events
-
-       # note: comparisons are order sensitive!
-       assert not [
-           {"event": "processing", "level": "debug", "spline": 2},
-           {"event": "processing", "level": "debug", "spline": 0},
-       ] <= log.events
+- GitHub: https://github.com/xflr6/graphviz
+- PyPI: https://pypi.org/project/graphviz/
+- Documentation: https://graphviz.readthedocs.io
+- Changelog: https://graphviz.readthedocs.io/en/latest/changelog.html
+- Issue Tracker: https://github.com/xflr6/graphviz/issues
+- Download: https://pypi.org/project/graphviz/#files
 
 
-.. _pytest: https://docs.pytest.org/
-.. _structlog: https://www.structlog.org/
-.. |pytest| image:: https://user-images.githubusercontent.com/6615374/46903931-515eef00-cea2-11e8-8945-980ddbf0a053.png
-.. |structlog| image:: https://user-images.githubusercontent.com/6615374/46903937-5b80ed80-cea2-11e8-9b85-d3f071180fe1.png
+Installation
+------------
+
+This package runs under Python 3.6+, use pip_ to install:
+
+.. code:: bash
+
+    $ pip install graphviz
+
+To render the generated DOT source code, you also need to install Graphviz_
+(`download page <upstream-download_>`_,
+`archived versions <upstream-archived_>`_,
+`installation procedure for Windows <upstream-windows_>`_).
+
+Make sure that the directory containing the ``dot`` executable is on your
+systems' path.
+
+Anaconda_: see the conda-forge_ package
+`conda-forge/python-graphviz <conda-forge-python-graphviz_>`_
+(`feedstock <conda-forge-python-graphviz-feedstock_>`_),
+which should automatically ``conda install``
+`conda-forge/graphviz <conda-forge-graphviz_>`_
+(`feedstock <conda-forge-graphviz-feedstock_>`_) as dependency.
+
+
+Quickstart
+----------
+
+Create a graph object:
+
+.. code:: python
+
+    >>> import graphviz
+    >>> dot = graphviz.Digraph(comment='The Round Table')
+    >>> dot  #doctest: +ELLIPSIS
+    <graphviz.dot.Digraph object at 0x...>
+
+Add nodes and edges:
+
+.. code:: python
+
+    >>> dot.node('A', 'King Arthur')
+    >>> dot.node('B', 'Sir Bedevere the Wise')
+    >>> dot.node('L', 'Sir Lancelot the Brave')
+
+    >>> dot.edges(['AB', 'AL'])
+    >>> dot.edge('B', 'L', constraint='false')
+
+Check the generated source code:
+
+.. code:: python
+
+    >>> print(dot.source)  # doctest: +NORMALIZE_WHITESPACE
+    // The Round Table
+    digraph {
+        A [label="King Arthur"]
+        B [label="Sir Bedevere the Wise"]
+        L [label="Sir Lancelot the Brave"]
+        A -> B
+        A -> L
+        B -> L [constraint=false]
+    }
+
+Save and render the source code, optionally view the result:
+
+.. code:: python
+
+    >>> dot.render('test-output/round-table.gv', view=True)  # doctest: +SKIP
+    'test-output/round-table.gv.pdf'
+
+.. image:: https://raw.github.com/xflr6/graphviz/master/docs/round-table.png
+    :align: center
+
+
+See also
+--------
+
+- pygraphviz_ |--| full-blown interface wrapping the Graphviz C library with SWIG
+- graphviz-python_ |--| official Python bindings
+  (`documentation <graphviz-python-docs_>`_)
+- pydot_ |--| stable pure-Python approach, requires pyparsing
+
+
+License
+-------
+
+This package is distributed under the `MIT license`_.
+
+
+.. _Graphviz:  https://www.graphviz.org
+.. _DOT: https://www.graphviz.org/doc/info/lang.html
+.. _upstream repo: https://gitlab.com/graphviz/graphviz/
+.. _upstream-download: https://www.graphviz.org/download/
+.. _upstream-archived: https://www2.graphviz.org/Archive/stable/
+.. _upstream-windows: https://forum.graphviz.org/t/new-simplified-installation-procedure-on-windows/224
+
+.. _pip: https://pip.readthedocs.io
+
+.. _Jupyter notebooks: https://jupyter.org
+.. _IPython notebooks: https://ipython.org/notebook.html
+.. _Jupyter QtConsole: https://qtconsole.readthedocs.io
+
+.. _notebook: https://github.com/xflr6/graphviz/blob/master/examples/graphviz-notebook.ipynb
+.. _notebook-nbviewer: https://nbviewer.jupyter.org/github/xflr6/graphviz/blob/master/examples/graphviz-notebook.ipynb
+
+.. _Anaconda: https://docs.anaconda.com/anaconda/install/
+.. _conda-forge: https://conda-forge.org
+.. _conda-forge-python-graphviz: https://anaconda.org/conda-forge/python-graphviz
+.. _conda-forge-python-graphviz-feedstock: https://github.com/conda-forge/python-graphviz-feedstock
+.. _conda-forge-graphviz: https://anaconda.org/conda-forge/graphviz
+.. _conda-forge-graphviz-feedstock: https://github.com/conda-forge/graphviz-feedstock
+
+.. _pygraphviz: https://pypi.org/project/pygraphviz/
+.. _graphviz-python: https://pypi.org/project/graphviz-python/
+.. _graphviz-python-docs: https://www.graphviz.org/pdf/gv.3python.pdf
+.. _pydot: https://pypi.org/project/pydot/
+
+.. _MIT license: https://opensource.org/licenses/MIT
+
+
+.. |--| unicode:: U+2013
+
+
+.. |PyPI version| image:: https://img.shields.io/pypi/v/graphviz.svg
+    :target: https://pypi.org/project/graphviz/
+    :alt: Latest PyPI Version
+.. |License| image:: https://img.shields.io/pypi/l/graphviz.svg
+    :target: https://pypi.org/project/graphviz/
+    :alt: License
+.. |Supported Python| image:: https://img.shields.io/pypi/pyversions/graphviz.svg
+    :target: https://pypi.org/project/graphviz/
+    :alt: Supported Python Versions
+.. |Format| image:: https://img.shields.io/pypi/format/graphviz.svg
+    :target: https://pypi.org/project/graphviz/
+    :alt: Format
+
+.. |Build| image:: https://github.com/xflr6/graphviz/actions/workflows/build.yaml/badge.svg?branch=master
+    :target: https://github.com/xflr6/graphviz/actions/workflows/build.yaml?query=branch%3Amaster
+    :alt: Build
+.. |Codecov| image:: https://codecov.io/gh/xflr6/graphviz/branch/master/graph/badge.svg
+    :target: https://codecov.io/gh/xflr6/graphviz
+    :alt: Codecov
+.. |Readthedocs-stable| image:: https://readthedocs.org/projects/graphviz/badge/?version=stable
+    :target: https://graphviz.readthedocs.io/en/stable/?badge=stable
+    :alt: Readthedocs stable
+.. |Readthedocs-latest| image:: https://readthedocs.org/projects/graphviz/badge/?version=latest
+    :target: https://graphviz.readthedocs.io/en/latest/?badge=latest
+    :alt: Readthedocs latest
