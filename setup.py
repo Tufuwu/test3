@@ -1,59 +1,27 @@
-from __future__ import print_function
-import os
-from os.path import dirname, abspath, join
-import sys
-import sh
-import codecs
-from setuptools import setup
+import setuptools
 
+with open("README.md", "r") as fh:
 
-HERE = dirname(abspath(__file__))
+    long_description = fh.read()
 
-author = "Andrew Moffat"
-author_email = "arwmoffat@gmail.com"
-keywords = ["subprocess", "process", "shell", "launch", "program"]
+setuptools.setup(
+     name='vtt_to_srt3',
+     version='0.1.9.0',
+     author="Jeison Cardoso",
+     author_email="cardoso.jeison@gmail.com",
+     description="vtt to srt subtitles converter package",
+     long_description=long_description,
+     long_description_content_type="text/markdown",
+     url="https://github.com/jsonzilla/vtt-to-srt.py",
+     packages=setuptools.find_packages(),
+     classifiers=[
+         "Programming Language :: Python :: 3.7",
+         "Operating System :: OS Independent",
+     ],
+     entry_points={
+        "console_scripts": [
+            "vtt_to_srt=vtt_to_srt.vtt_to_srt:main",
+        ]
+    }
 
-
-def read(*parts):
-    with codecs.open(join(HERE, *parts), "rb", "utf-8") as f:
-        return f.read()
-
-setup(
-    name="sh",
-    version=sh.__version__,
-    description="Python subprocess replacement",
-    long_description=read("README.rst"),
-    author=author,
-    author_email=author_email,
-    maintainer=author,
-    maintainer_email=author_email,
-    keywords=keywords,
-    url="https://github.com/amoffat/sh",
-    license="MIT",
-    py_modules=["sh"],
-    classifiers=[
-        "Development Status :: 5 - Production/Stable",
-        "Environment :: Console",
-        "Intended Audience :: Developers",
-        "Intended Audience :: System Administrators",
-        "License :: OSI Approved :: MIT License",
-        "Programming Language :: Python",
-        "Programming Language :: Python :: 2",
-        "Programming Language :: Python :: 2.6",
-        "Programming Language :: Python :: 2.7",
-        "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.1",
-        "Programming Language :: Python :: 3.2",
-        "Programming Language :: Python :: 3.3",
-        "Programming Language :: Python :: 3.4",
-        "Programming Language :: Python :: 3.5",
-        "Programming Language :: Python :: 3.6",
-        "Programming Language :: Python :: 3.7",
-        "Programming Language :: Python :: 3.8",
-        "Programming Language :: Python :: 3.9",
-        "Programming Language :: Python :: Implementation :: CPython",
-        "Programming Language :: Python :: Implementation :: PyPy",
-        "Topic :: Software Development :: Build Tools",
-        "Topic :: Software Development :: Libraries :: Python Modules",
-    ],
-)
+ )
