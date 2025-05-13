@@ -1,34 +1,59 @@
-#!/usr/bin/env python
-
-from io import open
-from os import path
-
+from __future__ import print_function
+import os
+from os.path import dirname, abspath, join
+import sys
+import sh
+import codecs
 from setuptools import setup
 
-install_requires = [
-    "six",
-    "gdspy>=1.5",
-    "numpy",
-    "matplotlib",
-]
 
-# read the contents of your README file
+HERE = dirname(abspath(__file__))
 
-this_directory = path.abspath(path.dirname(__file__))
-with open(path.join(this_directory, "README.md"), encoding="utf-8") as f:
-    long_description = f.read()
+author = "Andrew Moffat"
+author_email = "arwmoffat@gmail.com"
+keywords = ["subprocess", "process", "shell", "launch", "program"]
 
+
+def read(*parts):
+    with codecs.open(join(HERE, *parts), "rb", "utf-8") as f:
+        return f.read()
 
 setup(
-    name="phidl",
-    version="1.6.0",
-    description="PHIDL",
-    long_description=long_description,
-    long_description_content_type="text/markdown",
-    install_requires=install_requires,
-    author="Adam McCaughan",
-    author_email="amccaugh@gmail.com",
-    packages=["phidl"],
-    py_modules=["phidl.geometry", "phidl.routing", "phidl.utilities", "phidl.path"],
-    package_dir={"phidl": "phidl"},
+    name="sh",
+    version=sh.__version__,
+    description="Python subprocess replacement",
+    long_description=read("README.rst"),
+    author=author,
+    author_email=author_email,
+    maintainer=author,
+    maintainer_email=author_email,
+    keywords=keywords,
+    url="https://github.com/amoffat/sh",
+    license="MIT",
+    py_modules=["sh"],
+    classifiers=[
+        "Development Status :: 5 - Production/Stable",
+        "Environment :: Console",
+        "Intended Audience :: Developers",
+        "Intended Audience :: System Administrators",
+        "License :: OSI Approved :: MIT License",
+        "Programming Language :: Python",
+        "Programming Language :: Python :: 2",
+        "Programming Language :: Python :: 2.6",
+        "Programming Language :: Python :: 2.7",
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.1",
+        "Programming Language :: Python :: 3.2",
+        "Programming Language :: Python :: 3.3",
+        "Programming Language :: Python :: 3.4",
+        "Programming Language :: Python :: 3.5",
+        "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: Implementation :: CPython",
+        "Programming Language :: Python :: Implementation :: PyPy",
+        "Topic :: Software Development :: Build Tools",
+        "Topic :: Software Development :: Libraries :: Python Modules",
+    ],
 )
