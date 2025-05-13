@@ -13,8 +13,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ['3.7', '3.8', '3.9']  # Avoid 3.6 unless you're handling it explicitly
-        django-version: ['22', '30', '31']     # Add more versions if needed
+        python-version: ['3。10', '3.11', '3.9','3.12','3.13']  # Avoid 3.6 unless you're handling it explicitly
+   # Add more versions if needed
 
     steps:
       - uses: actions/checkout@v3
