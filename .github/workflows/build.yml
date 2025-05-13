@@ -19,7 +19,9 @@ jobs:
         with:
           fetch-depth: 0
       - name: Install pip dependencies
-        run: pip install -r requirements.txt
+        run: |
+          pip install "click<8.0"
+          pip install -r requirements.txt
       - name: Build and Test
         run: |
           pytest
