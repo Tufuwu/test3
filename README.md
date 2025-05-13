@@ -1,46 +1,28 @@
-[![Build Status](https://travis-ci.org/aiidateam/aiida-cp2k.svg?branch=develop)](https://travis-ci.org/aiidateam/aiida-cp2k)
-[![Coverage Status](https://coveralls.io/repos/github/aiidateam/aiida-cp2k/badge.svg?branch=develop)](https://coveralls.io/github/aiidateam/aiida-cp2k?branch=develop)
-[![PyPI version](https://badge.fury.io/py/aiida-cp2k.svg)](https://badge.fury.io/py/aiida-cp2k)
-[![Documentation Status](https://readthedocs.org/projects/aiida-cp2k/badge/?version=latest)](https://aiida-cp2k.readthedocs.io/en/latest/?badge=latest)
+# fingerprints
 
-# AiiDA CP2K
-[AiiDA](http://www.aiida.net/) plugin for [CP2K](https://www.cp2k.org/).
+[![Build Status](https://travis-ci.org/alephdata/fingerprints.png?branch=master)](https://travis-ci.org/alephdata/fingerprints)
 
-## Installation
+This library helps with the generation of fingerprints for entity data. A fingerprint
+in this context is understood as a simplified entity identifier, derived from it's
+name or address and used for cross-referencing of entity across different datasets.
 
-If you use `pip`, you can install it as: 
+## Usage
+
+```python
+import fingerprints
+
+fp = fingerprints.generate('Mr. Sherlock Holmes')
+assert fp == 'holmes sherlock'
+
+fp = fingerprints.generate('Siemens Aktiengesellschaft')
+assert fp == 'ag siemens'
+
+fp = fingerprints.generate('New York, New York')
+assert fp == 'new york'
 ```
-pip install aiida-cp2k
-```
 
-To install the plugin in an editable mode, run:
-```
-git clone https://github.com/aiidateam/aiida-cp2k
-cd aiida-cp2k
-pip install -e .  # Also installs aiida, if missing (but not postgres/rabbitmq).
-```
+## See also
 
-## Links
-* [Documentation](https://aiida-cp2k.readthedocs.io/en/latest/) for the calculation examples and features of the plugin.
-* [Make an issue](https://github.com/aiidateam/aiida-cp2k/issues/new) for bug reports, questions and suggestions.
-* [AiiDA](http://www.aiida.net/) to learn about AiiDA.
-* [Cp2k](https://www.cp2k.org/) to learn about CP2K.
+* [Clustering in Depth](https://github.com/OpenRefine/OpenRefine/wiki/Clustering-In-Depth), part of the OpenRefine documentation discussing how to create collisions in data clustering.
+* [probablepeople](https://github.com/datamade/probablepeople), parser for western names made by the brilliant folks at datamade.us.
 
-
-## License
-MIT
-
-
-## Contact
-yakutovicha@gmail.com
-
-
-## Acknowledgements
-This work is supported by:
-* the [MARVEL National Centre for Competency in Research](http://nccr-marvel.ch) funded by the [Swiss National Science Foundation](http://www.snf.ch/en);
-* the [MaX European Centre of Excellence](http://www.max-centre.eu/) funded by the Horizon 2020 EINFRA-5 program, Grant No. 676598;
-* the [swissuniversities P-5 project "Materials Cloud"](https://www.materialscloud.org/swissuniversities).
-
-<img src="miscellaneous/logos/MARVEL.png" alt="MARVEL" style="padding:10px;" width="150"/>
-<img src="miscellaneous/logos/MaX.png" alt="MaX" style="padding:10px;" width="250"/>
-<img src="miscellaneous/logos/swissuniversities.png" alt="swissuniversities" style="padding:10px;" width="250"/>

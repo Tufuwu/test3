@@ -1,27 +1,45 @@
-# -*- coding: utf-8 -*-
-###############################################################################
-# Copyright (c), The AiiDA-CP2K authors.                                      #
-# SPDX-License-Identifier: MIT                                                #
-# AiiDA-CP2K is hosted on GitHub at https://github.com/aiidateam/aiida-cp2k   #
-# For further information on the license, see the LICENSE.txt file.           #
-###############################################################################
-"""Setting up CP2K plugin for AiiDA"""
-
-import json
-
-from io import open  # pylint: disable=redefined-builtin
 from setuptools import setup, find_packages
 
 
-def run_setup():
-    with open('setup.json', 'r', encoding='utf-8') as info:
-        kwargs = json.load(info)
-    setup(include_package_data=True,
-          packages=find_packages(),
-          long_description=open('README.md', encoding='utf-8').read(),
-          long_description_content_type='text/markdown',
-          **kwargs)
-
-
-if __name__ == '__main__':
-    run_setup()
+setup(
+    name='fingerprints',
+    version='0.6.6',
+    description="A library to generate entity fingerprints.",
+    long_description="",
+    classifiers=[
+        "Intended Audience :: Developers",
+        "License :: OSI Approved :: MIT License",
+        "Operating System :: OS Independent",
+        'Programming Language :: Python :: 2.6',
+        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3.3',
+        'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
+    ],
+    keywords='names people companies normalisation',
+    author='Friedrich Lindenberg',
+    author_email='friedrich@pudo.org',
+    url='http://github.com/alephdata/fingerprints',
+    license='MIT',
+    packages=find_packages(exclude=['ez_setup', 'examples', 'test']),
+    namespace_packages=[],
+    package_data={
+        '': ['fingerprints/data/types.yml']
+    },
+    include_package_data=True,
+    zip_safe=False,
+    test_suite='nose.collector',
+    install_requires=[
+        'normality>=0.4.0',
+        'pyyaml',
+        'six'
+    ],
+    tests_require=[
+        'nose',
+        'coverage',
+        'wheel'
+    ],
+    entry_points={
+    }
+)
