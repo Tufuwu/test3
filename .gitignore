@@ -1,46 +1,17 @@
-.DS_Store
-.DS_Store?
-*.o
-.tar
-.gz
-.zip
 *.pyc
-*.so
-
-# Spice Kernels
-*.bsp
-*.bpc
-*.bds
-*.dsk
-*.ek
-*.tpc
-*.tsc
-*.tf
-*.tls
-*.ti
-*.bc
-
-# Cspice
-cspice/
-
-# Test meta kernels
-spiceypy/tests/*.txt
-
-# Docs
-docs/_build
-
-# Pycharm specific things
-.idea/
-
-# python things
-*.egg-info*
-dist/
+.project
+.pydevproject
+.coverage
+.DS_Store
+django_extra_views.egg-info/
+htmlcov/
 build/
-.cache/
-__pycache__/
-spiceypy/__pycache__/
-spiceypy/utils/__pycache__/
-.eggs/
-*.whl
-.pytest_cache/
+docs/_build/
+dist/
+.idea
+nosetests.xml
 *.sqlite3
+.env/
+venv/
+coverage.xml
+/.tox/

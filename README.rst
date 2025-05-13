@@ -1,132 +1,189 @@
-SpiceyPy
-========
+|build| |codecov| |docs-status|
 
-SpiceyPy is a Python wrapper for the NAIF C SPICE Toolkit (N66), written using ctypes.
+Django Extra Views - The missing class-based generic views for Django
+========================================================================
 
-+------------------------+-------------------+--------+-----------------+------------+--------------+
-| Continuous Integration | Code Coverage     | Docs   | Chat            |  Citation  |  Code Style  |
-+========================+===================+========+=================+============+==============+
-| |Github Build Status|  | |Coverage Status| | |Docs| | |Join the chat| | |Citation| |  |Black|     |
-| |Windows Build Status| |                   |        |                 | |JOSS|     |              |
-+------------------------+-------------------+--------+-----------------+------------+--------------+
+Django-extra-views is a Django package which introduces additional class-based views
+in order to simplify common design patterns such as those found in the Django
+admin interface.
 
-.. |Github Build Status| image:: https://img.shields.io/github/workflow/status/AndrewAnnex/SpiceyPy/ci-build?event=push
-   :alt: Github - Build Status
-   :target: https://github.com/AndrewAnnex/SpiceyPy/actions
-.. |Windows Build Status| image:: https://img.shields.io/appveyor/build/AndrewAnnex/SpiceyPy/main?logo=appveyor
-   :alt: Appveyor - Build Status
-   :target: https://ci.appveyor.com/project/AndrewAnnex/spiceypy
-.. |Coverage Status| image:: https://img.shields.io/codecov/c/github/AndrewAnnex/SpiceyPy/main?logo=codecov
-   :alt: Codecov - Test Coverage
-   :target: https://codecov.io/gh/AndrewAnnex/SpiceyPy
-.. |Docs| image:: https://img.shields.io/readthedocs/spiceypy/main
-   :alt: Readthedocs - Documentation
-   :target: http://spiceypy.readthedocs.org/en/main/
-.. |Join the chat| image:: https://img.shields.io/gitter/room/andrewannex/spiceypy
-   :alt: Gitter - Chat room
-   :target: https://gitter.im/AndrewAnnex/SpiceyPy
-.. |Citation| image:: https://zenodo.org/badge/DOI/10.5281/zenodo.593914.svg
-   :alt: Citation Information: Zenodo
-   :target: https://doi.org/10.5281/zenodo.593914
-.. |JOSS| image:: https://joss.theoj.org/papers/98136d30bea9982ad160d251e2039fee/status.svg
-   :alt: Citation Information: Journal of Open Source Software
-   :target: https://joss.theoj.org/papers/98136d30bea9982ad160d251e2039fee
-.. |Black| image:: https://img.shields.io/badge/code%20style-black-000000.svg 
-   :alt: Code Style - Black
-   :target: https://github.com/psf/black
+Supported Python and Django versions: Python 3.5+, Django 2.1–3.2,
+see `tox.ini <https://github.com/AndrewIngram/django-extra-views/blob/master/tox.ini>`_ for an up-to-date list.
 
+Full documentation is available at `read the docs`_.
 
-Introduction
-------------
+.. _read the docs: https://django-extra-views.readthedocs.io/
 
-SpiceyPy is a python wrapper for the `SPICE Toolkit <https://naif.jpl.nasa.gov/naif/>`__.
-SPICE is an essential tool for scientists and engineers alike in the planetary
-science field for Solar System Geometry. Please visit the NAIF website for more details about SPICE.
+.. |build| image:: https://github.com/AndrewIngram/django-extra-views/workflows/Tests/badge.svg
+    :target: https://github.com/AndrewIngram/django-extra-views/
+    :alt: Build Status
 
-*IMPORTANT*: I have no current affiliation with NASA, NAIF, or JPL. The
-code is provided "as is", use at your own risk. However, the NAIF now distributes python "lessons" that use SpiceyPy as the python to spice interface.
+.. |codecov| image:: https://codecov.io/github/AndrewIngram/django-extra-views/coverage.svg?branch=master
+    :target: https://codecov.io/github/AndrewIngram/django-extra-views?branch=master
+    :alt: Coverage Status
 
-Citing SpiceyPy
----------------
+.. |docs-status| image:: https://readthedocs.org/projects/django-extra-views/badge/?version=latest
+    :target: https://django-extra-views.readthedocs.io/
+    :alt: Documentation Status
 
-If you are publishing work that uses SpiceyPy, please cite SpiceyPy and the SPICE toolkit.
-
-SpiceyPy can be cited using the JOSS DOI (`https://doi.org/10.21105/joss.02050`) or with the following:
-    Annex et al., (2020). SpiceyPy: a Pythonic Wrapper for the SPICE Toolkit. Journal of Open Source Software, 5(46), 2050, https://doi.org/10.21105/joss.02050
-
-Instructions for how to cite the SPICE Toolkit are available on the NAIF website: 
-    https://naif.jpl.nasa.gov/naif/credit.html. 
-
-To cite information about SpiceyPy usage statistics, please cite my 2017 and or 2019 abstracts as appropriate below:
-    1. 2017 abstract: `<https://ui.adsabs.harvard.edu/abs/2017LPICo1986.7081A/abstract>`__.
-    2. 2019 abstract: `<https://ui.adsabs.harvard.edu/abs/2019LPICo2151.7043A/abstract>`__.
+.. installation-start
 
 Installation
 ------------
 
-+----------------+-------------------+
-| PyPI           | Conda Forge       |
-+================+===================+
-| |PyPI|         | |Conda Version|   |
-+----------------+-------------------+
+Install the stable release from pypi (using pip):
 
-.. |PyPI| image:: https://img.shields.io/pypi/v/spiceypy.svg
-   :alt: PyPI - python package index
-   :target: https://pypi.org/project/spiceypy/
-.. |Conda Version| image:: https://img.shields.io/conda/vn/conda-forge/spiceypy.svg
-   :alt: Conda - conda-forge feedstock for SpiceyPy
-   :target: https://anaconda.org/conda-forge/spiceypy
+.. code-block:: sh
 
-SpiceyPy can be installed using pip by running:
-``pip install spiceypy``
+    pip install django-extra-views
 
-Anaconda users should use the conda-forge distribution of SpiceyPy by running:
+Or install the current master branch from github:
 
-``conda config --add channels conda-forge``
+.. code-block:: sh
 
-``conda install spiceypy``
+    pip install -e git://github.com/AndrewIngram/django-extra-views.git#egg=django-extra-views
 
-If you wish to install spiceypy from source first download or clone the project. Then run ``python setup.py install``.
-To uninstall run ``pip uninstall spiceypy``.
+Then add ``'extra_views'`` to your ``INSTALLED_APPS``:
 
-Documentation
--------------
+.. code-block:: python
 
-The SpiceyPy docs are available at:
-`spiceypy.readthedocs.org <http://spiceypy.readthedocs.org>`__.
-The documentation for SpiceyPy is intentionally abridged so as to utilize the excellent `documentation provided by the
-NAIF. <https://naif.jpl.nasa.gov/pub/naif/toolkit_docs/C/index.html>`__
-Please refer to C and IDL documentation available on the NAIF website
-for in-depth explanations. Each function docstring has a link to the
-corresponding C function in the NAIF docs at a minimum.
-SpiceyPy documentation contains the NAIF authored `Lessons <https://spiceypy.readthedocs.io/en/main/lessonindex.html>`__ for step-by-step tutorials with code examples. 
+    INSTALLED_APPS = [
+        ...
+        'extra_views',
+        ...
+    ]
 
-How to Help
+.. installation-end
+
+.. features-start
+
+Features
+--------
+
+- ``FormSet`` and ``ModelFormSet`` views - The formset equivalents of
+  ``FormView`` and ``ModelFormView``.
+- ``InlineFormSetView`` - Lets you edit a formset related to a model (using
+  Django's ``inlineformset_factory``).
+- ``CreateWithInlinesView`` and ``UpdateWithInlinesView`` - Lets you edit a
+  model and multiple inline formsets all in one view.
+- ``GenericInlineFormSetView``, the equivalent of ``InlineFormSetView`` but for
+  ``GenericForeignKeys``.
+- Support for generic inlines in ``CreateWithInlinesView`` and
+  ``UpdateWithInlinesView``.
+- Support for naming each inline or formset in the template context with
+  ``NamedFormsetsMixin``.
+- ``SortableListMixin`` - Generic mixin for sorting functionality in your views.
+- ``SearchableListMixin`` - Generic mixin for search functionality in your views.
+- ``SuccessMessageMixin`` and ``FormSetSuccessMessageMixin`` - Generic mixins
+  to display success messages after form submission.
+
+.. features-end
+
+Still to do
 -----------
 
-Feedback is always welcomed, if you discover that a function is not working as expected,
-submit an issue detailing how to reproduce the problem. If you utilize SpiceyPy frequently 
-please consider contributing to the project by citing me using the zenodo DOI above.
+Add support for pagination in ModelFormSetView and its derivatives, the goal
+being to be able to mimic the change_list view in Django's admin. Currently this
+is proving difficult because of how Django's MultipleObjectMixin handles pagination.
 
-Known Working Environments:
----------------------------
+.. quick-examples-start
 
-SpicyPy is compatible with modern Linux, Mac, and Windows
-environments. Since the package is a wrapper, any environment not
-supported by the NAIF is similarly not supported by SpiceyPy.
-If you run into issues with your system please submit an issue with details. 
-Please note that support for Python minor versions are generally phased out 
-as newer versions are released. 
+Quick Examples
+--------------
 
-- OS: OS X, Linux, Windows
-- CPU: 64bit only!
-- Python 3.6, 3.7, 3.8
+FormSetView
+^^^^^^^^^^^^^^^^^^^^^^^
 
-* Support for Python 2.7 ended with version 2.3.2 January 2020 *
+Define a :code:`FormSetView`, a view which creates a single formset from
+:code:`django.forms.formset_factory` and adds it to the context.
 
-Acknowledgements
-----------------
+.. code-block:: python
 
-`DaRasch <https://github.com/DaRasch>`__ wrote spiceminer, which I
-looked at to get SpiceCells working, thanks!
+    from extra_views import FormSetView
+    from my_forms import AddressForm
 
+    class AddressFormSet(FormSetView):
+        form_class = AddressForm
+        template_name = 'address_formset.html'
+
+Then within ``address_formset.html``, render the formset like this:
+
+.. code-block:: html
+
+    <form method="post">
+      ...
+      {{ formset }}
+      ...
+      <input type="submit" value="Submit" />
+    </form>
+
+ModelFormSetView
+^^^^^^^^^^^^^^^^^^^^
+
+Define a :code:`ModelFormSetView`, a view which works as :code:`FormSetView`
+but instead renders a model formset using
+:code:`django.forms.modelformset_factory`.
+
+.. code-block:: python
+
+    from extra_views import ModelFormSetView
+
+
+    class ItemFormSetView(ModelFormSetView):
+        model = Item
+        fields = ['name', 'sku']
+        template_name = 'item_formset.html'
+
+CreateWithInlinesView or UpdateWithInlinesView
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Define :code:`CreateWithInlinesView` and :code:`UpdateWithInlinesView`,
+views which render a form to create/update a model instance and its related
+inline formsets. Each of the :code:`InlineFormSetFactory` classes use similar
+class definitions as the :code:`ModelFormSetView`.
+
+.. code-block:: python
+
+    from extra_views import CreateWithInlinesView, UpdateWithInlinesView, InlineFormSetFactory
+
+
+    class ItemInline(InlineFormSetFactory):
+        model = Item
+        fields = ['sku', 'price', 'name']
+
+
+    class ContactInline(InlineFormSetFactory):
+        model = Contact
+        fields = ['name', 'email']
+
+
+    class CreateOrderView(CreateWithInlinesView):
+        model = Order
+        inlines = [ItemInline, ContactInline]
+        fields = ['customer', 'name']
+        template_name = 'order_and_items.html'
+
+
+    class UpdateOrderView(UpdateWithInlinesView):
+        model = Order
+        inlines = [ItemInline, ContactInline]
+        fields = ['customer', 'name']
+        template_name = 'order_and_items.html'
+
+
+Then within ``order_and_items.html``, render the formset like this:
+
+.. code-block:: html
+
+    <form method="post">
+      ...
+      {{ form }}
+
+      {% for formset in inlines %}
+        {{ formset }}
+      {% endfor %}
+      ...
+      <input type="submit" value="Submit" />
+    </form>
+
+.. quick-examples-end
