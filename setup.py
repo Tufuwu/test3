@@ -1,47 +1,37 @@
-# Copyright 2016 Amazon.com, Inc. or its affiliates. All Rights Reserved.
-#
-# Licensed under the Apache License, Version 2.0 (the "License").
-# You may not use this file except in compliance with the License.
-# A copy of the License is located at:
-#
-#    http://aws.amazon.com/apache2.0/
-#
-# or in the "license" file accompanying this file. This file is
-# distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS
-# OF ANY KIND, either express or implied. See the License for the
-# specific language governing permissions and limitations under the
-# License.
-
-# Python 2/3 compatibility
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
+import io
+import os
 from setuptools import setup, find_packages
 
+PROJECT_ROOT = os.path.abspath(os.path.dirname(__file__))
+
+version = {}
+with io.open(os.path.join(PROJECT_ROOT, "src", "dirhash", "version.py")) as fp:
+    exec(fp.read(), version)
+
+DESCRIPTION = 'Python module and CLI for hashing of file system directories.'
+
+try:
+    with io.open(os.path.join(PROJECT_ROOT, 'README.md'), encoding='utf-8') as f:
+        long_description = '\n' + f.read()
+except IOError:
+    long_description = DESCRIPTION
 
 setup(
-    name='amazon.ion',
-    version='0.7.0',
-    description='A Python implementation of Amazon Ion.',
-    url='http://github.com/amzn/ion-python',
-    author='Amazon Ion Team',
-    author_email='ion-team@amazon.com',
-    license='Apache License 2.0',
-
-    packages=find_packages(exclude=['tests*']),
-    namespace_packages=['amazon'],
-
-    install_requires=[
-        'six',
-        'jsonconversion'
-    ],
-
-    setup_requires=[
-        'pytest-runner',
-    ],
-
-    tests_require=[
-        'pytest',
-    ],
+    name='dirhash',
+    version=version['__version__'],
+    description=DESCRIPTION,
+    long_description=long_description,
+    long_description_content_type="text/markdown",
+    url='https://github.com/andhus/dirhash-python',
+    author="Anders Huss",
+    author_email="andhus@kth.se",
+    license='MIT',
+    install_requires=['scantree>=0.0.1'],
+    packages=find_packages('src'),
+    package_dir={'': 'src'},
+    include_package_data=True,
+    entry_points={
+        'console_scripts': ['dirhash=dirhash.cli:main'],
+    },
+    tests_require=['pytest', 'pytest-cov']
 )
