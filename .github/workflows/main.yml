@@ -89,6 +89,7 @@ jobs:
         # see https://github.com/codecov/codecov-action/blob/master/README.md
         uses: codecov/codecov-action@v2
         with:
+          token: ${{ secrets.CODECOV_TOKEN }}
           flags: unittests-${{ matrix.python-version }}
           fail_ci_if_error: true  # default = false
           os: toxenv
