@@ -29,4 +29,6 @@ jobs:
         run: make requirements-dev
 
       - name: Run tests
-        run: make test
+        run: |
+          source venv/bin/activate
+          make test
