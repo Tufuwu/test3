@@ -1,6 +1,7 @@
+"""
 The MIT License (MIT)
 
-Copyright (c) [2015-2019] [Andrew Annex]
+Copyright (c) [2015-2020] [Andrew Annex]
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -19,3 +20,14 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+"""
+__author__ = "AndrewAnnex"
+__version__ = "3.1.1"
+
+from .spiceypy import *
+from .utils import support_types
+from .utils import exceptions
+
+# Default setting for error reporting so that programs don't just exit out!
+erract("set", 10, "return")
+errdev("set", 10, "null")
