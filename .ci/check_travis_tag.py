@@ -1,27 +1,24 @@
 # -*- coding: utf-8 -*-
+# pylint: disable=invalid-name
 ###############################################################################
 # Copyright (c), The AiiDA-CP2K authors.                                      #
 # SPDX-License-Identifier: MIT                                                #
 # AiiDA-CP2K is hosted on GitHub at https://github.com/aiidateam/aiida-cp2k   #
 # For further information on the license, see the LICENSE.txt file.           #
 ###############################################################################
-"""Setting up CP2K plugin for AiiDA"""
+"""Check travis tag"""
 
+import os
+import sys
 import json
 
-from io import open  # pylint: disable=redefined-builtin
-from setuptools import setup, find_packages
+a = os.getenv("TRAVIS_TAG")
+with open("setup.json") as fhandle:
+    b = "v{version}".format(**json.load(fhandle))
 
+if not a:
+    print("TRAVIS_TAG not set")
 
-def run_setup():
-    with open('setup.json', 'r', encoding='utf-8') as info:
-        kwargs = json.load(info)
-    setup(include_package_data=True,
-          packages=find_packages(),
-          long_description=open('README.md', encoding='utf-8').read(),
-          long_description_content_type='text/markdown',
-          **kwargs)
-
-
-if __name__ == '__main__':
-    run_setup()
+elif a != b:
+    print("ERROR: TRAVIS_TAG and version are inconsistent: '%s' vs '%s'" % (a, b))
+    sys.exit(3)
