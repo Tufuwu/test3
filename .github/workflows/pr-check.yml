@@ -1,73 +1,74 @@
-# Check incoming PRs.
-
-name: PR checker
+name: CI
 
 on:
-  - push
+  push:
+    branches:
+      - main
+  pull_request:
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
-
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Cache
+        uses: actions/cache@v3
         with:
-          ref: ${{ github.event.pull_request.head.sha }}
+          path: ${{ github.workspace }}/cached
+          key: ${{ runner.os }}-cache
 
-      - name: Check publish/
+      - name: Test aliPublish configurations
         run: |
-          git diff --name-only "$(git merge-base HEAD ${{ github.event.pull_request.base.sha }})" |
-             greq -q '^publish/' ||
-             exit 0
+          git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep -q ^publish/ || exit 0
           pushd publish
-            for conf in aliPublish*.conf; do
-              test=test${conf#aliPublish}
-              test=${test%.conf}.yaml
-              [ -r "$test" ] || continue
-              if ! ./aliPublish test-rules --conf "$conf" --test-conf "$test" --debug; then
-                echo "Testing $conf against $test failed." >&2
-                return 1
-              fi
-            done
+          for CONF in aliPublish*.conf; do
+            TEST=${CONF/aliPublish/test}
+            TEST=${TEST/.conf/.yaml}
+            [[ -r $TEST ]] || continue
+            ./aliPublish test-rules --conf $CONF --test-conf $TEST --debug || { echo Testing $CONF against $TEST failed. >&2 ; exit 1; }
+          done
           popd
 
-      - name: Check cvmfs/
+      - name: Test CVMFS
         run: |
-          git diff --name-only "$(git merge-base HEAD ${{ github.event.pull_request.base.sha }})" |
-             greq -q '^cvmfs/' ||
-             exit 0
+          git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep -q ^cvmfs/ || exit 0
+          set -ex
           # Install and configure an old bash
-          rm -rf "$HOME/cached" "$HOME/scratch"
-          mkdir -p "$HOME/cached" "$HOME/scratch"
-          pushd "$HOME/scratch"
-            wget -q https://ftp.gnu.org/gnu/bash/bash-3.2.48.tar.gz
-            tar xzf bash-3.2.48.tar.gz
-            pushd bash-3.2.48
-              ./configure "--prefix=$HOME/cached"
-              make -j4
-              make install
+          function get_bash() {
+            rm -rf ${{ github.workspace }}/cached ${{ github.workspace }}/scratch
+            mkdir -p ${{ github.workspace }}/cached ${{ github.workspace }}/scratch
+            pushd ${{ github.workspace }}/scratch
+              wget -q https://ftp.gnu.org/gnu/bash/bash-3.2.48.tar.gz
+              tar xzf bash-3.2.48.tar.gz
+              pushd bash-3.2.48
+                ./configure --prefix=${{ github.workspace }}/cached
+                make -j4
+                make install
+              popd
             popd
-          popd
+          }
+          ${{ github.workspace }}/cached/bin/bash --version || get_bash
           # Patch alienv and make it use our own, old, bash
           pushd cvmfs
-            sed -i.deleteme -e "1 s|^#!/bin/bash\(.*\)$|#!$HOME/cached/bin/bash\1|" alienv
+            sed -i.deleteme -e "1 s|^#!/bin/bash\(.*\)$|#!${{ github.workspace }}/cached/bin/bash\1|" alienv
             rm -f *.deleteme
             git diff
           popd
           # Install and configure CVMFS
-          url=https://ecsft.cern.ch/dist/cvmfs/cvmfs-release/cvmfs-release-latest_all.deb
-          wget -q "$url" || case $? in
-            5) wget --no-check-certificate -q "$url";;
-            *) exit 1;;
-          esac
-          unset url
+          URL=https://ecsft.cern.ch/dist/cvmfs/cvmfs-release/cvmfs-release-latest_all.deb
+          wget -q $URL || ERR=$?
+          [[ $ERR == 5 ]] && wget --no-check-certificate -q $URL
+          unset ERR
+          unset URL
           sudo dpkg -i cvmfs-release-latest_all.deb
           rm -f cvmfs-release-latest_all.deb
           sudo apt-get update
           sudo apt-get install cvmfs-dev cvmfs libtcl8.5 libx11-6
           sudo mkdir -p /cvmfs/alice.cern.ch
           sudo chown -R cvmfs:cvmfs /cvmfs
-          echo CVMFS_HTTP_PROXY=DIRECT | sudo tee /etc/cvmfs/default.local
+          sudo bash -c 'echo CVMFS_HTTP_PROXY=DIRECT > /etc/cvmfs/default.local'
           sudo mount alice.cern.ch /cvmfs/alice.cern.ch -t cvmfs -o allow_other,grab_mountpoint
           ls -l /cvmfs/alice.cern.ch
           # Override remote alienv with ours
