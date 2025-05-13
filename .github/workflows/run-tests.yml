@@ -33,6 +33,7 @@ jobs:
       run: |
         python sh.py travis
         python -m flake8 sh.py test.py
+        python setup.py check --restructuredtext --metadata --strict
       
     - name: Upload coverage to Coveralls
       if: success()
