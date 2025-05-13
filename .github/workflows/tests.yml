@@ -7,40 +7,36 @@ on:
       - develop
   pull_request:
 
-
 jobs:
   test:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        python-version:
-          - '3.6'
-          - '3.7'
-          - '3.8'
-          - '3.9'
-    concurrency:
-      group: ${{ github.workflow }}-${{ github.ref }}
-    steps:
+        python-version: ['3.7', '3.8', '3.9']  # Avoid 3.6 unless you're handling it explicitly
+        django-version: ['22', '30', '31']     # Add more versions if needed
 
+    steps:
       - uses: actions/checkout@v3
 
       - uses: actions/setup-python@v3
         with:
           python-version: ${{ matrix.python-version }}
-      
+
       - uses: actions/cache@v3
         with:
           path: |
             ~/.cache/pip
             .tox
-          key: ${{ env.pythonLocation }}-${{ hashFiles('requirements.txt') }}-${{ hashFiles('requirements-test.txt') }}
+          key: ${{ runner.os }}-${{ matrix.python-version }}-${{ hashFiles('**/requirements*.txt') }}
 
-      - name: Upgrade packaging tools
-        run: python -m pip install --upgrade pip setuptools virtualenv wheel
+      - name: Upgrade pip, setuptools, wheel
+        run: python -m pip install --upgrade pip setuptools wheel
 
-      - name: Install dependencies
-        run: python -m pip install --upgrade tox tox-py
+      - name: Install tox
+        run: python -m pip install tox
 
-      - name: Run tox targets for ${{ matrix.python-version }}
-        run: tox --py current
+      - name: Run tox for Python ${{ matrix.python-version }}, Django ${{ matrix.django-version }}
+        env:
+          TOXENV: py${{ matrix.python-version }}-django-${{ matrix.django-version }}
+        run: tox
