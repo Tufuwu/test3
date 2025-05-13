@@ -12,36 +12,17 @@
 # specific language governing permissions and limitations under the
 # License.
 
+"""Exceptions for Ion Python."""
+
 # Python 2/3 compatibility
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-from setuptools import setup, find_packages
+
+class IonException(Exception):
+    """Root exception for Ion Python."""
 
 
-setup(
-    name='amazon.ion',
-    version='0.7.0',
-    description='A Python implementation of Amazon Ion.',
-    url='http://github.com/amzn/ion-python',
-    author='Amazon Ion Team',
-    author_email='ion-team@amazon.com',
-    license='Apache License 2.0',
-
-    packages=find_packages(exclude=['tests*']),
-    namespace_packages=['amazon'],
-
-    install_requires=[
-        'six',
-        'jsonconversion'
-    ],
-
-    setup_requires=[
-        'pytest-runner',
-    ],
-
-    tests_require=[
-        'pytest',
-    ],
-)
+class CannotSubstituteTable(IonException):
+    """Indicates a problem with resolving symbols tables."""
