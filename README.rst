@@ -1,122 +1,169 @@
-django-yubin
-============
+Python Wrapper for NVD3 - It's time for beautiful charts
+========================================================
 
-.. image:: https://travis-ci.org/APSL/django-yubin.svg
-    :target: https://travis-ci.org/APSL/django-yubin
+:Description: Python-nvd3 is a wrapper for NVD3 graph library
+:NVD3: NVD3 http://nvd3.org/
+:D3: Data-Driven Documents http://d3js.org/
+:Maintainers: Areski_ & Oz_
+:Contributors: `list of contributors <https://github.com/areski/python-nvd3/graphs/contributors>`_
 
-.. image:: https://coveralls.io/repos/APSL/django-yubin/badge.svg
-  :target: https://coveralls.io/r/APSL/django-yubin
+.. _Areski: https://github.com/areski/
+.. _Oz: https://github.com/oz123/
 
-.. image:: https://img.shields.io/pypi/v/django-yubin.svg
-  :target: https://pypi.python.org/pypi/django-yubin
+.. image:: https://api.travis-ci.org/areski/python-nvd3.png?branch=develop
+  :target: https://travis-ci.org/areski/python-nvd3
 
-.. image:: https://img.shields.io/pypi/pyversions/django-yubin.svg
-  :target: https://pypi.python.org/pypi/django-yubin
+.. image:: https://coveralls.io/repos/areski/python-nvd3/badge.png?branch=develop
+  :target: https://coveralls.io/r/areski/python-nvd3?branch=develop
 
-.. image:: https://img.shields.io/pypi/djversions/django-yubin.svg
-  :target: https://pypi.python.org/pypi/django-yubin
+.. image:: https://img.shields.io/pypi/v/python-nvd3.svg
+  :target: https://pypi.python.org/pypi/python-nvd3/
+  :alt: Latest Version
 
-.. image:: https://readthedocs.org/projects/django-yubin/badge/?version=latest
-  :target: http://django-yubin.readthedocs.org/en/latest/?badge=latest
-  :alt: Documentation Status
+.. image:: https://img.shields.io/pypi/dm/python-nvd3.svg
+  :target: https://pypi.python.org/pypi/python-nvd3/
+  :alt: Downloads
 
-Django Yubin allows the programmer to control when he wants to send the e-mail
-in this application, making the web application to answer fast as it not has to
-wait for the mail server.
+.. image:: https://img.shields.io/pypi/pyversions/python-nvd3.svg
+  :target: https://pypi.python.org/pypi/python-nvd3/
+  :alt: Supported Python versions
 
-As in our projects we use always two django packages for dealing with emails:
-django-mailer2 (our own fork in APSL) and django-mailviews to compose the
-emails we decided to create this package to fit our own needs and share with
-the community.
+.. image:: https://img.shields.io/pypi/l/python-nvd3.svg
+  :target: https://pypi.python.org/pypi/python-nvd3/
+  :alt: License
 
-As you can see it seems django-mailer2 is not accepting patches, so in
-order to put a new version on pypi a new name was mandatory.  So django-yubin was born
-(yubin is postal mail in japanese). The name attribution is for @morenosan.
+.. image:: https://requires.io/github/areski/python-nvd3/requirements.svg?branch=develop
+  :target: https://requires.io/github/areski/python-nvd3/requirements/?branch=develop
+  :alt: Requirements Status
 
-How it works
+NVD3 is an attempt to build re-usable charts and chart components
+for d3.js without taking away the power that d3.js offers you.
+
+Python-NVD3 makes your life easy! You write Python and the library
+renders JavaScript for you!
+These graphs can be part of your web application:
+
+ .. image:: https://raw.githubusercontent.com/areski/python-nvd3/develop/docs/showcase/multiple-charts.png
+
+
+
+
+Want to try it yourself? Install python-nvd3, enter your python shell and try this quick demo::
+
+    >>> from nvd3 import pieChart
+    >>> type = 'pieChart'
+    >>> chart = pieChart(name=type, color_category='category20c', height=450, width=450)
+    >>> xdata = ["Orange", "Banana", "Pear", "Kiwi", "Apple", "Strawberry", "Pineapple"]
+    >>> ydata = [3, 4, 0, 1, 5, 7, 3]
+    >>> extra_serie = {"tooltip": {"y_start": "", "y_end": " cal"}}
+    >>> chart.add_serie(y=ydata, x=xdata, extra=extra_serie)
+    >>> chart.buildcontent()
+    >>> print chart.htmlcontent
+
+
+This will output the following HTML to render a live chart. The HTML could be
+stored into a HTML file, used in a Web application, or even used via Ipython Notebook::
+
+    <div id="pieChart"><svg style="width:450px;height:450px;"></svg></div>
+    <script>
+    data_pieChart=[{"values": [{"value": 3, "label": "Orange"},
+                   {"value": 4, "label": "Banana"},
+                   {"value": 0, "label": "Pear"},
+                   {"value": 1, "label": "Kiwi"},
+                   {"value": 5, "label": "Apple"},
+                   {"value": 7, "label": "Strawberry"},
+                   {"value": 3, "label": "Pineapple"}], "key": "Serie 1"}];
+
+    nv.addGraph(function() {
+        var chart = nv.models.pieChart();
+        chart.margin({top: 30, right: 60, bottom: 20, left: 60});
+        var datum = data_pieChart[0].values;
+                chart.tooltipContent(function(key, y, e, graph) {
+                    var x = String(key);
+                    var y =  String(y)  + ' cal';
+                    tooltip_str = '<center><b>'+x+'</b></center>' + y;
+                    return tooltip_str;
+                });
+            chart.showLegend(true);
+            chart.showLabels(true);
+            chart.donut(false);
+        chart
+            .x(function(d) { return d.label })
+            .y(function(d) { return d.value });
+        chart.width(450);
+        chart.height(450);
+        d3.select('#pieChart svg')
+            .datum(datum)
+            .transition().duration(500)
+            .attr('width', 450)
+            .attr('height', 450)
+            .call(chart);
+    });
+    </script>
+
+
+Documentation
+-------------
+
+Check out the documentation on `Read the Docs`_ for some live Chart examples!
+
+.. _Read the Docs: http://python-nvd3.readthedocs.org
+
+Installation
 ------------
 
-Yubin replaces the standard Django Email Backend with its own. Instead of sending
-the e-mail trough the SMTP server Yubin stores the e-mails on the database and
-allows you to sent them using a cron command.
+Install, upgrade and uninstall python-nvd3 with these commands::
 
-Advantages
-~~~~~~~~~~
+    $ pip install python-nvd3
+    $ pip install --upgrade python-nvd3
+    $ pip uninstall python-nvd3
 
-* Your application can answer faster, as other process is going to take care of
-  connecting with the SMTP server and sending the e-mail.
 
-* Yubin stores the e-mail and allows you to retrieve using the admin. Even with
-  the attachments.
+Dependencies
+------------
 
-* Yubin allows to define prioritary queues, resend e-mails
+D3 and NvD3 can be installed through bower (which itself can be installed through npm).
+See http://bower.io/ and https://npmjs.org for further information.
+To install bower globally execute::
 
-* Yubin helps in your development.  It's a good way to work when you're developping
-  the application and you don't want to flood your test users with
-  e-mails. With Django Yubin, and without running the cron commands, you can see how
-  your e-mails are, retrieve them and even delete them with out sending it.
+    $ npm install -g bower
 
-On production mode you'll just nedd to add a cron entry in your server to send the e-mails,
-someting like
+Note : you might prefer to save your npm dependencies locally in a ``package.json`` file.
 
-    * * * * * (cd $PROJECT; python manage.py send_mail >> $PROJECT/cron_mail.log 2>&1)
+Then in the directory where you will use python-nvd3, just execute the following commands::
 
-This will send the queued e-mail every minute.
+    $ bower install d3#3.5.17
+    $ bower install nvd3#1.8.6
 
-Django Yubin is a fork from django-mailer2 with some addtions from django-mailviews and
-additional improvements made from apsl.net that we need for our daly basis workd. It
-has also contributions from other people, so don't heasitate to read the humans.txt.
+This will create a directory "bower_components" where d3 & nvd3 will be saved.
 
-django-mailer-2 by is a Chris Beaven fork from a fork of
-James Tauber's django-mailer and is a reusable Django app for queuing the sending of email.
+Note : you might prefer to save your bower dependencies locally in a ``bower.json`` file.
+You can also configure the directory where your bower dependencies will be
+saved adding a ``.bowerrc`` file in your project root directory.
 
-django-mailviews from Disqus, allows you to compose e-mails using templates in
-the same way you compose your html templates, and allows you to preview the
-e-mails.
 
-If you want to run the test you'll need a test smtpd server, you can find one in
+Django Wrapper
+--------------
 
-    ./bin/fake-server
+There is also a django wrapper for nvd3 available:
+https://github.com/areski/django-nvd3
 
-run it in a different console and execute `runtests.py`
 
-You can read the package documentation at http://django-yubin.readthedocs.org/en/latest/
+IPython Notebooks
+-----------------
 
-Changelog
----------
-* 1.7.1       Remove abandoned ``pyzmail36`` dependency with ``mail-parser``.
-* 1.7.0       Add optional ``MAILER_MESSAGE_SEARCH_FIELDS`` setting. It's a tuple of strings with the fields to use in ``admin.Message.search_fields`` attribute.
-* 1.6.0       Support for Django 3.0
-* 1.5.0       New TemplatedMultipleAttachmentsEmailMessageView to allow to send emails with more than 1 attachment.
-* 1.4.1       Detecting if messages are encoding using different encoding headers to be able to preview them (now base64, quoted-printable).
-* 1.4.0       Option added in status_mail command to return the output in json format.
-* 1.3.1       Fix unicode and encode errors: sending queued and non queued emails and in admin detail view.
-* 1.3.0       Allow to send emails inmediatly without being saved in database (priority «now-not-queued»). Add support for Python 3.7 and Django 2.1. Remove old code for Django < 1.3.
-* 1.2.0       Fix is_base64 detection. Add a «send_test_email» command to check connection parameters. New health check view. Don't open a connection if there are no messages in queue to send. Add a "date_sent" field to detect when the mail was sent.
-* 1.1.0       Fix attachment headers in TemplateAttachmentEmailMessagView making both "attachment" and "filename" args mandatory.
-* 1.0.5       Add missing paths in MANIFEST.in.
-* 1.0.4       Fix attachment visualization in the admin. Attach pdf in create_mail command. Solved Content-Transfer-Encoding issue.
-* 1.0.3       Fixed issue decoding the message payload, added support for django 1.9, updated changelog and added support to deploy the package from travis.
-* 1.0.0       Add support for Django 2.0 and remove django 1.8.
-* 0.8.2       Fix date created column in QueuedMessages admin.
-* 0.8.1       Ensure that LOCK_WAIT_TIMEOUT is never negative to avoid a bug in lockfile in systems which use a LinkFileLock.
-* 0.8.0       Use settings.MAILER_PAUSE_SEND to skip smtp connections. Fix UTF-8 encoding in messages. Fix encoding errors in email visualization in the admin.
-* 0.7.0       Fix template context bug for Django 1.11. Add Python 3.6 to CI and drop Python 3.3 and Django 1.9.
-* 0.6.0       Support for Python 3.6.
-* 0.5.0       Limit nº of emails sent by send_mail command. Update the debug handlers options for verbosity to accept v3.
-* 0.4.0       Support Django 1.11: subject and body are no longer unscaped, you need to add {% autoescape off %} to your non HTML templates.
-* 0.3.1       Delete unused template that caused an error with django-compressor offline. testmail command now generates HTML emails.
-* 0.3.0       Support Django >= 1.8 and <=1.10, Python 2.7, 3.3, 3.4 and 3.5. Re-send mails admin action. Fix bug in status_mail command. Demo project configured to send mails with the same mail fake-server used for tests.
-* 0.2.3       Removed {% load url from future %} to support Django 1.9. Now Django < 1.5 is not supported.
-* 0.2.2       Include migrations directory in .tar.gz in PyPi.
-* 0.2.1       Updated links to CI and Code Coverage Services
-* 0.2.0       Merged  sergei-maertens contribution.
-* 0.1.8       Added migrations for Django 1.9 compatibility. See http://django-yubin.readthedocs.org/en/latest/install.html#upgrading-from-previous-versions
-* 0.1.7       Support for Django 1.8.
-* 0.1.6       Bugfixes.
-* 0.1.5       Bugfixes.
-* 0.1.4       Updated README.
-* 0.1.3       Fixed Python3 compatibility, thanks Marc, Cesc & Dani.
-* 0.1.2       Fixed Templates.
-* 0.1.1       Updated documentation and unit tests.
+Python-NVD3 works nicely within IPython Notebooks (thanks to @jdavidheiser)
 
+See the examples directory for an Ipython notebook with python-nvd3.
+
+
+License
+-------
+
+Python-nvd3 is licensed under MIT, see `MIT-LICENSE.txt`.
+
+
+Maintainers
+-----------
+
+If you want to help maintain this project, please get in touch.
