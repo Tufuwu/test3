@@ -1,7 +1,4 @@
 include LICENSE
-include README.rst
-recursive-include extra_views *.py
-recursive-include extra_views/contrib *.py
-recursive-include extra_views/tests *.py
-recursive-include extra_views/tests/templates *.html
-recursive-include extra_views/tests/templates/extra_views *.html
+include README.md
+include CHANGELOG.md
+recursive-include docs *
