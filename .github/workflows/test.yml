@@ -15,9 +15,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [3.5, 3.6, 3.8, 3.8, pypy3]
+        python-version: [3.5, 3.6, 3.9, 3.9, pypy3]
         include:
-          - python-version: 3.8
+          - python-version: 3.9
             env: TOXENV=lint,docs
           - python-version: 3.5
             env: TOXENV=django20-py35-all
@@ -29,7 +29,7 @@ jobs:
             env: TOXENV=django21-py35-all
           - python-version: 3.6
             env: TOXENV=django21-py36-all
-          - python-version: 3.8
+          - python-version: 3.9
             env: TOXENV=django21-py37-all
           - python-version: pypy3
             env: TOXENV=django21-pypy3-all
@@ -37,33 +37,33 @@ jobs:
             env: TOXENV=django22-py35-all
           - python-version: 3.6
             env: TOXENV=django22-py36-all
-          - python-version: 3.8
+          - python-version: 3.9
             env: TOXENV=django22-py37-all
           - python-version: pypy3
             env: TOXENV=django22-pypy3-all
           - python-version: 3.6
             env: TOXENV=django30-py36-all
-          - python-version: 3.8
+          - python-version: 3.9
             env: TOXENV=django30-py37-all
-          - python-version: 3.8
+          - python-version: 3.9
             env: TOXENV=django30-py38-all
           - python-version: pypy3
             env: TOXENV=django30-pypy3-all
           - python-version: 3.6
             env: TOXENV=django31-py36-all
-          - python-version: 3.8
+          - python-version: 3.9
             env: TOXENV=django31-py37-all
-          - python-version: 3.8
+          - python-version: 3.9
             env: TOXENV=django31-py38-all RUN_LIVE_TESTS=true
           - python-version: pypy3
             env: TOXENV=django31-pypy3-all
-          - python-version: 3.8
+          - python-version: 3.9
             env: TOXENV=djangoDev-py37-all
-          - python-version: 3.8
+          - python-version: 3.9
             env: TOXENV=django31-py37-none
-          - python-version: 3.8
+          - python-version: 3.9
             env: TOXENV=django31-py37-amazon_ses
-          - python-version: 3.8
+          - python-version: 3.9
             env: TOXENV=django22-py37-all-old_urllib3
     steps:
       - uses: actions/checkout@v2
