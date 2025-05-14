@@ -1,4 +1,18 @@
 *.pyc
-/.idea/
-/pom.xml
+/build/*
+/dist/*
+/django_yubin.egg-info/
+/docs/_build
+.idea/*
 .vscode/
+.eggs/
+.DS_Store
+demo.*.sqlite
+demo/postgres
+demo/postgres-data
+
+# tests related
+.tox
+.coverage
+cover
+demo.sqlite
