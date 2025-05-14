@@ -86,5 +86,3 @@ jobs:
         env:
           TOXENV: ${{ matrix.env.TOXENV }}
         run: tox
-    allow_failures:
-      - env: TOXENV=djangoDev-py37-all
