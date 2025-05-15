@@ -20,8 +20,8 @@ jobs:
           - "3.7"
           - "3.8"
     steps:
-      - uses: actions/checkout@v1
-      - uses: actions/setup-python@v1
+      - uses: actions/checkout@4
+      - uses: actions/setup-python@4
         with:
           python-version: ${{ matrix.python-version }}
           architecture: x64
@@ -34,8 +34,8 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1
-      - uses: actions/setup-python@v1
+      - uses: actions/checkout@4
+      - uses: actions/setup-python@4
         with:
           python-version: "3.x"
           architecture: x64
@@ -56,8 +56,8 @@ jobs:
   coverage:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1
-      - uses: actions/setup-python@v1
+      - uses: actions/checkout@4
+      - uses: actions/setup-python@4
         with:
           python-version: "3.x"
           architecture: x64
@@ -66,6 +66,6 @@ jobs:
           poetry install
       - run: |
           poetry run py.test -s --verbose --cov-report term-missing --cov-report xml --cov=pytile tests
-      - uses: codecov/codecov-action@v1.0.3
+      - uses: codecov/codecov-action@4.0.3
         with:
           token: ${{secrets.CODECOV_TOKEN}}
