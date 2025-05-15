@@ -23,8 +23,14 @@ jobs:
 
     - name: Install dependencies
       run: |
-        pip install sphinx${{ env.SPHINX_VERSION && '==' + env.SPHINX_VERSION || '' }}
+        if [ -n "${SPHINX_VERSION}" ]; then
+          pip install "sphinx==${SPHINX_VERSION}"
+        else
+          pip install sphinx
+        fi
         pip install -r requirements-travis.txt
+      env:
+        SPHINX_VERSION: ${{ env.SPHINX_VERSION }}
 
     - name: Run inspekt
       run: |
