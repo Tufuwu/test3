@@ -1,31 +1,67 @@
----
 name: CI
-on: [push]
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     strategy:
-      matrix:
-        python-version: ['3.5', '3.6', '3.7', '3.8', '3.9']
       fail-fast: false
-    name: Test on Python ${{ matrix.python-version }}
+      matrix:
+        os: [ubuntu-latest]
+        python-version: ['2.7', '3.9']
+        arch: [amd64, ppc64le]
+
     steps:
-      - uses: actions/checkout@v2
-      - name: Setup Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: ${{ matrix.python-version }}
-      - name: Install wheel
-        run: pip install wheel
-      - name: Install dev requirements
-        run: pip install -r dev-requirements.txt
-      - name: Clean
-        run: make clean
-      - name: pep8
-        run: make pep8
-      - name: flake8
-        run: make flake8
-      - name: check
-        run: make check
-      - name: unittest
-        run: make unittest
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+        architecture: ${{ matrix.arch }}
+
+    - name: Check out code
+      uses: actions/checkout@v2
+
+    - name: Install dependencies
+      run: pip install -r dev-requirements.txt
+
+    - name: Run make clean
+      run: make clean
+
+    - name: Run make pep8
+      run: make pep8
+
+    - name: Run make flake8
+      run: make flake8
+
+    - name: Run make check
+      run: make check
+
+    - name: Run make unittest
+      run: make unittest
+
+    - name: Upload coverage to Coveralls
+      if: success()
+      run: coveralls
+
+  notification:
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+    - name: Send email notification
+      uses: dawidd6/action-send-mail@v3
+      with:
+        server_address: smtp.example.com
+        server_port: 587
+        username: ${{ secrets.SMTP_USERNAME }}
+        password: ${{ secrets.SMTP_PASSWORD }}
+        subject: GitHub Actions Notification
+        to: eosplus-dev@arista.com
+        from: github-actions@example.com
+        body: Build ${{ github.run_number }} of ${{ github.repository }} is complete.
