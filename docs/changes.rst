@@ -1,4 +1,4 @@
-Changes in python-pskc
-======================
+Changes in python-stdnum
+========================
 
 .. include:: ../NEWS

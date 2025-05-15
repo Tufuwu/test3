@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# python-pskc documentation build configuration file, created by
+# python-stdnum documentation build configuration file, created by
 # sphinx-quickstart
 #
 # This file is execfile()d with the current directory set to its containing dir.
@@ -13,7 +13,7 @@
 
 import sys, os
 
-import pskc
+import stdnum
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
@@ -28,8 +28,8 @@ import pskc
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
 extensions = [
-     'sphinx.ext.autodoc', 'sphinx.ext.doctest', 'sphinx.ext.coverage',
-     'sphinx.ext.intersphinx',
+     'sphinx.ext.autodoc', 'sphinx.ext.doctest', 'sphinx.ext.todo',
+     'sphinx.ext.coverage', 'sphinx.ext.autosummary'
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -45,15 +45,15 @@ source_encoding = 'utf-8'
 master_doc = 'index'
 
 # General information about the project.
-project = u'python-pskc'
-copyright = u'2014-2019 Arthur de Jong'
+project = u'python-stdnum'
+copyright = u'2013-2019, Arthur de Jong'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
 # built documents.
 #
 # The short X.Y version.
-version = pskc.__version__
+version = stdnum.__version__
 # The full version, including alpha/beta/rc tags.
 release = version
 
@@ -89,11 +89,13 @@ exclude_patterns = ['_*', '.svn', '.git']
 pygments_style = 'sphinx'
 
 # A list of ignored prefixes for module index sorting.
-modindex_common_prefix = ['pskc.', ]
+modindex_common_prefix = ['stdnum.', ]
 
 # Automatically generate stub pages for autosummary entries.
 autosummary_generate = True
 
+# Autosummary overwrites existing files by generated stub pages.
+autosummary_generate_overwrite = False
 
 # -- Options for HTML output ---------------------------------------------------
 
@@ -175,7 +177,7 @@ html_show_sourcelink = False
 #html_link_suffix = ''
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'python-pskcdoc'
+htmlhelp_basename = 'python-stdnumdoc'
 
 
 # -- Options for manual page output --------------------------------------------
@@ -183,15 +185,11 @@ htmlhelp_basename = 'python-pskcdoc'
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('pskc2csv', 'pskc2csv', u'Convert a PSKC file to CSV',
-     [u'Arthur de Jong'], 1),
-    ('pskc2pskc', 'pskc2pskc', u'Convert a PSKC file to standard format',
-     [u'Arthur de Jong'], 1),
-    ('csv2pskc', 'csv2pskc', u'Convert a CSV file to PSKC',
-     [u'Arthur de Jong'], 1),
+    ('index', 'python-stdnum', u'python-stdnum Documentation',
+     [u'Arthur de Jong'], 1)
 ]
 
 # If true, show URL addresses after external links.
-man_show_urls = True
+#man_show_urls = False
 
-#intersphinx_mapping = {'python': ('https://docs.python.org/3', None)}
+intersphinx_mapping = {'python': ('https://docs.python.org/3', None)}
