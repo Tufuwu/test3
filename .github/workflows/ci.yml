@@ -3,7 +3,7 @@ name: CI
 on:
   push:
     branches:
-      - main
+      - master
 
 jobs:
   build:
@@ -11,7 +11,7 @@ jobs:
 
     strategy:
       matrix:
-        python-version: ['3.8']
+        python-version: ['3.6']
 
     steps:
     - uses: actions/checkout@v2
@@ -23,15 +23,9 @@ jobs:
 
     - name: Install dependencies
       run: |
-        if [ -n "${SPHINX_VERSION}" ]; then
-          pip install "sphinx==${SPHINX_VERSION}"
-        else
-          pip install sphinx
-        fi
+        pip install sphinx${SPHINX_VERSION:+==$SPHINX_VERSION}
         pip install -r requirements-travis.txt
-      env:
-        SPHINX_VERSION: ${{ env.SPHINX_VERSION }}
 
     - name: Run inspekt
       run: |
-        inspekt checkall --disable-style E501,E265,W601,W605,E402,E722,E741 --no-license-check ||true
+        inspekt checkall --disable-style E501,E265,W601,W605,E402,E722,E741 --no-license-check
