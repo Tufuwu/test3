@@ -1,3 +1,0 @@
-recursive-include src/pcluster/examples *
-recursive-include src/pcluster/resources *
-recursive-exclude tests *
