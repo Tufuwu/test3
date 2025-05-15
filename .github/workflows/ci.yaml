@@ -66,6 +66,6 @@ jobs:
           poetry install
       - run: |
           poetry run py.test -s --verbose --cov-report term-missing --cov-report xml --cov=pytile tests
-      - uses: codecov/codecov-action@v4.0.3
+      - uses: codecov/codecov-action@v3
         with:
           token: ${{secrets.CODECOV_TOKEN}}
