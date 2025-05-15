@@ -23,7 +23,7 @@ REQUIREMENTS = [
     "pyyaml",
 
     # Math
-    "pycwt", "matplotlib", "numpy", "scipy",
+    "pycwt", "matplotlib", "numpy", #"scipy",
 
     # Audio/speech
     "soundfile", "tgt", "wavio",
