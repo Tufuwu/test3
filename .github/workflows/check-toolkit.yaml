@@ -22,8 +22,9 @@ jobs:
       # Install everything
       - name: Install wavelet-prosody-toolkit
         run: |
-          pip install scipy==1.9.3
+          
           pip install -e .
+          pip install scipy==1.9.3
 
       # Linux and macOS
       - name: Run the test
