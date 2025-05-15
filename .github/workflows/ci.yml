@@ -34,5 +34,5 @@ jobs:
          pip install sphinx${SPHINX_VERSION:+==$SPHINX_VERSION}
          pip install -r requirements-travis.txt
       - name: Run inspekt
-        run: inspekt checkall --disable-style E501,E265,W601,W605,E402,E722,E741 --no-license-check
+        run: inspekt checkall --disable-style E501,E265,W601,W605,E402,E722,E741 --no-license-check --fail-under 9.5
       - run: echo "This job's status is ${{ job.status }}."
