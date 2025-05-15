@@ -1,88 +1,130 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 
-# setup.py - python-stdnum installation script
-#
-# Copyright (C) 2010-2021 Arthur de Jong
-#
-# This library is free software; you can redistribute it and/or
-# modify it under the terms of the GNU Lesser General Public
-# License as published by the Free Software Foundation; either
-# version 2.1 of the License, or (at your option) any later version.
-#
-# This library is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-# Lesser General Public License for more details.
-#
-# You should have received a copy of the GNU Lesser General Public
-# License along with this library; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
-# 02110-1301 USA
+"""
+AUTHOR
+    - Antti Suni <antti.suni@helsinki.fi>
+    - Sébastien Le Maguer <lemagues@tcd.ie>
 
-"""python-stdnum installation script."""
+DESCRIPTION
+    Setup script file
 
-import os
-import sys
+LICENSE
+    See https://github.com/asuni/wavelet_prosody_toolkit/blob/master/LICENSE.txt
+"""
 
-from setuptools import find_packages, setup
-
-import stdnum
+# Needed imports
+from setuptools import setup, find_packages
 
 
-# fix permissions for sdist
-if 'sdist' in sys.argv:
-    os.system('chmod -R a+rX .')
-    os.umask(int('022', 8))
+# Define meta-informations variable
+REQUIREMENTS = [
+    # Configuration
+    "pyyaml",
 
-base_dir = os.path.dirname(__file__)
+    # Math
+    "pycwt", "matplotlib", "numpy", "scipy",
 
-with open(os.path.join(base_dir, 'README'), 'rb') as fp:
-    long_description = fp.read().decode('utf-8')
+    # Audio/speech
+    "soundfile", "tgt", "wavio",
 
+    # Parallel
+    "joblib",
+
+    # Rendering
+    "pyqt5"
+]
+
+EXTRA_REQUIREMENTS = {
+    'reaper': ["pyreaper"],
+    'docs': [
+        'sphinx >= 1.4',
+        'sphinx_rtd_theme',
+        "numpydoc"
+    ]
+}
+
+NAME = 'wavelet-prosody-toolkit'
+VERSION = '1.0b1'
+RELEASE = '1.0'
+AUTHOR = 'Antti Suni'
+DESCRIPTION = 'Prosody wavelet analysis toolkit'
+with open("README.rst", "r") as fh:
+    LONG_DESCRIPTION = fh.read()
+
+
+# If sphinx available, enable documentation building
+try:
+    from sphinx.setup_command import BuildDoc
+    cmdclass = {'build_sphinx': BuildDoc}
+    command_options = {
+        'build_sphinx': {
+            'project': ('setup.py', NAME),
+            'version': ('setup.py', VERSION),
+            'release': ('setup.py', RELEASE)
+        }
+    }
+except Exception:
+    cmdclass = {}
+    command_options = {}
+
+# The actual setup
 setup(
-    name='python-stdnum',
-    version=stdnum.__version__,
-    description='Python module to handle standardized numbers and codes',
-    long_description=long_description,
-    author='Arthur de Jong',
-    author_email='arthur@arthurdejong.org',
-    url='https://arthurdejong.org/python-stdnum/',
-    project_urls={
-        'Documentation': 'https://arthurdejong.org/python-stdnum/doc/',
-        'GitHub': 'https://github.com/arthurdejong/python-stdnum/',
-    },
-    license='LGPL',
+    # Project info.
+    name=NAME,
+    version=RELEASE,
+    url="https://github.com/asuni/wavelet_prosody_toolkit",
+
+    # Author info.
+    author=AUTHOR,
+    author_email='antti.suni@helsinki.fi',
+
+    # Description part
+    description=DESCRIPTION,
+    long_description=LONG_DESCRIPTION,
+    long_description_content_type="text/x-rst",
+
+    # Install requirements
+    install_requires=REQUIREMENTS,
+    extras_require=EXTRA_REQUIREMENTS,
+
+    # Documentation generation
+    cmdclass=cmdclass,
+    command_options=command_options,
+
+    # Packaging
+    packages=find_packages(),  # FIXME: see later to exclude the test (which will be including later)
+    package_data={'': ['configs/default.yaml', 'configs/synthesis.yaml']},
+    include_package_data=True,
+
+    # Meta information to sort the project
     classifiers=[
-        'Development Status :: 5 - Production/Stable',
-        'Intended Audience :: Developers',
-        'Intended Audience :: Financial and Insurance Industry',
-        'Intended Audience :: Information Technology',
-        'Intended Audience :: Telecommunications Industry',
-        'License :: OSI Approved :: GNU Lesser General Public License v2 or later (LGPLv2+)',
-        'Operating System :: OS Independent',
-        'Programming Language :: Python',
-        'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 2.7',
+        'Development Status :: 4 - Beta',
+
+        # Audience
+        'Intended Audience :: Science/Research',
+
+        # Topics
+        'Topic :: Multimedia :: Sound/Audio :: Speech',
+        'Topic :: Scientific/Engineering :: Information Analysis',
+        'Topic :: Scientific/Engineering :: Visualization',
+
+        # Pick your license as you wish
+        'License :: OSI Approved :: MIT License',
+
+        # Python version (FIXME: fix the list of python version based on travis results)
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.5',
-        'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
-        'Programming Language :: Python :: 3.8',
-        'Programming Language :: Python :: 3.9',
-        'Programming Language :: Python :: Implementation :: PyPy',
-        'Topic :: Office/Business :: Financial',
-        'Topic :: Software Development :: Libraries :: Python Modules',
-        'Topic :: Text Processing :: General',
     ],
-    packages=find_packages(),
-    install_requires=[],
-    package_data={'': ['*.dat']},
-    extras_require={
-        # The SOAP feature is only required for a number of online tests
-        # of numbers such as the EU VAT VIES lookup, the Dominican Republic
-        # DGII services or the Turkish T.C. Kimlik validation.
-        'SOAP': ['zeep'],      # recommended implementation
-        'SOAP-ALT': ['suds'],  # but this should also work
-        'SOAP-FALLBACK': ['PySimpleSOAP'],  # this is a fallback
-    },
+
+    # "Executable" to link
+    entry_points={
+        'console_scripts': [
+            'prosody_labeller = wavelet_prosody_toolkit.prosody_labeller:main',
+            'cwt_analysis_synthesis = wavelet_prosody_toolkit.cwt_analysis_synthesis:main',
+        ],
+        'gui_scripts': [
+            'wavelet_gui = wavelet_prosody_toolkit.wavelet_gui:main'
+        ]
+    }
 )
