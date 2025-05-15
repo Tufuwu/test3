@@ -1,92 +1,134 @@
-# AWS CloudFormation Resource Provider Python Plugin
+# 📡 pytile: A simple Python API for Tile® Bluetooth trackers
 
-The CloudFormation CLI (cfn) allows you to author your own resource providers that can be used by CloudFormation.
+[![CI](https://github.com/bachya/pytile/workflows/CI/badge.svg)](https://github.com/bachya/pytile/actions)
+[![PyPi](https://img.shields.io/pypi/v/pytile.svg)](https://pypi.python.org/pypi/pytile)
+[![Version](https://img.shields.io/pypi/pyversions/pytile.svg)](https://pypi.python.org/pypi/pytile)
+[![License](https://img.shields.io/pypi/l/pytile.svg)](https://github.com/bachya/pytile/blob/master/LICENSE)
+[![Code Coverage](https://codecov.io/gh/bachya/pytile/branch/master/graph/badge.svg)](https://codecov.io/gh/bachya/pytile)
+[![Maintainability](https://api.codeclimate.com/v1/badges/71eb642c735e33adcdfc/maintainability)](https://codeclimate.com/github/bachya/pytile/maintainability)
+[![Say Thanks](https://img.shields.io/badge/SayThanks-!-1EAEDB.svg)](https://saythanks.io/to/bachya)
 
-This plugin library helps to provide Python runtime bindings for the execution of your providers by CloudFormation.
+`pytile` is a simple Python library for retrieving information on
+[Tile® Bluetooth trackers](https://www.thetileapp.com/en-us/) (including last
+location and more).
 
-## AWS CloudFormation Resource Provider Python Plugin
+This library is built on an unpublished, unofficial Tile API; it may alter or
+cease operation at any point.
 
-The CloudFormation Resource Provider Development Kit (RPDK) allows you to author your own resource providers that can be used by CloudFormation.
+# Python Versions
 
-This plugin library helps to provide runtime bindings for the execution of your providers by CloudFormation.
+`pytile` is currently supported on:
 
-[![Build Status](https://travis-ci.com/aws-cloudformation/cloudformation-cli-python-plugin.svg?branch=master)](https://travis-ci.com/aws-cloudformation/cloudformation-cli-python-plugin)
+* Python 3.6
+* Python 3.7
+* Python 3.8
 
-Installation
-------------
+# Installation
 
-```bash
-pip install cloudformation-cli-python-plugin
+```python
+pip install pytile
 ```
 
-Howto
------
+# Usage
 
-```
-$ cfn init
-Initializing new project
-What's the name of your resource type?
-(Organization::Service::Resource)
->> Foo::Bar::Baz
-Select a language for code generation:
-[1] java
-[2] csharp
-[3] python36
-[4] python37
-(enter an integer):
->> 4
-Use docker for platform-independent packaging (Y/n)?
-This is highly recommended unless you are experienced
-with cross-platform Python packaging.
->> y
-Initialized a new project in <>
-$ cfn submit --dry-run
-$ cat <<EOT > test.json
-{
-  "credentials": {
-    "accessKeyId": "",
-    "secretAccessKey": "",
-    "sessionToken": ""
-  },
-  "action": "CREATE",
-  "request": {
-    "clientRequestToken": "ecba020e-b2e6-4742-a7d0-8a06ae7c4b2b",
-    "desiredResourceState": {
-      "Title": "This_Is_The_Title_For_My_Example",
-      "TestCode": "NOT_STARTED"
-    },
-    "previousResourceState": null,
-    "logicalResourceIdentifier": null
-  },
-  "callbackContext": null
-}
-EOT
-$ sam local invoke TestEntrypoint --event test.json
+`pytile` starts within an
+[aiohttp](https://aiohttp.readthedocs.io/en/stable/) `ClientSession`:
+
+
+```python
+import asyncio
+
+from aiohttp import ClientSession
+
+from pytile import Client
+
+
+async def main() -> None:
+    """Create the aiohttp session and run the example."""
+    async with ClientSession() as websession:
+        # YOUR CODE HERE
+
+
+asyncio.get_event_loop().run_until_complete(main())
 ```
 
-Development
------------
+If you receive SSL errors, use `ClientSession(connector=TCPConnector(verify_ssl=False))`
+instead:
 
-For changes to the plugin, a Python virtual environment is recommended. The development requirements can be sourced from the core repository:
+```python
+import asyncio
 
-```
-python3 -m venv env
-source env/bin/activate
-pip install -e . -e src/ \
-  -r https://raw.githubusercontent.com/aws-cloudformation/aws-cloudformation-rpdk/master/requirements.txt
-pre-commit install
-```
+from aiohttp import ClientSession, TCPConnector
 
-Linting and running unit tests is done via [pre-commit](https://pre-commit.com/), and so is performed automatically on commit. The continuous integration also runs these checks. Manual options are available so you don't have to commit):
+from pytile import Client
 
-```
-# run all hooks on all files, mirrors what the CI runs
-pre-commit run --all-files
-# run unit tests only. can also be used for other hooks, e.g. black, flake8, pylint-local
-pre-commit run pytest-local
+
+async def main() -> None:
+    """Create the aiohttp session and run the example."""
+    async with ClientSession(connector=TCPConnector(verify_ssl=False)) as websession:
+        # YOUR CODE HERE
+
+
+asyncio.get_event_loop().run_until_complete(main())
 ```
 
-License
--------
+Create a client, initialize it, and get to work:
 
-This library is licensed under the Apache 2.0 License.
+```python
+import asyncio
+
+from aiohttp import ClientSession
+
+from pytile import async_login
+
+
+async def main() -> None:
+    """Create the aiohttp session and run the example."""
+    async with ClientSession() as websession:
+        client = await async_login("<EMAIL>", "<PASSWORD>", websession)
+
+        # Get all Tiles associated with an account:
+        await client.tiles.all()
+
+
+asyncio.get_event_loop().run_until_complete(main())
+```
+
+If for some reason you need to use a specific client UUID (to, say, ensure that the
+Tile API sees you as a client it's seen before) or a specific locale, you can do
+so easily:
+
+```python
+import asyncio
+
+from aiohttp import ClientSession
+
+from pytile import async_login
+
+
+async def main() -> None:
+    """Create the aiohttp session and run the example."""
+    async with ClientSession() as websession:
+        client = await async_login(
+            "<EMAIL>", "<PASSWORD>", websession, client_uuid="MY_UUID", locale="en-GB"
+        )
+
+        # Get all Tiles associated with an account:
+        await client.tiles.all()
+
+
+asyncio.get_event_loop().run_until_complete(main())
+```
+
+# Contributing
+
+1. [Check for open features/bugs](https://github.com/bachya/pytile/issues)
+  or [initiate a discussion on one](https://github.com/bachya/pytile/issues/new).
+2. [Fork the repository](https://github.com/bachya/pytile/fork).
+3. Install the dev environment: `make init`.
+4. Enter the virtual environment: `source .venv/bin/activate`
+5. Code your new feature or bug fix.
+6. Write a test that covers your new functionality.
+7. Run tests and ensure 100% code coverage: `make coverage`
+8. Add yourself to `AUTHORS.md`.
+9. Submit a pull request!
