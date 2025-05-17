@@ -35,7 +35,6 @@ jobs:
 
     - name: Run tests
       run: |
-        if [ "${{ matrix.python-version }}" == "3.8" ]; then
-          make check
-        fi
-        make check-tests
+      - run: pip install --upgrade pip poetry
+      - run: poetry install --extras tests
+      - run: poetry run make check-tests
