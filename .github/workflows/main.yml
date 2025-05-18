@@ -25,16 +25,7 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-pip-
 
-    - name: Install dependencies
-      run: |
-        if [ "${{ matrix.python-version }}" == "3.8" ]; then
-          pip install black mypy
-        fi
-        pip install --editable .[dev]
-
-    - name: Run tests
-      run: |
-        if [ "${{ matrix.python-version }}" == "3.8" ]; then
-          make check
-        fi
-        make check-tests
+    - run: pip install --upgrade pip poetry
+    - run: poetry install --extras dev
+    - run: poetry run make check-lint
+    - run: poetry run make check-format
