@@ -29,4 +29,4 @@ jobs:
     - run: poetry install --extras dev
     - run: pip install black mypy
     - run: pip install --editable .[dev]
-    - run: poetry make check-tests
+    - run: poetry make check-
