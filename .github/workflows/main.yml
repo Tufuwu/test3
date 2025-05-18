@@ -24,9 +24,9 @@ jobs:
         key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
         restore-keys: |
           ${{ runner.os }}-pip-
-          
+
     - run: pip install --upgrade pip poetry
     - run: poetry install --extras dev
     - run: pip install black mypy
     - run: pip install --editable .[dev]
-    - run: make check-tests
+    - run: poetry make check-tests
