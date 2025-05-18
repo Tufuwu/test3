@@ -26,6 +26,6 @@ jobs:
           ${{ runner.os }}-pip-
 
     - run: pip install --upgrade pip poetry
-    - run: poetry install --extras dev
-    - run: poetry run make check-lint
-    - run: poetry run make check-format
+    - run: install --extras dev
+    - run: run make check-lint
+    - run: run make check-format
