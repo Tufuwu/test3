@@ -25,7 +25,6 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-pip-
 
-    - run: pip install --upgrade pip poetry
-    - run: install --extras dev
-    - run: run make check-lint
-    - run: run make check-format
+    - run: pip install black mypy
+    - run: pip install --editable .[dev]
+    - run: make check-tests
