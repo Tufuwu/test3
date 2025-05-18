@@ -25,11 +25,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       # DISABLED: name: Setup Python ${{ matrix.python-version }} on platform=${{ matrix.os }}
-      - uses: actions/setup-python@v3
-        with:
-          python-version: ${{ matrix.python-version }}
-          cache: 'pip'
-          cache-dependency-path: 'py.requirements/*.txt'
+
       # DISABLED:
       # - name: Show Python version
       #  run: python --version
