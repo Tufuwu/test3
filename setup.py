@@ -1,71 +1,78 @@
-#!/usr/bin/env python
 import os
-import re
 import sys
-from codecs import open
-from distutils.core import setup
-from os import path
 
-from setuptools import find_packages
+from Cython.Build import cythonize
+from setuptools import Extension, setup
 
-
-def get_long_description():
-    current_dir = path.abspath(path.dirname(__file__))
-    readme_path = path.join(current_dir, "README.md")
-    with open(readme_path, encoding="utf-8") as f:
-        return f.read()
+INSTALL_PREFIX_WIN = "deps\\install"
 
 
-def get_version():
-    version_file = open(path.join("csv_export", "__init__.py"), encoding="utf-8").read()
-    version_match = re.search(
-        r"__version__ = ['\"]([0-9]+\.[0-9]+\.[0-9]+(\.dev[0-9])?)['\"]", version_file, re.MULTILINE
-    )
-    if version_match:
-        return version_match.group(1)
-    raise RuntimeError("Unable to find version string.")
+def is_nix_platform(platform):
+    for prefix in ["darwin", "linux", "bsd"]:
+        if prefix in sys.platform:
+            return True
+    return False
 
 
-if sys.argv[-1] == "publish":
-    os.system("python setup.py sdist upload")  # noqa
-    print("You should also add a git tag for this version:")
-    print(" git tag {}".format(get_version()))
-    print(" git push --tags")
-    sys.exit()
+def get_include_dirs():
+    if is_nix_platform(sys.platform):
+        include_dirs = [
+            "/usr/include",
+            "/usr/local/include",
+            "/usr/include/eigen3",
+            "/usr/local/include/eigen3",
+        ]
+
+        if "CPATH" in os.environ:
+            include_dirs += os.environ["CPATH"].split(":")
+
+    elif sys.platform == "win32":
+        include_dirs = [
+            f"{INSTALL_PREFIX_WIN}\\include",
+            f"{INSTALL_PREFIX_WIN}\\include\\eigen3",
+        ]
+    else:
+        raise NotImplementedError(sys.platform)
+
+    # get the numpy include path from numpy
+    import numpy
+
+    include_dirs.append(numpy.get_include())
+    return include_dirs
+
+
+def get_libraries_dir():
+    if is_nix_platform(sys.platform):
+        lib_dirs = ["/usr/lib", "/usr/local/lib"]
+
+        if "LD_LIBRARY_PATH" in os.environ:
+            lib_dirs += os.environ["LD_LIBRARY_PATH"].split(":")
+        return lib_dirs
+    if sys.platform == "win32":
+        return [f"{INSTALL_PREFIX_WIN}\\lib"]
+
+    raise NotImplementedError(sys.platform)
+
+
+def get_libraries():
+    libraries = ["fcl", "octomap"]
+    if sys.platform == "win32":
+        libraries.extend(["octomath", "ccd", "vcruntime"])
+    return libraries
 
 
 setup(
-    name="django-csv-export-view",
-    version=get_version(),
-    license="BSD",
-    description="Django class-based view for CSV exports",
-    long_description=get_long_description(),
-    long_description_content_type="text/markdown",
-    url="https://github.com/benkonrath/django-csv-export-view",
-    author="Ben Konrath",
-    author_email="ben@bagu.org",
-    packages=find_packages(exclude=["tests*"]),
-    include_package_data=True,
-    data_files=[("", ["README.md", "CHANGELOG.md"])],
-    zip_safe=False,
-    install_requires=[
-        "django>=3.2",
-    ],
-    python_requires="!=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*, !=3.5.*, <4",
-    classifiers=[
-        "Development Status :: 5 - Production/Stable",
-        "Environment :: Web Environment",
-        "Framework :: Django",
-        "Intended Audience :: Developers",
-        "License :: OSI Approved :: BSD License",
-        "Operating System :: OS Independent",
-        "Programming Language :: Python",
-        "Programming Language :: Python :: 3.6",
-        "Programming Language :: Python :: 3.7",
-        "Programming Language :: Python :: 3.8",
-        "Programming Language :: Python :: 3.9",
-        "Programming Language :: Python :: 3.10",
-        "Programming Language :: Python :: 3.11",
-        "Topic :: Utilities",
-    ],
+    ext_modules=cythonize(
+        [
+            Extension(
+                "fcl.fcl",
+                ["src/fcl/fcl.pyx"],
+                include_dirs=get_include_dirs(),
+                library_dirs=get_libraries_dir(),
+                libraries=get_libraries(),
+                language="c++",
+                extra_compile_args=["-std=c++11"],
+            )
+        ],
+    )
 )
