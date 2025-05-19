@@ -2,17 +2,15 @@ name: Python package
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
   pull_request:
-    branches:
-      - main
+    branches: [main]
 
 jobs:
   build:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-18.04
     strategy:
-      fail-fast: false 
+      fail-fast: false
       matrix:
         python-version: [3.6, 3.7, 3.8]
 
@@ -24,23 +22,23 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
 
-    - name: Install Miniconda
+    - name: Set up Miniconda
       uses: conda-incubator/setup-miniconda@v2
       with:
         auto-update-conda: true
         python-version: ${{ matrix.python-version }}
-
-    - name: Create conda environment
-      run: conda create -q -n test python=${{ matrix.python-version }}
-
-    - name: Activate conda environment
-      run: echo "source activate test" >> $GITHUB_ENV
+        activate-environment: test
+        environment-name: test
 
     - name: Install dependencies
-      run: conda install altair matplotlib numba numpy pandas pyteomics pytest -c defaults -c bioconda -c conda-forge
+      shell: bash -l {0}
+      run: |
+        conda install altair matplotlib numba numpy pandas pyteomics pytest -c defaults -c bioconda -c conda-forge
 
     - name: Install package
+      shell: bash -l {0}
       run: python setup.py install
 
     - name: Run tests
+      shell: bash -l {0}
       run: pytest
