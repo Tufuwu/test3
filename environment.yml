@@ -7,6 +7,6 @@ dependencies:
   - altair
   - matplotlib
   - numba>=0.41
-  - numpy
+  - numpy<2.0
   - pandas
   - pyteomics
