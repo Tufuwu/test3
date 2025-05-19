@@ -1,0 +1,8 @@
+*.pyc
+*.log
+play.wav
+server.json
+.tox
+AlarmPI.egg-info
+settings*.json
+!*_template.json
