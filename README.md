@@ -1,134 +1,121 @@
-# AlarmPI ![Build Status](https://github.com/bkbilly/AlarmPI/workflows/build/badge.svg)
+[![Scifabric](https://img.shields.io/badge/made%20by-scifabric-blue.svg)](https://scifabric.com/)
+[![Build Status](https://circleci.com/gh/Scifabric/pybossa/tree/master.svg?style=shield)](https://circleci.com/gh/Scifabric/pybossa) [![Code Health](https://landscape.io/github/Scifabric/pybossa/master/landscape.svg?style=flat)](https://landscape.io/github/Scifabric/pybossa/master)
+[![Build Status](https://travis-ci.org/Scifabric/pybossa.svg?branch=master)](https://travis-ci.org/Scifabric/pybossa) [![Code Health](https://landscape.io/github/Scifabric/pybossa/master/landscape.svg?style=flat)](https://landscape.io/github/Scifabric/pybossa/master)
+ [![Coverage
+Status](https://img.shields.io/coveralls/Scifabric/pybossa.svg)](https://coveralls.io/r/Scifabric/pybossa?branch=master)
+[![Documentation](https://readthedocs.org/projects/pybossa/badge/?version=latest)](http://docs.pybossa.com) [![License](http://img.shields.io/badge/license-agplv3-b75bb6.svg)](http://www.gnu.org/licenses/agpl-3.0.html) [![Join the chat at https://gitter.im/Scifabric/pybossa](https://badges.gitter.im/Scifabric/pybossa.svg)](https://gitter.im/Scifabric/pybossa?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![DOI](https://zenodo.org/badge/12868/PyBossa/pybossa.svg)](https://zenodo.org/badge/latestdoi/12868/PyBossa/pybossa)
+[![Scifabric's Patreon](https://img.shields.io/badge/support%20us%20on-patreon-orange.svg)](https://www.patreon.com/bePatron?u=4979179)
 
-AlarmPI is a home security system based on Raspberry PI. It supports wired sensors (PIR, Magnetic etc.) and wireless through MQTT or Hikvision. It is controlled with a Web UI, a Android Application, or through HTTP & MQTT messages. When the alarm detects movement, it supports the following events:
- * Enables the Serene
- * Send Mail
- * VoIP Calls
- * Send MQTT message
+# What is PYBOSSA?
 
-It is written in python and supports both python 2.7 & python 3.6. There is also the option of having more than one user by editing the server.json file accordingly.
+PYBOSSA is a technology built by [Scifabric](https://scifabric.com), for crowdsourcing or citizen science platforms.
+
+PYBOSSA is an extremely flexible and versatile technology with a multitude of applications that
+adapt to each specific case facilitating many of the daily tasks that take place in research
+environments such as museums, art galleries, heritage institutions, libraries of any kind, market
+research companies, hospitals, universities and all those organisations that manage data or require
+information from their customers/users -such as airports, shopping malls, banks, hotel chains, etc.
+
+PYBOSSA’s simplicity consists in its easy adjustment to any areas using any of the available
+templates, this way every customer can then adapt it to their own needs.
+
+PYBOSSA integrates with other data collection products such as Amazon S3, Twitter, Youtube,
+Google Spreadsheets, Flickr, Raspberry Pi, etc. Through all these integrations
+PYBOSSA allows data capture for further analysis made by users in a transparent and easy way.
+
+- 📘 Documentation: [https://docs.pybossa.com](https://docs.pybossa.com)
+- 🎬 Video: [Intro](https://www.youtube.com/watch?v=oH8fJAhRDJM)
+- 🐦 Twitter: [@PyBossa](https://twitter.com/pybossa)
+- 💬 Chat: [Gitter](https://gitter.im/Scifabric/pybossa)
+- 📦 [PYBOSSA extras](https://github.com/Scifabric/)
+- 👉 [Play with PYBOSSA online](https://crowdcrafting.org)
+
+# PYBOSSA for python 3
+
+We've finally migrated PYBOSSA to python 3. We're not going to merge into master until we test it in production a bit
+more, so please, help us by testing it. All you have to do is basically, check out the python3 branch (migrate-python3) and run
+it. Then, any bug, issue you find, you just report it and we will be happy to help you.
+
+## Get professional support
+
+You can hire us to help you with your PYBOSSA project. Go to our website, and [contact us](https://scifabric.com/).
+
+### Supporting PYBOSSA
+
+PYBOSSA is an open source project. Its ongoing development is made possible thanks to the support by these awesome
+[backers](https://github.com/Scifabric/pybossa/blob/master/BACKERS.md). If you'd like to join them, check out
+[Scifabric's Patreon campaign](https://www.patreon.com/scifabric).
 
 
-## Installation
-With this command on your terminal you can install and update the application with my latest commit.
-```bash
-bash <(curl -s "https://raw.githubusercontent.com/bkbilly/AlarmPI/master/install.sh")
+Actividad subvencionada por el Ministerio de Educación, Cultura y Deporte
+
+![Ministerio de Educación, Cultura y Deporte](http://i.imgur.com/4ShmIt1.jpg)
+
+
+# See it in Action
+
+PYBOSSA powers [Solar Maps](https://solarmaps.greenpeace.es/) and [MicroPast](http://crowdsourced.micropasts.org/), [LibCrowds](https://www.libcrowds.com/) and many more projects.
+
+For a full list of PYBOSSA projects, check our [case studies](https://scifabric.com/) and [blog](https://scifabric.com/blog/).
+
+# Installing and Upgrading
+
+**Important: if you are updating a server, please, be sure to check the
+Database Migration scripts, as new changes could introduce new tables,
+columns, etc, in the DB model. See the [Updating Section](https://docs.pybossa.com/installation/guide/#updating-pybossa) from the documentation**
+
+See [installation instructions](https://docs.pybossa.com/installation/gettingstarted/).
+
+# Testing
+
+## Unit testing
+
+Just run:
+
+```
+  nosetests test/
 ```
 
-## Usage
-### Web UI
-The Web Interface of the alarm has all the features that are needed to configure and use the home security. It supports real time events of the sensors, the logs and their status.
-It also works as an smartphone application from the browser: _Add to Home screen_
+## Browser testing
 
-### Mobile Application
-The android application is very light and fast and it is recomended for the phone, but it has no real time updates.
-You can download it from here: [Play Store](https://play.google.com/store/apps/details?id=bkbilly.alarmpi)
+[![BrowserStack](http://i.imgur.com/Pg0utrk.png)](http://browserstack.com/)
 
-The source code for the application is here: https://github.com/bkbilly/AlarmPI-Android
+Thanks to the support of [BrowserStack](http://browserstack.com/) we can do real cross browser testing on multiple desktop and mobile platforms.
 
-### Snips
-Through voice commands from Snips platform using this application: [snips console](https://console.snips.ai/store/en/skill_G4V82q5rb2)
+# Contributing
 
-### Home-Assistant
-It is also controlled with MQTT commands with the Home-Assistant component: 'MQTT Alarm Control Panel'.
-On Home-Assistant the configuration is like so:
-```yaml
-alarm_control_panel:
-  - platform: mqtt
-    name: "AlarmPI"
-    state_topic: "home/alarm"        # The State Topic from AlarmPI
-    command_topic: "home/alarm/set"  # The Command Topic from AlarmPI
-    payload_arm_home: "ARM_HOME"     # This is not used
-    payload_arm_away: "ARM_AWAY"
-```
+If you want to contribute to the project, please, check the
+[CONTRIBUTING file](CONTRIBUTING.md).
 
-## API
-### HTTP
-  * `https://admin:secret@example.com:5000/setSensorStatus?name=test1&state=off`
-  * `https://admin:secret@example.com:5000/activateAlarmZone?zones=home,away`
-  * `https://admin:secret@example.com:5000/activateAlarmOnline`
-  * `https://admin:secret@example.com:5000/deactivateAlarmOnline`
+It has the instructions to become a contributor.
 
-### MQTT
-These are the possible mqtt messages. First you will have to setup the MQTT state_topc & command_topic.
-  * `home/alarm/set` [ARM_HOME,ARM_AWAY,ARM_NIGHT,DISARM]
-  * `home/alarm/set/sensor/test1` [off,online]
-  * `home/alarm/sensor/test1` [off,on,error]
-  * `home/alarm` [armed_away,disarmed,triggered]
+## Acknowledgments
 
-Supports custom messages subscriptions on MQTT Sensors by filling the appropriate information about topic and payload on sensor settings. This can be used for cases like zigbee2mqtt so that zigbee devices can be used. The payload must be a python function with the payload stored as `message` like this:
- * message['contact'] == 'ON'
+* [Open Knowledge Foundation](http://okfn.org/)
+* [FontAwesome fonts](http://fortawesome.github.com/Font-Awesome/)
+* [GeoLite data by MaxMind](http://www.maxmind.com)
+* [yaycryptopan](https://github.com/keiichishima/yacryptopan)
 
-### IFTTT
-It can also be used with IFTTT using the Webhooks module like this:
-`https://admin:secret@example.com:5000/activateAlarmOnline`
-`https://admin:secret@example.com:5000/deactivateAlarmOnline`
->My personal favourite is to control it with Google Assistant.
+Special thanks to Shuttleworth Foundations for funding us and their true support:
+* [Shuttleworth Foundation](https://www.shuttleworthfoundation.org/)
+![Shuttleworth Foundation Funded](http://pybossa.com/assets/img/shuttleworth-funded.png)
 
-## SipCall (VoIP)
-I have built the sipcall for the Raspberry Pi, so hopefully you will not have to build it yourself.
-To test it, execute this replacing the (myserver, myusername, mypassword, mynumbertocall):
+PYBOSSA was inspired by the [BOSSA](http://bossa.berkeley.edu/) crowdsourcing engine but is written in
+python (hence the name!). It can be used for any distributed tasks project
+but was initially developed to help scientists and other researchers
+crowd-source human problem-solving skills!
 
-`./sipcall -sd myserver -su myusername -sp mypassword -pn mynumbertocall -s 1 -mr 2 -ttsf ../play.wav`
+## Copyright / License
 
+Copyright 2019 [Scifabric LTD](https://scifabric.com).
 
-## Configuration
-### Configuration Explained `server.json`
-* `ui.https` (bool) Use HTTPs
-* `ui.port` (bool) The port
-* `users[user]` (str) The username for login
-* `users[user].pw` (str) the password for login
-* `users[user].logfile` (str) The name of the log file
-* `users[user].settings` (str) The name of the settings file
+Source Code License: The GNU Affero General Public License, either version 3 of the License
+or (at your option) any later version. (see COPYING file)
 
+The GNU Affero General Public License is a free, copyleft license for
+software and other kinds of works, specifically designed to ensure
+cooperation with the community in the case of network server software.
 
-### Configuration Explained `settings.json`
-* `serene.enable` (bool) Enable serene activation
-* `serene.pin` (int) Output pin of the serene
-* `mail.enable` (bool) Enable mail alerts
-* `mail.smtpServer` (str) SMTP of your mail
-* `mail.smtpPort` (int) SMTP Port of your mail
-* `mail.username` (str) Username of your mail
-* `mail.password` (str) Password of your mail
-* `mail.recipients` (list str) List of recipents. eg. ["mail1@example.com", "mail2@example.com"]
-* `mail.messageSubject` (str) Subject of the sent mail
-* `mail.messageBody` (str) Body message of the sent mail
-* `voip.enable` (bool) Enable VoIP alerts
-* `voip.domain` (str) VoIP server
-* `voip.username` (str) VoIP username
-* `voip.password` (str) VoIP password
-* `voip.numbersToCall` (list str) List of numbers to call. eg. ["3849392849", "3582735872"]
-* `voip.timesOfRepeat` (str) How many times the recorded message is played
-* `sensors[uuid]` (str) The specific ID of the sensor (auto created)
-* `sensors[uuid].name` (str) Name of the sensor
-* `sensors[uuid].type` (str) The type of the sensor (GPIO, MQTT, Hikvision)
-* `sensors[uuid].enabled` (bool) Set the sensor as Active/Inactive
-* `sensors[uuid].online` (bool) The online status of the sensor
-* `sensors[uuid].alert` (bool) Automatically created. Status of the sensor
-* `sensors[uuid].pin` (str) [GPIO] Input pin of the sensor
-* `sensors[uuid].ip` (str) [Hikvision] IP of the Hikvision camera
-* `sensors[uuid].user` (str) [Hikvision] Username of the Hikvision camera
-* `sensors[uuid].pass` (str) [Hikvision] Password of the Hikvision camera
-* `sensors[uuid].state_topic` (str) [MQTT] The unique topic for the sensor
-* `sensors[uuid].message_alert` (str) [MQTT] The message for alert
-* `sensors[uuid].message_noalert` (str) [MQTT] The message for stop alert
-* `sensors[uuid].zones` (list str) Set zones to massively activate the desired sensors
-* `mqtt.enable` (bool) Enable the mqtt server
-* `mqtt.authentication` (bool) Use authentication for the mqtt server
-* `mqtt.state_topic` (str) The MQTT topic for the state (disarmed, triggered, armed_away)
-* `mqtt.command_topic` (str) The MQTT topic for the commands (DISARM, ARM_AWAY)
-* `mqtt.host` (str) IP Address of the mqtt server
-* `mqtt.port` (int) Port of the mqtt server
-* `mqtt.username` (str) Username of the mqtt server if authentication is true
-* `mqtt.password` (str) Passwrd of the mqtt server if authentication is true
-* `mqtt.homeassistant` (bool) Automatically create sensors on HomeAssistant
-* `settings.alarmArmed` (bool) If true, activate the alarm
-* `settings.alarmTriggered` (bool) If true, there is an intruder
-* `settings.timezone` (str) The timezone for the log file based on pytz
-
-## Contributing
-1. Fork it!
-2. Create your feature branch: `git checkout -b my-new-feature`
-3. Commit your changes: `git commit -am 'Add some feature'`
-4. Push to the branch: `git push origin my-new-feature`
-5. Submit a pull request :D
+Documentation and media is under a Creative Commons Attribution License version
+3.

@@ -1,53 +1,26 @@
-#!/usr/bin/env python3
+# -*- coding: utf8 -*-
+# This file is part of PYBOSSA.
+#
+# Copyright (C) 2015 Scifabric LTD.
+#
+# PYBOSSA is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# PYBOSSA is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with PYBOSSA. If not, see <http://www.gnu.org/licenses/>.
+from pybossa.core import create_app
 
-import os
-import sys
-
-import logging
-from alarmcode.alarmpi import AlarmPiServer
-import alarmcode
-
-if __name__ == '__main__':
-    # log = logging.getLogger('werkzeug')
-    # log.setLevel(logging.ERROR)
-
-    def get_logger(self):
-        return logging
-
-
-    if len(sys.argv) > 1:
-        if ".pid" in sys.argv[1]:
-            with open(sys.argv[1], "w") as f:
-                f.write(str(os.getpid()))
-
-    wd = os.path.dirname(os.path.dirname(alarmcode.__file__))
-
-    # Logging setup
-    rootLogger = logging.getLogger('socketio')
-    rootLogger.setLevel(logging.ERROR)
-    rootLogger = logging.getLogger('engineio')
-    rootLogger.setLevel(logging.ERROR)
-    rootLogger = logging.getLogger('werkzeug')
-    rootLogger.setLevel(logging.ERROR)
-
-    logFormatter = logging.Formatter("%(asctime)s [%(levelname)s] [%(module)s:%(funcName)s:%(lineno)s]  %(message)s", "%Y-%m-%d %H:%M:%S")
-    rootLogger = logging.getLogger('alarmpi')
-    rootLogger.setLevel(logging.DEBUG)
-
-    fileHandler = logging.FileHandler("{0}/{1}.log".format(wd, 'sysrun'))
-    fileHandler.setFormatter(logFormatter)
-    rootLogger.addHandler(fileHandler)
-
-    consoleHandler = logging.StreamHandler()
-    consoleHandler.setFormatter(logFormatter)
-    rootLogger.addHandler(consoleHandler)
-
-    # Run App
-    try:
-        myserver = AlarmPiServer(wd)
-        myserver.setServerConfig('config/server.json')
-        myserver.create_app()
-        myserver.startMyApp()
-        myserver.startServer()
-    except Exception:
-        rootLogger.exception("Unknown error has occured Contact Author:")
+if __name__ == "__main__":  # pragma: no cover
+    app = create_app()
+    # logging.basicConfig(level=logging.NOTSET)
+    app.run(host=app.config['HOST'], port=app.config['PORT'],
+            debug=app.config.get('DEBUG', True))
+else:
+    app = create_app()
