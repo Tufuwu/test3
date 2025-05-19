@@ -2,6 +2,8 @@ name: GitHub Actions Check
 run-name: ${{ github.actor }} Checks 🚀
 on: [push, pull_request]
 jobs:
+- name: Make all scripts executable
+  run: chmod +x scripts/*
   Link-Format-Checks:
     runs-on: ubuntu-latest
     steps:
