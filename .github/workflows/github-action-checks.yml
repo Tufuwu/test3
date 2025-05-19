@@ -1,21 +1,29 @@
 name: GitHub Actions Check
 run-name: ${{ github.actor }} Checks 🚀
+
 on: [push, pull_request]
+
 jobs:
-- name: Make all scripts executable
-  run: chmod +x scripts/*
   Link-Format-Checks:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - name: Make script executable
+        run: chmod +x scripts/link-format-chk.sh
       - run: scripts/link-format-chk.sh
+
   Build-Table-Checks:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - run: scripts/buildtable.pl >/tmp/table.mediawiki || exit 1
+      - name: Make script executable
+        run: chmod +x scripts/buildtable.pl
+      - run: scripts/buildtable.pl >/tmp/table.mediawiki
+
   Diff-Checks:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - name: Make script executable
+        run: chmod +x scripts/diffcheck.sh
       - run: scripts/diffcheck.sh
