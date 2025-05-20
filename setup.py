@@ -1,88 +1,72 @@
 # -*- coding: utf-8 -*-
+import sys
 
-import os
-from setuptools import find_packages
+from setuptools import setup, find_packages
 
+if (sys.version_info[:3] < (3, 0)):
+    with open('README.rst') as f:
+        readme = f.read()
+else:
+    with open('README.rst', encoding='utf-8') as f:
+        readme = f.read()
+with open('HISTORY.rst') as f:
+    history = f.read()
 
-here = os.path.abspath(os.path.dirname(__file__))
-about = {}
-with open(os.path.join(here, 'camelot', '__version__.py'), 'r') as f:
-    exec(f.read(), about)
-
-with open('README.md', 'r') as f:
-    readme = f.read()
-
-
-requires = [
-    'chardet>=3.0.4',
-    'click>=6.7',
-    'numpy>=1.13.3',
-    'openpyxl>=2.5.8',
-    'pandas>=0.23.4',
-    'pdfminer.six>=20200726',
-    'PyPDF2>=1.26.0'
+test_deps = [
+    "pytest",
+    "mock",
 ]
 
-cv_requires = [
-    'opencv-python>=3.4.2.17'
-]
+extras = {
+    'test': test_deps,
+}
 
-plot_requires = [
-    'matplotlib>=2.2.3',
-]
-
-dev_requires = [
-    'codecov>=2.0.15',
-    'pytest>=5.4.3',
-    'pytest-cov>=2.10.0',
-    'pytest-mpl>=0.11',
-    'pytest-runner>=5.2',
-    'Sphinx>=3.1.2'
-]
-
-all_requires = cv_requires + plot_requires
-dev_requires = dev_requires + all_requires
-
-
-def setup_package():
-    metadata = dict(name=about['__title__'],
-                    version=about['__version__'],
-                    description=about['__description__'],
-                    long_description=readme,
-                    long_description_content_type="text/markdown",
-                    url=about['__url__'],
-                    author=about['__author__'],
-                    author_email=about['__author_email__'],
-                    license=about['__license__'],
-                    packages=find_packages(exclude=('tests',)),
-                    install_requires=requires,
-                    extras_require={
-                        'all': all_requires,
-                        'cv': cv_requires,
-                        'dev': dev_requires,
-                        'plot': plot_requires
-                    },
-                    entry_points={
-                        'console_scripts': [
-                            'camelot = camelot.cli:cli',
-                        ],
-                    },
-                    classifiers=[
-                        # Trove classifiers
-                        # Full list: https://pypi.python.org/pypi?%3Aaction=list_classifiers
-                        'License :: OSI Approved :: MIT License',
-                        'Programming Language :: Python :: 3.6',
-                        'Programming Language :: Python :: 3.7',
-                        'Programming Language :: Python :: 3.8'
-                    ])
-
-    try:
-        from setuptools import setup
-    except ImportError:
-        from distutils.core import setup
-
-    setup(**metadata)
-
-
-if __name__ == '__main__':
-    setup_package()
+setup(
+    name='marabunta',
+    use_scm_version=True,
+    description='Migration tool for Odoo',
+    long_description=readme + '\n\n' + history,
+    author='Camptocamp (Guewen Baconnier)',
+    author_email='guewen.baconnier@camptocamp.com',
+    url='https://github.com/camptocamp/marabunta',
+    license='AGPLv3+',
+    packages=find_packages(exclude=('tests', 'docs')),
+    install_requires=[
+        "psycopg2",
+        "ruamel.yaml>=0.15.1",
+        "pexpect",
+        "werkzeug",
+        "future",
+    ],
+    setup_requires=[
+        'setuptools_scm',
+    ],
+    tests_require=test_deps,
+    extras_require=extras,
+    include_package_data=True,
+    package_data={
+        'marabunta': ['html/*.html'],
+    },
+    classifiers=(
+        'Development Status :: 3 - Alpha',
+        'Intended Audience :: Developers',
+        'Natural Language :: English',
+        'License :: OSI Approved :: '
+        'GNU Affero General Public License v3 or later (AGPLv3+)',
+        'Programming Language :: Python',
+        'Programming Language :: Python :: 2',
+        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: Implementation :: CPython',
+        'Programming Language :: Python :: Implementation :: PyPy',
+    ),
+    entry_points={
+        'console_scripts': ['marabunta = marabunta.core:main']
+    },
+)
