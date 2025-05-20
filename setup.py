@@ -1,46 +1,48 @@
-from setuptools import setup, find_packages
-
-with open('README.md', encoding='utf-8') as f:
-    readme = f.read()
+from setuptools import find_packages, setup
 
 
 setup(
-    name='btrccts',
-    version='0.1.1',
-    description='BackTest and Run CryptoCurrency Trading Strategies',
-    long_description=readme,
-    long_description_content_type='text/markdown',
-    classifiers=[
-        'Programming Language :: Python',
-        'Intended Audience :: Developers',
-        'Intended Audience :: Financial and Insurance Industry',
-        'Topic :: Software Development :: Build Tools',
-        'Topic :: Office/Business :: Financial :: Investment',
-        'License :: OSI Approved :: MIT License',
-        'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.6',
-        'Programming Language :: Python :: 3.7',
-        'Programming Language :: Python :: 3.8',
-        'Programming Language :: Python :: 3.9',
-        'Operating System :: OS Independent',
-        'Environment :: Console'
-    ],
-    author='Simon Brand',
-    author_email='simon.brand@postadigitale.de',
-    url='https://github.com/btrccts/btrccts/',
-    keywords='btrccts',
-    package_dir={'': 'src'},
-    packages=find_packages('src/'),
-    include_package_data=True,
-    zip_safe=False,
-    extras_require={
-        'dev': ['pycodestyle', 'pyflakes'],
-        'ccxt-websockets': ['ccxtpro'],
-    },
-    install_requires=['ccxt', 'pandas', 'numpy', 'appdirs'],
+    name="bundlewrap",
+    version="4.3.0",
+    description="Config management with Python",
+    long_description=(
+        "By allowing for easy and low-overhead config management, BundleWrap fills the gap between complex deployments using Chef or Puppet and old school system administration over SSH.\n"
+        "While most other config management systems rely on a client-server architecture, BundleWrap works off a repository cloned to your local machine. It then automates the process of SSHing into your servers and making sure everything is configured the way it's supposed to be. You won't have to install anything on managed servers."
+    ),
+    author="Torsten Rehn",
+    author_email="torsten@rehn.email",
+    license="GPLv3",
+    url="http://bundlewrap.org",
+    packages=find_packages(),
     entry_points={
         'console_scripts': [
-            'btrccts=btrccts:_main',
-        ]
+            "bw=bundlewrap.cmdline:main",
+        ],
     },
+    keywords=["configuration", "config", "management"],
+    classifiers=[
+        "Development Status :: 5 - Production/Stable",
+        "Environment :: Console",
+        "Intended Audience :: System Administrators",
+        "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+        "Natural Language :: English",
+        "Operating System :: POSIX :: Linux",
+        "Programming Language :: Python",
+        "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+        "Topic :: System :: Installation/Setup",
+        "Topic :: System :: Systems Administration",
+    ],
+    install_requires=[
+        "cryptography",
+        "Jinja2",
+        "Mako",
+        "passlib",
+        "pyyaml",
+        "requests >= 1.0.0",
+        "tomlkit",
+    ],
+    zip_safe=False,
 )
