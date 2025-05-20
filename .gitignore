@@ -1,31 +1,19 @@
-# Misc
-.DS_Store
-
-# Python + mypy + pytest
 __pycache__/
-*.pyc
-
-.mypy_cache/
-.pytest_cache/
+*.py[cod]
+*.so
 
 build/
 dist/
 *.egg-info/
-
-.cache/
-
-# SC2 things
-maps/
-mini_games/
-
-*.SC2Replay
-
-.hypothesis/
-
-# Editors
-.idea/
-.vscode/
-
-# Code coverage
+.eggs/
 .coverage
-/htmlcov
+coverage.xml
+
+.pytest_cache/
+_build/
+
+.venv/
+htmlcov/
+
+# vscode
+.vscode
