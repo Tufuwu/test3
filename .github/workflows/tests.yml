@@ -28,18 +28,18 @@ jobs:
       - name: Run Tox
         env:
           TOXENV: ${{ matrix.python-version == '3.5' && matrix.os == 'macos-latest' ? 'py35' : 
-                    matrix.python-version == '3.6' && matrix.os == 'macos-latest' ? 'py36' : 
-                    matrix.python-version == '3.7' && matrix.os == 'macos-latest' ? 'py37' : 
-                    matrix.python-version == '3.8' && matrix.os == 'macos-latest' ? 'py38' : 
-                    matrix.python-version == '3.9' && matrix.os == 'macos-latest' ? 'py39' : 
-                    matrix.python-version == '3.10' && matrix.os == 'macos-latest' ? 'py310' : 
-                    matrix.python-version == '3.5' ? 'py35' : 
-                    matrix.python-version == '3.6' ? 'py36' : 
-                    matrix.python-version == '3.7' ? 'py37' : 
-                    matrix.python-version == '3.8' ? 'py38' : 
-                    matrix.python-version == '3.9' ? 'py39' : 
-                    matrix.python-version == '3.10' ? 'py310' : 
-                    'lint'}}
+                      matrix.python-version == '3.6' && matrix.os == 'macos-latest' ? 'py36' : 
+                      matrix.python-version == '3.7' && matrix.os == 'macos-latest' ? 'py37' : 
+                      matrix.python-version == '3.8' && matrix.os == 'macos-latest' ? 'py38' : 
+                      matrix.python-version == '3.9' && matrix.os == 'macos-latest' ? 'py39' : 
+                      matrix.python-version == '3.10' && matrix.os == 'macos-latest' ? 'py310' : 
+                      matrix.python-version == '3.5' ? 'py35' :
+                      matrix.python-version == '3.6' ? 'py36' :
+                      matrix.python-version == '3.7' ? 'py37' :
+                      matrix.python-version == '3.8' ? 'py38' :
+                      matrix.python-version == '3.9' ? 'py39' :
+                      matrix.python-version == '3.10' ? 'py310' :
+                      'lint' }}
         run: python -m tox
 
   types_checking:
