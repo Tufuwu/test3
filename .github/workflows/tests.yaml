@@ -28,63 +28,63 @@ jobs:
           - py37-failskip
           - py37-limit
           - py37-prefix
-      exclude:
-        - python-version: 3.5
-          toxenv: py36
-        - python-version: 3.5
-          toxenv: py37
-        - python-version: 3.5
-          toxenv: py38
-        - python-version: 3.6
-          toxenv: py35
-        - python-version: 3.6
-          toxenv: py37
-        - python-version: 3.6
-          toxenv: py38
-        - python-version: 3.7
-          toxenv: py35
-        - python-version: 3.7
-          toxenv: py36
-        - python-version: 3.7
-          toxenv: py38
-        - python-version: 3.8
-          toxenv: py35
-        - python-version: 3.8
-          toxenv: py36
-        - python-version: 3.8
-          toxenv: py37
-        - python-version: 3.8
-          toxenv: py35-pytest
-        - python-version: 3.8
-          toxenv: py36-pytest
-        - python-version: 3.8
-          toxenv: py37-pytest
-        - python-version: 3.8
-          toxenv: py37-failskip
-        - python-version: 3.8
-          toxenv: py37-limit
-        - python-version: 3.8
-          toxenv: py37-prefix
-        - python-version: pypy3
-          toxenv: py35
-        - python-version: pypy3
-          toxenv: py36
-        - python-version: pypy3
-          toxenv: py37
-        - python-version: pypy3
-          toxenv: py38
-        - python-version: pypy3
-          toxenv: py35-pytest
-        - python-version: pypy3
-          toxenv: py36-pytest
-        - python-version: pypy3
-          toxenv: py37-pytest
-        - python-version: pypy3
-          toxenv: py37-failskip
-        - python-version: pypy3
-          toxenv: py37-limit
-        - python-version: pypy3
-          toxenv: py37-prefix
+        exclude:
+          - python-version: 3.5
+            toxenv: py36
+          - python-version: 3.5
+            toxenv: py37
+          - python-version: 3.5
+            toxenv: py38
+          - python-version: 3.6
+            toxenv: py35
+          - python-version: 3.6
+            toxenv: py37
+          - python-version: 3.6
+            toxenv: py38
+          - python-version: 3.7
+            toxenv: py35
+          - python-version: 3.7
+            toxenv: py36
+          - python-version: 3.7
+            toxenv: py38
+          - python-version: 3.8
+            toxenv: py35
+          - python-version: 3.8
+            toxenv: py36
+          - python-version: 3.8
+            toxenv: py37
+          - python-version: 3.8
+            toxenv: py35-pytest
+          - python-version: 3.8
+            toxenv: py36-pytest
+          - python-version: 3.8
+            toxenv: py37-pytest
+          - python-version: 3.8
+            toxenv: py37-failskip
+          - python-version: 3.8
+            toxenv: py37-limit
+          - python-version: 3.8
+            toxenv: py37-prefix
+          - python-version: pypy3
+            toxenv: py35
+          - python-version: pypy3
+            toxenv: py36
+          - python-version: pypy3
+            toxenv: py37
+          - python-version: pypy3
+            toxenv: py38
+          - python-version: pypy3
+            toxenv: py35-pytest
+          - python-version: pypy3
+            toxenv: py36-pytest
+          - python-version: pypy3
+            toxenv: py37-pytest
+          - python-version: pypy3
+            toxenv: py37-failskip
+          - python-version: pypy3
+            toxenv: py37-limit
+          - python-version: pypy3
+            toxenv: py37-prefix
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python ${{ matrix.python-version }}
