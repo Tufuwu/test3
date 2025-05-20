@@ -1,104 +1,96 @@
-# coding: utf-8
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
-from codecs import open   # pylint:disable=redefined-builtin
-from os.path import dirname, join
-import re
-import sys
+import io
+import os
 
-from setuptools import setup, find_packages
-from setuptools.command.test import test as TestCommand
+from setuptools import find_packages, setup
 
+# Package meta-data.
+NAME = 'micropy-cli'
+DESCRIPTION = ('Micropython Project Management Tool with VSCode support, '
+               'Linting, Intellisense, Dependency Management, and more!')
+URL = 'https://github.com/BradenM/micropy-cli'
+AUTHOR = 'Braden Mars'
+AUTHOR_EMAIL = "bradenmars@bradenmars.me"
+REQUIRES_PYTHON = '>=3.6.0'
+VERSION = '3.0.0'  # Update via bump2version
+PROJECT_URLS = {
+    "Bug Reports": "https://github.com/BradenM/micropy-cli/issues",
+    "Documentation": "https://micropy-cli.readthedocs.io",
+    "Source Code": URL,
+}
+KEYWORDS = (
+    "micropython stubs linting intellisense "
+    "autocompletion vscode visual-studio-code "
+    "ide microcontroller"
+)
 
-CLASSIFIERS = [
-    'Development Status :: 5 - Production/Stable',
-    'Intended Audience :: Developers',
-    'License :: OSI Approved :: Apache Software License',
-    'Programming Language :: Python',
-    'Programming Language :: Python :: 3.5',
-    'Programming Language :: Python :: 3.6',
-    'Programming Language :: Python :: 3.7',
-    'Programming Language :: Python :: Implementation :: CPython',
-    'Programming Language :: Python :: Implementation :: PyPy',
-    'Operating System :: OS Independent',
-    'Operating System :: POSIX',
-    'Operating System :: Microsoft :: Windows',
-    'Operating System :: MacOS :: MacOS X',
-    'Topic :: Software Development :: Libraries :: Python Modules',
+# Required Packages
+REQUIRED = [
+    'click>=7',
+    'questionary',
+    'rshell',
+    'colorama ; platform_system=="Windows"',
+    'jsonschema',
+    'jinja2',
+    'requests',
+    'tqdm',
+    'requirements-parser',
+    'packaging',
+    'cachier'
 ]
 
-
-class PyTest(TestCommand):
-    # pylint:disable=attribute-defined-outside-init
-
-    user_options = [(b'pytest-args=', b'a', b"Arguments to pass to py.test")]
-
-    def initialize_options(self):
-        TestCommand.initialize_options(self)
-        self.pytest_args = None
-
-    def finalize_options(self):
-        TestCommand.finalize_options(self)
-        self.test_args = []
-        self.test_suite = True
-
-    def run_tests(self):
-        # Do the import here, once the eggs are loaded.
-        # pylint:disable=import-outside-toplevel
-        import pytest
-        errno = pytest.main(self.pytest_args)
-        sys.exit(errno)
+EXTRAS = {
+    'create_stubs': ['pyminifier==2.1']
+}
 
 
-def main():
-    base_dir = dirname(__file__)
-    install_requires = [
-        'attrs>=17.3.0',
-        'requests>=2.4.3',
-        'requests-toolbelt>=0.4.0, <1.0.0',
-        'wrapt>=1.10.1'
-    ]
-    redis_requires = ['redis>=2.10.3']
-    jwt_requires = ['pyjwt>=1.3.0', 'cryptography>=3, <3.5.0']
-    extra_requires = {'jwt': jwt_requires, 'redis': redis_requires, 'all': jwt_requires + redis_requires}
-    test_requires = [
-        'bottle',
-        'jsonpatch>1.14',
-        'mock>=2.0.0, <4.0.0',
-        'pycodestyle',
-        'pylint',
-        'sphinx',
-        'sqlalchemy<1.4.0',
-        'tox',
-        'pytest>=2.8.3, <4.0.0',
-        'pytest-cov',
-        'pytest-xdist<1.28.0',
-        'coveralls',
-        'coverage',
-        'tox-gh-actions',
-        'pytz',
-    ]
-    extra_requires['test'] = test_requires
-    with open('boxsdk/version.py', 'r', encoding='utf-8') as config_py:
-        version = re.search(r'^\s+__version__\s*=\s*[\'"]([^\'"]*)[\'"]', config_py.read(), re.MULTILINE).group(1)
-    setup(
-        name='boxsdk',
-        version=version,
-        description='Official Box Python SDK',
-        long_description=open(join(base_dir, 'README.rst'), encoding='utf-8').read(),  # pylint:disable=consider-using-with
-        author='Box',
-        author_email='oss@box.com',
-        url='http://opensource.box.com',
-        packages=find_packages(exclude=['demo', 'docs', 'test', 'test*', '*test', '*test*']),
-        install_requires=install_requires,
-        extras_require=extra_requires,
-        tests_require=test_requires,
-        cmdclass={'test': PyTest},
-        classifiers=CLASSIFIERS,
-        keywords='box oauth2 sdk',
-        license='Apache Software License, Version 2.0, http://www.apache.org/licenses/LICENSE-2.0',
-        package_data={'boxsdk': ['py.typed']},
-    )
+here = os.path.abspath(os.path.dirname(__file__))
+
+# Description
+try:
+    with io.open(os.path.join(here, 'README.md'), encoding='utf-8') as f:
+        long_description = '\n' + f.read()
+except FileNotFoundError:
+    long_description = DESCRIPTION
 
 
-if __name__ == '__main__':
-    main()
+# Where the magic happens:
+setup(
+    name=NAME,
+    version=VERSION,
+    description=DESCRIPTION,
+    long_description=long_description,
+    long_description_content_type='text/markdown',
+    author=AUTHOR,
+    author_email=AUTHOR_EMAIL,
+    python_requires=REQUIRES_PYTHON,
+    url=URL,
+    project_urls=PROJECT_URLS,
+    packages=find_packages(
+        exclude=["tests", "*.tests", "*.tests.*", "tests.*"]),
+
+    entry_points={
+        'console_scripts': ['micropy=micropy.cli:cli'],
+    },
+    keywords=KEYWORDS,
+    install_requires=REQUIRED,
+    extras_require=EXTRAS,
+    include_package_data=True,
+    classifiers=[
+        'Development Status :: 5 - Production/Stable',
+        'Intended Audience :: Developers',
+        'License :: OSI Approved :: MIT License',
+        'Programming Language :: Python',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: Implementation :: CPython',
+        'Programming Language :: Python :: Implementation :: PyPy',
+        'Programming Language :: Python :: Implementation :: MicroPython',
+        'Topic :: Software Development :: Code Generators',
+        'Topic :: Software Development :: Embedded Systems',
+        'Topic :: Software Development :: Build Tools'
+    ],
+)

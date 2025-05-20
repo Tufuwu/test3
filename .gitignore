@@ -1,39 +1,36 @@
-# Backup files
-*.~
 
+# Created by https://www.gitignore.io/api/python
+# Edit at https://www.gitignore.io/?templates=python
+
+### Python ###
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
-.pytest_cache/
+*$py.class
 
 # C extensions
 *.so
 
 # Distribution / packaging
-bin/
 .Python
-env*/
 build/
 develop-eggs/
 dist/
-pypi-dist/
 downloads/
 eggs/
+.eggs/
 lib/
 lib64/
 parts/
 sdist/
 var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
 *.egg-info/
 .installed.cfg
 *.egg
 MANIFEST
-.eggs/
-.env*/
-.pyenv/
-venv*/
-.venv*/
-python.properties
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
@@ -48,12 +45,15 @@ pip-delete-this-directory.txt
 # Unit test / coverage reports
 htmlcov/
 .tox/
+.nox/
 .coverage
+.coverage.*
 .cache
 nosetests.xml
 coverage.xml
-.coverage.*
-*,cover
+*.cover
+.hypothesis/
+.pytest_cache/
 
 # Translations
 *.mo
@@ -61,6 +61,15 @@ coverage.xml
 
 # Django stuff:
 *.log
+local_settings.py
+db.sqlite3
+
+# Flask stuff:
+instance/
+.webassets-cache
+
+# Scrapy stuff:
+.scrapy
 
 # Sphinx documentation
 docs/_build/
@@ -68,18 +77,60 @@ docs/_build/
 # PyBuilder
 target/
 
-# IntelliJ
-.idea/
-*.iml
+# Jupyter Notebook
+.ipynb_checkpoints
 
-# VSCode
-.vscode/
+# IPython
+profile_default/
+ipython_config.py
 
-# Mac
-.DS_Store
+# pipenv
+#   According to pypa/pipenv#598, it is recommended to include Pipfile.lock in version control.
+#   However, in case of collaboration, if having platform-specific dependencies or dependencies
+#   having no cross-platform support, pipenv may install dependencies that don’t work, or not
+#   install all needed dependencies.
+Pipfile.lock
 
-# Misc
-tokens.pk
+# celery beat schedule file
+celerybeat-schedule
 
-#pyenv
-.python-version
+# SageMath parsed files
+*.sage.py
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Spyder project settings
+.spyderproject
+.spyproject
+
+# Rope project settings
+.ropeproject
+
+# mkdocs documentation
+/site
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
+
+# End of https://www.gitignore.io/api/python
+
+.vscode
+!micropy/project/template/**/*
+!micropy/lib
+!tests/data/project_test/**/*
+
+.testmondata
+
+.tmontmp/
