@@ -1,31 +1,36 @@
-name: Build
+name: CI
 
 on:
-    push:
-        branches:
-            - main
-    pull_request:
-        branches:
-            - master
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
-    build:
-        runs-on: ubuntu-22.04
-        strategy:
-            fail-fast: false
-            matrix:
-                python-version: [3.6, 3.7, 3.8, 3.9]
-        steps:
-            - uses: actions/checkout@v2
-            - name: Set up Python ${{ matrix.python-version }}
-              uses: actions/setup-python@v2
-              with:
-                  python-version: ${{ matrix.python-version }}
-            - name: Install Dependencies
-              run: |
-                  pip install -r requirements.txt
-                  pip install reasonable
-                  pip freeze
-            - name: Run tests
-              run: |
-                  pytest -s -vvvv ||true
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.6, 3.7]
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install poetry
+        poetry install -E reasonable
+
+    - name: Run tests
+      run: |
+        pytest -s -vvvv
+        make docs
+        
