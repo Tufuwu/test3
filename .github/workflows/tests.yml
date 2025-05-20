@@ -56,7 +56,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Notify IRC
-      uses: devmasx/notify-irc-action@v1
+      uses: devmasx/notify-irc-action@v3
       with:
         server: irc.freenode.org
         channel: '#bundlewrap'
