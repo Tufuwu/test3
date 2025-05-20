@@ -2,7 +2,7 @@
 INSTALL :=
 UNAME_S := $(shell uname -s)
 ifeq ($(UNAME_S),Linux)
-	INSTALL := @sudo apt install python-tk python3-tk ghostscript
+	INSTALL := @sudo apt install python3-tk ghostscript
 else ifeq ($(UNAME_S),Darwin)
 	INSTALL := @brew install tcl-tk ghostscript
 else
