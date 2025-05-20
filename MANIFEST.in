@@ -1,6 +1,6 @@
-include *.md
-include MANIFEST.in
-include LICENSE
+include bottle.py
 include setup.py
-include docs/*
-include tests/*
+include README.rst
+include LICENSE
+include test/views/*.tpl
+include test/*.py
