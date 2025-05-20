@@ -1,166 +1,223 @@
-# Brick Ontology Python package
+# btrccts
+## BackTest and Run CryptoCurrency Trading Strategies
 
-[![Build Status](https://travis-ci.org/BrickSchema/py-brickschema.svg?branch=master)](https://travis-ci.org/BrickSchema/py-brickschema)
-[![Documentation Status](https://readthedocs.org/projects/brickschema/badge/?version=latest)](https://brickschema.readthedocs.io/en/latest/?badge=latest)
+### [Install](#install) - [Usage](#usage) - [Manual](#manual) - [Development](#development)
 
-Documentation available at [readthedocs](https://brickschema.readthedocs.io/en/latest/)
+This library provides an easy way to backtest trading strategies and run them live with ccxt.
+The purpose of this library is to provide a framework and an backtest exchange with the same
+interface than ccxt - nothing less and nothing more.
+If you want an library to compute performance metrics out of trades/orders,
+you need an additional library.
 
-## Installation
+## Install
 
-The `brickschema` package requires Python >= 3.6. It can be installed with `pip`:
+The easiest way to install the BTRCCTS library is to use a package manager:
 
-```
-pip install brickschema
-```
+- https://pypi.org/project/btrccts/
 
-The `brickschema` package offers several installation configuration options for reasoning.
-The default bundled [OWLRL](https://pypi.org/project/owlrl/) reasoner delivers correct results, but exhibits poor performance on large or complex ontologies (we have observed minutes to hours) due to its bruteforce implementation.
+The python package hashes can be found in the `version_hashes.txt`.
 
-The [Allegro reasoner](https://franz.com/agraph/support/documentation/current/materializer.html) has better performance and implements enough of the OWLRL profile to be useful. We execute Allegrograph in a Docker container, which requires the `docker` package. To install support for the Allegrograph reasoner, use
+You can also clone the repository, see [Development](development)
 
-```
-pip install brickschema[allegro]
-```
+## Usage
 
-The [reasonable Reasoner](https://github.com/gtfierro/reasonable) offers even better performance than the Allegro reasoner, but is currently only packaged for Linux platforms. (_Note: no fundamental limitations here, just some packaging complexity due to cross-compiling the `.so`_). To install support for the reasonable Reasoner, use
-
-```
-pip install brickschema[reasonable]
-```
-
-## Features
-
-### OWLRL Inference
-
-`brickschema` makes it easier to employ OWLRL reasoning on your graphs. The package will automatically use the fastest available reasoning implementation for your system:
-
-- `reasonable` (fastest, Linux-only for now): `pip install brickschema[reasonable]`
-- `Allegro` (next-fastest, requires Docker): `pip install brickschema[allegro]`
-- OWLRL (default, native Python implementation): `pip install brickschema`
-
-To use OWL inference, import the `OWLRLInferenceSession` class (this automatically chooses the fastest reasoner; check out the [inference module documentation](https://brickschema.readthedocs.io/en/latest/source/brickschema.html#module-brickschema.inference) for how to use a specific reasoner). Create a `brickschema.Graph` with your ontology rules and instances loaded in and apply the reasoner's session to it:
-
+For example algorithms see in [Examples](examples/)
 ```python
-from brickschema.graph import Graph
-from brickschema.namespaces import BRICK
-from brickschema.inference import OWLRLInferenceSession
+from btrccts import parse_params_and_execute_algorithm, AlgorithmBase
 
-g = Graph(load_brick=True)
-g.load_file("test.ttl")
 
-sess = OWLRLInferenceSession()
-inferred_graph = sess.expand(g)
-print(f"Inferred graph has {len(inferred_graph)} triples")
+class Algorithm(AlgorithmBase):
+
+    @staticmethod
+    def configure_argparser(argparser):
+        # Here you can add additional arguments to the argparser
+        argparser.add_argument('--pyramiding', default=1, type=int)
+
+    def __init__(self, context, args):
+        # Context is used to create exchanges or get the current time
+        self._context = context
+        self._args = args
+
+        # This will create a kraken exchange instance
+        # The interface in backtesting and live mode is identical to CCXT.
+        # See: [CCXT](https://github.com/ccxt/ccxt/wiki)
+        # In live mode, this will be a plain ccxt instance of the exchange
+        # The exchange keys will be read from the config directory (see --help)
+        # You can create sync or async versions of the exchange.
+        # If ccxtpro is available in your python environment, the async
+        # call will create a ccxtpro instance.
+        self._kraken = context.create_exchange('kraken', async_ccxt=True)
+
+        # You can access your own defined parameters
+        print('Pyramiding:', args.pyramiding)
+
+        # You can access predefined parameters like exchanges and symbols
+        print('Exchanges:', args.exchanges)
+        print('Symbols:', args.symbols)
+
+    async def next_iteration(self):
+        # This method is executed each time interval
+        # This method can be async or a normal method.
+
+        # This is the current context date:
+        print('context date', self._context.date())
+
+        # In live mode, markets are not loaded by the library
+        # If you need access to the exchanges market object, you need
+        # to load them first
+        await self._kraken.load_markets()
+        # Use the exchange to load OHLCV data
+        ohlcv_len = 10
+        ohlcv_offset = ohlcv_len * 60 * 1000
+        ohlcv_start = int(self._context.date().value / 1000000 - ohlcv_offset)
+        print(await self._kraken.fetch_ohlcv(
+            'BTC/USD', '1m', ohlcv_start, ohlcv_len))
+
+        # Use the exchange to create a market order
+        self._order_id = self._kraken.create_order(
+            type='market', side='buy', symbol='BTC/USD', amount=0.1)
+
+        # If you want to stop the algorithm in context or live mode, you can
+        # do this:
+        self._context.stop('stop message')
+
+    async def handle_exception(self, e):
+        # This method is called, when next_iteration raises an exception, e.g.
+        # because of an exchange error or a programming error.
+        # If this method raises an exception, the algorith will stop with
+        # reason EXCEPTION
+        # This method can be async or a normal method.
+        # If you are not in live mode, it is advicable to rethrow the
+        # exception to fix the programming error.
+        print(e)
+        if not self._args.live:
+            raise e
+
+    async def exit(self, reason):
+        # This method is called, when the algorithm exits and should be used
+        # to cleanup (e.g. cancel open orders).
+        # This method can be async or a normal method.
+        # reason contains information on why the algorithm exits.
+        # e.g. STOPPED, EXCEPTION, FINISHED
+        print("Done", reason)
+        self.closed_orders = await self._kraken.fetch_closed_orders()
+        # Async versions of an exchange needs to be closed, because
+        # btrccts will close the asyncio loop after the run.
+        await self._kraken.close()
+
+
+# This method parses commandline parameters (see --help)
+# and runs the Algorithm according to the parameters
+result = parse_params_and_execute_algorithm(Algorithm)
+# The result is an instance of Algorithm, you can now use saved
+# information. If you used a sync version of the exchange you can
+# still use them. For async exchages the asyncio loop is already
+# destroyed.
+print(result.orders)
 ```
 
+To run this algorithm, just execute the file with python.
+e.g. `.venv/bin/python examples/algo_readme.py --start-date 2017-12-01 --end-date 2017-12-02 --timedelta 1h --exchanges kraken --symbols BTC/USD --start-balances '{"kraken": {"USD": 10000}}'`
 
-### Haystack Inference
-
-Requires a JSON export of a Haystack model.
-First, export your Haystack model as JSON; we are using the public reference model `carytown.json`.
-Then you can use this package as follows:
-
+If you dont want the function to parse commandline parameters for you, you can use
 ```python
-import json
-from brickschema.inference import HaystackInferenceSession
-haysess = HaystackInferenceSession("http://project-haystack.org/carytown#")
-model = json.load(open('carytown.json'))
-model = haysess.infer_model(model)
-print(len(model))
-
-points = model.query("""SELECT ?point ?type WHERE {
-    ?point rdf:type/rdfs:subClassOf* brick:Point .
-    ?point rdf:type ?type
-}""")
-print(points)
+from btrccts.run import execute_algorithm
+execute_algorithm(...)
 ```
 
-### SQL ORM
 
-```python
-from brickschema.graph import Graph
-from brickschema.namespaces import BRICK
-from brickschema.orm import SQLORM, Location, Equipment, Point
+## Manual
 
-# loads in default Brick ontology
-g = Graph(load_brick=True)
-# load in our model
-g.load_file("test.ttl")
-# put the ORM in a SQLite database file called "brick_test.db"
-orm = SQLORM(g, connection_string="sqlite:///brick_test.db")
+### Data and directories
 
-# get the points for each equipment
-for equip in orm.session.query(Equipment):
-    print(f"Equpiment {equip.name} is a {equip.type} with {len(equip.points)} points")
-    for point in equip.points:
-        print(f"    Point {point.name} has type {point.type}")
-# filter for a given name or type
-hvac_zones = orm.session.query(Location)\
-                        .filter(Location.type==BRICK.HVAC_Zone)\
-                        .all()
-print(f"Model has {len(hvac_zones)} HVAC Zones")
+Run your algorithm with `--help` to see the path to your config and data directories.
+
+The data directory contains the ohlcv data:
+`data_directory/ohlcv/EXCHANGE/BASE/QUOTE.csv`
+e.g.
+`data_directory/ohlcv/binance/BTC/USD.csv`
+
+Data files are in the following format (readable with `pandas.read_csv`)
+```csv
+,open,high,low,close,volume
+2019-10-01 10:10:00+00:00,200,300,100,300,1000
+2019-10-01 10:11:00+00:00,300,400,200,400,2000
+2019-10-01 10:12:00+00:00,400,500,300,500,3000
 ```
+The data files are not yet provided with this library. You have to provide them yourself.
+The data file needs to cover the complete period (you want to run the bot) in 1 minute interval.
+You can specify the period with `--start-date` and `--end-date`.
 
-## Validate with Shape Constraint Language
 
-The module utilizes the [pySHACL](https://github.com/RDFLib/pySHACL) package to validate a building ontology
-against the Brick Schema, its default constraints (shapes) and user provided shapes.
-
-```python
-from brickschema.validate import Validator
-from rdflib import Graph
-
-dataG = Graph()
-dataG.parse('myBuilding.ttl', format='turtle')
-shapeG = Graph()
-shapeG.parse('extraShapes.ttl', format='turtle')
-v = Validator()
-result = v.validate(dataG, shacl_graphs=[shapeG])
-print(result.textOutput)
+The config directory contains exchange keys.
+e.g. `config_directory/binance.json`:
+```json
+{
+    "apiKey": "key material",
+    "secret": "secret stuff"
+}
 ```
+If an alias is provided (e.g. `--auth-aliases '{"kraken": "kraken_wma"}'`,
+the file `config_directory/kraken_wma.json` is used.
 
-* `result.conforms`:  If True, result.textOutput is `Validation Report\nConforms: True`.
-* `result.textOutput`: Text output of `pyshacl.validate()`, appended with extra info that provides offender hint for each violation to help the user locate the particular violation in the data graph.  See [readthedocs](https://brickschema.readthedocs.io/en/latest/) for sample output.
-* `result.violationGraphs`: List of violations, each presented as a graph.
 
-The module provides a command
-`brick_validate` similar to the `pyshacl` command.  The following command is functionally
-equivalent to the code above.
-```bash
-brick_validate myBuilding.ttl -s extraShapes.ttl
-```
+### Differences between live and backtesting mode
+
+- In backtesting mode the markets from the exchanges are loaded upon exchange creation.
+This needs to be done, because market information is needed for order handling.
+In live mode, the markets are not loaded via the library, because the library does not
+know how you want to handle e.g. errors or reloading the market.
+
+
+### How orders get filled
+
+- Market order
+
+Market orders are executed immediatly with a price a little worse than current low/high.
+Since we only have ohlcv data, we cannot use the next data, because this would introduce
+a look-ahead bias
+Some other backtesting libraries would wait until the next round to fill market orders,
+but this is not what is happening in the real world (executing market orders immediatly).
+
+- Limit order
+
+Limit orders are filled, when the price is reached. Limit orders get filled
+all at once, there is no volume calculation yet. If your bot uses huge limit orders,
+keep in mind that the behavior on the exchange can be a partiall fill and leaving the
+order open until filled.
+
+
+### When next round is initiated in live mode / How interval is handled in live mode
+
+When the algorithm is started, it will immediatly execute `next_iteration`.
+Now the library waits until the next time interval and executes `next_iteration`.
+If the `next_iteration` call takes longer than the interval, `next_iteration` is
+called immediatly again. If `next_iteration` takes longer than multiple intervals,
+only the last interval is rescheduled.
 
 ## Development
 
-Brick requires Python >= 3.6. We use [pre-commit hooks](https://pre-commit.com/) to automatically run code formatters and style checkers when you commit.
+Setup a virtualenv:
 
-Use [Poetry](https://python-poetry.org/docs/) to manage packaging and dependencies. After installing poetry, install dependencies with:
-
-```bash
-# -D flag installs development dependencies
-poetry install -D
+```shell
+git clone git@github.com:btrccts/btrccts.git
+python3 -m venv .venv
+.venv/bin/pip install -r requirements.txt
+.venv/bin/pip install -e . --no-deps
 ```
 
-Enter the development environment with the following command (this is analogous to activating a virtual environment.
+### Run tests
 
-```bash
-poetry shell
+Install the dev dependencies:
+```shell
+.venv/bin/pip install -e .[dev]
+```
+Run the tests:
+```shell
+.venv/bin/python -m unittest tests/unit/tests.py
+.venv/bin/python -m unittest tests/integration/tests.py
 ```
 
-On first setup, make sure to install the pre-commit hooks for running the formatting and linting tools:
+## Contact us
 
-```bash
-# from within the environment; e.g. after running 'poetry shell'
-pre-commit install
-```
-
-Run tests to make sure build is not broken
-
-```bash
-# from within the environment; e.g. after running 'poetry shell'
-make test
-```
-
-### Docs
-
-Docs are written in reStructured Text. Make sure that you add your package requirements to `docs/requirements.txt`
+btrccts@gmail.com
