@@ -1,72 +1,68 @@
-# -*- coding: utf-8 -*-
-import sys
+from setuptools import find_packages
+from setuptools import setup
 
-from setuptools import setup, find_packages
+__version__ = '0.31.0'
 
-if (sys.version_info[:3] < (3, 0)):
-    with open('README.rst') as f:
-        readme = f.read()
-else:
-    with open('README.rst', encoding='utf-8') as f:
-        readme = f.read()
-with open('HISTORY.rst') as f:
-    history = f.read()
-
-test_deps = [
-    "pytest",
-    "mock",
-]
-
-extras = {
-    'test': test_deps,
-}
 
 setup(
-    name='marabunta',
-    use_scm_version=True,
-    description='Migration tool for Odoo',
-    long_description=readme + '\n\n' + history,
-    author='Camptocamp (Guewen Baconnier)',
-    author_email='guewen.baconnier@camptocamp.com',
-    url='https://github.com/camptocamp/marabunta',
-    license='AGPLv3+',
-    packages=find_packages(exclude=('tests', 'docs')),
-    install_requires=[
-        "psycopg2",
-        "ruamel.yaml>=0.15.1",
-        "pexpect",
-        "werkzeug",
-        "future",
-    ],
-    setup_requires=[
-        'setuptools_scm',
-    ],
-    tests_require=test_deps,
-    extras_require=extras,
-    include_package_data=True,
+    name='cartography',
+    version=__version__,
+    description='Explore assets and their relationships across your technical infrastructure.',
+    url='https://www.github.com/lyft/cartography',
+    maintainer='Lyft',
+    maintainer_email='security@lyft.com',
+    license='apache2',
+    packages=find_packages(exclude=['tests*']),
     package_data={
-        'marabunta': ['html/*.html'],
+        'cartography.data': [
+            '*.cypher',
+            '*.yaml',
+        ],
+        'cartography.data.jobs.analysis': [
+            '*.json',
+        ],
+        'cartography.data.jobs.cleanup': [
+            '*.json',
+        ],
     },
-    classifiers=(
-        'Development Status :: 3 - Alpha',
-        'Intended Audience :: Developers',
-        'Natural Language :: English',
-        'License :: OSI Approved :: '
-        'GNU Affero General Public License v3 or later (AGPLv3+)',
-        'Programming Language :: Python',
-        'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.4',
-        'Programming Language :: Python :: 3.5',
-        'Programming Language :: Python :: 3.5',
-        'Programming Language :: Python :: 3.6',
-        'Programming Language :: Python :: 3.7',
-        'Programming Language :: Python :: 3.8',
-        'Programming Language :: Python :: Implementation :: CPython',
-        'Programming Language :: Python :: Implementation :: PyPy',
-    ),
+    dependency_links=[],
+    install_requires=[
+        "boto3>=1.15.1",
+        "botocore>=1.18.1",
+        "dnspython>=1.15.0",
+        "neo4j>=1.7.6,<4.0.0",
+        "neobolt>=1.7.0,<4.0.0",
+        "policyuniverse>=1.1.0.0",
+        "google-api-python-client>=1.7.8",
+        "oauth2client>=4.1.3",
+        "marshmallow>=3.0.0rc7",
+        "okta<1.0.0",
+        "pyyaml>=5.3.1",
+        "requests>=2.22.0",
+        "statsd",
+        "packaging",
+    ],
+    extras_require={
+        ':python_version<"3.7"': [
+            "importlib-resources",
+        ],
+    },
     entry_points={
-        'console_scripts': ['marabunta = marabunta.core:main']
+        'console_scripts': [
+            'cartography = cartography.cli:main',
+            'cartography-detectdrift = cartography.driftdetect.cli:main',
+        ],
     },
+    classifiers=[
+        'Development Status :: 4 - Beta',
+        'Intended Audience :: Developers',
+        'License :: OSI Approved :: Apache Software License',
+        'Natural Language :: English',
+        'Programming Language :: Python',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.6',
+        'Topic :: Security',
+        'Topic :: Software Development :: Libraries',
+        'Topic :: Software Development :: Libraries :: Python Modules',
+    ],
 )
