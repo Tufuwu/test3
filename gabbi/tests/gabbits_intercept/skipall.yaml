@@ -1,7 +1,0 @@
-
-fixtures:
-    - SkipAllFixture
-
-tests:
-- name: a skipped test
-  url: /

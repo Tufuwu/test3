@@ -1,104 +1,208 @@
-.. image:: https://github.com/cdent/gabbi/workflows/tests/badge.svg
-    :target: https://github.com/cdent/gabbi/actions
-.. image:: https://readthedocs.org/projects/gabbi/badge/?version=latest
-    :target: https://gabbi.readthedocs.io/en/latest/
-    :alt: Documentation Status
+=====================================================================
+ Python AMQP 0.9.1 client library
+=====================================================================
 
-Gabbi
+|build-status| |coverage| |license| |wheel| |pyversion| |pyimp|
+
+:Version: 5.0.5
+:Web: https://amqp.readthedocs.io/
+:Download: https://pypi.org/project/amqp/
+:Source: http://github.com/celery/py-amqp/
+:Keywords: amqp, rabbitmq
+
+About
 =====
 
-`Release Notes`_
+This is a fork of amqplib_ which was originally written by Barry Pederson.
+It is maintained by the Celery_ project, and used by `kombu`_ as a pure python
+alternative when `librabbitmq`_ is not available.
 
-Gabbi is a tool for running HTTP tests where requests and responses
-are represented in a declarative YAML-based form. The simplest test
-looks like this::
+This library should be API compatible with `librabbitmq`_.
 
-    tests:
-    - name: A test
-      GET: /api/resources/id
+.. _amqplib: https://pypi.org/project/amqplib/
+.. _Celery: http://celeryproject.org/
+.. _kombu: https://kombu.readthedocs.io/
+.. _librabbitmq: https://pypi.org/project/librabbitmq/
 
-See the docs_ for more details on the many features and formats for
-setting request headers and bodies and evaluating responses.
+Differences from `amqplib`_
+===========================
 
-Gabbi is tested with Python 3.6, 3.7, 3.8, 3.9 and pypy3.
+- Supports draining events from multiple channels (``Connection.drain_events``)
+- Support for timeouts
+- Channels are restored after channel error, instead of having to close the
+  connection.
+- Support for heartbeats
 
-Tests can be run using `unittest`_ style test runners, `pytest`_
-or from the command line with a `gabbi-run`_ script.
+    - ``Connection.heartbeat_tick(rate=2)`` must called at regular intervals
+      (half of the heartbeat value if rate is 2).
+    - Or some other scheme by using ``Connection.send_heartbeat``.
+- Supports RabbitMQ extensions:
+    - Consumer Cancel Notifications
+        - by default a cancel results in ``ChannelError`` being raised
+        - but not if a ``on_cancel`` callback is passed to ``basic_consume``.
+    - Publisher confirms
+        - ``Channel.confirm_select()`` enables publisher confirms.
+        - ``Channel.events['basic_ack'].append(my_callback)`` adds a callback
+          to be called when a message is confirmed. This callback is then
+          called with the signature ``(delivery_tag, multiple)``.
+    - Exchange-to-exchange bindings: ``exchange_bind`` / ``exchange_unbind``.
+        - ``Channel.confirm_select()`` enables publisher confirms.
+        - ``Channel.events['basic_ack'].append(my_callback)`` adds a callback
+          to be called when a message is confirmed. This callback is then
+          called with the signature ``(delivery_tag, multiple)``.
+    - Authentication Failure Notifications
+        Instead of just closing the connection abruptly on invalid
+        credentials, py-amqp will raise an ``AccessRefused`` error
+        when connected to rabbitmq-server 3.2.0 or greater.
+- Support for ``basic_return``
+- Uses AMQP 0-9-1 instead of 0-8.
+    - ``Channel.access_request`` and ``ticket`` arguments to methods
+      **removed**.
+    - Supports the ``arguments`` argument to ``basic_consume``.
+    - ``internal`` argument to ``exchange_declare`` removed.
+    - ``auto_delete`` argument to ``exchange_declare`` deprecated
+    - ``insist`` argument to ``Connection`` removed.
+    - ``Channel.alerts`` has been removed.
+    - Support for ``Channel.basic_recover_async``.
+    - ``Channel.basic_recover`` deprecated.
+- Exceptions renamed to have idiomatic names:
+    - ``AMQPException`` -> ``AMQPError``
+    - ``AMQPConnectionException`` -> ConnectionError``
+    - ``AMQPChannelException`` -> ChannelError``
+    - ``Connection.known_hosts`` removed.
+    - ``Connection`` no longer supports redirects.
+    - ``exchange`` argument to ``queue_bind`` can now be empty
+      to use the "default exchange".
+- Adds ``Connection.is_alive`` that tries to detect
+  whether the connection can still be used.
+- Adds ``Connection.connection_errors`` and ``.channel_errors``,
+  a list of recoverable errors.
+- Exposes the underlying socket as ``Connection.sock``.
+- Adds ``Channel.no_ack_consumers`` to keep track of consumer tags
+  that set the no_ack flag.
+- Slightly better at error recovery
 
-There is a `gabbi-demo`_ repository which provides a tutorial via
-its commit history. The demo builds a simple API using gabbi to
-facilitate test driven development.
+Quick overview
+==============
 
-.. _Release Notes: https://gabbi.readthedocs.io/en/latest/release.html
-.. _docs: https://gabbi.readthedocs.io/
-.. _gabbi-demo: https://github.com/cdent/gabbi-demo
-.. _unittest: https://gabbi.readthedocs.io/en/latest/example.html#loader
-.. _pytest: http://pytest.org/
-.. _loader docs: https://gabbi.readthedocs.io/en/latest/example.html#pytest
-.. _gabbi-run: https://gabbi.readthedocs.io/en/latest/runner.html
+Simple producer publishing messages to ``test`` queue using default exchange:
 
-Purpose
--------
+.. code:: python
 
-Gabbi works to bridge the gap between human readable YAML files that
-represent HTTP requests and expected responses and the obscured realm of
-Python-based, object-oriented unit tests in the style of the unittest
-module and its derivatives.
+    import amqp
 
-Each YAML file represents an ordered list of HTTP requests along with
-the expected responses. This allows a single file to represent a
-process in the API being tested. For example:
+    with amqp.Connection('broker.example.com') as c:
+        ch = c.channel()
+        ch.basic_publish(amqp.Message('Hello World'), routing_key='test')
 
-* Create a resource.
-* Retrieve a resource.
-* Delete a resource.
-* Retrieve a resource again to confirm it is gone.
+Producer publishing to ``test_exchange`` exchange with publisher confirms enabled and using virtual_host ``test_vhost``:
 
-At the same time it is still possible to ask gabbi to run just one
-request. If it is in a sequence of tests, those tests prior to it in
-the YAML file will be run (in order). In any single process any test
-will only be run once. Concurrency is handled such that one file
-runs in one process.
+.. code:: python
 
-These features mean that it is possible to create tests that are
-useful for both humans (as tools for improving and developing APIs)
-and automated CI systems.
+    import amqp
 
-Testing and Developing Gabbi
-----------------------------
+    with amqp.Connection(
+        'broker.example.com', exchange='test_exchange',
+        confirm_publish=True, virtual_host='test_vhost'
+    ) as c:
+        ch = c.channel()
+        ch.basic_publish(amqp.Message('Hello World'), routing_key='test')
 
-To get started, after cloning the `repository`_, you should install the
-development dependencies::
+Consumer with acknowledgments enabled:
 
-    $ pip install -r requirements-dev.txt
+.. code:: python
 
-If you prefer to keep things isolated you can create a virtual
-environment::
+    import amqp
 
-    $ virtualenv gabbi-venv
-    $ . gabbi-venv/bin/activate
-    $ pip install -r requirements-dev.txt
+    with amqp.Connection('broker.example.com') as c:
+        ch = c.channel()
+        def on_message(message):
+            print('Received message (delivery tag: {}): {}'.format(message.delivery_tag, message.body))
+            ch.basic_ack(message.delivery_tag)
+        ch.basic_consume(queue='test', callback=on_message)
+        while True:
+            c.drain_events()
 
-Gabbi is set up to be developed and tested using `tox`_ (installed via
-``requirements-dev.txt``). To run the built-in tests (the YAML files
-are in the directories ``gabbi/tests/gabbits_*`` and loaded by the file
-``gabbi/test_*.py``), you call ``tox``::
 
-    tox -epep8,py37
+Consumer with acknowledgments disabled:
 
-If you have the dependencies installed (or a warmed up
-virtualenv) you can run the tests by hand and exit on the first
-failure::
+.. code:: python
 
-    python -m subunit.run discover -f gabbi | subunit2pyunit
+    import amqp
 
-Testing can be limited to individual modules by specifying them
-after the tox invocation::
+    with amqp.Connection('broker.example.com') as c:
+        ch = c.channel()
+        def on_message(message):
+            print('Received message (delivery tag: {}): {}'.format(message.delivery_tag, message.body))
+        ch.basic_consume(queue='test', callback=on_message, no_ack=True)
+        while True:
+            c.drain_events()
 
-    tox -epep8,py37 -- test_driver test_handlers
+Speedups
+========
 
-If you wish to avoid running tests that connect to internet hosts,
-set ``GABBI_SKIP_NETWORK`` to ``True``.
+This library has **experimental** support of speedups. Speedups are implemented using Cython. To enable speedups, ``CELERY_ENABLE_SPEEDUPS`` environment variable must be set during building/installation.
+Currently speedups can be installed:
 
-.. _tox: https://tox.readthedocs.io/
-.. _repository: https://github.com/cdent/gabbi
+1. using source package (using ``--no-binary`` switch):
+
+.. code-block::
+CELERY_ENABLE_SPEEDUPS=true pip install --no-binary :all: amqp
+
+
+2. building directly source code:
+
+.. code-block::
+CELERY_ENABLE_SPEEDUPS=true python setup.py install
+
+Further
+=======
+
+- Differences between AMQP 0.8 and 0.9.1
+
+    http://www.rabbitmq.com/amqp-0-8-to-0-9-1.html
+
+- AMQP 0.9.1 Quick Reference
+
+    http://www.rabbitmq.com/amqp-0-9-1-quickref.html
+
+- RabbitMQ Extensions
+
+    http://www.rabbitmq.com/extensions.html
+
+- For more information about AMQP, visit
+
+    http://www.amqp.org
+
+- For other Python client libraries see:
+
+    http://www.rabbitmq.com/devtools.html#python-dev
+
+.. |build-status| image:: https://api.travis-ci.com/celery/py-amqp.png?branch=master
+    :alt: Build status
+    :target: https://travis-ci.com/celery/py-amqp
+
+.. |coverage| image:: https://codecov.io/github/celery/py-amqp/coverage.svg?branch=master
+    :target: https://codecov.io/github/celery/py-amqp?branch=master
+
+.. |license| image:: https://img.shields.io/pypi/l/amqp.svg
+    :alt: BSD License
+    :target: https://opensource.org/licenses/BSD-3-Clause
+
+.. |wheel| image:: https://img.shields.io/pypi/wheel/amqp.svg
+    :alt: Python AMQP can be installed via wheel
+    :target: https://pypi.org/project/amqp/
+
+.. |pyversion| image:: https://img.shields.io/pypi/pyversions/amqp.svg
+    :alt: Supported Python versions.
+    :target: https://pypi.org/project/amqp/
+
+.. |pyimp| image:: https://img.shields.io/pypi/implementation/amqp.svg
+    :alt: Support Python implementations.
+    :target: https://pypi.org/project/amqp/
+    
+py-amqp as part of the Tidelift Subscription
+=======
+
+The maintainers of py-amqp and thousands of other packages are working with Tidelift to deliver commercial support and maintenance for the open source dependencies you use to build your applications. Save time, reduce risk, and improve code health, while paying the maintainers of the exact dependencies you use. [Learn more.](https://tidelift.com/subscription/pkg/pypi-amqp?utm_source=pypi-amqp&utm_medium=referral&utm_campaign=readme&utm_term=repo)
+

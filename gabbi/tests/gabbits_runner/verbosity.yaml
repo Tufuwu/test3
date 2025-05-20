@@ -1,8 +1,0 @@
-tests:
-
-- name: simple data post
-  POST: /
-  request_headers:
-    content-type: application/json
-  data:
-    cat: poppy
