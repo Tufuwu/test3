@@ -26,8 +26,10 @@ jobs:
     #     python-version: "2.7"
     - name: Test by decompiling a script and building un.rpyc
       run: |
+        chmod +x ./unrpyc.py
         ./unrpyc.py --clobber testcases/script.rpyc
         diff -u testcases/script.orig.rpy testcases/script.rpy
         cd un.rpyc;
+        chmod +x  ./compile.py 
         ./compile.py -p 1
         cd ..
