@@ -27,6 +27,8 @@ jobs:
         with:
           python-version: '3.7'
       - name: Install tox
-        run: pip install tox
+        run: |          
+          pip install pytest pytest-cov pytest-xdist
+          pip install tox
       - name: Run the tests
         run: tox
