@@ -36,6 +36,6 @@ jobs:
       - name: Build wheels
         run: python -m cibuildwheel --output-dir "$BUILD_OUTPUT_PATH"
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v4
         with:
           path: "./$BUILD_OUTPUT_PATH/*.whl"
