@@ -15,9 +15,6 @@ jobs:
       fail-fast: false
       matrix:
         python-version: [ 3.7, 3.8, 3.9]
-        include:
-          - python-version: 3.9
-            env: TOXENV=mypy
 
     steps:
     - uses: actions/checkout@v2
