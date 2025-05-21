@@ -32,7 +32,7 @@ jobs:
           - os: ubuntu-latest
             python-version: 3.6
             env: ISORT=true
-      fast-fail: true
+      fait-fast: true
 
     runs-on: ${{ matrix.os }}
 
