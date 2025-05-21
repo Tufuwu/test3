@@ -14,24 +14,7 @@ jobs:
       matrix:
         os: [ubuntu-latest, macos-latest]
         python-version: [2.7, 3.4, 3.5, 3.6, 3.7, 3.8, 3.9]
-        include:
-          - os: macos-latest
-            python-version: 2.7
-            env: TOXENV=py27
-          - os: macos-latest
-            python-version: 3.6
-            env: TOXENV=py36
-            before_install: brew install python3
-          - os: macos-latest
-            python-version: pypy
-            env: TOXENV=pypy
-            before_install: brew install pypy
-          - os: ubuntu-latest
-            python-version: 3.6
-            env: FLAKE8=true
-          - os: ubuntu-latest
-            python-version: 3.6
-            env: ISORT=true
+
       fail-fast: true
 
     runs-on: ${{ matrix.os }}
@@ -49,7 +32,7 @@ jobs:
       run: |
         pip install -Ur requirements-test.txt
         pip install -Ue .
-        
+
     - name: Install Flake8
       if: env.FLAKE8 == 'true'
       run: pip install -U flake8
