@@ -11,7 +11,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest, macOS-latest]
-        python-version: ["3.5", "3.6", "3.7", "3.8"]
+        python-version: [ "3.6", "3.7", "3.8"]
 
     env:
       CIBW_SKIP: ?p27-*
