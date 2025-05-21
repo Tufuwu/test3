@@ -9,6 +9,7 @@ on:
   pull_request:
     branches: [ master, dev ]
 
+
 jobs:
   tests-py2:
     name: Runs tests that require python 2
