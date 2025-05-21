@@ -61,6 +61,7 @@ jobs:
     - name: Install Dependencies
       run: |
         pip install mypy
+        mypy --install-types
 
     - name: mypy
       run: |
