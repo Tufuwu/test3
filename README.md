@@ -1,127 +1,94 @@
-# django-apiblueprint-view
+[![Build Status](https://travis-ci.com/circuits/circuits.svg)](https://travis-ci.com/circuits/circuits)
 
-[![Build Status](https://travis-ci.org/chris48s/django-apiblueprint-view.svg?branch=master)](https://travis-ci.org/chris48s/django-apiblueprint-view)
-[![Coverage Status](https://coveralls.io/repos/github/chris48s/django-apiblueprint-view/badge.svg?branch=master)](https://coveralls.io/github/chris48s/django-apiblueprint-view?branch=master)
-![PyPI Version](https://img.shields.io/pypi/v/django-apiblueprint-view.svg)
-![License](https://img.shields.io/pypi/l/django-apiblueprint-view.svg)
-![Python Support](https://img.shields.io/pypi/pyversions/django-apiblueprint-view.svg)
-![Django Support](https://img.shields.io/pypi/djversions/django-apiblueprint-view.svg)
-![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)
+[![codecov](https://codecov.io/gh/circuits/circuits/branch/master/graph/badge.svg)](https://codecov.io/gh/circuits/circuits)
 
-Render [API Blueprints](https://apiblueprint.org/) on-the-fly using Django templates
+[![Stories Ready](https://badge.waffle.io/circuits/circuits.png?label=ready&title=Ready)](https://waffle.io/circuits/circuits)
 
-## Installation
+circuits is a **Lightweight** **Event** driven and **Asynchronous** **Application Framework** for the [Python Programming Language](http://www.python.org/) with a strong **Component** Architecture.
 
-1. `django-apiblueprint-view` uses the [Drafter](https://github.com/apiaryio/drafter) C library for API Blueprint parsing. Install it using:
+circuits also includes a lightweight, high performance and scalable HTTP/WSGI compliant web server as well as various I/O and Networking components.
 
-```
-wget https://github.com/apiaryio/drafter/releases/download/v3.2.7/drafter-v3.2.7.tar.gz
-tar xvzf drafter-v3.2.7.tar.gz
-cd drafter-v3.2.7
-./configure --shared
-make libdrafter
-sudo cp build/out/Release/lib.target/libdrafter.so /usr/lib/libdrafter.so
-sudo cp src/drafter.h /usr/include/drafter/drafter.h
-```
+-   [Website](http://circuitsframework.com/)
+-   [Downloads](https://github.com/circuits/circuits/releases)
+-   [Documentation](http://circuits.readthedocs.org/en/latest/)
 
-2. `pip install django-apiblueprint-view`
+Got questions?
 
-3. Add to `INSTALLED_APPS` in django settings:
+-   [Ask a Question](http://stackoverflow.com/questions/ask) (Tag it: `circuits-framework`)
 
-```python
-INSTALLED_APPS = [
-    ...
-    'apiblueprint_view',
-]
-```
+Examples
+========
 
-## Usage
+Features
+========
 
-```python
-from apiblueprint_view.views import ApiBlueprintView
+-   event driven
+-   concurrency support
+-   component architecture
+-   asynchronous I/O components
+-   no required external dependencies
+-   full featured web framework (circuits.web)
+-   coroutine based synchronization primitives
 
-urlpatterns = [
-    url(r'^docs/$', ApiBlueprintView.as_view(blueprint='/path/to/blueprint.apibp')),
-]
-```
+Requirements
+============
 
-## Styling
+-   circuits has no dependencies beyond the [Python Standard Library](http://docs.python.org/library/).
 
-### Custom HTML Template
+Supported Platforms
+===================
 
-Define a custom base template. It must include the tag
+-   Linux, FreeBSD, Mac OS X, Windows
+-   Python 2.7, 3.4, 3.5, 3.6
+-   pypy (the newer the better)
 
-```
-{% include 'api_docs/docs_parent.html' %}
-```
+Installation
+============
 
-Pass it into `ApiBlueprintView.as_view()` as a parameter.
+The simplest and recommended way to install circuits is with pip. You may install the latest stable release from PyPI with pip:
 
-```python
-from apiblueprint_view.views import ApiBlueprintView
+    $ pip install circuits
 
-urlpatterns = [
-    url(r'^docs/$', ApiBlueprintView.as_view(
-        blueprint='/path/to/blueprint.apibp',
-        template_name='my_base_template.html'
-    )),
-]
-```
+If you do not have pip, you may use easy\_install:
 
-### Custom CSS
+    $ easy_install circuits
 
-`ApiBlueprintView.as_view()` may accept a `styles` dictionary describing custom CSS classes which should be attached to rendered HTML tags. For example:
+Alternatively, you may download the source package from the [PyPi](http://pypi.python.org/pypi/circuits) or the [Downloads](https://github.com/circuits/circuits/releases) extract it and install using:
 
-```python
-from apiblueprint_view.views import ApiBlueprintView
+    $ python setup.py install
 
-urlpatterns = [
-    url(r'^docs/$', ApiBlueprintView.as_view(
-        blueprint='/path/to/blueprint.apibp',
-        template_name='my_base_template.html',
-        styles={
-            'action': {'class': 'foo bar'},
-            'method': {'class': 'baz'}
-        }
-    )),
-]
-```
+> **note**
+>
+> You can install the [development version](https://github.com/circuits/circuits/archive/master.zip#egg=circuits-dev)  
+> via `pip install circuits==dev`.
+>
+License
+=======
 
-The following keys are valid. All keys are optional:
+circuits is licensed under the [MIT License](http://www.opensource.org/licenses/mit-license.php).
 
-* `'action'`: Container `<div>` for an API action
-* `'action_transaction'`: Container `<div>` for a HTTP transaction (request and response)
-* `'action_request'`: Container `<div>` for a HTTP request
-* `'action_response'`: Container `<div>` for a HTTP response
-* `'action_schema'`: Container `<div>` for a HTTP request or response schema
-* `'action_headers'`: Container `<div>` for HTTP request or response headers
-* `'action_body'`: Container `<div>` for a HTTP request or response body
-* `'action_example'`: Container `<div>` for an API action example URL
-* `'description'`: Container `<div>` for some text describing an action, resource, request, response, etc
-* `'parameters'`: Container `<div>` for a list of parameters
-* `'method'`: Generic `<span>` containing an HTTP method
-* `'method_CONNECT'`: `<span>` containing the text `CONNECT`
-* `'method_DELETE'`: `<span>` containing the text `DELETE`
-* `'method_GET'`: `<span>` containing the text `GET`
-* `'method_HEAD'`: `<span>` containing the text `HEAD`
-* `'method_OPTIONS'`: `<span>` containing the text `OPTIONS`
-* `'method_PATCH'`: `<span>` containing the text `PATCH`
-* `'method_POST'`: `<span>` containing the text `POST`
-* `'method_PUT'`: `<span>` containing the text `PUT`
-* `'method_TRACE'`: `<span>` containing the text `TRACE`
-* `'resource'`: Container `<div>` for an API resource
-* `'resource_group'`: Container `<div>` for an API resource group
+Feedback
+========
 
-[Highlight.js](https://highlightjs.org/) can be used to add syntax highlighting
+We welcome any questions or feedback about bugs and suggestions on how to improve circuits.
 
-### Including Files
+Let us know what you think about circuits. [@pythoncircuits](http://twitter.com/pythoncircuits).
 
-You can include other files in your blueprint by using an include directive with a path to the included file relative to the current file's directory. Included files can include other files, so be careful of circular references.
+Do you have suggestions for improvement? Then please [Create an Issue](https://github.com/circuits/circuits/issues/new) with details of what you would like to see. I'll take a look at it and work with you to either incorporate the idea or find a better solution.
 
-```
-<!-- include(filename.md) -->
-```
+Community
+=========
 
-This syntax is not a part of the API Blueprint spec, but is also supported in some other tools e.g: [aglio](https://github.com/danielgtaylor/aglio#including-files).
+There are also several places you can reach out to the circuits community:
 
-The include directive has the potential to introduce remote file inclusion or directory traversal vulnerabilities if your application renders user-supplied content. There are a couple of settings to help mitigate this. Set `APIBP_PROCESS_INCLUDES = False` in your django settings to completely ignore include directives (the default is `True`). There is also a whitelist of allowed file types to include. The default whitelist is `['.md', '.apibp', '.json']` but this can be overridden by setting `APIBP_INCLUDE_WHITELIST` to a list of allowed extensions in your django settings.
+-   [Mailing List](http://groups.google.com/group/circuits-users)
+-   [Google+ Group](https://plus.google.com/communities/107775112577294599973)
+-   [\#circuits IRC Channel](http://webchat.freenode.net/?randomnick=1&channels=circuits&uio=d4) on the [FreeNode IRC Network](http://freenode.net)
+-   [Ask a Question](http://stackoverflow.com/questions/ask) on [Stackoverflow](http://stackoverflow.com/) (Tag it: `circuits-framework`)
+
+------------------------------------------------------------------------
+
+Disclaimer
+==========
+
+Whilst I (James Mills) continue to contribute and maintain the circuits project I do not represent the interests or business of my employer Facebook Inc. The contributions I make are of my own free time and have no bearing or relevance to Facebook Inc.
