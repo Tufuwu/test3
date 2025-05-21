@@ -1,8 +1,9 @@
-*.egg-info/
-/build/
-/dist/
-/env/
-/htmlcov/
-.coverage
 *.pyc
-.tox/
+*.egg-info
+*.swp
+PKG-INFO
+/dist
+/build
+.hypothesis
+.cache
+.eggs
