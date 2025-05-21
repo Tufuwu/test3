@@ -23,6 +23,7 @@ jobs:
         run: |
           pip install --upgrade pip
           pip install poetry
+          chmod +x ./build-drafter.sh
           ./build-drafter.sh
           poetry install
           pip install 'Django ${{ matrix.django-version }}'
