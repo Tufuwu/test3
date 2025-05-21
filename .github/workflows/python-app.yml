@@ -49,7 +49,7 @@ jobs:
       run: |
         pip install -Ur requirements-test.txt
         pip install -Ue .
-
+        
     - name: Install Flake8
       if: env.FLAKE8 == 'true'
       run: pip install -U flake8
