@@ -26,7 +26,7 @@ jobs:
         python-version: ${{ matrix.python-version }}
 
     - name: Cache Hypothesis directory
-      uses: actions/cache@v2
+      uses: actions/cache@v4
       with:
         path: ${{ env.HYPOTHESIS_STORAGE_DIRECTORY }}
         key: ${{ runner.os }}-hypothesis-${{ matrix.python-version }}
