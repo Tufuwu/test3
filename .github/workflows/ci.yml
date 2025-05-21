@@ -1,38 +1,63 @@
 name: CI
+
 on:
-  workflow_dispatch:
-  pull_request:
-    branches:
-      - master
   push:
     branches:
       - main
-    tags: '*'
+  pull_request:
+    branches:
+      - main
+
 jobs:
-  test:
-    name: chembl_structure_pipeline (${{ matrix.os }}, ${{ matrix.python-version }}, ${{ matrix.rdkit-version }})
-    runs-on: ${{ matrix.os }}
+  build:
     strategy:
-      fail-fast: false
       matrix:
-        os: ["ubuntu-latest", "macos-latest"]
-        python-version: ["3.8", "3.9"]
-        rdkit-version: ["2021.03"]
+        os: [ubuntu-latest, macos-latest]
+        include:
+          - os: ubuntu-latest
+            BUILD_TARGET: 3.8
+            RDKIT: 2019.09
+            MINICONDA_VERSION: 4.8.3
+          - os: ubuntu-latest
+            BUILD_TARGET: 3.8
+            RDKIT: 2019.09
+            MINICONDA_VERSION: latest
+          - os: macos-latest
+            BUILD_TARGET: 3.8
+            RDKIT: 2019.09
+            MINICONDA_VERSION: 4.8.3
+          - os: macos-latest
+            BUILD_TARGET: 3.8
+            RDKIT: 2019.09
+            MINICONDA_VERSION: latest
+
+    runs-on: ${{ matrix.os }}
+
     steps:
-      - uses: actions/checkout@v2
-      - uses: conda-incubator/setup-miniconda@v2
-        with:
-          miniconda-version: "latest"  
-          channels: conda-forge
-          activate-environment: cspipeline
-          auto-update-conda: true
-          python-version: ${{ matrix.python-version }}
-      - name: Install RDKit and nose
-        shell: bash -l {0}
-        run: conda install rdkit=${{ matrix.rdkit-version }} nose
-      - name: Install chembl_structure_pipeline
-        shell: bash -l {0}
-        run: python setup.py install
-      - name: Run tests
-        shell: bash -l {0}
-        run: nosetests --with-doctest
+    - name: Set up Python ${{ matrix.BUILD_TARGET }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.BUILD_TARGET }}
+
+    - name: Install Miniconda
+      shell: bash
+      run: |
+        if [ "${{ matrix.os }}" = "ubuntu-latest" ]; then OS=Linux-x86_64; else OS=MacOSX-x86_64; fi
+        if [ "${{ matrix.MINICONDA_VERSION }}" = "latest" ]; then 
+          wget -O miniconda.sh https://repo.continuum.io/miniconda/Miniconda${{ matrix.BUILD_TARGET:0:1 }}-${{ matrix.MINICONDA_VERSION }}-$OS.sh; 
+        else 
+          wget -O miniconda.sh https://repo.continuum.io/miniconda/Miniconda${{ matrix.BUILD_TARGET:0:1 }}-py${{ matrix.BUILD_TARGET//. }}_${{ matrix.MINICONDA_VERSION }}-$OS.sh;
+        fi  
+        bash miniconda.sh -b -p $HOME/miniconda
+        echo "$HOME/miniconda/bin" >> $GITHUB_PATH
+        conda config --set always_yes yes --set changeps1 no
+        conda config --add channels conda-forge
+        conda update -q conda
+        conda create -q -n test-environment python=${{ matrix.BUILD_TARGET }} rdkit=${{ matrix.RDKIT }} nose
+        source activate test-environment
+
+    - name: Install dependencies
+      run: python setup.py install
+
+    - name: Run tests
+      run: nosetests --with-doctest
