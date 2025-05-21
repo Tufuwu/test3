@@ -1,62 +1,43 @@
-Project Changelog
-=================
+# Changelog
 
-Release 1.2.1 (TBD)
--------------------
+## :package: [2.1.1](https://pypi.org/project/django-apiblueprint-view/2.1.1/) - 2019-10-17
 
-Bug fixes:
-* Fixed OpenADAS repository populate() method failing with the pure python interpreter but working in ipython. 
+* Tested on python 3.8
+* Adopt poetry for packaging
 
+## :package: [2.1.0](https://pypi.org/project/django-apiblueprint-view/2.1.0/) - 2019-05-31
 
-Release 1.2.0 (24 Nov 2019)
----------------------------
+* Fixes to whitespace in rendered output
+* Pin `draughtsman` to 0.1.0
+* Add support for django 2.2
+* Drop support for django 2.0
 
-API changes:
-* AxisymmetricVoxel vertices initialisation switched to Nx2 numpy array.
-* Raysect VolumeTransforms used to handle shifts in coordinate systems rather than material specific offsets.
-* Numerous minor changes (see commit history).
+## :package: [2.0.1](https://pypi.org/project/django-apiblueprint-view/2.0.1/) - 2019-05-13
 
-New:
-* Merged cherab-openadas package into the core cherab package to simplify installation.
-* Beam object uses a cone primitive instead of a cylinder for the bounding volume of divergent beams. 
-* Added Clamp functions.
-* Added ThermalCXRate.
-* Added optimised ray transfer grid calculation tools.
-* Added opencl optimised SART inversion to tools.
-* Numerous improvements to bolometry tool chain (see commit history).
+Strip redundant whitespace in output
 
-Bug fixes:
-* Equilibrium normalised psi clamped to prevent negative values (occasionally caused by numerical precision issues at the core).
-* trace_sightline() bug that caused repeated reintersection has been fixed.
-* Numerous samller issues addressed throughout the framework (see commit history).
+## :package: [2.0.0](https://pypi.org/project/django-apiblueprint-view/2.0.0/) - 2018-11-04
 
+* Add support for python 3.7, django 2.1
+* Require python >=3.5, django >=1.11
+* Drop dependency on `typing`
+* Fix `ResourceWarnings`
 
-Release 1.1.0 (6 Mar 2019)
---------------------------
+## :package: [1.1.2](https://pypi.org/project/django-apiblueprint-view/1.1.2/) - 2017-12-03
 
-New:
-* Added EFITEquilibrium class to cherab.tools.equilibrium.
-* Added voxel handling utilities to cherab.tools
-* Added differentials to interpolator functions.
-* Added Slice2D and 3D functions to reduce the dimensions of a function object.
-* Expanded list of isotopes and elements, nearly all elements/stable isotopes are now available.
-* Can now look up element/isotope objects by name and/or atomic number/mass.
-* Significantly expanded documentation and demos.
-* Added Multiplet line-shape.
+Add support for python 3.6, django 2.0
 
-Bug fixes:
-* Improved handling on non c-order arrays in various methods.
-* Numerous minor bug fixes (see commit history) 
+## :package: [1.1.1](https://pypi.org/project/django-apiblueprint-view/1.1.1/) - 2017-10-26
 
+Distribute via PyPI
 
-Release 1.0.1 (1 Oct 2018)
---------------------------
+## :package: 1.1.0 - 2017-10-03
 
-Bug fixes:
-* Cherab package would fail if Raysect structures were altered due to using prebuilt c files. Cython is now always used to rebuild against the installed version of raysect. Cython is therefore now a dependency.
+Allow include directive to be used more safely [#10](https://github.com/chris48s/django-apiblueprint-view/pull/1):
+  * Allow user to turn off processing includes
+  * Use `safe_join` to ensure included files are inside project dir
+  * Implement file extension whitelist for includes
 
+## :package: 1.0.0 - 2017-08-20
 
-Release 1.0.0 (28 Sept 2018)
-----------------------------
-
-Initial public release.
+First Release
