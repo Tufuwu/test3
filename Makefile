@@ -1,25 +1,24 @@
-.PHONY: docs test build publish clean
-
-init:
-	poetry install
-
-docs:
-	@touch docs/api.rst  # ensure api docs always rebuilt
-	make -C docs/ html
-
-test:
-	tox --parallel auto
-
-test-examples:
-	pytest examples/
-
-coverage:
-	pytest --live --cov=snug --cov-report html --cov-report term
-
-clean:
-	make -C docs/ clean
-	find . | grep -E "(__pycache__|\.pyc|\.pyo$$)" | xargs rm -rf
+clear:
+	rm -rf dist/
+	rm -rf *.egg-info
 
 format:
-	black src tests
-	isort src tests
+	black .
+
+lint:
+	pre-commit run -a -v
+
+test:
+	pip install .
+	pytest
+
+test-release: clear
+	python setup.py sdist bdist_wheel upload -r pypitest
+
+release: clear
+	git tag `python setup.py -q version`
+	git push origin `python setup.py -q version`
+	python setup.py sdist bdist_wheel upload -r pypi
+
+setup:
+	pip install -U -r requirements-dev.txt
