@@ -40,7 +40,7 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-pip-
     - name: Run Tox
-      run: tox -e ${{ matrix.tox-env || 'py' + matrix.python-version[0:3] }}
+      run: tox -e ${{ matrix.tox-env || format('py{0}', matrix.python-version[0:3]) }}
     - name: Run Pytest for dead fixtures
       if: matrix.tox-env != 'lint'
       run: pytest --dead-fixtures
