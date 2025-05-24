@@ -1,2 +1,1 @@
-Sphinx
-releases
+sphinx~=4.0.1
