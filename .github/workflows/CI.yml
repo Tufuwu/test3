@@ -18,7 +18,7 @@ jobs:
         arch: [amd64]
         exclude:
           - os: ubuntu-latest
-            python-version: 3.9
+            python-version: 3.6
             arch: amd64
     steps:
       - uses: actions/checkout@v2
