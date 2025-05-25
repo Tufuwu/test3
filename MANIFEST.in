@@ -1,6 +1,2 @@
-recursive-include streamparse *
-include *.rst
-include *.md
-include *.txt
-global-exclude *.pyc
-global-exclude __pycache__
+include LICENSE README.md
+graft third-party

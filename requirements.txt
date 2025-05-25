@@ -1,10 +1,6 @@
-cython
-jinja2
-fabric3
-pystorm>=3.1.1
-requests
-ruamel.yaml
-setuptools
-simplejson
-texttable
-thriftpy2
+pybind11>=2.4
+numpy
+jaxlib
+jax
+quadprog
+tqdm
