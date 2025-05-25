@@ -1,27 +1,39 @@
-from setuptools import setup
+#!/usr/bin/env python
+"""Installation script."""
+try:
+    from setuptools import setup
+except ImportError:
+    from distutils.core import setup
 
-with open("README.md", "r") as fh:
-    long_description = fh.read()
+import ast
+import codecs
+import os
+import re
 
-requires = []
-with open('requirements.txt') as f:
-    for line in f.readlines():
-        line = line.strip()  # Remove spaces
-        line = line.split('#')[0]  # Remove comments
-        if line:  # Remove empty lines
-            requires.append(line)
+
+CURRENT_DIR = os.path.dirname(__file__)
+
+
+def get_long_description():
+    readme_path = os.path.join(CURRENT_DIR, "README.md")
+    with codecs.open(readme_path, encoding="utf8") as ld_file:
+        return ld_file.read()
+
+
+def get_version():
+    pydot_py = os.path.join(CURRENT_DIR, "src", "pydot", "__init__.py")
+    _version_re = re.compile(r"__version__\s+=\s+(?P<version>.*)")
+    with codecs.open(pydot_py, "r", encoding="utf8") as f:
+        match = _version_re.search(f.read())
+        version = match.group("version") if match is not None else '"unknown"'
+    return str(ast.literal_eval(version))
+
 
 setup(
-    name='django-clickhouse',
-    version='1.0.3',
-    packages=['django_clickhouse'],
-    package_dir={'': 'src'},
-    url='https://github.com/carrotquest/django-clickhouse',
-    license='BSD 3-clause "New" or "Revised" License',
-    author='Carrot quest',
-    author_email='m1ha@carrotquest.io',
-    description='Django extension to integrate with ClickHouse database',
-    long_description=long_description,
+    name="pydot",
+    version=get_version(),
+    package_dir={"": "src"},
+    packages=["pydot"],
+    long_description=get_long_description(),
     long_description_content_type="text/markdown",
-    install_requires=requires
 )
