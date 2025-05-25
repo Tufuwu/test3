@@ -1,7 +1,6 @@
-include README.md
-include LICENSE
-include ChangeLog
-include requirements.txt
-include test/*_unittest.py
-include test/graphs/*.dot
-include test/my_tests/*.dot
+recursive-include streamparse *
+include *.rst
+include *.md
+include *.txt
+global-exclude *.pyc
+global-exclude __pycache__
