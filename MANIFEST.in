@@ -1,12 +1,11 @@
-include AUTHORS.rst
-include CONTRIBUTING.rst
-include HISTORY.rst
-include LICENSE
-include README.rst
+include MANIFEST.in
 include README.md
-
-recursive-include tests *
-recursive-exclude * __pycache__
-recursive-exclude * *.py[co]
-
-recursive-include docs *.rst conf.py Makefile make.bat
+include CHANGELOG.md
+include Makefile
+include machine/musashi/softfloat/softfloat-macros
+include machine/musashi/softfloat/softfloat-specialize
+include machine/musashi/*.txt
+recursive-include amitools/data *
+recursive-include amitools/fs/block/bootcode *
+recursive-include machine *.pyx *.c *.h
+recursive-include gen *.c *.h

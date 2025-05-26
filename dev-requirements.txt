@@ -1,9 +1,0 @@
-# Dependencies for running the tests with py.test
-flake8
-pytest
-pytest-cov
-psutil
-futures; python_version < '3.4'
-# Code coverage uploader for Travis:
-codecov
-coverage
