@@ -38,6 +38,7 @@ jobs:
     - name: Install test dependencies
       run: |
         pip install tox coveralls
+        pip install "setuptools<58"
     - name: Run test suite
       run: tox -v -e $TOX_ENV
       env:
