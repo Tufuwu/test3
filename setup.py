@@ -1,34 +1,61 @@
-# -*- coding: utf-8 -*-
+# Copyright 2016-2018 Dirk Thomas
+# Licensed under the Apache License, Version 2.0
 
-# Copyright 2012 splinter authors. All rights reserved.
-# Use of this source code is governed by a BSD-style
-# license that can be found in the LICENSE file.
-from setuptools import setup, find_packages
-import codecs
+import os
+import sys
 
+from pkg_resources import parse_version
+from setuptools import setup
 
-README = codecs.open("README.rst", encoding="utf-8").read()
+minimum_version = '3.5'
+if (
+    parse_version('%d.%d' % (sys.version_info.major, sys.version_info.minor)) <
+    parse_version(minimum_version)
+):
+    sys.exit('This package requires at least Python ' + minimum_version)
 
-setup(
-    name="splinter",
-    version="0.14.0",
-    url="https://github.com/cobrateam/splinter",
-    description="browser abstraction for web acceptance testing",
-    long_description=README,
-    author="CobraTeam",
-    author_email="andrewsmedina@gmail.com",
-    classifiers=[
-        "Programming Language :: Python :: 2",
-        "Programming Language :: Python :: 3",
-    ]
-    + [("Programming Language :: Python :: %s" % x) for x in "2.7 3.6 3.7 3.8 3.9".split()],
-    packages=find_packages(exclude=["docs", "tests", "samples"]),
-    include_package_data=True,
-    install_requires=["selenium>=3.141.0", "six"],
-    extras_require={
-        "zope.testbrowser": ["zope.testbrowser>=5.2.4", "lxml>=4.2.4", "cssselect"],
-        "django": ["Django>=1.7.11", "lxml>=2.3.6", "cssselect", "six"],
-        "flask": ["Flask>=1.0.2", "lxml>=2.3.6", "cssselect"],
-    },
-    tests_require=["coverage", "flask"],
-)
+cmdclass = {}
+try:
+    from stdeb.command.sdist_dsc import sdist_dsc
+except ImportError:
+    pass
+else:
+    class CustomSdistDebCommand(sdist_dsc):
+        """Weird approach to apply the Debian patches during packaging."""
+
+        def run(self):  # noqa: D102
+            from stdeb.command import sdist_dsc
+            build_dsc = sdist_dsc.build_dsc
+
+            def custom_build_dsc(*args, **kwargs):
+                nonlocal build_dsc
+                debinfo = self.get_debinfo()
+                repackaged_dirname = \
+                    debinfo.source + '-' + debinfo.upstream_version
+                dst_directory = os.path.join(
+                    self.dist_dir, repackaged_dirname, 'debian', 'patches')
+                os.makedirs(dst_directory, exist_ok=True)
+                # read patch
+                with open('debian/patches/setup.cfg.patch', 'r') as h:
+                    lines = h.read().splitlines()
+                print(
+                    "writing customized patch '%s'" %
+                    os.path.join(dst_directory, 'setup.cfg.patch'))
+                # write patch with modified path
+                with open(
+                    os.path.join(dst_directory, 'setup.cfg.patch'), 'w'
+                ) as h:
+                    for line in lines:
+                        if line.startswith('--- ') or line.startswith('+++ '):
+                            line = \
+                                line[0:4] + repackaged_dirname + '/' + line[4:]
+                        h.write(line + '\n')
+                with open(os.path.join(dst_directory, 'series'), 'w') as h:
+                    h.write('setup.cfg.patch\n')
+                return build_dsc(*args, **kwargs)
+
+            sdist_dsc.build_dsc = custom_build_dsc
+            super().run()
+    cmdclass['sdist_dsc'] = CustomSdistDebCommand
+
+setup(cmdclass=cmdclass)
