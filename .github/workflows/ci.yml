@@ -39,9 +39,8 @@ jobs:
       run: |
         pip install tox coveralls
         pip install "setuptools<58"
-    - name: Print setuptools version in tox env
-      run: |
-        tox --run-command python -- -m pip show setuptools
+    - name: Check setuptools in tox env
+      run: tox -e py38 -- python -m pip show setuptools
     - name: Run test suite
       run: tox -v -e $TOX_ENV
       env:
