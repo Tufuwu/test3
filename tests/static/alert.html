@@ -1,0 +1,37 @@
+<!DOCTYPE HTML>
+
+<html>
+  <head>
+    <title>Alert Example Title</title>
+    <script type="text/javascript" src="/static/jquery.min.js"></script>
+    <script type="text/javascript">
+      $(document).ready(function(){
+        $('.alerta').click(function() { alert('This is an alert example.'); });
+
+        $('.pergunta').click(function() {
+            nome = prompt('What is your name?');
+            setTimeout(function(){ alert(nome); }, 2000);
+        });
+
+        $('.confirmacao').click(function() {
+            var message;
+            answer = confirm('Should I continue?');
+
+            if (answer) {
+                message = "You say I should";
+            } else {
+                message = "You say I should not";
+            }
+            // Add sleep before 2nd alert appears, to prevent browser's
+            // popup spam warning messages.
+            setTimeout(function(){ alert(message); }, 2000);
+        });
+      })
+    </script>
+  </head>
+  <body>
+    <h1 class="alerta">Alert Example Title</h1>
+    <h2 class="pergunta">Prompt Example Subtitle</h2>
+    <h3 class="confirmacao">Confirm Example Subtitle</h3>
+  </body>
+</html>

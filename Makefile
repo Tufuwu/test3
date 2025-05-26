@@ -1,102 +1,47 @@
-# Makefile for amitools
+# Copyright 2013 splinter authors. All rights reserved.
+# Use of this source code is governed by a BSD-style
+# license that can be found in the LICENSE file.
 
-BUILD_DIR = build
-DIST_DIR = dist
+all: test
 
-PYTHON ?= python3
-PIP ?= $(PYTHON) -m pip
-
-SHOW_CMD = open
-#PYTHON = python-dbg
-
-.PHONY: help init build test docker-tox docs show
-.PHONY: clean clean_all clean_git clean_py
-.PHONY: init sdist bdist upload
-
-help:
-	@echo "init        initialize project"
-	@echo "init_user   initialize project (--user mode)"
-	@echo "build       build native extension"
-	@echo
-	@echo "format      format source code with black"
-	@echo
-	@echo "test        run tests"
-	@echo "docker-build  build tox docker container"
-	@echo
-	@echo "docs        generate docs"
-	@echo "show        show docs in browser"
-	@echo
-	@echo "clean       clean build"
-	@echo "clean_all   clean dist"
-	@echo "clean_git   clean non-git files"
-	@echo "clean_py    remove compiled .pyc files"
-	@echo "clean_ext   remove native extension build"
-	@echo
-	@echo "install     install package"
-	@echo "sdist       build source dist"
-	@echo "bdist       build bin dist wheel"
-	@echo "upload      upload dist with twin to pypi"
-
-init:
-	$(PIP) install --upgrade setuptools pip
-	$(PIP) install --upgrade -r requirements-dev.txt
-	$(PIP) install --upgrade -r requirements-test.txt
-	$(PIP) install --upgrade --editable .
-
-init_user:
-	$(PIP) install --user --upgrade setuptools pip
-	$(PIP) install --user --upgrade -r requirements-dev.txt
-	$(PIP) install --user --upgrade -r requirements-test.txt
-	$(PIP) install --user --upgrade --editable .
-
-build:
-	$(PYTHON) setup.py build_ext -i
-
-format:
-	black .
-
-# testing
-test:
-	$(PYTHON) setup.py test
-
-# doc
-docs:
-	[ -d build/docs/html ] || mkdir -p build/docs/html
-	sphinx-build -b html docs build/docs/html
-
-show:
-	$(SHOW_CMD) build/docs/html/index.html
-
-# clean
 clean:
-	rm -rf $(BUILD_DIR)
+	@find . -name "*.pyc" -delete
 
-clean_all: clean clean_ext
-	rm -rf $(DIST_DIR)
+doc_dependencies:
+	@pip install -r doc-requirements.txt
 
-clean_git:
-	git clean -fxd
+dependencies:
+	@pip install -r test-requirements.txt
 
-clean_py:
-	find . -name *.pyc -exec rm {} \;
+doc: doc_dependencies
+	@cd docs && make clean && make html
 
-clean_ext:
-	$(PYTHON) setup.py clean
-	rm -f machine/*.so machine/emu.c
+release:
+	@sed -ic -e s/`cat VERSION`/$(version)/ setup.py docs/conf.py splinter/__init__.py
+	@echo $(version) > VERSION
+	@git add setup.py docs/conf.py VERSION splinter/__init__.py
+	@git commit -m "setup: bump to $(version)"
+	@git tag $(version)
+	@git push --tags
+	@git push origin master
+	@rm dist/*
+	@python setup.py sdist bdist_wheel
+	@twine upload dist/*
 
-# install, distrib
-install:
-	$(PYTHON) setup.py install
+which = 'tests'
 
-sdist:
-	$(PYTHON) setup.py sdist --formats=zip
+test: dependencies clean
+	@echo "Running all tests..."
+	tox -- $(which)
 
-bdist:
-	$(PYTHON) setup.py bdist_wheel
+format: clean dependencies
+	@flake8 --max-line-length 110 ./splinter ./tests
 
-upload: sdist
-	twine upload dist/*
+coverage: dependencies clean
+	@echo "Running all tests with coverage..."
+	@coverage run run_tests.py -w $(which) && coverage report
 
-# container
-docker-build:
-	docker build -t amitools-tox .
+install-remote:
+	@wget http://goo.gl/PJUZfa -O selenium-server.jar
+	@java -jar selenium-server.jar > /dev/null 2>&1 &
+	@sleep 1
