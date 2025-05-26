@@ -1,6 +1,17 @@
+# vim swap files
+*.swp
+
+# python bytecode files
 *.pyc
-*~
-.env/*
-django_multitenant.egg-info/
-.venv
+__pycache__/
+
+# setuptools files
+*.egg-info/
+
+# testing files
 .tox/
+.coverage
+
+# files generated for release
+dist/
+README.rst

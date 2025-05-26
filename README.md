@@ -1,197 +1,120 @@
-# django-multitenant [![Build Status](https://travis-ci.org/citusdata/django-multitenant.svg?branch=master)](https://travis-ci.org/citusdata/django-multitenant)
-Python/Django support for distributed multi-tenant databases like Postgres+Citus
+# click-man
 
-Enables easy scale-out by adding the tenant context to your queries, enabling the database (e.g. Citus) to efficiently route queries to the right database node.
+[![Build Status](https://github.com/click-contrib/click-man/actions/workflows/ci.yaml/badge.svg)](https://github.com/click-contrib/click-man/actions/workflows/ci.yaml) [![PyPI Package version](https://badge.fury.io/py/click-man.svg)](https://pypi.python.org/pypi/click-man)
 
-There are architecures for building multi-tenant databases viz. **Create one database per tenant**, **Create one schema per tenant** and **Have all tenants share the same table(s)**. This library is based on the 3rd design i.e **Have all tenants share the same table(s)**, it assumes that all the tenant relates models/tables have a tenant_id column for representing a tenant.
+Create **man pages** for [click](https://github.com/pallets/click) application as easy as this:
 
-The following link talks more about the trade-offs on when and how to choose the right architecture for your multi-tenat database:
+```bash
+python3 setup.py --command-packages=click_man.commands man_pages
+```
 
-https://www.citusdata.com/blog/2016/10/03/designing-your-saas-database-for-high-scalability/
+→ Checkout the [debian packaging example](#debian-packages)
 
-**Other useful links on multi-tenancy**:
-1. https://www.citusdata.com/blog/2017/03/09/multi-tenant-sharding-tutorial/
-1. https://www.citusdata.com/blog/2017/06/02/scaling-complex-sql-transactions/
+## What it does
 
+*click-man* will generate one man page per command of your click CLI application specified in `console_scripts` in your `setup.py`.
 
-## Installation:
-1. `pip install  --no-cache-dir django_multitenant`
+## Installation
 
-## Supported Django versions/Pre-requisites.
+```bash
+pip3 install click-man
+```
 
-| Python        | Django        |
-| ------------- | -------------:|
-| 3.X           | 2.2           |
-| 3.X           | 3.2           |
-| 3.X           | 4.0           |
+**click-man** is also available for Python 2:
 
+```bash
+pip install click-man
+```
 
-## Usage:
+## Usage Recipes
 
-In order to use this library you can either use Mixins or have your models inherit from our custom model class.
+The following sections describe different usage example for *click-man*.
 
+### Use with a previously installed package
 
-### Changes in Models:
-1. In whichever files you want to use the library import it:
-   ```python
-   from django_multitenant.fields import *
-   from django_multitenant.models import *
-   ```
-1. All models should inherit the TenantModel class.
-   `Ex: class Product(TenantModel):`
-1. Define a static variable named tenant_id and specify the tenant column using this variable.
-   `Ex: tenant_id='store_id'`
-1. All foreign keys to TenantModel subclasses should use TenantForeignKey in place of
-   models.ForeignKey
-1. A sample model implementing the above 2 steps:
-  ```python
-    class Store(TenantModel):
-      tenant_id = 'id'
-      name =  models.CharField(max_length=50)
-      address = models.CharField(max_length=255)
-      email = models.CharField(max_length=50)
+**click-man** provides its own command line tool which can be passed the name of
+an installed script:
 
-    class Product(TenantModel):
-      store = models.ForeignKey(Store)
-      tenant_id='store_id'
-      name = models.CharField(max_length=255)
-      description = models.TextField()
-      class Meta(object):
-        unique_together = ["id", "store"]
-    class Purchase(TenantModel):
-      store = models.ForeignKey(Store)
-      tenant_id='store_id'
-      product_purchased = TenantForeignKey(Product)
-  ```
+```bash
+click-man commandname
+```
 
+where `commandname` is the name of an installed `console_script` entry point.
 
-### Changes in Models using mixins:
-1. In whichever files you want to use the library import it by just saying 
-   ```python
-   from django_multitenant.mixins import *
-   ```
-1. All models should use the `TenantModelMixin` and the django `models.Model` or your customer Model class
-   `Ex: class Product(TenantModelMixin, models.Model):`
-1. Define a static variable named tenant_id and specify the tenant column using this variable.
-   `Ex: tenant_id='store_id'`
-1. All foreign keys to TenantModel subclasses should use TenantForeignKey in place of
-   models.ForeignKey
-1. A sample model implementing the above 2 steps:
-  ```python
+To specify a target directory for the man pages, use the `--target` option:
 
-    class ProductManager(TenantManagerMixin, models.Manager):
-      pass
+```bash
+click-man --target path/to/man/pages commandname
+```
 
-    class Product(TenantModelMixin, models.Model):
-      store = models.ForeignKey(Store)
-      tenant_id='store_id'
-      name = models.CharField(max_length=255)
-      description = models.TextField()
+### Use with setuptools
 
-      objects = ProductManager()
+**click-man** provides a sane setuptools command extension which can be used like the following:
 
-      class Meta(object):
-        unique_together = ["id", "store"]
+```bash
+python3 setup.py --command-packages=click_man.commands man_pages
+```
 
-    class PurchaseManager(TenantManagerMixin, models.Manager):
-      pass
+or specify the man pages target directory:
 
-    class Purchase(TenantModelMixin, models.Model):
-      store = models.ForeignKey(Store)
-      tenant_id='store_id'
-      product_purchased = TenantForeignKey(Product)
+```bash
+python3 setup.py --command-packages=click_man.commands man_pages --target path/to/man/pages
+```
 
-      objects = PurchaseManager()
-  ```
+### Automatic man page installation with setuptools and pip
 
+This approach of installing man pages is problematic for various reasons:
 
+#### (1) Man pages are a UNIX thing
 
-### Automating composite foreign keys at db layer:
-1. Creating foreign keys between tenant related models using TenantForeignKey would automate adding tenant_id to reference queries (ex. product.purchases) and join queries (ex. product__name). If you want to ensure to create composite foreign keys (with tenant_id) at the db layer, you should change the database ENGINE in the settings.py to `django_multitenant.backends.postgresql`.
-  ```python
-    'default': {
-        'ENGINE': 'django_multitenant.backends.postgresql',
-        ......
-        ......
-        ......
-  }
-  ```
-### Where to Set the Tenant?
-1. Write authentication logic using a middleware which also sets/unsets a tenant for each session/request. This way developers need not worry about setting a tenant on a per view basis. Just set it while authentication and the library would ensure the rest (adding tenant_id filters to the queries). A sample implementation of the above is as follows:
-   ```python
-       from django_multitenant.utils import set_current_tenant
-       
-       class MultitenantMiddleware:
-           def __init__(self, get_response):
-               self.get_response = get_response
+Python in general and with that pip and setuptools are aimed to be platform independent.
+Man pages are **not**: they are a UNIX thing which means setuptools does not provide a sane
+solution to generate and install man pages. 
+We should consider using automatic man page installation only with vendor specific packaging, e.g. for `*.deb` or `*.rpm` packages.
 
-           def __call__(self, request):
-               if request.user and not request.user.is_anonymous:
-                   set_current_tenant(request.user.employee.company)
-               return self.get_response(request)
-   ```
-   
-   In your settings, you will need to update the `MIDDLEWARE` setting to include the one you created.
-   ```python
-      MIDDLEWARE = [
-          # ...
-          # existing items
-          # ...
-          'appname.middleware.MultitenantMiddleware'
-      ]
-   ```
-2. Set the tenant using set_current_tenant(t) api in all the views which you want to be scoped based on tenant. This would scope all the django API calls automatically(without specifying explicit filters) to a single tenant. If the current_tenant is not set, then the default/native API  without tenant scoping is used.
-   ```python
-    def application_function:
-      # current_tenant can be stored as a SESSION variable when a user logs in.
-      # This should be done by the app
-      t = current_tenant
-      #set the tenant
-      set_current_tenant(t);
-      #Django ORM API calls;
-      #Command 1;
-      #Command 2;
-      #Command 3;
-      #Command 4;
-      #Command 5;
-   ```
+#### (2) Man pages are not compatible with Python virtualenvs
 
-## Supported APIs:
-1. Most of the APIs under Model.objects.*.
-1. Model.save() injects tenant_id for tenant inherited models.
-  ```python
-   s=Store.objects.all()[0]
-  set_current_tenant(s)
+Even on systems that support man pages, Python packages can be installed in
+virtualenvs via pip and setuptools, which do not make commands available
+globally. In fact, one of the "features" of a virtualenv is the ability to
+install a package without affecting the main system. As it is imposable to
+ensure a man page is only generated when not installing into a virtualenv,
+auto-generated man pages would pollute the main system and not stay contained in
+the virtualenv. Additionally, as a user could install multiple different
+versions of the same package into multiple different virtualenvs on the same
+system, there is no guarantee that a globally installed man page will document
+the version and behavior available in any given virtualenv.
 
-  #All the below API calls would add suitable tenant filters.
-  #Simple get_queryset()
-  Product.objects.get_queryset()
+#### (3) We want to generate man pages on the fly
 
-  #Simple join
-  Purchase.objects.filter(id=1).filter(store__name='The Awesome Store').filter(product__description='All products are awesome')
+First, we do not want to commit man pages to our source control.
+We want to generate them on the fly. Either
+during build or installation time.
 
-  #Update
-  Purchase.objects.filter(id=1).update(id=1)
+With setuptools and pip we face two problems:
 
-  #Save
-  p=Product(8,1,'Awesome Shoe','These shoes are awesome')
-  p.save()
+1. If we generate and install them during installation of the package pip does not know about the man pages and thus cannot uninstall it.
+2. If we generate them in our build process and add them to your distribution we do not have a way to prevent installation to */usr/share/man* for non-UNIX-like Operating Systems or from within virtualenvs.
 
-  #Simple aggregates
-  Product.objects.count()
-  Product.objects.filter(store__name='The Awesome Store').count()
+### Debian packages
 
-  #Subqueries
-  Product.objects.filter(name='Awesome Shoe');
-  Purchase.objects.filter(product__in=p);
+The `debhelper` packages provides a very convenient script called `dh_installman`.
+It checks for the `debian/(pkg_name.)manpages` file and it's content which is basically a line by line list of man pages or globs:
 
-   ```
+```
+debian/tmp/manpages/*
+```
 
-## Credits
+We override the rule provided by `dh_installman` to generate our man pages in advance, like this:
 
-This library uses similar logic of setting/getting tenant object as in [django-simple-multitenant](https://github.com/pombredanne/django-simple-multitenant). We thank the authors for their efforts.
+```Makefile
+override_dh_installman:
+	python3 setup.py --command-packages=click_man.commands man_pages --target debian/tmp/manpages
+	dh_installman -O--buildsystem=pybuild
+```
 
-## License
+Now we are able to build a debian package with the tool of our choice, e.g.:
 
-Copyright (C) 2018, Citus Data
-Licensed under the MIT license, see LICENSE file for details.
+```debuild -us -uc```
+
+Checkout a working example here: [repo debian package](https://github.com/click-contrib/click-man/tree/master/examples/debian_pkg)

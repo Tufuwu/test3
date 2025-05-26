@@ -1,36 +1,38 @@
+import os
 from setuptools import setup, find_packages
-from os import path
-from io import open
-
-# read the contents of your README file
-this_directory = path.dirname(path.abspath(__file__))
-
-with open(path.join(this_directory, "README.md")) as f:
-    long_description = f.read()
 
 
-# Arguments marked as "Required" below must be included for upload to PyPI.
-# Fields marked as "Optional" may be commented out.
+def read(fname):
+    return open(os.path.join(os.path.dirname(__file__), fname)).read()
+
 
 setup(
-    name="django-multitenant",
-    version="3.0.0",  # Required
-    description="Django Library to Implement Multi-tenant databases",
-    long_description=long_description,
-    long_description_content_type="text/markdown",
-    url="https://github.com/citusdata/django-multitenant",
-    author="Louise Grandjonc",
-    author_email="louise.grandjonc@microsoft.com",
-    # Classifiers help users find your project by categorizing it.
-    #
-    # For a list of valid classifiers, see https://pypi.org/classifiers/
-    classifiers=[
-        "Development Status :: 5 - Production/Stable ",
-        "Topic :: Database",
-        "License :: OSI Approved :: MIT License",
-        "Intended Audience :: Developers",
-        "Programming Language :: Python :: 3 :: Only",
+    name='click-man',
+    version='0.4.2',
+    url='https://github.com/click-contrib/click-man',
+    license='MIT',
+    description='Generate man pages for click based CLI applications',
+    long_description=read('README.md'),
+    long_description_content_type='text/markdown',
+    author='Timo Furrer',
+    author_email='tuxtimo@gmail.com',
+    install_requires=[
+        'click',
+        'setuptools',
     ],
-    keywords=("citus django multi tenant" "django postgres multi-tenant"),
-    packages=find_packages(exclude=["*.tests", "*.tests.*", "tests.*", "tests"]),
+    packages=find_packages(exclude=('tests', )),
+    entry_points={
+        'console_scripts': [
+            'click-man = click_man.__main__:cli',
+        ]
+    },
+    classifiers=[
+        'Development Status :: 5 - Production/Stable',
+        'Intended Audience :: Developers',
+        'License :: OSI Approved :: MIT License',
+        'Operating System :: OS Independent',
+        'Programming Language :: Python :: 2',
+        'Programming Language :: Python :: 3',
+        'Topic :: Documentation',
+    ],
 )
