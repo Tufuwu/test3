@@ -1,2 +1,4 @@
-include LICENSE README.md
-graft third-party
+include CONTRIBUTORS.txt
+include README.md
+include LICENSE
+include pip-requirements.txt

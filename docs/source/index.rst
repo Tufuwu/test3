@@ -1,67 +1,122 @@
-.. riskparity.py documentation master file, created by
-   sphinx-quickstart on Tue Jul 23 09:34:53 2019.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
+Circus: A Process & Socket Manager
+##################################
 
-riskparity.py
-=============
+.. image:: circus-medium.png
+   :align: right
 
-**riskparity.py** implements fast and scalable algorithms to design risk (budgeting) parity portfolios.
-The algorithms are based on the works of Spinu (2013), Griveau-Billion *et. al.* (2013), and Feng & Palomar (2015).
+Circus is a Python program which can be used to monitor and control processes and sockets.
 
-We consider the following optimization problem and its particular cases
+Circus can be driven via a command-line interface, a web interface or programmatically through
+its python API.
 
-.. math::
+To install it and try its features check out the :ref:`examples`, or read the rest of this page
+for a quick introduction.
 
-        \begin{array}{ll}
-        \underset{\mathbf{w}}{\textsf{minimize}} &
-        R(\mathbf{w}) - \alpha \mathbf{w}^{\top}\boldsymbol{\mu} + \lambda \mathbf{w}^{\top}\boldsymbol{\Sigma}\mathbf{w}\\
-        \textsf{subject to} & \mathbf{C}\mathbf{w} = \mathbf{c}, \mathbf{D}\mathbf{w} \leq \mathbf{d}
-        \end{array}
 
-where :math:`R` is a risk concentration function.
+Running a Circus Daemon
+-----------------------
 
-Installation
-------------
 
-**riskparity.py** can be installed via pip as::
+Circus provides a command-line script call **circusd** that can be used
+to manage :term:`processes` organized in one or more :term:`watchers`.
 
-$ pip install riskparityportfolio
+Circus' command-line tool is configurable using an ini-style
+configuration file.
 
-Its *development* version can be installed as::
+Here's a very minimal example:
 
-$ git clone https://github.com/dppalomar/riskparity.py
-$ cd riskparity.py
-$ pip install -e .
+.. code-block:: ini
 
-Dependencies
-------------
+    [watcher:program]
+    cmd = python myprogram.py
+    numprocesses = 5
 
-**riskparity.py** is built on top of **numpy**, **jax**, **quadprog**, **pybind**, and **tqdm**.
+    [watcher:anotherprogram]
+    cmd = another_program
+    numprocesses = 2
 
-R Version
----------
 
-An R version of this package is available at https://github.com/dppalomar/riskParityPortfolio
+The file is then passed to *circusd*::
 
-Tutorials
----------
+    $ circusd example.ini
 
-.. toctree::
 
-        tutorials/minimal-usage.ipynb
-        tutorials/including-mean-return-and-variance.ipynb
-        tutorials/comparison-with-pyrb.ipynb
+Besides processes, Circus can also bind sockets. Since every process managed by
+Circus is a child of the main Circus daemon, that means any program that's
+controlled by Circus can use those sockets.
 
-References
-----------
+Running a socket is as simple as adding a *socket* section in the config file:
 
-* F. Spinu, "An algorithm for computing risk parity weights", SSRN, 2013.
-* T. Griveau-Billion, J. Richard, and T. Roncalli, "A fast algorithm for computing high-dimensional risk parity portfolios" ArXiv preprint, 2013.
-* Y. Feng and D. P. Palomar, "SCRIP: Successive convex optimization methods for risk parity portfolios design" IEEE Trans. Signal Process., vol. 63, no. 19, pp. 5285–5300, Oct. 2015.
-* J. Richard, and T. Roncalli "Constrained Risk Budgeting Portfolios: Theory, Algorithms, Applications & Puzzles" (February 8, 2019). Available at SSRN: https://ssrn.com/abstract=3331184
+.. code-block:: ini
+
+    [socket:mysocket]
+    host = localhost
+    port = 8080
+
+To learn more about sockets, see :ref:`sockets`.
+
+To understand why it's a killer feature, read :ref:`whycircussockets`.
+
+
+Controlling Circus
+------------------
+
+Circus provides two command-line tools to manage your running daemon:
+
+- *circusctl*, a management console you can use to perform
+  actions such as adding or removing :term:`workers`
+
+- *circus-top*, a top-like console you can use to display the memory and
+  cpu usage of your running Circus.
+
+To learn more about these, see :ref:`cli`
+
+Circus also offers a web dashboard that can connect to a
+running Circus daemon and let you monitor and interact with it.
+
+To learn more about this feature, see :ref:`circushttpd`
+
+
+What now ?
+==========
+
+If you are a developer and want to leverage Circus in your own project,
+write plugins or hooks, go to :ref:`fordevs`.
+
+If you are an ops and want to manage your processes using Circus,
+go to :ref:`forops`.
+
+
+Contributions and Feedback
+==========================
+
+More on contributing: :ref:`contribs`.
+
+
+Useful Links:
+
+- There's a mailing-list for any feedback or question: http://tech.groups.yahoo.com/group/circus-dev/
+- The repository and issue tracker are on GitHub : https://github.com/circus-tent/circus
+- Join us on the IRC : Freenode, channel **#mozilla-circus**
+
+
+Documentation index
+===================
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
+
+   installation
+   tutorial/index
+   for-ops/index
+   for-devs/index
+   usecases
+   design/index
+   contributing
+   faq
+   changelog
+   man/index
+   glossary
+   copyright
+
 
