@@ -1,39 +1,34 @@
-.PHONY: docs build test coverage build_rpm clean
+export DJANGO_SETTINGS_MODULE=django_multitenant.tests.settings
 
-ifndef VTENV_OPTS
-VTENV_OPTS = -p python2.7 --no-site-packages
-endif
+test:
+	py.test -s django_multitenant/tests/ -k 'not concurrency'
 
-VENV?=virtualenv
+test-migrations:
+	./manage.py migrate tests
 
-bin/python:
-	$(VENV) $(VTENV_OPTS) .
-	bin/python setup.py develop
+revert-test-migrations:
+	./manage.py migrate tests 0002_distribute
+	# We fake the 0002_distribute rollback, because it uses lots of raw sql and
+	# otherwise we have to add reverse_sql='' everywhere. The backwards
+	# migration of 0001_initial will drop the tables anyway.
+	./manage.py migrate --fake tests 0001_initial
+	./manage.py migrate tests zero
 
-test: bin/python
-	bin/pip install tox
-	bin/tox
 
-docs:
-	bin/pip install -r doc-requirements.txt --use-mirrors
-	SPHINXBUILD=../bin/sphinx-build $(MAKE) -C docs html $^
+dev-dependencies:
+	pip install -r requirements/test.txt
 
-coverage: bin/coverage
-	rm -f `pwd`/.coverage
-	rm -rf `pwd`/html
-	- COVERAGE_PROCESS_START=`pwd`/.coveragerc COVERAGE_FILE=`pwd`/.coverage PYTHONPATH=`pwd` bin/nosetests -s circus/tests
-	bin/coverage combine
-	bin/coverage html
+release-dependencies:
+	pip install -r requirements/release.txt
 
-bin/coverage: bin/python
-	bin/pip install -r test-requirements.txt --use-mirrors
-	bin/pip install nose coverage
 
-build_rpm:
-	bin/python setup.py bdist_rpm --requires "python26 python-setuptools pyzmq python26-psutil"
+format:
+	black .
 
-clean:
-	rm -rf bin .tox include/ lib/ man/ circus.egg-info/ build/
-	find . -name "*.pyc" | xargs rm -f
-	find . -name "*.un~" | xargs rm -f
-	find . -name "__pycache__" | xargs rm -rf
+format-check:
+	black . --check
+
+release:
+	python -m build --sdist
+	twine check dist/*
+	twine upload --skip-existing dist/*
