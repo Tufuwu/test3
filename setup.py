@@ -1,61 +1,121 @@
-# Copyright 2016-2018 Dirk Thomas
-# Licensed under the Apache License, Version 2.0
+from setuptools import setup, Command
+from setuptools.command.easy_install import ScriptWriter
+from setuptools.command.install import install as orig_install
+from distutils.command.build import build as orig_build
 
-import os
-import sys
+from textwrap import dedent
+from subprocess import call
+import logging
+from os import path
+from glob import glob
 
-from pkg_resources import parse_version
-from setuptools import setup
 
-minimum_version = '3.5'
-if (
-    parse_version('%d.%d' % (sys.version_info.major, sys.version_info.minor)) <
-    parse_version(minimum_version)
-):
-    sys.exit('This package requires at least Python ' + minimum_version)
+comp_files = glob('completions/zsh/_*')
+icon_files = glob('icons/scalable/actions/udiskie-*.svg')
+languages  = [path.splitext(path.split(po_file)[1])[0]
+              for po_file in glob('lang/*.po')]
 
-cmdclass = {}
-try:
-    from stdeb.command.sdist_dsc import sdist_dsc
-except ImportError:
-    pass
-else:
-    class CustomSdistDebCommand(sdist_dsc):
-        """Weird approach to apply the Debian patches during packaging."""
 
-        def run(self):  # noqa: D102
-            from stdeb.command import sdist_dsc
-            build_dsc = sdist_dsc.build_dsc
+class build(orig_build):
+    """Subclass build command to add a subcommand for building .mo files."""
+    sub_commands = orig_build.sub_commands + [('build_mo', None)]
 
-            def custom_build_dsc(*args, **kwargs):
-                nonlocal build_dsc
-                debinfo = self.get_debinfo()
-                repackaged_dirname = \
-                    debinfo.source + '-' + debinfo.upstream_version
-                dst_directory = os.path.join(
-                    self.dist_dir, repackaged_dirname, 'debian', 'patches')
-                os.makedirs(dst_directory, exist_ok=True)
-                # read patch
-                with open('debian/patches/setup.cfg.patch', 'r') as h:
-                    lines = h.read().splitlines()
-                print(
-                    "writing customized patch '%s'" %
-                    os.path.join(dst_directory, 'setup.cfg.patch'))
-                # write patch with modified path
-                with open(
-                    os.path.join(dst_directory, 'setup.cfg.patch'), 'w'
-                ) as h:
-                    for line in lines:
-                        if line.startswith('--- ') or line.startswith('+++ '):
-                            line = \
-                                line[0:4] + repackaged_dirname + '/' + line[4:]
-                        h.write(line + '\n')
-                with open(os.path.join(dst_directory, 'series'), 'w') as h:
-                    h.write('setup.cfg.patch\n')
-                return build_dsc(*args, **kwargs)
 
-            sdist_dsc.build_dsc = custom_build_dsc
-            super().run()
-    cmdclass['sdist_dsc'] = CustomSdistDebCommand
+class build_mo(Command):
 
-setup(cmdclass=cmdclass)
+    """Create machine specific translation files (for i18n via gettext)."""
+
+    description = 'Compile .po files into .mo files'
+
+    def initialize_options(self):
+        pass
+
+    def finalize_options(self):
+        pass
+
+    def run(self):
+        for lang in languages:
+            po_file = 'lang/{}.po'.format(lang)
+            mo_file = 'build/locale/{}/LC_MESSAGES/udiskie.mo'.format(lang)
+            self.mkpath(path.dirname(mo_file))
+            self.make_file(
+                po_file, mo_file, self.make_mo,
+                [po_file, mo_file])
+
+    def make_mo(self, po_filename, mo_filename):
+        """Create a machine object (.mo) from a portable object (.po) file."""
+        try:
+            call(['msgfmt', po_filename, '-o', mo_filename])
+        except OSError as e:
+            # ignore failures since i18n support is optional:
+            logging.warning(e)
+
+
+# NOTE: Subclassing the setuptools install command alters its behaviour to use
+# the distutils code. This is due to some really odd call-context checks in
+# the setuptools command.
+#
+# In fact this is desirable because distutils (correctly) installs data files
+# to `sys.prefix` whereas setuptools by default installs to the egg folder
+# (which is pretty much useless) and doesn't invoke build commands before
+# install. The only real drawback with the distutils behaviour is that it does
+# not automatically install dependencies, but we can easily live with that.
+#
+# Note further that we need to subclass the *setuptools* install command
+# rather than the *distutils* one to prevent errors when installing with pip
+# from the source distribution.
+class install(orig_install):
+
+    """Custom install command used to update the gtk icon cache."""
+
+    def run(self):
+        """Perform distutils-style install, then update GTK icon cache."""
+        orig_install.run(self)
+        try:
+            call(['gtk-update-icon-cache', 'share/icons/hicolor'])
+        except OSError as e:
+            # ignore failures since the tray icon is an optional component:
+            logging.warning(e)
+
+
+def fast_entrypoint_script_template():
+    """
+    Replacement for ``easy_install.ScriptWriter.template`` to generate faster
+    entry points that don't depend on and import pkg_resources.
+
+    NOTE: `pip install` already does the right thing (at least for pip 19.0)
+    without our help, but this is still needed for setuptools install, i.e.
+    ``python setup.py install`` or develop.
+    """
+    SCRIPT_TEMPLATE = dedent(r'''
+        # encoding: utf-8
+        import sys
+        from {ep.module_name} import {ep.attrs[0]}
+
+        if __name__ == '__main__':
+            sys.exit({func}())
+    ''').lstrip()
+
+    class ScriptTemplate(str):
+        def __mod__(self, context):
+            func = '.'.join(context['ep'].attrs)
+            return self.format(func=func, **context)
+
+    return ScriptTemplate(SCRIPT_TEMPLATE)
+
+
+ScriptWriter.template = fast_entrypoint_script_template()
+setup(
+    cmdclass={
+        'install': install,
+        'build': build,
+        'build_mo': build_mo,
+    },
+    data_files=[
+        ('share/icons/hicolor/scalable/actions', icon_files),
+        ('share/zsh/site-functions', comp_files),
+        *[('share/locale/{}/LC_MESSAGES'.format(lang),
+           ['build/locale/{}/LC_MESSAGES/udiskie.mo'.format(lang)])
+          for lang in languages],
+    ],
+)
