@@ -13,7 +13,7 @@ setup(
     zip_safe=False,
     platforms='any',
     install_requires=[
-        'peewee>=3.0.0', 'wtforms',
+        'peewee>=3.0.0', 'wtforms<3.0',
     ],
     classifiers=[
         'Environment :: Web Environment',
