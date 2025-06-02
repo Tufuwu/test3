@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% load url %}
+{% load static %}
+{% load clean from bleach %}
+
+{% block title %}
+    {{ flatpage.title }} - {{ block.super }}
+{% endblock %}
+
+{% block breadcrumbs %}
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'home' %}"><i class="fas fa-home"></i></a></li>
+        <li class="breadcrumb-item active" aria-current="page">{{ flatpage.title }}</li>
+    </ol>
+{% endblock %}
+
+{% block content %}
+    <h1>{{ flatpage.title }}</h1>
+
+    {{ flatpage.content|clean }}
+{% endblock %}
