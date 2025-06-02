@@ -53,7 +53,7 @@ jobs:
         cp .coverage htmlcov/.coverage
         poetry run python -m coverage html
     - name: Create coverage report artifact
-      uses: actions/upload-artifact@v1.0.0
+      uses: actions/upload-artifact@v4
       # TODO: make this only run if the build step at least ran
       if: always()
       with:
