@@ -1,3 +1,5 @@
 [flake8]
-max-line-length=88
-extend-ignore=E203,D104,D100
+max-complexity=13
+max-line-length=99
+exclude = stor/third_party/*
+ignore=E226,W504
