@@ -1,43 +1,52 @@
-from importlib.machinery import SourceFileLoader
+import os
 
-import setuptools
+from setuptools import find_packages, setup
 
-version = SourceFileLoader('version', 'clabe/version.py').load_module()
+with open(os.path.join(os.path.dirname(__file__), "README.rst")) as readme:
+    README = readme.read()
 
+# allow setup.py to be run from any path
+os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 
-test_requires = [
-    'pytest<5.2',
-    'coverage<5',
-    'pytest-cov',
-    'black',
-    'isort[pipfile]',
-    'flake8',
-    'mypy',
-]
-
-with open('README.md', 'r') as f:
-    long_description = f.read()
-
-
-setuptools.setup(
-    name='clabe',
-    version=version.__version__,
-    author='Cuenca',
-    author_email='dev@cuenca.com',
-    description='Validate and generate the control digit of a CLABE in Mexico',
-    long_description=long_description,
-    long_description_content_type='text/markdown',
-    url='https://github.com/cuenca-mx/clabe',
-    packages=setuptools.find_packages(),
+setup(
+    name="django-phone-verify",
+    version="2.0.1",
+    packages=find_packages(),
     include_package_data=True,
-    package_data=dict(mati=['py.typed']),
-    install_requires=['pydantic>=1.4,<2.0'],
-    setup_requires=['pytest-runner'],
-    tests_require=test_requires,
-    extras_require=dict(test=test_requires),
+    license="GPLv3",
+    description="A Django app to support phone number verification using security code sent via SMS.",
+    long_description=README,
+    url="https://github.com/CuriousLearner/django-phone-verify",
+    author="Sanyam Khurana",
+    author_email="sanyam@sanyamkhurana.com",
+    install_requires=[
+        "django>=2.1.5",
+        "djangorestframework>=3.9.0",
+        "PyJWT>=1.7.1",
+        "python-dotenv>=0.10.0",
+        "phonenumbers>=8.10.2",
+        "django-phonenumber-field>=2.1.0",
+        "twilio>=6.21.0",
+        "nexmo>=2.4.0",
+    ],
     classifiers=[
-        'Programming Language :: Python :: 3',
-        'License :: OSI Approved :: MIT License',
-        'Operating System :: OS Independent',
+        "Environment :: Web Environment",
+        "Development Status :: 5 - Production/Stable",
+        "Framework :: Django",
+        "Framework :: Django :: 2.0",
+        "Framework :: Django :: 2.1",
+        "Framework :: Django :: 2.2",
+        "Framework :: Django :: 3.0",
+        "Framework :: Django :: 3.1",
+        "Intended Audience :: Developers",
+        "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+        "Operating System :: OS Independent",
+        "Programming Language :: Python",
+        "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+        "Topic :: Internet :: WWW/HTTP",
+        "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
     ],
 )
