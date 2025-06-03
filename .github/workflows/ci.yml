@@ -30,6 +30,7 @@ jobs:
         pip install coverage
         pip install codecov
         pip install pycodestyle
+        chmod +x install
         ./install
         pip install GPy
         pip install GPyOpt
