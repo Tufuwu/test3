@@ -5,3 +5,4 @@ psycopg2==2.8.4
 requests==2.22.0
 appdirs==1.4.3
 websocket-client==0.56.0
+markupsafe<2.1
