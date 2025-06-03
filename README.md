@@ -1,39 +1,67 @@
-# GADMA ![](http://jb.gg/badges/research-flat-square.svg)
+# CLABE
 
-[![Docs](https://readthedocs.org/projects/gadma/badge/?version=latest)](https://gadma.readthedocs.io/en/latest/?badge=latest) [![Build status](https://github.com/ctlab/GADMA/workflows/build/badge.svg)](https://github.com/ctlab/GADMA/workflows/build/badge.svg) [![codecov](https://codecov.io/gh/ctlab/GADMA/branch/master/graph/badge.svg?token=F303UDEWDJ)](https://codecov.io/gh/ctlab/GADMA)
+[![test](https://github.com/cuenca-mx/clabe-python/workflows/test/badge.svg)](https://github.com/cuenca-mx/clabe-python/actions?query=workflow%3Atest)
+[![codecov](https://codecov.io/gh/cuenca-mx/clabe-python/branch/master/graph/badge.svg)](https://codecov.io/gh/cuenca-mx/clabe-python)
+[![PyPI](https://img.shields.io/pypi/v/clabe.svg)](https://pypi.org/project/clabe/)
 
-Welcome to GADMA v2!
+Librería para validar y calcular un número CLABE basado en
+https://es.wikipedia.org/wiki/CLABE
 
-GADMA implements methods for automatic inference of the joint demographic history of multiple populations from the genetic data.
+## Requerimientos
 
-GADMA is based on two open source packages: the ∂a∂i developed by Ryan Gutenkunst [<https://bitbucket.org/gutenkunstlab/dadi/>] and the *moments* developed by Simon Gravel [<https://bitbucket.org/simongravel/moments/>].
+Python 3.6 o superior.
 
-In contrast to these packages, GADMA is a command-line tool. It presents a series of launches of the genetic algorithm and infer demographic history from Allele Frequency Spectrum of multiple populations (up to three).
+## Instalación
 
-GADMA is implemented by Ekaterina Noskova (ekaterina.e.noskova@gmail.com)
+Se puede instalar desde Pypi usando
 
-**GADMA is now of version 2!**
+```
+pip install clabe
+```
 
-### Documentation
+## Pruebas
 
-Full documentation including installation instructions, usage, examples and API are available [here](https://gadma.readthedocs.io).
+Para ejecutar las pruebas
 
-### Contributors
+```
+$ make test
+```
 
-* Ekaterina Noskova
+## Uso básico
 
-* Vladimir Ulyantsev
+Obtener el dígito de control de un número CLABE
 
-* Pavel Dobrynin
+```python
+import clabe
+clabe.compute_control_digit('00200000000000000')
+```
 
-## Getting help
+Para validar si un número CLABE es válido
 
-Please don't be afraid to contact me for different problems and offers via email ekaterina.e.noskova@gmail.com. I will be glad to answer all questions. 
+```python
+import clabe
+clabe.validate_clabe('002000000000000008')
+```
 
-Also you are always welcome to [create an issue](https://github.com/ctlab/GADMA/issues) on the GitHub page of GADMA with your question.
+Para obtener el banco a partir de 3 dígitos
 
-## Citation
+```python
+import clabe
+clabe.get_bank_name('002')
+```
 
-If you use GADMA in your research please cite:
+Para generar nuevo válido CLABES
 
-Ekaterina Noskova, Vladimir Ulyantsev, Klaus-Peter Koepfli, Stephen J O’Brien, Pavel Dobrynin, GADMA: Genetic algorithm for inferring demographic history of multiple populations from allele frequency spectrum data, *GigaScience*, Volume 9, Issue 3, March 2020, giaa005, <https://doi.org/10.1093/gigascience/giaa005>
+```python
+import clabe
+clabe.generate_new_clabes(10, '002123456')
+```
+
+## Subir a PyPi
+
+1. Actualizar version en `setup.py`
+1. Commit cambios a `setup.py` y empujarlos a `origin/master`
+1. `git tag -a <version> -m <release message>`
+1. `git push origin --tags`
+
+TravisCI subirá la version actualizada a PyPi despues de verificar que las pruebas pasen.
