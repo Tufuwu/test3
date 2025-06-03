@@ -24,6 +24,7 @@ jobs:
 
       - name: Generate Dockerfile & run tests
         run: |
+          chmod +x update.py
           VERSION=$(curl -s https://crate.io/versions.json | grep crate_testing | tr -d '" ' | cut -d ":" -f2)
           ./update.py --cratedb-version ${VERSION} > Dockerfile
           sysctl -w vm.max_map_count=262144
