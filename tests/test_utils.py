@@ -1,96 +1,56 @@
-# coding: utf-8
-""" Unit tests for ofxtools.utils """
-# stdlib imports
 import unittest
-import os
-import datetime
-
-# local imports
-import ofxtools.utils
-from ofxtools.utils import (
-    fixpath,
-    cusip_checksum,
-    validate_cusip,
-    sedol_checksum,
-    isin_checksum,
-    validate_isin,
-    cusip2isin,
-    sedol2isin,
-)
+from gadma import *
+import numpy as np
 
 
-class FixpathTestCase(unittest.TestCase):
-    def test_all(self):
-        """
-        utils.fixpath() calls os.path.{expanduser, normpath, normcase, abspath}
-        """
-        test_path = "~/foo/../bar"
-        home = os.environ["HOME"]
-        self.assertEqual(fixpath(test_path), "{}/bar".format(home))
+class TestUtils(unittest.TestCase):
+    def test_distributions(self):
+        trunc_normal(1, 0.5, 0, 10)
+        trunc_normal(1, 2, 0, 10)
+        trunc_normal(1, 0, 0, 10)
 
+        trunc_lognormal(1, 1e-15, 1e-15, 4)
 
-class CusipTestCase(unittest.TestCase):
-    def test_cusip_checksum(self):
-        self.assertEqual(cusip_checksum("08467010"), "8")
+        trunc_normal_3_sigma_rule(0.5, 1e-15, 5)
 
-    def test_validate_cusip(self):
-        self.assertTrue(validate_cusip("084670207"))
-        self.assertFalse(validate_cusip("084670208"))
-        self.assertFalse(validate_cusip("08467020"))
-        self.assertFalse(validate_cusip("0846702077"))
+        trunc_lognormal_3_sigma_rule(2, 1, 5)
+        trunc_lognormal_3_sigma_rule(1e-15, 1e-15, 1)
 
-    def test_cusip2isin(self):
-        self.assertEqual(cusip2isin("084670108"), "US0846701086")
+        p = PopulationSizeVariable('p')
+        d = DynamicVariable('d')
+        m = MigrationVariable('m')
+        s = SelectionVariable('s')
+        f = FractionVariable('f')
+        variables = [p, d, m, s, f]
+        v = custom_generator(variables)
+        self.assertEqual(len(v), 5)
+        for el, var in zip(v, variables):
+            self.assertTrue(var.correct_value(el))
 
-    def test_cusip2isin_invalid_isin(self):
-        with self.assertRaises(ValueError):
-            cusip2isin("084670208")
+        trunc_lognormal_sigma_generator([0, 0.1])
+        trunc_lognormal_sigma_generator([10, 20])
+        trunc_normal_sigma_generator([-1, 0])
+        trunc_normal_sigma_generator([10, 20])
 
-    def test_cusip2isin_invalid_nation(self):
-        with self.assertRaises(ValueError):
-            cusip2isin("084670108", nation="MOON")
+    def test_utils(self):
+        t = (5, 10)
+        self.assertEqual(logarithm_transform(t), t)
+        self.assertEqual(exponent_transform(t), t)
 
+        x = [0, 0, 2]
+        self.assertTrue(0 in choose_by_weight(x, None, 2))
 
-class IsinTestCase(unittest.TestCase):
-    def test_isin_checksum(self):
-        self.assertEqual(isin_checksum("US084670108"), "6")
+    def test_cache_info(self):
+        info = CacheInfo()
+        str(info)
 
-    def test_validate_isin(self):
-        self.assertTrue(validate_isin("US0846701086"))
-        self.assertFalse(validate_isin("US0846701087"))
-        self.assertFalse(validate_isin("US084670108"))
-        self.assertFalse(validate_isin("US08467010866"))
+    def test_weighted_meta_array(self):
+        x = WeightedMetaArray([1, 2])
 
+        X = [x]
+        X.append([1, 2])
+        list_with_weights_for_pickle(X)
 
-class SedolTestCase(unittest.TestCase):
-    def test_sedol_checksum(self):
-        self.assertEqual(sedol_checksum("011100"), "9")
-
-    def test_sedol2isin(self):
-        self.assertEqual(sedol2isin("0111009"), "GB0001110096")
-
-
-class SettledateTestCase(unittest.TestCase):
-    pass
-
-
-class NYSEcalendarTestCase(unittest.TestCase):
-    pass
-
-
-class UtcTestCase(unittest.TestCase):
-    @property
-    def datetime(self):
-        return datetime.datetime.now()
-
-    def testUTC(self):
-        self.assertEqual(ofxtools.utils.UTC.tzname(self.datetime), "UTC")
-        self.assertEqual(
-            ofxtools.utils.UTC.utcoffset(self.datetime), datetime.timedelta(0)
-        )
-        self.assertEqual(ofxtools.utils.UTC.dst(self.datetime), datetime.timedelta(0))
-        self.assertEqual(repr(ofxtools.utils.UTC), "<UTC>")
-
-
-if __name__ == "__main__":
-    unittest.main()
+        del x.metadata
+        x.__str__()
+        x.__repr__()

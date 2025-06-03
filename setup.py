@@ -1,67 +1,78 @@
-"""
-Release process:
-    1. Update ofxtools.__version__.__version__
-    2. Change download_url below
-    3. Commit changes & push
-    4.  Test: `python setup.py sdist`
-    5.  Test: `twine upload --repository-url https://test.pypi.org/legacy/ dist/*`
-    6.  Test result: Check https://test.pypi.org/project/ofxtools
-    7.  `git tag` the release
-    8.  `git push --tags`
-    9.  Verify that new tag shows at https://github.com/csingley/ofxtools/releases
-    10. `twine upload dist/*`
-    11. `make clean`
-    12. Change download_url back to master; commit & push
-"""
-# stdlib imports
-import os.path
-from setuptools import setup, find_packages
+#!/usr/bin/env python3
 
-__here__ = os.path.dirname(os.path.realpath(__file__))
+############################################################################
+# Copyright (c) 2018 Noskova Ekaterina
+# All Rights Reserved
+# See the LICENSE file for details
+############################################################################
 
-ABOUT = {}
-with open(os.path.join(__here__, "ofxtools", "__version__.py"), "r") as f:
-    exec(f.read(), ABOUT)
+try:
+    from setuptools import setup, find_packages
+except ImportError:
+    from ez_setup import use_setuptools
+    use_setuptools()
+    from setuptools import setup, find_packages
 
-with open(os.path.join(__here__, "README.rst"), "r") as f:
-    README = f.read()
 
-URL_BASE = "{}/tarball".format(ABOUT["__url__"])
+import os, sys
+
+
+NAME = 'gadma'
+
+VERSION = '2.0.0rc5'
+SUPPORTED_PYTHON_VERSIONS = ['3.6', '3.7']
+
+
+# Check python version
+if sys.version[0:3] not in SUPPORTED_PYTHON_VERSIONS:
+    sys.stderr.write("Python version " + sys.version[0:3] + " is not supported!\n" +
+          "Supported versions are " + ", ".join(SUPPORTED_PYTHON_VERSIONS) + "\n")
+    sys.stderr.flush()
+    sys.exit(1)
+
+
+# Create a simple version.py module; less trouble than hard-coding the version
+with open(os.path.join('gadma', 'version.py'), 'w') as f:
+    f.write('__version__ = %r\nversion = __version__\n' % VERSION)
+    f.write('\n# This is a new line that ends the file.\n')
+
+
+# Load up the description from README.rst
+with open('README.md') as f:
+    DESCRIPTION = f.read()
+
+requirements = ['numpy', 'scipy', 'matplotlib',
+                'Pillow', 'Cython', 'mpmath', 'nlopt', 'ruamel.yaml',
+                'dadi']
 
 setup(
-    name=ABOUT["__title__"],
-    version=ABOUT["__version__"],
-    description=ABOUT["__description__"],
-    long_description=README,
-    long_description_content_type="text/x-rst",
-    author=ABOUT["__author__"],
-    author_email=ABOUT["__author_email__"],
-    url=ABOUT["__url__"],
-    packages=find_packages(),
-    package_data={"ofxtools": ["README.rst", "py.typed", "config/*"]},
-    python_requires=">=3.8",
-    license=ABOUT["__license__"],
-    # Note: change 'master' to the tag name when releasing a new verion
-    download_url="{}/master".format(URL_BASE),
-    # download_url="{}/{}".format(URL_BASE, ABOUT["__version__"]),
-    entry_points={"console_scripts": ["ofxget=ofxtools.scripts.ofxget:main"]},
+    name=NAME,
+    version=VERSION,
+    author='Ekaterina Noskova',
+    author_email='ekaterina.e.noskova@gmail.com',
+    url='https://github.com/ctlab/GADMA',
+    description='Genetic Algorithm for Demographic Inference',
+    long_description=DESCRIPTION,
+    long_description_content_type='text/markdown',
     classifiers=[
-        "Development Status :: 3 - Alpha",
-        "Intended Audience :: Developers",
-        "Intended Audience :: Financial and Insurance Industry",
-        "Topic :: Software Development :: Libraries :: Python Modules",
-        "Topic :: Utilities",
-        "Topic :: Office/Business",
-        "Topic :: Office/Business :: Financial",
-        "Topic :: Office/Business :: Financial :: Accounting",
-        "Topic :: Office/Business :: Financial :: Investment",
-        "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
-        "Operating System :: OS Independent",
-        "Natural Language :: English",
-        "Programming Language :: Python",
-        "Programming Language :: Python :: 3 :: Only",
-        "Programming Language :: Python :: 3.8",
-        "Programming Language :: Python :: 3.9",
+        'Intended Audience :: Developers',
+        'License :: OSI Approved :: GNU General Public License (GPL)',
+        'Natural Language :: English',
+        'Operating System :: OS Independent',
+        'Programming Language :: Python',
+        'Programming Language :: Python :: 3',
+        'Topic :: Software Development',
     ],
-    keywords=["ofx", "Open Financial Exchange"],
+    packages=find_packages(exclude=['examples', 'tests']),
+    include_package_data=True,
+    package_data={
+        'gadma.cli': ['*.py',  'params_template', 'extra_params_template', 'test_settings']
+    },
+    data_files=[["gadma", ["gadma/test.fs"]], ("", ["LICENSE"])],
+    install_requires=requirements,
+    entry_points={
+        'console_scripts': ['gadma = gadma.core:main',
+            'gadma-run_ls_on_boot_data = gadma.run_ls_on_boot_data:main',
+            'gadma-get_confidence_intervals = gadma.get_confidence_intervals:main']
+    },
 )
