@@ -33,6 +33,7 @@ jobs:
 
       - name: Install GADMA.
         run: |
+          chmod +x install
           ./install
           cat gadma/version.py
 
