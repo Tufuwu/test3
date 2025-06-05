@@ -1,59 +1,34 @@
+name: Python package
+
 on:
   push:
     branches:
       - main
   pull_request:
     branches:
-      - master
+      - main
 
-name: Unit Testing
 jobs:
-  chore:
-    name: Unit Tests
-    runs-on: ubuntu-latest
+  build:
     strategy:
-      fail-fast: false
+      fali-fast: false
       matrix:
-        toxenv: [py36, py37, py38, py39, flake8]
-        include:
-          - toxenv: py36
-            python-version: "3.6"
-          - toxenv: py37
-            python-version: "3.7"
-          - toxenv: py38
-            python-version: "3.8"
-          - toxenv: flake8
-            python-version: "3.8"
-          - toxenv: py39
-            python-version: "3.9"
+        python-version: [2.6, 2.7, 3.5, 3.6, 3.7]
+        tox-env: [py26, py27, py35, py36, py37, flake8]
+    runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
-        with:
-          # Fetch the latest commit, only
-          fetch-depth: 1
+    - uses: actions/checkout@v2
 
-      - uses: actions/setup-python@v2
-        with:
-          python-version: ${{ matrix.python-version }}
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
 
-      - name: Install virtualenv
-        run: |
-          pip install virtualenv
-          virtualenv --python=python3 .venv
-      - name: Print environment
-        run: |
-          source .venv/bin/activate
-          python --version
-          pip --version
-      - name: Install dependencies
-        run: |
-          source .venv/bin/activate
-          pip install tox
-      - name: Cleanup boto
-        run: |
-          rm -fr /etc/boto.cfg
-      - name: Tox
-        run: |
-          source .venv/bin/activate
-          tox -e ${{ matrix.toxenv }}
+    - name: Install dependencies
+      run: |
+        sudo rm -f /etc/boto.cfg
+        pip install tox
+
+    - name: Run tests
+      run: tox -e ${{ matrix.tox-env }}
