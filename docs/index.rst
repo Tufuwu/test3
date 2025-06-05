@@ -1,321 +1,348 @@
-.. django-comments-xtd documentation master file, created by
-   sphinx-quickstart on Mon Dec 19 19:20:12 2011.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
-
-==============================
-Welcome to django-comments-xtd
-==============================
-
-.. module:: django_comments_xtd
-   :synopsis: django-comments-extended.
-
-.. highlightlang:: html+django
-
-A Django pluggable application that adds comments to your project. It extends
-the once official `Django Comments Framework
-<https://pypi.python.org/pypi/django-contrib-comments>`_.
-
-
-.. note::
-
-    This documentation represents the current version, v2.8.2, of
-    django-comments-xtd. For old versions of the documentation:
-
-    * v2.7.2: https://django-comments-xtd.readthedocs.io/en/2.7.2/
-    * v2.6.2: https://django-comments-xtd.readthedocs.io/en/2.6.2/
-    * v2.5.1: https://django-comments-xtd.readthedocs.io/en/2.5.1/
-    * v2.4.3: https://django-comments-xtd.readthedocs.io/en/2.4.3/
-    * v2.3.1: https://django-comments-xtd.readthedocs.io/en/2.3.1/
-    * v2.2.1: https://django-comments-xtd.readthedocs.io/en/2.2.1/
-    * v2.1.0: https://django-comments-xtd.readthedocs.io/en/2.1.0/
-    * v2.0.10: https://django-comments-xtd.readthedocs.io/en/2.0.10/
-    * v1.7.1: https://django-comments-xtd.readthedocs.io/en/1.7.1/
-    * v1.6.7: https://django-comments-xtd.readthedocs.io/en/1.6.7/
-    * v1.5.1: https://django-comments-xtd.readthedocs.io/en/1.5.1/
-
-
-Features
-========
-
-.. index::
-   single: Features
-
-#. Thread support, so comments can be nested.
-#. Customizable maximum thread level, either for all models or on a per
-   app.model basis.
-#. Optional notifications on follow-up comments via email.
-#. Mute links to allow cancellation of follow-up notifications.
-#. Comment confirmation via email when users are not authenticated.
-#. Comments hit the database only after they have been confirmed.
-#. Registered users can like/dislike comments and can suggest comments removal.
-#. Template tags to list/render the last N comments posted to any given list of
-   app.model pairs.
-#. Emails sent through threads (can be disable to allow other solutions, like a
-   Celery app).
-#. Fully functional JavaScript plugin using ReactJS, jQuery, Bootstrap,
-   Remarkable and MD5.
-
-.. image:: images/cover.png
-
-Getting started
+pyramid_storage
 ===============
 
-Start with these documents to get you up and running:
+**pyramid_storage** is a simple file upload manager for the `Pyramid`_ framework. It currently supports uploads to the local file system and to the Amazon S3 cloud storage service.
 
-.. toctree::
-   :maxdepth: 2
 
-   quickstart
-   tutorial
-   example
+Installation
+-------------
 
+Install with **pip install pyramid_storage**. To install from source, unzip/tar, cd and **python setup.py install**.
 
-Advanced Use
-============
+Bugs and issues
+---------------
 
-Once you've got django-comments-xtd working, you may want to know more about
-specific features, or check out the use cases to see how others customize it.
+Please report bugs and issues (and better still, pull requests) on the `Github`_ repo.
 
-.. toctree::
-   :maxdepth: 1
+Getting started
+---------------
 
-   logic
-   webapi
-   javascript
-   templatetags
-   migrating
-   extending
-   i18n
-   settings
-   templates
-   usecases
+There are a number of ways to configure **pyramid_storage** with your Pyramid app.
 
-Change Log
-==========
+The easiest way is to add **pyramid_storage** to the **pyramid.includes** directive in your configuration file(s)::
 
-[2.8.3] -
---------------------
+    pyramid.includes =
+        pyramid_storage
 
-    * Adds new setting COMMENTS_XTD_DEFAULT_FOLLOWUP, which is used to initialise the follow-up form field. By default its value is False. Thanks to @drholera. Closes ticket `#206 <https://github.com/danirus/django-comments-xtd/issues/206>`_.
 
-[2.8.2] - 2021-01-24
---------------------
+Alternatively you can use :meth:`pyramid.config.Configurator.include` in your app setup::
 
-    * Fixes issue `#248 <https://github.com/danirus/django-comments-xtd/issues/248>`_, about the API returning comments' submit_date in UTC when the setting USE_TZ is enabled and a different TIME_ZONE is given. Thanks to @Loneattic.
-    * Fixes issue `#250 <https://github.com/danirus/django-comments-xtd/issues/250>`_, which reports that using the web API to post a comment with a reply_to field that would break the max_thread_level should not produce an exception but rather a controlled response with an appropriate HTTP code.  Thanks to @impythonista.
-    * Fixes issue `#255 <https://github.com/danirus/django-comments-xtd/issues/255>`_, about the web API not returning the comment ID when creating a new comment. Thanks to @mhoonjeon.
-    * Fixes issue `#256 <https://github.com/danirus/django-comments-xtd/issues/256>`_, about an issue in the JavaScript plugin that displays the "reply" link even when the max_thread_level has been reached. Thanks to @odescopi.
+    config.include('pyramid_storage')
 
-[2.8.1] - 2020-10-16
---------------------
 
-    * Fixes issue `#80 <https://github.com/danirus/django-comments-xtd/issues/80>`_, that requests to change the response when clicking more than once on a comment confirmation link. Up until now clicking more than once on a comment confirmation link produced a HTTP 404 response. Since version 2.8.1 the response is the same as for the first click: the user is redirected to the comment's view in the page. Thanks to @ppershing.
-    * Fixes issue `#152 <https://github.com/danirus/django-comments-xtd/issues/152>`_, about loading the `staticfiles` templatetag instead of `static`. Since Django v3.0 the staticfiles app requires using the latter. Thanks to @JonLevy and @mennucc.
-    * Fixes issue `#221 <https://github.com/danirus/django-comments-xtd/issues/221>`_, about the get_version function. Now it returns the full
-      version number ``<major>.<minor>.<patch>``. Thanks to @mckinly.
-    * Fixes issue `#229  <https://github.com/danirus/django-comments-xtd/issues/229>`_, about failing to process empty honeypot field when posting comments using the REST API. Thanks to @TommasoAmici.
+Either setup will add an instance of :class:`pyramid_storage.storage.FileStorage` to your app registry. The instance
+will also be available as a property of your request as **request.storage**.
 
-[2.8.0] - 2020-09-26
---------------------
+To use S3 file storage instead of storing files locally on your server (the default assumption)::
 
-    * Fixes issue `#106 <https://github.com/danirus/django-comments-xtd/issues/106>`_, which is about computing the number of nested comments for every comment at every level down the tree. The fix consists of adding a new field called ``nested_count`` to the **XtdComment** model. Its value represents the number of threaded comments under itself. A new management command, ``initialize_nested_count``, can be used to update the value of the field, the command is idempotent. Two new migrations have been added: migration 0007 adds the new field, and migration 0008 calls the ``initialize_nested_count`` command to populate the ``nested_count`` new field with correct values.
-    * Fixes issue `#215 <https://github.com/danirus/django-comments-xtd/issues/205>`_ about running the tests with Django 3.1 and Python 3.8.
+    pyramid.includes =
+        pyramid_storage.s3
 
-[2.7.2] - 2020-09-08
---------------------
+alternatively::
 
-    * Fixes issue `#208 <https://github.com/danirus/django-comments-xtd/issues/208>`_, about the JavaScript plugin not displaying the like and dislike buttons and the reply link when django-comments-xtd is setup to allow posting comments only to registered users (``who_can_post: "users"``).
-    * Fixes issue `#212 <https://github.com/danirus/django-comments-xtd/issues/212>`_, about missing i18n JavaScript catalog files for Dutch, German and Russian.
+    config.include('pyramid_storage.s3')
 
-[2.7.1] - 2020-08-12
---------------------
 
-    * Fixes issue `#188 <https://github.com/danirus/django-comments-xtd/issues/188>`_, about loading a templatetags module not required for the application.
-    * Fixes issue `#196 <https://github.com/danirus/django-comments-xtd/issues/196>`_. When extending django-comments-xtd's comment model, the receiver function that reviews whether nested comments have to be publish or unpublish is not called.
+Configuration
+-------------
 
-[2.7.0] - 2020-08-09
---------------------
+**Local file storage (default)**
 
-    * Enhancement, closing issue `#155 <https://github.com/danirus/django-comments-xtd/issues/155>`_ (and `#170 <https://github.com/danirus/django-comments-xtd/issues/170>`_), on how to post comments via the web API. Up until version 2.6.2 posting comments required the fields timestamp, security_hash and honeypot. As of 2.7.0 there is support allow Django REST Framework authentication classes: ``WriteCommentSerializer`` send the signal ``should_request_be_authorize`` that enables posting comments. Read the documentation about the web API.
-    * Enhancement, closing issue `#175 <https://github.com/danirus/django-comments-xtd/issues/175>`_ on how to customize django-comments-xtd so that user images displayed in comments come from other sources. A new setting ``COMMENTS_XTD_API_GET_USER_AVATAR`` has been added. The docs have been extended with a page that explains the use case in depth.
-    * Fixes issue `#171 <https://github.com/danirus/django-comments-xtd/issues/171>`_, on wrong permission used to decide whether a user is a moderator. The right permission is ``django_comments.can_moderate``. (thanks to Ashwani Gupta, @ashwani99).
-    * Fixes issue `#136 <https://github.com/danirus/django-comments-xtd/issues/136>`_ on missing <link> element in the ``templates/base.html`` file distributed with the **tutorial.tar.gz** bundle.
+The available settings are listed below:
 
-[2.6.2] - 2020-07-05
---------------------
+==============         =================      ==================================================================
+Setting                Default                Description
+==============         =================      ==================================================================
+**base_path**          **required**           Absolute location for storing uploads
+**base_url**                                  Relative or absolute base URL for uploads; must end in slash ("/")
+**extensions**         ``default``            List of extensions or extension groups (see below)
+**name**               ``storage``            Name of property added to request, e.g. **request.storage**
+==============         =================      ==================================================================
 
-    * Adds Dutch translation (thanks to Jean-Paul Ladage, @jladage).
-    * Adds Russian translation (thanks to Михаил Рыбкин, @MikerStudio).
-    * Fixesissue `#140 <https://github.com/danirus/django-comments-xtd/issues/140>`_, which adds the capacity to allow only registered users to post comments.
-    * Fixesissue `#149 <https://github.com/danirus/django-comments-xtd/issues/149>`_, on wrong SQL boolean literal value used when running special command ``populate_xtdcomments`` to load Postgres database with xtdcomments.
-    * Fixes issue `#154 <https://github.com/danirus/django-comments-xtd/issues/154>`_, on using string formatting compatible with Python versions prior to 3.6.
-    * Fixes issue `#156 <https://github.com/danirus/django-comments-xtd/issues/156>`_, on wrong props name ``poll_interval``. JavaScript plugin expects the use of ``polling_interval`` while the ``api/frontend.py`` module referred to it as ``poll_interval``. (thanks to @ashwani99).
-    * Fixes issue `#159 <https://github.com/danirus/django-comments-xtd/issues/159>`_, about using the same id for all the checkboxes in the comment list. When ticking one checkbox in a nested form the checkbox of the main form was ticked. Now each checkbox has a different id, suffixed with the content of the ``reply_to`` field.
+**S3 file storage**
 
-[2.6.1] - 2020-05-13
---------------------
+===================    =================      ==================================================================
+Setting                Default                Description
+===================    =================      ==================================================================
+**aws.access_key**     **required**           AWS access key
+**aws.secret_key**     **required**           AWS secret key
+**aws.bucket_name**    **required**           AWS bucket
+**aws.acl**            ``public-read``        `AWS ACL permissions <https://github.com/boto/boto/blob/v2.13.2/boto/s3/acl.py#L25-L28>`_
+**base_url**                                  Relative or absolute base URL for uploads; must end in slash ("/")
+**extensions**         ``default``            List of extensions or extension groups (see below)
+**name**               ``storage``            Name of property added to request, e.g. **request.storage**
 
-    * Fixes issue `#150 <https://github.com/danirus/django-comments-xtd/issues/150>`_, about wrong protocol in the URL when fetching avatar images from gravatar.
+**use_path_style**     ``False``              Use paths for buckets instead of subdomains (useful for testing)
+**is_secure**          ``True``               Use ``https``
+**host**               ``None``               Host for Amazon S3 server (eg. `localhost`)
+**port**               ``None``               Port for Amazon S3 server (eg. `5000`)
+**region**             ``None``               Region identifier, *host* and *port* will be ignored
+**num_retries**        ``1``                  Number of retry for connection errors
+**timeout**            ``5``                  HTTP socket timeout in seconds
+===================    =================      ==================================================================
 
-[2.6.0] - 2020-05-12
---------------------
+**Google Cloud file storage**
 
-    * Fixes issue `#145 <https://github.com/danirus/django-comments-xtd/issues/145>`_, on inadequate number of SQL queries used by API entry point **comments-xtd-api-list**, available in the URL ``/comments/api/<content-type>/<object-pk>/``. The issue also happened when rendering the comments using tags ``get_xtdcomment_tree`` and ``render_xtdcomment_tree``. It has been fixed in both cases too.
-    * Updates the JSON schema of the output retrieved by the API entry point **comments-xtd-api-list**. Thus the version number change. The flags attribute of each retrieved is now a list of flags instead of a summary for each the flags: "I like it", "I dislike it", "suggest removal".
+======================    =================      ==================================================================
+Setting                   Default                Description
+======================    =================      ==================================================================
+**gcloud.credentials**    **required**           Path to the Service Accounts credentials JSON file.
+**gcloud.bucket_name**    **required**           Google Cloud bucket
+**gcloud.acl**            ``publicRead``         `Google Cloud ACL permissions <https://cloud.google.com/storage/docs/access-control/making-data-public>`_
+**base_url**                                     Relative or absolute base URL for uploads; must end in slash ("/")
+**extensions**            ``default``            List of extensions or extension groups (see below)
+**name**                  ``storage``            Name of property added to request, e.g. **request.storage**
+=====================     =================      ==================================================================
 
-[2.5.1] - 2020-04-27
---------------------
 
-    * Fixes issue `#138 <https://github.com/danirus/django-comments-xtd/issues/138>`_, on unpublishing a single comment with public nested comments. The fix consists of a new ``pre_save`` receiver that will either publish or unpublish nested comments when a comment changes its ``is_public`` attribute. (thanks to @hematinik).
+**Configuring extensions:** extensions are given as a list of space-separated extensions or groups of extensions. These groups provide a convenient
+shortcut for including a large number of extensions. Each group must be separated by a plus-sign "+". Some examples:
 
-[2.5.0] - 2020-04-22
---------------------
+- **storage.extensions = images** - all image formats e.g. ``jpg``, ``gif``, ``png``
+- **storage.extensions = images+documents** - image and document formats (``rtf``, ``doc`` etc)
+- **storage.extensions = images+documents+rst xml json** - all image and document formats, plus the extensions ``rst``, ``xml`` and ``json``.
 
-    * Fixes issue `#144 <https://github.com/danirus/django-comments-xtd/issues/144>`_ regarding the size of the JavaScript bundle. The new JavaScript plugin does not include React and ReactDOM. The two libraries have to be loaded with an external script.
-    * Update the dependencies of the JavaScript plugin.
 
-[2.4.3] - 2020-01-26
---------------------
+The extension groups are listed below:
 
-    * Fixes issue on the ContentType that happens when sending post request with empty data. (PR: `#137 <https://github.com/danirus/django-comments-xtd/pull/137>`_) (thanks to @dvorberg).
-    * Adds German translations, (thanks to @dvorberg).
+============    ==========================================
+Group           Extensions
+============    ==========================================
+any             **all** extensions (including no extensions)
+text            txt
+documents       pdf rtf odf ods gnumeric abw doc docx xls xlsx
+images          jpg jpe jpeg png gif svg bmp tiff
+audio           wav mp3 aac ogg oga flac
+video           mpeg 3gp avi divx dvr flv mp4 wmv
+data            csv ini json plist xml yaml yml
+scripts         js php pl py rb sh
+archives        gz bz2 zip tar tgz txz 7z
+executables     so exe dll
+default         documents+images+text+data
+============    ==========================================
 
-[2.4.2] - 2019-12-25
---------------------
 
-    * Adds Django 3.0 compatibility thanks to Sergey Ivanychev (@ivanychev).
-    * Adds Norwegian translations thanks to Yngve Høiseth (@yhoiseth).
+Usage: local file storage
+-------------------------
 
+.. warning::
+    It is the responsibility of the deployment team to ensure that target directories used in file uploads have the appropriate read/write permissions.
 
-[2.4.1] - 2019-09-30
---------------------
 
-    * Allow changing the ``d`` parameter when requesting a gravatar, thanks to @pylixm (PR: `#100 <https://github.com/danirus/django-comments-xtd/pull/100>`_).
-    * Avoid requiring the ``SITE_ID``, thanks to @gassan (PR: `#125 <https://github.com/danirus/django-comments-xtd/pull/125>`_).
+When uploading a file in a view, call :meth:`pyramid_storage.storage.FileStorage.save` to save the file to your file system::
 
-[2.4.0] - 2019-02-19
---------------------
+    from pyramid.view import view_config
+    from pyramid.httpexceptions import HTTPSeeOther
 
-    New minor release thanks to Mandeep Gill with the following changes:
+    @view_config(route_name='upload',
+                 request_method='POST')
+    def upload(request):
+        request.storage.save(request.POST['my_file'])
+        return HTTPSeeOther(request.route_url('home'))
 
-    * Adds support for non-int based ``object_pk``, for instead when using UUIDs or HashIds as the primary key on a model (closes `#112 <https://github.com/danirus/django-comments-xtd/issues/112>`_).
-    * Refactors the commentbox props generation into a separate function so can be used from the webapi for use with rest-framework/API-only backends that don't make use of server-side templates.
-    * Adds a **pyproject.yaml** for use with `poetry <https://poetry.eustace.io>`_ and new pip environments (PEP 518).
 
-[2.3.1] - 2019-01-08
---------------------
+This operation will save the file to your file system under the top directory specified by the **base_path** setting.
 
-    * Fixes issue `#116 <https://github.com/danirus/django-comments-xtd/issues/116>`_.
-    * Updates package.json JavaScript dependencies:
-     * babel-cli from 6.24.1 to 6.26.0.
-     * jquery from 3.2.1 to 3.3.1.
+If the file does not have the correct file extension, a :class:`pyramid_storage.exceptions.FileNotAllowed` exception is raised. A more secure way of writing the above would be::
 
-[2.3.0] - 2018-11-29
---------------------
+    from pyramid_storage.exceptions import FileNotAllowed
 
-    * Upgrades Twitter-Bootstrap from v3 to v4.
-    * Fixes issue with tutorial fixtures (bug `#114 <https://github.com/danirus/django-comments-xtd/issues/114>`_).
-    * Upgrade all JavaScript dependencies. Check packages.json for details. The major changes are:
-     * ReactJS updates from 15.5 to 16.5.
-     * Babel updates from 6 to 7.
-     * Webpack from 2.4.1 to 4.21.0.
-     * Bootstrap from 3.3.7 to 4.1.3.
-    * Updates webpack.config.js.
-    * Demo sites and tutorial have been adapted to Twitter Bootstrap v4.
-    * Fixes issues `#94 <https://github.com/danirus/django-comments-xtd/issues/94>`_, `#108 <https://github.com/danirus/django-comments-xtd/issues/108>`_, `#111 <https://github.com/danirus/django-comments-xtd/issues/111>`_.
+    @view_config(route_name='upload',
+                 request_method='POST')
+    def upload(request):
+        try:
+            request.storage.save(request.POST['my_file'])
+        except FileNotAllowed:
+            request.session.flash('Sorry, this file is not allowed')
+        return HTTPSeeOther(request.route_url('home'))
 
-[2.2.1] - 2018-10-06
---------------------
 
-    * Resolves deprecation warnings and adopt recommendations in unit tests.
-    * Fixes demo sites so that they work with Django 1.11, Django 2.0 and Django 2.1.
+You can override the default extensions in the method call::
 
-[2.2.0] - 2018-08-12
---------------------
+    from pyramid_storage.exceptions import FileNotAllowed
 
-    * Adds support for Django 2.1.
-    * Drops support for Django < 1.11 as it depends on django-contrib-comments which dropped support too.
-    * Fixes issue `#104 <https://github.com/danirus/django-comments-xtd/issues/104>`_ (on lack of Django 2.1 support).
+    @view_config(route_name='upload',
+                 request_method='POST')
+    def upload(request):
+        try:
+            request.storage.save(request.POST['my_file'],
+                                 extensions=('jpg', 'png', 'txt'))
+        except FileNotAllowed:
+            request.session.flash('Sorry, this file is not allowed')
+        return HTTPSeeOther(request.route_url('home'))
 
-[2.1.0] - 2018-02-13
---------------------
 
-    * Fixes issues `#76 <https://github.com/danirus/django-comments-xtd/issues/76>`_, `#86 <https://github.com/danirus/django-comments-xtd/issues/86>`_ and `#87 <https://github.com/danirus/django-comments-xtd/issues/87>`_.
-    * Request user name and/or email address in case the user is logged in but the user's email attribute is empty and/or the user's ``get_full_name()`` method returns an empty string.
+You may also wish to obfuscate or randomize the filename. The ``randomize`` argument will generate a random filename, preserving the extension::
 
-[2.0.10] - 2018-01-19
----------------------
+    filename = request.storage.save(request.POST['my_file'], randomize=True)
 
-	* Adds Django 2.0 compatibility.
-	* Fixes issues `#81 <https://github.com/danirus/django-comments-xtd/issues/81>`_ and `#83 <https://github.com/danirus/django-comments-xtd/issues/83>`_.
-	* Replaces the use of ``django.test.client`` by ``RequestFactory`` in unittests.
+So for example if your filename is ``test.jpg`` the new filename will be something like ``235a344c-8d70-498a-af0a-151afdfcd803.jpg``.
 
-[2.0.9] - 2017-11-09
---------------------
+If there is a filename clash (i.e. another file with the same name is in the target directory) a numerical suffix is added to the new filename. For example,
+if you have an existing file ``test.jpg`` then the next file with that name will be renamed ``test-1.jpg`` and so on.
 
-	* Fix issue `#77 <https://github.com/danirus/django-comments-xtd/issues/77>`_. Template filter ``xtd_comment_gravatar_url`` must not hard-code http schema in URL (reported by @pamost).
+.. warning::
+    Remember to ensure your forms include the attribute **enctype="multipart/form-data"** or your uploaded files will be empty.
 
-[2.0.8] - 2017-09-24
---------------------
+If you pass in the ``folder`` argument this will be used to add subfolder(s)::
 
-	* App translation to Finnish, thanks to Tero Tikkanen (@terotic).
+    request.storage.save(request.POST['my_file'], folder="photos")
 
-[2.0.7] - 2017-09-20
---------------------
+The above call will store the contents of ``my_file`` under the directory ``photos`` under your base path.
 
-	* Adds missing migration for a field's label (issue `#71 <https://github.com/danirus/django-comments-xtd/issues/71>`_).
-	* Makes the form label for field ``name`` translatable (issue `#73 <https://github.com/danirus/django-comments-xtd/issues/73>`_).
+If you want to check in advance that the extension is permitted (for example, in the form validation stage) you can use :meth:`pyramid_storage.storage.FileStorage.file_allowed`::
 
-[2.0.6] - 2017-08-08
---------------------
+    request.storage.file_allowed(request.POST['my_file'])
 
-	* Code fixes to enable proper support for the Django Sites Framework.
-	* Code fixes for the comp demo site.
-	* Makes demo site dates in initial data files timezone aware.
-	* Improves documentation on setting up demo sites.
-	* Style changes in CSS wells.
+To access the URL of the file, for example in your Python code or templates, use the :meth:`pyramid_storage.storage.FileStorage.url` method::
 
-[2.0.5] - 2017-07-20
---------------------
+    request.storage.url(filename)
 
-	* Surpass version number to fix problem with package upload in PyPI.
-	* No changes applied to this version.
+You may not wish to provide public access to files - for example users may upload to private directories. In that case you can simply serve the file in your views::
 
-[2.0.4] - 2017-07-19
---------------------
+    from pyramid.response import FileResponse
 
-	* Use ``django.core.signing`` with temporary comment passed in URL redirection.
-	* Fix mistakes in documentation.
+    @view_config(route_name='download')
+    def download(request):
+        filename = request.params['filename']
+        return FileResponse(request.storage.path(filename))
 
-[2.0.3] - 2017-07-10
---------------------
+Usage: s3 file storage
+----------------------
 
-	* App translation to French thanks to Brice Gelineau.
-	* Fixed **MANIFEST.in** file, so that files with translations are distributed.
+.. warning::
+    S3 support requires you install the `Boto`_ library separately (e.g. ``pip install boto``).
 
-[2.0.0] - 2017-06-04
---------------------
+    Alternatively you can install **pyramid_storage** with the mandatory extra dependencies: ``pip install pyramid_storage[s3]``
 
-	* Javascript plugin (based on ReactJS).
-	* Web API to:
-	  * Create a comment for a given content type and object ID.
-	  * List comments for a given content type and object ID.
-	  * Send feedback flags (like/dislike) on comments.
-	  * Send report flag (removal suggestion) for a comment.
-	  * Template filter ``has_permission`` applicable to a user object and accepting a string specifying the ``app_label.permission`` being checked. It returns ``True`` if the user has the given permission, otherwise returns ``False``.
-	* Setting ``COMMENTS_XTD_API_USER_REPR`` defines a lambda function to return the user string representation used by the web API in response objects.
-	* Setting ``COMMENTS_XTD_APP_MODEL_PERMISSIONS`` to explicitly define what commenting features are enabled on per app.model basis.
-	* Templates ``comments/delete.html`` and ``comments/deleted.html`` matching django-comments-xtd default twitter-bootstrap styling.
-	* Dependencies on Python packages: djangorestframework.
-	* Supports i18n for English and Spanish.
-	* All settings namespaced inside the COMMENTS_XTD setting.
-	* Management command to migrate comments from django-contrib-comments to django-comments-xtd.
-	* Enable removal link in ``django_comments_xtd/comment_tree.html`` when the user has the permission ``django_comments.can_moderate``.
-	* Changed, when the user logged has ``django_comments.can_moderate`` permission, template ``django_comments_xtd/comment_tree.html`` will show the number of removal suggestions a comment has received.
-	* Changed, when a comment is marked as removed by a moderator (using django-comments' **comments-delete** url) every nested comment below the one removed is unpublished (``is_public`` attribute is turned to ``False``).
-	* Changed view helper functions, ``perform_like+` and ``perform_dislike`` now returns a boolean indicating whether a flag was created. If ``True`` the flag has been created. If ``False`` the flag has been deleted. These two functions behave as toggle functions.
-	* Changed templates ``comments/preview.html``, ``comments/flag.html`` and ``comments/flagged.hml``.
-	* Removed dependency on django-markup.
-	* Removed template filter ``render_markup_comment``.
-	* Removed setting ``MARKUP_FALLBACK_FILTER``.
+.. warning::
+    It is the responsibility of the deployment team to ensure that the application has the correct AWS settings and permissions.
+
+Basic usage is similar to **LocalFileStorage**::
+
+    from pyramid.view import view_config
+    from pyramid.httpexceptions import HTTPSeeOther
+
+    @view_config(route_name='upload',
+                 request_method='POST')
+    def upload(request):
+        request.storage.save(request.POST['my_file'])
+        return HTTPSeeOther(request.route_url('home'))
+
+
+One difference is that filenames are not resolved with a numeric suffix as with local files, to prevent network round-trips. Instead you can pass the ``replace`` argument to replace the file (default is **False**)::
+
+
+    from pyramid.view import view_config
+    from pyramid.httpexceptions import HTTPSeeOther
+
+    @view_config(route_name='upload',
+                 request_method='POST')
+    def upload(request):
+        request.storage.save(request.POST['my_file'], replace=True)
+        return HTTPSeeOther(request.route_url('home'))
+
+Alternatively you can use the ``randomize`` argument to ensure a (near) unique filename.
+
+The  ``storage.base_url`` setting should be set to ``//s3amazonaws.com/<my-bucket-name>/`` unless you want to serve the file behind a proxy or through your Pyramid application.
+
+Usage: Google Cloud Storage
+---------------------------
+
+.. warning::
+    Google Cloud Storage support requires you to install the `google-cloud-storage`_ library separately (e.g. ``pip install google-cloud-storage``).
+
+    Alternatively you can install **pyramid_storage** with the mandatory extra dependencies: ``pip install pyramid_storage[gcloud]``
+
+.. warning::
+    It is the responsibility of the deployment team to ensure that the application has the correct settings and permissions.
+
+Basic usage is similar to **LocalFileStorage**::
+
+    from pyramid.view import view_config
+    from pyramid.httpexceptions import HTTPSeeOther
+
+    @view_config(route_name='upload',
+                 request_method='POST')
+    def upload(request):
+        request.storage.save(request.POST['my_file'])
+        return HTTPSeeOther(request.route_url('home'))
+
+
+One difference is that filenames are not resolved with a numeric suffix as with local files, to prevent network round-trips.
+Instead you can pass the ``replace`` argument to replace the file (default is **False**)::
+
+
+    from pyramid.view import view_config
+    from pyramid.httpexceptions import HTTPSeeOther
+
+    @view_config(route_name='upload',
+                 request_method='POST')
+    def upload(request):
+        request.storage.save(request.POST['my_file'], replace=True)
+        return HTTPSeeOther(request.route_url('home'))
+
+Alternatively you can use the ``randomize`` argument to ensure a (near) unique filename.
+
+The  ``storage.base_url`` setting should be set to ``//storage.googleapis.com/<my-bucket-name>/`` unless you want to serve the file behind a CDN or through your Pyramid application.
+
+Testing
+-------
+
+It's easier to run unit tests on your upload views without actually handling real files. The class :class:`pyramid_storage.storage.DummyFileStorage` provides a convenient way to mock these operations.
+
+This class stores the names of the files internally for your assertions in the **saved** attribute::
+
+    import mock
+
+    from pyramid.testing import DummyRequest
+    from pyramid_storage.storage import DummyFileStorage
+
+    def test_my_upload():
+        from .views import my_upload_view
+        req = DummyRequest()
+        req.storage = DummyFileStorage()
+
+        my_file = mock.Mock()
+        my_file.filename = 'test.jpg'
+
+        req.POST['my_file'] = my_file
+
+        res = my_upload_view(req)
+        assert 'test.jpg' in req.storage.saved
+
+
+Not that *DummyFileStorage* only provides one or two convenience methods. You may wish to extend this class for your own specific needs.
+
+
+API
+---
+
+.. module:: pyramid_storage.exceptions
+
+.. autoclass:: FileNotAllowed
+
+.. module:: pyramid_storage.local
+
+.. autoclass:: LocalFileStorage
+   :members:
+
+.. module:: pyramid_storage.s3
+
+.. autoclass:: S3FileStorage
+   :members:
+
+.. module:: pyramid_storage.gcloud
+
+.. autoclass:: GoogleCloudStorage
+   :members:
+
+.. module:: pyramid_storage.testing
+
+.. autoclass:: DummyFileStorage
+   :members:
+
+.. _Boto: http://pypi.python.org/pypi/boto/
+.. _Pyramid: http://pypi.python.org/pypi/pyramid/
+.. _Github: https://github.com/danjac/pyramid_storage
+.. _google-cloud-storage: https://github.com/googleapis/google-cloud-python
