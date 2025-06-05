@@ -15,7 +15,7 @@ jobs:
       matrix:
         python-version: [2.6, 2.7, 3.5, 3.6, 3.7]
         tox-env: [py26, py27, py35, py36, py37, flake8]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
 
     steps:
     - uses: actions/checkout@v2
