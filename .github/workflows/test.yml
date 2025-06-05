@@ -48,5 +48,3 @@ jobs:
         source .travis_support/create_env.sh
         coveralls
 
-  notifications:
-    email: false
