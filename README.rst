@@ -1,18 +1,35 @@
-.. image:: https://img.shields.io/travis/danjac/pyramid_storage.svg
-        :target: https://travis-ci.org/danjac/pyramid_storage
-
-.. image:: https://img.shields.io/pypi/v/pyramid_storage.svg
-        :target: https://pypi.python.org/pypi/pyramid_storage
+==========
+dask-image
+==========
 
 
-**pyramid_storage** is a package for handling file uploads in your Pyramid framework application.
+.. image:: https://img.shields.io/pypi/v/dask-image.svg
+        :target: https://pypi.python.org/pypi/dask-image
+        :alt: PyPI
 
-Official docs:
+.. image:: https://img.shields.io/conda/vn/conda-forge/dask-image.svg
+        :target: https://anaconda.org/conda-forge/dask-image
+        :alt: conda-forge
 
-https://pythonhosted.org/pyramid_storage/
+.. image:: https://github.com/dask/dask-image/workflows/CI/badge.svg
+        :target: https://github.com/dask/dask-image/actions
+        :alt: GitHub Actions CI
 
-Tested with python 2.6, 2.7, 3.5, 3.6 and 3.7.
+.. image:: https://readthedocs.org/projects/dask-image/badge/?version=latest
+        :target: https://dask-image.readthedocs.io/en/latest/?badge=latest
+        :alt: Read the Docs
 
-This package was inspired by the flask-uploads package:
+.. image:: https://coveralls.io/repos/github/dask/dask-image/badge.svg
+        :target: https://coveralls.io/github/dask/dask-image
+        :alt: Coveralls
 
-https://github.com/srusskih/flask-uploads
+.. image:: https://img.shields.io/github/license/dask/dask-image.svg
+        :target: ./LICENSE.txt
+        :alt: License
+
+
+Distributed image processing
+
+
+* Free software: BSD 3-Clause
+* Documentation: https://dask-image.readthedocs.io.
