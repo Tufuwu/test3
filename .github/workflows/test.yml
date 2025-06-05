@@ -24,8 +24,15 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
 
-    - name: Install Miniconda
-      run: source .travis_support/install_miniconda.sh
+    - name: Setup Conda Environment
+      uses: conda-incubator/setup-miniconda@v2
+      with:
+        miniconda-version: "latest"
+        python-version: ${{ matrix.python-version }}
+        environment-file: continuous_integration/environment-${{ matrix.python-version }}.yml
+        activate-environment: dask-image-testenv
+        auto-activate-base: false
+
 
     - name: Create test environment
       run: |
