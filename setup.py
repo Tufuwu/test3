@@ -1,35 +1,56 @@
-#!/usr/bin/env python
-from setuptools import setup, find_packages
-from os import path
-import sys
+"""
+Publish a new version:
 
-min_py_version = (3, 5)
+$ git tag X.Y.Z -m "Release X.Y.Z"
+$ git push --tags
 
-if sys.version_info <  min_py_version:
-    sys.exit('DataJoint is only supported for Python {}.{} or higher'.format(*min_py_version))
+$ pip install --upgrade twine wheel
+$ python setup.py sdist bdist_wheel --universal
+$ twine upload dist/*
+"""
+import codecs
+from setuptools import setup
 
-here = path.abspath(path.dirname(__file__))
 
-long_description = "A relational data framework for scientific data pipelines with MySQL backend."
+SCHEDULE_VERSION = '0.6.0'
+SCHEDULE_DOWNLOAD_URL = (
+    'https://github.com/dbader/schedule/tarball/' + SCHEDULE_VERSION
+)
 
-# read in version number into __version__
-with open(path.join(here, 'datajoint', 'version.py')) as f:
-    exec(f.read())
 
-with open(path.join(here, 'requirements.txt')) as f:
-    requirements = f.read().split()
+def read_file(filename):
+    """
+    Read a utf8 encoded text file and return its contents.
+    """
+    with codecs.open(filename, 'r', 'utf8') as f:
+        return f.read()
+
 
 setup(
-    name='datajoint',
-    version=__version__,
-    description="A relational data pipeline framework.",
-    long_description=long_description,
-    author='Dimitri Yatsenko',
-    author_email='info@datajoint.io',
-    license="GNU LGPL",
-    url='https://datajoint.io',
-    keywords='database organization',
-    packages=find_packages(exclude=['contrib', 'docs', 'tests*']),
-    install_requires=requirements,
-    python_requires='~={}.{}'.format(*min_py_version)
+    name='schedule',
+    packages=['schedule'],
+    version=SCHEDULE_VERSION,
+    description='Job scheduling for humans.',
+    long_description=read_file('README.rst'),
+    license='MIT',
+    author='Daniel Bader',
+    author_email='mail@dbader.org',
+    url='https://github.com/dbader/schedule',
+    download_url=SCHEDULE_DOWNLOAD_URL,
+    keywords=[
+        'schedule', 'periodic', 'jobs', 'scheduling', 'clockwork',
+        'cron', 'scheduler', 'job scheduling'
+    ],
+    classifiers=[
+        'Intended Audience :: Developers',
+        'License :: OSI Approved :: MIT License',
+        'Programming Language :: Python',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
+        'Natural Language :: English',
+    ],
+    python_requires='>=2.7,!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*',
 )
