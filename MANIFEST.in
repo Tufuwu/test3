@@ -1,14 +1,12 @@
-include AUTHORS.rst
-include CONTRIBUTING.rst
-include HISTORY.rst
+recursive-include dask_jobqueue *.py
+recursive-include dask_jobqueue *.yaml
+
 include LICENSE.txt
 include README.rst
 
-recursive-include tests *
+include requirements.txt
+
 recursive-exclude * __pycache__
 recursive-exclude * *.py[co]
-
-recursive-include docs *.rst conf.py Makefile make.bat *.jpg *.png *.gif
-
 include versioneer.py
-include dask_image/_version.py
+include dask_jobqueue/_version.py
