@@ -1,15 +1,5 @@
 *.pyc
-*.egg-info
-docs/build
+
+*.egg-info/
 build/
 dist/
-.idea/
-log.*
-log
-.coverage
-.DS_Store
-*.swp
-*.swo
-.cache/
-.pytest_cache
-docs/source/generated
