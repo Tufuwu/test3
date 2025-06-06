@@ -1,201 +1,141 @@
-![Functional tests](https://github.com/dassencio/mapgen/workflows/Functional%20tests/badge.svg)
+[![DOI](https://zenodo.org/badge/16774/datajoint/datajoint-python.svg)](https://zenodo.org/badge/latestdoi/16774/datajoint/datajoint-python)
+[![Build Status](https://travis-ci.org/datajoint/datajoint-python.svg?branch=master)](https://travis-ci.org/datajoint/datajoint-python)
+[![Coverage Status](https://coveralls.io/repos/datajoint/datajoint-python/badge.svg?branch=master&service=github)](https://coveralls.io/github/datajoint/datajoint-python?branch=master)
+[![PyPI version](https://badge.fury.io/py/datajoint.svg)](http://badge.fury.io/py/datajoint)
+[![Requirements Status](https://requires.io/github/datajoint/datajoint-python/requirements.svg?branch=master)](https://requires.io/github/datajoint/datajoint-python/requirements/?branch=master)
+[![Join the chat at https://gitter.im/datajoint/datajoint-python](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/datajoint/datajoint-python?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-# Description
+# Welcome to DataJoint for Python!
+DataJoint for Python is a framework for scientific workflow management based on relational principles. DataJoint is built on the foundation of the relational data model and prescribes a consistent method for organizing, populating, computing, and querying data.
 
-`mapgen` is a tool (written in Python 3) which generates interactive maps with
-customizable markers. It takes a YAML file containing map settings and marker
-data as input and generates an HTML page as output. This page contains all
-JavaScript and CSS code it needs inlined into it, so it can be directly opened
-in a web browser (without the need for a web server), shared with others (e.g.
-via e-mail), or added to an existing webpage through an `<iframe>` element.
+DataJoint was initially developed in 2009 by Dimitri Yatsenko in Andreas Tolias' Lab for the distributed processing and management of large volumes of data streaming from regular experiments. Starting in 2011, DataJoint has been available as an open-source project adopted by other labs and improved through contributions from several developers.
 
-Below is an example of what a typical input YAML file looks like:
+Vathes LLC supports DataJoint for Python as an open-source project and everyone is welcome to contribute.
+Its DataJoint Neuro (https://djneuro.io) business provides support to neuroscience labs for developing and executing custom data pipelines.
 
-```yaml
-map settings:
-  title: Largest capital cities of the European Union
-markers:
-  - coordinates: [51.5073219, -0.1276474]
-    popup contents: London, United Kingdom (8.83 million)
-  - coordinates: [52.5170365, 13.3888599]
-    popup contents: Berlin, Germany (3.75 million)
-  - coordinates: [40.4167047, -3.7035825]
-    popup contents: Madrid, Spain (3.23 million)
-  - coordinates: [41.894802, 12.4853384]
-    popup contents: Rome, Italy (2.87 million)
-  - coordinates: [48.8566101, 2.3514992]
-    popup contents: Paris, France (2.15 million)
+## Installation
+```
+pip3 install datajoint
 ```
 
-The resulting page can be seen [here](https://htmlpreview.github.io/?https://github.com/dassencio/mapgen/blob/master/examples/largest-eu-capitals/output.html).
-Clicking on a marker will open a popup showing its associated city name and
-estimated population.
+If you already have an older version of DataJoint installed using `pip`, upgrade with
+```bash
+pip3 install --upgrade datajoint
+```
+## Python Native Blobs
 
-Here are some more interesting examples:
+DataJoint 0.12 adds full support for all native python data types in blobs: tuples, lists, sets, dicts, strings, bytes, `None`, and all their recursive combinations.
+The new blobs are a superset of the old functionality and are fully backward compatible.
+In previous versions, only MATLAB-style numerical arrays were fully supported.
+Some Python datatypes such as dicts were coerced into numpy recarrays and then fetched as such.
 
-- Location of SUSE offices: [Input YAML](https://github.com/dassencio/mapgen/tree/master/examples/suse-offices/input.yaml) |
-  [Output HTML](https://htmlpreview.github.io/?https://github.com/dassencio/mapgen/blob/master/examples/suse-offices/output.html)
+However, since some Python types were coerced into MATLAB types, old blobs and new blobs may now be fetched as different types of objects even if they were inserted the same way. 
+For example, new `dict` objects will be returned as `dict` while the same types of objects inserted with `datajoint 0.11` will be recarrays.
 
-- Largest countries in Western Europe: [Input YAML](https://github.com/dassencio/mapgen/tree/master/examples/largest-west-eu-countries/input.yaml) |
-  [Output HTML](https://htmlpreview.github.io/?https://github.com/dassencio/mapgen/blob/master/examples/largest-west-eu-countries/output.html)
+Since this is a big change, we chose to disable full blob support by default as a temporary precaution, which will be removed in version 0.13.
 
-- Famous monuments of Paris: [Input YAML](https://github.com/dassencio/mapgen/tree/master/examples/famous-monuments-paris/input.yaml) |
-  [Output HTML](https://htmlpreview.github.io/?https://github.com/dassencio/mapgen/blob/master/examples/famous-monuments-paris/output.html)
+You may enable it by setting the `enable_python_native_blobs` flag in `dj.config`. 
 
-# License
+```python
+import datajoint as dj
+dj.config["enable_python_native_blobs"] = True
+```
 
-Except for files from the [Leaflet](https://leafletjs.com/) and
-[Leaflet-providers](https://github.com/leaflet-extras/leaflet-providers)
-libraries and icons from [Flaticon](https://www.flaticon.com/), all files from
-this project are licensed under the GPLv3. See the
-[`LICENSE`](https://github.com/dassencio/mapgen/tree/master/LICENSE) file for
-more information.
+You can safely enable this setting if both of the following are true:
 
-Files from the Leaflet and Leaflet-providers libraries are licensed under the
-[2-clause BSD license](https://github.com/Leaflet/Leaflet/blob/master/LICENSE).
+  * The only kinds of blobs your pipeline have inserted previously were numerical arrays.
+  * You do not need to share blob data between Python and MATLAB.
 
-Icons from Flaticon were produced by Google, Freepik and Smashicons. Those are
-all licensed under the [CC BY 3.0 license](https://creativecommons.org/licenses/by/3.0/).
+Otherwise, read the following explanation.
 
-# Required modules
+DataJoint v0.12 expands DataJoint's blob serialization mechanism with
+improved support for complex native python datatypes, such as dictionaries
+and lists of strings.
 
-All Python modules needed by `mapgen` are listed in the
-[`requirements.txt`](https://github.com/dassencio/mapgen/tree/master/requirements.txt)
-file. You can install them with the following command:
+Prior to DataJoint v0.12, certain python native datatypes such as
+dictionaries were 'squashed' into numpy structured arrays when saved into
+blob attributes. This facilitated easier data sharing between MATLAB
+and Python for certain record types. However, this created a discrepancy
+between insert and fetch datatypes which could cause problems in other
+portions of users pipelines.
 
-    pip3 install -r requirements.txt
+DataJoint v0.12, removes the squashing behavior, instead encoding native python datatypes in blobs directly. 
+However, this change creates a compatibility problem for pipelines 
+which previously relied on the type squashing behavior since records 
+saved via the old squashing format will continue to fetch
+as structured arrays, whereas new record inserted in DataJoint 0.12 with
+`enable_python_native_blobs` would result in records returned as the
+appropriate native python type (dict, etc).  
+Furthermore, DataJoint for MATLAB does not yet support unpacking native Python datatypes.
 
-# Usage instructions
+With `dj.config["enable_python_native_blobs"]` set to `False` (default), 
+any attempt to insert any datatype other than a numpy array will result in an exception.
+This is meant to get users to read this message in order to allow proper testing
+and migration of pre-0.12 pipelines to 0.12 in a safe manner.
 
-For an input file `input.yaml` containing map settings and marker data,
-running the following command will generate the desired HTML
-page and store it on `output.html`:
+The exact process to update a specific pipeline will vary depending on
+the situation, but generally the following strategies may apply:
 
-    ./mapgen -i input.yaml -o output.html
+  * Altering code to directly store numpy structured arrays or plain
+    multidimensional arrays. This strategy is likely best one for those 
+    tables requiring compatibility with MATLAB.
+  * Adjust code to deal with both structured array and native fetched data
+    for those tables that are populated with `dict`s in blobs in pre-0.12 version. 
+    In this case, insert logic is not adjusted, but downstream consumers
+    are adjusted to handle records saved under the old and new schemes.
+  * Migrate data into a fresh schema, fetching the old data, converting blobs to 
+    a uniform data type and re-inserting.
+  * Drop/Recompute imported/computed tables to ensure they are in the new
+    format.
 
-If you omit `-o output.html` on the command above, the generated HTML will be
-printed on the standard output (`stdout`).
+As always, be sure that your data is safely backed up before modifying any
+important DataJoint schema or records.
 
-# YAML input
+## Documentation and Tutorials
+A number of labs are currently adopting DataJoint and we are quickly getting the documentation in shape in February 2017.
 
-## Introduction
+* https://datajoint.io  -- start page
+* https://docs.datajoint.io -- up-to-date documentation
+* https://tutorials.datajoint.io -- step-by-step tutorials
+* https://catalog.datajoint.io -- catalog of example pipelines
 
-Each marker has two possible states: "normal" and "selected". Different icons
-can be displayed for a marker depending on whether it is selected or not. This
-allows the user to create maps which are more fun to interact with by making
-the icon of a selected marker look different from the icons of the
-unselected (normal) markers. Only one marker can be selected at a time.
+## Running Tests Locally
 
-**NOTE**: When running `mapgen`, relative paths to icons files appearing on
-the input YAML file will be resolved from the current working directory, not
-from the location of the YAML file!
 
-If `popup contents` is defined for a marker, a popup will be shown when it is
-selected. Markers with no `popup contents` defined are assumed to be
-non-selectable and are therefore always displayed with their normal icons.
+* Create an `.env` with desired development environment values e.g.
+``` sh
+PY_VER=3.7
+ALPINE_VER=3.10
+MYSQL_VER=5.7
+MINIO_VER=RELEASE.2019-09-26T19-42-35Z
+UID=1000
+GID=1000
+```
+* `cp local-docker-compose.yml docker-compose.yml`
+* `docker-compose up -d` (Note configured `JUPYTER_PASSWORD`)
+* Select a means of running Tests e.g. Docker Terminal, or Local Terminal (see bottom)
+* Add entry in `/etc/hosts` for `127.0.0.1 fakeservices.datajoint.io`
+* Run desired tests. Some examples are as follows:
 
-The input YAML file is divided into three main sections:
+| Use Case                     | Shell Code                                                                    |
+| ---------------------------- | ------------------------------------------------------------------------------ |
+| Run all tests                | `nosetests -vsw tests --with-coverage --cover-package=datajoint`                                                              |
+| Run one specific class test       | `nosetests -vs --tests=tests.test_fetch:TestFetch.test_getattribute_for_fetch1`                                                           |
+| Run one specific basic test        | `nosetests -vs --tests=tests.test_external_class:test_insert_and_fetch`                                   |
 
-- `default marker settings`: Style settings (e.g. icon dimensions) which are
-  applied to all markers by default. These settings can be overridden at the
-  definition of each marker.
 
-- `map settings`: Global map settings such as the name of the map tile provider
-  as well as external resources to inline into the generated HTML page with the
-  intent of modifying the map's style and behavior.
+### Launch Docker Terminal
+* Shell into `datajoint-python_app_1` i.e. `docker exec -it datajoint-python_app_1 sh`
 
-- `markers`: List of markers to be displayed on the map. Each marker must have
-  a pair of coordinates specifying its location. A marker is not required
-  to have a popup (`popup contents` is an optional attribute).
 
-### Attributes in `default marker settings`:
+### Launch Local Terminal
+* See `datajoint-python_app` environment variables in `local-docker-compose.yml`
+* Launch local terminal
+* `export` environment variables in shell
+* Add entry in `/etc/hosts` for `127.0.0.1 fakeservices.datajoint.io`
 
-- `icon`: Path to an icon file (an image) or the name of a built-in icon to be
-  used as the default icon for markers in both "normal" and "selected" states.
-  Built-in icons are located in the `template/icons` directory, and their names
-  must be given without the `.svg` suffix (e.g. `airplane` or `house`). Defaults
-  to `placeholder`.
 
-- `icon color`: Default icon color assigned to all icons of all markers (both
-  in "normal" and "selected" states). Applicable only to built-in icons. Any CSS
-  color is allowed.
-
-- `icon dimensions`: Default icon dimensions (in pixels) expressed as an array
-  of form `[width, height]`. Defaults to `[40, 40]`.
-
-- `normal icon`: Accepts the same values as `icon`, but only affects the icons
-  shown for markers when they are not selected. Has higher precedence than
-  `icon`, i.e., if both `icon` and `normal icon` are specified, the default
-  normal icon will be set to the one specified in `normal icon`.
-
-- `normal icon color`: Accepts the same values as `icon color`, but only affects
-  the icons shown for markers when they are not selected. Has higher precedence
-  than `icon color`, i.e., if both `icon color` and `normal icon color` are
-  specified, the default color for normal icons will be set to the one specified
-  in `normal icon color`. Defaults to `#1081e0` (blue).
-
-- `normal icon dimensions`: Accepts the same values as `icon dimensions`, but
-  only affects the icons shown for markers when they are not selected. Has
-  higher precedence than `icon dimensions`, i.e., if both `icon dimensions` and
-  `normal icon dimensions` are specified, the default dimensions for normal
-  icons will be set to those specified in `normal icon dimensions`.
-
-- `selected icon`: Equivalent of `normal icon` for selected icons.
-
-- `selected icon color`: Equivalent of `normal icon color` for selected icons.
-  Defaults to `#d30800` (red).
-
-- `selected icon dimensions`: Equivalent of `normal icon dimensions` for
-  selected icons.
-
-### Attributes in `map settings`:
-
-- `external css files`: List of CSS files to be inlined into the generated HTML
-  page. CSS styles defined in these files will override the default CSS styles
-  from `mapgen` (see [`template/mapgen.css`](https://github.com/dassencio/mapgen/tree/master/template/mapgen.css)).
-
-- `external javascript files`: List of JavaScript files to be inlined into the
-  generated HTML page. The map can be manipulated through the `map` property of
-  the global `mapgen` object (see [`template/mapgen.js`](https://github.com/dassencio/mapgen/tree/master/template/mapgen.js)).
-
-- `show zoom control`: Whether zoom controls (`+`/`-` buttons) should be
-  displayed or not. Valid values are `no` and `yes`. Defaults to `yes`.
-
-- `tile provider`: Name associated with the server from which map tiles will be
-  fetched. The tile provider name must be among those listed in the
-  [Leaflet-providers](https://github.com/leaflet-extras/leaflet-providers)
-  project. To preview what the map will look like with a certain provider,
-  visit the Leaflet-providers [demo page](https://leaflet-extras.github.io/leaflet-providers/preview/).
-  Make sure you do not violate the usage policy of your selected provider as
-  that may cause your application to be blocked by it. Defaults to
-  `OpenStreetMap.Mapnik`.
-
-- `title`: Title to be displayed when the generated HTML page is opened in a
-  web browser.
-
-- `zoom control position`: Location on the map where zoom controls must be
-  displayed, if applicable. Valid values are `bottom left`, `bottom right`,
-  `top left` and `top right`. Defaults to `top right`.
-
-### Marker entries in `markers`:
-
-All markers must be entered as a list under the `markers` section of the YAML
-file. Every marker accepts the same attributes as the ones from
-`default marker settings`, but those will only be applied to the marker being
-defined, i.e., values for attributes specified on a marker have higher
-precedence than those for attributes with the same names specified under
-`default marker settings`.
-
-Additional attributes for markers:
-
-- `coordinates`: Marker position on the map expressed as an array of form
-  `[latitude, longitude]`. Latitude and longitude values must fall within the
-  value ranges `[-90, 90]` and `[-180, 180]` respectively. Every marker
-  needs to have `coordinates` defined.
-
-- `popup contents`: HTML contents to be shown on the popup displayed for a
-  marker when it is selected.
-
-# Contributors & contact information
-
-Diego Assencio / diego@assencio.com
+### Launch Jupyter Notebook for Interactive Use
+* Navigate to `localhost:8888`
+* Input Jupyter password
+* Launch a notebook i.e. `New > Python 3`
