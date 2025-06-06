@@ -2,7 +2,7 @@ name: Functional tests
 
 on:
   push:
-    branches: [master]
+    branches: [main]
   pull_request:
     branches: [master]
 
@@ -11,6 +11,7 @@ jobs:
     name: Build and test
     runs-on: ${{matrix.os}}
     strategy:
+      fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-latest]
         python-version: [3.6, 3.7, 3.8]
