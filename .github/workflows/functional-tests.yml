@@ -33,5 +33,5 @@ jobs:
 
     - name: Run functional tests
       run: |
-        
+        chmod +x run-tests
         ./run-tests
