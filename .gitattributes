@@ -1,1 +1,2 @@
-partd/_version.py export-subst
+examples/* linguist-vendored
+template/* linguist-vendored
