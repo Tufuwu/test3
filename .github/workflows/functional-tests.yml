@@ -34,4 +34,5 @@ jobs:
     - name: Run functional tests
       run: |
         chmod +x run-tests
+        chmod +x ./mapgen
         ./run-tests
