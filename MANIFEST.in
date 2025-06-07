@@ -1,1 +1,2 @@
-include result/py.typed
+include LICENSE
+recursive-include tests *.py *.txt
