@@ -1,9 +1,13 @@
-recursive-include opt_einsum *.py
+graft src
+graft tests
 
-include setup.py
-include README.md
-include LICENSE
-include MANIFEST.in
+include AUTHORS.rst
+include CONTRIBUTING.rst
+include CHANGELOG.rst
+include LICENSE.rst
+include README.rst
+include requirements.txt
+include tox.ini
 
-include versioneer.py
-include opt_einsum/_version.py
+recursive-include docs *.rst conf.py Makefile
+global-exclude *.py[cod] __pycache__ *.so

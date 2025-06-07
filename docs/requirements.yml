@@ -1,8 +1,0 @@
-name: opt-einsum-docs
-channels:
-    - defaults
-dependencies:
-    - python=3
-    - numpy
-    - sphinx
-    - sphinx_rtd_theme
