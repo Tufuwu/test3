@@ -1,53 +1,90 @@
+#!/usr/bin/env python3
+
 import os
-import re
+from setuptools import setup
 
-try:
-    from setuptools import setup
-except ImportError:
-    from distutils.core import setup
+base_dir = os.path.dirname(__file__)
+about = {}
+with open(os.path.join(base_dir, "delphin", "__about__.py")) as f:
+    exec(f.read(), about)
 
-with open("win32_setctime.py", "r") as file:
-    regex_version = r'^__version__\s*=\s*[\'"]([^\'"]*)[\'"]'
-    version = re.search(regex_version, file.read(), re.MULTILINE).group(1)
+with open(os.path.join(base_dir, 'README.md'), encoding='utf-8') as f:
+    long_description = f.read()
 
-with open("README.md", "rb") as file:
-    readme = file.read().decode("utf-8")
+repp_requires = ['regex==2020.1.8']
+web_requires = ['requests==2.22.0', 'falcon==2.0.0']
+
+# thanks: https://snarky.ca/clarifying-pep-518/
+doc_requirements = os.path.join(base_dir, 'docs', 'requirements.txt')
+if os.path.isfile(doc_requirements):
+    with open(doc_requirements) as f:
+        docs_require = f.readlines()
+else:
+    docs_require = []
+
+tests_require = repp_requires + web_requires + [
+    'pytest',
+    'flake8',
+    'mypy',
+    'types-requests',
+]
 
 setup(
-    name="win32_setctime",
-    version=version,
-    py_modules=["win32_setctime"],
-    description="A small Python utility to set file creation time on Windows",
-    long_description=readme,
+    name=about['__title__'],
+    version=about['__version__'],
+    description=about['__summary__'],
+    long_description=long_description,
     long_description_content_type='text/markdown',
-    author="Delgan",
-    author_email="delgan.py@gmail.com",
-    url="https://github.com/Delgan/win32-setctime",
-    download_url="https://github.com/Delgan/win32-setctime/archive/{}.tar.gz".format(version),
-    keywords=["win32", "windows", "filesystem", "filetime"],
-    license="MIT license",
+    url=about['__uri__'],
+    author=about['__author__'],
+    author_email=about['__email__'],
+    license=about['__license__'],
     classifiers=[
-        "Development Status :: 5 - Production/Stable",
-        "Topic :: System :: Filesystems",
-        "Intended Audience :: Developers",
-        "Environment :: Win32 (MS Windows)",
-        "Natural Language :: English",
-        "License :: OSI Approved :: MIT License",
-        "Operating System :: Microsoft",
-        "Programming Language :: Python",
-        "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.5",
-        "Programming Language :: Python :: 3.6",
-        "Programming Language :: Python :: 3.7",
-        "Programming Language :: Python :: 3 :: Only",
-        "Programming Language :: Python :: Implementation :: PyPy",
-        "Programming Language :: Python :: Implementation :: CPython",
+        'Development Status :: 5 - Production/Stable',
+        'Environment :: Console',
+        'Intended Audience :: Developers',
+        'Intended Audience :: Information Technology',
+        'Intended Audience :: Science/Research',
+        'License :: OSI Approved :: MIT License',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
+        'Topic :: Scientific/Engineering :: Information Analysis',
+        'Topic :: Software Development :: Libraries :: Python Modules',
+        'Topic :: Text Processing :: Linguistic',
+        'Topic :: Utilities'
+    ],
+    keywords='nlp semantics hpsg delph-in linguistics',
+    packages=[
+        'delphin',
+        'delphin.cli',
+        'delphin.codecs',
+        'delphin.mrs',
+        'delphin.eds',
+        'delphin.dmrs',
+        'delphin.web',
+    ],
+    install_requires=[
+        'penman==1.1.0',
+        'progress==1.5',
     ],
     extras_require={
-        "dev": [
-            "black>=19.3b0 ; python_version>='3.6'",
-            "pytest>=4.6.2",
-        ]
+        'docs': docs_require,
+        'tests': tests_require,
+        'dev': docs_require + tests_require + [
+            # https://packaging.python.org/guides/making-a-pypi-friendly-readme
+            'setuptools >= 38.6.0',
+            'wheel >= 0.31.0',
+            'twine >= 1.11.0'
+        ],
+        'web': web_requires,
+        'repp': repp_requires,
     },
-    python_requires=">=3.5",
+    entry_points={
+        'console_scripts': [
+            'delphin=delphin.main:main'
+        ],
+    },
 )
