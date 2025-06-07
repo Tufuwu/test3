@@ -1,94 +1,64 @@
-#!/usr/bin/python3
+# -*- coding: utf-8 -*-
 
-# -------------------------------------------------------------------------------
-# This file is part of Phobos, a Blender Add-On to edit robot models.
-# Copyright (C) 2020 University of Bremen & DFKI GmbH Robotics Innovation Center
-#
-# You should have received a copy of the 3-Clause BSD License in the LICENSE file.
-# If not, see <https://opensource.org/licenses/BSD-3-Clause>.
-# -------------------------------------------------------------------------------
-import json
-import os
 import setuptools
-import subprocess
-from pathlib import Path
+import versioneer
 
-
-# utilities
-def get_git_revision_hash():
-    return subprocess.check_output(['git', 'rev-parse', 'HEAD']).strip().decode("utf-8")
-
-
-def get_git_revision_short_hash():
-    return subprocess.check_output(['git', 'rev-parse', '--short', 'HEAD']).strip().decode("utf-8")
-
-
-def get_git_branch():
-    return subprocess.check_output(['git', 'rev-parse', '--abbrev-ref', 'HEAD']).strip().decode("utf-8")
-
-
-def main(args):
-    # data
-    with open("README.md", "r") as fh:
-        long_description = fh.read()
-    codemeta = json.load(open("codemeta.json", "r"))
-    requirements = {
-        "yaml": "pyyaml",
-        "networkx": "networkx",  # optional for blender
-        "numpy": "numpy",
-        "scipy": "scipy",
-        "trimesh": "trimesh",  # optional for blender
-        "pkg_resources": "setuptools",
-        "collada": "pycollada",
-        "pydot": "pydot"
-    }
-    optional_requirements = {
-        "yaml": "pyyaml",
-        "pybullet": "pybullet",  # optional for blender
-        "open3d": "open3d",  # optional for blender
-        "python-fcl": "python-fcl",  # optional for blender
-    }
-    this_dir = Path(__file__).parent
-
-    ##################
-    # python package #
-    ##################
-    kwargs = {
-        "name": codemeta["title"].lower(),  # Replace with your own username
-        "version": codemeta["version"],
-        "author": ",  ".join(codemeta["author"]),
-        "author_email": codemeta["maintainer"],
-        "description": codemeta["description"] + " Revision:" + get_git_branch() + "-" + get_git_revision_short_hash(),
-        "long_description": long_description,
-        "long_description_content_type":" text/markdown",
-        "url": codemeta["codeRepository"],
-        "packages": setuptools.find_packages(),
-        "include_package_data": True,
-        "package_data":{'':  [os.path.join("data", x) for x in os.listdir(this_dir/"phobos"/"data")],},
-        "classifiers": [
-            "Programming Language :: Python :: 3",
-            "Programming Language :: Python :: 3.6",
-            "Programming Language :: Python :: 3.8",
-            "Programming Language :: Python :: 3.10",
-            "Operating System :: OS Independent",
-        ],
-        "python_requires": '>= 3.6',
-        "entry_points": {
-            'console_scripts': [
-                'phobos=phobos.scripts.phobos:main',
-            ]
-        }
-    }
-    # autoproj handling
-    if not "AUTOPROJ_CURRENT_ROOT" in os.environ:
-        kwargs["install_requires"] = list(requirements.values())
-        kwargs["extras_require"] = {'console_scripts': list(optional_requirements.keys())}
-
-    setuptools.setup(
-        **kwargs
-    )
+short_description = "Optimizing numpys einsum function"
+try:
+    with open("README.md", "r") as handle:
+        long_description = handle.read()
+except:
+    long_description = short_description
 
 
 if __name__ == "__main__":
-    import sys
-    main(sys.argv)
+    setuptools.setup(
+        name='opt_einsum',
+        version=versioneer.get_version(),
+        cmdclass=versioneer.get_cmdclass(),
+        description=short_description,
+        author='Daniel Smith',
+        author_email='dgasmith@icloud.com',
+        url="https://github.com/dgasmith/opt_einsum",
+        license='MIT',
+        packages=setuptools.find_packages(),
+        python_requires='>=3.5',
+        install_requires=[
+            'numpy>=1.7',
+        ],
+        extras_require={
+            'docs': [
+                'sphinx==1.2.3',  # autodoc was broken in 1.3.1
+                'sphinxcontrib-napoleon',
+                'sphinx_rtd_theme',
+                'numpydoc',
+            ],
+            'tests': [
+                'pytest',
+                'pytest-cov',
+                'pytest-pep8',
+            ],
+        },
+
+        tests_require=[
+            'pytest',
+            'pytest-cov',
+            'pytest-pep8',
+        ],
+
+        classifiers=[
+            'Development Status :: 5 - Production/Stable',
+            'Intended Audience :: Science/Research',
+            'Intended Audience :: Developers',
+            'License :: OSI Approved',
+            'Programming Language :: Python',
+            'Programming Language :: Python :: 3',
+            'Programming Language :: Python :: 3.5',
+            'Programming Language :: Python :: 3.6',
+            'Programming Language :: Python :: 3.7',
+            'Programming Language :: Python :: 3.8',
+        ],
+        zip_safe=True,
+        long_description=long_description,
+        long_description_content_type="text/markdown"
+    )
