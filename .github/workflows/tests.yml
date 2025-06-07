@@ -7,7 +7,6 @@ jobs:
     runs-on: windows-latest
 
     strategy:
-      fail-fast: false
       matrix:
         python-version: ['3.5', '3.6', '3.7']
 
@@ -22,5 +21,6 @@ jobs:
         python -m pip install --user --upgrade pip setuptools
         python -m pip install --user -e .[dev]
 
-    - name: Run tests
-      run: python -m pytest tests
+    - name: Run unit tests
+      run: |
+        python -m pytest tests
