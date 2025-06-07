@@ -1,60 +1,94 @@
-#!/usr/bin/env python
-from setuptools import setup, find_packages
+#!/usr/bin/python3
 
-DISTNAME = 'tract_querier'
-DESCRIPTION = \
-    'WMQL: Query language for automatic tract extraction from '\
-    'full-brain tractographies with '\
-    'a registered template on top of them'
-LONG_DESCRIPTION = open('README.md').read()
-MAINTAINER = 'Demian Wassermann'
-MAINTAINER_EMAIL = 'demian@bwh.harvard.edu'
-URL = 'http://demianw.github.io/tract_querier'
-LICENSE = open('license.rst').read()
-DOWNLOAD_URL = 'https://github.com/demianw/tract_querier'
-VERSION = '0.1'
+# -------------------------------------------------------------------------------
+# This file is part of Phobos, a Blender Add-On to edit robot models.
+# Copyright (C) 2020 University of Bremen & DFKI GmbH Robotics Innovation Center
+#
+# You should have received a copy of the 3-Clause BSD License in the LICENSE file.
+# If not, see <https://opensource.org/licenses/BSD-3-Clause>.
+# -------------------------------------------------------------------------------
+import json
+import os
+import setuptools
+import subprocess
+from pathlib import Path
+
+
+# utilities
+def get_git_revision_hash():
+    return subprocess.check_output(['git', 'rev-parse', 'HEAD']).strip().decode("utf-8")
+
+
+def get_git_revision_short_hash():
+    return subprocess.check_output(['git', 'rev-parse', '--short', 'HEAD']).strip().decode("utf-8")
+
+
+def get_git_branch():
+    return subprocess.check_output(['git', 'rev-parse', '--abbrev-ref', 'HEAD']).strip().decode("utf-8")
+
+
+def main(args):
+    # data
+    with open("README.md", "r") as fh:
+        long_description = fh.read()
+    codemeta = json.load(open("codemeta.json", "r"))
+    requirements = {
+        "yaml": "pyyaml",
+        "networkx": "networkx",  # optional for blender
+        "numpy": "numpy",
+        "scipy": "scipy",
+        "trimesh": "trimesh",  # optional for blender
+        "pkg_resources": "setuptools",
+        "collada": "pycollada",
+        "pydot": "pydot"
+    }
+    optional_requirements = {
+        "yaml": "pyyaml",
+        "pybullet": "pybullet",  # optional for blender
+        "open3d": "open3d",  # optional for blender
+        "python-fcl": "python-fcl",  # optional for blender
+    }
+    this_dir = Path(__file__).parent
+
+    ##################
+    # python package #
+    ##################
+    kwargs = {
+        "name": codemeta["title"].lower(),  # Replace with your own username
+        "version": codemeta["version"],
+        "author": ",  ".join(codemeta["author"]),
+        "author_email": codemeta["maintainer"],
+        "description": codemeta["description"] + " Revision:" + get_git_branch() + "-" + get_git_revision_short_hash(),
+        "long_description": long_description,
+        "long_description_content_type":" text/markdown",
+        "url": codemeta["codeRepository"],
+        "packages": setuptools.find_packages(),
+        "include_package_data": True,
+        "package_data":{'':  [os.path.join("data", x) for x in os.listdir(this_dir/"phobos"/"data")],},
+        "classifiers": [
+            "Programming Language :: Python :: 3",
+            "Programming Language :: Python :: 3.6",
+            "Programming Language :: Python :: 3.8",
+            "Programming Language :: Python :: 3.10",
+            "Operating System :: OS Independent",
+        ],
+        "python_requires": '>= 3.6',
+        "entry_points": {
+            'console_scripts': [
+                'phobos=phobos.scripts.phobos:main',
+            ]
+        }
+    }
+    # autoproj handling
+    if not "AUTOPROJ_CURRENT_ROOT" in os.environ:
+        kwargs["install_requires"] = list(requirements.values())
+        kwargs["extras_require"] = {'console_scripts': list(optional_requirements.keys())}
+
+    setuptools.setup(
+        **kwargs
+    )
 
 
 if __name__ == "__main__":
-    setup(
-        name=DISTNAME,
-        maintainer=MAINTAINER,
-        maintainer_email=MAINTAINER_EMAIL,
-        description=DESCRIPTION,
-        license=LICENSE,
-        url=URL,
-        version=VERSION,
-        download_url=DOWNLOAD_URL,
-        long_description=LONG_DESCRIPTION,
-        requires=[
-            'numpy(>=1.6)',
-            'nibabel(>=1.3)'
-        ],
-        classifiers=[
-            'Intended Audience :: Science/Research',
-            'Programming Language :: Python',
-            'Topic :: Scientific/Engineering',
-            'Operating System :: Microsoft :: Windows',
-            'Operating System :: POSIX',
-            'Operating System :: Unix',
-            'Operating System :: MacOS'
-        ],
-        scripts=[
-            'scripts/tract_querier',
-            'scripts/tract_math'
-        ],
-        test_suite='nose.collector',
-        data_files=[
-            ('data',
-             [
-                 'data/FreeSurfer.qry',
-                 'data/JHU_MNI_SS_WMPM_Type_I.qry',
-                 'data/JHU_MNI_SS_WMPM_Type_II.qry',
-                 'data/freesurfer_queries.qry',
-                 'data/mori_queries.qry',
-             ]
-             )
-        ],
-        include_package_data=True,
-        packages=find_packages(),
-    )
+    import sys
+    main(sys.argv)

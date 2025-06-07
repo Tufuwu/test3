@@ -1,62 +1,55 @@
-# simple makefile to simplify repetetive build env management tasks under posix
+# -------------------------------------------------------------------------------
+# This file is part of Phobos, a Blender Add-On to edit robot models.
+# Copyright (C) 2020 University of Bremen & DFKI GmbH Robotics Innovation Center
+#
+# You should have received a copy of the 3-Clause BSD License in the LICENSE file.
+# If not, see <https://opensource.org/licenses/BSD-3-Clause>.
+# -------------------------------------------------------------------------------
 
-# caution: testing won't work on windows, see README
+help:
+		@echo	'Targets of Phobos:'
+		@echo 	'  apidoc    - Generates the Sphinx API documentation and moves'
+		@echo	'              it to the gh-pages branch.'
+		@echo	'  clean     - Removes the installation configuration file for Phobos.'
+		@echo	'              This does not remove the Phobos installation and configurations!'
+		@echo 	'  format    - Formats the python code in the folder using the black code'
+		@echo 	'              formatter (github.com/ambv/black).'
+		@echo 	'  help      - Print this help information.'
+		@echo	'  install   - Install the Phobos code to your Blender installation.'
+		@echo	'              This also sets up the configuration folder for Phobos.'
+		@echo	'  version   - Prints some help relating to drafting a new version.'
 
-PYTHON ?= python
-CYTHON ?= cython
-NOSETESTS ?= nosetests
-CTAGS ?= ctags
+install:
+		pip3 install .
 
-all: clean inplace test
+clean:
+		rm installation.conf
 
-clean-pyc:
-	find tract_querier -name "*.pyc" | xargs rm -f
+format:
+		# add docstrings and format to google style
+		pyment -o google -w .
+		# add TODO tag for empty docstrings
+		grep -rl --include=\*.py '""" """' | xargs -r sed -i 's/""" """/"""TODO Missing documentation"""/g'
+		# apply hard formatting rules
+		black -l 100 -S .
 
-clean-so:
-	find tract_querier -name "*.so" | xargs rm -f
-	find tract_querier -name "*.pyd" | xargs rm -f
+apidoc:
+		@echo 'Start sphinx doc generation...'
+		rm phobos/__init__.py
+		cd doc && make clean && make html
+		cd doc/_build/html && grep -rl --include=\*.html 'Created using' | xargs -r sed -i '/Created using/ s/$$/\&nbsp\&nbsp\&nbsp<a\ href=\"https:\/\/help\.github.com\/articles\/github-privacy-statement\/\">Privacy<\/a>/'
+		git checkout -- phobos/__init__.py
+		git checkout gh-pages
+		rm -rf *.html *.js *.inv _sources _static
+		mv doc/_build/html/* .
+		@echo 'Please commit and push the changes to publish the new doc on https://dfki-ric.github.io/phobos'
 
-clean-build:
-	rm -rf build
+version:
+		@echo 'Change version in:'
+		@echo '  - codemeta.json'
+		@echo '  - phobos/defs.py'
+		@echo '  - phobos/__init__.py'
+		@echo '  - doc/conf.py'
+		@echo '  - doc/index.rst'
 
-clean-ctags:
-	rm -f tags
-
-clean-doc:
-	rm -rf doc/_build
-
-clean: clean-build clean-pyc clean-so clean-ctags clean-doc
-
-in: inplace # just a shortcut
-inplace:
-	$(PYTHON) setup.py build_ext -i
-
-test-code: in
-	$(NOSETESTS) -s tract_querier
-test-doc:
-	$(NOSETESTS) -s --with-doctest --doctest-tests --doctest-extension=rst \
-	--doctest-extension=inc --doctest-fixtures=_fixture doc/ 
-
-test-coverage:
-	rm -rf coverage .coverage
-	$(NOSETESTS) -s --with-coverage --cover-html --cover-html-dir=coverage \
-	--cover-package=tract_querier tract_querier
-
-test: test-code
-
-trailing-spaces:
-	find tract_querier -name "*.py" | xargs perl -pi -e 's/[ \t]*$$//'
-
-cython:
-	find tract_querier -name "*.pyx" | xargs $(CYTHON)
-
-ctags:
-	# make tags for symbol based navigation in emacs and vim
-	# Install with: sudo apt-get install exuberant-ctags
-	$(CTAGS) -R *
-
-doc: inplace
-	make -C doc html
-
-doc-noplot: inplace
-	make -C doc html-noplot
+.PHONY: init test install format apidoc help
