@@ -1,90 +1,60 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
+from setuptools import setup, find_packages
 
-import os
-from setuptools import setup
+DISTNAME = 'tract_querier'
+DESCRIPTION = \
+    'WMQL: Query language for automatic tract extraction from '\
+    'full-brain tractographies with '\
+    'a registered template on top of them'
+LONG_DESCRIPTION = open('README.md').read()
+MAINTAINER = 'Demian Wassermann'
+MAINTAINER_EMAIL = 'demian@bwh.harvard.edu'
+URL = 'http://demianw.github.io/tract_querier'
+LICENSE = open('license.rst').read()
+DOWNLOAD_URL = 'https://github.com/demianw/tract_querier'
+VERSION = '0.1'
 
-base_dir = os.path.dirname(__file__)
-about = {}
-with open(os.path.join(base_dir, "delphin", "__about__.py")) as f:
-    exec(f.read(), about)
 
-with open(os.path.join(base_dir, 'README.md'), encoding='utf-8') as f:
-    long_description = f.read()
-
-repp_requires = ['regex==2020.1.8']
-web_requires = ['requests==2.22.0', 'falcon==2.0.0']
-
-# thanks: https://snarky.ca/clarifying-pep-518/
-doc_requirements = os.path.join(base_dir, 'docs', 'requirements.txt')
-if os.path.isfile(doc_requirements):
-    with open(doc_requirements) as f:
-        docs_require = f.readlines()
-else:
-    docs_require = []
-
-tests_require = repp_requires + web_requires + [
-    'pytest',
-    'flake8',
-    'mypy',
-    'types-requests',
-]
-
-setup(
-    name=about['__title__'],
-    version=about['__version__'],
-    description=about['__summary__'],
-    long_description=long_description,
-    long_description_content_type='text/markdown',
-    url=about['__uri__'],
-    author=about['__author__'],
-    author_email=about['__email__'],
-    license=about['__license__'],
-    classifiers=[
-        'Development Status :: 5 - Production/Stable',
-        'Environment :: Console',
-        'Intended Audience :: Developers',
-        'Intended Audience :: Information Technology',
-        'Intended Audience :: Science/Research',
-        'License :: OSI Approved :: MIT License',
-        'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.6',
-        'Programming Language :: Python :: 3.7',
-        'Programming Language :: Python :: 3.8',
-        'Programming Language :: Python :: 3.9',
-        'Topic :: Scientific/Engineering :: Information Analysis',
-        'Topic :: Software Development :: Libraries :: Python Modules',
-        'Topic :: Text Processing :: Linguistic',
-        'Topic :: Utilities'
-    ],
-    keywords='nlp semantics hpsg delph-in linguistics',
-    packages=[
-        'delphin',
-        'delphin.cli',
-        'delphin.codecs',
-        'delphin.mrs',
-        'delphin.eds',
-        'delphin.dmrs',
-        'delphin.web',
-    ],
-    install_requires=[
-        'penman==1.1.0',
-        'progress==1.5',
-    ],
-    extras_require={
-        'docs': docs_require,
-        'tests': tests_require,
-        'dev': docs_require + tests_require + [
-            # https://packaging.python.org/guides/making-a-pypi-friendly-readme
-            'setuptools >= 38.6.0',
-            'wheel >= 0.31.0',
-            'twine >= 1.11.0'
+if __name__ == "__main__":
+    setup(
+        name=DISTNAME,
+        maintainer=MAINTAINER,
+        maintainer_email=MAINTAINER_EMAIL,
+        description=DESCRIPTION,
+        license=LICENSE,
+        url=URL,
+        version=VERSION,
+        download_url=DOWNLOAD_URL,
+        long_description=LONG_DESCRIPTION,
+        requires=[
+            'numpy(>=1.6)',
+            'nibabel(>=1.3)'
         ],
-        'web': web_requires,
-        'repp': repp_requires,
-    },
-    entry_points={
-        'console_scripts': [
-            'delphin=delphin.main:main'
+        classifiers=[
+            'Intended Audience :: Science/Research',
+            'Programming Language :: Python',
+            'Topic :: Scientific/Engineering',
+            'Operating System :: Microsoft :: Windows',
+            'Operating System :: POSIX',
+            'Operating System :: Unix',
+            'Operating System :: MacOS'
         ],
-    },
-)
+        scripts=[
+            'scripts/tract_querier',
+            'scripts/tract_math'
+        ],
+        test_suite='nose.collector',
+        data_files=[
+            ('data',
+             [
+                 'data/FreeSurfer.qry',
+                 'data/JHU_MNI_SS_WMPM_Type_I.qry',
+                 'data/JHU_MNI_SS_WMPM_Type_II.qry',
+                 'data/freesurfer_queries.qry',
+                 'data/mori_queries.qry',
+             ]
+             )
+        ],
+        include_package_data=True,
+        packages=find_packages(),
+    )
