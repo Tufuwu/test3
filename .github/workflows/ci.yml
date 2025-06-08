@@ -1,40 +1,32 @@
-name: drf-tus
+name: Python package
 
 on:
   push:
+    branches:
+      - main
   pull_request:
     branches:
-    - 'master'
-    paths-ignore:
-    - 'docs/*'
-    - 'example/*'
-    - 'README.rst'
-    - 'CONTRIBUTING.rst'
-    - 'HISTORY.rst'
-    - '.coverage'
-    - '.editorconfig'
-    - '.gitignore'
-    - '.pre-commit-config.yaml'
-    - 'LICENSE'
-    - 'Makefile'
-    - 'MANIFEST.in'
+      - main
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false 
       matrix:
-        python-version: ['3.9', '3.10', '3.11']
-
+        python-version: [2.7, 3.4, 3.5, 3.6]
+        django-version: [1.8, 1.9, 1.10, 1.11]
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v2
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        python -m pip install tox tox-gh-actions
-    - name: Test with tox
+        pip install tox
+    - name: Run tests
+      env:
+        TOXENV: py${{ matrix.python-version | replace('.', '') }}-django-${{ matrix.django-version | replace('.', '') }}
       run: tox
