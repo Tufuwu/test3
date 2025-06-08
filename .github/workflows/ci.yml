@@ -25,8 +25,6 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install tox tox-gh-actions
-    - name: Run tests
-      run: |
-        TOXENV=py$(echo "${{ matrix.python-version }}" | tr -d .)-django-$(echo "${{ matrix.django-version }}" | tr -d .)
-        tox -e $TOXENV
+        pip install tox 
+    - name: Test with tox
+      run: tox
