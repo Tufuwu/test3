@@ -28,5 +28,5 @@ jobs:
         pip install tox 
     - name: Run tests
       env:
-        TOXENV: py${{ matrix.python-version | replace('.', '') }}-django-${{ matrix.django-version | replace('.', '') }}
+        TOXENV: py${{ replace(matrix.python-version, '.', '') }}-django-${{ replace(matrix.django-version, '.', '') }}
       run: tox
