@@ -1,86 +1,131 @@
-=============================
-drf-tus
-=============================
+django-bitfield
+---------------
 
-.. image:: https://badge.fury.io/py/drf-tus.svg
-    :target: https://badge.fury.io/py/drf-tus
+.. image:: https://api.travis-ci.org/disqus/django-bitfield.png?branch=master
+    :target: https://travis-ci.org/disqus/django-bitfield
 
-.. image:: https://github.com/dirkmoors/drf-tus/actions/workflows/ci.yml/badge.svg
-    :target: https://github.com/dirkmoors/drf-tus/actions
+Provides a BitField like class (using a BigIntegerField) for your Django models.
 
-A Tus (tus.io) library for Django Rest Framework
+(If you're upgrading from a version before 1.2 the API has changed greatly and is backwards incompatible!)
 
-Documentation
--------------
+Requirements
+============
 
-The full documentation is at https://drf-tus.readthedocs.io.
+* Django >= 1.10.8
+* PostgreSQL (see notes)
 
-Quickstart
-----------
+**Notes:**
 
-Install drf-tus::
+- SQLite does not support save operations using a ``Bit`` (per the example under Usage).
+- MySQL fails on most queries related to BitField's.
 
-    pip install drf-tus
+Installation
+============
 
-Add it to your `INSTALLED_APPS`:
+Install it with pip (or easy_install)::
 
-.. code-block:: python
+	pip install django-bitfield
 
-    INSTALLED_APPS = (
-        ...
-        "rest_framework_tus",
-        ...
-    )
+Usage
+=====
 
-Add the middleware to `MIDDLEWARE`:
+First you'll need to attach a BitField to your class. This acts as a BigIntegerField (BIGINT) in your database::
 
-.. code-block:: python
+	from bitfield import BitField
 
-    MIDDLEWARE = (
-        ...
-        "rest_framework_tus.middleware.TusMiddleware",
-        ...
-    )
+	class MyModel(models.Model):
+	    flags = BitField(flags=(
+	        'awesome_flag',
+	        'flaggy_foo',
+	        'baz_bar',
+	    ))
 
-Add URL patterns for drf-tus:
+Flags can also be defined with labels::
 
-.. code-block:: python
+	class MyModel(models.Model):
+	    flags = BitField(flags=(
+	        ('awesome_flag', 'Awesome Flag!'),
+	        ('flaggy_foo', 'Flaggy Foo'),
+	        ('baz_bar', 'Baz (bar)'),
+	    ))
 
-    urlpatterns = [
-        ...
-        path(r"^", include("rest_framework_tus.urls", namespace="rest_framework_tus")),
-        ...
-    ]
+Now you can use the field using very familiar Django operations::
 
-Features
---------
+	# Create the model
+	o = MyModel.objects.create(flags=0)
 
-This library implements the following TUS API v1.0.0 protocols:
+	# Add awesome_flag (does not work in SQLite)
+	MyModel.objects.filter(pk=o.pk).update(flags=F('flags').bitor(MyModel.flags.awesome_flag))
 
-* Core Protocol (http://tus.io/protocols/resumable-upload.html#core-protocol)
-* Creation Protocol (http://tus.io/protocols/resumable-upload.html#creation)
-* Expiration Protocol (http://tus.io/protocols/resumable-upload.html#expiration)
-* Checksum Protocol (http://tus.io/protocols/resumable-upload.html#checksum)
-* Termination Protocol (http://tus.io/protocols/resumable-upload.html#termination)
+	# Set flags manually to [awesome_flag, flaggy_foo]
+	MyModel.objects.filter(pk=o.pk).update(flags=MyModel.flags.awesome_flag | MyModel.flags.flaggy_foo)
 
-Running Tests
--------------
+	# Remove awesome_flag (does not work in SQLite)
+	MyModel.objects.filter(pk=o.pk).update(flags=F('flags').bitand(~MyModel.flags.awesome_flag))
 
-Does the code actually work?
+	# Find by awesome_flag
+	MyModel.objects.filter(flags=MyModel.flags.awesome_flag)
 
-::
+	# Exclude by awesome_flag
+	MyModel.objects.filter(flags=~MyModel.flags.awesome_flag)
 
-    source <YOURVIRTUALENV>/bin/activate
-    (myenv) $ pip install tox
-    (myenv) $ tox
+	# Test awesome_flag
+	if o.flags.awesome_flag:
+	    print "Happy times!"
 
-Credits
--------
+	# List all flags on the field
+	for f in o.flags:
+	    print f
 
-Tools used in rendering this package:
+	# Get a flag label
+	print o.flags.get_label('awesome_flag')
 
-*  Cookiecutter_
-*  `cookiecutter-djangopackage`_
+Enjoy!
 
-.. _Cookiecutter: https://github.com/audreyr/cookiecutter
-.. _`cookiecutter-djangopackage`: https://github.com/pydanny/cookiecutter-djangopackage
+Admin
+=====
+
+To use the widget in the admin, you'll need to import the classes and then update or create
+a ModelAdmin with these formfield_overrides lines in your admin.py::
+
+    from bitfield import BitField
+    from bitfield.forms import BitFieldCheckboxSelectMultiple
+
+    class MyModelAdmin(admin.ModelAdmin):
+	formfield_overrides = {
+		BitField: {'widget': BitFieldCheckboxSelectMultiple},
+	}
+	
+    admin.site.register(MyModel, MyModelAdmin)
+
+
+There is also a ``BitFieldListFilter`` list filter (Django 1.4 or newer).
+To use it set ``list_filter`` ModelAdmin option::
+
+    list_filter = (
+            ('flags', BitFieldListFilter,)
+            )
+
+BitFieldListFilter is in ``bitfield.admin`` module::
+
+    from bitfield.admin import BitFieldListFilter
+
+Changelog
+=========
+
+2.1.0 - 2021-05-25:
+
+- Add support for Django 3.1, 3.2 (No changes needed).
+- Add support for Python 3.8, 3.9.
+- Fixed multiple bugs with use in the Django admin.
+- Removed dead compatibility code.
+
+2.0.1 - 2020-01-25:
+
+- Add support for Django 3.0.
+
+2.0.0 - 2020-01-24:
+
+- Drop support for Django versions below 1.10.
+- Use _meta.private_fields instead of deprecated _meta.virtual_fields in CompositeBitField.
+- Add testing with python 3.6, 3.7 and Django 2.x to travis configuration.
