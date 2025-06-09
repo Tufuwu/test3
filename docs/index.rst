@@ -1,252 +1,423 @@
-======================
-The "local flavor" app
-======================
+.. django-sekizai documentation master file, created by
+   sphinx-quickstart on Tue Jun 29 23:12:20 2010.
+   You can adapt this file completely to your liking, but it should at least
+   contain the root `toctree` directive.
 
-.. module:: localflavor
-    :synopsis: A collection of various Django snippets that are useful only for
-               a particular country or culture.
+##########################################
+Welcome to django-sekizai's documentation!
+##########################################
 
-django-localflavor is a collection of assorted pieces of code that are
-useful for particular countries or cultures. These are called the
-"local flavor" add-ons and live in the :mod:`localflavor` package.
-
-Inside that package, country- or culture-specific code is organized into
-subpackages, named using `ISO 3166 country codes`_.
-
-Most of the ``localflavor`` add-ons are localized form components deriving
-from the forms framework -- for example,
-a :class:`~localflavor.us.forms.USStateField` that knows how to validate
-U.S. state abbreviations, and a
-:class:`~localflavor.fi.forms.FISocialSecurityNumber` that knows how to
-validate Finnish social security numbers.
-
-.. hlist::
-   :columns: 4
-
-   * :doc:`localflavor/ar`
-   * :doc:`localflavor/at`
-   * :doc:`localflavor/au`
-   * :doc:`localflavor/be`
-   * :doc:`localflavor/bg`
-   * :doc:`localflavor/br`
-   * :doc:`localflavor/ca`
-   * :doc:`localflavor/ch`
-   * :doc:`localflavor/cl`
-   * :doc:`localflavor/cn`
-   * :doc:`localflavor/co`
-   * :doc:`localflavor/cz`
-   * :doc:`localflavor/de`
-   * :doc:`localflavor/dk`
-   * :doc:`localflavor/ec`
-   * :doc:`localflavor/ee`
-   * :doc:`localflavor/es`
-   * :doc:`localflavor/fi`
-   * :doc:`localflavor/fr`
-   * :doc:`localflavor/gb`
-   * :doc:`localflavor/gr`
-   * :doc:`localflavor/hr`
-   * :doc:`localflavor/hu`
-   * :doc:`localflavor/id_`
-   * :doc:`localflavor/ie_`
-   * :doc:`localflavor/il`
-   * :doc:`localflavor/in_`
-   * :doc:`localflavor/ir`
-   * :doc:`localflavor/is_`
-   * :doc:`localflavor/it`
-   * :doc:`localflavor/jp`
-   * :doc:`localflavor/kw`
-   * :doc:`localflavor/lt`
-   * :doc:`localflavor/lv`
-   * :doc:`localflavor/mk`
-   * :doc:`localflavor/mt`
-   * :doc:`localflavor/mx`
-   * :doc:`localflavor/nl`
-   * :doc:`localflavor/no`
-   * :doc:`localflavor/nz`
-   * :doc:`localflavor/pe`
-   * :doc:`localflavor/pk`
-   * :doc:`localflavor/pl`
-   * :doc:`localflavor/pt`
-   * :doc:`localflavor/py_`
-   * :doc:`localflavor/ro`
-   * :doc:`localflavor/ru`
-   * :doc:`localflavor/se`
-   * :doc:`localflavor/si`
-   * :doc:`localflavor/sk`
-   * :doc:`localflavor/tn`
-   * :doc:`localflavor/tr`
-   * :doc:`localflavor/us`
-   * :doc:`localflavor/uy`
-   * :doc:`localflavor/za`
-
-To use one of these localized components, just import the relevant subpackage.
-For example, here's how you can create a form with a field representing a
-Greek postal code::
-
-    from django import forms
-    from localflavor.gr.forms import GRPostalCodeField
-
-    class MyForm(forms.Form):
-        my_greek_postal_code = GRPostalCodeField()
-
-The ``localflavor`` package also includes a :doc:`generic </generic>` subpackage,
-containing useful code that is not specific to one particular country or culture.
-This package defines date, datetime and split datetime input fields based on
-those from the forms, but with non-US default formats. Here's an example of
-how to use them::
-
-    from django import forms
-    from localflavor import generic
-
-    class MyForm(forms.Form):
-        my_date_field = generic.forms.DateField()
-
-The ``localflavor`` generic package also has IBAN and BIC model and form fields.
-Here's an example of how to use the IBAN and BIC form fields::
-
-    from django import forms
-    from localflavor.generic.forms import BICFormField, IBANFormField
-
-    class MyForm(forms.Form):
-        iban = IBANFormField()
-        bic = BICFormField()
-
-.. _ISO 3166 country codes: http://www.iso.org/iso/country_codes.htm
-
-Installation
-============
-
-To install django-localflavor use your favorite packaging tool, e.g.pip::
-
-    pip install django-localflavor
-
-Or download the source distribution from PyPI_ at
-https://pypi.python.org/pypi/django-localflavor, decompress the file and
-run ``python setup.py install`` in the unpacked directory.
-
-Then add ``'localflavor'`` to your :setting:`INSTALLED_APPS` setting::
-
-    INSTALLED_APPS = (
-        # ...
-        'localflavor',
-    )
 
 .. note::
 
-  Adding ``'localflavor'`` to your ``INSTALLED_APPS`` setting is required
-  for migrations and translations to work. Using django-localflavor without
-  adding it to your ``INSTALLED_APPS`` setting is not recommended.
+    If you get an error when using django-sekizai that starts with
+    **Invalid block tag:**, please read :ref:`restrictions`.
 
-.. _PyPI: https://pypi.python.org/
 
-Internationalization
-====================
+*****
+About
+*****
 
-Local flavor has its own catalog of translations, in the directory
-``localflavor/locale``, and it's not loaded automatically like Django's
-general catalog in ``django/conf/locale``. If you want local flavor's
-texts to be translated, like form fields error messages, you must include
-:mod:`localflavor` in the :setting:`INSTALLED_APPS` setting, so
-the internationalization system can find the catalog, as explained in
-:ref:`django:how-django-discovers-translations`.
+Sekizai means "blocks" in Japanese, and that's what this app provides. A fresh
+look at blocks. With django-sekizai you can define placeholders where your
+blocks get rendered and at different places in your templates append to those
+blocks. This is especially useful for css and javascript. Your sub-templates can
+now define css and Javascript files to be included, and the css will be nicely
+put at the top and the Javascript to the bottom, just like you should. Also
+sekizai will ignore any duplicate content in a single block.
 
-Adding flavors
-==============
 
-We'd love to add more of these, so please `create an issue or pull request`_
-with any code you'd like to contribute. See any of the existing flavors for
-examples.
+*****
+Usage
+*****
 
-See the `contributing documentation`_ for how to run the tests while working on a
-local flavor.
+Configuration
+=============
 
-If you consider adding a new localflavor for country here are some examples
-that you might consider implementing:
+In order to get started with django-sekizai, you'll need to do the following
+steps:
 
-- form fields and form widgets
+* Put 'sekizai' into your ``INSTALLED_APPS`` setting.
+* Add ``sekizai.context_processors.sekizai`` to your
+    ``TEMPLATES['OPTIONS']['context_processors']`` setting and use
+    ``django.template.RequestContext`` when rendering your templates.
 
-  - ID verification
-  - tax or social security number validator
-  - car registration
-  - postal code validation
-  - country area selects, e.g. cities, counties, states, provinces
 
-- model fields, e.g. for storing any of the above form fields' values
+Template Tag Reference
+======================
 
-- local translations of English area names. Join your language team at
-  Transifex: https://www.transifex.com/projects/p/django-localflavor/
+
+.. highlight:: html+django
+
+.. note:: All sekizai template tags require the ``sekizai_tags`` template tag
+          library to be loaded.
+
+
+Handling code snippets
+----------------------
+
+.. versionadded:: 0.7
+    The ``strip`` flag was added.
+
+Sekizai uses ``render_block`` and ``addtoblock`` to handle unique code snippets.
+Define your blocks using ``{% render_block <name> %}`` and add data to that
+block using ``{% addtoblock <name> [strip] %}...{% endaddtoblock %}``. If the
+strip flag is set, leading and trailing whitespace will be removed.
+
+Example Template::
+
+    {% load sekizai_tags %}
+
+    <html>
+    <head>
+    {% block css %}{% endblock %}
+    {% render_block "css" %}
+    </head>
+    <body>
+    Your content comes here.
+    Maybe you want to throw in some css:
+    {% addtoblock "css" %}
+    <link href="/media/css/stylesheet.css" media="screen" rel="stylesheet" type="text/css" />
+    {% endaddtoblock %}
+    Some more content here.
+    {% addtoblock "js" %}
+    <script type="text/javascript">
+    alert("Hello django-sekizai");
+    </script>
+    {% endaddtoblock %}
+    And even more content.
+    {% block js %}{% endblock %}
+    {% render_block "js" %}
+    </body>
+    </html>
+
+Above example would roughly render like this::
+
+    <html>
+    <head>
+    <link href="/media/css/stylesheet.css" media="screen" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+    Your content comes here.
+    Maybe you want to throw in some css:
+    Some more content here.
+    And even more content.
+    <script type="text/javascript">
+    alert("Hello django-sekizai");
+    </script>
+    </body>
+    </html>
 
 .. note::
 
-  django-localflavor does not accept contributions of country specific phone number fields. The
-  `django-phonenumber-field`_ package has excellent support for validating phone numbers in many
-  countries and we recommend this package.
+    It's recommended to have all ``render_block`` tags in your base template, the one that gets extended by all your
+    other templates.
 
-.. _django-phonenumber-field: https://github.com/stefanfoulis/django-phonenumber-field
-.. _create an issue or pull request: https://github.com/django/django-localflavor/issues
-.. _contributing documentation: https://github.com/django/django-localflavor/blob/master/CONTRIBUTING.rst
+.. _restrictions:
 
-Releases
-========
+Restrictions
+------------
 
-django-localflavor releases follow `semver`_ with the major version number matching the major version number of Django
-(from Django 2.0 and above). A compatible version of django-localflavor will be released within one month of each Django
-release. django-localflavor may have additional releases if there are enough changes in between Django versions to
-justify a new version of django-localflavor. This means that the minor version number for django-localflavor may not
-match the minor version of Django itself. See the documentation about `Django's release process`_ for more information.
+.. warning::
 
-Deprecation Policy
-------------------
+    ``{% render_block %}`` tags **must not** be placed inside a template tag block (a template tag which has an
+    end tag, such as ``{% block %}...{% endblock %}`` or ``{% if %}...{% endif %}``).
 
-When non-internal parts of the project are deprecated a `DeprecationWarning` or a `PendingDeprecationWarning` will be
-thrown upon use until the next major version is released. The warning will explain how to safely update your code, and
-which version the functionality will be removed in. Deprecated code will be removed in releases with a new major version
-number (e.g. x.0 releases).
+.. warning::
 
-.. _`Django's release process`: https://docs.djangoproject.com/en/dev/internals/release-process/
-.. _semver: http://semver.org/
+    ``{% render_block %}`` tags **must not** be in an included template!
 
-Backwards compatibility
-=======================
+.. warning::
 
-We will always attempt to make :mod:`localflavor` reflect the officially
-gazetted policies of the appropriate local government authority. For example,
-if a government body makes a change to add, alter, or remove a province
-(or state, or county), that change will be reflected in localflavor in the
-next release.
+    If the ``{% addtoblock %}`` tag is used in an **extending** template, the tags **must** be
+    placed within ``{% block %}...{% endblock %}`` tags. If this block extension, where ``{% addtoblock %}``
+    lies, is actually overridden in a child template (i.e by a same-name block which doesn't call ``block.super``),
+    then this ``{% addtoblock %}`` will be ignored.
 
-When a backwards-incompatible change is made (for example, the removal
-or renaming of a province) the localflavor in question will raise a
-warning when that localflavor is imported. This provides a run-time
-indication that something may require attention.
+.. warning::
 
-However, once you have addressed the backwards compatibility (for
-example, auditing your code to see if any data migration is required),
-the warning serves no purpose. The warning can then be suppressed.
-For example, to suppress the warnings raised by the Indonesian
-localflavor you would use the following code::
+    ``{% addtoblock %}`` tags **must not** be used in a template included with ``only`` option!
 
-    import warnings
-    warnings.filterwarnings('ignore',
-                            category=RuntimeWarning,
-                            module='localflavor.id')
-    from localflavor.id import forms as id_forms
+Handling data
+-------------
 
-Indices and tables
-==================
+Sometimes you might not want to use code snippets but rather just add a value to
+a list. For this purpose there are the
+``{% with_data <name> as <varname> %}...{% end_with_data %}`` and
+``{% add_data <name> <value> %}`` template tags.
 
-.. toctree::
+Example::
 
-    authors
-    changelog
+    {% load sekizai_tags %}
 
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+    <html>
+    <head>
+    {% with_data "css-data" as stylesheets %}
+    {% for stylesheet in stylesheets %}
+        <link href="{{ MEDIA_URL }}{{ stylesheet }}" media="screen" rel="stylesheet" type="text/css" />
+    {% endfor %}
+    {% end_with_data %}
+    </head>
+    <body>
+    Your content comes here.
+    Maybe you want to throw in some css:
+    {% add_data "css-data" "css/stylesheet.css" %}
+    Some more content here.
+    </body>
+    </html>
 
-.. toctree::
-   :glob:
-   :hidden:
+Above example would roughly render like this::
 
-   localflavor/*
-   generic
+    <html>
+    <head>
+    <link href="/media/css/stylesheet.css" media="screen" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+    Your content comes here.
+    Maybe you want to throw in some css:
+    Some more content here.
+    And even more content.
+    </body>
+    </html>
+
+.. warning::
+
+    The restrictions for ``{% render_block %}`` also apply to ``{% with_data %}``, see above.
+
+    The restrictions for ``{% addtoblock %}`` also apply to ``{% add_data %}``, see above.
+
+
+Sekizai data is unique
+----------------------
+
+
+All data in sekizai is enforced to be unique within its block namespace. This
+is because the main purpose of sekizai is to handle javascript and css
+dependencies in templates.
+
+A simple example using ``addtoblock`` and ``render_block`` would be::
+
+    {% load sekizai_tags %}
+
+    {% addtoblock "js" %}
+        <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/mootools/1.3.0/mootools-yui-compressed.js"></script>
+    {% endaddtoblock %}
+
+    {% addtoblock "js" %}
+        <script type="text/javascript">
+            $('firstelement').set('class', 'active');
+        </script>
+    {% endaddtoblock %}
+
+    {% addtoblock "js" %}
+        <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/mootools/1.3.0/mootools-yui-compressed.js"></script>
+    {% endaddtoblock %}
+
+    {% addtoblock "js" %}
+        <script type="text/javascript">
+            $('secondelement').set('class', 'active');
+        </script>
+    {% endaddtoblock %}
+
+    {% render_block "js" %}
+
+Above template would roughly render to::
+
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/mootools/1.3.0/mootools-yui-compressed.js"></script>
+    <script type="text/javascript">
+        $('firstelement').set('class', 'active');
+    </script>
+    <script type="text/javascript">
+        $('secondelement').set('class', 'active');
+    </script>
+
+
+.. versionadded:: 0.5
+
+Processing sekizai data
+-----------------------
+
+Because of the restrictions of the ``{% render_block %}`` tag, it is not possible
+to use sekizai with libraries such as django-compressor directly. For that
+reason, sekizai added postprocessing capabilities to ``render_block`` in
+version 0.5.
+
+Postprocessors are callable Python objects (usually functions) that get the
+render context, the data in a sekizai namespace and the name of the namespace
+passed as arguments and should return a string.
+
+An example for a processor that uses the Django builtin spaceless functionality
+would be:
+
+.. code-block:: python
+
+    def spaceless_post_processor(context, data, namespace):
+        from django.utils.html import strip_spaces_between_tags
+        return strip_spaces_between_tags(data)
+
+
+To use this post processor you have to tell ``render_block`` where it's
+located. If above code sample lives in the Python module
+``myapp.sekizai_processors`` you could use it like this::
+
+    ...
+    {% render_block "js" postprocessor "myapp.sekizai_processors.spaceless_post_processor" %}
+    ...
+
+
+It's also possible to pre-process data in ``{% addtoblock %}`` like this::
+
+    {% addtoblock "css" preprocessor "myapp.sekizai_processors.processor" %}
+
+
+
+*******
+Helpers
+*******
+
+
+:mod:`sekizai.helpers`
+======================
+
+
+.. function:: get_namespaces(template)
+
+    Returns a list of all sekizai namespaces found in ``template``, which should
+    be the name of a template. This method also checks extended templates.
+
+
+.. function:: validate_template(template, namespaces)
+
+    Returns ``True`` if all namespaces given are found in the template given.
+    Useful to check that the namespaces required by your application are
+    available, so you can failfast if they're not.
+
+
+*******
+Example
+*******
+
+.. highlight:: html+django
+
+A full example on how to use django-sekizai and when.
+
+Let's assume you have a website, where all templates extend base.html, which
+just contains your basic HTML structure. Now you also have a small template
+which gets included on some pages. This template needs to load a javascript
+library and execute some specific javascript code.
+
+Your ``base.html`` might look like this::
+
+    {% load sekizai_tags %}<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+    <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" dir="ltr">
+    <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <meta http-equiv="x-ua-compatible" content="ie=8" />
+        <title>Your website</title>
+        <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+        <link rel="stylesheet" type="text/css" href="{{ MEDIA_URL }}css/base.css" media="all" />
+        <link rel="stylesheet" type="text/css" href="{{ MEDIA_URL }}css/print.css" media="print" />
+        {% render_block "css" %}
+    </head>
+    <body>
+    {% block "content" %}
+    {% endblock %}
+    <script type="text/javascript" src="{{ MEDIA_URL }}js/libs/jquery-1.4.2.js"></script>
+    {% render_block "js" %}
+    </body>
+    </html>
+
+As you can see, we load ``sekizai_tags`` at the very beginning. We have two
+sekizai namespaces: "css" and "js". The "css" namespace is rendered in the head
+right after the base css files, the "js" namespace is rendered at the very
+bottom of the body, right after we load jQuery.
+
+
+Now to our included template. We assume there's a context variable called
+``userid`` which will be used with the javascript code.
+
+Your template (``inc.html``) might look like this::
+
+    {% load sekizai_tags %}
+    <div class="my-div">
+        <ul id="dynamic-content-{{ userid }}"></ul>
+    </div>
+
+    {% addtoblock "js" %}
+    <script type="text/javascript" src="{{ MEDIA_URL }}js/libs/mylib.js"></script>
+    {% endaddtoblock %}
+
+    {% addtoblock "js" %}
+    <script type="text/javascript">
+    $(document).ready(function(){
+        $('#dynamic-content-{{ userid }}').do_something();
+    }
+    </script>
+    {% endaddtoblock %}
+
+The important thing to notice here is that we split the javascript into two
+``addtoblock`` blocks. Like this, the library 'mylib.js' is only included once,
+and the userid specific code will be included once per userid.
+
+
+Now to put it all together let's assume we render a third template with
+``[1, 2, 3]`` as ``my_userids`` variable.
+
+The third template looks like this::
+
+    {% extends "base.html" %}
+
+    {% block "content" %}
+    {% for userid in my_userids %}
+        {% include "inc.html" %}
+    {% endfor %}
+    {% endblock %}
+
+And here's the rendered template::
+
+    <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+    <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" dir="ltr">
+    <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <meta http-equiv="x-ua-compatible" content="ie=8" />
+        <title>Your website</title>
+        <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+        <link rel="stylesheet" type="text/css" href="/media/css/base.css" media="all" />
+        <link rel="stylesheet" type="text/css" href="/media/css/print.css" media="print" />
+    </head>
+    <body>
+    <div class="my-div">
+        <ul id="dynamic-content-1"></ul>
+    </div>
+    <div class="my-div">
+        <ul id="dynamic-content-2"></ul>
+    </div>
+    <div class="my-div">
+        <ul id="dynamic-content-3"></ul>
+    </div>
+    <script type="text/javascript" src="/media/js/libs/jquery-1.4.2.js"></script>
+    <script type="text/javascript" src="{{ MEDIA_URL }}js/libs/mylib.js"></script>
+    <script type="text/javascript">
+    $(document).ready(function(){
+        $('#dynamic-content-1').do_something();
+    }
+    </script>
+    <script type="text/javascript">
+    $(document).ready(function(){
+        $('#dynamic-content-2').do_something();
+    }
+    </script>
+    <script type="text/javascript">
+    $(document).ready(function(){
+        $('#dynamic-content-3').do_something();
+    }
+    </script>
+    </body>
+    </html>
+
+
+*********
+Changelog
+*********
+
+See `CHANGELOG.rst <https://github.com/divio/django-sekizai/blob/master/CHANGELOG.rst>`_ for a full list.

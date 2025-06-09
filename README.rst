@@ -1,75 +1,78 @@
-==================
-django-localflavor
-==================
+==============
+Django Sekizai
+==============
 
-.. image:: https://img.shields.io/pypi/v/django-localflavor.svg
-   :target: https://pypi.python.org/pypi/django-localflavor
+|pypi| |build| |coverage|
 
-.. image:: https://img.shields.io/travis/django/django-localflavor.svg
-    :target: http://travis-ci.org/django/django-localflavor
+Sekizai means "blocks" in Japanese, and that's what this app provides. A fresh
+look at blocks. With django-sekizai you can define placeholders where your
+blocks get rendered and at different places in your templates append to those
+blocks. This is especially useful for css and javascript. Your sub-templates can
+now define css and Javascript files to be included, and the css will be nicely
+put at the top and the Javascript to the bottom, just like you should. Also
+sekizai will ignore any duplicate content in a single block.
 
-.. image:: https://img.shields.io/codecov/c/github/django/django-localflavor/master.svg
-   :target: http://codecov.io/github/django/django-localflavor?branch=master
+There are some issue/restrictions with this implementation due to how the
+django template language works, but if used properly it can be very useful and
+it is the media handling framework for the django CMS (since version 2.2).
 
-.. image:: https://readthedocs.org/projects/django-localflavor/badge/?version=latest&style=plastic
-   :target: https://django-localflavor.readthedocs.io/en/latest/
+.. note:: 
+        
+        This project is endorsed by the `django CMS Association <https://www.django-cms.org/en/about-us/>`_.
+        That means that it is officially accepted by the dCA as being in line with our roadmap vision and development/plugin policy. 
+        Join us on `Slack <https://www.django-cms.org/slack/>`_.
 
-Django's "localflavor" packages offer additional functionality for particular
-countries or cultures. For example, these might include form fields for your
-country's postal codes or government ID numbers.
 
-This code used to live in Django proper -- in ``django.contrib.localflavor``
--- but was separated into a standalone package in Django 1.5 to keep the
-framework's core clean.
+*******************************************
+Contribute to this project and win rewards
+*******************************************
 
-For a full list of available localflavors, see
-https://django-localflavor.readthedocs.io/
+Because this is a an open-source project, we welcome everyone to
+`get involved in the project <https://www.django-cms.org/en/contribute/>`_ and
+`receive a reward <https://www.django-cms.org/en/bounty-program/>`_ for their contribution. 
+Become part of a fantastic community and help us make django CMS the best CMS in the world.   
 
-django-localflavor can also be found on and installed from the Python
-Package Index: https://pypi.python.org/pypi/django-localflavor
+We'll be delighted to receive your
+feedback in the form of issues and pull requests. Before submitting your
+pull request, please review our `contribution guidelines
+<http://docs.django-cms.org/en/latest/contributing/index.html>`_.
 
-**Release Overview**
+We're grateful to all contributors who have helped create and maintain this package.
+Contributors are listed at the `contributors <https://github.com/django-cms/django-sekizai/graphs/contributors>`_
+section.
 
-You're encouraged to use the latest version of this package unless you need
-support for an unsupported version of Django.
 
-**2021-05-28 - 3.1**: Django 2.2, 3.0, 3.1 & 3.2
+Documentation
+=============
 
-This release contains breaking data changes for the MX and IN flavors.
-Please see the changelog for details:
-https://github.com/django/django-localflavor/blob/3.1/docs/changelog.rst
+See ``REQUIREMENTS`` in the `setup.py <https://github.com/divio/django-sekizai/blob/master/setup.py>`_
+file for additional dependencies:
 
-**2020-02-19 - 3.0**: Django 2.2 & 3.0
+|python| |django|
 
-All deprecated code has been removed in this release. This release also includes a number of other breaking changes.
-Please see the changelog for details:
-https://github.com/django/django-localflavor/blob/3.0/docs/changelog.rst
+Please refer to the documentation in the docs/ directory for more information or visit our
+`online documentation <https://django-sekizai.readthedocs.io/en/latest/>`_.
 
-**2019-05-07 - 2.2**: Django 1.11 - 2.2
 
-All deprecated code will be removed in the 3.0 release. Please run you project's tests using `python -Wd` so that
-deprecation warnings appear and can be addressed. See changelog for details.
+Running Tests
+-------------
 
-**2018-08-24 - 2.1**: Django 1.11 - 2.1
+You can run tests by executing::
 
-**2017-12-30 - 2.0**: Django 1.11 - 2.0
+    virtualenv env
+    source env/bin/activate
+    pip install -r tests/requirements.txt
+    python setup.py test
 
-All deprecated code has been removed in this release. See changelog for details.
 
-**2017-11-22 - 1.6**: Django 1.8 - 1.11
+.. |pypi| image:: https://badge.fury.io/py/django-sekizai.svg
+    :target: http://badge.fury.io/py/django-sekizai
+.. |build| image:: https://travis-ci.org/divio/django-sekizai.svg?branch=master
+    :target: https://travis-ci.org/divio/django-sekizai
+.. |coverage| image:: https://codecov.io/gh/divio/django-sekizai/branch/master/graph/badge.svg
+    :target: https://codecov.io/gh/divio/django-sekizai
 
-All deprecated code will be removed in the next release. Please run you project's tests using `python -Wd` so that
-deprecation warnings appear and can be addressed.
-
-**2017-05-26 - 1.5**: Django 1.8 - 1.11
-
-**2017-01-03 - 1.4**: Django 1.8 - 1.10
-
-**2016-05-06 - 1.3**: Django 1.7 - 1.9
-
-**2015-11-27 - 1.2**: Django 1.5 - 1.9
-
-**2014-12-10 - 1.1**: Django 1.5 - 1.7
-
-**2013-07-29 - 1.0**: Django 1.5 - 1.6
-
+.. |python| image:: https://img.shields.io/badge/python-3.5+-blue.svg
+    :target: https://pypi.org/project/django-sekizai/
+.. |django| image:: https://img.shields.io/badge/django-2.2,%203.0,%203.1-blue.svg
+    :target: https://www.djangoproject.com/

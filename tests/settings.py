@@ -1,25 +1,62 @@
+import os
+import sys
+
+
+urlpatterns = []
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': ':memory:',
+        'NAME': ':memory:'
     }
 }
 
 INSTALLED_APPS = [
-    'localflavor',
-    'tests.test_br',
-    'tests.test_au',
-    'tests.test_ec',
-    'tests.test_md',
-    'tests.test_mk',
-    'tests.test_mx',
-    'tests.test_ua',
-    'tests.test_us',
-    'tests.test_pk',
-    'tests.test_cu',
-    'tests.test_generic',
+    'sekizai',
+    'tests',
 ]
 
-SECRET_KEY = 'spam-spam-spam-spam'
+ROOT_URLCONF = 'tests.settings'
 
-SILENCED_SYSTEM_CHECKS = ('1_7.W001', 'models.W042')
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [
+            os.path.join(os.path.dirname(__file__), 'templates')
+        ],
+        'OPTIONS': {
+            'context_processors': ['sekizai.context_processors.sekizai'],
+            'debug': True,
+        },
+    },
+]
+
+
+def runtests():
+    from django import setup
+    from django.conf import settings
+    from django.test.utils import get_runner
+    settings.configure(
+        INSTALLED_APPS=INSTALLED_APPS,
+        ROOT_URLCONF=ROOT_URLCONF,
+        DATABASES=DATABASES,
+        TEST_RUNNER='django.test.runner.DiscoverRunner',
+        TEMPLATES=TEMPLATES,
+    )
+    setup()
+
+    # Run the test suite, including the extra validation tests.
+    TestRunner = get_runner(settings)
+
+    test_runner = TestRunner(verbosity=1, interactive=False, failfast=False)
+    failures = test_runner.run_tests(INSTALLED_APPS)
+    return failures
+
+
+def run():
+    failures = runtests()
+    sys.exit(failures)
+
+
+if __name__ == '__main__':
+    run()

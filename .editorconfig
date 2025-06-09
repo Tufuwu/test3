@@ -1,15 +1,31 @@
-# http://editorconfig.org
+# editorconfig.org
 
 root = true
 
 [*]
 indent_style = space
 indent_size = 4
-insert_final_newline = true
-trim_trailing_whitespace = true
-max_line_length = 120
 end_of_line = lf
 charset = utf-8
+trim_trailing_whitespace = true
+insert_final_newline = true
+max_line_length = 80
 
-[*.bat]
-end_of_line = crlf
+[*.py]
+max_line_length = 120
+quote_type = single
+
+[*.{scss,js,html}]
+max_line_length = 120
+indent_style = space
+quote_type = double
+
+[*.js]
+max_line_length = 120
+quote_type = single
+
+[*.rst]
+max_line_length = 80
+
+[*.yml]
+indent_size = 2

@@ -1,6 +1,18 @@
 [run]
-source = localflavor
-branch = 1
+branch = True
+source = sekizai
+omit =
+    migrations/*
+    tests/*
 
 [report]
-omit = localflavor/*tests*
+exclude_lines =
+    pragma: no cover
+    def __repr__
+    if self.debug:
+    if settings.DEBUG
+    raise AssertionError
+    raise NotImplementedError
+    if 0:
+    if __name__ == .__main__.:
+ignore_errors = True
