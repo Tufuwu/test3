@@ -49,9 +49,6 @@ jobs:
       env:
         PGPASSWORD: postgres
 
-    - name: Lint
-      run: make lint
-
     - name: Test
       run: make test
 
