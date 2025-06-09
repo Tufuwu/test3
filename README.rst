@@ -1,78 +1,209 @@
-==============
-Django Sekizai
-==============
+Django Database Backup
+======================
 
-|pypi| |build| |coverage|
+.. image:: https://api.travis-ci.org/django-dbbackup/django-dbbackup.svg
+        :target: https://travis-ci.org/django-dbbackup/django-dbbackup
 
-Sekizai means "blocks" in Japanese, and that's what this app provides. A fresh
-look at blocks. With django-sekizai you can define placeholders where your
-blocks get rendered and at different places in your templates append to those
-blocks. This is especially useful for css and javascript. Your sub-templates can
-now define css and Javascript files to be included, and the css will be nicely
-put at the top and the Javascript to the bottom, just like you should. Also
-sekizai will ignore any duplicate content in a single block.
+.. image:: https://readthedocs.org/projects/django-dbbackup/badge/?version=latest
+        :target: http://django-dbbackup.readthedocs.io/
+        :alt: Documentation Status
 
-There are some issue/restrictions with this implementation due to how the
-django template language works, but if used properly it can be very useful and
-it is the media handling framework for the django CMS (since version 2.2).
+.. image:: https://coveralls.io/repos/django-dbbackup/django-dbbackup/badge.svg?branch=master&service=github
+        :target: https://coveralls.io/github/django-dbbackup/django-dbbackup?branch=master
 
-.. note:: 
-        
-        This project is endorsed by the `django CMS Association <https://www.django-cms.org/en/about-us/>`_.
-        That means that it is officially accepted by the dCA as being in line with our roadmap vision and development/plugin policy. 
-        Join us on `Slack <https://www.django-cms.org/slack/>`_.
+.. image:: https://landscape.io/github/django-dbbackup/django-dbbackup/master/landscape.svg?style=flat
+        :target: https://landscape.io/github/django-dbbackup/django-dbbackup/master
+        :alt: Code Health
 
 
-*******************************************
-Contribute to this project and win rewards
-*******************************************
+This Django application provides management commands to help backup and
+restore your project database and media files with various storages such as
+Amazon S3, Dropbox, local file storage or any Django storage.
 
-Because this is a an open-source project, we welcome everyone to
-`get involved in the project <https://www.django-cms.org/en/contribute/>`_ and
-`receive a reward <https://www.django-cms.org/en/bounty-program/>`_ for their contribution. 
-Become part of a fantastic community and help us make django CMS the best CMS in the world.   
+It is made for:
 
-We'll be delighted to receive your
-feedback in the form of issues and pull requests. Before submitting your
-pull request, please review our `contribution guidelines
-<http://docs.django-cms.org/en/latest/contributing/index.html>`_.
+- Ensure your backup with GPG signature and encryption
+- Archive with compression
+- Deal easily with remote archiving
+- Great to keep your development database up to date.
+- Use Crontab or Celery to setup automated backups.
 
-We're grateful to all contributors who have helped create and maintain this package.
-Contributors are listed at the `contributors <https://github.com/django-cms/django-sekizai/graphs/contributors>`_
-section.
+Docs
+====
+
+See our offical documentation at `Read The Docs`_.
+
+Why use DBBackup
+================
+
+This software doesn't reinvent the wheel, in few words it is a pipe between
+your Django project and your backup storage. It tries to use the traditional dump &
+restore mechanisms, apply compression and/or encryption and use the storage system you desire.
+
+It gives a simple interface to backup and restore your database or media
+files.
+
+Management Commands
+===================
+
+dbbackup
+--------
+
+Backup your database to the specified storage. By default this will backup all
+databases specified in your settings.py file and will not delete any old
+backups. You can optionally specify a server name to be included in the backup
+filename. ::
+
+  Usage: ./manage.py dbbackup [options]
+  
+  Options:
+    --noinput             Tells Django to NOT prompt the user for input of any
+                          kind.
+    -q, --quiet           Tells Django to NOT output other text than errors.
+    -c, --clean           Clean up old backup files
+    -d DATABASE, --database=DATABASE
+                          Database to backup (default: everything)
+    -s SERVERNAME, --servername=SERVERNAME
+                          Specify server name to include in backup filename
+    -z, --compress        Compress the backup files
+    -e, --encrypt         Encrypt the backup files
+    -o OUTPUT_FILENAME, --output-filename=OUTPUT_FILENAME
+                          Specify filename on storage
+    -O OUTPUT_PATH, --output-path=OUTPUT_PATH
+                          Specify where to store on local filesystem
+
+dbrestore
+---------
+
+Restore your database from the specified storage. By default this will lookup
+the latest backup and restore from that. You may optionally specify a
+servername if you you want to backup a database image that was created from a
+different server. You may also specify an explicit local file to backup from.
+
+::
+
+  Usage: ./manage.py dbrestore [options]
+  
+  Options:
+    --noinput             Tells Django to NOT prompt the user for input of any
+                          kind.
+    -d DATABASE, --database=DATABASE
+                          Database to restore
+    -i INPUT_FILENAME, --input-filename=INPUT_FILENAME
+                          Specify filename to backup from
+    -I INPUT_PATH, --input-path=INPUT_PATH
+                          Specify path on local filesystem to backup from
+    -s SERVERNAME, --servername=SERVERNAME
+                          Use a different servername backup
+    -c, --decrypt         Decrypt data before restoring
+    -p PASSPHRASE, --passphrase=PASSPHRASE
+                          Passphrase for decrypt file
+    -z, --uncompress      Uncompress gzip data before restoring
 
 
-Documentation
-=============
+mediabackup
+-----------
 
-See ``REQUIREMENTS`` in the `setup.py <https://github.com/divio/django-sekizai/blob/master/setup.py>`_
-file for additional dependencies:
+Backup media files by get them one by one, include in a TAR file. ::
 
-|python| |django|
+  Usage: ./manage.py mediabackup [options]
+  
+  Options:
+    --noinput             Tells Django to NOT prompt the user for input of any
+                          kind.
+    -q, --quiet           Tells Django to NOT output other text than errors.
+    -c, --clean           Clean up old backup files
+    -s SERVERNAME, --servername=SERVERNAME
+                          Specify server name to include in backup filename
+    -z, --compress        Compress the archive
+    -e, --encrypt         Encrypt the backup files
+    -o OUTPUT_FILENAME, --output-filename=OUTPUT_FILENAME
+                          Specify filename on storage
+    -O OUTPUT_PATH, --output-path=OUTPUT_PATH
+                          Specify where to store on local filesystem
 
-Please refer to the documentation in the docs/ directory for more information or visit our
-`online documentation <https://django-sekizai.readthedocs.io/en/latest/>`_.
+mediarestore
+------------
+
+Restore media files from storage backup to your media storage. ::
+
+  Usage: ./manage.py mediarestore [options]
+  
+  Options:
+    --noinput             Tells Django to NOT prompt the user for input of any
+                          kind.
+    -q, --quiet           Tells Django to NOT output other text than errors.
+    -i INPUT_FILENAME, --input-filename=INPUT_FILENAME
+                          Specify filename to backup from
+    -I INPUT_PATH, --input-path=INPUT_PATH
+                          Specify path on local filesystem to backup from
+    -e, --decrypt         Decrypt data before restoring
+    -p PASSPHRASE, --passphrase=PASSPHRASE
+                          Passphrase for decrypt file
+    -z, --uncompress      Uncompress gzip data before restoring
+    -r, --replace         Replace existing files
+
+Contributing
+============
+
+All contribution are very welcomed, propositions, problems, bugs and
+enhancement are tracked with `GitHub issues`_ system and patch are submitted
+via `pull requests`_.
+
+We use `Travis`_ coupled with `Coveralls`_ as continious integration tools.
+
+.. _`Read The Docs`: http://django-dbbackup.readthedocs.org/
+.. _`GitHub issues`: https://github.com/django-dbbackup/django-dbbackup/issues
+.. _`pull requests`: https://github.com/django-dbbackup/django-dbbackup/pulls
+.. _Travis: https://travis-ci.org/django-dbbackup/django-dbbackup
+.. _Coveralls: https://coveralls.io/github/django-dbbackup/django-dbbackup
 
 
-Running Tests
--------------
+.. image:: https://ga-beacon.appspot.com/UA-87461-7/django-dbbackup/home
+        :target: https://github.com/igrigorik/ga-beacon
 
-You can run tests by executing::
+Tests
+=====
 
-    virtualenv env
-    source env/bin/activate
-    pip install -r tests/requirements.txt
-    python setup.py test
+Tests are stored in `dbbackup.tests` and for run them you must launch:
 
+::
 
-.. |pypi| image:: https://badge.fury.io/py/django-sekizai.svg
-    :target: http://badge.fury.io/py/django-sekizai
-.. |build| image:: https://travis-ci.org/divio/django-sekizai.svg?branch=master
-    :target: https://travis-ci.org/divio/django-sekizai
-.. |coverage| image:: https://codecov.io/gh/divio/django-sekizai/branch/master/graph/badge.svg
-    :target: https://codecov.io/gh/divio/django-sekizai
+    python runtests.py
 
-.. |python| image:: https://img.shields.io/badge/python-3.5+-blue.svg
-    :target: https://pypi.org/project/django-sekizai/
-.. |django| image:: https://img.shields.io/badge/django-2.2,%203.0,%203.1-blue.svg
-    :target: https://www.djangoproject.com/
+In fact, ``runtests.py`` acts as a ``manage.py`` file and all Django command
+are available. So you could launch:
+
+::
+
+    python runtests.py shell
+
+For get a Python shell configured with the test project. Also all test
+command options are available and usable for run only some chosen tests.
+See `Django test command documentation`_ for more informations about it.
+
+.. _`Django test command documentation`: https://docs.djangoproject.com/en/stable/topics/testing/overview/#running-tests
+
+There are even functional tests: ::
+
+    ./functional.sh
+
+See documentation for details about
+
+To run the tests across all supported versions of Django and Python, you
+can use Tox. Firstly install Tox:
+
+::
+
+    pip install tox
+
+To run the tests just use the command ``tox`` in the command line.  If you
+want to run the tests against just one specific test environment you can run
+``tox -e <testenv>``.  For example, to run the tests with Python3.3 and
+Django1.9 you would run:
+
+::
+
+    tox -e py3.3-django1.9
+
+The available test environments can be found in ``tox.ini``.

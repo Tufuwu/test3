@@ -1,3 +1,4 @@
-include LICENSE
+include requirements*.txt
 include README.rst
-recursive-exclude * *.py[co]
+include LICENSE.txt
+recursive-include dbbackup/tests/testapp/blobs/ *.gpg *.txt *.gz *.tar
