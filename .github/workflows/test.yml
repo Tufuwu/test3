@@ -38,7 +38,7 @@ jobs:
         if [ "${{ matrix.python-version }}" == "3.8" ]; then echo "PY_VER=py38" >> $GITHUB_ENV; fi
         if [ "${{ matrix.env.DJANGO }}z" != "z" ]; then echo "TOX_ENV=${{ env.PY_VER }}" >> $GITHUB_ENV; fi
     - name: Run tests
-      run: tox -e ${{ matrix.env }}
+      run: tox -e ${{ matrix.env.TOX_ENV }}
     - name: Upload coverage to Codecov
       if: success()
       run: bash <(curl -s https://codecov.io/bash)
