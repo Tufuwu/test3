@@ -46,6 +46,8 @@ jobs:
 
     - name: Create database
       run: psql -c 'create database bitfield;' -U postgres -h localhost
+      env:
+        PGPASSWORD: postgres
 
     - name: Lint
       run: make lint
