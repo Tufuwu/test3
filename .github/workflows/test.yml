@@ -10,24 +10,17 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-18.04
     strategy:
-      fail-fast: false
       matrix:
         python-version: [3.5, 3.6, 3.7, 3.8]
-        include:
-          - python-version: 3.8
-            TOX_ENV: flake8
-          - python-version: 3.8
-            TOX_ENV: isort
-          - python-version: 3.5
-            TOX_ENV: py35-dj22
-          - python-version: 3.5
-            TOX_ENV: py35-dj30
-          - python-version: 3.6
-            TOX_ENV: py36-dj31
-          - python-version: 3.7
-            TOX_ENV: py37-dj32
+        env:
+          - TOX_ENV=flake8
+          - TOX_ENV=isort
+          - DJANGO=dj22
+          - DJANGO=dj30
+          - DJANGO=dj31
+          - DJANGO=dj32
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python ${{ matrix.python-version }}
@@ -44,7 +37,7 @@ jobs:
         if [ "${{ matrix.python-version }}" == "3.8" ]; then echo "PY_VER=py38" >> $GITHUB_ENV; fi
         if [ "${{ matrix.env.DJANGO }}z" != "z" ]; then echo "TOX_ENV=${{ env.PY_VER }}" >> $GITHUB_ENV; fi
     - name: Run tests
-      run: tox -e ${{ matrix.TOX_ENV }}
+      run: tox -e ${{ matrix.env }}
     - name: Upload coverage to Codecov
       if: success()
       run: bash <(curl -s https://codecov.io/bash)
