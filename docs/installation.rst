@@ -1,62 +1,20 @@
+.. _installation:
+
 Installation
 ============
 
-Installing on your system
--------------------------
+This application requires Django_ 2.2 or higher and it is the only prerequisite
+before ``django-guardian`` may be used.
 
-Getting the latest stable release
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+In order to install ``django-guardian`` simply use ``pip``::
 
-::
+   pip install django-guardian
 
-    pip install django-dbbackup
+This would be enough to run ``django-guardian``. However, in order to run tests
+or example application, there are some other requirements. See more
+details about the topics:
 
-Getting the latest release from trunk
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+- :ref:`Testing <testing>`
+- :ref:`Example project <example-project>`
 
-In general, you should not be downloading and installing stuff
-directly off repositories -- especially not if you are backing
-up sensitive data.
-
-Security is important, bypassing PyPi repositories is a bad habit,
-because it will bypass the fragile key signatures authentication
-that are at least present when using PyPi repositories.
-
-::
-
-    pip install -e git+https://github.com/mjs7231/django-dbbackup.git#egg=django-dbbackup
-
-
-Add it in your project
-----------------------
-
-In your ``settings.py``, make sure you have the following things: ::
-
-    INSTALLED_APPS = (
-        ...
-        'dbbackup',  # django-dbbackup
-    )
-
-    DBBACKUP_STORAGE = 'django.core.files.storage.FileSystemStorage'
-    DBBACKUP_STORAGE_OPTIONS = {'location': '/my/backup/dir/'}
-
-Create the backup directory: ::
-
-    mkdir /var/backups
-
-.. note::
-
-    This configuration uses filesystem storage, but you can use any storage
-    supported by Django API. See `storage` for more information about it.
-
-
-Testing that everything worked
-------------------------------
-
-Now, you should be able to create your first backup by running: ::
-
-    $ python manage.py dbbackup
-
-If your database was called ``default`` which is the normal Django behaviour
-of a single-database project, you should now see a new file in your backup
-directory.
+.. _django: http://www.djangoproject.com/
