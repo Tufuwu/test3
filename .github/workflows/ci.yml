@@ -50,6 +50,7 @@ jobs:
         PGPASSWORD: postgres
 
     - name: Test
-      run: pip install -e .[tests] tox tox-gh-actions
-      run: PYFLAKES_NODOCTEST=1 flake8 bitfield
-      run: tox
+      run: |
+        pip install -e .[tests] tox tox-gh-actions
+        PYFLAKES_NODOCTEST=1 flake8 bitfield
+        tox
