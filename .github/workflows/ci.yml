@@ -41,8 +41,8 @@ jobs:
 
     - name: Install dependencies
       run: |
-        python -m pip install --upgrade pip
-        pip install flake8 tox-travis
+        pip install -e .[tests] tox tox-gh-actions
+        PYFLAKES_NODOCTEST=1 flake8 bitfield
 
     - name: Create database
       run: psql -c 'create database bitfield;' -U postgres -h localhost
@@ -51,6 +51,5 @@ jobs:
 
     - name: Test
       run: |
-        pip install -e .[tests] tox tox-gh-actions
-        PYFLAKES_NODOCTEST=1 flake8 bitfield
+
         tox
