@@ -45,7 +45,7 @@ jobs:
         pip install flake8 tox-travis
 
     - name: Create database
-      run: psql -c 'create database bitfield;' -U postgres
+      run: psql -c 'create database bitfield;' -U postgres -h localhost
 
     - name: Lint
       run: make lint
