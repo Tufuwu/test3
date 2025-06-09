@@ -1,141 +1,75 @@
-daphne
-======
+==================
+django-localflavor
+==================
 
-.. image:: https://img.shields.io/pypi/v/daphne.svg
-    :target: https://pypi.python.org/pypi/daphne
+.. image:: https://img.shields.io/pypi/v/django-localflavor.svg
+   :target: https://pypi.python.org/pypi/django-localflavor
 
-Daphne is a HTTP, HTTP2 and WebSocket protocol server for
-`ASGI <https://github.com/django/asgiref/blob/master/specs/asgi.rst>`_ and
-`ASGI-HTTP <https://github.com/django/asgiref/blob/master/specs/www.rst>`_,
-developed to power Django Channels.
+.. image:: https://img.shields.io/travis/django/django-localflavor.svg
+    :target: http://travis-ci.org/django/django-localflavor
 
-It supports automatic negotiation of protocols; there's no need for URL
-prefixing to determine WebSocket endpoints versus HTTP endpoints.
+.. image:: https://img.shields.io/codecov/c/github/django/django-localflavor/master.svg
+   :target: http://codecov.io/github/django/django-localflavor?branch=master
 
-*Note:* Daphne 2 is not compatible with Channels 1.x applications, only with
-Channels 2.x and other ASGI applications. Install a 1.x version of Daphne
-for Channels 1.x support.
+.. image:: https://readthedocs.org/projects/django-localflavor/badge/?version=latest&style=plastic
+   :target: https://django-localflavor.readthedocs.io/en/latest/
 
+Django's "localflavor" packages offer additional functionality for particular
+countries or cultures. For example, these might include form fields for your
+country's postal codes or government ID numbers.
 
-Running
--------
+This code used to live in Django proper -- in ``django.contrib.localflavor``
+-- but was separated into a standalone package in Django 1.5 to keep the
+framework's core clean.
 
-Simply point Daphne to your ASGI application, and optionally
-set a bind address and port (defaults to localhost, port 8000)::
+For a full list of available localflavors, see
+https://django-localflavor.readthedocs.io/
 
-    daphne -b 0.0.0.0 -p 8001 django_project.asgi:application
+django-localflavor can also be found on and installed from the Python
+Package Index: https://pypi.python.org/pypi/django-localflavor
 
-If you intend to run daphne behind a proxy server you can use UNIX
-sockets to communicate between the two::
+**Release Overview**
 
-    daphne -u /tmp/daphne.sock django_project.asgi:application
+You're encouraged to use the latest version of this package unless you need
+support for an unsupported version of Django.
 
-If daphne is being run inside a process manager, you might
-want it to bind to a file descriptor passed down from a parent process.
-To achieve this you can use the --fd flag::
+**2021-05-28 - 3.1**: Django 2.2, 3.0, 3.1 & 3.2
 
-    daphne --fd 5 django_project.asgi:application
+This release contains breaking data changes for the MX and IN flavors.
+Please see the changelog for details:
+https://github.com/django/django-localflavor/blob/3.1/docs/changelog.rst
 
-If you want more control over the port/socket bindings you can fall back to
-using `twisted's endpoint description strings
-<http://twistedmatrix.com/documents/current/api/twisted.internet.endpoints.html#serverFromString>`_
-by using the `--endpoint (-e)` flag, which can be used multiple times.
-This line would start a SSL server on port 443, assuming that `key.pem` and `crt.pem`
-exist in the current directory (requires pyopenssl to be installed)::
+**2020-02-19 - 3.0**: Django 2.2 & 3.0
 
-    daphne -e ssl:443:privateKey=key.pem:certKey=crt.pem django_project.asgi:application
+All deprecated code has been removed in this release. This release also includes a number of other breaking changes.
+Please see the changelog for details:
+https://github.com/django/django-localflavor/blob/3.0/docs/changelog.rst
 
-Endpoints even let you use the ``txacme`` endpoint syntax to get automatic certificates
-from Let's Encrypt, which you can read more about at http://txacme.readthedocs.io/en/stable/.
+**2019-05-07 - 2.2**: Django 1.11 - 2.2
 
-To see all available command line options run daphne with the ``-h`` flag.
+All deprecated code will be removed in the 3.0 release. Please run you project's tests using `python -Wd` so that
+deprecation warnings appear and can be addressed. See changelog for details.
 
+**2018-08-24 - 2.1**: Django 1.11 - 2.1
 
-HTTP/2 Support
---------------
+**2017-12-30 - 2.0**: Django 1.11 - 2.0
 
-Daphne supports terminating HTTP/2 connections natively. You'll
-need to do a couple of things to get it working, though. First, you need to
-make sure you install the Twisted ``http2`` and ``tls`` extras::
+All deprecated code has been removed in this release. See changelog for details.
 
-    pip install -U Twisted[tls,http2]
+**2017-11-22 - 1.6**: Django 1.8 - 1.11
 
-Next, because all current browsers only support HTTP/2 when using TLS, you will
-need to start Daphne with TLS turned on, which can be done using the Twisted endpoint syntax::
+All deprecated code will be removed in the next release. Please run you project's tests using `python -Wd` so that
+deprecation warnings appear and can be addressed.
 
-    daphne -e ssl:443:privateKey=key.pem:certKey=crt.pem django_project.asgi:application
+**2017-05-26 - 1.5**: Django 1.8 - 1.11
 
-Alternatively, you can use the ``txacme`` endpoint syntax or anything else that
-enables TLS under the hood.
+**2017-01-03 - 1.4**: Django 1.8 - 1.10
 
-You will also need to be on a system that has **OpenSSL 1.0.2 or greater**; if you are
-using Ubuntu, this means you need at least Ubuntu 16.04.
+**2016-05-06 - 1.3**: Django 1.7 - 1.9
 
-Now, when you start up Daphne, it should tell you this in the log::
+**2015-11-27 - 1.2**: Django 1.5 - 1.9
 
-    2017-03-18 19:14:02,741 INFO     Starting server at ssl:port=8000:privateKey=privkey.pem:certKey=cert.pem, channel layer django_project.asgi:channel_layer.
-    2017-03-18 19:14:02,742 INFO     HTTP/2 support enabled
+**2014-12-10 - 1.1**: Django 1.5 - 1.7
 
-Then, connect with a browser that supports HTTP/2, and everything should be
-working. It's often hard to tell that HTTP/2 is working, as the log Daphne gives you
-will be identical (it's HTTP, after all), and most browsers don't make it obvious
-in their network inspector windows. There are browser extensions that will let
-you know clearly if it's working or not.
+**2013-07-29 - 1.0**: Django 1.5 - 1.6
 
-Daphne only supports "normal" requests over HTTP/2 at this time; there is not
-yet support for extended features like Server Push. It will, however, result in
-much faster connections and lower overheads.
-
-If you have a reverse proxy in front of your site to serve static files or
-similar, HTTP/2 will only work if that proxy understands and passes through the
-connection correctly.
-
-
-Root Path (SCRIPT_NAME)
------------------------
-
-In order to set the root path for Daphne, which is the equivalent of the
-WSGI ``SCRIPT_NAME`` setting, you have two options:
-
-* Pass a header value ``Daphne-Root-Path``, with the desired root path as a
-  URLencoded ASCII value. This header will not be passed down to applications.
-
-* Set the ``--root-path`` commandline option with the desired root path as a
-  URLencoded ASCII value.
-
-The header takes precedence if both are set. As with ``SCRIPT_ALIAS``, the value
-should start with a slash, but not end with one; for example::
-
-    daphne --root-path=/forum django_project.asgi:application
-
-
-Python Support
---------------
-
-Daphne requires Python 3.5 or later.
-
-
-Contributing
-------------
-
-Please refer to the
-`main Channels contributing docs <https://github.com/django/channels/blob/master/CONTRIBUTING.rst>`_.
-
-To run tests, make sure you have installed the ``tests`` extra with the package::
-
-    cd daphne/
-    pip install -e .[tests]
-    pytest
-
-
-Maintenance and Security
-------------------------
-
-To report security issues, please contact security@djangoproject.com. For GPG
-signatures and more security process information, see
-https://docs.djangoproject.com/en/dev/internals/security/.
-
-To report bugs or request new features, please open a new GitHub issue.
-
-This repository is part of the Channels project. For the shepherd and maintenance team, please see the
-`main Channels readme <https://github.com/django/channels/blob/master/README.rst>`_.
