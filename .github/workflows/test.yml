@@ -1,23 +1,27 @@
-name: CodeCov tests
+name: Python package
 
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
-  unit-tests:
-    runs-on: ${{ matrix.os }}
+  build:
+    runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
       matrix:
-        python-version: [ 3.7, 3.8, 3.9, "3.10"]
-        requirements-file: [
-            django-2.2.txt,
-            django-3.1.txt,
-            django-3.2.txt
-        ]
-        os: [
-          ubuntu-22.04,
-        ]
-
+        python-version: [3.5, 3.6, 3.7, 3.8]
+        env:
+          - TOX_ENV=flake8
+          - TOX_ENV=isort
+          - DJANGO=dj22
+          - DJANGO=dj30
+          - DJANGO=dj31
+          - DJANGO=dj32
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python ${{ matrix.python-version }}
@@ -27,11 +31,14 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install -r tests/requirements/${{ matrix.requirements-file }}
-        python setup.py install
-
-    - name: Run coverage
-      run: coverage run setup.py test
-
-    - name: Upload Coverage to Codecov
-      uses: codecov/codecov-action@v1
+        pip install coverage isort tox
+        if [ "${{ matrix.python-version }}" == "3.5" ]; then echo "PY_VER=py35" >> $GITHUB_ENV; fi
+        if [ "${{ matrix.python-version }}" == "3.6" ]; then echo "PY_VER=py36" >> $GITHUB_ENV; fi
+        if [ "${{ matrix.python-version }}" == "3.7" ]; then echo "PY_VER=py37" >> $GITHUB_ENV; fi
+        if [ "${{ matrix.python-version }}" == "3.8" ]; then echo "PY_VER=py38" >> $GITHUB_ENV; fi
+        if [ "${{ matrix.env.DJANGO }}z" != "z" ]; then echo "TOX_ENV=${{ env.PY_VER }}" >> $GITHUB_ENV; fi
+    - name: Run tests
+      run: tox -e ${{ env.TOX_ENV }}
+    - name: Upload coverage to Codecov
+      if: success()
+      run: bash <(curl -s https://codecov.io/bash)
