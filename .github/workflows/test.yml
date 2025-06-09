@@ -15,11 +15,11 @@ jobs:
             django-3.2.txt
         ]
         os: [
-          ubuntu-20.04,
+          ubuntu-22.04,
         ]
 
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v2
       with:
