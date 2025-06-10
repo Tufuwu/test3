@@ -48,7 +48,7 @@ jobs:
       run: ./contrib/travis/test.sh
     services:
       postgresql:
-        if: matrix.database.type == 'postgres'
+
         image: postgres:10
         env:
           POSTGRES_USER: postgres
@@ -61,7 +61,7 @@ jobs:
         ports:
           - 5432:5432
       mariadb:
-        if: matrix.database.type == 'mysql'
+
         image: mariadb:10.3
         env:
           MYSQL_ROOT_PASSWORD: ''
