@@ -40,7 +40,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        ./contrib/travis/install.sh
+        python -m pip install --upgrade pip wheel setuptools
     - name: Run tests
       env:
         DJANGO_VERSION: ${{ matrix.django-version }}
