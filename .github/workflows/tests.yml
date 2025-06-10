@@ -98,7 +98,7 @@ jobs:
 
         image: mariadb:10.3
         env:
-          MYSQL_ROOT_PASSWORD: ''
+          MYSQL_ROOT_PASSWORD: mariadb
           MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
           MYSQL_DATABASE: django_guardian
         options: >-
