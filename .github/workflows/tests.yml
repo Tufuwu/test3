@@ -42,21 +42,21 @@ jobs:
         python -m pip install --upgrade pip
         python -m pip install --upgrade pip wheel setuptools
     - name: Install dependencies
-            run: |
-              PACKAGES=('mock' 'pytest' 'pytest-django' 'pytest-cov' 'django-environ' 'setuptools_scm' 'pyupgrade' 'psycopg2-binary' 'mysqlclient')
-              if [[ "${{ matrix.django }}" == 'main' ]]; then
-                  PACKAGES+=('https://github.com/django/django/archive/main.tar.gz');
-              else
-                  PACKAGES+=("Django~=${{ matrix.django }}");
-              fi;
+      run: |
+        PACKAGES=('mock' 'pytest' 'pytest-django' 'pytest-cov' 'django-environ' 'setuptools_scm' 'pyupgrade' 'psycopg2-binary' 'mysqlclient')
+        if [[ "${{ matrix.django }}" == 'main' ]]; then
+            PACKAGES+=('https://github.com/django/django/archive/main.tar.gz');
+        else
+            PACKAGES+=("Django~=${{ matrix.django }}");
+        fi;
 
-              PGPASSWORD="postgres" psql -c 'create database django_guardian;' -h localhost -U postgres;
-              PGPASSWORD="postgres" psql -c 'create database test_django_guardian;' -h localhost -U postgres;
+        PGPASSWORD="postgres" psql -c 'create database django_guardian;' -h localhost -U postgres;
+        PGPASSWORD="postgres" psql -c 'create database test_django_guardian;' -h localhost -U postgres;
 
-              mysql --host=127.0.0.1 --user=root --password=mariadb -e 'CREATE DATABASE django_guardian;';
-              mysql --host=127.0.0.1 --user=root --password=mariadb -e 'CREATE DATABASE test_django_guardian;';
+        mysql --host=127.0.0.1 --user=root --password=mariadb -e 'CREATE DATABASE django_guardian;';
+        mysql --host=127.0.0.1 --user=root --password=mariadb -e 'CREATE DATABASE test_django_guardian;';
 
-              python -m pip install --upgrade --upgrade-strategy=only-if-needed ${PACKAGES[*]};
+        python -m pip install --upgrade --upgrade-strategy=only-if-needed ${PACKAGES[*]};
     - name: Ensure no version conflicts exist
       run: pip check
     - name: Lint modern PY3 syntax
