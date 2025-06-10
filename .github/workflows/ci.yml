@@ -35,3 +35,4 @@ jobs:
     - name: Coveralls
       if: success()
       run: coveralls
+      env: GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
