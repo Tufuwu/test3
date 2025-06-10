@@ -1,0 +1,4 @@
+isort
+psycopg2-binary
+mysqlclient
+coveralls
