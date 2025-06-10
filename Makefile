@@ -1,60 +1,57 @@
-.PHONY: clean-pyc clean-build release docs help
-.PHONY: lint test coverage test-codecov
-.DEFAULT_GOAL := help
-RUN_TEST_COMMAND=PYTHONPATH=".:tests:${PYTHONPATH}" django-admin test core --settings=settings
-help:
-	@grep '^[a-zA-Z]' $(MAKEFILE_LIST) | sort | awk -F ':.*?## ' 'NF==2 {printf "\033[36m  %-25s\033[0m %s\n", $$1, $$2}'
+.PHONY: clean install sandbox test coverage docker-build docker-coverage docs build_release, publish_release_testpypi publish_release
 
-clean: clean-build clean-pyc clean-tests
+clean:
+	find . -name '*.pyc' -delete
+	find . -name '__pycache__' -delete
+	rm -Rf *.egg-info
+	rm -Rf dist/
+	rm -Rf build/
 
-clean-build: ## remove build artifacts
-	rm -fr build/
-	rm -fr dist/
-	rm -fr *.egg-info
+install:
+	pip install -e .[dev]
 
-clean-pyc: ## remove Python file artifacts
-	find . -name '*.pyc' -exec rm -f {} +
-	find . -name '*.pyo' -exec rm -f {} +
-	find . -name '*~' -exec rm -f {} +
+sandbox: install
+	python sandbox/manage.py migrate
+	python sandbox/manage.py loaddata attributeoption country orderanditemcharges productattribute productclass voucher attributeoptiongroup offer partner productattributevalue productimage category option product productcategory stockrecord
 
-clean-tests: ## remove pytest artifacts
-	rm -fr .pytest_cache/
-	rm -fr htmlcov/
-	rm -fr django-import-export/
+test:
+	python sandbox/manage.py test oscarapi --settings=sandbox.settings.block_admin_api_true
+	python sandbox/manage.py test oscarapi --settings=sandbox.settings.block_admin_api_false
 
-lint: ## check style with isort
-	isort --check-only .
+coverage:
+	coverage run sandbox/manage.py test oscarapi --settings=sandbox.settings.block_admin_api_true
+	coverage run sandbox/manage.py test oscarapi --settings=sandbox.settings.block_admin_api_false
+	coverage report -m
+	coverage xml -i
 
-test: ## run tests quickly with the default Python
-	$(RUN_TEST_COMMAND)
+docker-build:
+	 docker build -t oscarapi/test .
 
-messages: ## generate locale file translations
-	cd import_export && django-admin.py makemessages && cd ..
+docker-coverage: docker-build
+	 docker run -ti -v $(CURDIR):/opt -w /opt oscarapi/test bash -c "pip install 'Django<3.1' && make install && /usr/bin/make coverage"
 
-coverage: ## generates codecov report
-	coverage run --omit='setup.py,tests/*' --source=. tests/manage.py test core --settings=
-	coverage report
+docs: install
+	pip install -r docs/requirements.txt
+	cd docs && make clean && make html
 
-sdist: clean ## package
-	python setup.py sdist
-	ls -l dist
+build_release: clean
+	python setup.py sdist bdist_wheel
 
-release: clean install-deploy-requirements sdist ## package and upload a release
-	fullrelease
+publish_release_testpypi: build_release
+	twine upload --repository-url https://test.pypi.org/legacy/ dist/*
 
-install-base-requirements: ## install package requirements
-	pip install -r requirements/base.txt
+publish_release: build_release
+	twine upload dist/*
 
-install-test-requirements: ## install requirements for testing
-	pip install -r requirements/test.txt
+lint.installed:
+	pip install -e .[lint]
+	touch $@
 
-install-deploy-requirements:  ## install requirements for deployment
-	pip install -r requirements/deploy.txt
+lint: lint.installed
+	flake8 oscarapi/
 
-install-docs-requirements:  ## install requirements for docs
-	pip install -r requirements/docs.txt
+black:
+	black --exclude "/migrations/" oscarapi/
 
-install-requirements: install-base-requirements install-test-requirements install-deploy-requirements install-docs-requirements
-
-build-html-doc: ## builds the project documentation in HTML format
-	DJANGO_SETTINGS_MODULE=tests.settings make html -C docs
+uwsgi:
+	@cd sandbox && uwsgi --ini uwsgi.ini

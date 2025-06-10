@@ -1,57 +1,61 @@
-import os
-
 from setuptools import find_packages, setup
 
-VERSION = __import__("import_export").__version__
-
-CLASSIFIERS = [
-    'Framework :: Django',
-    'Framework :: Django :: 2.2',
-    'Framework :: Django :: 3.1',
-    'Framework :: Django :: 3.2',
-    'Intended Audience :: Developers',
-    'License :: OSI Approved :: BSD License',
-    'Operating System :: OS Independent',
-    'Programming Language :: Python',
-    'Programming Language :: Python :: 3',
-    'Programming Language :: Python :: 3.6',
-    'Programming Language :: Python :: 3.7',
-    'Programming Language :: Python :: 3.8',
-    'Programming Language :: Python :: 3.9',
-    'Programming Language :: Python :: 3 :: Only',
-    'Topic :: Software Development',
-]
-
-install_requires = [
-    'diff-match-patch',
-    'Django>=2.2',
-    'tablib[html,ods,xls,xlsx,yaml]>=3.0.0',
-]
-
-
-with open(os.path.join(os.path.dirname(__file__), 'README.rst')) as f:
-    readme = f.read()
-
+__version__ = "2.1.1"
 
 setup(
-    name="django-import-export",
-    description="Django application and library for importing and exporting"
-                " data with included admin integration.",
-    long_description=readme,
-    version=VERSION,
-    author="Informatika Mihelac",
-    author_email="bmihelac@mihelac.org",
-    license='BSD License',
-    platforms=['OS Independent'],
-    url="https://github.com/django-import-export/django-import-export",
-    project_urls={
-        "Documentation": "https://django-import-export.readthedocs.io/en/stable/",
-        "Changelog": "https://django-import-export.readthedocs.io/en/stable/changelog.html",
-    },
-    packages=find_packages(exclude=["tests"]),
-    include_package_data=True,
-    install_requires=install_requires,
+    # package name in pypi
+    name="django-oscar-api",
+    # extract version from module.
+    version=__version__,
+    description="REST API module for django-oscar",
+    long_description=open("README.rst").read(),
+    classifiers=[
+        "Development Status :: 5 - Production/Stable",
+        "Environment :: Web Environment",
+        "Framework :: Django",
+        "Framework :: Django :: 2.2",
+        "Framework :: Django :: 3.0",
+        "Framework :: Django :: 3.1",
+        "Intended Audience :: Developers",
+        "License :: OSI Approved :: BSD License",
+        "Operating System :: Unix",
+        "Programming Language :: Python",
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+        "Topic :: Software Development :: Libraries :: Application Frameworks",
+    ],
     python_requires=">=3.6",
-    classifiers=CLASSIFIERS,
+    keywords="",
+    author="Lars van de Kerkhof, Martijn Jacobs",
+    author_email="lars@permanentmarkers.nl, martijn@devopsconsulting.nl",
+    url="https://github.com/django-oscar/django-oscar-api",
+    license="BSD",
+    packages=find_packages(
+        exclude=[
+            "*tests.unit",
+            "*tests.serializers*",
+            "*tests.doctests*",
+            "*fixtures",
+            "*fixtures*",
+            "*sandbox*",
+        ]
+    ),
+    # include non python files
+    include_package_data=True,
     zip_safe=False,
+    # specify dependencies
+    install_requires=[
+        "setuptools",
+        "django-oscar>=3.0",
+        "Django>=2.2.13",  # CVE-2020-9402
+        "djangorestframework>=3.9",  # first version to support Django 2.2
+    ],
+    # mark test target to require extras.
+    extras_require={
+        "dev": ["coverage", "mock", "twine", "wheel", "easy_thumbnails"],
+        "lint": ["flake8", "flake8-black", "flake8-bugbear", "black>=19.10b0"],
+    },
 )

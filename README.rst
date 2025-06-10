@@ -1,75 +1,62 @@
-====================
-django-import-export
-====================
+================
+Django Oscar API
+================
 
-.. image:: https://github.com/django-import-export/django-import-export/actions/workflows/django-import-export-ci.yml/badge.svg
-    :target: https://github.com/django-import-export/django-import-export/actions/workflows/django-import-export-ci.yml
-    :alt: Build status on Github
+This package provides a RESTful API for `django-oscar`_.
 
-.. image:: https://coveralls.io/repos/github/django-import-export/django-import-export/badge.svg?branch=main
-    :target: https://coveralls.io/github/django-import-export/django-import-export?branch=main
+.. _`django-oscar`: https://github.com/django-oscar/django-oscar
 
-.. image:: https://img.shields.io/pypi/v/django-import-export.svg
-    :target: https://pypi.org/project/django-import-export/
-    :alt: Current version on PyPi
+.. image:: https://travis-ci.org/django-oscar/django-oscar-api.svg?branch=master
+    :target: https://travis-ci.org/django-oscar/django-oscar-api
 
-.. image:: http://readthedocs.org/projects/django-import-export/badge/?version=stable
-    :target: https://django-import-export.readthedocs.io/en/stable/
-    :alt: Documentation
+.. image:: https://codecov.io/github/django-oscar/django-oscar-api/coverage.svg?branch=master
+    :alt: Coverage
+    :target: http://codecov.io/github/django-oscar/django-oscar-api?branch=master
 
-.. image:: https://img.shields.io/pypi/pyversions/django-import-export
-    :alt: PyPI - Python Version
+.. image:: https://readthedocs.org/projects/django-oscar-api/badge/
+   :alt: Documentation Status
+   :target: https://django-oscar-api.readthedocs.io/
 
-.. image:: https://img.shields.io/pypi/djversions/django-import-export
-    :alt: PyPI - Django Version
+.. image:: https://badge.fury.io/py/django-oscar-api.svg
+   :alt: Latest PyPi release
+   :target: https://pypi.python.org/pypi/django-oscar-api
 
-django-import-export is a Django application and library for importing
-and exporting data with included admin integration.
+Usage
+=====
 
-Features:
+To use the Oscar API application in an Oscar E-commerce site, follow these
+steps:
 
-* support multiple formats (Excel, CSV, JSON, ...
-  and everything else that `tablib`_ supports)
+1. Install the ``django-oscar-api`` package (``pip install django-oscar-api``).
 
-* admin integration for importing
+2. Add ``rest_framework`` and ``oscarapi`` to ``INSTALLED_APPS``
 
-* preview import changes
+    .. code-block:: python
 
-* admin integration for exporting
+       INSTALLED_APPS = [
+        ...
+        'rest_framework',
+        'oscarapi',
+       ]
 
-* export data respecting admin filters
+3. Add the application's urls to your urlconf
 
-.. image:: docs/_static/images/django-import-export-change.png
+   .. code-block:: python
+
+      from django.urls import include
+
+      urlpatterns = (
+          # all the things you already have
+          path("api/", include("oscarapi.urls")),
+      )
+
+4. Apply migrations::
+
+    python manage.py migrate
 
 
-* Documentation: https://django-import-export.readthedocs.io/en/stable/
-* GitHub: https://github.com/django-import-export/django-import-export/
-* Free software: BSD license
-* PyPI: https://pypi.org/project/django-import-export/
+See the Documentation_ for more information and the Changelog_ for release notes.
 
-Example app
------------
+.. _Documentation: https://django-oscar-api.readthedocs.io
+.. _Changelog: https://django-oscar-api.readthedocs.io/en/latest/changelog.html
 
-To run the demo app::
-
-    cd tests
-    ./manage.py makemigrations
-    ./manage.py migrate
-    ./manage.py createsuperuser
-    ./manage.py loaddata category book
-    ./manage.py runserver
-
-Contribute
-----------
-
-If you'd like to contribute, simply fork `the repository`_, commit your
-changes to the **develop** branch (or branch off of it), and send a pull
-request. Make sure you add yourself to AUTHORS_.
-
-As most projects, we try to follow PEP8_ as closely as possible. Please bear
-in mind that most pull requests will be rejected without proper unit testing.
-
-.. _`PEP8`: https://www.python.org/dev/peps/pep-0008/
-.. _`tablib`: https://github.com/jazzband/tablib
-.. _`the repository`: https://github.com/django-import-export/django-import-export/
-.. _AUTHORS: https://github.com/django-import-export/django-import-export/blob/master/AUTHORS

@@ -1,6 +1,10 @@
+global-exclude *.*
+
 include LICENSE
-include AUTHORS
 include README.rst
-recursive-include import_export/templates *
-recursive-include import_export/locale *
-recursive-include import_export/static *
+include setup.py
+graft oscarapi
+prune oscarapi/tests/
+prune oscarapi/fixtures/
+include oscarapi/tests/__init__.py
+include oscarapi/tests/utils.py
