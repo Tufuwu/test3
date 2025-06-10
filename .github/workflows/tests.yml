@@ -20,17 +20,17 @@ jobs:
           - { type: postgres, url: postgres://postgres@/django_guardian, service: postgresql, version: "10" }
           - { type: mysql, url: mysql://root:@localhost/django_guardian, service: mariadb, version: "10.3" }
           - { type: sqlite, url: sqlite:// }
-      exclude:
-        - python-version: 3.5
-          django-version: 3.0.*
-        - python-version: 3.5
-          django-version: 3.1.*
-        - python-version: 3.5
-          django-version: master
-        - python-version: 3.9-dev
-          django-version: 2.2.*
-        - python-version: 3.9-dev
-          django-version: 3.0.*
+        exclude:
+          - python-version: 3.5
+            django-version: 3.0.*
+          - python-version: 3.5
+            django-version: 3.1.*
+          - python-version: 3.5
+            django-version: master
+          - python-version: 3.9-dev
+            django-version: 2.2.*
+          - python-version: 3.9-dev
+            django-version: 3.0.*
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python ${{ matrix.python-version }}
