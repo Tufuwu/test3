@@ -100,7 +100,7 @@ jobs:
         env:
           MYSQL_ROOT_PASSWORD: ''
           MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
-
+          MYSQL_DATABASE: django_guardian
         options: >-
           --health-cmd "mysqladmin ping --silent"
           --health-interval 10s
