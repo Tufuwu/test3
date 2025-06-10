@@ -85,7 +85,7 @@ jobs:
         image: postgres:10
         env:
           POSTGRES_USER: postgres
-          POSTGRES_DB: django_guardian
+
           POSTGRES_PASSWORD: postgres
         options: >-
           --health-cmd pg_isready
