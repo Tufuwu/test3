@@ -1,61 +1,53 @@
-from setuptools import find_packages, setup
+import os
 
-__version__ = "2.1.1"
+from setuptools import setup
 
 setup(
-    # package name in pypi
-    name="django-oscar-api",
-    # extract version from module.
-    version=__version__,
-    description="REST API module for django-oscar",
-    long_description=open("README.rst").read(),
+    name="django-recurrence",
+    use_scm_version=True,
+    license="BSD",
+    description="Django utility wrapping dateutil.rrule",
+    long_description=open("README.md", encoding="utf-8").read(),
+    long_description_content_type="text/markdown",
+    author="Tamas Kemenczy",
+    author_email="tamas.kemenczy@gmail.com",
+    url="https://github.com/django-recurrence/django-recurrence",
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "Environment :: Web Environment",
+        "Environment :: Plugins",
+        "Framework :: Django",
         "Framework :: Django",
         "Framework :: Django :: 2.2",
-        "Framework :: Django :: 3.0",
-        "Framework :: Django :: 3.1",
+        "Framework :: Django :: 3.2",
+        "Framework :: Django :: 4.0",
         "Intended Audience :: Developers",
         "License :: OSI Approved :: BSD License",
-        "Operating System :: Unix",
+        "Operating System :: OS Independent",
         "Programming Language :: Python",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
-        "Topic :: Software Development :: Libraries :: Application Frameworks",
+        "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: Implementation",
+        "Programming Language :: Python :: Implementation :: CPython",
+        "Programming Language :: Python :: Implementation :: PyPy",
     ],
-    python_requires=">=3.6",
-    keywords="",
-    author="Lars van de Kerkhof, Martijn Jacobs",
-    author_email="lars@permanentmarkers.nl, martijn@devopsconsulting.nl",
-    url="https://github.com/django-oscar/django-oscar-api",
-    license="BSD",
-    packages=find_packages(
-        exclude=[
-            "*tests.unit",
-            "*tests.serializers*",
-            "*tests.doctests*",
-            "*fixtures",
-            "*fixtures*",
-            "*sandbox*",
+    python_requires=">=3.7",
+    install_requires=["django>=2.2", "python-dateutil"],
+    setup_requires=["setuptools_scm"],
+    packages=["recurrence", "recurrence.migrations"],
+    package_dir={"recurrence": "recurrence"},
+    package_data={
+        "recurrence": [
+            os.path.join("static", "*.css"),
+            os.path.join("static", "*.png"),
+            os.path.join("static", "*.js"),
+            os.path.join("locale", "*.po"),
+            os.path.join("locale", "*.mo"),
         ]
-    ),
-    # include non python files
-    include_package_data=True,
-    zip_safe=False,
-    # specify dependencies
-    install_requires=[
-        "setuptools",
-        "django-oscar>=3.0",
-        "Django>=2.2.13",  # CVE-2020-9402
-        "djangorestframework>=3.9",  # first version to support Django 2.2
-    ],
-    # mark test target to require extras.
-    extras_require={
-        "dev": ["coverage", "mock", "twine", "wheel", "easy_thumbnails"],
-        "lint": ["flake8", "flake8-black", "flake8-bugbear", "black>=19.10b0"],
     },
+    zip_safe=False,
+    include_package_data=True,
 )

@@ -1,10 +1,8 @@
-global-exclude *.*
-
+include README.md
 include LICENSE
-include README.rst
-include setup.py
-graft oscarapi
-prune oscarapi/tests/
-prune oscarapi/fixtures/
-include oscarapi/tests/__init__.py
-include oscarapi/tests/utils.py
+include MANIFEST.in
+include pytest.ini
+recursive-include docs Makefile make.bat *.rst *.py *.png
+recursive-include recurrence/static *.css *.png *.js
+recursive-include recurrence/locale *.mo *.po
+recursive-include tests *.py
