@@ -1,8 +1,9 @@
-# Newer versions introduce a dependency on charset-normalizer which only supports python 3.6 and above.
-requests==2.25.1
-
-# Newer versions don't support python 2.x
-jinja2==2.11.3
-markupsafe==1.1.1
-pygments==2.5.2
-stevedore==1.32.0
+# Version constraints for pip-installation.
+#
+# This file doesn't install any packages. It specifies version constraints
+# that will be applied if a package is needed.
+#
+# When pinning something here, please provide an explanation of why.  Ideally,
+# link to other information that will help people in the future to remove the
+# pin when possible.  Writing an issue against the offending project and
+# linking to it here is good.
