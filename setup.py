@@ -1,39 +1,22 @@
-#!/usr/bin/env python3
+import setuptools
 
-import sys, os
-try:
-  from setuptools import setup
-except ImportError:
-  from distutils.core import setup
+with open("README.md", "r") as fh:
+    long_description = fh.read()
 
-if sys.version_info < (3,3):
-    sys.exit("Python 3.3+ is required; you are using %s" % sys.version)
-
-########################################
-
-version_py = os.path.join('vpn_slice', 'version.py')
-
-d = {}
-with open(version_py, 'r') as fh:
-    exec(fh.read(), d)
-    version_pep = d['__version__']
-
-########################################
-
-setup(name="vpn-slice",
-      version=version_pep,
-      description=("vpnc-script replacement for easy split-tunnel VPN setup"),
-      long_description=open('description.rst').read(),
-      author="Daniel Lenski",
-      author_email="dlenski@gmail.com",
-      extras_require={
-        "setproctitle": ["setproctitle"],
-        "dnspython": ["dnspython"],
-      },
-      install_requires=["setproctitle", "dnspython"],
-      license='GPL v3 or later',
-      url="https://github.com/dlenski/vpn-slice",
-      packages=["vpn_slice"],
-      include_package_data = True,
-      entry_points={ 'console_scripts': [ 'vpn-slice=vpn_slice.__main__:main' ] },
-      )
+setuptools.setup(
+    name="undictify",
+    version="0.10.0",
+    author="Tobias Hermann",
+    author_email="editgym@gmail.com",
+    description="Type-checked function calls at runtime",
+    long_description=long_description,
+    long_description_content_type="text/markdown",
+    url="http://github.com/Dobiasd/undictify",
+    packages=setuptools.find_packages(),
+    classifiers=(
+        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
+        "License :: OSI Approved :: MIT License",
+        "Operating System :: OS Independent",
+    ),
+)

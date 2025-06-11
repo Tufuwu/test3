@@ -1,7 +1,9 @@
-*.py[co]
-*~
-*.egg-info
-*.orig
-
-build/
-dist/
+/.idea
+/build
+/dist
+/helpers
+/undictify.egg-info
+__pycache__
+.mypy_cache
+/github_issues
+/Dockerfile*

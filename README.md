@@ -1,195 +1,294 @@
-vpn-slice
+![logo](https://github.com/Dobiasd/undictify/raw/master/logo/undictify.png)
+
+[![CI](https://github.com/Dobiasd/undictify/workflows/ci/badge.svg)](https://github.com/Dobiasd/undictify/actions)
+[![(License MIT 1.0)](https://img.shields.io/badge/license-MIT%201.0-blue.svg)][license]
+
+[license]: LICENSE
+
+
+undictify
 =========
+**Python library providing type-checked function calls at runtime**
 
-[![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
-[![Build Status](https://github.com/dlenski/vpn-slice/workflows/test_and_release/badge.svg)](https://github.com/dlenski/vpn-slice/actions?query=workflow%3Atest_and_release)
-[![PyPI](https://img.shields.io/pypi/v/vpn-slice.svg)](https://pypi.python.org/pypi/vpn-slice)
-[![Homebrew](https://img.shields.io/homebrew/v/vpn-slice.svg)](https://formulae.brew.sh/formula/vpn-slice)
 
-Table of Contents
-=================
-
+Table of contents
+-----------------
   * [Introduction](#introduction)
-    * [Who this is for](#who-this-is-for)
-    * [Requirements](#requirements)
-    * [First steps](#first-steps)
-    * [Usage](#usage)
-    * [Diagnostics](#diagnostics)
-  * [Inspiration and credits](#inspiration-and-credits)
-  * [License](#license)
-    * [TODO](#todo)
+  * [Use case: JSON deserialization](#use-case-json-deserialization)
+  * [Details](#details)
+  * [Requirements and Installation](#requirements-and-installation)
 
-## Introduction
 
-This is a replacement for the
-[`vpnc-script`](https://www.infradead.org/openconnect/vpnc-script.html)
-used by [OpenConnect](https://www.infradead.org/openconnect) or
-[VPNC](https://www.unix-ag.uni-kl.de/~massar/vpnc).
+Introduction
+------------
+Let's start with a toy example:
+```python3
+def times_two(value):
+    return 2 * value
 
-Instead of trying to copy the behavior of standard corporate VPN clients,
-which normally reroute **all** your network traffic through the VPN,
-this one tries to _minimize your contact_ with an intrusive VPN.
-This is also known as a
-[split-tunnel](https://en.wikipedia.org/wiki/Split_tunneling) VPN, since
-it splits your traffic between the VPN tunnel and your normal network
-interfaces.
-
-`vpn-slice` makes it easy to set up a split-tunnel VPN:
-
-* It only routes traffic for **specific hosts or subnets** through the VPN.
-* It automatically looks up named hosts, using the VPN's DNS servers,
-  and adds entries for them to your `/etc/hosts` (which it cleans up
-  after VPN disconnection), however it **does not otherwise alter your
-  `/etc/resolv.conf` at all**.
-
-## Who this is for
-
-If you are using a VPN to route *all* your traffic for privacy reasons
-(or to avoid censorship in repressive countries), then you **do not want
-to use this**.
-
-The purpose of this tool is almost the opposite; it makes it easy to
-connect to a VPN while **minimizing** the traffic that passes over the
-VPN.
-
-This is for people who have to connect to the high-security VPNs of
-corporations or other bureaucracies (which monitor and filter and
-otherwise impede network traffic), and thus wish to route as little
-traffic as possible through those VPNs.
-
-## Requirements
-
-* Python 3.3+
-* Either of the following:
-  * [`dnspython`](https://pypi.org/project/dnspython) module (**preferred**, tested with v1.16.0)
-  * [`dig`](https://en.wikipedia.org/wiki/Dig_(command)) command-line DNS lookup tool (tested with v9.9.5 and v9.10.3)
-* Supported OSes:
-  * Linux kernel 3.x+ with
-    [`iproute2`](https://en.wikipedia.org/wiki/iproute2) and
-    [`iptables`](https://en.wikipedia.org/wiki/iptables) utilities
-    (used for all routing setup)
-  * macOS 10.x with BSD
-    [`route`](https://en.wikipedia.org/wiki/Route_(command))
-  * FreeBSD with BSD
-    [`route`](https://en.wikipedia.org/wiki/Route_(command))
-    if [`procfs`](https://www.freebsd.org/cgi/man.cgi?query=procfs&sektion=5) is mounted
-
-You can install the latest build with `pip` (make sure you are using
-the Python 3.x version, usually invoked with `pip3`).
-
-You should install as `root` (e.g. using `sudo`), because
-`openconnect` or `vpnc` will need to be able to invoke `vpn-slice`
-while running as root:
-
-    $ sudo pip3 install https://github.com/dlenski/vpn-slice/archive/master.zip
-
-On macOS, you can also install using [Homebrew](https://brew.sh):
-
-    $ brew install vpn-slice
-
-## First steps
-
-Before trying to use `vpn-slice` with `openconnect` or `vpnc`,
-check that it works properly on your platform, and can verify that it has all of
-the access and dependencies that it needs (to modify `/etc/hosts`, alter
-routing table, etc.):
-
-    $ sudo vpn-slice --self-test
-    ***************************************************************************
-    *** Self-test passed. Try using vpn-slice with openconnect or vpnc now. ***
-    ***************************************************************************
-
-If you run the self-test as a non-`root` user, it will tell you what required
-access it is unable to obtain:
-
-    $ vpn-slice --self-test
-    WARNING: Couldn't configure hosts provider: Cannot read/write /etc/hosts
-    ******************************************************************************************
-    *** Self-test did not pass. Double-check that you are running as root (e.g. with sudo) ***
-    ******************************************************************************************
-    Aborting because providers for hosts are required; use --help for more information
-
-When you start trying to use `vpn-slice` for real, you should use the
-[diagnostic options](#diagnostics) (e.g `openconnect -s 'vpn-slice
---verbose --dump'`) to troubleshoot and understand its behavior.
-
-## Usage
-
-You should specify `vpn-slice` as your connection script with
-`openconnect` or `vpnc`. It has been tested with vpnc v0.5.3, OpenConnect
-v7.06+ (Cisco AnyConnect and Juniper protocols) and v8.0+ (PAN GlobalProtect
-protocol).
-
-For example:
-
-```sh
-$ sudo openconnect gateway.bigcorp.com -u user1234 \
-    -s 'vpn-slice 192.168.1.0/24 hostname1 alias2=alias2.bigcorp.com=192.168.1.43'
-$ cat /etc/hosts
-...
-192.168.1.1 dns0.tun0					# vpn-slice-tun0 AUTOCREATED
-192.168.1.2 dns1.tun0					# vpn-slice-tun0 AUTOCREATED
-192.168.1.57 hostname1 hostname1.bigcorp.com		# vpn-slice-tun0 AUTOCREATED
-192.168.1.43 alias2 alias2.bigcorp.com		# vpn-slice-tun0 AUTOCREATED
+value = 3
+result = times_two(value)
+print(f'{value} * 2 == {result}')
 ```
 
-or
+This is fine, it outputs `output: 3 * 2 = 6`.
+But what if `value` accidentally is `'3'` instead of `3`?
+The output will become `output: 3 * 2 = 33`, which *might* not be desired.
 
-```sh
-# With most versions of vpnc, you *must* specify an absolute path
-# for the disconnect hook to work correctly, due to a bug.
-#
-# I reported this bug, but the original maintainers no longer maintain vpnc.
-#   https://lists.unix-ag.uni-kl.de/pipermail/vpnc-devel/2016-August/004199.html
-#
-# However, some Linux distro packagers have picked up my patch in recent
-# releases, e.g. Ubuntu 17.04:
-#   https://changelogs.ubuntu.com/changelogs/pool/universe/v/vpnc/vpnc_0.5.3r550-3/changelog
-#
-$ sudo vpnc config_file \
-       --script '/path/to/vpn-slice 192.168.1.0/24 hostname1 alias2=alias2.bigcorp.com=192.168.1.43'
+So you add something like
+```python3
+if not isinstance(value, int):
+    raise TypeError(...)
+```
+to `times_two`. This will raise an `TypeError` instead, which is better.
+But you still only recognize the mistake when actually running the code.
+Catching it earlier in the development process might be better.
+Luckily Python allows to opt-in for static typing by offering [type annotations](https://docs.python.org/3/library/typing.html).
+So you add them and [`mypy`](http://mypy-lang.org/) (or your IDE) will tell you about the problem early.
+```python3
+def times_two(value: int) -> int:
+    return 2 * value
+
+value = '3'
+result = times_two(value) # error: Argument 1 to "times_two"
+                          # has incompatible type "str"; expected "int"
+print(f'{value} * 2 == {result}')
 ```
 
-Notice that `vpn-slice` accepts both *hostnames alone* (`hostname1`) as well as
-host-to-IP* aliases (`alias2=alias2.bigcorp.com=192.168.1.43`). The former are first looked up using the
-VPN's DNS servers. Both are also added to the routing table, as well as to
-`/etc/hosts` (unless `--no-host-names` is specified). As in this
-example, multiple aliases can be specified for a single IP address.
+But you may get into a situation in which there is no useful static type information,
+because of values:
+- coming from external non-typed functions (so actually they are of type `Any`)
+- were produced by a (rogue) function that returns different types depending on some internal decision (`Union[T, V]`)
+- being provided as a `Dict[str, Any]`
+- etc.
 
-There are many command-line options to alter the behavior of
-`vpn-slice`; try `vpn-slice --help` to show them all.
+```python3
+def times_two(value: int) -> int:
+    return 2 * value
+        
+def get_value() -> Any:
+    return '3'
 
-# Diagnostics
+value = get_value()
+result = times_two(value)
+print(f'{value} * 2 == {result}')
+```
 
-Running with `--verbose` makes it explain what it is doing, while running with
-`--dump` shows the environment variables passed in by the caller.
+At least with the [appropriate settings](https://stackoverflow.com/questions/51696060/how-to-make-mypy-complain-about-assigning-an-any-to-an-int-part-2/51696314#51696314), `mypy` should dutifully complain, and now you're left with two options:
+- Drop type-checking (for example by adding ` # type: ignore` to the end of the `result = times_two(value)` line): This however catapults you back into the insane world where `2 * 3 == 33`.
+- You manually add type checks before the call (or inside of `times_two`) like `if not isinstance(value, int):`: This of course does not provide static type checking (because of the dynamic nature of `value`), but at least guarantees sane runtime behavior. 
 
-# Inspiration and credits
+But the process of writing that boilerplate validation code can become quite cumbersome if you have multiple parameters/functions to check.
+Also it is not very [DRY](https://en.wikipedia.org/wiki/Don%27t_repeat_yourself) since you already have the needed type information in our function signature and you just duplicated it in the check condition.
 
-* [**@jagtesh**](https://github.com/jagtesh)'s
-  [split-tunnelling tutorial gist](https://gist.github.com/jagtesh/5531300) taught me the
-  basics of how to set up a split-tunnel VPN by wrapping the standard `vpnc-script`.
-* [**@apenwarr**](https://github.com/apenwarr)'s
-  [sshuttle](https://github.com/apenwarr/sshuttle) has the excellent
-  `--auto-hosts` and `--seed-hosts` options. These inspired the
-  automatic host lookup feature.
-* [**@gmacon**](https://github.com/gmacon)'s
-  [PR #11](https://github.com/dlenski/vpn-slice/pull/11) substantially
-  refactored the code to separate the OS-dependent parts more
-  cleanly, and added macOS support.
-* [**@joelbu**](https://github.com/joelbu)'s
-  [PR #30](https://github.com/dlenski/vpn-slice/pull/30) added support for IPv6 DNS
-  lookups using `dig`.
+This is where undictify comes into play. Simply decorate your `times_two` function with `@type_checked_call()`:
+```python3
+from undictify import type_checked_call
 
-# License
+@type_checked_call()
+def times_two(value: int) -> int:
+    return 2 * value
+```
 
-GPLv3 or later.
+And the arguments of `times_two` will be type-checked with every call at runtime automatically. A `TypeError` will be raised if needed. 
 
-## TODO / Help Wanted
+This concept of **runtime type-checks of function calls derived from static type annotations** is quite simple,
+however it is very powerful and brings some highly convenient consequences with it.
 
-* Better error-explaining
-* Fix timing issues
-* Improve IPv6 support
-* Support OSes other than Linux and macOS
-    * Other Unix-like operating systems should be pretty easy
-* Mechanism for specifying split-_exclude_ subnets on the command line
+
+Use case: JSON deserialization
+------------------------------
+
+Imagine your application receives a JSON string representing an entity you need to handle:
+
+```python3
+tobias_json = '''
+    {
+        "id": 1,
+        "name": "Tobias",
+        "heart": {
+            "weight_in_kg": 0.31,
+            "pulse_at_rest": 52
+        },
+        "friend_ids": [2, 3, 4, 5]
+    }'''
+
+tobias = json.loads(tobias_json)
+```
+
+Now you start to work with it. Somewhere deep in your business logic you have:
+```python3
+name_length = len(tobias['name'])
+```
+But that's only fine if the original JSON string was well-behaved.
+If it had `"name": 4,` in it, you would get:
+```
+    name_length = len(tobias['name'])
+TypeError: object of type 'int' has no len()
+```
+at runtime, which is not nice. So you start to manually add type checking:
+```python3
+if isinstance(tobias['name'], str):
+    name_length = len(tobias['name'])
+else:
+    # todo: handle the situation somehow
+```
+
+You quickly realize that you need to separate concerns better,
+in that case the business logic and the input data validation.
+
+So you start to do all checks directly after receiving the data:
+```python3
+tobias = json.loads(...
+if isinstance(tobias['id'], int):
+    ...
+if isinstance(tobias['name'], str):
+    ...
+if isinstance(... # *yawn*
+```
+
+and then transfer it into a type-safe class instance:
+```python3
+@dataclass
+class Heart:
+    weight_in_kg: float
+    pulse_at_rest: int
+
+@dataclass
+class Human:
+    id: int
+    name: str
+    nick: Optional[str]
+    heart: Heart
+    friend_ids: List[int]
+```
+
+Having the safety provided by the static type annotations (and probably checking your code with `mypy`) is a great because of all the:
+- bugs that don't make it into PROD
+- manual type checks (and matching unit tests) that you don't have to write
+- help your IDE can now offer
+- better understanding people get when reading your code
+- easier and more confident refactorings
+
+But again, writing all that boilerplate code for data validation is tedious (and not DRY).
+
+So you decide to use a library that does JSON schema validation for you.
+But now you have to manually adjust the schema every time your entity structure changes, which still is not DRY, and thus also brings with it all the typical possibilities to make mistakes.
+
+Undictify can help here too!
+Annotate the classes `@type_checked_constructor` and their constructors will be wrapped in type-checked calls.
+```python3
+@type_checked_constructor()
+@dataclass
+class Heart:
+    ...
+@type_checked_constructor()
+@dataclass
+class Human:
+    ...
+```
+
+(They do not need to be `dataclass`es. Deriving from `NamedTuple` works too.)
+
+Undictify will type-check the construction of objects of type `Heart` and `Human` automatically.
+(This works for normal classes with a manually written `__init__` function too.
+You just need to provide the type annotations to its parameters.) So you can use the usual dictionary unpacking syntax, to safely convert your untyped dictionary (i.e., `Dict[str, Any]`) resulting from the JSON string into your statically typed class:
+
+```python3
+tobias = Human(**json.loads(tobias_json))
+```
+
+(Btw this application is the origin of the name of this library.)
+
+It throws exceptions with meaningful details in their associated values in case of errors like:
+- missing a field
+- a field having the wrong type
+- etc.
+
+It also supports optional values being omitted instead of being `None` explicitly (as shown in the example with the `nick` field).
+
+
+Details
+-------
+
+Sometimes, e.g., in case of unpacking a dictionary resulting from a JSON string,
+you might want to just skip the fields in the dictionary that your function / constructor does not take as a parameter.
+For these cases undictify provides `@type_checked_call(skip=True)`.
+
+It also supports valid type conversions via `@type_checked_call(convert=True)`,
+which might for example come in handy when processing the arguments of an HTTP request you receive for example in a `get` handler of a `flask_restful.Resource` class:
+```python3
+@type_checked_call(convert=True)
+def target_function(some_int: int, some_str: str)
+
+class WebController(Resource):
+    def get(self) -> Any:
+        # request.args is something like {"some_int": "4", "some_str": "hi"}
+        result = target_function(**flask.request.args)
+```
+
+The values in the `MultiDict` `request.args` are all strings, but the logic behind `@type_checked_call(convert=True)` tries to convert them into the desired target types with reasonable exceptions in case the conversion is not possible.
+
+This way a request to `http://.../foo?some_int=4&some_str=hi` would be handled normally,
+but `http://.../foo?some_int=four&some_str=hi` would raise an appropriate `TypeError`.
+
+Additional flexibility is offered for cases in which you would like to not type-check all calls of a specific function / class constructor, but only some. You can use `type_checked_call()` at call site instead of adding the annotation for those:
+
+```python3
+from undictify import type_checked_call
+
+def times_two(value: int) -> int:
+    return 2 * value
+
+value: Any = '3'
+resutl = type_checked_call()(times_two)(value)
+```
+
+And last but not least, custom converters for specified parameters are also supported:
+
+```python3
+import json
+from dataclasses import dataclass
+from datetime import datetime
+
+from undictify import type_checked_constructor
+
+def parse_timestamp(datetime_repr: str) -> datetime:
+    return datetime.strptime(datetime_repr, '%Y-%m-%dT%H:%M:%SZ')
+
+@type_checked_constructor(converters={'some_timestamp': optional_converter(parse_timestamp)})
+@dataclass
+class Foo:
+    some_timestamp: datetime
+
+json_repr = '{"some_timestamp": "2019-06-28T07:20:34Z"}'
+my_foo = Foo(**json.loads(json_repr))
+```
+
+In case the converter should be applied even if the source type
+already matches the destination type, use `mandatory_converter`
+instead of `optional_converter`.
+
+
+Requirements and Installation
+-----------------------------
+
+You need Python 3.7 or higher.
+
+```bash
+python3 -m pip install undictify
+```
+
+Or, if you like to use latest version from this repository:
+```bash
+git clone https://github.com/Dobiasd/undictify
+cd undictify
+python3 -m pip install .
+```
+
+
+License
+-------
+Distributed under the MIT License.
+(See accompanying file [`LICENSE`](https://github.com/Dobiasd/undictify/blob/master/LICENSE) or at
+[https://opensource.org/licenses/MIT](https://opensource.org/licenses/MIT))
