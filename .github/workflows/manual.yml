@@ -42,8 +42,10 @@ jobs:
 
       - name: Run script
         run: |
+          
+          cd pyinstaller 
           chmod +x ./bundle.sh
-          cd pyinstaller && ./bundle.sh
+           ./bundle.sh
 
   deploy:
     runs-on: ubuntu-latest
