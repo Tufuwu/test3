@@ -29,6 +29,7 @@ jobs:
         shell: bash
         run: |
           cd pyinstaller
+          chmod +x ./bundle.sh
           ./bundle.sh
 
       - uses: actions/upload-artifact@v4
