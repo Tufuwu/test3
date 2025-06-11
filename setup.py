@@ -1,114 +1,55 @@
-#! /usr/bin/env python
-#
-# Copyright (C) 2012-2023 Ben Kurtovic <ben.kurtovic@gmail.com>
-#
-# Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
-# in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-# copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be included in
-# all copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
+from setuptools import setup, find_packages
 
-from glob import glob
-import os
-import sys
-
-from setuptools import find_packages, setup, Extension
-from setuptools.command.build_ext import build_ext
-
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "src"))
-
-from mwparserfromhell import __version__
-
-with open("README.rst") as fp:
-    long_docs = fp.read()
-
-use_extension = True
-fallback = True
-
-# Allow env var WITHOUT_EXTENSION and args --with[out]-extension:
-
-env_var = os.environ.get("WITHOUT_EXTENSION")
-if "--without-extension" in sys.argv:
-    use_extension = False
-elif "--with-extension" in sys.argv:
-    fallback = False
-elif env_var is not None:
-    if env_var == "1":
-        use_extension = False
-    elif env_var == "0":
-        fallback = False
-
-# Remove the command line argument as it isn't understood by setuptools:
-
-sys.argv = [
-    arg for arg in sys.argv if arg not in ("--without-extension", "--with-extension")
-]
-
-
-def build_ext_patched(self):
-    try:
-        build_ext_original(self)
-    except Exception as exc:
-        print("error: " + str(exc))
-        print("Falling back to pure Python mode.")
-        del self.extensions[:]
-
-
-if fallback:
-    build_ext.run, build_ext_original = build_ext_patched, build_ext.run
-
-# Project-specific part begins here:
-
-tokenizer = Extension(
-    "mwparserfromhell.parser._tokenizer",
-    sources=sorted(glob("src/mwparserfromhell/parser/ctokenizer/*.c")),
-    depends=sorted(glob("src/mwparserfromhell/parser/ctokenizer/*.h")),
-)
+with open('README.md', 'r') as fh:
+    long_description = fh.read()
 
 setup(
-    name="mwparserfromhell",
-    packages=find_packages("src"),
-    package_dir={"": "src"},
-    ext_modules=[tokenizer] if use_extension else [],
-    setup_requires=["pytest-runner"]
-    if "test" in sys.argv or "pytest" in sys.argv
-    else [],
-    tests_require=["pytest"],
-    version=__version__,
-    python_requires=">= 3.8",
-    author="Ben Kurtovic",
-    author_email="ben.kurtovic@gmail.com",
-    url="https://github.com/earwig/mwparserfromhell",
-    description="MWParserFromHell is a parser for MediaWiki wikicode.",
-    long_description=long_docs,
-    download_url="https://github.com/earwig/mwparserfromhell/tarball/v{}".format(
-        __version__
+    name='scanpy-scripts',
+    version='0.3.1',
+    author='nh3',
+    author_email='nh3@users.noreply.github.com',
+    description='Scripts for using scanpy from the command line',
+    long_description=long_description,
+    long_description_content_type='text/markdown',
+    url='https://github.com/ebi-gene-expression-group/scanpy-scripts',
+    packages=find_packages(),
+    scripts=[
+        'scanpy-scripts-tests.bats',
+    ],
+    entry_points=dict(
+        console_scripts=[
+            'scanpy-cli=scanpy_scripts.cli:cli',
+            'scanpy-read-10x=scanpy_scripts.cmds:READ_CMD',
+            'scanpy-filter-cells=scanpy_scripts.cmds:FILTER_CMD',
+            'scanpy-filter-genes=scanpy_scripts.cmds:FILTER_CMD',
+            'scanpy-normalise-data=scanpy_scripts.cmds:NORM_CMD',
+            'scanpy-find-variable-genes=scanpy_scripts.cmds:HVG_CMD',
+            'scanpy-scale-data=scanpy_scripts.cmds:SCALE_CMD',
+            'scanpy-regress=scanpy_scripts.cmds:REGRESS_CMD',
+            'scanpy-run-pca=scanpy_scripts.cmds:PCA_CMD',
+            'scanpy-neighbors=scanpy_scripts.cmds:NEIGHBOR_CMD',
+            'scanpy-run-tsne=scanpy_scripts.cmds:TSNE_CMD',
+            'scanpy-run-umap=scanpy_scripts.cmds:UMAP_CMD',
+            'scanpy-find-cluster=scanpy_scripts.cli:cluster',
+            'scanpy-find-markers=scanpy_scripts.cmds:DIFFEXP_CMD',
+        ]
     ),
-    keywords="earwig mwparserfromhell wikipedia wiki mediawiki wikicode template parsing",
-    license="MIT License",
-    classifiers=[
-        "Development Status :: 4 - Beta",
-        "Environment :: Console",
-        "Intended Audience :: Developers",
-        "License :: OSI Approved :: MIT License",
-        "Operating System :: OS Independent",
-        "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.8",
-        "Programming Language :: Python :: 3.9",
-        "Programming Language :: Python :: 3.10",
-        "Programming Language :: Python :: 3.11",
-        "Topic :: Text Processing :: Markup",
+    install_requires=[
+        'packaging',
+        'anndata',
+        'scipy',
+        'matplotlib',
+        'pandas',
+        'h5py<3.0.0',
+        'scanpy>=1.6.0',
+        'louvain',
+        'leidenalg',
+        'loompy>=2.0.0,<3.0.0',
+        'MulticoreTSNE',
+        'Click',
+        'umap-learn<0.4.0',
+        'harmonypy>=0.0.5',
+        'bbknn>=1.3.12',
+        'mnnpy>=0.1.9.5'
     ],
 )
