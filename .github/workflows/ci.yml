@@ -39,12 +39,12 @@ jobs:
   semgrep:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1
-      - uses: returntocorp/semgrep-action@v1
+      - uses: actions/checkout@v2
+      - uses: returntocorp/semgrep-action@v2
         name: django rules
         with:
           config: p/django
-      - uses: returntocorp/semgrep-action@v1
+      - uses: returntocorp/semgrep-action@v2
         name: other rules
         with:
           config: https://semgrep.live/dlukeomalley:use-assertEqual-for-equality
