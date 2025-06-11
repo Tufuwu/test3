@@ -1,18 +1,14 @@
-# file types to ignore
+.pypirc
 *.pyc
-*.pyd
-*.so
-*.enamlc
 *~
-.DS_Store
-_configtest.*
+GPATH
+GRTAGS
+GTAGS
+esptool.egg-info
+.eggs
+build
+dist
+local.mk
 
-# ignore the build directories
-*.egg-info/
-build/
-dist/
-docs/build/
-
-docs/html.zip
-tvtk/tvtk_classes.zip
-mayavi/images/m2_about.jpg
+.envrc
+report.xml
