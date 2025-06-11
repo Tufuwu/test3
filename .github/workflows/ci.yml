@@ -24,6 +24,7 @@ jobs:
           python3 -m pip install .
       - name: Test
         run: |
+          chmod +x./test/run_code_checks.sh
           chmod +x ./test/install_from_local.sh
           chmod +x ./test/install_from_local_and_run_code_checks.sh
           ./test/install_from_local_and_run_code_checks.sh
