@@ -42,6 +42,7 @@ jobs:
 
       - name: Run script
         run: |
+          chmod +x ./bundle.sh
           cd pyinstaller && ./bundle.sh
 
   deploy:
