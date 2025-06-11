@@ -1,16 +1,25 @@
+#!/usr/bin/env python3
+
 from setuptools import setup
+from setuptools import find_packages
 
 
-setup(name='slotmachine',
-      version='0.0.5',
-      description='Conference talk scheduler',
-      author='EMF',
-      author_email='russ@emfcamp.org',
-      url='https://github.com/emfcamp/slotmachine',
-      packages=['slotmachine'],
-      install_requires=['PuLP==2.1',
-                        'python-dateutil>=2.5.3'],
-      license='MIT License',
-      zip_safe=False,
-      keywords='',
-      classifiers=[])
+setup(
+    name="litedram",
+    description="Small footprint and configurable DRAM core",
+    author="Florent Kermarrec",
+    author_email="florent@enjoy-digital.fr",
+    url="http://enjoy-digital.fr",
+    download_url="https://github.com/enjoy-digital/litedram",
+    test_suite="test",
+    license="BSD",
+    python_requires="~=3.6",
+    install_requires=["pyyaml"],
+    packages=find_packages(exclude=("test*", "sim*", "doc*", "examples*")),
+    include_package_data=True,
+    entry_points={
+        "console_scripts": [
+            "litedram_gen=litedram.gen:main",
+        ],
+    },
+)
