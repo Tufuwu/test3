@@ -1,113 +1,100 @@
-*.ipynb_checkpoints
-*.DS_Store
-*.json
-
-impedance/__pycache__/
-impedance/tests/__pycache__/
-jupyter/
-
-
-# Byte-compiled / optimized / DLL files
-__pycache__/
 *.py[cod]
-*$py.class
+
+*.log
 
 # C extensions
 *.so
 
-# Distribution / packaging
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
+# Packages
 *.egg
-MANIFEST
-
-# PyInstaller
-#  Usually these files are written by a python script from a template
-#  before PyInstaller builds the exe, so as to inject date/other infos into it.
-*.manifest
-*.spec
+*.egg-info
+dist
+build
+eggs
+parts
+bin
+var
+sdist
+develop-eggs
+.installed.cfg
+lib
+lib64
+__pycache__
 
 # Installer logs
 pip-log.txt
-pip-delete-this-directory.txt
+
+# Django
+default.db
+
+# Static assets
+media/cache/
+assets/
 
 # Unit test / coverage reports
-htmlcov/
-.tox/
 .coverage
 .coverage.*
-.cache
+htmlcov
+.tox
 nosetests.xml
-coverage.xml
-*.cover
-.hypothesis/
-.pytest_cache/
+unittests.xml
 
-# Translations
+### Internationalization artifacts
 *.mo
-*.pot
+*.po
+*.prob
+!django.po
+!django.mo
+!djangojs.po
+!djangojs.mo
+course_discovery/conf/locale/fake*/LC_MESSAGES/*.po
+course_discovery/conf/locale/fake*/LC_MESSAGES/*.mo
+course_discovery/conf/locale/messages.mo
 
-# Django stuff:
-*.log
-local_settings.py
-db.sqlite3
 
-# Flask stuff:
-instance/
-.webassets-cache
+# Mr Developer
+.mr.developer.cfg
+.project
+.pydevproject
 
-# Scrapy stuff:
-.scrapy
+# QA
+coverage.xml
+diff_*.html
+*.report
+report
+venv
+acceptance_tests.*.log
+acceptance_tests.*.png
 
-# Sphinx documentation
-docs/_build/
+# Override config files
+override.cfg
+private.py
 
-# PyBuilder
-target/
+# JetBrains
+.idea
 
-# Jupyter Notebook
-.ipynb_checkpoints
+# OS X
+.DS_Store
+
+# Editor Temp Files
+*.swp
 
 # pyenv
 .python-version
 
-# celery beat schedule file
-celerybeat-schedule
+*.trace
 
-# SageMath parsed files
-*.sage.py
+.cache/
+.dev/
+course_discovery/media/
+course_discovery/static/bower_components/
+docs/_build/
+node_modules/
+course_discovery/static/bundles/
+webpack-stats.json
 
-# Environments
-.env
-.venv
-env/
-venv/
-ENV/
-env.bak/
-venv.bak/
+# Visual Studio Code
+.vscode
 
-# Spyder project settings
-.spyderproject
-.spyproject
-
-# Rope project settings
-.ropeproject
-
-# mkdocs documentation
-/site
-
-# mypy
-.mypy_cache/
+# Emacs
+*~

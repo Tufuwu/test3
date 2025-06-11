@@ -1,64 +1,49 @@
-name: CI tests
+name: CI
+
 on:
   pull_request:
-  push:
-    branches:
-      - main
 
 jobs:
-  linting:
-    name: Run linters
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v2.3.4
-
-      - name: Set up Python 3.6
-        uses: actions/setup-python@v2.2.2
-        with:
-          python-version: 3.9
-
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install flake8
-          pip install -r requirements.txt
-          pip install -e .
-
-      - name: Linting with flake8
-        run: |
-          flake8 . --count --show-source --exclude=*.ipynb_checkpoints
-
-  tests:
-    name: Run tests
+  pytest:
     runs-on: ubuntu-latest
 
     strategy:
       fail-fast: false
-      max-parallel: 4
       matrix:
-        python-version: [3.6, 3.7, 3.8, 3.9]
+        python-version: ['py38']
+        django-version: ['django22']
+        status: ['']
+        include:
+          - python-version: 'py38'
+            django-version: 'django30'
+            status: 'ignored'
 
     steps:
-      - uses: actions/checkout@v2.3.4
+      - uses: actions/checkout@v2
+      - run: make ci_up
+      - run: make ci_test TOXENV=${{ matrix.python-version }}-${{ matrix.django-version }}
+        # Unfortunately, continue-on-error marks the job as successful. We really want something like "allow failure"
+        # that would note the failure, but not fail the entire workflow and not email the author about it.
+        # See https://github.com/actions/toolkit/issues/399
+        continue-on-error: ${{ matrix.status == 'ignored' }}
+      - uses: codecov/codecov-action@v1
 
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v2.2.2
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: make ci_up
+      - run: make ci_quality
+
+  semgrep:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - uses: returntocorp/semgrep-action@v1
+        name: django rules
         with:
-          python-version: ${{ matrix.python_version }}
-
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-          pip install -e .
-
-      - name: Run tests with pytest
-        run: |
-          pytest --cov=impedance .
-
-      - name: Upload coverage to coveralls
-        if: matrix.python-version == 3.6 && github.repository == 'ECSHackWeek/impedance.py'
-        run: coveralls --service=github
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          config: p/django
+      - uses: returntocorp/semgrep-action@v1
+        name: other rules
+        with:
+          config: https://semgrep.live/dlukeomalley:use-assertEqual-for-equality
