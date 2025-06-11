@@ -28,6 +28,9 @@ jobs:
       run: |
         pip install .
         pip install coveralls
+        python -m pip install --upgrade pip
+        python -m pip install setuptools flake8 pytest
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
     - name: Run tests
       run: coverage run --source=vipaccess setup.py test
     - name: Upload coverage to Coveralls
