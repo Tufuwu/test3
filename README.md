@@ -1,294 +1,209 @@
-![logo](https://github.com/Dobiasd/undictify/raw/master/logo/undictify.png)
+![domaintools](https://github.com/DomainTools/python_api/raw/master/artwork/logo.png)
+===================
 
-[![CI](https://github.com/Dobiasd/undictify/workflows/ci/badge.svg)](https://github.com/Dobiasd/undictify/actions)
-[![(License MIT 1.0)](https://img.shields.io/badge/license-MIT%201.0-blue.svg)][license]
+[![PyPI version](https://badge.fury.io/py/domaintools_api.svg)](http://badge.fury.io/py/domaintools_api)
+[![CI Status](https://github.com/domaintools/python_api/workflows/Tests/badge.svg)](https://github.com/domaintools/python_api/actions)
+[![Coverage Status](https://coveralls.io/repos/github/DomainTools/python_api/badge.svg?branch=master)](https://coveralls.io/github/DomainTools/python_api?branch=master)
+[![License](https://img.shields.io/github/license/mashape/apistatus.svg)](https://pypi.python.org/pypi/domaintools_api/)
 
-[license]: LICENSE
+DomainTools' Official Python API
 
-
-undictify
-=========
-**Python library providing type-checked function calls at runtime**
-
-
-Table of contents
------------------
-  * [Introduction](#introduction)
-  * [Use case: JSON deserialization](#use-case-json-deserialization)
-  * [Details](#details)
-  * [Requirements and Installation](#requirements-and-installation)
+![domaintools Example](https://github.com/DomainTools/python_api/raw/master/artwork/example.gif)
 
 
-Introduction
-------------
-Let's start with a toy example:
-```python3
-def times_two(value):
-    return 2 * value
+Installing the DomainTools' API
+===================
 
-value = 3
-result = times_two(value)
-print(f'{value} * 2 == {result}')
-```
-
-This is fine, it outputs `output: 3 * 2 = 6`.
-But what if `value` accidentally is `'3'` instead of `3`?
-The output will become `output: 3 * 2 = 33`, which *might* not be desired.
-
-So you add something like
-```python3
-if not isinstance(value, int):
-    raise TypeError(...)
-```
-to `times_two`. This will raise an `TypeError` instead, which is better.
-But you still only recognize the mistake when actually running the code.
-Catching it earlier in the development process might be better.
-Luckily Python allows to opt-in for static typing by offering [type annotations](https://docs.python.org/3/library/typing.html).
-So you add them and [`mypy`](http://mypy-lang.org/) (or your IDE) will tell you about the problem early.
-```python3
-def times_two(value: int) -> int:
-    return 2 * value
-
-value = '3'
-result = times_two(value) # error: Argument 1 to "times_two"
-                          # has incompatible type "str"; expected "int"
-print(f'{value} * 2 == {result}')
-```
-
-But you may get into a situation in which there is no useful static type information,
-because of values:
-- coming from external non-typed functions (so actually they are of type `Any`)
-- were produced by a (rogue) function that returns different types depending on some internal decision (`Union[T, V]`)
-- being provided as a `Dict[str, Any]`
-- etc.
-
-```python3
-def times_two(value: int) -> int:
-    return 2 * value
-        
-def get_value() -> Any:
-    return '3'
-
-value = get_value()
-result = times_two(value)
-print(f'{value} * 2 == {result}')
-```
-
-At least with the [appropriate settings](https://stackoverflow.com/questions/51696060/how-to-make-mypy-complain-about-assigning-an-any-to-an-int-part-2/51696314#51696314), `mypy` should dutifully complain, and now you're left with two options:
-- Drop type-checking (for example by adding ` # type: ignore` to the end of the `result = times_two(value)` line): This however catapults you back into the insane world where `2 * 3 == 33`.
-- You manually add type checks before the call (or inside of `times_two`) like `if not isinstance(value, int):`: This of course does not provide static type checking (because of the dynamic nature of `value`), but at least guarantees sane runtime behavior. 
-
-But the process of writing that boilerplate validation code can become quite cumbersome if you have multiple parameters/functions to check.
-Also it is not very [DRY](https://en.wikipedia.org/wiki/Don%27t_repeat_yourself) since you already have the needed type information in our function signature and you just duplicated it in the check condition.
-
-This is where undictify comes into play. Simply decorate your `times_two` function with `@type_checked_call()`:
-```python3
-from undictify import type_checked_call
-
-@type_checked_call()
-def times_two(value: int) -> int:
-    return 2 * value
-```
-
-And the arguments of `times_two` will be type-checked with every call at runtime automatically. A `TypeError` will be raised if needed. 
-
-This concept of **runtime type-checks of function calls derived from static type annotations** is quite simple,
-however it is very powerful and brings some highly convenient consequences with it.
-
-
-Use case: JSON deserialization
-------------------------------
-
-Imagine your application receives a JSON string representing an entity you need to handle:
-
-```python3
-tobias_json = '''
-    {
-        "id": 1,
-        "name": "Tobias",
-        "heart": {
-            "weight_in_kg": 0.31,
-            "pulse_at_rest": 52
-        },
-        "friend_ids": [2, 3, 4, 5]
-    }'''
-
-tobias = json.loads(tobias_json)
-```
-
-Now you start to work with it. Somewhere deep in your business logic you have:
-```python3
-name_length = len(tobias['name'])
-```
-But that's only fine if the original JSON string was well-behaved.
-If it had `"name": 4,` in it, you would get:
-```
-    name_length = len(tobias['name'])
-TypeError: object of type 'int' has no len()
-```
-at runtime, which is not nice. So you start to manually add type checking:
-```python3
-if isinstance(tobias['name'], str):
-    name_length = len(tobias['name'])
-else:
-    # todo: handle the situation somehow
-```
-
-You quickly realize that you need to separate concerns better,
-in that case the business logic and the input data validation.
-
-So you start to do all checks directly after receiving the data:
-```python3
-tobias = json.loads(...
-if isinstance(tobias['id'], int):
-    ...
-if isinstance(tobias['name'], str):
-    ...
-if isinstance(... # *yawn*
-```
-
-and then transfer it into a type-safe class instance:
-```python3
-@dataclass
-class Heart:
-    weight_in_kg: float
-    pulse_at_rest: int
-
-@dataclass
-class Human:
-    id: int
-    name: str
-    nick: Optional[str]
-    heart: Heart
-    friend_ids: List[int]
-```
-
-Having the safety provided by the static type annotations (and probably checking your code with `mypy`) is a great because of all the:
-- bugs that don't make it into PROD
-- manual type checks (and matching unit tests) that you don't have to write
-- help your IDE can now offer
-- better understanding people get when reading your code
-- easier and more confident refactorings
-
-But again, writing all that boilerplate code for data validation is tedious (and not DRY).
-
-So you decide to use a library that does JSON schema validation for you.
-But now you have to manually adjust the schema every time your entity structure changes, which still is not DRY, and thus also brings with it all the typical possibilities to make mistakes.
-
-Undictify can help here too!
-Annotate the classes `@type_checked_constructor` and their constructors will be wrapped in type-checked calls.
-```python3
-@type_checked_constructor()
-@dataclass
-class Heart:
-    ...
-@type_checked_constructor()
-@dataclass
-class Human:
-    ...
-```
-
-(They do not need to be `dataclass`es. Deriving from `NamedTuple` works too.)
-
-Undictify will type-check the construction of objects of type `Heart` and `Human` automatically.
-(This works for normal classes with a manually written `__init__` function too.
-You just need to provide the type annotations to its parameters.) So you can use the usual dictionary unpacking syntax, to safely convert your untyped dictionary (i.e., `Dict[str, Any]`) resulting from the JSON string into your statically typed class:
-
-```python3
-tobias = Human(**json.loads(tobias_json))
-```
-
-(Btw this application is the origin of the name of this library.)
-
-It throws exceptions with meaningful details in their associated values in case of errors like:
-- missing a field
-- a field having the wrong type
-- etc.
-
-It also supports optional values being omitted instead of being `None` explicitly (as shown in the example with the `nick` field).
-
-
-Details
--------
-
-Sometimes, e.g., in case of unpacking a dictionary resulting from a JSON string,
-you might want to just skip the fields in the dictionary that your function / constructor does not take as a parameter.
-For these cases undictify provides `@type_checked_call(skip=True)`.
-
-It also supports valid type conversions via `@type_checked_call(convert=True)`,
-which might for example come in handy when processing the arguments of an HTTP request you receive for example in a `get` handler of a `flask_restful.Resource` class:
-```python3
-@type_checked_call(convert=True)
-def target_function(some_int: int, some_str: str)
-
-class WebController(Resource):
-    def get(self) -> Any:
-        # request.args is something like {"some_int": "4", "some_str": "hi"}
-        result = target_function(**flask.request.args)
-```
-
-The values in the `MultiDict` `request.args` are all strings, but the logic behind `@type_checked_call(convert=True)` tries to convert them into the desired target types with reasonable exceptions in case the conversion is not possible.
-
-This way a request to `http://.../foo?some_int=4&some_str=hi` would be handled normally,
-but `http://.../foo?some_int=four&some_str=hi` would raise an appropriate `TypeError`.
-
-Additional flexibility is offered for cases in which you would like to not type-check all calls of a specific function / class constructor, but only some. You can use `type_checked_call()` at call site instead of adding the annotation for those:
-
-```python3
-from undictify import type_checked_call
-
-def times_two(value: int) -> int:
-    return 2 * value
-
-value: Any = '3'
-resutl = type_checked_call()(times_two)(value)
-```
-
-And last but not least, custom converters for specified parameters are also supported:
-
-```python3
-import json
-from dataclasses import dataclass
-from datetime import datetime
-
-from undictify import type_checked_constructor
-
-def parse_timestamp(datetime_repr: str) -> datetime:
-    return datetime.strptime(datetime_repr, '%Y-%m-%dT%H:%M:%SZ')
-
-@type_checked_constructor(converters={'some_timestamp': optional_converter(parse_timestamp)})
-@dataclass
-class Foo:
-    some_timestamp: datetime
-
-json_repr = '{"some_timestamp": "2019-06-28T07:20:34Z"}'
-my_foo = Foo(**json.loads(json_repr))
-```
-
-In case the converter should be applied even if the source type
-already matches the destination type, use `mandatory_converter`
-instead of `optional_converter`.
-
-
-Requirements and Installation
------------------------------
-
-You need Python 3.7 or higher.
+To install the API run
 
 ```bash
-python3 -m pip install undictify
+pip install domaintools_api --upgrade
 ```
 
-Or, if you like to use latest version from this repository:
+Ideally, within a virtual environment.
+
+
+Using the API
+===================
+
+To start out create an instance of the API - passing in your credentials
+
+```python
+
+from domaintools import API
+
+
+api = API(USER_NAME, KEY)
+```
+
+Every API endpoint is then exposed as a method on the API object, with any parameters that should be passed into that endpoint
+being passed in as method arguments:
+
+```python
+api.domain_search('google', exclude='photos')
+```
+
+You can get an overview of every endpoint that you can interact with using the builtin help function:
+
+```python
+help(api)
+```
+
+If applicable, native Python looping can be used directly to loop through any results:
+
+```python
+for result in api.domain_search('google', exclude='photos'):
+    print(result['sld'])
+```
+
+You can also use a context manager to ensure processing on the results only occurs if the request is successfully made:
+
+```python
+with api.domain_search('google', exclude='photos') as results:
+    print(results)
+```
+
+For API calls where a single item is expected to be returned, you can directly interact with the result:
+
+```python
+profile = api.domain_profile('google.com')
+title = profile['website_data']['title']
+```
+
+
+For any API call where a single type of data is expected you can directly cast to the desired type:
+
+```python
+float(api.reputation('google.com')) == 0.0
+int(api.reputation('google.com')) == 0
+```
+
+The entire structure returned from DomainTools can be retrieved by doing `.data()` while just the actionable response information
+can be retrieved by doing `.response()`:
+
+```python
+api.domain_search('google').data() == {'response': { ... }}
+api.domain_search('google').response() == { ... }
+```
+
+You can directly get the html, xml, or json version of the response by calling `.(html|xml|json)()`:
+```python
+html = str(api.domain_search('google').json())
+xml = str(api.domain_search('google').xml())
+html = str(api.domain_search('google').html())
+```
+
+If any API call is unsuccesfull, one of the exceptions defined in `domaintools.exceptions` will be raised:
+
+```python-traceback
+api.domain_profile('notvalid').data()
+
+
+---------------------------------------------------------------------------
+BadRequestException                       Traceback (most recent call last)
+<ipython-input-3-f9e22e2cf09d> in <module>()
+----> 1 api.domain_profile('google').data()
+
+/home/tcrosley/projects/external/python_api/venv/lib/python3.5/site-packages/domaintools-0.0.1-py3.5.egg/domaintools/base_results.py in data(self)
+     25                 self.api._request_session = Session()
+     26             results = self.api._request_session.get(self.url, params=self.kwargs)
+---> 27             self.status = results.status_code
+     28             if self.kwargs.get('format', 'json') == 'json':
+     29                 self._data = results.json()
+
+/home/tcrosley/projects/external/python_api/venv/lib/python3.5/site-packages/domaintools-0.0.1-py3.5.egg/domaintools/base_results.py in status(self, code)
+     44
+     45         elif code == 400:
+---> 46             raise BadRequestException()
+     47         elif code == 403:
+     48             raise NotAuthorizedException()
+
+BadRequestException:
+
+```
+
+the exception will contain the status code and the reason for the exception:
+
+```python
+try:
+    api.domain_profile('notvalid').data()
+except Exception as e:
+    assert e.code == 400
+    assert 'We could not understand your request' in e.reason['error']['message']
+```
+
+You can get the status code of a response outside of exception handling by doing `.status`:
+
+```python
+
+api.domain_profile('google.com').status == 200
+```
+
+Using the API Asynchronously
+===================
+
+![domaintools Async Example](https://github.com/DomainTools/python_api/raw/master/artwork/example_async.gif)
+
+If you are running on Python 3.5+ the DomainTools' API automatically supports async usage:
+
+```python
+
+search_results = await api.domain_search('google')
+```
+
+There is built-in support for async context managers:
+
+```python
+async with api.domain_search('google') as search_results:
+    # do things
+```
+
+And direct async for loops:
+
+```python
+async for result in api.domain_search('google'):
+    print(result)
+```
+
+All async operations can safely be intermixed with non async ones - with optimal performance achieved if the async call is done first:
+```python
+profile = api.domain_profile('google.com')
+await profile
+title = profile['website_data']['title']
+```
+
+Interacting with the API via the command line client
+===================
+
+![domaintools CLI Example](https://github.com/DomainTools/python_api/raw/master/artwork/example_cli.gif)
+
+Immediately after installing `domaintools_api` with pip, a `domaintools` command line client will become available to you:
+
 ```bash
-git clone https://github.com/Dobiasd/undictify
-cd undictify
-python3 -m pip install .
+domaintools --help
 ```
 
+To use - simply pass in the api_call you would like to make along with the parameters that it takes and your credentials:
 
-License
--------
-Distributed under the MIT License.
-(See accompanying file [`LICENSE`](https://github.com/Dobiasd/undictify/blob/master/LICENSE) or at
-[https://opensource.org/licenses/MIT](https://opensource.org/licenses/MIT))
+```bash
+domaintools domain_search google --max_length 10 -u $TEST_USER -k $TEST_KEY
+```
+
+Optionally, you can specify the desired format (html, xml, json, or list) of the results:
+
+```bash
+domaintools domain_search google --max_length 10 -u $TEST_USER -k $TEST_KEY -f html
+```
+
+To avoid having to type in your API key repeatedly, you can specify them in `~/.dtapi` separated by a new line:
+
+```bash
+API_USER
+API_KEY
+```
+
+Python Version Support Policy
+===================
+
+Please see the [supported versions](https://github.com/DomainTools/python_api/raw/master/PYTHON_SUPPORT.md) document 
+for the DomainTools Python support policy.
