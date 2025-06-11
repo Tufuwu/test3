@@ -1,7 +1,7 @@
-# Used by doc builds (like for edx.readthedocs.io)
+# Requirements for documentation validation
 
 -c constraints.txt
--r github.in              # Forks and other dependencies not yet on PyPI
 
-edx-sphinx-theme
-Sphinx
+-e git+https://github.com/edx/luigi.git@eb45bcc52243de11b2b16a81229ac584fe1e601b#egg=luigi
+Sphinx==1.5.1
+stevedore

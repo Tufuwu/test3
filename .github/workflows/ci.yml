@@ -1,50 +1,62 @@
-name: CI
+name: Python CI
 
 on:
-  pull_request:
   push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - '**'
 
 jobs:
-  pytest:
-    runs-on: ubuntu-latest
-
+  run_tests:
+    name: Tests
+    runs-on: ${{ matrix.os }}
     strategy:
-      fail-fast: false
       matrix:
-        python-version: ['py38']
-        django-version: ['django22']
-        status: ['']
-        include:
-          - python-version: 'py38'
-            django-version: 'django30'
-            status: 'ignored'
+        os:
+          - ubuntu-22.04
+        python-version:
+          - 3.9
 
     steps:
-      - uses: actions/checkout@v2
-      - run: make ci_up
-      - run: make ci_test TOXENV=${{ matrix.python-version }}-${{ matrix.django-version }}
-        # Unfortunately, continue-on-error marks the job as successful. We really want something like "allow failure"
-        # that would note the failure, but not fail the entire workflow and not email the author about it.
-        # See https://github.com/actions/toolkit/issues/399
-        continue-on-error: ${{ matrix.status == 'ignored' }}
-      - uses: codecov/codecov-action@v1
+    - uses: actions/checkout@v2
+    - name: setup python
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
 
-  quality:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - run: make ci_up
-      - run: make ci_quality
+    - name: Pull the docker image
+      run: make docker-pull
 
-  semgrep:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: returntocorp/semgrep-action@v2
-        name: django rules
-        with:
-          config: p/django
-      - uses: returntocorp/semgrep-action@v2
-        name: other rules
-        with:
-          config: https://semgrep.live/dlukeomalley:use-assertEqual-for-equality
+    - name: Create Coverage dest
+      run: mkdir -p coverage
+
+    - name: Run Elastic Search
+      run: make test.start_elasticsearch
+
+    - name: Run Docker test
+      shell: 'script -q -e -c "bash {0}"'
+      run: make test-docker
+
+    - name: Run Quality Check
+      shell: 'script -q -e -c "bash {0}"'
+      run: make quality-docker
+
+    - name: Create Coverage Report
+      shell: 'script -q -e -c "bash {0}"'
+      run: make coverage-docker
+
+    - name: Run Docs Check
+      run: sudo make docs
+
+    - name: Stop elastic search Check
+      run: make test.stop_elasticsearch
+
+    - name: Install Codecov
+      run: pip install --upgrade codecov
+
+    - name: Run Coverage
+      uses: codecov/codecov-action@v2
+      with:
+        fail_ci_if_error: true

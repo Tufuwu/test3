@@ -1,7 +1,5 @@
 *.py[cod]
 
-*.log
-
 # C extensions
 *.so
 
@@ -24,33 +22,14 @@ __pycache__
 # Installer logs
 pip-log.txt
 
-# Django
-default.db
-
-# Static assets
-media/cache/
-assets/
-
 # Unit test / coverage reports
 .coverage
-.coverage.*
-htmlcov
 .tox
 nosetests.xml
 unittests.xml
 
-### Internationalization artifacts
+# Translations
 *.mo
-*.po
-*.prob
-!django.po
-!django.mo
-!djangojs.po
-!djangojs.mo
-course_discovery/conf/locale/fake*/LC_MESSAGES/*.po
-course_discovery/conf/locale/fake*/LC_MESSAGES/*.mo
-course_discovery/conf/locale/messages.mo
-
 
 # Mr Developer
 .mr.developer.cfg
@@ -62,39 +41,33 @@ coverage.xml
 diff_*.html
 *.report
 report
+edx_analytics.log
 venv
-acceptance_tests.*.log
-acceptance_tests.*.png
 
 # Override config files
 override.cfg
-private.py
 
 # JetBrains
 .idea
 
-# OS X
+
 .DS_Store
 
-# Editor Temp Files
-*.swp
-
-# pyenv
-.python-version
-
 *.trace
+.eggs
 
-.cache/
-.dev/
-course_discovery/media/
-course_discovery/static/bower_components/
-docs/_build/
-node_modules/
-course_discovery/static/bundles/
-webpack-stats.json
+*.swp
+catalog_test.json
+course_structure.json
 
-# Visual Studio Code
-.vscode
+# Sphinx docs
+docs/*
+docs/source/all.rst
+docs/source/toctree.rst
+docs/source/workflow_entry_point.rst
+!docs/source/
+!docs/source/_themes/*
 
-# Emacs
-*~
+*.java
+TempStatsStore/
+derby.log
