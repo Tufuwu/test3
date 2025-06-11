@@ -1,209 +1,69 @@
-![domaintools](https://github.com/DomainTools/python_api/raw/master/artwork/logo.png)
-===================
+# Rank-BM25: A two line search engine
 
-[![PyPI version](https://badge.fury.io/py/domaintools_api.svg)](http://badge.fury.io/py/domaintools_api)
-[![CI Status](https://github.com/domaintools/python_api/workflows/Tests/badge.svg)](https://github.com/domaintools/python_api/actions)
-[![Coverage Status](https://coveralls.io/repos/github/DomainTools/python_api/badge.svg?branch=master)](https://coveralls.io/github/DomainTools/python_api?branch=master)
-[![License](https://img.shields.io/github/license/mashape/apistatus.svg)](https://pypi.python.org/pypi/domaintools_api/)
+![Build Status](https://github.com/dorianbrown/rank_bm25/workflows/pytest/badge.svg)
+[![PyPI version](https://badge.fury.io/py/rank-bm25.svg)](https://badge.fury.io/py/rank-bm25)
+[![DOI](https://zenodo.org/badge/166720547.svg)](https://zenodo.org/badge/latestdoi/166720547)
 
-DomainTools' Official Python API
+A collection of algorithms for querying a set of documents and returning the ones most relevant to the query. The most common use case for these algorithms is, as you might have guessed, to create search engines.
 
-![domaintools Example](https://github.com/DomainTools/python_api/raw/master/artwork/example.gif)
+So far the algorithms that have been implemented are:
+- [x] Okapi BM25
+- [x] BM25L
+- [x] BM25+
+- [ ] BM25-Adpt
+- [ ] BM25T 
 
+These algorithms were taken from [this paper](http://www.cs.otago.ac.nz/homepages/andrew/papers/2014-2.pdf), which gives a nice overview of each method, and also benchmarks them against each other. A nice inclusion is that they compare different kinds of preprocessing like stemming vs no-stemming, stopword removal or not, etc. Great read if you're new to the topic. 
 
-Installing the DomainTools' API
-===================
-
-To install the API run
-
+## Installation
+The easiest way to install this package is through `pip`, using
 ```bash
-pip install domaintools_api --upgrade
+pip install rank_bm25
 ```
-
-Ideally, within a virtual environment.
-
-
-Using the API
-===================
-
-To start out create an instance of the API - passing in your credentials
-
-```python
-
-from domaintools import API
-
-
-api = API(USER_NAME, KEY)
-```
-
-Every API endpoint is then exposed as a method on the API object, with any parameters that should be passed into that endpoint
-being passed in as method arguments:
-
-```python
-api.domain_search('google', exclude='photos')
-```
-
-You can get an overview of every endpoint that you can interact with using the builtin help function:
-
-```python
-help(api)
-```
-
-If applicable, native Python looping can be used directly to loop through any results:
-
-```python
-for result in api.domain_search('google', exclude='photos'):
-    print(result['sld'])
-```
-
-You can also use a context manager to ensure processing on the results only occurs if the request is successfully made:
-
-```python
-with api.domain_search('google', exclude='photos') as results:
-    print(results)
-```
-
-For API calls where a single item is expected to be returned, you can directly interact with the result:
-
-```python
-profile = api.domain_profile('google.com')
-title = profile['website_data']['title']
-```
-
-
-For any API call where a single type of data is expected you can directly cast to the desired type:
-
-```python
-float(api.reputation('google.com')) == 0.0
-int(api.reputation('google.com')) == 0
-```
-
-The entire structure returned from DomainTools can be retrieved by doing `.data()` while just the actionable response information
-can be retrieved by doing `.response()`:
-
-```python
-api.domain_search('google').data() == {'response': { ... }}
-api.domain_search('google').response() == { ... }
-```
-
-You can directly get the html, xml, or json version of the response by calling `.(html|xml|json)()`:
-```python
-html = str(api.domain_search('google').json())
-xml = str(api.domain_search('google').xml())
-html = str(api.domain_search('google').html())
-```
-
-If any API call is unsuccesfull, one of the exceptions defined in `domaintools.exceptions` will be raised:
-
-```python-traceback
-api.domain_profile('notvalid').data()
-
-
----------------------------------------------------------------------------
-BadRequestException                       Traceback (most recent call last)
-<ipython-input-3-f9e22e2cf09d> in <module>()
-----> 1 api.domain_profile('google').data()
-
-/home/tcrosley/projects/external/python_api/venv/lib/python3.5/site-packages/domaintools-0.0.1-py3.5.egg/domaintools/base_results.py in data(self)
-     25                 self.api._request_session = Session()
-     26             results = self.api._request_session.get(self.url, params=self.kwargs)
----> 27             self.status = results.status_code
-     28             if self.kwargs.get('format', 'json') == 'json':
-     29                 self._data = results.json()
-
-/home/tcrosley/projects/external/python_api/venv/lib/python3.5/site-packages/domaintools-0.0.1-py3.5.egg/domaintools/base_results.py in status(self, code)
-     44
-     45         elif code == 400:
----> 46             raise BadRequestException()
-     47         elif code == 403:
-     48             raise NotAuthorizedException()
-
-BadRequestException:
-
-```
-
-the exception will contain the status code and the reason for the exception:
-
-```python
-try:
-    api.domain_profile('notvalid').data()
-except Exception as e:
-    assert e.code == 400
-    assert 'We could not understand your request' in e.reason['error']['message']
-```
-
-You can get the status code of a response outside of exception handling by doing `.status`:
-
-```python
-
-api.domain_profile('google.com').status == 200
-```
-
-Using the API Asynchronously
-===================
-
-![domaintools Async Example](https://github.com/DomainTools/python_api/raw/master/artwork/example_async.gif)
-
-If you are running on Python 3.5+ the DomainTools' API automatically supports async usage:
-
-```python
-
-search_results = await api.domain_search('google')
-```
-
-There is built-in support for async context managers:
-
-```python
-async with api.domain_search('google') as search_results:
-    # do things
-```
-
-And direct async for loops:
-
-```python
-async for result in api.domain_search('google'):
-    print(result)
-```
-
-All async operations can safely be intermixed with non async ones - with optimal performance achieved if the async call is done first:
-```python
-profile = api.domain_profile('google.com')
-await profile
-title = profile['website_data']['title']
-```
-
-Interacting with the API via the command line client
-===================
-
-![domaintools CLI Example](https://github.com/DomainTools/python_api/raw/master/artwork/example_cli.gif)
-
-Immediately after installing `domaintools_api` with pip, a `domaintools` command line client will become available to you:
-
+If you want to be sure you're getting the newest version, you can install it directly from github with
 ```bash
-domaintools --help
+pip install git+ssh://git@github.com/dorianbrown/rank_bm25.git
 ```
 
-To use - simply pass in the api_call you would like to make along with the parameters that it takes and your credentials:
+## Usage
+For this example we'll be using the `BM25Okapi` algorithm, but the others are used in pretty much the same way.
 
-```bash
-domaintools domain_search google --max_length 10 -u $TEST_USER -k $TEST_KEY
+### Initalizing
+
+First thing to do is create an instance of the BM25 class, which reads in a corpus of text and does some indexing on it:
+```python
+from rank_bm25 import BM25Okapi
+
+corpus = [
+    "Hello there good man!",
+    "It is quite windy in London",
+    "How is the weather today?"
+]
+
+tokenized_corpus = [doc.split(" ") for doc in corpus]
+
+bm25 = BM25Okapi(tokenized_corpus)
+# <rank_bm25.BM25Okapi at 0x1047881d0>
 ```
+Note that this package doesn't do any text preprocessing. If you want to do things like lowercasing, stopword removal, stemming, etc, you need to do it yourself. 
 
-Optionally, you can specify the desired format (html, xml, json, or list) of the results:
+The only requirements is that the class receives a list of lists of strings, which are the document tokens.
 
-```bash
-domaintools domain_search google --max_length 10 -u $TEST_USER -k $TEST_KEY -f html
+### Ranking of documents
+
+Now that we've created our document indexes, we can give it queries and see which documents are the most relevant:
+```python
+query = "windy London"
+tokenized_query = query.split(" ")
+
+doc_scores = bm25.get_scores(tokenized_query)
+# array([0.        , 0.93729472, 0.        ])
 ```
+Good to note that we also need to tokenize our query, and apply the same preprocessing steps we did to the documents in order to have an apples-to-apples comparison
 
-To avoid having to type in your API key repeatedly, you can specify them in `~/.dtapi` separated by a new line:
-
-```bash
-API_USER
-API_KEY
+Instead of getting the document scores, you can also just retrieve the best documents with
+```python
+bm25.get_top_n(tokenized_query, corpus, n=1)
+# ['It is quite windy in London']
 ```
-
-Python Version Support Policy
-===================
-
-Please see the [supported versions](https://github.com/DomainTools/python_api/raw/master/PYTHON_SUPPORT.md) document 
-for the DomainTools Python support policy.
+And that's pretty much it!
