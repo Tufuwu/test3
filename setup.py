@@ -1,83 +1,59 @@
-import io
-import os
-import re
+#!/usr/bin/env python
+from pathlib import Path
 
-from setuptools import find_packages, setup
-
-
-with io.open("flask_appbuilder/__init__.py", "rt", encoding="utf8") as f:
-    version = re.search(r"__version__ = \"(.*?)\"", f.read()).group(1)
+import setuptools
+from setuptools import setup
 
 
-def fpath(name):
-    return os.path.join(os.path.dirname(__file__), name)
+def load_reqs(path):
+    reqs = []
+    with open(path, "r") as f:
+        for line in f.readlines():
+            if line.startswith("-r"):
+                reqs += load_reqs(line.split(" ")[1].strip())
+            else:
+                req = line.strip()
+                if req and not req.startswith("#"):
+                    reqs.append(req)
+    return reqs
 
 
-def read(fname):
-    return open(fpath(fname)).read()
+req_path = Path(__file__).parent / "requirements.txt"
+requirements = load_reqs(req_path)
 
-
-def desc():
-    return read("README.rst")
+long_description = open(Path(__file__).parent / "README.md").read()
 
 
 setup(
-    name="Flask-AppBuilder",
-    version=version,
-    url="https://github.com/dpgaspar/flask-appbuilder/",
-    license="BSD",
-    author="Daniel Vaz Gaspar",
-    author_email="danielvazgaspar@gmail.com",
-    description=(
-        "Simple and rapid application development framework, built on top of Flask."
-        " includes detailed security, auto CRUD generation for your models,"
-        " google charts and much more."
-    ),
-    long_description=desc(),
-    long_description_content_type="text/x-rst",
-    packages=find_packages(),
-    package_data={"": ["LICENSE"]},
-    entry_points={
-        "flask.commands": ["fab=flask_appbuilder.cli:fab"],
-        "console_scripts": ["fabmanager = flask_appbuilder.console:cli"],
+    name="deon",
+    url="http://deon.drivendata.org",
+    project_urls={
+        "Homepage": "http://deon.drivendata.org",
+        "Source Code": "https://github.com/drivendataorg/deon",
+        "DrivenData": "http://drivendata.co",
     },
+    version="0.2.1",
+    author="DrivenData",
+    author_email="info@drivendata.org",
     include_package_data=True,
-    zip_safe=False,
-    platforms="any",
-    install_requires=[
-        "apispec[yaml]>=3.3, <4",
-        "colorama>=0.3.9, <1",
-        "click>=6.7, <8",
-        "email_validator>=1.0.5, <2",
-        "Flask>=0.12, <2",
-        "Flask-Babel>=1, <2",
-        "Flask-Login>=0.3, <0.5",
-        "Flask-OpenID>=1.2.5, <2",
-        "Flask-SQLAlchemy>=2.4, <3",
-        "Flask-WTF>=0.14.2, <1",
-        "Flask-JWT-Extended>=3.18, <4",
-        "jsonschema>=3.0.1, <4",
-        "marshmallow>=3, <4",
-        "marshmallow-enum>=1.5.1, <2",
-        "marshmallow-sqlalchemy>=0.22.0, <1",
-        "python-dateutil>=2.3, <3",
-        "prison>=0.1.3, <1.0.0",
-        "PyJWT>=1.7.1",
-        "sqlalchemy-utils>=0.32.21, <1",
-    ],
-    extras_require={"jmespath": ["jmespath>=0.9.5"]},
-    tests_require=["nose>=1.0", "mockldap>=0.3.0"],
+    description="Deon adds an ethics checklist to your data science projects.",
+    long_description=long_description,
+    long_description_content_type="text/markdown",
+    license="MIT",
+    packages=setuptools.find_packages(),
+    keywords=["data science", "ethics", "checklist"],
+    python_requires=">=3.6",
+    install_requires=requirements,
+    entry_points={"console_scripts": ["deon=deon.cli:main"]},
     classifiers=[
-        "Development Status :: 5 - Production/Stable",
-        "Environment :: Web Environment",
-        "Intended Audience :: Developers",
-        "License :: OSI Approved :: BSD License",
-        "Operating System :: OS Independent",
         "Programming Language :: Python",
+        "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.6",
-        "Programming Language :: Python :: 3.7",
-        "Topic :: Software Development :: Libraries :: Python Modules",
+        # Indicate who your project is intended for
+        "Intended Audience :: Developers",
+        "Intended Audience :: Science/Research",
+        "License :: OSI Approved :: MIT License",
+        "Topic :: Scientific/Engineering",
+        "Topic :: Scientific/Engineering :: Artificial Intelligence",
     ],
-    python_requires="~=3.6",
-    test_suite="nose.collector",
 )
