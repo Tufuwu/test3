@@ -1,46 +1,54 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+#  htheatpump - Serial communication module for Heliotherm heat pumps
+#  Copyright (C) 2021  Daniel Strigl
+
+#  This program is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+#
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+import logging
+
 import pytest
-import yaml
-
-import assets
 
 
-@pytest.fixture
-def checklist(tmpdir):
-    temp_checklist = tmpdir.join("checklist.yml")
-    with open(temp_checklist, "w") as f:
-        data = {
-            "title": "My Checklist",
-            "sections": [
-                {
-                    "title": "First section",
-                    "section_id": "A",
-                    "lines": [
-                        {"line_id": "A.1", "line_summary": "A1sum", "line": "First A line"},
-                        {"line_id": "A.2", "line_summary": "A2sum", "line": "Second A line"},
-                    ],
-                },
-                {
-                    "title": "Second section",
-                    "section_id": "B",
-                    "lines": [
-                        {"line_id": "B.1", "line_summary": "B1sum", "line": "First B line"},
-                        {"line_id": "B.2", "line_summary": "B2sum", "line": "Second B line"},
-                    ],
-                },
-            ],
-        }
-        yaml.dump(data, f)
-    return temp_checklist
+def pytest_addoption(parser):
+    parser.addoption(
+        "--connected", action="store_true", dest="run_if_connected", default=False
+    )
+    parser.addoption("--device", action="store", default="/dev/ttyUSB0")
+    parser.addoption("--baudrate", action="store", default=115200)
+    parser.addoption("--loglevel", action="store", default=logging.WARNING)
 
 
-@pytest.fixture
-def test_format_configs():
-    test_format_config = [
-        ("markdown", "test.md", assets.known_good_markdown),
-        ("rmarkdown", "test.Rmd", assets.known_good_markdown),
-        ("html", "test.html", assets.known_good_html),
-        ("rst", "test.rst", assets.known_good_rst),
-        ("jupyter", "test.ipynb", assets.known_good_jupyter),
-        ("ascii", "test.txt", assets.known_good_ascii),
-    ]
-    return test_format_config
+def pytest_configure(config):
+    if not config.option.run_if_connected:
+        setattr(config.option, "markexpr", "not run_if_connected")
+
+    loglevel = int(config.getoption("--loglevel"))
+    logging.basicConfig(level=loglevel)
+
+    print("connected: {}".format("NO" if not config.option.run_if_connected else "YES"))
+    print("device: {}".format(config.getoption("--device")))
+    print("baudrate: {:d}".format(int(config.getoption("--baudrate"))))
+    print("loglevel: {:d}".format(loglevel))
+
+
+@pytest.fixture(scope="session")
+def cmdopt_device(request):
+    return request.config.getoption("--device")
+
+
+@pytest.fixture(scope="session")
+def cmdopt_baudrate(request):
+    return request.config.getoption("--baudrate")
