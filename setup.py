@@ -1,39 +1,49 @@
-import os
 from setuptools import setup
 
-classifiers = """\
-Development Status :: 5 - Production/Stable
-Intended Audience :: Developers
-License :: OSI Approved :: MIT License
-Programming Language :: Python
-Programming Language :: Python :: 3
-Programming Language :: Python :: 3.6
-Programming Language :: Python :: 3.7
-Programming Language :: Python :: 3.8
-Programming Language :: Python :: 3.9
-Programming Language :: Python :: 3 :: Only
-Topic :: Software Development :: Libraries :: Python Modules
-Operating System :: Microsoft :: Windows
-Operating System :: Unix
-Operating System :: MacOS :: MacOS X
+long_description = """
+Nutils is a Free and Open Source Python programming library for Finite Element
+Method computations, developed by `Evalf Computing <http://evalf.com>`_ and
+distributed under the permissive MIT license. Key features are a readable, math
+centric syntax, an object oriented design, strict separation of topology and
+geometry, and high level function manipulations with support for automatic
+differentiation.
+
+Nutils provides the tools required to construct a typical simulation workflow
+in just a few lines of Python code, while at the same time leaving full
+flexibility to build novel workflows or interact with third party tools. With
+native support for Isogeometric Analysis (IGA), the Finite Cell method (FCM),
+multi-physics, mixed methods, and hierarchical refinement, Nutils is at the
+forefront of numerical discretization science. Efficient under-the-hood
+vectorization and built-in parallellisation provide for an effortless
+transition from academic research projects to full scale, real world
+applications.
 """
 
-curr_path = os.path.abspath(os.path.dirname(__file__))
+import os, re
+with open(os.path.join('nutils', '__init__.py')) as f:
+  version = next(filter(None, map(re.compile("^version = '([a-zA-Z0-9.]+)'$").match, f))).group(1)
+
 setup(
-    name='tinyrecord',
-    version='0.2.1',
-    packages=['tinyrecord'],
-    package_data={'tinyrecord': ['py.typed']},
-    python_requires='>=3.6',
-    install_requires=['tinydb >= 4.0.0'],
-    classifiers=filter(None, classifiers.split('\n')),
-    zip_safe=True,
-    author='Eugene Eeo',
-    author_email='141bytes@gmail.com',
-    long_description=open(os.path.join(curr_path, 'README.rst'), 'r').read(),
-    long_description_content_type='text/x-rst',
-    description='Atomic transactions for TinyDB',
-    license='MIT',
-    keywords='tinydb nosql database transaction',
-    url='https://github.com/eugene-eeo/tinyrecord',
+  name = 'nutils',
+  version = version,
+  description = 'Numerical Utilities for Finite Element Analysis',
+  author = 'Evalf',
+  author_email = 'info@nutils.org',
+  url = 'http://nutils.org',
+  download_url = 'https://github.com/nutils/nutils/releases',
+  packages = ['nutils'],
+  long_description = long_description,
+  license = 'MIT',
+  python_requires = '>=3.5',
+  install_requires = ['numpy>=1.12', 'treelog>=1.0b5', 'stringly'],
+  extras_require = dict(
+    docs=['Sphinx>=1.6','scipy>=0.13','matplotlib>=1.3'],
+    matrix_scipy=['scipy>=0.13'],
+    matrix_mkl=['mkl'],
+    export_mpl=['matplotlib>=1.3','pillow>2.6'],
+    import_gmsh=['meshio'],
+  ),
+  command_options = dict(
+    test=dict(test_loader=('setup.py', 'unittest:TestLoader')),
+  ),
 )
