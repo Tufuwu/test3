@@ -1,4 +1,0 @@
-channels:
-  - bioconda
-dependencies:
-  - bioconda::diamond>=2.0.4

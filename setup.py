@@ -1,111 +1,84 @@
-# coding: utf-8
+# -*- coding: utf-8 -*-
+#  Licensed to Elasticsearch B.V. under one or more contributor
+#  license agreements. See the NOTICE file distributed with
+#  this work for additional information regarding copyright
+#  ownership. Elasticsearch B.V. licenses this file to you under
+#  the Apache License, Version 2.0 (the "License"); you may
+#  not use this file except in compliance with the License.
+#  You may obtain a copy of the License at
+#
+# 	http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing,
+#  software distributed under the License is distributed on an
+#  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+#  KIND, either express or implied.  See the License for the
+#  specific language governing permissions and limitations
+#  under the License.
 
-"""Setup file for PyPI"""
+from os.path import dirname, join
 
-from setuptools import setup, find_packages
-from setuptools.extension import Extension
-from distutils.extension import Extension
-from Cython.Build import cythonize
-from codecs import open
-from os import path
-import glob
-import re
-import sys
-import numpy as np
-from scipy._build_utils import numpy_nodepr_api
+from setuptools import find_packages, setup
 
+VERSION = (7, 2, 0)
+__version__ = VERSION
+__versionstr__ = ".".join(map(str, VERSION))
 
-here = path.abspath(path.dirname("__file__"))
+f = open(join(dirname(__file__), "README"))
+long_description = f.read().strip()
+f.close()
 
-with open(path.join(here, "DESCRIPTION.md"), encoding="utf-8") as description:
-    long_description = description.read()
+install_requires = [
+    "six",
+    "python-dateutil",
+    "elasticsearch>=7.0.0,<8.0.0",
+    # ipaddress is included in stdlib since python 3.3
+    'ipaddress; python_version<"3.3"',
+]
 
-version = {}
-with open(path.join(here, "Mikado", "version.py")) as fp:
-    exec(fp.read(), version)
-version = version["__version__"]
-
-if version is None:
-    print("No version found, exiting", file=sys.stderr)
-    sys.exit(1)
-
-if sys.version_info.major != 3:
-    raise EnvironmentError("""Mikado is a pipeline specifically programmed for python3,
-    and is not compatible with Python2. Please upgrade your python before proceeding!""")
-
-extensions = [Extension("Mikado.utilities.overlap",
-                        sources=[path.join("Mikado", "utilities", "overlap.pyx")],
-                        **numpy_nodepr_api),
-              Extension("Mikado.utilities.f1",
-                        sources=[path.join("Mikado", "utilities", "f1.pyx")],
-                        **numpy_nodepr_api),
-              Extension("Mikado.scales.contrast",
-                        sources=[path.join("Mikado", "scales", "contrast.pyx")],
-                        **numpy_nodepr_api),
-              Extension("Mikado.utilities.intervaltree",
-                        sources=[path.join("Mikado", "utilities", "intervaltree.pyx")],
-                        **numpy_nodepr_api),
-              Extension("Mikado.serializers.blast_serializer.btop_parser",
-                        include_dirs=[np.get_include()],
-                        language="c++",
-                        sources=[path.join("Mikado", "serializers", "blast_serializer", "btop_parser.pyx")],
-                        **numpy_nodepr_api),
-              Extension("Mikado.serializers.blast_serializer.aln_string_parser",
-                        include_dirs=[np.get_include()],
-                        language="c++",
-                        sources=[path.join("Mikado", "serializers", "blast_serializer", "aln_string_parser.pyx")],
-                        **numpy_nodepr_api)
-              ]
+develop_requires = [
+    "mock",
+    "pytest>=3.0.0",
+    "pytest-cov",
+    "pytest-mock<3.0.0",
+    "pytz",
+    "coverage<5.0.0",
+    "sphinx",
+    "sphinx_rtd_theme",
+]
 
 setup(
-    name="Mikado",
-    version=version,
-    description="A Python3 annotation program to select the best gene model in each locus",
+    name="elasticsearch-dsl",
+    description="Python client for Elasticsearch",
+    license="Apache-2.0",
+    url="https://github.com/elasticsearch/elasticsearch-dsl-py",
     long_description=long_description,
-    url="https://github.com/EI-CoreBioinformatics/mikado",
-    author="Luca Venturini",
-    author_email="lucventurini@gmail.com",
-    license="LGPL3",
-    tests_require=["pytest"],
+    long_description_content_type="text/x-rst",
+    version=__versionstr__,
+    author="Honza Král",
+    author_email="honza.kral@gmail.com",
+    maintainer="Seth Michael Larson",
+    maintainer_email="seth.larson@elastic.co",
+    packages=find_packages(where=".", exclude=("tests*",)),
+    python_requires=">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*",
     classifiers=[
-        "Development Status :: 5 - Production/Stable",
-        "Topic :: Scientific/Engineering :: Bio-Informatics",
-        "License :: OSI Approved :: GNU Lesser General Public License v3 or later (LGPLv3+)",
-        "Operating System :: POSIX :: Linux",
-        "Framework :: Pytest",
-        "Intended Audience :: Science/Research",
+        "Development Status :: 4 - Beta",
+        "License :: OSI Approved :: Apache Software License",
+        "Intended Audience :: Developers",
+        "Operating System :: OS Independent",
+        "Programming Language :: Python",
+        "Programming Language :: Python :: 2",
+        "Programming Language :: Python :: 2.7",
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.4",
         "Programming Language :: Python :: 3.5",
         "Programming Language :: Python :: 3.6",
-        'Programming Language :: Python :: 3.7'
+        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: Implementation :: CPython",
+        "Programming Language :: Python :: Implementation :: PyPy",
     ],
-    ext_modules=cythonize(extensions, compiler_directives = {"language_level": "3"}),
-    zip_safe=False,
-    keywords="rna-seq annotation genomics transcriptomics",
-    packages=find_packages(),
-    scripts=glob.glob("util/*.py"),
-    entry_points={"console_scripts": ["mikado = Mikado.__main__:main",
-                                      "daijin = Mikado.daijin:main",
-                                      ]},
-    install_requires=[line.rstrip() for line in open("requirements.txt", "rt")],
-    extras_require={
-        "postgresql": ["psycopg2"],
-        "mysql": ["mysqlclient>=1.3.6"],
-        "bam": ["pysam>=0.8"]
-    },
-    # test_suite="nose2.collector.collector",
-    package_data={
-        "Mikado.configuration":
-            glob.glob("Mikado/configuration/*json") + glob.glob("Mikado/configuration/*yaml"),
-        "Mikado.configuration.scoring_files":
-            glob.glob("Mikado/configuration/scoring_files/*"),
-        "Mikado":
-            glob.glob(path.join("Mikado", "daijin", "*smk")) +
-            glob.glob(path.join("Mikado", "daijin", "*yaml")) + glob.glob("Mikado/daijin/*json"),
-        "Mikado.utilities.overlap": [path.join("Mikado", "utilities", "overlap.pxd")],
-        "Mikado.utilities.intervaltree": [path.join("Mikado", "utilities", "intervaltree.pxd")],
-        "Mikado.serializers.blast_serializers": glob.glob(path.join("Mikado", "serializers", "blast_serializers",
-                                                                    "*pxd")),
-        "Mikado.tests.blast_data": glob.glob(path.join("Mikado", "tests", "blast_data", "*"))
-        },
-    include_package_data=True
+    install_requires=install_requires,
+    extras_require={"develop": develop_requires},
 )

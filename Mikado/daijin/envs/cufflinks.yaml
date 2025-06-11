@@ -1,4 +1,0 @@
-channels:
-  - bioconda
-dependencies:
-  - bioconda::cufflinks>=2.2.1

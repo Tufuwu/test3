@@ -1,4 +1,0 @@
-channels:
-  - bioconda
-dependencies:
-  - bioconda::scallop>=0.10.4
