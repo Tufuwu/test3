@@ -1,55 +1,72 @@
-from setuptools import setup, find_packages
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+# License: LGPLv3 Copyright: 2019, Kovid Goyal <kovid at kovidgoyal.net>
 
-with open('README.md', 'r') as fh:
-    long_description = fh.read()
+import ast
+import re
+import sys
+import os
+
+from setuptools import find_packages, setup
+from setuptools.command.test import test
+
+# extract the version without importing the module
+VERSION = open('src/css_parser/version.py', 'rb').read().decode('utf-8')
+VERSION = '.'.join(map(str, ast.literal_eval(re.search(r'^version\s+=\s+(.+)', VERSION, flags=re.M).group(1))))
+long_description = '\n' + open('README.md', 'rb').read().decode('utf-8') + '\n'  # + read('CHANGELOG.txt')
+
+
+class Test(test):
+
+    user_options = [
+        ('which-test=', 'w', "Specify which test to run as either"
+            " the test method name (without the leading test_)"
+            " or a module name with a trailing period"),
+    ]
+
+    def initialize_options(self):
+        self.which_test = None
+
+    def finalize_options(self):
+        pass
+
+    def run(self):
+        import importlib
+        orig = sys.path[:]
+        try:
+            sys.path.insert(0, os.getcwd())
+            m = importlib.import_module('run_tests')
+            which_test = (self.which_test,) if self.which_test else ()
+            m.run_tests(which_test)
+        finally:
+            sys.path = orig
+
 
 setup(
-    name='scanpy-scripts',
-    version='0.3.1',
-    author='nh3',
-    author_email='nh3@users.noreply.github.com',
-    description='Scripts for using scanpy from the command line',
+    name='css-parser',
+    version=VERSION,
+    package_dir={'': 'src'},
+    packages=find_packages('src'),
+    description='A CSS Cascading Style Sheets library for Python',
     long_description=long_description,
     long_description_content_type='text/markdown',
-    url='https://github.com/ebi-gene-expression-group/scanpy-scripts',
-    packages=find_packages(),
-    scripts=[
-        'scanpy-scripts-tests.bats',
-    ],
-    entry_points=dict(
-        console_scripts=[
-            'scanpy-cli=scanpy_scripts.cli:cli',
-            'scanpy-read-10x=scanpy_scripts.cmds:READ_CMD',
-            'scanpy-filter-cells=scanpy_scripts.cmds:FILTER_CMD',
-            'scanpy-filter-genes=scanpy_scripts.cmds:FILTER_CMD',
-            'scanpy-normalise-data=scanpy_scripts.cmds:NORM_CMD',
-            'scanpy-find-variable-genes=scanpy_scripts.cmds:HVG_CMD',
-            'scanpy-scale-data=scanpy_scripts.cmds:SCALE_CMD',
-            'scanpy-regress=scanpy_scripts.cmds:REGRESS_CMD',
-            'scanpy-run-pca=scanpy_scripts.cmds:PCA_CMD',
-            'scanpy-neighbors=scanpy_scripts.cmds:NEIGHBOR_CMD',
-            'scanpy-run-tsne=scanpy_scripts.cmds:TSNE_CMD',
-            'scanpy-run-umap=scanpy_scripts.cmds:UMAP_CMD',
-            'scanpy-find-cluster=scanpy_scripts.cli:cluster',
-            'scanpy-find-markers=scanpy_scripts.cmds:DIFFEXP_CMD',
-        ]
-    ),
-    install_requires=[
-        'packaging',
-        'anndata',
-        'scipy',
-        'matplotlib',
-        'pandas',
-        'h5py<3.0.0',
-        'scanpy>=1.6.0',
-        'louvain',
-        'leidenalg',
-        'loompy>=2.0.0,<3.0.0',
-        'MulticoreTSNE',
-        'Click',
-        'umap-learn<0.4.0',
-        'harmonypy>=0.0.5',
-        'bbknn>=1.3.12',
-        'mnnpy>=0.1.9.5'
-    ],
+    cmdclass={'test': Test},
+    author='Various People',
+    author_email='redacted@anonymous.net',
+    url='https://github.com/ebook-utils/css-parser',
+    license='LGPL 3.0 or later',
+    keywords='CSS, Cascading Style Sheets, CSSParser, DOM Level 2 Stylesheets, DOM Level 2 CSS',
+    classifiers=[
+        'Development Status :: 5 - Production/Stable',
+        'Environment :: Web Environment',
+        'Intended Audience :: Developers',
+        'License :: OSI Approved :: GNU Library or Lesser General Public License (LGPL)',
+        'Operating System :: OS Independent',
+        'Programming Language :: Python',
+        'Programming Language :: Python :: 2',
+        'Programming Language :: Python :: 3',
+        'Topic :: Internet',
+        'Topic :: Software Development :: Libraries :: Python Modules',
+        'Topic :: Text Processing :: Markup :: HTML'
+    ]
 )
