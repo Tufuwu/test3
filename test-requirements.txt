@@ -1,0 +1,6 @@
+# Required for tests
+flake8
+coverage
+coveralls
+hypothesis
+

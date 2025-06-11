@@ -1,63 +1,45 @@
-#-------------------------------------------------------------------------------
-# pss: setup.py
-#
-# Setup/installation script.
-#
-# Eli Bendersky (eliben@gmail.com)
-# This code is in the public domain
-#-------------------------------------------------------------------------------
-import os, sys
-try:
-    from setuptools import setup
-    use_setuptools = True
-except ImportError:
-    from distutils.core import setup
-    use_setuptools = False
+#!/usr/bin/env python
+# encoding: utf-8
 
-if use_setuptools:
-    # Setuptools provides an "entry points" facility to automatically generate
-    # scripts that work in the same way as the supplied "pss" script. This
-    # feature is more portable to other platforms than providing a manually
-    # created script, so we use that feature if it is available.
-    # By using entry points, we get a "pss" shell script on Unix, and a
-    # "pss.exe" command on Windows, without any extra effort.
-    extra_args = {
-        'entry_points': {
-            'console_scripts': 'pss = psslib.pss:main'
-        },
-    }
-else:
-    # Setuptools is not available, so fall back to custom built scripts.
-    extra_args = {
-        'scripts': ['scripts/pss.py', 'scripts/pss'],
-    }
+"""Packaging script."""
 
+import os
 
-try:
-    with open('README.rst', 'rt') as readme:
-        description = '\n' + readme.read()
-except IOError:
-    # maybe running setup.py from some other dir
-    description = ''
+from setuptools import setup
 
+here = os.path.abspath(os.path.dirname(__file__))
+readme = open(os.path.join(here, "README.rst")).read()
 
 setup(
-    # metadata
-    name='pss',
-    description='Tool for grepping through source code',
-    long_description=description,
-    license='Public domain',
-    version='1.42',
-    author='Eli Bendersky',
-    maintainer='Eli Bendersky',
-    author_email='eliben@gmail.com',
-    url='https://github.com/eliben/pss',
-    platforms='Cross Platform',
-    classifiers = [
-        'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 3',],
-
-    packages=['psslib', 'psslib.colorama'],
-
-    **extra_args
+    name="circlify",
+    description="Circle packing algorithm for Python",
+    long_description=readme,
+    long_description_content_type="text/x-rst",
+    version="0.14.0",
+    author="Elmotec",
+    author_email="elmotec@gmx.com",
+    license="MIT",
+    keywords="circle packing enclosure hierarchy graph display visualization",
+    url="http://github.com/elmotec/circlify",
+    py_modules=["circlify"],
+    test_suite="tests",
+    setup_requires=[],
+    tests_require=[],
+    python_requires=">=3.5",
+    classifiers=[
+        "Development Status :: 4 - Beta",
+        "Operating System :: OS Independent",
+        "License :: OSI Approved :: MIT License",
+        "Natural Language :: English",
+        "Programming Language :: Python :: 3.5",
+        "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
+        "Topic :: Software Development",
+        "Topic :: Utilities",
+        "Topic :: Scientific/Engineering :: Visualization",
+        "Intended Audience :: Developers",
+    ],
 )
