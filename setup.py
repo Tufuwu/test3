@@ -1,18 +1,17 @@
 #!/usr/bin/env python3
 
-import sys
-from os import R_OK, access, makedirs, path
-from urllib.error import URLError
-from urllib.request import urlretrieve
+import sys, os
+try:
+  from setuptools import setup
+except ImportError:
+  from distutils.core import setup
 
-from setuptools import setup
-
-if not sys.version_info[0] == 3:
-    sys.exit("Python 2.x is not supported; Python 3.x is required.")
+if sys.version_info < (3,3):
+    sys.exit("Python 3.3+ is required; you are using %s" % sys.version)
 
 ########################################
 
-version_py = path.join(path.dirname(__file__), 'zxing', 'version.py')
+version_py = os.path.join('vpn_slice', 'version.py')
 
 d = {}
 with open(version_py, 'r') as fh:
@@ -21,40 +20,20 @@ with open(version_py, 'r') as fh:
 
 ########################################
 
-
-def download_java_files(force=False):
-    files = {'java/javase.jar': 'https://repo1.maven.org/maven2/com/google/zxing/javase/3.4.1/javase-3.4.1.jar',
-             'java/core.jar': 'https://repo1.maven.org/maven2/com/google/zxing/core/3.4.1/core-3.4.1.jar',
-             'java/jcommander.jar': 'https://repo1.maven.org/maven2/com/beust/jcommander/1.78/jcommander-1.78.jar'}
-
-    for fn, url in files.items():
-        p = path.join(path.dirname(__file__), 'zxing', fn)
-        d = path.dirname(p)
-        if not force and access(p, R_OK):
-            print("Already have %s." % p)
-        else:
-            print("Downloading %s from %s ..." % (p, url))
-            try:
-                makedirs(d, exist_ok=True)
-                urlretrieve(url, p)
-            except (OSError, URLError) as e:
-                raise
-    return list(files.keys())
-
-
-setup(
-    name='zxing',
-    version=version_pep,
-    description="wrapper for zebra crossing (zxing) barcode library",
-    long_description="More information: https://github.com/dlenski/python-zxing",
-    url="https://github.com/dlenski/python-zxing",
-    author='Daniel Lenski',
-    author_email='dlenski@gmail.com',
-    packages=['zxing'],
-    package_data={'zxing': download_java_files()},
-    entry_points={'console_scripts': ['zxing=zxing.__main__:main']},
-    install_requires=open('requirements.txt').readlines(),
-    tests_require=open('requirements-test.txt').readlines(),
-    test_suite='nose.collector',
-    license='LGPL v3 or later',
-)
+setup(name="vpn-slice",
+      version=version_pep,
+      description=("vpnc-script replacement for easy split-tunnel VPN setup"),
+      long_description=open('description.rst').read(),
+      author="Daniel Lenski",
+      author_email="dlenski@gmail.com",
+      extras_require={
+        "setproctitle": ["setproctitle"],
+        "dnspython": ["dnspython"],
+      },
+      install_requires=["setproctitle", "dnspython"],
+      license='GPL v3 or later',
+      url="https://github.com/dlenski/vpn-slice",
+      packages=["vpn_slice"],
+      include_package_data = True,
+      entry_points={ 'console_scripts': [ 'vpn-slice=vpn_slice.__main__:main' ] },
+      )

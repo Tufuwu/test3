@@ -1,6 +1,7 @@
-build
-build/*
-dist
-dist/*
-*.pyc
-zxing/java/
+*.py[co]
+*~
+*.egg-info
+*.orig
+
+build/
+dist/
