@@ -1,3 +1,7 @@
 include LICENSE
-include Makefile
-recursive-include tests *.py *.arxml *.dbc *.cdd *.kcd *.sym *.h *.c *.mk *.DBC
+include README.rst
+include example1.py
+include example2.py
+include docs/Makefile
+recursive-include docs *.py *.rst *.css *.gif *.png
+recursive-exclude docs/_build *

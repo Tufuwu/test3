@@ -1,39 +1,58 @@
-#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+#
+# This software may be modified and distributed under the terms
+# of the MIT license.  See the LICENSE file for details.
 
+from os import path
 from setuptools import setup
-from setuptools import find_packages
-import re
+from shutil import rmtree
+import sys
+
+NAME = 'python-logstash-async'
+VERSION = '2.3.0'
+
+here = path.abspath(path.dirname(__file__))
+with open(path.join(here, 'README.rst'), 'rb') as f:
+    LONG_DESCRIPTION = f.read().decode('utf-8')
 
 
-def find_version():
-    return re.search(r"^__version__ = '(.*)'$",
-                     open('cantools/version.py', 'r').read(),
-                     re.MULTILINE).group(1)
+if 'bdist_wheel' in sys.argv:
+    # Remove previous build dir when creating a wheel build, since if files have been removed
+    # from the project, they'll still be cached in the build dir and end up as part of the
+    # build, which is really neat!
+    for directory in ('build', 'dist', 'python_logstash_async.egg-info'):
+        rmtree(directory, ignore_errors=True)
 
 
-setup(name='cantools',
-      version=find_version(),
-      description='CAN BUS tools.',
-      long_description=open('README.rst', 'r').read(),
-      author='Erik Moqvist',
-      author_email='erik.moqvist@gmail.com',
-      license='MIT',
-      classifiers=[
-          'License :: OSI Approved :: MIT License',
-          'Programming Language :: Python :: 2',
-          'Programming Language :: Python :: 3',
-      ],
-      keywords=['can', 'can bus', 'dbc', 'kcd', 'automotive'],
-      url='https://github.com/eerimoq/cantools',
-      packages=find_packages(exclude=['tests']),
-      install_requires=[
-          'bitstruct>=6.0.0',
-          'python-can>=2.2.0',
-          'textparser>=0.21.1',
-          'diskcache',
-          'argparse_addons'
-      ],
-      test_suite="tests",
-      entry_points = {
-          'console_scripts': ['cantools=cantools.__init__:_main']
-      })
+setup(
+    name=NAME,
+    packages=['logstash_async'],
+    version=VERSION,
+    description='Asynchronous Python logging handler for Logstash.',
+    long_description=LONG_DESCRIPTION,
+    long_description_content_type='text/x-rst',
+    license='MIT',
+    author='Enrico Tröger',
+    author_email='enrico.troeger@uvena.de',
+    url='https://github.com/eht16/python-logstash-async',
+    project_urls={
+        'Travis CI': 'https://travis-ci.org/eht16/python-logstash-async/',
+        'Source code': 'https://github.com/eht16/python-logstash-async/',
+        'Documentation': 'https://python-logstash-async.readthedocs.io/en/stable/',
+    },
+    keywords='logging logstash asynchronous',
+    install_requires=['limits', 'pylogbeat', 'requests'],
+    python_requires='>3.5',
+    include_package_data=True,
+    classifiers=[
+        'Development Status :: 4 - Beta',
+        'Intended Audience :: Developers',
+        'License :: OSI Approved :: MIT License',
+        'Operating System :: OS Independent',
+        'Programming Language :: Python',
+        'Programming Language :: Python :: 3',
+        'Topic :: Internet :: WWW/HTTP',
+        'Topic :: Software Development :: Libraries :: Python Modules',
+        'Topic :: System :: Logging',
+    ]
+)
