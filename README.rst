@@ -1,90 +1,58 @@
-Visions
-=======
+PySINDy
+=========
 
-|JossPaper|
-|PyPiDownloadsBadge|
-|PyPiDownloadsMonthlyBadge|
-|PyPiVersionBadge|
-|PythonBadge|
-|BinderBadge|
+|BuildCI|
 
-..
-
-    *And these visions of data types, they kept us up past the dawn.*
-
-..
-
-``Visions`` provides an extensible suite of tools to support common data analysis operations including
-
-* type inference on unknown data
-* casting data types
-* automated data summarization
-
-
-
-.. image:: https://github.com/dylan-profiler/visions/raw/develop/docsrc/source/_static/side-by-side.png
-
-
-
-Documentation
--------------
-
-Full documentation can be found `here <https://dylan-profiler.github.io/visions/>`_.
+**PySINDy** is a sparse regression package with several implementations for the Sparse Identification of Nonlinear Dynamical systems (SINDy) method.
 
 Installation
 ------------
 
-You can install ``visions`` via pip:
+Installing with pip
+^^^^^^^^^^^^^^^^^^^
 
-.. code-block:: console
+If you are using Linux or macOS you can install PySINDy with pip:
 
-    pip install visions
+``pip install pysindy``
 
-Alternatives and more details can be found in the `documentation <https://dylan-profiler.github.io/visions/visions/getting_started/installation.html>`_.
+Installing from source
+^^^^^^^^^^^^^^^^^^^^^^
+First clone this repository:
 
-Supported frameworks
+``git clone https://github.com/dynamicslab/pysindy``
+
+Then, to install the package, run:
+
+``python setup.py install``
+
+If you do not have root access, you should add the ``--user`` option to the above line.
+
+
+Implemented algorithms
+----------------------
+
+-  Brunton, Steven L., Joshua L. Proctor, and J. Nathan Kutz.
+   “Discovering governing equations from data by sparse identification
+   of nonlinear dynamical systems.” Proceedings of the National Academy
+   of Sciences 113.15 (2016): 3932-3937. `DOI:
+   10.1073/pnas.1517384113 <http://dx.doi.org/10.1073/pnas.1517384113>`__
+
+Community guidelines
 --------------------
 
-These frameworks are supported out-of-the-box in addition to native Python types:
+Contributing code
+^^^^^^^^^^^^^^^^^
+We welcome contributions to PySINDy. To contribute a new feature please submit a pull request. To be accepted your code should conform to PEP8 (you may choose to use flake8 to test this before submitting your pull request). Your contributed code should pass all unit tests. Upon submission of a pull request, your code will be tested automatically, but you may also choose to test it yourself by running
 
-.. image:: https://github.com/dylan-profiler/visions/raw/develop/docsrc/source/_static/frameworks.png
+``pytest``
 
-- Pandas (feature complete)
-- Numpy (boolean, complex, date time, float, integer, string, time deltas, string, objects)
-- Spark (boolean, categorical, date, date time, float, integer, numeric, object, string)
-- Python (string, float, integer, date time, time delta, boolean, categorical, object, complex - other datatypes are untested)
+Reporting issues or bugs
+^^^^^^^^^^^^^^^^^^^^^^^^
+If you find a bug in the code or want to request a new feature, please open an issue.
 
-Contributing and support
-------------------------
-Contributions to ``visions`` are welcome.
-For more information, please visit the `Community contributions page <https://dylan-profiler.github.io/visions/visions/contributing/contributing.html>`_.
-The `the Github issues tracker <https://github.com/dylan-profiler/visions/issues/new/choose>`_ is used for reporting bugs, feature requests and support questions.
+Getting help
+^^^^^^^^^^^^
+For help using PySINDy please consult the documentation and/or our `examples <https://github.com/dynamicslab/pysindy/tree/master/example>`_, or create an issue.
 
-Acknowledgements
-----------------
-
-This package is part of the `dylan-profiler <https://github.com/dylan-profiler>`_ project.
-The package is core component of `pandas-profiling <https://github.com/pandas-profiling/pandas-profiling>`_.
-More information can be found `here <https://dylan-profiler.github.io/visions/visions/background/about.html>`__.
-This work was partially supported by `SIDN Fonds <https://www.sidnfonds.nl/projecten/dylan-data-analysis-leveraging-automatisation>`_.
-
-
-.. image:: https://github.com/dylan-profiler/visions/raw/master/SIDNfonds.png
-
-.. |BinderBadge| image:: https://mybinder.org/badge_logo.svg
-    :target: https://mybinder.org/v2/gh/dylan-profiler/visions/master
- 
-.. |JossPaper| image:: https://joss.theoj.org/papers/10.21105/joss.02145/status.svg
-    :target: https://doi.org/10.21105/joss.02145
-    
-.. |PythonBadge| image:: https://img.shields.io/pypi/pyversions/visions
-    :target: https://pypi.org/project/visions/
-    
-.. |PyPiDownloadsBadge| image:: https://pepy.tech/badge/visions
-    :target: https://pypi.org/project/visions/
-    
-.. |PyPiDownloadsMonthlyBadge| image:: https://pepy.tech/badge/visions/month
-    :target: https://pypi.org/project/visions/
-    
-.. |PyPiVersionBadge| image:: https://badge.fury.io/py/visions.svg
-    :target: https://pypi.org/project/visions/
+.. |BuildCI| image:: https://github.com/dynamicslab/pysindy/workflows/Build%20CI/badge.svg
+    :target: https://github.com/dynamicslab/pysindy/actions?query=workflow%3A%22Build+CI%22

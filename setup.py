@@ -1,70 +1,49 @@
-from pathlib import Path
-
+import sys
+import pathlib
 from setuptools import find_packages, setup
 
-# Read the contents of README file
-source_root = Path(".")
-with (source_root / "README.rst").open(encoding="utf-8") as f:
-    long_description = f.read()
 
-# Read the requirements
-with (source_root / "requirements.txt").open(encoding="utf8") as f:
-    requirements = f.readlines()
+assert sys.version_info >= (3, 6, 0), "sindy requires Python 3.6+"
 
-with (source_root / "requirements_dev.txt").open(encoding="utf8") as f:
-    dev_requirements = f.readlines()
-
-with (source_root / "requirements_test.txt").open(encoding="utf8") as f:
-    test_requirements = f.readlines()
-
-type_geometry_requires = ["shapely"]
-type_image_path_requires = ["imagehash", "Pillow"]
-
-extras_requires = {
-    "type_geometry": type_geometry_requires,
-    "type_image_path": type_image_path_requires,
-    "plotting": ["pydot", "pygraphviz", "matplotlib"],
-    "dev": dev_requirements,
-    "test": test_requirements,
-}
-
-extras_requires["all"] = requirements + [
-    dependency
-    for name, dependencies in extras_requires.items()
-    if name.startswith("type_") or name == "plotting"
-    for dependency in dependencies
+NAME = "pysindy"
+DESCRIPTION = "Sparse Identification of Nonlinear Dynamics"
+URL = "https://github.com/dynamicslab/pysindy"
+EMAIL = "bdesilva@uw.edu"
+AUTHOR = "Brian de Silva"
+PYTHON = ">=3.6"
+LICENSE = "MIT"
+CLASSIFIERS = [
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3.6",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Topic :: Scientific/Engineering :: Mathematics",
 ]
 
-__version__ = None
-with (source_root / "src/visions/version.py").open(encoding="utf8") as f:
-    exec(f.read())
+here = pathlib.Path(__file__).parent
+
+with open(here / "requirements.txt", "r") as f:
+    REQUIRED = f.readlines()
+
+with open(here / "README.rst", "r") as f:
+    LONG_DESCRIPTION = f.read()
 
 
 setup(
-    name="visions",
-    version=__version__,
-    url="https://github.com/dylan-profiler/visions",
-    description="Visions",
-    license="BSD License",
-    author="Dylan Profiler",
-    author_email="visions@ictopzee.nl",
-    package_data={"vision": ["py.typed"]},
-    packages=find_packages("src"),
-    package_dir={"": "src"},
-    install_requires=requirements,
-    include_package_data=True,
-    extras_require=extras_requires,
-    tests_require=test_requirements,
-    python_requires=">=3.6",
-    long_description=long_description,
-    long_description_content_type="text/x-rst",
-    zip_safe=False,
-    classifiers=[
-        "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.6",
-        "Programming Language :: Python :: 3.7",
-        "Programming Language :: Python :: 3.8",
-        "Programming Language :: Python :: 3.9",
-        "Programming Language :: Python :: 3.10",
-    ],
+    name=NAME,
+    use_scm_version=True,
+    setup_requires=["setuptools_scm", "setuptools_scm_git_archive"],
+    description=DESCRIPTION,
+    long_description=LONG_DESCRIPTION,
+    author=AUTHOR,
+    author_email=EMAIL,
+    url=URL,
+    packages=find_packages(exclude=["test", "example"]),
+    install_requires=REQUIRED,
+    python_requires=PYTHON,
+    license=LICENSE,
+    classifiers=CLASSIFIERS,
 )
