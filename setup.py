@@ -5,21 +5,20 @@ from setuptools import find_packages
 
 
 setup(
-    name="litedram",
-    description="Small footprint and configurable DRAM core",
+    name="liteeth",
+    description="Small footprint and configurable Ethernet core",
     author="Florent Kermarrec",
     author_email="florent@enjoy-digital.fr",
     url="http://enjoy-digital.fr",
-    download_url="https://github.com/enjoy-digital/litedram",
+    download_url="https://github.com/enjoy-digital/liteeth",
     test_suite="test",
     license="BSD",
     python_requires="~=3.6",
-    install_requires=["pyyaml"],
     packages=find_packages(exclude=("test*", "sim*", "doc*", "examples*")),
     include_package_data=True,
     entry_points={
         "console_scripts": [
-            "litedram_gen=litedram.gen:main",
+            "liteeth_gen=liteeth.gen:main",
         ],
     },
 )
