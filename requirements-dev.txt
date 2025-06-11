@@ -11,3 +11,4 @@ setuptools_scm
 setuptools_scm_git_archive
 jupyter
 notebook
+pysindy==1.7.5 
