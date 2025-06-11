@@ -1,34 +1,39 @@
-# -*- coding: utf-8 -*-
+import os
+from setuptools import setup
 
-from setuptools import find_packages, setup
+classifiers = """\
+Development Status :: 5 - Production/Stable
+Intended Audience :: Developers
+License :: OSI Approved :: MIT License
+Programming Language :: Python
+Programming Language :: Python :: 3
+Programming Language :: Python :: 3.6
+Programming Language :: Python :: 3.7
+Programming Language :: Python :: 3.8
+Programming Language :: Python :: 3.9
+Programming Language :: Python :: 3 :: Only
+Topic :: Software Development :: Libraries :: Python Modules
+Operating System :: Microsoft :: Windows
+Operating System :: Unix
+Operating System :: MacOS :: MacOS X
+"""
 
-exec(open('etesync_dav/_version.py').read())
-
+curr_path = os.path.abspath(os.path.dirname(__file__))
 setup(
-    name='etesync-dav',
-    version=__version__,
-    author='Tom Hacohen',
-    author_email='tom@stosb.com',
-    url='https://github.com/etesync/etesync-dav',
-    description='A CalDAV and CardDAV frontend for EteSync',
-    keywords=['etesync', 'encryption', 'sync', 'pim', 'caldav', 'carddav'],
-    license='GPL-3.0-only',
-    long_description=open('DESCRIPTION.rst').read(),
-    packages=find_packages(),
-    scripts=[
-        'scripts/etesync-dav',
-    ],
-    include_package_data=True,
-    python_requires='>=3',
-    install_requires=[
-        'appdirs>=1.4.3',
-        'etesync>=0.12.1',
-        'etebase>=0.30.0',
-        'msgpack>=1.0.0',
-        'Radicale>=3.0.3,<=3.1.0',
-        'Flask>=1.1.1',
-        'Flask-WTF>=0.14.2',
-        'requests[socks]>=2.21',
-        'pyobjc-framework-Cocoa>=7.0.0 ; sys_platform=="darwin"',
-    ]
+    name='tinyrecord',
+    version='0.2.1',
+    packages=['tinyrecord'],
+    package_data={'tinyrecord': ['py.typed']},
+    python_requires='>=3.6',
+    install_requires=['tinydb >= 4.0.0'],
+    classifiers=filter(None, classifiers.split('\n')),
+    zip_safe=True,
+    author='Eugene Eeo',
+    author_email='141bytes@gmail.com',
+    long_description=open(os.path.join(curr_path, 'README.rst'), 'r').read(),
+    long_description_content_type='text/x-rst',
+    description='Atomic transactions for TinyDB',
+    license='MIT',
+    keywords='tinydb nosql database transaction',
+    url='https://github.com/eugene-eeo/tinyrecord',
 )
