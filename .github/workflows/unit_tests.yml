@@ -45,7 +45,7 @@ jobs:
         python -m pip install --upgrade pip
         pip install -U numpy Cython
         pip install h5py${{ matrix.h5py-version }}
-        pip install -r requirements_tests.txt
+        python -m pip install -r requirements_tests.txt
         pip install .
         pip install -e examples/example_hdf5storage_marshaller_plugin
 
