@@ -1,117 +1,119 @@
-Belogging
+=========
+Patchwork
 =========
 
-*Don't fight with logging ...*
+.. image:: https://pyup.io/repos/github/getpatchwork/patchwork/shield.svg
+   :target: https://pyup.io/repos/github/getpatchwork/patchwork/
+   :alt: Requirements Status
 
-|Coverage Status| |PyPI Version| |PyPI License| |PyPI latest|
+.. image:: https://codecov.io/gh/getpatchwork/patchwork/branch/master/graph/badge.svg
+   :target: https://codecov.io/gh/getpatchwork/patchwork
+   :alt: Codecov
 
-----
+.. image:: https://github.com/getpatchwork/patchwork/actions/workflows/ci.yaml/badge.svg
+   :target: https://github.com/getpatchwork/patchwork/actions/workflows/ci.yaml
+   :alt: Build Status
 
-Easy logging configuration based on environment variables.
+.. image:: https://readthedocs.org/projects/patchwork/badge/?version=latest
+   :target: http://patchwork.readthedocs.io/en/latest/?badge=latest
+   :alt: Documentation Status
 
-Features:
+.. image:: https://img.shields.io/discord/857116373653127208.svg?label=&logo=discord&logoColor=ffffff&color=7389D8&labelColor=6A7EC2
+   :target: https://discord.gg/hGWjXVTAbB
+   :alt: Discord
 
-* Set logging level using environment variable LOG_LEVEL (defaults to `INFO`)
-* Set which loggers to enable using environment variable `LOGGERS` (defaults to `''`, everything)
-* Always output to stdout
-* Optional JSON formatter
-* Completely disable logging setting `LOG_LEVEL=DISABLED`
+**Patchwork** is a patch tracking system for community-based projects. It is
+intended to make the patch management process easier for both the project's
+contributors and maintainers, leaving time for the more important (and more
+interesting) stuff.
 
-Requirements:
+Patches that have been sent to a mailing list are "caught" by the system, and
+appear on a web page. Any comments posted that reference the patch are appended
+to the patch page too. The project's maintainer can then scan through the list
+of patches, marking each with a certain state, such as Accepted, Rejected or
+Under Review. Old patches can be sent to the archive or deleted.
 
-* Python 3.10+
+Currently, Patchwork is being used for a number of open-source projects, mostly
+subsystems of the Linux kernel. Although Patchwork has been developed with the
+kernel workflow in mind, the aim is to be flexible enough to suit the majority
+of community projects.
 
-Install:
+Requirements
+------------
 
-.. code-block:: bash
+Patchwork requires reasonably recent versions of:
 
-   pip install belogging
+- Python 3
 
+- Django
 
-Examples:
----------
+- Django REST Framework
 
-Simple applications:
-~~~~~~~~~~~~~~~~~~~~
+- Django Filters
 
-.. code-block:: python
+The precise versions supported are listed in the `release notes`_.
 
-    # my_script.py
+Development Installation
+------------------------
 
-    import belogging
-    belogging.load()
-    # ^^ this call is optional, only useful for customization
-    # For example, to enable JSON output: belogging.load(json=True)
+`Docker`_ is the recommended installation method for a Patchwork development
+environment. To install Patchwork:
 
-    # belogging.getLogger is just a sugar to logging.getLogger, you can
-    # use logging.getLogger as usual (and recommended).
-    logger = belogging.getLogger('foobar')
-    logger.debug('test 1')
-    logger.info('test 2')
+1. Install `Docker`_ and `docker-compose`_.
 
+2. Clone the Patchwork repo::
 
-Executing:
+       $ git clone https://github.com/getpatchwork/patchwork.git
 
-.. code-block:: bash
+3. Create a ``.env`` file in the root directory of the project and store your
+   ``UID`` and ``GID`` attributes there::
 
-    # selecting LOG_LEVEL
-    $ LOG_LEVEL=DEBUG python my_script.py
-    # level=DEBUG message=test 1
-    # level=INFO message=test 2
+       $ cd patchwork && printf "UID=$(id -u)\nGID=$(id -g)\n" > .env
 
-    # selecting LOGGERS
-    $ LOGGERS=foobar python my_script.py
-    # Both messages
+4. Build the images. This will download a number of packages from the internet,
+   and compile several versions of Python::
 
-    # Both
-    $ LOGGERS=foobar LOG_LEVEL=INFO my_script.py
-    # only level=INFO message=test 2
+       $ docker-compose build
 
+5. Run `docker-compose up`::
 
-Applications should call ```belogging.load()``` upon initialization.
-The first ```__init__.py``` would be a good candidate, but anything before any call to
-```logging``` module will be fine.
+       $ docker-compose up
 
+The Patchwork instance will now be deployed at `http://localhost:8000/`.
 
-Django:
-~~~~~~~
+For more information, including helpful command line options and alternative
+installation methods, refer to the `documentation`_.
 
+Talks and Presentations
+-----------------------
 
-In your projects ```settings.py```:
+* **Mailing List, Meet CI** (slides__) - FOSDEM 2017
 
-.. code-block:: python
+* **Patches carved into stone tablets** (slides__) - Kernel Recipes Conference
+  2016
 
-    import belogging
-    # Disable django logging setup
-    LOGGING_CONFIG = None
-    belogging.load()
+* **A New Patchwork** (slides__) - FOSDEM 2016
 
+* **Patchwork: reducing your patch workload** (slides__) - Linux Plumbers
+  Conference 2011
 
-Inside your code, just use ```logging.getLogger()``` as usual.
+__ https://speakerdeck.com/stephenfin/mailing-list-meet-ci
+__ https://github.com/gregkh/presentation-stone-tools/blob/34a3963/stone-tools.pdf
+__ https://speakerdeck.com/stephenfin/a-new-patchwork-bringing-ci-patch-tracking-and-more-to-the-mailing-list
+__ https://www.linuxplumbersconf.org/2011/ocw/system/presentations/255/original/patchwork.pdf
 
-.. code-block:: bash
+Additional Information
+----------------------
 
-    $ export LOG_LEVEL=WARNING
-    $ ./manage.py runserver
-    # It will output only logging messages with severity > WARNING
+For further information, refer to the `documentation`_.
 
+Contact
+-------
 
-Logging follows a hierarchy, so you easily select or skip some logging messages:
+For bug reports, patch submissions or other questions, use the `mailing list`_.
 
-
-.. code-block:: bash
-
-    $ export LOGGERS=my_app.critical_a,my_app.critical_c,my_lib
-    $ ./my-app.py
-    # "my_app.critical_b messages" will be skipped
-    # all messages from my_lib will show up
-
-
-.. |Coverage Status| image:: https://coveralls.io/repos/github/georgeyk/belogging/badge.svg?branch=master
-   :target: https://coveralls.io/github/georgeyk/belogging?branch=master
-.. |PyPI Version| image:: https://img.shields.io/pypi/pyversions/belogging.svg?maxAge=2592000
-   :target: https://pypi.python.org/pypi/belogging
-.. |PyPI License| image:: https://img.shields.io/pypi/l/belogging.svg?maxAge=2592000
-   :target: https://pypi.python.org/pypi/belogging
-.. |PyPI latest| image:: https://img.shields.io/pypi/v/belogging.svg?maxAge=2592000
-   :target: https://pypi.python.org/pypi/belogging
+.. _release notes: https://patchwork.readthedocs.io/en/latest/releases/
+.. _docker-compose: https://docs.docker.com/compose/install/
+.. _Docker: https://docs.docker.com/engine/installation/linux/
+.. _documentation: https://patchwork.readthedocs.io/
+.. _mailing list: https://ozlabs.org/mailman/listinfo/patchwork

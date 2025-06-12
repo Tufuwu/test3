@@ -1,0 +1,30 @@
+version: "3"
+services:
+  db:
+    image: mariadb:10.4
+    volumes:
+      - ./tools/docker/db/data:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=password
+      - MYSQL_USER=patchwork
+      - MYSQL_PASSWORD=password
+
+  web:
+    build:
+      context: .
+      dockerfile: ./tools/docker/Dockerfile
+      args:
+        - UID
+        - GID
+    depends_on:
+      - db
+    command: python3 manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/home/patchwork/patchwork/
+    ports:
+      - "8000:8000"
+    environment:
+      - UID
+      - GID
+      - PW_TEST_DB_HOST=db
+      - PW_TEST_DB_PORT=3306
