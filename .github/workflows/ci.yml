@@ -79,4 +79,5 @@ jobs:
 
     - name: Run Tests
       run: |
+        chmod +x tests/manage.py 
         make test
