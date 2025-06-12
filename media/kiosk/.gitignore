@@ -1,0 +1,9 @@
+*.png
+*.PNG
+*.jpg
+*.JPG
+*.gif
+*.mp4
+*.webm
+*.GIF
+!test_image.png

@@ -1,50 +1,63 @@
-# <img alt="BackPACK" src="./logo/backpack_logo_torch.svg" height="90"> BackPACK: Packing more into backprop
+Stregsystemet [![Django CI Actions Status](https://github.com/f-klubben/stregsystemet/workflows/Django%20CI/badge.svg)](https://github.com/f-klubben/stregsystemet/actions)  [![codecov](https://codecov.io/gh/f-klubben/stregsystemet/branch/next/graph/badge.svg)](https://codecov.io/gh/f-klubben/stregsystemet) 
+========
 
-[![Travis](https://travis-ci.org/f-dangel/backpack.svg?branch=master)](https://travis-ci.org/f-dangel/backpack)
-[![Coveralls](https://coveralls.io/repos/github/f-dangel/backpack/badge.svg?branch=master)](https://coveralls.io/github/f-dangel/backpack)
-[![Python 3.6+](https://img.shields.io/badge/python-3.6+-blue.svg)](https://www.python.org/downloads/release/python-360/)
+This is the current stregsystem in the F-Klub.
 
-BackPACK is built on top of [PyTorch](https://github.com/pytorch/pytorch). It efficiently computes quantities other than the gradient.
+Branches
+-------
+ - `master`: The running code on the live system.
+ - `next`: The set of changes which will be included in the next release.
 
-- **Website:** https://backpack.pt
-- **Documentation:** https://docs.backpack.pt/en/master/
-- **Bug reports & feature requests:** https://github.com/f-dangel/backpack/issues
+Python Environment
+-------
+For windows using Anaconda and virtual environments:
+1. Download and install Anaconda
+2. In a shell:
+  - `conda create -n stregsystem python=3.6`
+  - `activate stregsystem`
+  - `pip install -r requirements.txt`
+3. ???
+4. Profit
 
-Provided quantities include:
-- Individual gradients from a mini-batch
-- Estimates of the gradient variance or second moment
-- Approximate second-order information (diagonal and Kronecker approximations)
+For Ubuntu with virtual envs:
+1. Install python3 with pip
+ - `sudo apt install python3 python3-pip`
+2. Create virtual environment
+ - `python3 -m venv venv`
+3. Activate virtualenv
+ - `source venv/bin/activate`
+4. Install packages
+ - `pip3 install -r requirements.txt`
+5. ???
+6. Profit
 
-**Motivation:** Computation of most quantities is not necessarily expensive (often just a small modification of the existing backward pass where backpropagated information can be reused). But it is difficult to do in the current software environment.
+Using Testdata
+--------
+In order to simplify development for all, we have included a test fixture.
+Using `testserver` will delete the data after running.
+To use it do the following:
+1. `python manage.py migrate`
+2. `python manage.py testserver stregsystem/fixtures/testdata.json`
+3. ???
+4. Profit
 
+Admin panel: <http://127.0.0.1:8000/admin/>  
+Login: `tester:treotreo`
 
-## Installation
-```bash
-pip install backpack-for-pytorch
-```
+Stregsystem: <http://127.0.0.1:8000/1/>  
+User: `tester`
 
-## Examples
-- [Basic usage](https://docs.backpack.pt/en/master/basic_usage/example_all_in_one.html)
-- [Some use cases](https://docs.backpack.pt/en/master/use_cases/index.html)
+Persistent Testdata
+-------
+Using `runserver` will automatically reload django on code change, and persist data in the database configured in `local.cfg` (can be whatever backend you want to use).
+First time:
+1. `python manage.py migrate`
+2. `python manage.py loaddata stregsystem/fixtures/testdata.json`
+3. `python manage.py runserver`
+4. ???
+5. Profit
 
-#
-## Contributing
-BackPACK is actively being developed. 
-We are appreciating any help.
-If you are considering to contribute, do not hesitate to contact us.
-An overview of the development procedure is provided in the [developer `README`](https://github.com/f-dangel/backpack/blob/master/README-dev.md).
-
-## How to cite
-If you are using BackPACK, consider citing the [paper](https://openreview.net/forum?id=BJlrF24twB) 
-```
-@inproceedings{dangel2020backpack,
-    title     = {Back{PACK}: Packing more into Backprop},
-    author    = {Felix Dangel and Frederik Kunstner and Philipp Hennig},
-    booktitle = {International Conference on Learning Representations},
-    year      = {2020},
-    url       = {https://openreview.net/forum?id=BJlrF24twB}
-}
-```
-
-###### _BackPACK is not endorsed by or affiliated with Facebook, Inc. PyTorch, the PyTorch logo and any related marks are trademarks of Facebook, Inc._
-
+From then on
+1. `python manage.py runserver`
+2. ???
+3. Profit
