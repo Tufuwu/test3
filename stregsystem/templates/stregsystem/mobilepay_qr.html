@@ -1,5 +1,0 @@
-{% if amount %}
-<img width="300" height="300" src="/api/member/payment/qr?member={{username | urlencode}}&amount={{amount | floatformat | urlencode}}" />
-{% else %}
-<img width="300" height="300" src="/api/member/payment/qr?member={{username | urlencode}}" />
-{% endif %}

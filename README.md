@@ -1,63 +1,133 @@
-Stregsystemet [![Django CI Actions Status](https://github.com/f-klubben/stregsystemet/workflows/Django%20CI/badge.svg)](https://github.com/f-klubben/stregsystemet/actions)  [![codecov](https://codecov.io/gh/f-klubben/stregsystemet/branch/next/graph/badge.svg)](https://codecov.io/gh/f-klubben/stregsystemet) 
-========
+[![](https://img.shields.io/pypi/pyversions/django-colorfield.svg?color=3776AB&logo=python&logoColor=white)](https://www.python.org/)
+[![](https://img.shields.io/pypi/djversions/django-colorfield?color=0C4B33&logo=django&logoColor=white&label=django)](https://www.djangoproject.com/)
 
-This is the current stregsystem in the F-Klub.
+[![](https://img.shields.io/pypi/v/django-colorfield.svg?color=blue&logo=pypi&logoColor=white)](https://pypi.org/project/django-colorfield/)
+[![](https://pepy.tech/badge/django-colorfield)](https://pepy.tech/project/django-colorfield)
+[![](https://img.shields.io/github/stars/fabiocaccamo/django-colorfield?logo=github)](https://github.com/fabiocaccamo/django-colorfield/)
+[![](https://badges.pufler.dev/visits/fabiocaccamo/django-colorfield?label=visitors&color=blue)](https://badges.pufler.dev)
+[![](https://img.shields.io/pypi/l/django-colorfield.svg?color=blue)](https://github.com/fabiocaccamo/django-colorfield/blob/master/LICENSE.txt)
 
-Branches
--------
- - `master`: The running code on the live system.
- - `next`: The set of changes which will be included in the next release.
+[![](https://img.shields.io/github/workflow/status/fabiocaccamo/django-colorfield/Python%20package?label=build&logo=github)](https://github.com/fabiocaccamo/django-colorfield)
+[![](https://img.shields.io/codecov/c/gh/fabiocaccamo/django-colorfield?logo=codecov)](https://codecov.io/gh/fabiocaccamo/django-colorfield)
+[![](https://img.shields.io/codacy/grade/194566618f424a819ce43450ea0af081?logo=codacy)](https://www.codacy.com/app/fabiocaccamo/django-colorfield)
+[![](https://img.shields.io/codeclimate/maintainability/fabiocaccamo/django-colorfield?logo=code-climate)](https://codeclimate.com/github/fabiocaccamo/django-colorfield/)
+[![](https://requires.io/github/fabiocaccamo/django-colorfield/requirements.svg?branch=master)](https://requires.io/github/fabiocaccamo/django-colorfield/requirements/?branch=master)
 
-Python Environment
--------
-For windows using Anaconda and virtual environments:
-1. Download and install Anaconda
-2. In a shell:
-  - `conda create -n stregsystem python=3.6`
-  - `activate stregsystem`
-  - `pip install -r requirements.txt`
-3. ???
-4. Profit
+# django-colorfield
+simple color field for your models with a nice color-picker in the admin-interface.
 
-For Ubuntu with virtual envs:
-1. Install python3 with pip
- - `sudo apt install python3 python3-pip`
-2. Create virtual environment
- - `python3 -m venv venv`
-3. Activate virtualenv
- - `source venv/bin/activate`
-4. Install packages
- - `pip3 install -r requirements.txt`
-5. ???
-6. Profit
+![django-colorfield-hex](https://user-images.githubusercontent.com/7900305/104512324-51ed0f80-55ee-11eb-9144-de03d922c2ce.png)
+![django-colorfield-hexa](https://user-images.githubusercontent.com/7900305/104512063-ec991e80-55ed-11eb-95b6-9174ac3f4f38.png)
 
-Using Testdata
---------
-In order to simplify development for all, we have included a test fixture.
-Using `testserver` will delete the data after running.
-To use it do the following:
-1. `python manage.py migrate`
-2. `python manage.py testserver stregsystem/fixtures/testdata.json`
-3. ???
-4. Profit
+## Installation
+-   Run `pip install django-colorfield`
+-   Add `colorfield` to `settings.INSTALLED_APPS`
+-   Run `python manage.py collectstatic`
+-   Restart your application server
 
-Admin panel: <http://127.0.0.1:8000/admin/>  
-Login: `tester:treotreo`
+## Usage
 
-Stregsystem: <http://127.0.0.1:8000/1/>  
-User: `tester`
+### Settings
+This package doesn't need any setting.
 
-Persistent Testdata
--------
-Using `runserver` will automatically reload django on code change, and persist data in the database configured in `local.cfg` (can be whatever backend you want to use).
-First time:
-1. `python manage.py migrate`
-2. `python manage.py loaddata stregsystem/fixtures/testdata.json`
-3. `python manage.py runserver`
-4. ???
-5. Profit
+### Models
+Just add color field(s) to your models like this:
 
-From then on
-1. `python manage.py runserver`
-2. ???
-3. Profit
+```python
+from colorfield.fields import ColorField
+from django.db import models
+
+class MyModel(model.Model):
+    color = ColorField(default='#FF0000')
+```
+
+### Color Format
+ColorField defaults to HEX format but also support HEXA. To set the format:
+
+```python
+from colorfield.fields import ColorField
+from django.db import models
+
+class MyModel(model.Model):
+    color = ColorField(format='hexa')
+```
+
+### Color Palette
+
+![django-colorfield-palette](https://user-images.githubusercontent.com/7900305/104512178-194d3600-55ee-11eb-8cba-91cca156da06.png)
+
+It is possible to provide a palette to choose from to the widget.
+
+It can be done by using the field option `choices` *(force to choose from choices)* or `samples` *(just like choices, but allows also custom color selection)*.
+
+```python
+from colorfield.fields import ColorField
+from django.db import models
+
+class MyModel(model.Model):
+
+    COLOR_CHOICES = [
+        ("#FFFFFF", "white"),
+        ("#000000", "black")
+    ]
+
+    # restrictive
+    color = ColorField(choices=COLOR_CHOICES)
+
+    # not restrictive
+    color = ColorField(samples=COLOR_CHOICES)
+```
+
+### Admin
+The admin will kindly provide a simple [color picker](http://jscolor.com/) for all color fields. :)
+
+## Testing
+```bash
+# create python virtual environment
+virtualenv testing_django_colorfield
+
+# activate virtualenv
+cd testing_django_colorfield && . bin/activate
+
+# clone repo
+git clone https://github.com/fabiocaccamo/django-colorfield.git src && cd src
+
+# install dev requirements
+pip install -r requirements.txt
+pip install -r requirements-test.txt
+
+# run tests
+tox
+# or
+python setup.py test
+# or
+python -m django test --settings "tests.settings"
+```
+
+## Credits
+Originally developed by [Jared Forsyth](https://github.com/jaredly)
+
+## License
+Released under [MIT License](LICENSE.txt).
+
+---
+
+## See also
+
+- [`django-admin-interface`](https://github.com/fabiocaccamo/django-admin-interface) - the default admin interface made customizable by the admin itself. popup windows replaced by modals. 🧙 ⚡
+
+- [`django-extra-settings`](https://github.com/fabiocaccamo/django-extra-settings) - config and manage typed extra settings using just the django admin. ⚙️
+
+- [`django-maintenance-mode`](https://github.com/fabiocaccamo/django-maintenance-mode) - shows a 503 error page when maintenance-mode is on. 🚧 🛠️
+
+- [`django-redirects`](https://github.com/fabiocaccamo/django-redirects) - redirects with full control. ↪️
+
+- [`django-treenode`](https://github.com/fabiocaccamo/django-treenode) - probably the best abstract model / admin for your tree based stuff. 🌳
+
+- [`python-benedict`](https://github.com/fabiocaccamo/python-benedict) - dict subclass with keylist/keypath support, I/O shortcuts (base64, csv, json, pickle, plist, query-string, toml, xml, yaml) and many utilities. 📘
+
+- [`python-codicefiscale`](https://github.com/fabiocaccamo/python-codicefiscale) - encode/decode Italian fiscal codes - codifica/decodifica del Codice Fiscale. 🇮🇹 💳
+
+- [`python-fontbro`](https://github.com/fabiocaccamo/python-fontbro) - friendly font operations. 🧢
+
+- [`python-fsutil`](https://github.com/fabiocaccamo/python-fsutil) - file-system utilities for lazy devs. 🧟‍♂️
