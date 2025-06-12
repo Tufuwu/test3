@@ -1,506 +1,294 @@
-|  |downloads| |stars| |forks| |contributors| |coverage| |quality|
-|  |version| |py-versions| |packages| |license|
-|  |github-actions| |appveyor| |doc| |twitter| |tidelift|
+django-picklefield
+==================
 
-.. |downloads| image:: https://img.shields.io/pypi/dm/psutil.svg
-    :target: https://pepy.tech/project/psutil
-    :alt: Downloads
-
-.. |stars| image:: https://img.shields.io/github/stars/giampaolo/psutil.svg
-    :target: https://github.com/giampaolo/psutil/stargazers
-    :alt: Github stars
-
-.. |forks| image:: https://img.shields.io/github/forks/giampaolo/psutil.svg
-    :target: https://github.com/giampaolo/psutil/network/members
-    :alt: Github forks
-
-.. |contributors| image:: https://img.shields.io/github/contributors/giampaolo/psutil.svg
-    :target: https://github.com/giampaolo/psutil/graphs/contributors
-    :alt: Contributors
-
-.. |quality| image:: https://img.shields.io/codacy/grade/ce63e7f7f69d44b5b59682196e6fbfca.svg
-    :target: https://www.codacy.com/app/g-rodola/psutil?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=giampaolo/psutil&amp;utm_campaign=Badge_Grade
-    :alt: Code quality
-
-.. |github-actions| image:: https://img.shields.io/github/workflow/status/giampaolo/psutil/CI?label=Linux%2C%20macOS%2C%20FreeBSD
-    :target: https://github.com/giampaolo/psutil/actions?query=workflow%3ACI
-    :alt: Linux, macOS, Windows tests
-
-.. |appveyor| image:: https://img.shields.io/appveyor/ci/giampaolo/psutil/master.svg?maxAge=3600&label=Windows
-    :target: https://ci.appveyor.com/project/giampaolo/psutil
-    :alt: Windows tests (Appveyor)
-
-.. |coverage| image:: https://coveralls.io/repos/github/giampaolo/psutil/badge.svg?branch=master
-    :target: https://coveralls.io/github/giampaolo/psutil?branch=master
-    :alt: Test coverage (coverall.io)
-
-.. |doc| image:: https://readthedocs.org/projects/psutil/badge/?version=latest
-    :target: http://psutil.readthedocs.io/en/latest/?badge=latest
-    :alt: Documentation Status
-
-.. |version| image:: https://img.shields.io/pypi/v/psutil.svg?label=pypi
-    :target: https://pypi.org/project/psutil
-    :alt: Latest version
-
-.. |py-versions| image:: https://img.shields.io/pypi/pyversions/psutil.svg
-    :target: https://pypi.org/project/psutil
-    :alt: Supported Python versions
-
-.. |packages| image:: https://repology.org/badge/tiny-repos/python:psutil.svg
-    :target: https://repology.org/metapackage/python:psutil/versions
-    :alt: Binary packages
-
-.. |license| image:: https://img.shields.io/pypi/l/psutil.svg
-    :target: https://github.com/giampaolo/psutil/blob/master/LICENSE
+.. image:: https://img.shields.io/pypi/l/django-picklefield.svg?style=flat
+    :target: https://pypi.python.org/pypi/django-picklefield/
     :alt: License
 
-.. |twitter| image:: https://img.shields.io/twitter/follow/grodola.svg?label=follow&style=flat&logo=twitter&logoColor=4FADFF
-    :target: https://twitter.com/grodola
-    :alt: Twitter Follow
+.. image:: https://img.shields.io/pypi/v/django-picklefield.svg?style=flat
+    :target: https://pypi.python.org/pypi/django-picklefield/
+    :alt: Latest Version
 
-.. |tidelift| image:: https://tidelift.com/badges/github/giampaolo/psutil?style=flat
-    :target: https://tidelift.com/subscription/pkg/pypi-psutil?utm_source=pypi-psutil&utm_medium=referral&utm_campaign=readme
-    :alt: Tidelift
+.. image:: https://github.com/gintas/django-picklefield/workflows/Test/badge.svg?branch=master
+    :target: https://github.com/gintas/django-picklefield/actions
+    :alt: Build Status
+
+.. image:: https://coveralls.io/repos/gintas/django-picklefield/badge.svg?branch=master
+    :target: https://coveralls.io/r/gintas/django-picklefield?branch=master
+    :alt: Coverage Status
+
+.. image:: https://img.shields.io/pypi/pyversions/django-picklefield.svg?style=flat
+    :target: https://pypi.python.org/pypi/django-picklefield/
+    :alt: Supported Python Versions
+
+.. image:: https://img.shields.io/pypi/wheel/django-picklefield.svg?style=flat
+    :target: https://pypi.python.org/pypi/django-picklefield/
+    :alt: Wheel Status
 
 -----
-
-.. raw:: html
-
-    <div align="center">
-        <a href="https://github.com/giampaolo/psutil"><img src="https://github.com/giampaolo/psutil/raw/master/docs/_static/psutil-logo.png" /></a>
-        <br />
-        <br />
-        <a href="https://github.com/giampaolo/psutil"><b>Home</b></a>&nbsp;&nbsp;&nbsp;
-        <a href="https://github.com/giampaolo/psutil/blob/master/INSTALL.rst"><b>Install</b></a>&nbsp;&nbsp;&nbsp;
-        <a href="https://psutil.readthedocs.io/"><b>Documentation</b></a>&nbsp;&nbsp;&nbsp;
-        <a href="https://pypi.org/project/psutil/#files"><b>Download</b></a>&nbsp;&nbsp;&nbsp;
-        <a href="http://groups.google.com/group/psutil/topics"><b>Forum</b></a>&nbsp;&nbsp;&nbsp;
-        <a href="https://gmpy.dev/tags/psutil"><b>Blog</b></a>&nbsp;&nbsp;&nbsp;
-        <a href="#funding"><b>Funding</b></a>&nbsp;&nbsp;&nbsp;
-        <a href="https://github.com/giampaolo/psutil/blob/master/HISTORY.rst"><b>What's new</b></a>&nbsp;&nbsp;&nbsp;
-    </div>
-
-Summary
-=======
-
-psutil (process and system utilities) is a cross-platform library for
-retrieving information on **running processes** and **system utilization**
-(CPU, memory, disks, network, sensors) in Python.
-It is useful mainly for **system monitoring**, **profiling and limiting process
-resources** and **management of running processes**.
-It implements many functionalities offered by classic UNIX command line tools
-such as *ps, top, iotop, lsof, netstat, ifconfig, free* and others.
-psutil currently supports the following platforms:
-
-- **Linux**
-- **Windows**
-- **macOS**
-- **FreeBSD, OpenBSD**, **NetBSD**
-- **Sun Solaris**
-- **AIX**
-
-...both **32-bit** and **64-bit** architectures. Supported Python versions are **2.6**, **2.7** and **3.4+**, `PyPy <http://pypy.org/>`__ 2.7 and 3.X.
-
-Funding
-=======
-
-While psutil is free software and will always be, the project would benefit
-immensely from some funding.
-Keeping up with bug reports and maintenance has become hardly sustainable for
-me alone in terms of time.
-If you're a company that's making significant use of psutil you can consider
-becoming a sponsor via `GitHub <https://github.com/sponsors/giampaolo>`__,
-`Open Collective <https://opencollective.com/psutil>`__ or
-`PayPal <https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=A9ZS7PKKRM3S8>`__
-and have your logo displayed in here and psutil `doc <https://psutil.readthedocs.io>`__.
-
-Sponsors
-========
-
-.. raw:: html
-
-    <div>
-        <a href="https://tidelift.com/subscription/pkg/pypi-psutil?utm_source=pypi-psutil&utm_medium=referral&utm_campaign=readme">
-            <img src="https://github.com/giampaolo/psutil/raw/master/docs/_static/tidelift-logo.png" />
-        </a>
-    </div>
-    <sup><a href="https://github.com/sponsors/giampaolo">add your logo</a></sup>
-
-Supporters
-==========
-
-None yet.
-
-.. raw:: html
-
-    <sup><a href="https://github.com/sponsors/giampaolo">add your avatar</a></sup>
-
-Example usages
-==============
-
-This represents pretty much the whole psutil API.
-
-CPU
----
-
-.. code-block:: python
-
-    >>> import psutil
-    >>>
-    >>> psutil.cpu_times()
-    scputimes(user=3961.46, nice=169.729, system=2150.659, idle=16900.540, iowait=629.59, irq=0.0, softirq=19.42, steal=0.0, guest=0, nice=0.0)
-    >>>
-    >>> for x in range(3):
-    ...     psutil.cpu_percent(interval=1)
-    ...
-    4.0
-    5.9
-    3.8
-    >>>
-    >>> for x in range(3):
-    ...     psutil.cpu_percent(interval=1, percpu=True)
-    ...
-    [4.0, 6.9, 3.7, 9.2]
-    [7.0, 8.5, 2.4, 2.1]
-    [1.2, 9.0, 9.9, 7.2]
-    >>>
-    >>> for x in range(3):
-    ...     psutil.cpu_times_percent(interval=1, percpu=False)
-    ...
-    scputimes(user=1.5, nice=0.0, system=0.5, idle=96.5, iowait=1.5, irq=0.0, softirq=0.0, steal=0.0, guest=0.0, guest_nice=0.0)
-    scputimes(user=1.0, nice=0.0, system=0.0, idle=99.0, iowait=0.0, irq=0.0, softirq=0.0, steal=0.0, guest=0.0, guest_nice=0.0)
-    scputimes(user=2.0, nice=0.0, system=0.0, idle=98.0, iowait=0.0, irq=0.0, softirq=0.0, steal=0.0, guest=0.0, guest_nice=0.0)
-    >>>
-    >>> psutil.cpu_count()
-    4
-    >>> psutil.cpu_count(logical=False)
-    2
-    >>>
-    >>> psutil.cpu_stats()
-    scpustats(ctx_switches=20455687, interrupts=6598984, soft_interrupts=2134212, syscalls=0)
-    >>>
-    >>> psutil.cpu_freq()
-    scpufreq(current=931.42925, min=800.0, max=3500.0)
-    >>>
-    >>> psutil.getloadavg()  # also on Windows (emulated)
-    (3.14, 3.89, 4.67)
-
-Memory
-------
-
-.. code-block:: python
-
-    >>> psutil.virtual_memory()
-    svmem(total=10367352832, available=6472179712, percent=37.6, used=8186245120, free=2181107712, active=4748992512, inactive=2758115328, buffers=790724608, cached=3500347392, shared=787554304)
-    >>> psutil.swap_memory()
-    sswap(total=2097147904, used=296128512, free=1801019392, percent=14.1, sin=304193536, sout=677842944)
-    >>>
-
-Disks
+About
 -----
 
-.. code-block:: python
+**django-picklefield** provides an implementation of a pickled object field.
+Such fields can contain any picklable objects.
 
-    >>> psutil.disk_partitions()
-    [sdiskpart(device='/dev/sda1', mountpoint='/', fstype='ext4', opts='rw,nosuid', maxfile=255, maxpath=4096),
-     sdiskpart(device='/dev/sda2', mountpoint='/home', fstype='ext, opts='rw', maxfile=255, maxpath=4096)]
-    >>>
-    >>> psutil.disk_usage('/')
-    sdiskusage(total=21378641920, used=4809781248, free=15482871808, percent=22.5)
-    >>>
-    >>> psutil.disk_io_counters(perdisk=False)
-    sdiskio(read_count=719566, write_count=1082197, read_bytes=18626220032, write_bytes=24081764352, read_time=5023392, write_time=63199568, read_merged_count=619166, write_merged_count=812396, busy_time=4523412)
-    >>>
+The implementation is taken and adopted from `Django snippet #1694`_ by Taavi
+Taijala, which is in turn based on `Django snippet #513`_  by Oliver Beattie.
 
-Network
+django-picklefield is available under the MIT license.
+
+.. _Django snippet #1694: http://www.djangosnippets.org/snippets/1694/
+.. _Django snippet #513: http://www.djangosnippets.org/snippets/513/
+
+-----
+Usage
+-----
+
+First of all, you need to have **django-picklefield** installed; for your
+convenience, recent versions should be available from PyPI.
+
+To use, just define a field in your model:
+
+.. code:: python
+
+    >>> from picklefield.fields import PickledObjectField
+    ... class SomeObject(models.Model):
+    ...     args = PickledObjectField()
+
+and assign whatever you like (as long as it's picklable) to the field:
+
+.. code:: python
+
+    >>> obj = SomeObject()
+    >>> obj.args = ['fancy', {'objects': 'inside'}]
+    >>> obj.save()
+
+
+-----
+Notes
+-----
+
+If you need to serialize an object with a PickledObjectField for transmission
+to the browser, you may need to subclass the field and override the
+``value_to_string()`` method.  Currently pickle fields are serialized as
+base64-encoded pickles, which allows reliable deserialization, but such a
+format is not convenient for parsing in the browser.  By overriding
+``value_to_string()`` you can choose a more convenient serialization format.
+
+Fields now accept the boolean key word argument `copy`, which defaults to
+`True`. The `copy` is necessary for lookups to work correctly. If you don't
+care about performing lookups on the picklefield, you can set `copy=False` to
+save on some memory usage. This an be especially beneficial for very large
+object trees.
+
+-------------
+Running tests
+-------------
+
+The full test suite can be run with `Tox`_::
+
+    >>> pip install tox
+    >>> tox
+
+.. _Tox: https://testrun.org/tox/latest/
+
+--------------
+Original notes
+--------------
+
+Here are the notes by taavi223, the original author:
+
+Incredibly useful for storing just about anything in the database (provided it
+is Pickle-able, of course) when there isn't a 'proper' field for the job.
+
+PickledObjectField is database-agnostic, and should work with any database
+backend you can throw at it. You can pass in any Python object and it will
+automagically be converted behind the scenes. You never have to manually pickle
+or unpickle anything. Also works fine when querying; supports exact, in, and
+isnull lookups. It should be noted, however, that calling QuerySet.values()
+will only return the encoded data, not the original Python object.
+
+This PickledObjectField has a few improvements over the one in snippet #513.
+
+This one solves the DjangoUnicodeDecodeError problem when saving an object
+containing non-ASCII data by base64 encoding the pickled output stream. This
+ensures that all stored data is ASCII, eliminating the problem.
+
+PickledObjectField will now optionally use zlib to compress (and uncompress)
+pickled objects on the fly. This can be set per-field using the keyword
+argument "compress=True". For most items this is probably not worth the small
+performance penalty, but for Models with larger objects, it can be a real space
+saver.
+
+You can also now specify the pickle protocol per-field, using the protocol
+keyword argument. The default of 2 should always work, unless you are trying to
+access the data from outside of the Django ORM.
+
+Worked around a rare issue when using the cPickle and performing lookups of
+complex data types. In short, cPickle would sometimes output different streams
+for the same object depending on how it was referenced. This of course could
+cause lookups for complex objects to fail, even when a matching object exists.
+See the docstrings and tests for more information.
+
+You can now use the isnull lookup and have it function as expected. A
+consequence of this is that by default, PickledObjectField has null=True set
+(you can of course pass null=False if you want to change that). If null=False
+is set (the default for fields), then you wouldn't be able to store a Python
+None value, since None values aren't pickled or encoded (this in turn is what
+makes the isnull lookup possible).
+
+You can now pass in an object as the default argument for the field without it
+being converted to a unicode string first. If you pass in a callable though,
+the field will still call it. It will not try to pickle and encode it.
+
+You can manually import dbsafe_encode and dbsafe_decode from fields.py if you
+want to encode and decode objects yourself. This is mostly useful for decoding
+values returned from calling QuerySet.values(), which are still encoded
+strings.
+
+Note: If you are trying to store other django models in the PickledObjectField,
+please see the comments for a discussion on the problems associated with doing
+that. The easy solution is to put django models into a list or tuple before
+assigning them to the PickledObjectField.
+
+Update 9/2/09: Fixed the value_to_string method so that serialization should
+now work as expected. Also added deepcopy back into dbsafe_encode, fixing #4
+above, since deepcopy had somehow managed to remove itself. This means that
+lookups should once again work as expected in all situations. Also made the
+field editable=False by default (which I swear I already did once before!)
+since it is never a good idea to have a PickledObjectField be user editable.
+
+-------
+Changes
 -------
 
-.. code-block:: python
+Changes in version 3.0.0
+========================
 
-    >>> psutil.net_io_counters(pernic=True)
-    {'eth0': netio(bytes_sent=485291293, bytes_recv=6004858642, packets_sent=3251564, packets_recv=4787798, errin=0, errout=0, dropin=0, dropout=0),
-     'lo': netio(bytes_sent=2838627, bytes_recv=2838627, packets_sent=30567, packets_recv=30567, errin=0, errout=0, dropin=0, dropout=0)}
-    >>>
-    >>> psutil.net_connections(kind='tcp')
-    [sconn(fd=115, family=<AddressFamily.AF_INET: 2>, type=<SocketType.SOCK_STREAM: 1>, laddr=addr(ip='10.0.0.1', port=48776), raddr=addr(ip='93.186.135.91', port=80), status='ESTABLISHED', pid=1254),
-     sconn(fd=117, family=<AddressFamily.AF_INET: 2>, type=<SocketType.SOCK_STREAM: 1>, laddr=addr(ip='10.0.0.1', port=43761), raddr=addr(ip='72.14.234.100', port=80), status='CLOSING', pid=2987),
-     ...]
-    >>>
-    >>> psutil.net_if_addrs()
-    {'lo': [snicaddr(family=<AddressFamily.AF_INET: 2>, address='127.0.0.1', netmask='255.0.0.0', broadcast='127.0.0.1', ptp=None),
-            snicaddr(family=<AddressFamily.AF_INET6: 10>, address='::1', netmask='ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff', broadcast=None, ptp=None),
-            snicaddr(family=<AddressFamily.AF_LINK: 17>, address='00:00:00:00:00:00', netmask=None, broadcast='00:00:00:00:00:00', ptp=None)],
-     'wlan0': [snicaddr(family=<AddressFamily.AF_INET: 2>, address='192.168.1.3', netmask='255.255.255.0', broadcast='192.168.1.255', ptp=None),
-               snicaddr(family=<AddressFamily.AF_INET6: 10>, address='fe80::c685:8ff:fe45:641%wlan0', netmask='ffff:ffff:ffff:ffff::', broadcast=None, ptp=None),
-               snicaddr(family=<AddressFamily.AF_LINK: 17>, address='c4:85:08:45:06:41', netmask=None, broadcast='ff:ff:ff:ff:ff:ff', ptp=None)]}
-    >>>
-    >>> psutil.net_if_stats()
-    {'lo': snicstats(isup=True, duplex=<NicDuplex.NIC_DUPLEX_UNKNOWN: 0>, speed=0, mtu=65536),
-     'wlan0': snicstats(isup=True, duplex=<NicDuplex.NIC_DUPLEX_FULL: 2>, speed=100, mtu=1500)}
-    >>>
+* Allowed default pickle protocol to be overriden using the
+  `PICKLEFIELD_DEFAULT_PROTOCOL` setting.
+* Dropped support for Python 2.
+* Added testing against Django 3.0.
+* Dropped support for Django 1.11.
 
-Sensors
--------
+Changes in version 2.1.0
+========================
 
-.. code-block:: python
+* Added official support for Django 2.2 (thanks to joehybird).
+* Dropped support for Django 2.0 and 2.1 (thanks to joehybird).
+* Dropped support for Python 3.4 (thanks to joehybidd).
 
-    >>> import psutil
-    >>> psutil.sensors_temperatures()
-    {'acpitz': [shwtemp(label='', current=47.0, high=103.0, critical=103.0)],
-     'asus': [shwtemp(label='', current=47.0, high=None, critical=None)],
-     'coretemp': [shwtemp(label='Physical id 0', current=52.0, high=100.0, critical=100.0),
-                  shwtemp(label='Core 0', current=45.0, high=100.0, critical=100.0)]}
-    >>>
-    >>> psutil.sensors_fans()
-    {'asus': [sfan(label='cpu_fan', current=3200)]}
-    >>>
-    >>> psutil.sensors_battery()
-    sbattery(percent=93, secsleft=16628, power_plugged=False)
-    >>>
+Changes in version 2.0.0
+========================
 
-Other system info
------------------
+* Silenced ``RemovedInDjango30Warning`` warnings on Django 2.0+ (thanks to
+  canarduck).
+* Restructured project directories.
+* Disallowed the usage of empty strings for ``PickledObjectField``. That makes
+  ``.save()``, ``.create()``, etc. raise ``IntegrityError`` if `null` is not
+  ``True`` and no default value was specified like built-in fields do
+  (thanks to Attila-Mihaly Balazs).
+* Added a check for mutable default values to ``PickledObjectField``.
 
-.. code-block:: python
+Changes in version 1.1.0
+========================
 
-    >>> import psutil
-    >>> psutil.users()
-    [suser(name='giampaolo', terminal='pts/2', host='localhost', started=1340737536.0, pid=1352),
-     suser(name='giampaolo', terminal='pts/3', host='localhost', started=1340737792.0, pid=1788)]
-    >>>
-    >>> psutil.boot_time()
-    1365519115.0
-    >>>
+* Added support for Django 2.1 and dropped support for Django < 1.11.
 
-Process management
-------------------
+Changes in version 1.0.0
+========================
 
-.. code-block:: python
+* Added a new option to prevent a copy of the object before pickling: `copy=True`
+* Dropped support for Django 1.4
+* Dropped support for Django 1.7
+* Dropped support for Python 3.2
+* Added support for Python 3.6
 
-    >>> import psutil
-    >>> psutil.pids()
-    [1, 2, 3, 4, 5, 6, 7, 46, 48, 50, 51, 178, 182, 222, 223, 224, 268, 1215,
-     1216, 1220, 1221, 1243, 1244, 1301, 1601, 2237, 2355, 2637, 2774, 3932,
-     4176, 4177, 4185, 4187, 4189, 4225, 4243, 4245, 4263, 4282, 4306, 4311,
-     4312, 4313, 4314, 4337, 4339, 4357, 4358, 4363, 4383, 4395, 4408, 4433,
-     4443, 4445, 4446, 5167, 5234, 5235, 5252, 5318, 5424, 5644, 6987, 7054,
-     7055, 7071]
-    >>>
-    >>> p = psutil.Process(7055)
-    >>> p
-    psutil.Process(pid=7055, name='python3', status='running', started='09:04:44')
-    >>> p.name()
-    'python'
-    >>> p.exe()
-    '/usr/bin/python'
-    >>> p.cwd()
-    '/home/giampaolo'
-    >>> p.cmdline()
-    ['/usr/bin/python', 'main.py']
-    >>>
-    >>> p.pid
-    7055
-    >>> p.ppid()
-    7054
-    >>> p.children(recursive=True)
-    [psutil.Process(pid=29835, name='python3', status='sleeping', started='11:45:38'),
-     psutil.Process(pid=29836, name='python3', status='waking', started='11:43:39')]
-    >>>
-    >>> p.parent()
-    psutil.Process(pid=4699, name='bash', status='sleeping', started='09:06:44')
-    >>> p.parents()
-    [psutil.Process(pid=4699, name='bash', started='09:06:44'),
-     psutil.Process(pid=4689, name='gnome-terminal-server', status='sleeping', started='0:06:44'),
-     psutil.Process(pid=1, name='systemd', status='sleeping', started='05:56:55')]
-    >>>
-    >>> p.status()
-    'running'
-    >>> p.username()
-    'giampaolo'
-    >>> p.create_time()
-    1267551141.5019531
-    >>> p.terminal()
-    '/dev/pts/0'
-    >>>
-    >>> p.uids()
-    puids(real=1000, effective=1000, saved=1000)
-    >>> p.gids()
-    pgids(real=1000, effective=1000, saved=1000)
-    >>>
-    >>> p.cpu_times()
-    pcputimes(user=1.02, system=0.31, children_user=0.32, children_system=0.1, iowait=0.0)
-    >>> p.cpu_percent(interval=1.0)
-    12.1
-    >>> p.cpu_affinity()
-    [0, 1, 2, 3]
-    >>> p.cpu_affinity([0, 1])  # set
-    >>> p.cpu_num()
-    1
-    >>>
-    >>> p.memory_info()
-    pmem(rss=10915840, vms=67608576, shared=3313664, text=2310144, lib=0, data=7262208, dirty=0)
-    >>> p.memory_full_info()  # "real" USS memory usage (Linux, macOS, Win only)
-    pfullmem(rss=10199040, vms=52133888, shared=3887104, text=2867200, lib=0, data=5967872, dirty=0, uss=6545408, pss=6872064, swap=0)
-    >>> p.memory_percent()
-    0.7823
-    >>> p.memory_maps()
-    [pmmap_grouped(path='/lib/x8664-linux-gnu/libutil-2.15.so', rss=32768, size=2125824, pss=32768, shared_clean=0, shared_dirty=0, private_clean=20480, private_dirty=12288, referenced=32768, anonymous=12288, swap=0),
-     pmmap_grouped(path='/lib/x8664-linux-gnu/libc-2.15.so', rss=3821568, size=3842048, pss=3821568, shared_clean=0, shared_dirty=0, private_clean=0, private_dirty=3821568, referenced=3575808, anonymous=3821568, swap=0),
-     pmmap_grouped(path='[heap]',  rss=32768, size=139264, pss=32768, shared_clean=0, shared_dirty=0, private_clean=0, private_dirty=32768, referenced=32768, anonymous=32768, swap=0),
-     pmmap_grouped(path='[stack]', rss=2465792, size=2494464, pss=2465792, shared_clean=0, shared_dirty=0, private_clean=0, private_dirty=2465792, referenced=2277376, anonymous=2465792, swap=0),
-     ...]
-    >>>
-    >>> p.io_counters()
-    pio(read_count=478001, write_count=59371, read_bytes=700416, write_bytes=69632, read_chars=456232, write_chars=517543)
-    >>>
-    >>> p.open_files()
-    [popenfile(path='/home/giampaolo/monit.py', fd=3, position=0, mode='r', flags=32768),
-     popenfile(path='/var/log/monit.log', fd=4, position=235542, mode='a', flags=33793)]
-    >>>
-    >>> p.connections(kind='tcp')
-    [pconn(fd=115, family=<AddressFamily.AF_INET: 2>, type=<SocketType.SOCK_STREAM: 1>, laddr=addr(ip='10.0.0.1', port=48776), raddr=addr(ip='93.186.135.91', port=80), status='ESTABLISHED'),
-     pconn(fd=117, family=<AddressFamily.AF_INET: 2>, type=<SocketType.SOCK_STREAM: 1>, laddr=addr(ip='10.0.0.1', port=43761), raddr=addr(ip='72.14.234.100', port=80), status='CLOSING')]
-    >>>
-    >>> p.num_threads()
-    4
-    >>> p.num_fds()
-    8
-    >>> p.threads()
-    [pthread(id=5234, user_time=22.5, system_time=9.2891),
-     pthread(id=5237, user_time=0.0707, system_time=1.1)]
-    >>>
-    >>> p.num_ctx_switches()
-    pctxsw(voluntary=78, involuntary=19)
-    >>>
-    >>> p.nice()
-    0
-    >>> p.nice(10)  # set
-    >>>
-    >>> p.ionice(psutil.IOPRIO_CLASS_IDLE)  # IO priority (Win and Linux only)
-    >>> p.ionice()
-    pionice(ioclass=<IOPriority.IOPRIO_CLASS_IDLE: 3>, value=0)
-    >>>
-    >>> p.rlimit(psutil.RLIMIT_NOFILE, (5, 5))  # set resource limits (Linux only)
-    >>> p.rlimit(psutil.RLIMIT_NOFILE)
-    (5, 5)
-    >>>
-    >>> p.environ()
-    {'LC_PAPER': 'it_IT.UTF-8', 'SHELL': '/bin/bash', 'GREP_OPTIONS': '--color=auto',
-    'XDG_CONFIG_DIRS': '/etc/xdg/xdg-ubuntu:/usr/share/upstart/xdg:/etc/xdg',
-     ...}
-    >>>
-    >>> p.as_dict()
-    {'status': 'running', 'num_ctx_switches': pctxsw(voluntary=63, involuntary=1), 'pid': 5457, ...}
-    >>> p.is_running()
-    True
-    >>> p.suspend()
-    >>> p.resume()
-    >>>
-    >>> p.terminate()
-    >>> p.kill()
-    >>> p.wait(timeout=3)
-    <Exitcode.EX_OK: 0>
-    >>>
-    >>> psutil.test()
-    USER         PID %CPU %MEM     VSZ     RSS TTY        START    TIME  COMMAND
-    root           1  0.0  0.0   24584    2240            Jun17   00:00  init
-    root           2  0.0  0.0       0       0            Jun17   00:00  kthreadd
-    ...
-    giampaolo  31475  0.0  0.0   20760    3024 /dev/pts/0 Jun19   00:00  python2.4
-    giampaolo  31721  0.0  2.2  773060  181896            00:04   10:30  chrome
-    root       31763  0.0  0.0       0       0            00:05   00:00  kworker/0:1
-    >>>
+Changes in version 0.3.2
+========================
 
-Further process APIs
---------------------
+* Dropped support for Django 1.3.
+* Dropped support for Python 2.5.
+* Silenced deprecation warnings on Django 1.8+.
 
-.. code-block:: python
+Changes in version 0.3.1
+========================
 
-    >>> import psutil
-    >>> for proc in psutil.process_iter(['pid', 'name']):
-    ...     print(proc.info)
-    ...
-    {'pid': 1, 'name': 'systemd'}
-    {'pid': 2, 'name': 'kthreadd'}
-    {'pid': 3, 'name': 'ksoftirqd/0'}
-    ...
-    >>>
-    >>> psutil.pid_exists(3)
-    True
-    >>>
-    >>> def on_terminate(proc):
-    ...     print("process {} terminated".format(proc))
-    ...
-    >>> # waits for multiple processes to terminate
-    >>> gone, alive = psutil.wait_procs(procs_list, timeout=3, callback=on_terminate)
-    >>>
+* Favor the built in json module (thanks to Simon Charette).
 
-Popen wrapper:
+Changes in version 0.3.0
+========================
 
-.. code-block:: python
+* Python 3 support (thanks to Rafal Stozek).
 
-    >>> import psutil
-    >>> from subprocess import PIPE
-    >>> p = psutil.Popen(["/usr/bin/python", "-c", "print('hello')"], stdout=PIPE)
-    >>> p.name()
-    'python'
-    >>> p.username()
-    'giampaolo'
-    >>> p.communicate()
-    ('hello\n', None)
-    >>> p.wait(timeout=2)
-    0
-    >>>
+Changes in version 0.2.0
+========================
 
-Windows services
-----------------
+* Allow pickling of subclasses of django.db.models.Model (thanks to Simon
+  Charette).
 
-.. code-block:: python
+Changes in version 0.1.9
+========================
 
-    >>> list(psutil.win_service_iter())
-    [<WindowsService(name='AeLookupSvc', display_name='Application Experience') at 38850096>,
-     <WindowsService(name='ALG', display_name='Application Layer Gateway Service') at 38850128>,
-     <WindowsService(name='APNMCP', display_name='Ask Update Service') at 38850160>,
-     <WindowsService(name='AppIDSvc', display_name='Application Identity') at 38850192>,
-     ...]
-    >>> s = psutil.win_service_get('alg')
-    >>> s.as_dict()
-    {'binpath': 'C:\\Windows\\System32\\alg.exe',
-     'description': 'Provides support for 3rd party protocol plug-ins for Internet Connection Sharing',
-     'display_name': 'Application Layer Gateway Service',
-     'name': 'alg',
-     'pid': None,
-     'start_type': 'manual',
-     'status': 'stopped',
-     'username': 'NT AUTHORITY\\LocalService'}
+* Added `connection` and `prepared` parameters to `get_db_prep_value()` too
+  (thanks to Matthew Schinckel).
 
-Projects using psutil
-=====================
+Changes in version 0.1.8
+========================
 
-Here's some I find particularly interesting:
+* Updated link to code repository.
 
-- https://github.com/google/grr
-- https://github.com/facebook/osquery/
-- https://github.com/nicolargo/glances
-- https://github.com/Jahaja/psdash
-- https://github.com/ajenti/ajenti
-- https://github.com/home-assistant/home-assistant/
+Changes in version 0.1.7
+========================
 
-Portings
-========
+* Added `connection` and `prepared` parameters to `get_db_prep_lookup()` to
+  get rid of deprecation warnings in Django 1.2.
 
-- Go: https://github.com/shirou/gopsutil
-- C: https://github.com/hamon-in/cpslib
-- Rust: https://github.com/rust-psutil/rust-psutil
-- Nim: https://github.com/johnscillieri/psutil-nim
+Changes in version 0.1.6
+========================
 
-Security
-========
+* Fixed South support (thanks aehlke@github).
 
-To report a security vulnerability, please use the `Tidelift security
-contact`_.  Tidelift will coordinate the fix and disclosure.
+Changes in version 0.1.5
+========================
 
-.. _`Giampaolo Rodola`: https://gmpy.dev/about
-.. _`donation`: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=A9ZS7PKKRM3S8
-.. _Tidelift security contact: https://tidelift.com/security
-.. _Tidelift Subscription: https://tidelift.com/subscription/pkg/pypi-psutil?utm_source=pypi-psutil&utm_medium=referral&utm_campaign=readme
+* Added support for South.
+* Changed default to null=False, as is common throughout Django.
+
+Changes in version 0.1.4
+========================
+
+* Updated copyright statements.
+
+Changes in version 0.1.3
+========================
+
+* Updated serialization tests (thanks to Michael Fladischer).
+
+Changes in version 0.1.2
+========================
+
+* Added Simplified BSD licence.
+
+Changes in version 0.1.1
+========================
+
+* Added test for serialization.
+* Added note about JSON serialization for browser.
+* Added support for different pickle protocol versions (thanks to Michael
+  Fladischer).
+
+Changes in version 0.1
+======================
+
+* First public release.
+
+
+--------
+Feedback
+--------
+
+There is a home page <http://github.com/gintas/django-picklefield>
+with instructions on how to access the code repository.
+
+Send feedback and suggestions to gintautas@miliauskas.lt .
