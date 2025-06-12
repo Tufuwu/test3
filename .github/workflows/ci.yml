@@ -18,4 +18,5 @@ jobs:
       run: |
         tests/setup_test_container.sh ${{ matrix.container }}
         printenv
+        chomd +x  ./runtests.sh
         ./runtests.sh -v
