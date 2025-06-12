@@ -1,4 +1,7 @@
-*.pyc
-build/
 *.egg-info/
+*.py[cod]
+.tox/
+__pycache__/
+build/
 dist/
+.coverage
