@@ -39,8 +39,8 @@ jobs:
         with:
           node-version: 14
       - run: |
-          wget https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6-1/wkhtmltox_0.12.6-1.focal_amd64.deb;
-          sudo apt install ./wkhtmltox_0.12.6-1.focal_amd64.deb;
+          curl -LO https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6-1/wkhtmltox_0.12.6-1.bionic_amd64.deb
+          sudo apt install ./wkhtmltox_0.12.6-1.bionic_amd64.deb
           sudo apt install redis-server
 
           python -m pip install -U --no-cache-dir --force-reinstall urllib3 pyOpenSSL ndg-httpsclient pyasn1 wheel setuptools pip;
