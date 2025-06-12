@@ -29,7 +29,9 @@ jobs:
         python-version: '3.x'
 
     - name: Build PySoar
-      run: ./build_pysoar
+      run: |
+        chmod +x ./build_pysoar
+        ./build_pysoar
 
   deploy:
     needs: build
