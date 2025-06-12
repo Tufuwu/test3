@@ -1,6 +1,7 @@
 # coding: utf-8
-# Copyright 2013 The Font Bakery Authors.
-# Copyright 2017 The Google Fonts Tools Authors.
+#
+# Copyright 2011 Yesudeep Mangalapilly <yesudeep@gmail.com>
+# Copyright 2012 Google, Inc & contributors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,78 +14,141 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#
-# See AUTHORS.txt for the list of Authors and LICENSE.txt for the License.
+
+import importlib.util
+import sys
 import os
-from setuptools import setup
+import os.path
+from platform import machine
+from setuptools import setup, find_packages
+from setuptools.extension import Extension
+from setuptools.command.build_ext import build_ext
 
-def gftools_scripts():
-    scripts = [os.path.join('bin', f) for f in os.listdir('bin') if f.startswith('gftools-')]
-    scripts.append(os.path.join('bin', 'gftools'))
-    return scripts
+SRC_DIR = 'src'
+WATCHDOG_PKG_DIR = os.path.join(SRC_DIR, 'watchdog')
 
-# Read the contents of the README file
-with open('README.md') as f:
-    long_description = f.read()
+# Load the module version
+spec = importlib.util.spec_from_file_location(
+    'version', os.path.join(WATCHDOG_PKG_DIR, 'version.py'))
+version = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(version)
 
-setup(
-    name="gftools",
-    version='0.5.1',
-    url='https://github.com/googlefonts/tools/',
-    description='Google Fonts Tools is a set of command-line tools'
-                ' for testing font projects',
-    long_description=long_description,
-    long_description_content_type='text/markdown',  # This is important!
-    author=('Google Fonts Tools Authors: '
-            'Dave Crossland, '
-            'Felipe Sanches, '
-            'Lasse Fister, '
-            'Marc Foley, '
-            'Eli Heuer, '
-            'Roderick Sheeter'),
-    author_email='dave@lab6.com',
-    package_dir={'': 'Lib'},
-    packages=['gftools',
-              'gftools.util'],
-    package_data={'gftools.util': ["GlyphsInfo/*.xml"],
-                  'gftools': [
-                      "encodings/*.nam",
-                      "encodings/GF Glyph Sets/*.nam",
-                      'template.upstream.yaml'
-                  ]
-                 },
-    scripts=gftools_scripts(),
-    zip_safe=False,
-    classifiers=[
-        'Environment :: Console',
-        'Intended Audience :: Developers',
-        'Topic :: Text Processing :: Fonts',
-        'License :: OSI Approved :: Apache Software License',
-        'Operating System :: OS Independent',
-        'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 3'
-    ],
-    setup_requires=['setuptools_scm'],
-    # Dependencies needed for gftools qa.
-    extras_require={"qa": ['fontbakery', 'fontdiffenator', 'gfdiffbrowsers']},
-    install_requires=[
-#       'fontforge', # needed by build-font2ttf script
-#                      but there's no fontforge package on pypi
-#                      see: https://github.com/fontforge/fontforge/issues/2048
-        'setuptools',
-        'FontTools[ufo]',
-        'Flask',
-        'absl-py',
-        'glyphsLib',
-        'PyGithub',
-        'pillow',
-        'protobuf',
-        'requests',
-        'tabulate',
-        'unidecode',
-        'opentype-sanitizer',
-        'vttlib',
-        'pygit2',
-        'strictyaml',
+# Ignored Apple devices on which compiling watchdog_fsevents.c would fail.
+# The FORCE_MACOS_MACHINE envar, when set to 1, will force the compilation.
+_apple_devices = ('appletv', 'iphone', 'ipod', 'ipad', 'watch')
+is_macos = sys.platform == 'darwin' and not machine().lower().startswith(_apple_devices)
+
+ext_modules = []
+if is_macos or os.getenv('FORCE_MACOS_MACHINE', '0') == '1':
+    ext_modules = [
+        Extension(
+            name='_watchdog_fsevents',
+            sources=[
+                'src/watchdog_fsevents.c',
+            ],
+            libraries=['m'],
+            define_macros=[
+                ('WATCHDOG_VERSION_STRING',
+                 '"' + version.VERSION_STRING + '"'),
+                ('WATCHDOG_VERSION_MAJOR', version.VERSION_MAJOR),
+                ('WATCHDOG_VERSION_MINOR', version.VERSION_MINOR),
+                ('WATCHDOG_VERSION_BUILD', version.VERSION_BUILD),
+            ],
+            extra_link_args=[
+                '-framework', 'CoreFoundation',
+                '-framework', 'CoreServices',
+            ],
+            extra_compile_args=[
+                '-std=c99',
+                '-pedantic',
+                '-Wall',
+                '-Wextra',
+                '-fPIC',
+
+                # Issue #620
+                '-Wno-nullability-completeness',
+                # Issue #628
+                '-Wno-nullability-extension',
+                '-Wno-newline-eof',
+
+                # required w/Xcode 5.1+ and above because of '-mno-fused-madd'
+                '-Wno-error=unused-command-line-argument'
+            ]
+        ),
     ]
-    )
+
+extras_require = {
+    'watchmedo': ['PyYAML>=3.10', 'argh>=0.24.1'],
+}
+
+with open('README.rst', encoding='utf-8') as f:
+    readme = f.read()
+
+with open('changelog.rst', encoding='utf-8') as f:
+    changelog = f.read()
+
+setup(name="watchdog",
+      version=version.VERSION_STRING,
+      description="Filesystem events monitoring",
+      long_description=readme + '\n\n' + changelog,
+      author="Yesudeep Mangalapilly",
+      author_email="yesudeep@gmail.com",
+      license="Apache License 2.0",
+      url="http://github.com/gorakhargosh/watchdog",
+      keywords=' '.join([
+          'python',
+          'filesystem',
+          'monitoring',
+          'monitor',
+          'FSEvents',
+          'kqueue',
+          'inotify',
+          'ReadDirectoryChangesW',
+          'polling',
+          'DirectorySnapshot',
+      ]),
+      classifiers=[
+          'Development Status :: 3 - Alpha',
+          'Environment :: Console',
+          'Intended Audience :: Developers',
+          'Intended Audience :: System Administrators',
+          'License :: OSI Approved :: Apache Software License',
+          'Natural Language :: English',
+          'Operating System :: POSIX :: Linux',
+          'Operating System :: MacOS :: MacOS X',
+          'Operating System :: POSIX :: BSD',
+          'Operating System :: Microsoft :: Windows :: Windows Vista',
+          'Operating System :: Microsoft :: Windows :: Windows 7',
+          'Operating System :: Microsoft :: Windows :: Windows 8',
+          'Operating System :: Microsoft :: Windows :: Windows 8.1',
+          'Operating System :: Microsoft :: Windows :: Windows 10',
+          'Operating System :: OS Independent',
+          'Programming Language :: Python',
+          'Programming Language :: Python :: 3',
+          'Programming Language :: Python :: 3 :: Only',
+          'Programming Language :: Python :: 3.6',
+          'Programming Language :: Python :: 3.7',
+          'Programming Language :: Python :: 3.8',
+          'Programming Language :: Python :: 3.9',
+          'Programming Language :: Python :: 3.10',
+          'Programming Language :: Python :: Implementation :: PyPy',
+          'Programming Language :: C',
+          'Topic :: Software Development :: Libraries',
+          'Topic :: System :: Monitoring',
+          'Topic :: System :: Filesystems',
+          'Topic :: Utilities',
+      ],
+      package_dir={'': SRC_DIR},
+      packages=find_packages(SRC_DIR),
+      include_package_data=True,
+      extras_require=extras_require,
+      cmdclass={
+          'build_ext': build_ext,
+      },
+      ext_modules=ext_modules,
+      entry_points={'console_scripts': [
+          'watchmedo = watchdog.watchmedo:main [watchmedo]',
+      ]},
+      python_requires='>=3.6',
+      zip_safe=False
+)
