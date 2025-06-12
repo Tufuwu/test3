@@ -1,20 +1,36 @@
-# Changelog
-All notable changes to this project will be documented in this file.
+# Fanhuaji （繁化姬）
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+## 1.2.3
 
-## [0.1.3](https://github.com/fabiocaccamo/django-extra-settings/releases/tag/0.1.3) - 2021-10-08
--   Changed `upload_to` to callable. #11 - thanks to @thlnndrs
--   Fixed `setup.py` unicode error.
--   Added `python 3.9` and `django 3.2` to `tox` and `travis`.
+- fix: disable commands if there is no selected text
 
-## [0.1.2](https://github.com/fabiocaccamo/django-extra-settings/releases/tag/0.1.2) - 2020-09-04
--   Added `models.DurationField` support.
+## 1.2.2
 
-## [0.1.1](https://github.com/fabiocaccamo/django-extra-settings/releases/tag/0.1.1) - 2020-02-13
--   Fixed `django 1.8` compatibility.
--   Improved code quality.
+- Run under Python 3.8 in ST 4.
 
-## [0.1.0](https://github.com/fabiocaccamo/django-extra-settings/releases/tag/0.1.0) - 2020-02-13
--   Released package, installation `pip install django-extra-settings`.
+## 1.2.1
+
+- Add source codes type hinting.
+- Put menu-like files into `menus/`.
+- Put `msg()` in `log.py` rather than `functions.py`.
+
+## 1.2.0
+
+- Add command: `fanhuaji_convert_panel`.
+
+## 1.1.0
+
+- Add `注音化` to the context menu.
+- Use a new side-by-side window to edit settings.
+
+## 1.0.2
+
+- Fix a typo.
+
+## 1.0.1
+
+- Fix potential mis-replacement.
+
+## 1.0.0
+
+- Initial release.

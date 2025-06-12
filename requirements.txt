@@ -1,2 +1,6 @@
-django>=1.8.0
-six>=1.9.0
+# This is an implicit value, here for clarity
+--index https://pypi.python.org/simple/
+
+black
+flake8
+mypy

@@ -1,174 +1,79 @@
-[![](https://img.shields.io/pypi/pyversions/django-extra-settings.svg?color=3776AB&logo=python&logoColor=white)](https://www.python.org/)
-[![](https://img.shields.io/pypi/djversions/django-extra-settings?color=0C4B33&logo=django&logoColor=white&label=django)](https://www.djangoproject.com/)
+# Sublime-Fanhuaji （繁化姬）
 
-[![](https://img.shields.io/pypi/v/django-extra-settings.svg?color=blue&logo=pypi&logoColor=white)](https://pypi.org/project/django-extra-settings/)
-[![](https://pepy.tech/badge/django-extra-settings)](https://pepy.tech/project/django-extra-settings)
-[![](https://img.shields.io/github/stars/fabiocaccamo/django-extra-settings?logo=github)](https://github.com/fabiocaccamo/django-extra-settings/)
-[![](https://badges.pufler.dev/visits/fabiocaccamo/django-extra-settings?label=visitors&color=blue)](https://badges.pufler.dev)
-[![](https://img.shields.io/pypi/l/django-extra-settings.svg?color=blue)](https://github.com/fabiocaccamo/django-extra-settings/blob/master/LICENSE.txt)
+[![GitHub Workflow Status (branch)](https://img.shields.io/github/workflow/status/Fanhuaji/Sublime-Fanhuaji/Main/master?style=flat-square)](https://github.com/Fanhuaji/Sublime-Fanhuaji/actions)
+[![Package Control](https://img.shields.io/packagecontrol/dt/Fanhuaji?style=flat-square)](https://packagecontrol.io/packages/Fanhuaji)
+[![GitHub tag (latest SemVer)](https://img.shields.io/github/tag/Fanhuaji/Sublime-Fanhuaji?style=flat-square&logo=github)](https://github.com/Fanhuaji/Sublime-Fanhuaji/tags)
+[![Project license](https://img.shields.io/github/license/Fanhuaji/Sublime-Fanhuaji?style=flat-square&logo=github)](https://github.com/Fanhuaji/Sublime-Fanhuaji/blob/master/LICENSE)
+[![GitHub stars](https://img.shields.io/github/stars/Fanhuaji/Sublime-Fanhuaji?style=flat-square&logo=github)](https://github.com/Fanhuaji/Sublime-Fanhuaji/stargazers)
+[![Donate to this project using Paypal](https://img.shields.io/badge/paypal-donate-blue.svg?style=flat-square&logo=paypal)](https://www.paypal.me/jfcherng/5usd)
 
-[![](https://img.shields.io/github/workflow/status/fabiocaccamo/django-extra-settings/Python%20package?label=build&logo=github)](https://github.com/fabiocaccamo/django-extra-settings)
-[![](https://img.shields.io/codecov/c/gh/fabiocaccamo/django-extra-settings?logo=codecov)](https://codecov.io/gh/fabiocaccamo/django-extra-settings)
-[![](https://img.shields.io/codacy/grade/554c0505ed9844f3865bee975d1b894c?logo=codacy)](https://www.codacy.com/app/fabiocaccamo/django-extra-settings)
-[![](https://img.shields.io/codeclimate/maintainability/fabiocaccamo/django-extra-settings?logo=code-climate)](https://codeclimate.com/github/fabiocaccamo/django-extra-settings/)
-[![](https://requires.io/github/fabiocaccamo/django-extra-settings/requirements.svg?branch=master)](https://requires.io/github/fabiocaccamo/django-extra-settings/requirements/?branch=master)
+本倉庫為[繁化姬](https://zhconvert.org)的 [Sublime Text 3](https://www.sublimetext.com) 插件。
 
-# django-extra-settings
-config and manage typed extra settings using just the django admin.
+## 安裝方式
 
-![](https://user-images.githubusercontent.com/1035294/74425761-81325400-4e54-11ea-9095-3d64e1420bfe.gif)
+- 使用 Package Control ：
+  在 `Package Control` 中搜尋 `Fanhuaji` 安裝即可。
 
-## Installation
--   Run `pip install django-extra-settings`
--   Add `extra_settings` to `settings.INSTALLED_APPS`
--   Run ``python manage.py migrate``
--   Run ``python manage.py collectstatic``
--   Restart your application server
+## 轉換模式
 
-## Usage
+- 简体化：将文字转换为简体。
+- 繁體化：將文字轉換為繁體。
+- 中国化：将文字转换为简体，并使用中国地区的词语修正。
+- 香港化：將文字轉換為繁體，並使用香港地區的詞語修正。
+- 台灣化：將文字轉換為繁體，並使用台灣地區的詞語修正。
+- 拼音化：將文字轉為拼音。
+- 注音化：將文字轉為注音。
+- 火星化：將文字轉換為繁體火星文。
+- 维基简体化：只使用维基百科的词库将文字转换为简体。
+- 維基繁體化：只使用維基百科的詞庫將文字轉換為繁體。
 
-### Admin
-Just go to the admin where you can:
--   Create a new setting
--   Update an existing setting
--   Delete an existing setting
+## 功能範例
 
-### Settings
-All these settings are optional, if not defined in ``settings.py`` the default values (listed below) will be used.
+![screenshot](https://raw.githubusercontent.com/Fanhuaji/Sublime-Fanhuaji/master/docs/images/convert_taiwan.gif)
 
-```python
-# if True the template tag will fallback to django.conf.settings,
-# very useful to retrieve conf settings such as DEBUG.
-EXTRA_SETTINGS_FALLBACK_TO_CONF_SETTINGS = True
+## 插件設定
+
+```javascript
+{
+    // 除錯模式
+    "debug": false,
+    // API 伺服器位址
+    "api_server": "https://api.zhconvert.org",
+    // API 金鑰（若無請留空）
+    "api_key": "",
+    // 將在 /convert API 端點使用的參數，請參考繁化姬說明文件 https://docs.zhconvert.org
+    "convert_params": {/*
+        "modules": {
+            // 不要使用 "GanToZuo" 模組
+            "GanToZuo": 0,
+        },
+        "userPostReplace": {
+            // 轉換完成後再將 "哦" 轉換為 "喔"
+            "哦": "喔",
+        },
+        "userProtectReplace": [
+            // 保護 "內存" 不被轉換
+            "內存",
+        ],
+    */},
+}
 ```
 
-```python
-# the upload_to path value of settings of type 'file'
-EXTRA_SETTINGS_FILE_UPLOAD_TO = 'files'
-```
+## 商業使用
 
-```python
-# the upload_to path value of settings of type 'image'
-EXTRA_SETTINGS_IMAGE_UPLOAD_TO = 'images'
-```
+繁化姬的文字轉換服務在一般使用下為免費，但若是商業使用將酌收費用。
+詳情請見[繁化姬商業使用](https://docs.zhconvert.org/commercial)。
 
-### Admin
-Just go to the admin where you can:
--   Create a new setting
--   Update an existing setting
--   Delete an existing setting
+## 錯誤回報
 
-### Python
-You can **create**, **read**, **update** and **delete** settings programmatically:
+本插件僅使用繁化姬的網路 API ，並不實作文字轉換。
+因此，如果您發現有「轉換錯誤」，請回報至以下任一位置。
 
-#### Create
-```python
-from extra_settings.models import Setting
+- [繁化姬](https://zhconvert.org)
+- [繁化姬 GitHub 討論頁](https://github.com/Fanhuaji/discussion/issues)
+- [繁化姬 Telegram 群組](https://t.me/fanhuaji)
 
-setting_obj = Setting(
-    name='SETTING_NAME',
-    value_type=Setting.TYPE_STRING,
-    value='django-extra-settings',
-)
-setting_obj.save()
-```
+## 相關連結
 
-#### Read
-```python
-from extra_settings.models import Setting
-
-value = Setting.get('SETTING_NAME', default='django-extra-settings')
-```
-
-#### Update
-```python
-from extra_settings.models import Setting
-
-setting_obj = Setting(
-    name='SETTING_NAME',
-    value_type=Setting.TYPE_BOOL,
-    value=True,
-)
-setting_obj.value = False
-setting_obj.save()
-```
-
-#### Delete
-```python
-from extra_settings.models import Setting
-
-Setting.objects.filter(name='SETTING_NAME').delete()
-```
-
-This is the list of the currently supported setting types you may need to use:
-
--   `Setting.TYPE_BOOL`
--   `Setting.TYPE_DATE`
--   `Setting.TYPE_DATETIME`
--   `Setting.TYPE_DECIMAL`
--   `Setting.TYPE_DURATION`
--   `Setting.TYPE_EMAIL`
--   `Setting.TYPE_FILE`
--   `Setting.TYPE_FLOAT`
--   `Setting.TYPE_IMAGE`
--   `Setting.TYPE_INT`
--   `Setting.TYPE_STRING`
--   `Setting.TYPE_TEXT`
--   `Setting.TYPE_TIME`
--   `Setting.TYPE_URL`
-
-### Templates
-You can retrieve settings in templates:
-```html
-{% load extra_settings %}
-
-{% get_setting 'SETTING_NAME' default='django-extra-settings' %}
-```
-
-## Testing
-```bash
-# create python virtual environment
-virtualenv testing_django_extra_settings
-
-# activate virtualenv
-cd testing_django_extra_settings && . bin/activate
-
-# clone repo
-git clone https://github.com/fabiocaccamo/django-extra-settings.git src && cd src
-
-# install dependencies
-pip install -r requirements.txt
-pip install -r requirements-test.txt
-
-# run tests
-tox
-# or
-python setup.py test
-# or
-python -m django test --settings "tests.settings"
-```
-
-## License
-Released under [MIT License](LICENSE.txt).
-
----
-
-## See also
-
-- [`django-admin-interface`](https://github.com/fabiocaccamo/django-admin-interface) - the default admin interface made customizable by the admin itself. popup windows replaced by modals. 🧙 ⚡
-
-- [`django-colorfield`](https://github.com/fabiocaccamo/django-colorfield) - simple color field for models with a nice color-picker in the admin. 🎨
-
-- [`django-maintenance-mode`](https://github.com/fabiocaccamo/django-maintenance-mode) - shows a 503 error page when maintenance-mode is on. 🚧 🛠️
-
-- [`django-redirects`](https://github.com/fabiocaccamo/django-redirects) - redirects with full control. ↪️
-
-- [`django-treenode`](https://github.com/fabiocaccamo/django-treenode) - probably the best abstract model / admin for your tree based stuff. 🌳
-
-- [`python-benedict`](https://github.com/fabiocaccamo/python-benedict) - dict subclass with keylist/keypath support, I/O shortcuts (base64, csv, json, pickle, plist, query-string, toml, xml, yaml) and many utilities. 📘
-
-- [`python-codicefiscale`](https://github.com/fabiocaccamo/python-codicefiscale) - encode/decode Italian fiscal codes - codifica/decodifica del Codice Fiscale. 🇮🇹 💳
-
-- [`python-fontbro`](https://github.com/fabiocaccamo/python-fontbro) - friendly font operations. 🧢
-
-- [`python-fsutil`](https://github.com/fabiocaccamo/python-fsutil) - file-system utilities for lazy devs. 🧟‍♂️
+- [繁化姬](https://zhconvert.org)
+- [繁化姬 說明文件](https://docs.zhconvert.org)
