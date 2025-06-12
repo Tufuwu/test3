@@ -1,470 +1,178 @@
-# git-cola: The highly caffeinated Git GUI
+# Glasgow Debug Tool
 
-    git-cola is a powerful Git GUI with a slick and intuitive user interface.
+**Want one? The [Crowdsupply campaign](https://www.crowdsupply.com/1bitsquared/glasgow) is now live.**
 
-    Copyright (C) 2007-2020, David Aguilar and contributors
+**Let's chat! Our IRC channel is [#glasgow at freenode.net](https://webchat.freenode.net/?channels=glasgow); our Discord channel is [#glasgow at 1BitSquared's Discord server](https://1bitsquared.com/pages/chat).**
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 2 of the License, or
-    (at your option) any later version.
+**Important note: if you are looking to assemble boards yourself, use only revC1.**
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+## What is Glasgow?
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+Glasgow is a tool for exploring digital interfaces, aimed at embedded developers, reverse engineers, digital archivists, electronics hobbyists, and everyone else who wants to communicate to a wide selection of digital devices with high reliability and minimum hassle. It can be attached to most devices without additional active or passive components, and includes extensive protection from unexpected conditions and operator error.
 
-## SCREENSHOTS
+The Glasgow hardware can support many digital interfaces because it uses reconfigurable logic. Instead of only offering a small selection of standard hardware supported interfaces, it uses an FPGA to adapt on the fly to the task at hand without compromising on performance or reliability, even for unusual, custom or obsolete interfaces.
 
-Screenshots are available on the
-[git-cola screenshots page](https://git-cola.github.io/screenshots.html).
+The Glasgow software is a set of building blocks designed to eliminate incidental complexity. Each interface is packaged into a self-contained *applet* that can be used directly from the command line, or reused as a part of a more complex system. Using Glasgow does not require any programming knowledge, although it becomes much more powerful if you know a bit of Python.
 
-## DOWNLOAD
+## What can I do with Glasgow?
 
-    apt install git-cola
+Some of the tasks Glasgow can do well are:
 
-New releases are available on the
-[git-cola download page](https://git-cola.github.io/downloads.html).
+  * communicate via UART,
+    * automatically determine and follow the baud rate of device under test,
+  * initiate transactions via SPI or I²C,
+  * read and write 24-series EEPROMs,
+  * read and write 25-series Flash memories,
+    * determine memory parameters via SFDP,
+  * read and write ONFI-compatible Flash memories,
+    * determine memory parameters via ONFI parameter page,
+  * read and write parallel 27/28/29-series EPROMs, EEPROMs and Flash memories,
+    * determine the extent of floating gate charge decay and rescue data,
+  * program and verify AVR microcontrollers with SPI interface,
+  * automatically determine unknown JTAG pinout,
+  * play back JTAG SVF files,
+  * debug ARC processors via JTAG,
+  * debug some MIPS processors via EJTAG,
+  * program and verify XC9500XL CPLDs via JTAG,
+  * communicate using nRF24L01(+) radios,
+  * program nRF24LE1 and nRF24LU1(+) microcontrollers,
+  * synthesize sound using a Yamaha OPLx/OPM chip and play it in real time on a webpage,
+  * read raw modulated data from 5.25"/3.5" floppy drives,
+  * ... and more!
 
-## FORK
+Everything above can be done with only a Glasgow revC board, some wires, and depending on the device under test, external power.
 
-    git clone git://github.com/git-cola/git-cola.git
+## How does using Glasgow look like?
 
-[![git-cola build status](https://github.com/git-cola/git-cola/actions/workflows/main.yml/badge.svg?branch=main&event=push)](https://github.com/git-cola/git-cola/actions/workflows/main.yml)
+Watch a typical command-line workflow in this screencast:
 
-[git-cola on github](https://github.com/git-cola/git-cola)
+[![asciicast](https://asciinema.org/a/i9edqaUBVLLw7mRZCpdxe91Fu.svg)](https://asciinema.org/a/i9edqaUBVLLw7mRZCpdxe91Fu)
 
-[git-cola google group](https://groups.google.com/group/git-cola/)
+## What hardware does Glasgow use?
 
+The Glasgow hardware evolves over time, with each major milestone called a "revision". Although all revisions are, and will always be supported with the same software, they vary significantly in their capabilities, and the chosen revision will limit the possible tasks.
 
-# NUTRITIONAL FACTS
+Glasgow boards use a version in the `revXN` format, where `X` is a revision letter (increased on major design changes) and `N` is a stepping number (increased on any layout or component changes). For example, `revC0` is the first stepping of revision C.
 
-## ACTIVE INGREDIENTS
+### revA/revB
 
-* [git](https://git-scm.com/) 1.6.3 or newer.
+Revisions A and B have not been produced in significant amounts, contain major design issues, and are therefore mostly of historical interest. Nevertheless, everyone who has one of the revA/revB boards can keep using them—forever.
 
-* [Python](https://python.org/) 2.6 or newer (Python 2+3 compatible).
+### revC
 
-* [QtPy](https://github.com/spyder-ide/qtpy) 1.1.0 or newer.
+![Overview of the Glasgow PCB](hardware/boards/glasgow/3drender-readme.png)
 
-* [argparse](https://pypi.python.org/pypi/argparse) 1.1 or newer.
-  argparse is part of the stdlib in Python 2.7; install argparse separately if
-  you are running on Python 2.6.
+Revision C is the latest revision and is being prepared for mass production. It provides 16 I/O pins with a maximum data rate of approx. 200 Mbps/pin (100 MHz)\*, independent direction control and independent programmable pull-up/pull-down resistors. The I/O pins are grouped into two I/O ports, each of which can use any voltage from 1.8 V to 5 V, sense and monitor I/O voltage of the device under test, as well as provide up to 150 mA of power. The board uses USB 2 for power, configuration, and communication, achieving up to 336 Mbps (42 MB/s) of sustained combined throughput.
 
-* [Sphinx](http://sphinx-doc.org/) for building the documentation.
+<sub>\* Maximum data rate achievable in practice depends on many factors and will vary greatly with specific interface and applet design. 12 Mbps/pin (6 MHz) can be achieved with minimal development effort; reaching higher data rates requires careful HDL coding and a good understanding of timing analysis.</sub>
 
-git-cola uses QtPy, so you can choose between PyQt4, PyQt5, and
-PySide by setting the `QT_API` environment variable to `pyqt4`, `pyqt5` or
-`pyside` as desired.  `qtpy` defaults to `pyqt5` and falls back to `pyqt4`
-if `pyqt5` is not installed.
+## What software does Glasgow use?
 
-Any of the following Python Qt libraries must be installed:
+Glasgow is written entirely in Python 3. The interface logic that runs on the FPGA is described using [nMigen](https://github.com/nmigen/nmigen/), which is a Python-based domain specific language. The supporting code that runs on the host PC is written in Python with [asyncio](https://docs.python.org/3/library/asyncio.html). This way, the logic on the FPGA can be assembled on demand for any requested configuration, keeping it as fast and compact as possible, and code can be shared between gateware and software, removing the need to add error-prone "glue" boilerplate.
 
-* [PyQt4](https://www.riverbankcomputing.com/software/pyqt/download)
-  4.6 or newer
+Glasgow would not be possible without the [open-source iCE40 FPGA toolchain](http://www.clifford.at/icestorm/), which is not only very reliable but also extremely fast. It is so fast that FPGA bitstreams are not cached (beyond not rebuilding the bitstream already on the device), as it only takes a few seconds to build one from scratch for something like an UART. When developing a new applet it is rarely necessary to wait for the toolchain.
 
-* [PyQt5](https://www.riverbankcomputing.com/software/pyqt/download5)
-  5.2 or newer
+Implementing reliable, high-performance USB communication is not trivial—packetization, buffering, and USB quirks add up. Glasgow abstracts away USB: on the FPGA, the applet gateware writes to or reads from a FIFO, and on the host, applet software writes to or reads from a socket-like interface. Idiomatic Python code can communicate at maximum USB 2 bulk bandwidth on a modern PC without additional effort. Moreover, when a future Glasgow revision will use Ethernet in addition to USB, no changes to applet code will be required.
 
-* [PySide](https://github.com/PySide/PySide)
-  1.1.0 or newer
+Debugging new applets can be hard, especially if bidirectional buses are involved. Glasgow provides a built-in cycle-accurate logic analyzer that can relate the I/O pin level and direction changes to commands and responses received and sent by the applet. The logic analyzer compresses waveforms and can pause the applet if its buffer is about to overflow.
 
-Set `QT_API=pyqt4` in your environment if you have both
-versions of PyQt installed and want to ensure that PyQt4 is used.
+## How do I use Glasgow?
 
-## ADDITIVES
+**If these instructions don't work for you, please file it as a bug, so that the experience can be made more smooth for everyone.**
 
-git-cola enables additional features when the following
-Python modules are installed.
+### ... with Linux?
 
-[send2trash](https://github.com/hsoft/send2trash) enables cross-platform
-"Send to Trash" functionality.
+You will need git and Python 3.7 (or a newer version, in which case replace `3.7` with that version below). On a Debian or Ubuntu system these can be installed with:
 
-# BREWING INSTRUCTIONS
+    apt-get install --no-install-recommends git python3.7 python3-setuptools \
+      python3-libusb1 python3-aiohttp python3-bitarray python3-crcmod
 
-## RUN FROM SOURCE
+You will also need Yosys and nextpnr-ice40, both from the master branch. Follow the setup instructions for [Yosys](https://github.com/yosysHQ/yosys/#setup) and [nextpnr](https://github.com/YosysHQ/nextpnr/#nextpnr-ice40).
 
-You don't need to install git-cola to run it.
-Running git-cola from its source tree is the easiest
-way to try the latest version.
+Obtain the source code:
 
-    git clone git://github.com/git-cola/git-cola.git
-    cd git-cola
-    ./bin/git-cola
-    ./bin/git-dag
+    git clone https://github.com/GlasgowEmbedded/glasgow
+    cd glasgow
 
-You can also start `cola` as a Python module if Python can find it.
+Configure your system to allow unprivileged access (for anyone in the `plugdev` group) to the Glasgow hardware:
 
-    cd git-cola
-    python -m cola
-    python -m cola dag
+    sudo cp config/99-glasgow.rules /etc/udev/rules.d
 
-Having git-cola's `bin/` directory in your path allows you to run
-`git cola` like a regular built-in Git command:
+Install the dependencies and the scripts for the current user:
 
-    # Replace "$PWD/bin" with the path to git-cola's bin/ directory
-    PATH="$PWD/bin":"$PATH"
-    export PATH
+    cd software
+    python3.7 setup.py develop --user
 
-    git cola
-    git dag
+The scripts are placed in `$HOME/.local/bin`, so be sure to add that directory to the `PATH` environment variable; after this, you can run `glasgow` from a terminal. Instead of adjusting `PATH` it is also possible to use `python3.7 -m glasgow.cli`.
 
-The instructions below assume that you have git-cola present in your
-`$PATH`.  Replace "git cola" with "./bin/git-cola" as needed if you'd like to
-just run it in-place.
+To update the source code, do:
 
-# DOCUMENTATION
+    cd glasgow
+    git pull
 
-* [HTML documentation](https://git-cola.readthedocs.io/en/latest/)
+### ... with macOS?
 
-* [git-cola manual](share/doc/git-cola/git-cola.rst)
+If you haven't already, install [Homebrew](https://brew.sh/). Now:
 
-* [git-dag manual](share/doc/git-cola/git-dag.rst)
+    brew install python
+    brew tap ktemkin/oss-fpga
+    brew install --HEAD icestorm yosys nextpnr-ice40
 
-* [Keyboard shortcuts](https://git-cola.github.io/share/doc/git-cola/hotkeys.html)
+Obtain the source code:
 
-* [Contributing guidelines](CONTRIBUTING.md)
+    git clone https://github.com/GlasgowEmbedded/glasgow
+    cd glasgow
 
-# INSTALLATION
+Install the dependencies and the scripts for the current user:
 
-Normally you can just do "make install" to install git-cola
-in your `$HOME` directory (`$HOME/bin`, `$HOME/share`, etc).
-If you want to do a global install you can do
+    cd software
+    python setup.py develop
 
-    make prefix=/usr install
+The scripts will be installed in `/usr/local/bin`, which should already be in your `PATH`.
 
-The platform-specific installation methods below use the native
-package manager.  You should use one of these so that all of git-cola's
-dependencies are installed.
+### ... with Windows?
 
-Distutils is used by the `Makefile` via `setup.py` to install git-cola and
-its launcher scripts.  distutils replaces the `#!/usr/bin/env python` lines in
-scripts with the full path to python at build time, which can be undesirable
-when the runtime python is not the same as the build-time python.  To disable
-the replacement of the `#!/usr/bin/env python` lines, pass `USE_ENV_PYTHON=1`
-to `make`.
+Although first-class Windows support is an important goal and Glasgow already works on Windows, the installation process is not yet ready.
 
-## LINUX
+## How do I factory flash Glasgow?
 
-Linux is it! Your distro has probably already packaged git-cola.
-If not, please file a bug against your distribution ;-)
+"Factory flashing" refers to the process of assigning a brand new Glasgow board (that you probably just assembled) a serial number, as well as writing a few critical configuration options that will let the normal Glasgow CLI pick up this device. Barring severe and unusual EEPROM corruption, this process is performed only once for each board.
 
-### arch
+As a prerequisite to factory flashing, follow all steps from the "[How do I use Glasgow?](#how-do-i-use-glasgow)" section.
 
-Available in the [AUR](https://aur.archlinux.org/packages/git-cola/).
+Any board that is factory flashed must have a blank FX2_MEM EEPROM. If the FX2_MEM EEPROM is not completely erased (all bytes set to `FF`), the factory flashing process may fail.
 
-### debian, ubuntu
+### ... with Linux?
 
-    apt install git-cola
+Configure your system to allow unprivileged access (for anyone in the `plugdev` group) to any hardware that enumerates as the Cypress FX2 ROM bootloader:
 
-### fedora
+    sudo cp config/99-cypress.rules /etc/udev/rules.d
 
-    dnf install git-cola
+Note that this udev rule will affect more devices than just Glasgow, since the Cypress VID:PID pair is shared.
 
-### gentoo
+Plug in the newly assembled device. At this point, `lsusb | grep 04b4:8613` should list one entry. Assuming you are factory flashing a board revision C1, run:
 
-    emerge git-cola
+    glasgow factory --rev C1
 
-### opensuse, sle
+Done! At this point, `lsusb | grep 20b7:9db1` should list one entry.
 
-    zypper install git-cola
+### ... with Windows?
 
-### slackware
+See [above](#-with-windows).
 
-Available in [SlackBuilds.org](http://slackbuilds.org/result/?search=git-cola).
+## Who made Glasgow?
 
-### FreeBSD
+  * [@whitequark](https://github.com/whitequark) came up with the design, coordinates the project and implements most of gateware and software;
+  * [@awygle](https://github.com/awygle) designed the power/analog port circuitry and helped with layout of revB;
+  * [@marcan](https://github.com/marcan) improved almost every aspect of hardware for revC;
+  * [@esden](https://github.com/esden) is handling batch manufacturing;
+  * [@smunaut](https://github.com/smunaut) provided advice crucial for stability and performance of USB communication;
+  * [@electronic_eel](https://github.com/electronic_eel) improved the hardware for revC2, designed the test jig and is working on advanced protection circuitry;
+  * [@Attie](https://github.com/attie) improved and refactored many applets;
+  * ... and many [other people](https://github.com/GlasgowEmbedded/Glasgow/graphs/contributors).
 
-    # install from official binary packages
-    pkg install -r FreeBSD devel/git-cola
-    # build from source
-    cd /usr/ports/devel/git-cola && make clean install
+## License
 
-## Ubuntu
+Glasgow is distributed under the terms of both 0-clause BSD license as well as Apache 2.0 license.
 
-[See here](https://packages.ubuntu.com/search?keywords=git-cola) for the
-versions that are available in Ubuntu's repositories.
-
-There was a [PPA by @pavreh](https://launchpad.net/~pavreh/+archive/ubuntu/git-cola)
-but it has not been updated for a while.
-
-## MAC OS X
-
-[Homebrew](https://brew.sh/) is the easiest way to install
-git-cola's Qt4 and PyQt4 dependencies.  We will use Homebrew to install
-the git-cola recipe, but build our own .app bundle from source.
-
-[Sphinx](http://sphinx-doc.org/latest/install.html) is used to build the
-documentation.
-
-    brew install sphinx-doc
-    brew install git-cola
-
-Once brew has installed git-cola you can:
-
-1. Clone git-cola
-
-    `git clone git://github.com/git-cola/git-cola.git && cd git-cola`
-
-2. Build the git-cola.app application bundle
-
-    ```
-    make \
-        PYTHON=$(brew --prefix python3)/bin/python3 \
-        PYTHON_CONFIG=$(brew --prefix python3)/bin/python3-config \
-        SPHINXBUILD=$(brew --prefix sphinx-doc)/bin/sphinx-build \
-        git-cola.app
-   ```
-
-3. Copy it to /Applications
-
-    `rm -fr /Applications/git-cola.app && cp -r git-cola.app /Applications`
-
-Newer versions of Homebrew install their own `python3` installation and
-provide the `PyQt5` modules for `python3` only.  You have to use
-`python3 ./bin/git-cola` when running from the source tree.
-
-### UPGRADING USING HOMEBREW
-
-If you upgrade using `brew` then it is recommended that you re-install
-git-cola's dependencies when upgrading.  Re-installing ensures that the
-Python modules provided by Homebrew will be properly set up.
-
-A quick fix when upgrading to newer versions of XCode or macOS is to
-reinstall pyqt5.
-
-    brew reinstall pyqt@5
-
-You may also need to relink your pyqt installation:
-
-    brew link pyqt@5
-
-This is required when upgrading to a modern (post-10.11 El Capitan) Mac OS X.
-Homebrew now bundles its own Python3 installation instead of using the
-system-provided default Python.
-
-If the "brew reinstall" command above does not work then re-installing from
-scratch using the instructions below should get things back in shape.
-
-    # update homebrew
-    brew update
-
-    # uninstall git-cola and its dependencies
-    brew uninstall git-cola
-    brew uninstall pyqt5
-    brew uninstall sip
-
-    # re-install git-cola and its dependencies
-    brew install git-cola
-
-## WINDOWS INSTALLATION
-
-IMPORTANT If you have a 64-bit machine, install the 64-bit versions only.
-Do not mix 32-bit and 64-bit versions.
-
-Download and install the following:
-
-* [Git for Windows](https://git-for-windows.github.io/)
-
-* [Git Cola](https://github.com/git-cola/git-cola/releases)
-
-Once these are installed you can run Git Cola from the Start menu.
-
-See "WINDOWS (continued)" below for more details.
-
-# GOODIES
-
-git cola ships with an interactive rebase editor called `git-cola-sequence-editor`.
-`git-cola-sequence-editor` is used to reorder and choose commits when rebasing.
-Start an interactive rebase through the "Rebase" menu, or through the
-`git cola rebase` sub-command to use the `git-cola-sequence-editor`:
-
-    git cola rebase origin/main
-
-git-cola-sequence-editor can be launched independently of git cola by telling
-`git rebase` to use it as its editor through the `GIT_SEQUENCE_EDITOR`
-environment variable:
-
-    env GIT_SEQUENCE_EDITOR="$PWD/bin/git-cola-sequence-editor" \
-    git rebase -i origin/main
-
-# COMMAND-LINE TOOLS
-
-The git-cola command exposes various sub-commands that allow you to quickly
-launch tools that are available from within the git-cola interface.
-For example, `./bin/git-cola find` launches the file finder,
-and `./bin/git-cola grep` launches the grep tool.
-
-See `git cola --help-commands` for the full list of commands.
-
-    $ git cola --help-commands
-    usage: git-cola [-h]
-    
-                    {cola,am,archive,branch,browse,config,
-                     dag,diff,fetch,find,grep,merge,pull,push,
-                     rebase,remote,search,stash,tag,version}
-                    ...
-    
-    valid commands:
-      {cola,am,archive,branch,browse,config,
-       dag,diff,fetch,find,grep,merge,pull,push,
-       rebase,remote,search,stash,tag,version}
-
-        cola                start git-cola
-        am                  apply patches using "git am"
-        archive             save an archive
-        branch              create a branch
-        browse              browse repository
-        config              edit configuration
-        dag                 start git-dag
-        diff                view diffs
-        fetch               fetch remotes
-        find                find files
-        grep                grep source
-        merge               merge branches
-        pull                pull remote branches
-        push                push remote branches
-        rebase              interactive rebase
-        remote              edit remotes
-        search              search commits
-        stash               stash and unstash changes
-        tag                 create tags
-        version             print the version
-
-## HACKING
-
-The following commands should be run during development:
-
-    # Run the unit tests
-    $ make test
-
-    # Run tests and longer-running pylint and flake8 checks
-    $ make check
-
-    # Run tests against multiple python interpreters using tox
-    $ make tox
-
-The test suite can be found in the [test](test) directory.
-
-Commits and pull requests are automatically tested for code quality
-using [GitHub Actions](https://github.com/git-cola/git-cola/actions/workflows/main.yml).
-
-Auto-format `po/*.po` files before committing when updating translations:
-
-    $ make po
-
-When submitting patches, consult the
-[contributing guidelines](CONTRIBUTING.md).
-
-## SOURCE INSTALL
-
-For Linux/Unix-like environments with symlinks, an easy way to use the latest
-`git cola` is to keep a clone of the repository and symlink it into your
-`~/bin` directory.  If `$HOME/bin` is not already in your `$PATH` you can
-add these two lines to the bottom of your `~/.bashrc` to make the linked
-tools available.
-
-        PATH="$HOME/bin":"$PATH"
-        export PATH
-
-Then, install git-cola by linking it into your `~/bin`:
-
-        mkdir -p ~/src ~/bin
-        git clone git://github.com/git-cola/git-cola.git ~/src/git-cola
-        (cd ~/bin &&
-         ln -s ../src/git-cola/bin/git-cola &&
-         ln -s ../src/git-cola/bin/git-dag)
-
-You should then get the latest `git cola` in your shell.
-
-
-## PACKAGING NOTES
-
-Git Cola installs its modules into the default Python site-packages directory
-(eg. `lib/python2.7/site-packages`), and in its own private `share/git-cola/lib`
-area by default.  The private modules are redundant and not needed when cola's modules
-have been installed into the site-packages directory.
-
-Git Cola will prefer its private modules when the `share/git-cola/lib` directory
-exists, but they are not required to exist.  This directory is optional, and can
-be safely removed if the cola modules have been installed into site-packages
-and are importable through the default `sys.path`.
-
-To suppress the installation of the private (redundant) `share/git-cola/lib/cola`
-package, specify `make NO_PRIVATE_LIBS=1 ...` when invoking `make`,
-or export `GIT_COLA_NO_PRIVATE_LIBS=1` into the build environment.
-
-    make NO_PRIVATE_LIBS=1 ...
-
-Git Cola installs a vendored copy of its QtPy dependency by default.
-Git Cola provides a copy of the `qtpy` module in its private modules area
-when installing Git Cola so that you are not required to install QtPy separately.
-If you'd like to provide your own `qtpy` module, for example from the `python-qtpy`
-Debian package, then specify `make NO_VENDOR_LIBS=1 ...` when invoking `make`,
-or export `GIT_COLA_NO_VENDOR_LIBS=1` into the build environment.
-
-    make NO_VENDOR_LIBS=1 ...
-
-Python3 users on debian will need to install `python3-distutils` in order
-to run the Makefile's installation steps.  `distutils` is a Python build
-requirement, but not needed at runtime.
-
-# WINDOWS (continued)
-
-## Development
-
-In order to develop Git Cola on Windows you will need to install
-Python3 and pip.  Install PyQt5 using `pip install PyQt5`
-to make the PyQt5 bindings available to Python.
-
-Once these are installed you can use `python.exe` to run
-directly from the source tree.  For example, from a Git Bash terminal:
-
-    /c/Python36/python.exe ./bin/git-cola
-
-## Multiple Python versions
-
-If you have multiple versions of Python installed, the `contrib/win32/cola`
-launcher script might choose the newer version instead of the python
-that has PyQt installed.  In order to resolve this, you can set the
-`cola.pythonlocation` git configuration variable to tell cola where to
-find python.  For example:
-
-    git config --global cola.pythonlocation /c/Python36
-
-## BUILDING WINDOWS INSTALLERS
-
-Windows installers are built using
-
-* [Pynsist](https://pynsist.readthedocs.io/en/latest/).
-
-* [NSIS](http://nsis.sourceforge.net/Main_Page) is also needed.
-
-To build the installer using Pynsist run:
-
-    ./contrib/win32/run-pynsist.sh
-
-This will generate an installer in `build/nsis/`.
-
-## WINDOWS HISTORY BROWSER CONFIGURATION UPGRADE
-
-You may need to configure your history browser if you are upgrading from an
-older version of Git Cola.
-
-`gitk` was originally the default history browser, but `gitk` cannot be
-launched as-is on Windows because `gitk` is a shell script.
-
-If you are configured to use `gitk`, then change your configuration to
-go through Git's `sh.exe` on Windows.  Similarly, we must go through
-`python.exe` if we want to use `git-dag`.
-
-If you want to use gitk as your history browser open the
-Preferences screen and change the history browser command to:
-
-    "C:/Program Files/Git/bin/sh.exe" --login -i C:/Git/bin/gitk
-
-git-dag became the default history browser on Windows in `v2.3`, so new
-users should not need to configure anything.
+See [LICENSE-0BSD](LICENSE-0BSD.txt) and [LICENSE-Apache-2.0.txt](LICENSE-Apache-2.0.txt) for details.
