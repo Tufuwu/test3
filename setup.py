@@ -1,47 +1,47 @@
-#!/usr/bin/env python
-import io
-import os
+from setuptools import setup
 
-from setuptools import setup, find_packages
-
-__doc__ = "Custom user model app for Django featuring email as username."
-
-
-def read(fname):
-    return io.open(os.path.join(os.path.dirname(__file__), fname), encoding="utf-8").read()
-
-
-install_requires = [
-    'Django>=2.2',
-]
+try:
+    import pypandoc
+    long_description = pypandoc.convert_file('README.md', 'rst')
+except(IOError, ImportError):
+    long_description = open('README.md').read()
 
 setup(
-    name='django-authtools',
-    version='2.0',
-    author='Fusionbox, Inc.',
-    author_email='programmers@fusionbox.com',
-    description=__doc__,
-    long_description='\n\n'.join([read('README.rst'), read('CHANGES.rst')]),
-    url='https://django-authtools.readthedocs.org/',
-    license='BSD',
-    packages=[package for package in find_packages() if package.startswith('authtools')],
-    install_requires=install_requires,
-    zip_safe=False,
-    include_package_data=True,
-    classifiers=[
-        'Development Status :: 5 - Production/Stable',
-        'Environment :: Web Environment',
-        'Framework :: Django',
-        'Intended Audience :: Developers',
-        'License :: OSI Approved :: BSD License',
+    name='pyvault',
+    version='2.4.1',
+    description='Python password manager',
+    long_description=long_description,
+    author='Gabriel Bordeaux',
+    author_email='pypi@gab.lc',
+    url='https://github.com/gabfl/vault',
+    license='MIT',
+    packages=['vault', 'vault.lib', 'vault.models',
+              'vault.modules', 'vault.views'],
+    package_dir={'vault': 'src'},
+    install_requires=[
+        'pycryptodome==3.12.0',
+        'pyperclip',
+        'tabulate',
+        'passwordgenerator',
+        'SQLAlchemy==1.4.28',
+        'sqlcipher3==0.4.5'
+    ],  # external dependencies
+    entry_points={
+        'console_scripts': [
+            'vault = vault.vault:main',
+        ],
+    },
+    classifiers=[  # see https://pypi.org/pypi?%3Aaction=list_classifiers
+        'Topic :: Security',
+        'Topic :: Security :: Cryptography',
+        'License :: OSI Approved :: MIT License',
+        'Operating System :: MacOS',
+        'Operating System :: POSIX :: Linux',
         'Natural Language :: English',
-        'Programming Language :: Python',
+        #  'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.5',
-        'Programming Language :: Python :: 3.6',
-        'Programming Language :: Python :: 3.7',
-        'Programming Language :: Python :: 3.8',
-        'Programming Language :: Python :: 3.9',
-        'Programming Language :: Python :: 3.10',
+        'Programming Language :: Python',
+        'Development Status :: 4 - Beta',
+        #  'Development Status :: 5 - Production/Stable',
     ],
 )
