@@ -1,2 +1,6 @@
-include README.md
-include LICENSE.txt
+include README.rst LICENSE.txt
+include examples/*.svg
+include documentation/presentation.odp
+include inkex/*.txt
+include po/*
+include scripts/boxes2pot scripts/boxes2inkscape

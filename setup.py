@@ -1,40 +1,100 @@
+#!/usr/bin/env python3
+
+import glob
+import os
+import sys
+from subprocess import check_output, CalledProcessError
 from setuptools import setup, find_packages
+from setuptools.command.build_py import build_py
 
-with open('flavio/_version.py', encoding='utf-8') as f:
-    exec(f.read())
 
-with open('README.md', encoding='utf-8') as f:
-    LONG_DESCRIPTION = f.read()
+class CustomBuildExtCommand(build_py):
+    """Customized setuptools install command - prints a friendly greeting."""
 
-setup(name='flavio',
-      version=__version__,
-      author='David M. Straub',
-      author_email='straub@protonmail.com',
-      url='https://flav-io.github.io',
-      description='A Python package for flavour physics phenomenology in the Standard Model and beyond',
-      long_description=LONG_DESCRIPTION,
-      long_description_content_type='text/markdown',
-      license='MIT',
-      packages=find_packages(),
-      package_data={
-      'flavio':['data/*.yml',
-                'data/test/*',
-                'physics/data/arXiv-0810-4077v3/*',
-                'physics/data/arXiv-1503-05534v1/*',
-                'physics/data/arXiv-1503-05534v2/*',
-                'physics/data/arXiv-1501-00367v2/*',
-                'physics/data/arXiv-1602-01399v1/*',
-                'physics/data/arXiv-1602-01399v1/*',
-                'physics/data/arXiv-1811-00983v1/*',
-                'physics/data/qcdf_interpolate/*',
-                'physics/data/wcsm/*',
-                ]
-      },
-      install_requires=['numpy>=1.16.5', 'scipy', 'setuptools>=3.3', 'pyyaml',
-                        'ckmutil', 'wilson>=2.0', 'particle>=0.16.0', ],
-      extras_require={
-            'testing': ['nose2'],
-            'plotting': ['matplotlib>=2.0'],
-            'sampling': ['iminuit>=2.0'],
-            },
-    )
+    def buildInkscapeExt(self):
+        os.system("%s %s %s" % (sys.executable,
+                                os.path.join("scripts", "boxes2inkscape"),
+                                "inkex"))
+
+    def updatePOT(self):
+        os.system("%s %s %s" % (
+            sys.executable,
+            os.path.join("scripts", "boxes2pot"),
+            "po/boxes.py.pot"))
+        os.system("%s %s" % (
+            "xgettext -L Python -j --from-code=utf-8 -o po/boxes.py.pot",
+            "boxes/*.py scripts/boxesserver scripts/boxes"))
+
+    def generate_mo_files(self):
+        pos = glob.glob("po/*.po")
+
+        for po in pos:
+            lang = po.split(os.sep)[1][:-3].replace("-", "_")
+            try:
+                os.makedirs(os.path.join("locale", lang, "LC_MESSAGES"))
+            except FileExistsError:
+                pass
+            os.system("msgfmt %s -o locale/%s/LC_MESSAGES/boxes.py.mo" % (po, lang))
+            self.distribution.data_files.append(
+                (os.path.join("share", "locale", lang, "LC_MESSAGES"),
+                 [os.path.join("locale", lang, "LC_MESSAGES", "boxes.py.mo")]))
+
+    def run(self):
+        if self.distribution.data_files is None:
+            self.distribution.data_files = []
+        self.execute(self.updatePOT, ())
+        self.execute(self.generate_mo_files, ())
+        self.execute(self.buildInkscapeExt, ())
+
+        if 'CURRENTLY_PACKAGING' in os.environ:
+            # we are most probably building a Debian package
+            # let us define a simple path!
+            path="/usr/share/inkscape/extensions"
+            self.distribution.data_files.append(
+                (path,
+                 [i for i in glob.glob(os.path.join("inkex", "*.inx"))]))
+            self.distribution.data_files.append((path, ['scripts/boxes']))
+        else:
+            # we are surely not building a Debian package
+            # then here is the default behavior:
+            try:
+                path = check_output(["inkscape", "--system-data-directory"]).decode().strip()
+                path = os.path.join(path, "extensions")
+                if not os.access(path, os.W_OK): # Can we install globally
+                    # Not tested on Windows and Mac
+                    path = os.path.expanduser("~/.config/inkscape/extensions")
+                self.distribution.data_files.append(
+                    (path,
+                     [i for i in glob.glob(os.path.join("inkex", "*.inx"))]))
+                self.distribution.data_files.append((path, ['scripts/boxes']))
+            except CalledProcessError:
+                pass # Inkscape is not installed
+
+        build_py.run(self)
+
+setup(
+    name='boxes',
+    version='0.9',
+    description='Boxes generator for laser cutters',
+    author='Florian Festi',
+    author_email='florian@festi.info',
+    url='https://github.com/florianfesti/boxes',
+    packages=find_packages(),
+    python_requires='>=3.7',
+    install_requires=['affine>=2.0', 'markdown', 'shapely>=1.8.2'],
+    scripts=['scripts/boxes', 'scripts/boxesserver'],
+    cmdclass={
+        'build_py': CustomBuildExtCommand,
+    },
+    classifiers=[
+        "Development Status :: 5 - Production/Stable",
+        "Environment :: Console",
+        "Environment :: Web Environment",
+        "Intended Audience :: Manufacturing",
+        "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
+        "Programming Language :: Python :: 3",
+        "Topic :: Multimedia :: Graphics :: Editors :: Vector-Based",
+        "Topic :: Scientific/Engineering",
+        "Topic :: Scientific/Engineering :: Computer Aided Design",
+    ],
+    keywords=["boxes", "box", "generator", "svg", "laser cutter"], )
