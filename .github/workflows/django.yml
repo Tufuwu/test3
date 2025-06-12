@@ -19,7 +19,7 @@ jobs:
     - name: Install dependencies
       run: pip install tox coveralls
     - name: Run tests
-      run: tox
+      run: coverage run ./manage.py test
     - name: Upload coverage to Coveralls
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
