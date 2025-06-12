@@ -1,49 +1,61 @@
-from setuptools import setup
+#!/usr/bin/env python
 
-long_description = """
-Nutils is a Free and Open Source Python programming library for Finite Element
-Method computations, developed by `Evalf Computing <http://evalf.com>`_ and
-distributed under the permissive MIT license. Key features are a readable, math
-centric syntax, an object oriented design, strict separation of topology and
-geometry, and high level function manipulations with support for automatic
-differentiation.
+import os
+import sys
 
-Nutils provides the tools required to construct a typical simulation workflow
-in just a few lines of Python code, while at the same time leaving full
-flexibility to build novel workflows or interact with third party tools. With
-native support for Isogeometric Analysis (IGA), the Finite Cell method (FCM),
-multi-physics, mixed methods, and hierarchical refinement, Nutils is at the
-forefront of numerical discretization science. Efficient under-the-hood
-vectorization and built-in parallellisation provide for an effortless
-transition from academic research projects to full scale, real world
-applications.
-"""
+from setuptools import setup, find_packages
 
-import os, re
-with open(os.path.join('nutils', '__init__.py')) as f:
-  version = next(filter(None, map(re.compile("^version = '([a-zA-Z0-9.]+)'$").match, f))).group(1)
+
+def which(program):
+    def is_exe(fpath):
+        return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
+
+    fpath, fname = os.path.split(program)
+    if fpath:
+        if is_exe(program):
+            return program
+    else:
+        for path in os.environ["PATH"].split(os.pathsep):
+            exe_file = os.path.join(path, program)
+            if is_exe(exe_file):
+                return exe_file
+
+    return None
+
+
+if sys.version_info.major == 3 and sys.version_info.minor < 3:
+    print("Unfortunately, your python version is not supported!\n Please upgrade at least to python 3.3!")
+    sys.exit(1)
+
+if sys.platform == 'darwin' or sys.platform == 'win32':
+    print("Unfortunately, we do not support your platform %s" % sys.platform)
+    sys.exit(1)
+
+if which('dexdump') is None:
+    print("Unable to find dexdump executable, please install it.")
+    print("On Debian-like OS, run sudo apt-get install dexdump")
+    sys.exit(1)
+
+install_requires = [
+    'androguard==3.3.5',
+    'cryptography==3.3.2',
+    'dhash==1.3',
+    'jellyfish==0.5.6',
+    'Pillow==6.2.2',
+    'requests==2.21.0',
+    'six==1.15.0',
+    'traitlets==4.3.2'
+]
 
 setup(
-  name = 'nutils',
-  version = version,
-  description = 'Numerical Utilities for Finite Element Analysis',
-  author = 'Evalf',
-  author_email = 'info@nutils.org',
-  url = 'http://nutils.org',
-  download_url = 'https://github.com/nutils/nutils/releases',
-  packages = ['nutils'],
-  long_description = long_description,
-  license = 'MIT',
-  python_requires = '>=3.5',
-  install_requires = ['numpy>=1.12', 'treelog>=1.0b5', 'stringly'],
-  extras_require = dict(
-    docs=['Sphinx>=1.6','scipy>=0.13','matplotlib>=1.3'],
-    matrix_scipy=['scipy>=0.13'],
-    matrix_mkl=['mkl'],
-    export_mpl=['matplotlib>=1.3','pillow>2.6'],
-    import_gmsh=['meshio'],
-  ),
-  command_options = dict(
-    test=dict(test_loader=('setup.py', 'unittest:TestLoader')),
-  ),
+    name='exodus_core',
+    version='1.3.3',
+    description='Core functionality of εxodus',
+    author='Exodus Privacy',
+    author_email='contact@exodus-privacy.eu.org',
+    url='https://github.com/Exodus-Privacy/exodus-core',
+    packages=find_packages(exclude=["*.tests", "*.tests.*", "test*", "tests"]),
+    install_requires=install_requires,
+    include_package_data=True,
+    zip_safe=False,
 )

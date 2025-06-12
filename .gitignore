@@ -1,8 +1,6 @@
+# Byte-compiled / optimized / DLL files
 __pycache__/
-/.coverage
-/build/
-/dist/
-/nutils.egg-info/
-/.eggs/
-/docs/examples/
-/docs/nutils/
+*.py[cod]
+venv/
+.idea
+.vscode
