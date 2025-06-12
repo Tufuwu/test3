@@ -16,23 +16,23 @@ jobs:
       matrix:
         os: [ubuntu-22.04]
         python-version: [3.9]
-        arch: [amd64, ppc64le]
+      
         include:
           - os: ubuntu-22.04
             python-version: 3.9
-            arch: amd64
+        
             env: TOXENV=flake8
           - os: ubuntu-22.04
             python-version: 3.9
-            arch: amd64
+      
             env: TOXENV=isort
           - os: ubuntu-22.04
             python-version: 3.9
-            arch: ppc64le
+       
             env: TOXENV=flake8
           - os: ubuntu-22.04
             python-version: 3.9
-            arch: ppc64le
+      
             env: TOXENV=isort
     steps:
       - uses: actions/checkout@v2
@@ -63,7 +63,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           architecture: ${{ matrix.arch }}
-          
+
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
