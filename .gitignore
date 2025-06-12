@@ -1,7 +1,19 @@
-.env
-venv
-.venv
-node_modules/*
+syntax: glob
+*.al
+*.bak
+*.egg-info
+*.la
+*.lo
+*.o
+*.orig
 *.pyc
-.cache
-package-lock.json
+*.pyd
+*.rej
+*.so
+*.swp
+.failed-tests.txt
+.cache/
+.idea/
+.tox/
+build/
+dist/
