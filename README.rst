@@ -1,91 +1,158 @@
-Fedora MirrorManager
-====================
+NiaAML
+======
 
-MirrorManager2 is a rewrite of `mirrormanager <https://pagure.io/mirrormanager/>`_
-using flask and SQLAlchemy.
+.. image:: https://travis-ci.com/lukapecnik/NiaAML.svg?branch=master
+    :target: https://travis-ci.com/lukapecnik/NiaAML
 
-MirrorManager is the application that keeps track of the nearly 400 public mirrors,
-and over 300 private mirrors, that carry Fedora, EPEL, and RHEL content, and is used
-by rpmfusion.org, a third party repository. It automatically selects the "best"
-mirror for a given user based on a set of fallback heuristics.
+.. image:: https://coveralls.io/repos/github/lukapecnik/NiaAML/badge.svg?branch=travisCI_integration
+    :target: https://coveralls.io/github/lukapecnik/NiaAML?branch=travisCI_integration
 
-:Github mirror: https://github.com/fedora-infra/mirrormanager2
-:Mailing list for announcements and discussions: https://lists.fedoraproject.org/archives/list/mirror-admin@lists.fedoraproject.org/
+.. image:: https://img.shields.io/pypi/v/niaaml.svg
+    :target: https://pypi.python.org/pypi/niaaml
 
-Hacking
+.. image:: https://img.shields.io/pypi/pyversions/niaaml.svg
+    :target: https://pypi.org/project/NiaPy/
+
+.. image:: https://img.shields.io/github/license/lukapecnik/niaaml.svg
+    :target: https://github.com/lukapecnik/niaaml/blob/master/LICENSE
+
+.. image:: https://zenodo.org/badge/289322337.svg
+   :target: https://zenodo.org/badge/latestdoi/289322337
+
+.. image:: https://joss.theoj.org/papers/10.21105/joss.02949/status.svg
+   :target: https://doi.org/10.21105/joss.02949
+
+NiaAML is an automated machine learning Python framework based on
+nature-inspired algorithms for optimization. The name comes from the
+automated machine learning method of the same name [1]. Its
+goal is to efficiently compose the best possible classification pipeline
+for the given task using components on the input. The components are
+divided into three groups: feature seletion algorithms, feature
+transformation algorithms and classifiers. The framework uses
+nature-inspired algorithms for optimization to choose the best set of
+components for the classification pipeline on the output and optimize
+their parameters. We use `NiaPy framework <https://github.com/NiaOrg/NiaPy>`_ for the optimization process
+which is a popular Python collection of nature-inspired algorithms. The
+NiaAML framework is easy to use and customize or expand to suit your
+needs.
+
+The NiaAML framework allows you not only to run full pipeline optimization, but also separate implemented components such as classifiers, feature selection algorithms, etc. **It supports numerical and categorical features as well as missing values in datasets.**
+
+- **Documentation:** https://niaaml.readthedocs.io/en/latest/,
+- **Tested OS:** Windows, Ubuntu, Fedora, Linux Mint and CentOS. **However, that does not mean it does not work on others.**
+
+Installation
+------------
+
+pip
+~~~
+
+Install NiaAML with pip3:
+
+.. code:: sh
+
+    pip3 install niaaml
+
+In case you would like to try out the latest pre-release version of the framework, install it using:
+
+.. code:: sh
+
+    pip3 install niaaml --pre
+
+Graphical User Interface
+------------------------
+
+You can find a simple graphical user interface for NiaAML package `here <https://github.com/lukapecnik/NiaAML-GUI>`_.
+
+Usage
+-----
+
+See the project's `repository <https://github.com/lukapecnik/NiaAML>`_ for usage examples.
+
+Components
+----------
+
+In the following sections you can see a list of currently implemented 
+components divided into groups: classifiers, feature selection 
+algorithms and feature transformation algorithms. At the end you can 
+also see a list of currently implemented fitness functions for the optimization process, 
+categorical features' encoders, and missing values' imputers.
+
+Classifiers
+~~~~~~~~~~~
+
+-  Adaptive Boosting (AdaBoost),
+-  Bagging (Bagging),
+-  Extremely Randomized Trees (ExtremelyRandomizedTrees),
+-  Linear SVC (LinearSVC),
+-  Multi Layer Perceptron (MultiLayerPerceptron),
+-  Random Forest Classifier (RandomForest),
+-  Decision Tree Classifier (DecisionTree),
+-  K-Neighbors Classifier (KNeighbors),
+-  Gaussian Process Classifier (GaussianProcess),
+-  Gaussian Naive Bayes (GaussianNB),
+-  Quadratic Discriminant Analysis (QuadraticDiscriminantAnalysis).
+
+Feature Selection Algorithms
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+-  Select K Best (SelectKBest),
+-  Select Percentile (SelectPercentile),
+-  Variance Threshold (VarianceThreshold).
+
+Nature-Inspired
+^^^^^^^^^^^^^^^
+
+-  Bat Algorithm (BatAlgorithm),
+-  Differential Evolution (DifferentialEvolution),
+-  Self-Adaptive Differential Evolution (jDEFSTH),
+-  Grey Wolf Optimizer (GreyWolfOptimizer),
+-  Particle Swarm Optimization (ParticleSwarmOptimization).
+
+Feature Transformation Algorithms
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+-  Normalizer (Normalizer),
+-  Standard Scaler (StandardScaler),
+-  Maximum Absolute Scaler (MaxAbsScaler),
+-  Quantile Transformer (QuantileTransformer),
+-  Robust Scaler (RobustScaler).
+
+Fitness Functions based on
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+-  Accuracy (Accuracy),
+-  Cohen's kappa (CohenKappa),
+-  F1-Score (F1),
+-  Precision (Precision).
+
+Categorical Feature Encoders
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- One-Hot Encoder (OneHotEncoder).
+
+Feature Imputers
+~~~~~~~~~~~~~~~~
+
+- Simple Imputer (SimpleImputer).
+
+Licence
 -------
 
-Hacking with Vagrant
-~~~~~~~~~~~~~~~~~~~~
-Quickly start hacking on mirrormanager2 using the vagrant setup that is included
-in the repo is super simple.
+This package is distributed under the MIT License. This license can be
+found online at http://www.opensource.org/licenses/MIT.
 
-First, make a copy of the Vagrantfile example::
+Disclaimer
+----------
 
-    $ cp Vagrantfile.example Vagrantfile
+This framework is provided as-is, and there are no guarantees that it
+fits your purposes or that it is bug-free. Use it at your own risk!
 
-Next, install Ansible, Vagrant and the vagrant-libvirt plugin from the official Fedora
-repos::
+References
+----------
 
-    $ sudo dnf install ansible vagrant vagrant-libvirt vagrant-sshfs
-
-
-Now, from within main directory (the one with the Vagrantfile in it) of your git
-checkout of mirrormanager2, run the ``vagrant up`` command to provision your dev
-environment::
-
-    $ vagrant up
-
-When this command is completed (it may take a while) you will be able to the
-command to start the mirrormanager server::
-
-    $ vagrant ssh -c "pushd /vagrant/; python runserver.py --host '0.0.0.0'"
-
-Once that is running, simply go to http://localhost:5000/ in your browser on
-your host to see your running mirrormanager test instance.
-
-
-Manual Setup
-~~~~~~~~~~~~
-
-
-Here are some preliminary instructions about how to stand up your own instance
-of mirrormanager2. All required packages for MirrorManager2 are part of Fedora
-or RHEL/CentOS/EPEL. In the following example we will, however use a virtualenv
-and a sqlite database and we will install our dependencies from the Python
-Package Index (PyPI).
-
-First, set up a virtualenv::
-
-    $ sudo yum install python-virtualenv
-    $ virtualenv my-MirrorMan-env
-    $ source my-MirrorMan-env/bin/activate
-
-Issuing that last command should change your prompt to indicate that you are
-operating in an active virtualenv.
-
-Next, install your dependencies::
-
-    (my-MirrorMan-env)$ pip install -r requirements.txt
-
-Now the protobuf deinition needs to be compiled to Python::
-
-    (my-MirrorMan-env)$ protoc --python_out=mirrorlist mirrormanager.proto
-    (my-MirrorMan-env)$ protoc --python_out=mirrormanager2/lib mirrormanager.proto
-
-You should then create your own sqlite database for your development instance of
-mirrormanager2::
-
-    (my-MirrorMan-env)$ python createdb.py
-
-If all goes well, you can start a development instance of the server by
-running::
-
-    (my-MirrorMan-env)$ python runserver.py
-
-Open your browser and visit http://localhost:5000 to check it out.
-
-Once you made your changes please run the test suite to verify that nothing
-covered by tests has been broken::
-
-    (my-MirrorMan-env)$ ./runtests.sh
+[1] Iztok Fister Jr., Milan Zorman, Dušan Fister, Iztok Fister.
+Continuous optimizers for automatic design and evaluation of
+classification pipelines. In: Frontier applications of nature inspired
+computation. Springer tracts in nature-inspired computing, pp.281-301,
+2020.
