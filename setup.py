@@ -1,68 +1,40 @@
-# -*- coding: utf-8 -*-
-#
-# Copyright (C) 2013-2020 Sébastien Helleu <flashcode@flashtux.org>
-#
-# This file is part of gitchart.
-#
-# Gitchart is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 3 of the License, or
-# (at your option) any later version.
-#
-# Gitchart is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with gitchart.  If not, see <https://www.gnu.org/licenses/>.
-#
+from setuptools import setup, find_packages
 
-from setuptools import setup
+with open('flavio/_version.py', encoding='utf-8') as f:
+    exec(f.read())
 
-DESCRIPTION = 'Generate statistic charts on Git repositories.'
-LONG_DESCRIPTION = """
-Gitchart can generate following charts:
+with open('README.md', encoding='utf-8') as f:
+    LONG_DESCRIPTION = f.read()
 
-* authors,
-* processed tickets by author,
-* commits by hour of day,
-* commits by hour of week,
-* commits by day,
-* commits by day of week,
-* commits by month of year,
-* commits by year,
-* commits by year/month,
-* commits by tag/version,
-* files by type (extension).
-"""
-
-setup(
-    name='gitchart',
-    version='1.4-dev',
-    description=DESCRIPTION,
-    long_description=LONG_DESCRIPTION,
-    author='Sébastien Helleu',
-    author_email='flashcode@flashtux.org',
-    url='https://github.com/flashcode/gitchart',
-    license='GPL3',
-    keywords='git chart pygal',
-    classifiers=[
-        'Development Status :: 5 - Production/Stable',
-        'Environment :: Console',
-        'Intended Audience :: Developers',
-        'License :: OSI Approved :: GNU General Public License v3 '
-        'or later (GPLv3+)',
-        'Natural Language :: English',
-        'Operating System :: OS Independent',
-        'Programming Language :: Python',
-        'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 3',
-        'Topic :: Software Development :: Version Control',
-    ],
-    packages=['.'],
-    install_requires=['pygal'],
-    entry_points={
-        'console_scripts': ['gitchart=gitchart:main'],
-    }
-)
+setup(name='flavio',
+      version=__version__,
+      author='David M. Straub',
+      author_email='straub@protonmail.com',
+      url='https://flav-io.github.io',
+      description='A Python package for flavour physics phenomenology in the Standard Model and beyond',
+      long_description=LONG_DESCRIPTION,
+      long_description_content_type='text/markdown',
+      license='MIT',
+      packages=find_packages(),
+      package_data={
+      'flavio':['data/*.yml',
+                'data/test/*',
+                'physics/data/arXiv-0810-4077v3/*',
+                'physics/data/arXiv-1503-05534v1/*',
+                'physics/data/arXiv-1503-05534v2/*',
+                'physics/data/arXiv-1501-00367v2/*',
+                'physics/data/arXiv-1602-01399v1/*',
+                'physics/data/arXiv-1602-01399v1/*',
+                'physics/data/arXiv-1811-00983v1/*',
+                'physics/data/qcdf_interpolate/*',
+                'physics/data/wcsm/*',
+                ]
+      },
+      install_requires=['numpy>=1.16.5', 'scipy', 'setuptools>=3.3', 'pyyaml',
+                        'ckmutil', 'wilson>=2.0', 'particle>=0.16.0', ],
+      extras_require={
+            'testing': ['nose2'],
+            'plotting': ['matplotlib>=2.0'],
+            'sampling': ['iminuit>=2.0'],
+            },
+    )
