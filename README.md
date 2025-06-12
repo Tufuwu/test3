@@ -1,73 +1,50 @@
-# python-georss-ingv-centro-nazionale-terremoti-client
+# <img alt="BackPACK" src="./logo/backpack_logo_torch.svg" height="90"> BackPACK: Packing more into backprop
 
-[![Build Status](https://github.com/exxamalte/python-georss-ingv-centro-nazionale-terremoti-client/workflows/CI/badge.svg?branch=master)](https://github.com/exxamalte/python-georss-ingv-centro-nazionale-terremoti-client/actions?workflow=CI)
-[![codecov](https://codecov.io/gh/exxamalte/python-georss-ingv-centro-nazionale-terremoti-client/branch/master/graph/badge.svg?token=PHASSFXFVU)](https://codecov.io/gh/exxamalte/python-georss-ingv-centro-nazionale-terremoti-client)
-[![PyPi](https://img.shields.io/pypi/v/georss-ingv-centro-nazionale-terremoti-client.svg)](https://pypi.python.org/pypi/georss-ingv-centro-nazionale-terremoti-client)
-[![Version](https://img.shields.io/pypi/pyversions/georss-ingv-centro-nazionale-terremoti-client.svg)](https://pypi.python.org/pypi/georss-ingv-centro-nazionale-terremoti-client)
+[![Travis](https://travis-ci.org/f-dangel/backpack.svg?branch=master)](https://travis-ci.org/f-dangel/backpack)
+[![Coveralls](https://coveralls.io/repos/github/f-dangel/backpack/badge.svg?branch=master)](https://coveralls.io/github/f-dangel/backpack)
+[![Python 3.6+](https://img.shields.io/badge/python-3.6+-blue.svg)](https://www.python.org/downloads/release/python-360/)
 
-This library provides convenient access to the [INGV Centro Nazionale Terremoti (Earthquakes) Feed](http://cnt.rm.ingv.it/).
+BackPACK is built on top of [PyTorch](https://github.com/pytorch/pytorch). It efficiently computes quantities other than the gradient.
+
+- **Website:** https://backpack.pt
+- **Documentation:** https://docs.backpack.pt/en/master/
+- **Bug reports & feature requests:** https://github.com/f-dangel/backpack/issues
+
+Provided quantities include:
+- Individual gradients from a mini-batch
+- Estimates of the gradient variance or second moment
+- Approximate second-order information (diagonal and Kronecker approximations)
+
+**Motivation:** Computation of most quantities is not necessarily expensive (often just a small modification of the existing backward pass where backpropagated information can be reused). But it is difficult to do in the current software environment.
+
 
 ## Installation
-`pip install georss-ingv-centro-nazionale-terremoti-client`
-
-## Usage
-See below for an example of how this library can be used. After instantiating 
-the feed class and supplying the required parameters, you can call `update` to 
-retrieve the feed data. The return value will be a tuple of a status code and 
-the actual data in the form of a list of specific feed entries.
-
-**Status Codes**
-* _UPDATE_OK_: Update went fine and data was retrieved. The library may still return empty data, for example because no entries fulfilled the filter criteria.
-* _UPDATE_OK_NO_DATA_: Update went fine but no data was retrieved, for example because the server indicated that there was not update since the last request.
-* _UPDATE_ERROR_: Something went wrong during the update
-
-**Supported Filters**
-
-| Filter            |                            | Description |
-|-------------------|----------------------------|-------------|
-| Radius            | `filter_radius`            | Radius in kilometers around the home coordinates in which events from feed are included. |
-| Minimum Magnitude | `filter_minimum_magnitude` | Minimum magnitude as float value. Only events with a magnitude equal or above this value are included. |
-
-**Example**
-```python
-from georss_ingv_centro_nazionale_terremoti_client import \
-    IngvCentroNazionaleTerremotiFeed
-# Home Coordinates: Latitude: 40.84, Longitude: 14.25
-# Filter radius: 200 km
-# Filter minimum magnitude: 4.0
-feed = IngvCentroNazionaleTerremotiFeed((40.84, 14.25), 
-                                        filter_radius=200, 
-                                        filter_minimum_magnitude=4.0)
-status, entries = feed.update()
+```bash
+pip install backpack-for-pytorch
 ```
 
-## Feed Manager
+## Examples
+- [Basic usage](https://docs.backpack.pt/en/master/basic_usage/example_all_in_one.html)
+- [Some use cases](https://docs.backpack.pt/en/master/use_cases/index.html)
 
-The Feed Manager helps managing feed updates over time, by notifying the 
-consumer of the feed about new feed entries, updates and removed entries 
-compared to the last feed update.
+#
+## Contributing
+BackPACK is actively being developed. 
+We are appreciating any help.
+If you are considering to contribute, do not hesitate to contact us.
+An overview of the development procedure is provided in the [developer `README`](https://github.com/f-dangel/backpack/blob/master/README-dev.md).
 
-* If the current feed update is the first one, then all feed entries will be 
-  reported as new. The feed manager will keep track of all feed entries' 
-  external IDs that it has successfully processed.
-* If the current feed update is not the first one, then the feed manager will 
-  produce three sets:
-  * Feed entries that were not in the previous feed update but are in the 
-    current feed update will be reported as new.
-  * Feed entries that were in the previous feed update and are still in the 
-    current feed update will be reported as to be updated.
-  * Feed entries that were in the previous feed update but are not in the 
-    current feed update will be reported to be removed.
-* If the current update fails, then all feed entries processed in the previous
-  feed update will be reported to be removed.
+## How to cite
+If you are using BackPACK, consider citing the [paper](https://openreview.net/forum?id=BJlrF24twB) 
+```
+@inproceedings{dangel2020backpack,
+    title     = {Back{PACK}: Packing more into Backprop},
+    author    = {Felix Dangel and Frederik Kunstner and Philipp Hennig},
+    booktitle = {International Conference on Learning Representations},
+    year      = {2020},
+    url       = {https://openreview.net/forum?id=BJlrF24twB}
+}
+```
 
-After a successful update from the feed, the feed manager will provide two
-different dates:
+###### _BackPACK is not endorsed by or affiliated with Facebook, Inc. PyTorch, the PyTorch logo and any related marks are trademarks of Facebook, Inc._
 
-* `last_update` will be the timestamp of the last successful update from the
-  feed. This date may be useful if the consumer of this library wants to
-  treat intermittent errors from feed updates differently.
-* `last_timestamp` will be the latest timestamp extracted from the feed data. 
-  This requires that the underlying feed data actually contains a suitable 
-  date. This date may be useful if the consumer of this library wants to 
-  process feed entries differently if they haven't actually been updated.

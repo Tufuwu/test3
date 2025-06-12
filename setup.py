@@ -1,46 +1,47 @@
-import os
+from os import path
 
 from setuptools import find_packages, setup
 
-NAME = "georss_ingv_centro_nazionale_terremoti_client"
-AUTHOR = "Malte Franken"
-AUTHOR_EMAIL = "coding@subspace.de"
-DESCRIPTION = "A GeoRSS client library for the INGV Centro Nazionale Terremoti (Earthquakes) feed."
-URL = (
-    "https://github.com/exxamalte/python-georss-ingv-centro-nazionale-terremoti-client"
-)
+# META
+##############################################################################
+AUTHORS = "F. Dangel, F. Kunstner"
+NAME = "backpack-for-pytorch"
+PACKAGES = find_packages()
 
-REQUIRES = [
-    "georss_client>=0.14",
-]
+DESCRIPTION = "BackPACK: Packing more into backprop"
+LONG_DESCR = """
+    BackPACK is built on top of PyTorch.
+    It efficiently computes quantities other than the gradient.
 
+    Website: https://backpack.pt
+    Code: https://github.com/f-dangel/backpack
+    Documentation: https://readthedocs.org/projects/backpack/
+    Bug reports & feature requests: https://github.com/f-dangel/backpack/issues
+    """
 
-with open("README.md", "r") as fh:
-    long_description = fh.read()
+VERSION = "1.2.0"
+URL = "https://github.com/f-dangel/backpack"
+LICENSE = "MIT"
 
-HERE = os.path.abspath(os.path.dirname(__file__))
-VERSION = {}
-with open(os.path.join(HERE, NAME, "__version__.py")) as f:
-    exec(f.read(), VERSION)  # pylint: disable=exec-used
+# DEPENDENCIES
+##############################################################################
+REQUIREMENTS_FILE = "requirements.txt"
+REQUIREMENTS_PATH = path.join(path.abspath(__file__), REQUIREMENTS_FILE)
+
+with open(REQUIREMENTS_FILE) as f:
+    requirements = f.read().splitlines()
 
 setup(
+    author=AUTHORS,
     name=NAME,
-    version=VERSION["__version__"],
-    author=AUTHOR,
-    author_email=AUTHOR_EMAIL,
+    version=VERSION,
     description=DESCRIPTION,
-    license="Apache-2.0",
-    long_description=long_description,
+    long_description=LONG_DESCR,
     long_description_content_type="text/markdown",
+    install_requires=requirements,
     url=URL,
-    packages=find_packages(exclude=("tests*",)),
-    classifiers=[
-        "Programming Language :: Python :: 3.7",
-        "Programming Language :: Python :: 3.8",
-        "Programming Language :: Python :: 3.9",
-        "Programming Language :: Python :: 3.10",
-        "License :: OSI Approved :: Apache Software License",
-        "Operating System :: OS Independent",
-    ],
-    install_requires=REQUIRES,
+    license=LICENSE,
+    packages=PACKAGES,
+    zip_safe=False,
+    python_requires=">=3.6",
 )
