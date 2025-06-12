@@ -10,11 +10,11 @@ jobs:
       matrix:
         os: [macos-latest, windows-latest]
         platform: [mac, windows]
-      exclude:
-        - os: macos-latest
-          platform: windows
-        - os: windows-latest
-          platform: mac
+        exclude:
+          - os: macos-latest
+            platform: windows
+          - os: windows-latest
+            platform: mac
 
     runs-on: ${{ matrix.os }}
 
