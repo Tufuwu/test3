@@ -1,64 +1,90 @@
-# Copyright 2020 Google LLC
+# coding: utf-8
+# Copyright 2013 The Font Bakery Authors.
+# Copyright 2017 The Google Fonts Tools Authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 #
-#      http://www.apache.org/licenses/LICENSE-2.0
+#     http://www.apache.org/licenses/LICENSE-2.0
 #
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+#
+# See AUTHORS.txt for the list of Authors and LICENSE.txt for the License.
+import os
+from setuptools import setup
 
-from io import open
-from os import path
+def gftools_scripts():
+    scripts = [os.path.join('bin', f) for f in os.listdir('bin') if f.startswith('gftools-')]
+    scripts.append(os.path.join('bin', 'gftools'))
+    return scripts
 
-from setuptools import find_packages, setup
-
-here = path.abspath(path.dirname(__file__))
-
-# Get the long description from the README file
-with open(path.join(here, "README.md"), encoding="utf-8") as f:
+# Read the contents of the README file
+with open('README.md') as f:
     long_description = f.read()
 
 setup(
-    name="functions-framework",
-    version="1.4.0",
-    description="An open source FaaS (Function as a service) framework for writing portable Python functions -- brought to you by the Google Cloud Functions team.",
+    name="gftools",
+    version='0.5.1',
+    url='https://github.com/googlefonts/tools/',
+    description='Google Fonts Tools is a set of command-line tools'
+                ' for testing font projects',
     long_description=long_description,
-    long_description_content_type="text/markdown",
-    url="https://github.com/googlecloudplatform/functions-framework-python",
-    author="Google LLC",
-    author_email="googleapis-packages@google.com",
+    long_description_content_type='text/markdown',  # This is important!
+    author=('Google Fonts Tools Authors: '
+            'Dave Crossland, '
+            'Felipe Sanches, '
+            'Lasse Fister, '
+            'Marc Foley, '
+            'Eli Heuer, '
+            'Roderick Sheeter'),
+    author_email='dave@lab6.com',
+    package_dir={'': 'Lib'},
+    packages=['gftools',
+              'gftools.util'],
+    package_data={'gftools.util': ["GlyphsInfo/*.xml"],
+                  'gftools': [
+                      "encodings/*.nam",
+                      "encodings/GF Glyph Sets/*.nam",
+                      'template.upstream.yaml'
+                  ]
+                 },
+    scripts=gftools_scripts(),
+    zip_safe=False,
     classifiers=[
-        "Development Status :: 3 - Alpha",
-        "Intended Audience :: Developers",
-        "License :: OSI Approved :: Apache Software License",
-        "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.5",
-        "Programming Language :: Python :: 3.6",
-        "Programming Language :: Python :: 3.7",
-        "Programming Language :: Python :: 3.8",
+        'Environment :: Console',
+        'Intended Audience :: Developers',
+        'Topic :: Text Processing :: Fonts',
+        'License :: OSI Approved :: Apache Software License',
+        'Operating System :: OS Independent',
+        'Programming Language :: Python :: 2',
+        'Programming Language :: Python :: 3'
     ],
-    keywords="functions-framework",
-    packages=find_packages(where="src"),
-    namespace_packages=["google", "google.cloud"],
-    package_dir={"": "src"},
-    python_requires=">=3.5, <4",
+    setup_requires=['setuptools_scm'],
+    # Dependencies needed for gftools qa.
+    extras_require={"qa": ['fontbakery', 'fontdiffenator', 'gfdiffbrowsers']},
     install_requires=[
-        "flask>=1.0,<2.0",
-        "click>=7.0,<8.0",
-        "watchdog>=0.10.0",
-        "gunicorn>=19.2.0,<21.0; platform_system!='Windows'",
-    ],
-    extras_require={"test": ["pytest", "tox"]},
-    entry_points={
-        "console_scripts": [
-            "functions-framework=functions_framework._cli:_cli",
-            "functions_framework=functions_framework._cli:_cli",
-            "ff=functions_framework._cli:_cli",
-        ]
-    },
-)
+#       'fontforge', # needed by build-font2ttf script
+#                      but there's no fontforge package on pypi
+#                      see: https://github.com/fontforge/fontforge/issues/2048
+        'setuptools',
+        'FontTools[ufo]',
+        'Flask',
+        'absl-py',
+        'glyphsLib',
+        'PyGithub',
+        'pillow',
+        'protobuf',
+        'requests',
+        'tabulate',
+        'unidecode',
+        'opentype-sanitizer',
+        'vttlib',
+        'pygit2',
+        'strictyaml',
+    ]
+    )
