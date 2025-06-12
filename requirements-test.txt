@@ -1,3 +1,4 @@
 codecov
 coverage
+psycopg2
 tox

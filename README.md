@@ -1,98 +1,142 @@
-[![](https://img.shields.io/pypi/pyversions/django-colorfield.svg?color=3776AB&logo=python&logoColor=white)](https://www.python.org/)
-[![](https://img.shields.io/pypi/djversions/django-colorfield?color=0C4B33&logo=django&logoColor=white&label=django)](https://www.djangoproject.com/)
+[![](https://img.shields.io/pypi/pyversions/django-extra-settings.svg?color=3776AB&logo=python&logoColor=white)](https://www.python.org/)
+[![](https://img.shields.io/pypi/djversions/django-extra-settings?color=0C4B33&logo=django&logoColor=white&label=django)](https://www.djangoproject.com/)
 
-[![](https://img.shields.io/pypi/v/django-colorfield.svg?color=blue&logo=pypi&logoColor=white)](https://pypi.org/project/django-colorfield/)
-[![](https://pepy.tech/badge/django-colorfield)](https://pepy.tech/project/django-colorfield)
-[![](https://img.shields.io/github/stars/fabiocaccamo/django-colorfield?logo=github)](https://github.com/fabiocaccamo/django-colorfield/)
-[![](https://badges.pufler.dev/visits/fabiocaccamo/django-colorfield?label=visitors&color=blue)](https://badges.pufler.dev)
-[![](https://img.shields.io/pypi/l/django-colorfield.svg?color=blue)](https://github.com/fabiocaccamo/django-colorfield/blob/master/LICENSE.txt)
+[![](https://img.shields.io/pypi/v/django-extra-settings.svg?color=blue&logo=pypi&logoColor=white)](https://pypi.org/project/django-extra-settings/)
+[![](https://pepy.tech/badge/django-extra-settings)](https://pepy.tech/project/django-extra-settings)
+[![](https://img.shields.io/github/stars/fabiocaccamo/django-extra-settings?logo=github)](https://github.com/fabiocaccamo/django-extra-settings/)
+[![](https://badges.pufler.dev/visits/fabiocaccamo/django-extra-settings?label=visitors&color=blue)](https://badges.pufler.dev)
+[![](https://img.shields.io/pypi/l/django-extra-settings.svg?color=blue)](https://github.com/fabiocaccamo/django-extra-settings/blob/master/LICENSE.txt)
 
-[![](https://img.shields.io/github/workflow/status/fabiocaccamo/django-colorfield/Python%20package?label=build&logo=github)](https://github.com/fabiocaccamo/django-colorfield)
-[![](https://img.shields.io/codecov/c/gh/fabiocaccamo/django-colorfield?logo=codecov)](https://codecov.io/gh/fabiocaccamo/django-colorfield)
-[![](https://img.shields.io/codacy/grade/194566618f424a819ce43450ea0af081?logo=codacy)](https://www.codacy.com/app/fabiocaccamo/django-colorfield)
-[![](https://img.shields.io/codeclimate/maintainability/fabiocaccamo/django-colorfield?logo=code-climate)](https://codeclimate.com/github/fabiocaccamo/django-colorfield/)
-[![](https://requires.io/github/fabiocaccamo/django-colorfield/requirements.svg?branch=master)](https://requires.io/github/fabiocaccamo/django-colorfield/requirements/?branch=master)
+[![](https://img.shields.io/github/workflow/status/fabiocaccamo/django-extra-settings/Python%20package?label=build&logo=github)](https://github.com/fabiocaccamo/django-extra-settings)
+[![](https://img.shields.io/codecov/c/gh/fabiocaccamo/django-extra-settings?logo=codecov)](https://codecov.io/gh/fabiocaccamo/django-extra-settings)
+[![](https://img.shields.io/codacy/grade/554c0505ed9844f3865bee975d1b894c?logo=codacy)](https://www.codacy.com/app/fabiocaccamo/django-extra-settings)
+[![](https://img.shields.io/codeclimate/maintainability/fabiocaccamo/django-extra-settings?logo=code-climate)](https://codeclimate.com/github/fabiocaccamo/django-extra-settings/)
+[![](https://requires.io/github/fabiocaccamo/django-extra-settings/requirements.svg?branch=master)](https://requires.io/github/fabiocaccamo/django-extra-settings/requirements/?branch=master)
 
-# django-colorfield
-simple color field for your models with a nice color-picker in the admin-interface.
+# django-extra-settings
+config and manage typed extra settings using just the django admin.
 
-![django-colorfield-hex](https://user-images.githubusercontent.com/7900305/104512324-51ed0f80-55ee-11eb-9144-de03d922c2ce.png)
-![django-colorfield-hexa](https://user-images.githubusercontent.com/7900305/104512063-ec991e80-55ed-11eb-95b6-9174ac3f4f38.png)
+![](https://user-images.githubusercontent.com/1035294/74425761-81325400-4e54-11ea-9095-3d64e1420bfe.gif)
 
 ## Installation
--   Run `pip install django-colorfield`
--   Add `colorfield` to `settings.INSTALLED_APPS`
--   Run `python manage.py collectstatic`
+-   Run `pip install django-extra-settings`
+-   Add `extra_settings` to `settings.INSTALLED_APPS`
+-   Run ``python manage.py migrate``
+-   Run ``python manage.py collectstatic``
 -   Restart your application server
 
 ## Usage
 
+### Admin
+Just go to the admin where you can:
+-   Create a new setting
+-   Update an existing setting
+-   Delete an existing setting
+
 ### Settings
-This package doesn't need any setting.
-
-### Models
-Just add color field(s) to your models like this:
+All these settings are optional, if not defined in ``settings.py`` the default values (listed below) will be used.
 
 ```python
-from colorfield.fields import ColorField
-from django.db import models
-
-class MyModel(model.Model):
-    color = ColorField(default='#FF0000')
+# if True the template tag will fallback to django.conf.settings,
+# very useful to retrieve conf settings such as DEBUG.
+EXTRA_SETTINGS_FALLBACK_TO_CONF_SETTINGS = True
 ```
 
-### Color Format
-ColorField defaults to HEX format but also support HEXA. To set the format:
-
 ```python
-from colorfield.fields import ColorField
-from django.db import models
-
-class MyModel(model.Model):
-    color = ColorField(format='hexa')
+# the upload_to path value of settings of type 'file'
+EXTRA_SETTINGS_FILE_UPLOAD_TO = 'files'
 ```
 
-### Color Palette
-
-![django-colorfield-palette](https://user-images.githubusercontent.com/7900305/104512178-194d3600-55ee-11eb-8cba-91cca156da06.png)
-
-It is possible to provide a palette to choose from to the widget.
-
-It can be done by using the field option `choices` *(force to choose from choices)* or `samples` *(just like choices, but allows also custom color selection)*.
-
 ```python
-from colorfield.fields import ColorField
-from django.db import models
-
-class MyModel(model.Model):
-
-    COLOR_CHOICES = [
-        ("#FFFFFF", "white"),
-        ("#000000", "black")
-    ]
-
-    # restrictive
-    color = ColorField(choices=COLOR_CHOICES)
-
-    # not restrictive
-    color = ColorField(samples=COLOR_CHOICES)
+# the upload_to path value of settings of type 'image'
+EXTRA_SETTINGS_IMAGE_UPLOAD_TO = 'images'
 ```
 
 ### Admin
-The admin will kindly provide a simple [color picker](http://jscolor.com/) for all color fields. :)
+Just go to the admin where you can:
+-   Create a new setting
+-   Update an existing setting
+-   Delete an existing setting
+
+### Python
+You can **create**, **read**, **update** and **delete** settings programmatically:
+
+#### Create
+```python
+from extra_settings.models import Setting
+
+setting_obj = Setting(
+    name='SETTING_NAME',
+    value_type=Setting.TYPE_STRING,
+    value='django-extra-settings',
+)
+setting_obj.save()
+```
+
+#### Read
+```python
+from extra_settings.models import Setting
+
+value = Setting.get('SETTING_NAME', default='django-extra-settings')
+```
+
+#### Update
+```python
+from extra_settings.models import Setting
+
+setting_obj = Setting(
+    name='SETTING_NAME',
+    value_type=Setting.TYPE_BOOL,
+    value=True,
+)
+setting_obj.value = False
+setting_obj.save()
+```
+
+#### Delete
+```python
+from extra_settings.models import Setting
+
+Setting.objects.filter(name='SETTING_NAME').delete()
+```
+
+This is the list of the currently supported setting types you may need to use:
+
+-   `Setting.TYPE_BOOL`
+-   `Setting.TYPE_DATE`
+-   `Setting.TYPE_DATETIME`
+-   `Setting.TYPE_DECIMAL`
+-   `Setting.TYPE_DURATION`
+-   `Setting.TYPE_EMAIL`
+-   `Setting.TYPE_FILE`
+-   `Setting.TYPE_FLOAT`
+-   `Setting.TYPE_IMAGE`
+-   `Setting.TYPE_INT`
+-   `Setting.TYPE_STRING`
+-   `Setting.TYPE_TEXT`
+-   `Setting.TYPE_TIME`
+-   `Setting.TYPE_URL`
+
+### Templates
+You can retrieve settings in templates:
+```html
+{% load extra_settings %}
+
+{% get_setting 'SETTING_NAME' default='django-extra-settings' %}
+```
 
 ## Testing
 ```bash
 # create python virtual environment
-virtualenv testing_django_colorfield
+virtualenv testing_django_extra_settings
 
 # activate virtualenv
-cd testing_django_colorfield && . bin/activate
+cd testing_django_extra_settings && . bin/activate
 
 # clone repo
-git clone https://github.com/fabiocaccamo/django-colorfield.git src && cd src
+git clone https://github.com/fabiocaccamo/django-extra-settings.git src && cd src
 
-# install dev requirements
+# install dependencies
 pip install -r requirements.txt
 pip install -r requirements-test.txt
 
@@ -104,9 +148,6 @@ python setup.py test
 python -m django test --settings "tests.settings"
 ```
 
-## Credits
-Originally developed by [Jared Forsyth](https://github.com/jaredly)
-
 ## License
 Released under [MIT License](LICENSE.txt).
 
@@ -116,7 +157,7 @@ Released under [MIT License](LICENSE.txt).
 
 - [`django-admin-interface`](https://github.com/fabiocaccamo/django-admin-interface) - the default admin interface made customizable by the admin itself. popup windows replaced by modals. 🧙 ⚡
 
-- [`django-extra-settings`](https://github.com/fabiocaccamo/django-extra-settings) - config and manage typed extra settings using just the django admin. ⚙️
+- [`django-colorfield`](https://github.com/fabiocaccamo/django-colorfield) - simple color field for models with a nice color-picker in the admin. 🎨
 
 - [`django-maintenance-mode`](https://github.com/fabiocaccamo/django-maintenance-mode) - shows a 503 error page when maintenance-mode is on. 🚧 🛠️
 

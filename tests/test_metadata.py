@@ -2,10 +2,10 @@
 
 from django.test import TestCase
 
-from colorfield.version import __version__
+from extra_settings.version import __version__
 
 
-class ColorFieldMetadataTestCase(TestCase):
+class ExtraSettingsMetadataTestCase(TestCase):
 
     def setUp(self):
         pass

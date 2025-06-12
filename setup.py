@@ -5,10 +5,10 @@ from setuptools import find_packages, setup
 
 import os, sys
 
-exec(open('colorfield/version.py').read())
+exec(open('extra_settings/version.py').read())
 
 github_url = 'https://github.com/fabiocaccamo'
-package_name = 'django-colorfield'
+package_name = 'django-extra-settings'
 package_url = '{}/{}'.format(github_url, package_name)
 package_path = os.path.abspath(os.path.dirname(__file__))
 long_description_file_path = os.path.join(package_path, 'README.md')
@@ -26,23 +26,23 @@ setup(
     packages=find_packages(exclude=['contrib', 'docs', 'tests*']),
     include_package_data=True,
     version=__version__,
-    description='simple color field for your models with a nice color-picker in the admin-interface.',
+    description='easily manage typed extra settings using the django admin.',
     long_description=long_description,
     long_description_content_type=long_description_content_type,
-    author='Jared Forsyth, Fabio Caccamo',
-    author_email='jared@jaredforsyth.com, fabio.caccamo@gmail.com',
+    author='Fabio Caccamo',
+    author_email='fabio.caccamo@gmail.com',
     url=package_url,
     download_url='{}/archive/{}.tar.gz'.format(package_url, __version__),
-    keywords=['django', 'colorfield', 'colorpicker', 'color',
-              'field', 'picker', 'chooser', 'admin', 'python'],
-    requires=['django (>=1.7)'],
+    keywords=['django', 'admin', 'extra', 'settings', 'options', 'conf',
+              'config', 'editable', 'custom', 'dynamic', 'typed', 'constance'],
+    requires=['django(>=1.8)'],
     install_requires=[
+        'six >= 1.9.0, < 2.0.0',
     ],
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Environment :: Web Environment',
         'Framework :: Django',
-        'Framework :: Django :: 1.7',
         'Framework :: Django :: 1.8',
         'Framework :: Django :: 1.9',
         'Framework :: Django :: 1.10',
@@ -70,5 +70,5 @@ setup(
         'Topic :: Software Development :: Build Tools',
     ],
     license='MIT',
-    test_suite='runtests.runtests',
+    test_suite='runtests.runtests'
 )
