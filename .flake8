@@ -1,3 +1,0 @@
-[flake8]
-ignore = E501, W605
-exclude = apk_signature.py
