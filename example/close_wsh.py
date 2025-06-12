@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-#
 # Copyright 2012, Google Inc.
 # All rights reserved.
 #
@@ -29,46 +27,42 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-"""Set up script for pywebsocket3.
-"""
-
 from __future__ import absolute_import
-from __future__ import print_function
-from setuptools import setup, Extension
-import sys
 
-_PACKAGE_NAME = 'pywebsocket3'
+from pywebsocket3 import common
 
-# Build and use a C++ extension for faster masking. SWIG is required.
-_USE_FAST_MASKING = False
 
-# This is used since python_requires field is not recognized with
-# pip version 9.0.0 and earlier
-if sys.hexversion < 0x020700f0:
-    print('%s requires Python 2.7 or later.' % _PACKAGE_NAME, file=sys.stderr)
-    sys.exit(1)
+def web_socket_do_extra_handshake(request):
+    pass
 
-if _USE_FAST_MASKING:
-    setup(ext_modules=[
-        Extension('pywebsocket3/_fast_masking',
-                  ['pywebsocket3/fast_masking.i'],
-                  swig_opts=['-c++'])
-    ])
 
-setup(
-    author='Yuzo Fujishima',
-    author_email='yuzo@chromium.org',
-    description='Standalone WebSocket Server for testing purposes.',
-    long_description=('pywebsocket3 is a standalone server for '
-                      'the WebSocket Protocol (RFC 6455). '
-                      'See pywebsocket3/__init__.py for more detail.'),
-    license='See LICENSE',
-    name=_PACKAGE_NAME,
-    packages=[_PACKAGE_NAME, _PACKAGE_NAME + '.handshake'],
-    python_requires='>=2.7',
-    install_requires=['six'],
-    url='https://github.com/GoogleChromeLabs/pywebsocket3',
-    version='4.0.0',
-)
+def web_socket_transfer_data(request):
+    while True:
+        line = request.ws_stream.receive_message()
+        if line is None:
+            return
+        code, reason = line.split(' ', 1)
+        if code is None or reason is None:
+            return
+        request.ws_stream.close_connection(int(code), reason)
+        # close_connection() initiates closing handshake. It validates code
+        # and reason. If you want to send a broken close frame for a test,
+        # following code will be useful.
+        # > data = struct.pack('!H', int(code)) + reason.encode('UTF-8')
+        # > request.connection.write(stream.create_close_frame(data))
+        # > # Suppress to re-respond client responding close frame.
+        # > raise Exception("customized server initiated closing handshake")
+
+
+def web_socket_passive_closing_handshake(request):
+    # Simply echo a close status code
+    code, reason = request.ws_close_code, request.ws_close_reason
+
+    # pywebsocket sets pseudo code for receiving an empty body close frame.
+    if code == common.STATUS_NO_STATUS_RECEIVED:
+        code = None
+        reason = ''
+    return code, reason
+
 
 # vi:sts=4 sw=4 et

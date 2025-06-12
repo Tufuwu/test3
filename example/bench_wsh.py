@@ -1,6 +1,4 @@
-#!/usr/bin/env python
-#
-# Copyright 2012, Google Inc.
+# Copyright 2011, Google Inc.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -28,47 +26,36 @@
 # THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+"""A simple load tester for WebSocket clients.
 
-"""Set up script for pywebsocket3.
+A client program sends a message formatted as "<time> <count> <message>" to
+this handler. This handler starts sending total <count> WebSocket messages
+containing <message> every <time> seconds. <time> can be a floating point
+value. <count> must be an integer value.
 """
 
 from __future__ import absolute_import
-from __future__ import print_function
-from setuptools import setup, Extension
-import sys
 
-_PACKAGE_NAME = 'pywebsocket3'
+import time
 
-# Build and use a C++ extension for faster masking. SWIG is required.
-_USE_FAST_MASKING = False
+from six.moves import range
 
-# This is used since python_requires field is not recognized with
-# pip version 9.0.0 and earlier
-if sys.hexversion < 0x020700f0:
-    print('%s requires Python 2.7 or later.' % _PACKAGE_NAME, file=sys.stderr)
-    sys.exit(1)
 
-if _USE_FAST_MASKING:
-    setup(ext_modules=[
-        Extension('pywebsocket3/_fast_masking',
-                  ['pywebsocket3/fast_masking.i'],
-                  swig_opts=['-c++'])
-    ])
+def web_socket_do_extra_handshake(request):
+    pass  # Always accept.
 
-setup(
-    author='Yuzo Fujishima',
-    author_email='yuzo@chromium.org',
-    description='Standalone WebSocket Server for testing purposes.',
-    long_description=('pywebsocket3 is a standalone server for '
-                      'the WebSocket Protocol (RFC 6455). '
-                      'See pywebsocket3/__init__.py for more detail.'),
-    license='See LICENSE',
-    name=_PACKAGE_NAME,
-    packages=[_PACKAGE_NAME, _PACKAGE_NAME + '.handshake'],
-    python_requires='>=2.7',
-    install_requires=['six'],
-    url='https://github.com/GoogleChromeLabs/pywebsocket3',
-    version='4.0.0',
-)
+
+def web_socket_transfer_data(request):
+    line = request.ws_stream.receive_message()
+    parts = line.split(' ')
+    if len(parts) != 3:
+        raise ValueError('Bad parameter format')
+    wait = float(parts[0])
+    count = int(parts[1])
+    message = parts[2]
+    for i in range(count):
+        request.ws_stream.send_message(message)
+        time.sleep(wait)
+
 
 # vi:sts=4 sw=4 et

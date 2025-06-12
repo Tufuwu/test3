@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# Copyright 2012, Google Inc.
+# Copyright 2011, Google Inc.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -28,47 +28,42 @@
 # THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-"""Set up script for pywebsocket3.
-"""
+"""Tests for stream module."""
 
 from __future__ import absolute_import
-from __future__ import print_function
-from setuptools import setup, Extension
-import sys
 
-_PACKAGE_NAME = 'pywebsocket3'
+import unittest
 
-# Build and use a C++ extension for faster masking. SWIG is required.
-_USE_FAST_MASKING = False
+import set_sys_path  # Update sys.path to locate pywebsocket3 module.
+from pywebsocket3 import common, stream
 
-# This is used since python_requires field is not recognized with
-# pip version 9.0.0 and earlier
-if sys.hexversion < 0x020700f0:
-    print('%s requires Python 2.7 or later.' % _PACKAGE_NAME, file=sys.stderr)
-    sys.exit(1)
 
-if _USE_FAST_MASKING:
-    setup(ext_modules=[
-        Extension('pywebsocket3/_fast_masking',
-                  ['pywebsocket3/fast_masking.i'],
-                  swig_opts=['-c++'])
-    ])
+class StreamTest(unittest.TestCase):
+    """A unittest for stream module."""
+    def test_create_header(self):
+        # more, rsv1, ..., rsv4 are all true
+        header = stream.create_header(common.OPCODE_TEXT, 1, 1, 1, 1, 1, 1)
+        self.assertEqual(b'\xf1\x81', header)
 
-setup(
-    author='Yuzo Fujishima',
-    author_email='yuzo@chromium.org',
-    description='Standalone WebSocket Server for testing purposes.',
-    long_description=('pywebsocket3 is a standalone server for '
-                      'the WebSocket Protocol (RFC 6455). '
-                      'See pywebsocket3/__init__.py for more detail.'),
-    license='See LICENSE',
-    name=_PACKAGE_NAME,
-    packages=[_PACKAGE_NAME, _PACKAGE_NAME + '.handshake'],
-    python_requires='>=2.7',
-    install_requires=['six'],
-    url='https://github.com/GoogleChromeLabs/pywebsocket3',
-    version='4.0.0',
-)
+        # Maximum payload size
+        header = stream.create_header(common.OPCODE_TEXT, (1 << 63) - 1, 0, 0,
+                                      0, 0, 0)
+        self.assertEqual(b'\x01\x7f\x7f\xff\xff\xff\xff\xff\xff\xff', header)
+
+        # Invalid opcode 0x10
+        self.assertRaises(ValueError, stream.create_header, 0x10, 0, 0, 0, 0,
+                          0, 0)
+
+        # Invalid value 0xf passed to more parameter
+        self.assertRaises(ValueError, stream.create_header, common.OPCODE_TEXT,
+                          0, 0xf, 0, 0, 0, 0)
+
+        # Too long payload_length
+        self.assertRaises(ValueError, stream.create_header, common.OPCODE_TEXT,
+                          1 << 63, 0, 0, 0, 0, 0)
+
+
+if __name__ == '__main__':
+    unittest.main()
 
 # vi:sts=4 sw=4 et

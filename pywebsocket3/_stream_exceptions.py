@@ -1,6 +1,4 @@
-#!/usr/bin/env python
-#
-# Copyright 2012, Google Inc.
+# Copyright 2020, Google Inc.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -28,47 +26,57 @@
 # THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-"""Set up script for pywebsocket3.
+"""Stream Exceptions.
 """
 
-from __future__ import absolute_import
-from __future__ import print_function
-from setuptools import setup, Extension
-import sys
+# Note: request.connection.write/read are used in this module, even though
+# mod_python document says that they should be used only in connection
+# handlers. Unfortunately, we have no other options. For example,
+# request.write/read are not suitable because they don't allow direct raw bytes
+# writing/reading.
 
-_PACKAGE_NAME = 'pywebsocket3'
 
-# Build and use a C++ extension for faster masking. SWIG is required.
-_USE_FAST_MASKING = False
+# Exceptions
+class ConnectionTerminatedException(Exception):
+    """This exception will be raised when a connection is terminated
+    unexpectedly.
+    """
 
-# This is used since python_requires field is not recognized with
-# pip version 9.0.0 and earlier
-if sys.hexversion < 0x020700f0:
-    print('%s requires Python 2.7 or later.' % _PACKAGE_NAME, file=sys.stderr)
-    sys.exit(1)
+    pass
 
-if _USE_FAST_MASKING:
-    setup(ext_modules=[
-        Extension('pywebsocket3/_fast_masking',
-                  ['pywebsocket3/fast_masking.i'],
-                  swig_opts=['-c++'])
-    ])
 
-setup(
-    author='Yuzo Fujishima',
-    author_email='yuzo@chromium.org',
-    description='Standalone WebSocket Server for testing purposes.',
-    long_description=('pywebsocket3 is a standalone server for '
-                      'the WebSocket Protocol (RFC 6455). '
-                      'See pywebsocket3/__init__.py for more detail.'),
-    license='See LICENSE',
-    name=_PACKAGE_NAME,
-    packages=[_PACKAGE_NAME, _PACKAGE_NAME + '.handshake'],
-    python_requires='>=2.7',
-    install_requires=['six'],
-    url='https://github.com/GoogleChromeLabs/pywebsocket3',
-    version='4.0.0',
-)
+class InvalidFrameException(ConnectionTerminatedException):
+    """This exception will be raised when we received an invalid frame we
+    cannot parse.
+    """
+
+    pass
+
+
+class BadOperationException(Exception):
+    """This exception will be raised when send_message() is called on
+    server-terminated connection or receive_message() is called on
+    client-terminated connection.
+    """
+
+    pass
+
+
+class UnsupportedFrameException(Exception):
+    """This exception will be raised when we receive a frame with flag, opcode
+    we cannot handle. Handlers can just catch and ignore this exception and
+    call receive_message() again to continue processing the next frame.
+    """
+
+    pass
+
+
+class InvalidUTF8Exception(Exception):
+    """This exception will be raised when we receive a text frame which
+    contains invalid UTF-8 strings.
+    """
+
+    pass
+
 
 # vi:sts=4 sw=4 et
