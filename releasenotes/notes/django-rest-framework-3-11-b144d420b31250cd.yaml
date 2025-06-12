@@ -1,6 +1,0 @@
----
-upgrade:
-  - |
-    `Django REST Framework 3.11
-    <https://www.django-rest-framework.org/community/3.11-announcement/>`_ is
-    now supported.

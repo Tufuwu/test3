@@ -1,4 +1,0 @@
----
-other:
-  - |
-    Patch diffs now download with a ``diff`` extension.
