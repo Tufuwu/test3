@@ -1,0 +1,11 @@
+---
+- name: Install basic packages
+  dnf:
+    name:
+    - bash-completion
+    - htop
+    - pcp-system-tools
+    - screen
+    - tmux
+    - tree
+    state: present

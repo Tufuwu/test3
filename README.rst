@@ -1,163 +1,91 @@
-django-weasyprint
-=================
+Fedora MirrorManager
+====================
 
-|Build| |Coverage| |PyPI Download| |PyPI Python Versions| |PyPI License|
+MirrorManager2 is a rewrite of `mirrormanager <https://pagure.io/mirrormanager/>`_
+using flask and SQLAlchemy.
 
-.. |Build| image:: https://github.com/fdemmer/django-weasyprint/workflows/CI/badge.svg?branch=main
-    :target: https://github.com/fdemmer/django-weasyprint/actions?workflow=CI
+MirrorManager is the application that keeps track of the nearly 400 public mirrors,
+and over 300 private mirrors, that carry Fedora, EPEL, and RHEL content, and is used
+by rpmfusion.org, a third party repository. It automatically selects the "best"
+mirror for a given user based on a set of fallback heuristics.
 
-.. |Coverage| image:: https://codecov.io/gh/fdemmer/django-weasyprint/branch/master/graph/badge.svg
-    :target: https://codecov.io/gh/fdemmer/django-weasyprint
+:Github mirror: https://github.com/fedora-infra/mirrormanager2
+:Mailing list for announcements and discussions: https://lists.fedoraproject.org/archives/list/mirror-admin@lists.fedoraproject.org/
 
-.. |PyPI Download| image:: https://img.shields.io/pypi/v/django-weasyprint.svg
-   :target: https://pypi.python.org/pypi/django-weasyprint/
-
-.. |PyPI Python Versions| image:: https://img.shields.io/pypi/pyversions/django-weasyprint.svg
-   :target: https://pypi.python.org/pypi/django-weasyprint/
-
-.. |PyPI License| image:: https://img.shields.io/pypi/l/django-weasyprint.svg
-   :target: https://pypi.python.org/pypi/django-weasyprint/
-
-
-A `Django`_ class-based view generating PDF responses using `WeasyPrint`_.
-
-
-Installation
-------------
-
-Install and update using `pip`_:
-
-.. code-block:: text
-
-    pip install -U django-weasyprint
-
-`WeasyPrint`_ is automatically installed as a dependency of this package.
-If you run into any problems be sure to check their `install instructions
-<https://weasyprint.readthedocs.io/en/latest/install.html>`_ for help!
-
-.. tip::
-
-   In version 53 WeasyPrint switched to `pydyf`_ as PDF generator instead of Cairo.
-   With that change PNG output was dropped and you might encounter other
-   changes in the generated PDF.
-
-   You can continue using WeasyPrint/Cairo by installing django-weasyprint 1.x!
-
-
-Usage
------
-
-Use ``WeasyTemplateView`` as class based view base class or the just the
-mixin ``WeasyTemplateResponseMixin`` on a ``TemplateView`` (or subclass
-thereof).
-
-
-Example
+Hacking
 -------
 
-.. code:: python
+Hacking with Vagrant
+~~~~~~~~~~~~~~~~~~~~
+Quickly start hacking on mirrormanager2 using the vagrant setup that is included
+in the repo is super simple.
 
-    # views.py
-    import functools
+First, make a copy of the Vagrantfile example::
 
-    from django.conf import settings
-    from django.views.generic import DetailView
+    $ cp Vagrantfile.example Vagrantfile
 
-    from django_weasyprint import WeasyTemplateResponseMixin
-    from django_weasyprint.views import WeasyTemplateResponse
-    from django_weasyprint.utils import django_url_fetcher
+Next, install Ansible, Vagrant and the vagrant-libvirt plugin from the official Fedora
+repos::
 
-
-    class MyDetailView(DetailView):
-        # vanilla Django DetailView
-        template_name = 'mymodel.html'
-
-    def custom_url_fetcher(url, *args, **kwargs):
-        # rewrite requests for CDN URLs to file path in STATIC_ROOT to use local file
-        cloud_storage_url = 'https://s3.amazonaws.com/django-weasyprint/static/'
-        if url.startswith(cloud_storage_url):
-            url = 'file://' + url.replace(cloud_storage_url, settings.STATIC_URL)
-        return django_url_fetcher(url, *args, **kwargs)
-
-    class CustomWeasyTemplateResponse(WeasyTemplateResponse):
-        # customized response class to pass a kwarg to URL fetcher
-        def get_url_fetcher(self):
-            # disable host and certificate check
-            context = ssl.create_default_context()
-            context.check_hostname = False
-            context.verify_mode = ssl.CERT_NONE
-            return functools.partial(custom_url_fetcher, ssl_context=context)
-
-    class PrintView(WeasyTemplateResponseMixin, MyDetailView):
-        # output of MyDetailView rendered as PDF with hardcoded CSS
-        pdf_stylesheets = [
-            settings.STATIC_ROOT + 'css/app.css',
-        ]
-        # show pdf in-line (default: True, show download dialog)
-        pdf_attachment = False
-        # custom response class to configure url-fetcher
-        response_class = CustomWeasyTemplateResponse
-
-    class DownloadView(WeasyTemplateResponseMixin, MyDetailView):
-        # suggested filename (is required for attachment/download!)
-        pdf_filename = 'foo.pdf'
-
-    class DynamicNameView(WeasyTemplateResponseMixin, MyDetailView):
-        # dynamically generate filename
-        def get_pdf_filename(self):
-            return 'foo-{at}.pdf'.format(
-                at=timezone.now().strftime('%Y%m%d-%H%M'),
-            )
-
-.. code:: html
-
-    <!-- mymodel.html -->
-    <!doctype html>
-    <html>
-        <head>
-            <!-- Use "static" template tag and configure STATIC_URL as usual. -->
-            <link rel="stylesheet" href="{% static 'css/app.css' %}" />
-        </head>
-        <body>
-            Hello PDF-world!
-        </body>
-    </html>
+    $ sudo dnf install ansible vagrant vagrant-libvirt vagrant-sshfs
 
 
-Settings
---------
+Now, from within main directory (the one with the Vagrantfile in it) of your git
+checkout of mirrormanager2, run the ``vagrant up`` command to provision your dev
+environment::
 
-By default ``WeasyTemplateResponse`` determines the ``base_url`` for
-`weasyprint.HTML`_ and `weasyprint.CSS`_ automatically using the request path.
+    $ vagrant up
 
-To disable that set ``WEASYPRINT_BASEURL`` to a fixed value, e.g.:
+When this command is completed (it may take a while) you will be able to the
+command to start the mirrormanager server::
 
-.. code:: python
+    $ vagrant ssh -c "pushd /vagrant/; python runserver.py --host '0.0.0.0'"
 
-    # Disable prefixing relative URLs with request.path, handle as absolute file paths
-    WEASYPRINT_BASEURL = '/'
-
-
-Changelog
----------
-
-See `CHANGELOG.md`_
+Once that is running, simply go to http://localhost:5000/ in your browser on
+your host to see your running mirrormanager test instance.
 
 
-Links
------
-
-* Releases: https://pypi.python.org/pypi/django-weasyprint
-* Issue tracker: https://github.com/fdemmer/django-weasyprint/issues
-* Code: https://github.com/fdemmer/django-weasyprint
+Manual Setup
+~~~~~~~~~~~~
 
 
-.. _pip: https://pip.pypa.io/en/stable/quickstart
-.. _Django: https://www.djangoproject.com
-.. _WeasyPrint: http://weasyprint.org
-.. _pydyf: https://doc.courtbouillon.org/pydyf/stable/
+Here are some preliminary instructions about how to stand up your own instance
+of mirrormanager2. All required packages for MirrorManager2 are part of Fedora
+or RHEL/CentOS/EPEL. In the following example we will, however use a virtualenv
+and a sqlite database and we will install our dependencies from the Python
+Package Index (PyPI).
 
-.. _weasyprint.HTML: https://doc.courtbouillon.org/weasyprint/stable/api_reference.html?highlight=base_url#weasyprint.HTML
-.. _weasyprint.CSS: https://doc.courtbouillon.org/weasyprint/stable/api_reference.html?#weasyprint.CSS
+First, set up a virtualenv::
 
-.. _CHANGELOG.md: https://github.com/fdemmer/django-weasyprint/blob/main/CHANGELOG.md
+    $ sudo yum install python-virtualenv
+    $ virtualenv my-MirrorMan-env
+    $ source my-MirrorMan-env/bin/activate
+
+Issuing that last command should change your prompt to indicate that you are
+operating in an active virtualenv.
+
+Next, install your dependencies::
+
+    (my-MirrorMan-env)$ pip install -r requirements.txt
+
+Now the protobuf deinition needs to be compiled to Python::
+
+    (my-MirrorMan-env)$ protoc --python_out=mirrorlist mirrormanager.proto
+    (my-MirrorMan-env)$ protoc --python_out=mirrormanager2/lib mirrormanager.proto
+
+You should then create your own sqlite database for your development instance of
+mirrormanager2::
+
+    (my-MirrorMan-env)$ python createdb.py
+
+If all goes well, you can start a development instance of the server by
+running::
+
+    (my-MirrorMan-env)$ python runserver.py
+
+Open your browser and visit http://localhost:5000 to check it out.
+
+Once you made your changes please run the test suite to verify that nothing
+covered by tests has been broken::
+
+    (my-MirrorMan-env)$ ./runtests.sh
