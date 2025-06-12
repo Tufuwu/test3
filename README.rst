@@ -1,303 +1,205 @@
-Watchdog
+========
+gpiozero
 ========
 
-|Build Status|
+.. image:: https://badge.fury.io/gh/gpiozero%2Fgpiozero.svg
+    :target: https://badge.fury.io/gh/gpiozero%2Fgpiozero
+    :alt: Source code on GitHub
 
-Python API and shell utilities to monitor file system events.
+.. image:: https://badge.fury.io/py/gpiozero.svg
+    :target: https://badge.fury.io/py/gpiozero
+    :alt: Latest Version
 
-Works on 3.6+.
+.. image:: https://travis-ci.org/gpiozero/gpiozero.svg?branch=master
+    :target: https://travis-ci.org/gpiozero/gpiozero
+    :alt: Build Tests
 
-If you want to use Python 2.6, you should stick with watchdog < 0.10.0.
+.. image:: https://img.shields.io/codecov/c/github/gpiozero/gpiozero/master.svg?maxAge=2592000
+    :target: https://codecov.io/github/gpiozero/gpiozero
+    :alt: Code Coverage
 
-If you want to use Python 2.7, 3.4 or 3.5, you should stick with watchdog < 1.0.0.
+A simple interface to GPIO devices with Raspberry Pi.
 
-Example API Usage
------------------
+Created by `Ben Nuttall`_ and `Dave Jones`_.
 
-A simple program that uses watchdog to monitor directories specified
-as command-line arguments and logs events generated:
+.. _Ben Nuttall: https://github.com/bennuttall
+.. _Dave Jones: https://github.com/waveform80
 
-.. code-block:: python
+About
+=====
 
-    import sys
-    import time
-    import logging
-    from watchdog.observers import Observer
-    from watchdog.events import LoggingEventHandler
+Component interfaces are provided to allow a frictionless way to get started
+with physical computing:
 
-    if __name__ == "__main__":
-        logging.basicConfig(level=logging.INFO,
-                            format='%(asctime)s - %(message)s',
-                            datefmt='%Y-%m-%d %H:%M:%S')
-        path = sys.argv[1] if len(sys.argv) > 1 else '.'
-        event_handler = LoggingEventHandler()
-        observer = Observer()
-        observer.schedule(event_handler, path, recursive=True)
-        observer.start()
-        try:
-            while True:
-                time.sleep(1)
-        finally:
-            observer.stop()
-            observer.join()
+.. code:: python
 
+    from gpiozero import LED
+    from time import sleep
 
-Shell Utilities
----------------
+    led = LED(17)
 
-Watchdog comes with an *optional* utility script called ``watchmedo``.
-Please type ``watchmedo --help`` at the shell prompt to
-know more about this tool.
+    while True:
+        led.on()
+        sleep(1)
+        led.off()
+        sleep(1)
 
-Here is how you can log the current directory recursively
-for events related only to ``*.py`` and ``*.txt`` files while
-ignoring all directory events:
+With very little code, you can quickly get going connecting your components
+together:
 
-.. code-block:: bash
+.. code:: python
 
-    watchmedo log \
-        --patterns="*.py;*.txt" \
-        --ignore-directories \
-        --recursive \
-        .
+    from gpiozero import LED, Button
+    from signal import pause
 
-You can use the ``shell-command`` subcommand to execute shell commands in
-response to events:
+    led = LED(17)
+    button = Button(3)
 
-.. code-block:: bash
+    button.when_pressed = led.on
+    button.when_released = led.off
 
-    watchmedo shell-command \
-        --patterns="*.py;*.txt" \
-        --recursive \
-        --command='echo "${watch_src_path}"' \
-        .
+    pause()
 
-Please see the help information for these commands by typing:
+You can advance to using the declarative paradigm along with provided
+to describe the behaviour of devices and their interactions:
 
-.. code-block:: bash
+.. code:: python
 
-    watchmedo [command] --help
+    from gpiozero import LED, MotionSensor, LightSensor
+    from gpiozero.tools import booleanized, all_values
+    from signal import pause
 
+    garden = LED(17)
+    motion = MotionSensor(4)
+    light = LightSensor(5)
 
-About ``watchmedo`` Tricks
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+    garden.source = all_values(booleanized(light, 0, 0.1), motion)
 
-``watchmedo`` can read ``tricks.yaml`` files and execute tricks within them in
-response to file system events. Tricks are actually event handlers that
-subclass ``watchdog.tricks.Trick`` and are written by plugin authors. Trick
-classes are augmented with a few additional features that regular event handlers
-don't need.
+    pause()
 
-An example ``tricks.yaml`` file:
+See the chapter on `Source/Values`_ for more information.
 
-.. code-block:: yaml
+.. _Source/Values: https://gpiozero.readthedocs.io/en/stable/source_values.html
 
-    tricks:
-    - watchdog.tricks.LoggerTrick:
-        patterns: ["*.py", "*.js"]
-    - watchmedo_webtricks.GoogleClosureTrick:
-        patterns: ['*.js']
-        hash_names: true
-        mappings_format: json                  # json|yaml|python
-        mappings_module: app/javascript_mappings
-        suffix: .min.js
-        compilation_level: advanced            # simple|advanced
-        source_directory: app/static/js/
-        destination_directory: app/public/js/
-        files:
-          index-page:
-          - app/static/js/vendor/jquery*.js
-          - app/static/js/base.js
-          - app/static/js/index-page.js
-          about-page:
-          - app/static/js/vendor/jquery*.js
-          - app/static/js/base.js
-          - app/static/js/about-page/**/*.js
+The library includes interfaces to many simple everyday components, as well as
+some more complex things like sensors, analogue-to-digital converters, full
+colour LEDs, robotics kits and more. See the `Recipes`_ chapter of the
+documentation for ideas on how to get started.
 
-The directory containing the ``tricks.yaml`` file will be monitored. Each trick
-class is initialized with its corresponding keys in the ``tricks.yaml`` file as
-arguments and events are fed to an instance of this class as they arrive.
+.. _Recipes: https://gpiozero.readthedocs.io/en/stable/recipes.html
+
+Pin factories
+=============
+
+GPIO Zero builds on a number of underlying pin libraries, including `RPi.GPIO`_
+and `pigpio`_, each with their own benefits. You can select a particular pin
+library to be used, either for the whole script or per-device, according to your
+needs. See the section on `changing the pin factory`_.
+
+.. _RPi.GPIO: https://pypi.org/project/RPi.GPIO
+.. _pigpio: https://pypi.org/project/pigpio
+.. _changing the pin factory: https://gpiozero.readthedocs.io/en/stable/api_pins.html#changing-the-pin-factory
+
+A "mock pin" interface is also provided for testing purposes. Read more about
+this in the section on `mock pins`_.
+
+.. _mock pins: https://gpiozero.readthedocs.io/en/stable/api_pins.html#mock-pins
 
 Installation
-------------
-Install from PyPI using ``pip``:
+============
 
-.. code-block:: bash
+GPIO Zero is installed by default in the Raspbian desktop image, available from
+`raspberrypi.org`_. To install on Raspbian Lite or other operating systems,
+including for PCs using remote GPIO, see the `Installing`_ chapter.
 
-    $ python -m pip install -U watchdog
-
-    # or to install the watchmedo utility:
-    $ python -m pip install -U watchdog[watchmedo]
-
-Install from source:
-
-.. code-block:: bash
-
-    $ python -m pip install -e .
-
-    # or to install the watchmedo utility:
-    $ python -m pip install -e ".[watchmedo]"
-
-
-Installation Caveats
-~~~~~~~~~~~~~~~~~~~~
-
-The ``watchmedo`` script depends on PyYAML_ which links with LibYAML_,
-which brings a performance boost to the PyYAML parser. However, installing
-LibYAML_ is optional but recommended. On Mac OS X, you can use homebrew_
-to install LibYAML:
-
-.. code-block:: bash
-
-    $ brew install libyaml
-
-On Linux, use your favorite package manager to install LibYAML. Here's how you
-do it on Ubuntu:
-
-.. code-block:: bash
-
-    $ sudo apt install libyaml-dev
-
-On Windows, please install PyYAML_ using the binaries they provide.
+.. _raspberrypi.org: https://www.raspberrypi.org/downloads/
+.. _Installing: https://gpiozero.readthedocs.io/en/stable/installing.html
 
 Documentation
--------------
+=============
 
-You can browse the latest release documentation_ online.
+Comprehensive documentation is available at https://gpiozero.readthedocs.io/.
+Please refer to the `Contributing`_ and `Development`_ chapters in the
+documentation for information on contributing to the project.
 
-Contribute
-----------
+.. _Contributing: https://gpiozero.readthedocs.io/en/stable/contributing.html
+.. _Development: https://gpiozero.readthedocs.io/en/stable/development.html
 
-Fork the `repository`_ on GitHub and send a pull request, or file an issue
-ticket at the `issue tracker`_. For general help and questions use the official
-`mailing list`_ or ask on `stackoverflow`_ with tag `python-watchdog`.
+Contributors
+============
 
-Create and activate your virtual environment, then::
+See the `contributors page`_ on GitHub for more info.
 
-    python -m pip install pytest pytest-cov
-    python -m pip install -e ".[watchmedo]"
-    python -m pytest tests
+.. _contributors page: https://github.com/gpiozero/gpiozero/graphs/contributors
 
-If you are making a substantial change, add an entry to the "Unreleased" section
-of the `changelog`_.
+Core developers:
 
-Supported Platforms
--------------------
+- `Ben Nuttall`_
+- `Dave Jones`_
+- `Andrew Scheller`_
 
-* Linux 2.6 (inotify)
-* Mac OS X (FSEvents, kqueue)
-* FreeBSD/BSD (kqueue)
-* Windows (ReadDirectoryChangesW with I/O completion ports;
-  ReadDirectoryChangesW worker threads)
-* OS-independent (polling the disk for directory snapshots and comparing them
-  periodically; slow and not recommended)
+Other contributors:
 
-Note that when using watchdog with kqueue, you need the
-number of file descriptors allowed to be opened by programs
-running on your system to be increased to more than the
-number of files that you will be monitoring. The easiest way
-to do that is to edit your ``~/.profile`` file and add
-a line similar to::
-
-    ulimit -n 1024
-
-This is an inherent problem with kqueue because it uses
-file descriptors to monitor files. That plus the enormous
-amount of bookkeeping that watchdog needs to do in order
-to monitor file descriptors just makes this a painful way
-to monitor files and directories. In essence, kqueue is
-not a very scalable way to monitor a deeply nested
-directory of files and directories with a large number of
-files.
-
-About using watchdog with editors like Vim
-------------------------------------------
-
-Vim does not modify files unless directed to do so.
-It creates backup files and then swaps them in to replace
-the files you are editing on the disk. This means that
-if you use Vim to edit your files, the on-modified events
-for those files will not be triggered by watchdog.
-You may need to configure Vim appropriately to disable
-this feature.
+- `Alex Chan`_
+- `Alex Eames`_
+- `Barry Byford`_
+- `Carl Monk`_
+- `Claire Pollard`_
+- `Clare Macrae`_
+- `David Glaude`_
+- `Daniele Procida`_
+- `Delcio Torres`_
+- `Edward Betts`_
+- `Fatih Sarhan`_
+- `Ian Harcombe`_
+- `Jeevan M R`_
+- `Mahallon`_
+- `Maksim Levental`_
+- `Martchus`_
+- `Martin O'Hanlon`_
+- `Mike Kazantsev`_
+- `Phil Howard`_
+- `Philippe Muller`_
+- `Rick Ansell`_
+- `Russel Winder`_
+- `Ryan Walmsley`_
+- `Schelto van Doorn`_
+- `Sofiia Kosovan`_
+- `Steve Amor`_
+- `Stewart Adcock`_
+- `Thijs Triemstra`_
+- `Tim Golden`_
+- `Yisrael Dov Lebow`_
 
 
-About using watchdog with CIFS
-------------------------------
-
-When you want to watch changes in CIFS, you need to explicitly tell watchdog to
-use ``PollingObserver``, that is, instead of letting watchdog decide an
-appropriate observer like in the example above, do::
-
-    from watchdog.observers.polling import PollingObserver as Observer
-
-
-Dependencies
-------------
-
-1. Python 3.6 or above.
-2. XCode_ (only on Mac OS X)
-3. PyYAML_ (only for ``watchmedo`` script)
-4. argh_ (only for ``watchmedo`` script)
-
-
-Licensing
----------
-
-Watchdog is licensed under the terms of the `Apache License, version 2.0`_.
-
-Copyright 2011 `Yesudeep Mangalapilly`_.
-
-Copyright 2012 Google, Inc & contributors.
-
-Project `source code`_ is available at Github. Please report bugs and file
-enhancement requests at the `issue tracker`_.
-
-Why Watchdog?
--------------
-
-Too many people tried to do the same thing and none did what I needed Python
-to do:
-
-* pnotify_
-* `unison fsmonitor`_
-* fsmonitor_
-* guard_
-* pyinotify_
-* `inotify-tools`_
-* jnotify_
-* treewalker_
-* `file.monitor`_
-* pyfilesystem_
-
-.. links:
-.. _Yesudeep Mangalapilly: yesudeep@gmail.com
-.. _source code: http://github.com/gorakhargosh/watchdog
-.. _issue tracker: http://github.com/gorakhargosh/watchdog/issues
-.. _Apache License, version 2.0: http://www.apache.org/licenses/LICENSE-2.0
-.. _documentation: https://python-watchdog.readthedocs.io/
-.. _stackoverflow: http://stackoverflow.com/questions/tagged/python-watchdog
-.. _mailing list: http://groups.google.com/group/watchdog-python
-.. _repository: http://github.com/gorakhargosh/watchdog
-.. _issue tracker: http://github.com/gorakhargosh/watchdog/issues
-.. _changelog: https://github.com/gorakhargosh/watchdog/blob/master/changelog.rst
-
-.. _homebrew: http://mxcl.github.com/homebrew/
-.. _argh: http://pypi.python.org/pypi/argh
-.. _PyYAML: http://www.pyyaml.org/
-.. _XCode: http://developer.apple.com/technologies/tools/xcode.html
-.. _LibYAML: http://pyyaml.org/wiki/LibYAML
-
-.. _pnotify: http://mark.heily.com/pnotify
-.. _unison fsmonitor: https://webdav.seas.upenn.edu/viewvc/unison/trunk/src/fsmonitor.py?view=markup&pathrev=471
-.. _fsmonitor: http://github.com/shaurz/fsmonitor
-.. _guard: http://github.com/guard/guard
-.. _pyinotify: http://github.com/seb-m/pyinotify
-.. _inotify-tools: http://github.com/rvoicilas/inotify-tools
-.. _jnotify: http://jnotify.sourceforge.net/
-.. _treewalker: http://github.com/jbd/treewatcher
-.. _file.monitor: http://github.com/pke/file.monitor
-.. _pyfilesystem: http://code.google.com/p/pyfilesystem
-
-.. |Build Status| image:: https://github.com/gorakhargosh/watchdog/workflows/Tests/badge.svg
-   :target: https://github.com/gorakhargosh/watchdog/actions?query=workflow%3ATests
+.. _Alex Chan: https://github.com/gpiozero/gpiozero/commits?author=alexwlchan
+.. _Alex Eames: https://github.com/gpiozero/gpiozero/commits?author=raspitv
+.. _Andrew Scheller: https://github.com/gpiozero/gpiozero/commits?author=lurch
+.. _Barry Byford: https://github.com/gpiozero/gpiozero/commits?author=ukBaz
+.. _Carl Monk: https://github.com/gpiozero/gpiozero/commits?author=ForToffee
+.. _Claire Pollard: https://github.com/gpiozero/gpiozero/commits?author=tuftii
+.. _Clare Macrae: https://github.com/gpiozero/gpiozero/commits?author=claremacrae
+.. _David Glaude: https://github.com/gpiozero/gpiozero/commits?author=dglaude
+.. _Daniele Procida: https://github.com/evildmp
+.. _Delcio Torres: https://github.com/gpiozero/gpiozero/commits?author=delciotorres
+.. _Edward Betts: https://github.com/gpiozero/gpiozero/commits?author=edwardbetts
+.. _Fatih Sarhan: https://github.com/gpiozero/gpiozero/commits?author=f9n
+.. _Ian Harcombe: https://github.com/gpiozero/gpiozero/commits?author=MrHarcombe
+.. _Jeevan M R: https://github.com/gpiozero/gpiozero/commits?author=jee1mr
+.. _Mahallon: https://github.com/gpiozero/gpiozero/commits?author=Mahallon
+.. _Maksim Levental: https://github.com/gpiozero/gpiozero/commits?author=makslevental
+.. _Martchus: https://github.com/gpiozero/gpiozero/commits?author=Martchus
+.. _Martin O'Hanlon: https://github.com/martinohanlon
+.. _Mike Kazantsev: https://github.com/gpiozero/gpiozero/commits?author=mk-fg
+.. _Phil Howard: https://github.com/gpiozero/gpiozero/commits?author=Gadgetoid
+.. _Philippe Muller: https://github.com/gpiozero/gpiozero/commits?author=pmuller
+.. _Rick Ansell: https://github.com/gpiozero/gpiozero/commits?author=ricksbt
+.. _Russel Winder: https://github.com/russel
+.. _Ryan Walmsley: https://github.com/gpiozero/gpiozero/commits?author=ryanteck
+.. _Schelto van Doorn: https://github.com/gpiozero/gpiozero/commits?author=goloplo
+.. _Sofiia Kosovan: https://github.com/gpiozero/gpiozero/commits?author=SofiiaKosovan
+.. _Steve Amor: https://github.com/gpiozero/gpiozero/commits?author=SteveAmor
+.. _Stewart Adcock: https://github.com/gpiozero/gpiozero/commits?author=stewartadcock
+.. _Thijs Triemstra: https://github.com/gpiozero/gpiozero/commits?author=thijstriemstra
+.. _Tim Golden: https://github.com/gpiozero/gpiozero/commits?author=tjguk
+.. _Yisrael Dov Lebow: https://github.com/gpiozero/gpiozero/commits?author=yisraeldov
