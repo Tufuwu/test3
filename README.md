@@ -1,54 +1,20 @@
-# PySoar
-[![Build Status](https://travis-ci.org/GliderGeek/PySoar.svg?branch=master)](https://travis-ci.org/GliderGeek/PySoar)
+### Overview
+[![Build Status](https://travis-ci.org/glinscott/fishtest.svg?branch=master)](https://travis-ci.org/glinscott/fishtest)
 
-PySoar automates the analysis of glider competitions. It starts with a Soaring Spot URL and delivers a spreadsheet as output.
+Fishtest is a distributed task queue for testing chess engines. The main instance
+for testing the chess engine [Stockfish](https://github.com/official-stockfish/Stockfish) is at this web page https://tests.stockfishchess.org
 
-A screenshot of the program:
+Developers submit patches with new ideas and improvements, CPU contributors install a fishtest worker on their computers to play some chess games in the background to help the developers testing the patches.
 
-[![PySoar screenshot](https://github.com/glidergeek/pysoar/raw/master/images/pysoar_screenshot_thumbnail.jpg)](https://github.com/glidergeek/pysoar/raw/master/images/pysoar_screenshot.png)
+The fishtest worker:
+- automatically connects to the server to download a chess opening book, the [cutechess-cli](https://github.com/cutechess/cutechess) chess game manager and the chess engine sources (both for the current Stockfish and for the patch with the new idea). The sources will be compiled according to the type of the worker platform.
+- starts a batch of games using cutechess-cli.
+- uploads the games results on the server.
 
-An example analysis is provided for [this](http://www.soaringspot.com/en/sallandse-tweedaagse-2014/results/club/task-1-on-2014-06-21/daily) competition day:
+The fishtest server:
+- manages the queue of the tests with customizable priorities.
+- computes several probabilistic values from the game results sent by the workers.
+- updates and publishes the results of ongoing tests.
+- knows how to stop tests when they are statistically significant and publishes the final tests results.
 
-[![Example pysoar analysis](https://github.com/glidergeek/pysoar/raw/master/images/excel_logo.jpg)](https://github.com/glidergeek/pysoar/raw/master/example_analysis.xls)
-
-
-## Stand alone versions
-Stand alone versions for Windows, Mac and Linux are available under [releases](https://github.com/GliderGeek/PySoar/releases).
-
-Apart from Excel/Open Office for viewing the spreadsheet, no extra software is needed.
-
-## Limitations
-The following limitations are (currently) in place:
-
-- no restart after 1st turnpoint
-- no penalties for missing turnpoints -> outlanding
-- no multiple start points
-
-## Building an executable
-Executables are built using github actions. See `.github/workflows/main.yml` for the steps taken
-
-## Publishing a new version
-- everything merged in development
-- add version number in `CHANGES.md` and change version number in `settingsClass.py`
-- commit on developent, merge development in master and tag on master
-- download zips from pipeline and create release from the tag
-
-## License
-
-	PySoar - Automating gliding competition analysis	Copyright (C) 2016  Matthijs Beekman
-
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>
-
-
-You can find the full license text in the [LICENSE](LICENSE) file.
+To get more information, such as the worker/server install and configuration instructions, visit the [Fishtest Wiki](https://github.com/glinscott/fishtest/wiki).
