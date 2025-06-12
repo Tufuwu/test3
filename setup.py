@@ -1,33 +1,71 @@
-#!/usr/bin/env python3
+import os
 
-# Copyright (c) 2013-2021, Freja Nordsiek
-# All rights reserved.
-#
-# Redistribution and use in source and binary forms, with or without
-# modification, are permitted provided that the following conditions are
-# met:
-#
-# 1. Redistributions of source code must retain the above copyright
-# notice, this list of conditions and the following disclaimer.
-#
-# 2. Redistributions in binary form must reproduce the above copyright
-# notice, this list of conditions and the following disclaimer in the
-# documentation and/or other materials provided with the distribution.
-#
-# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-# A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-# HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-# SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-# LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-# DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-# THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+from setuptools import setup, find_packages
 
 
-# All configuration information is now in pyproject.toml and setup.cfg.
-if __name__ == '__main__':
-    from setuptools import setup
-    setup()
+PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
+
+
+def read(fname):
+    with open(fname) as fp:
+        return fp.read()
+
+
+try:
+    import pypandoc
+
+    long_description = pypandoc.convert("README.md", "rst")
+except (IOError, ImportError, OSError):
+    long_description = read("README.md")
+
+
+REQUIREMENTS_FILE = "requirements.txt"
+REQUIREMENTS = open(os.path.join(PROJECT_DIR, REQUIREMENTS_FILE)).readlines()
+
+REQUIREMENTS_TESTS_FILE = "requirements-test.txt"
+REQUIREMENTS_TESTS = open(
+    os.path.join(PROJECT_DIR, REQUIREMENTS_TESTS_FILE)
+).readlines()
+
+REQUIREMENTS_TOX_FILE = "requirements-tox.txt"
+REQUIREMENTS_TOX = open(os.path.join(PROJECT_DIR, REQUIREMENTS_TOX_FILE)).readlines()
+
+EXTRAS_REQUIRE = {
+    "enum": ["marshmallow-enum"],
+    "union": ["marshmallow-union"],
+}
+
+
+setup(
+    name="marshmallow-jsonschema",
+    version="0.11.0",
+    description="JSON Schema Draft v4 (http://json-schema.org/)"
+    " formatting with marshmallow",
+    long_description=long_description,
+    author="Stephen Fuhry",
+    author_email="fuhrysteve@gmail.com",
+    url="https://github.com/fuhrysteve/marshmallow-jsonschema",
+    packages=find_packages(exclude=("test*",)),
+    package_dir={"marshmallow-jsonschema": "marshmallow-jsonschema"},
+    include_package_data=True,
+    install_requires=REQUIREMENTS,
+    tests_require=REQUIREMENTS_TESTS + REQUIREMENTS_TOX,
+    extras_require=EXTRAS_REQUIRE,
+    license=read("LICENSE"),
+    zip_safe=False,
+    keywords=(
+        "marshmallow-jsonschema marshmallow schema serialization "
+        "jsonschema validation"
+    ),
+    classifiers=[
+        "Intended Audience :: Developers",
+        "License :: OSI Approved :: MIT License",
+        "Natural Language :: English",
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+    ],
+    test_suite="tests",
+)

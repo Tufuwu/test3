@@ -1,0 +1,39 @@
+0.11.0 (unreleased)
+    - drop support for python 2 & 3.5, as well as marshmallow 2.
+      Python >= 3.6 and marshmallow >= 3 are now required!
+      Python 3.5 should still work - no breaking changes yet,
+      it just isn't a part of the build anymore.
+    - add optional support for marshmallow_enum and marshmallow_union.
+    - Include type of Dict values #127
+      Add support for specifying the type of Dict values.
+      Prior to this change any information about the values in a
+      dict - particularly nested schemas - was lost.
+
+0.10.0 (2020-03-03)
+    - added ReactJsonSchemaFormJSONSchema extension
+    - Add support for allow_none (#106 thanks @avilaton!)
+0.9.0 (2020-01-18)
+
+0.8.0 (2019-10-08)
+
+0.7.0 (2019-08-11)
+
+0.6.0 (2019-06-16)
+    - lots of various fixes
+    - fix compatibility with brutusin/json-form
+    - drop support for python 3.3
+    - fix BC breaks in marshmallow 3 (someday it will be released!!)
+    - probably (hopefully?) the last major version to support py2!
+
+0.5.0 (2018-07-17)
+    - support for marshmallow 3
+
+0.4.0 (2017-07-13)
+    - add support for fields.List (thanks @Bartvds and @sdayu
+      for tests & implementation)
+
+0.3.0 (2016-06-12)
+    - add support for marshmallow validators (see #14)
+
+0.2.0 (2016-05-25)
+    - add support for titles & descriptions in metadata
