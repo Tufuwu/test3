@@ -1,62 +1,104 @@
-About Boxes.py
-==============
+img2gb - Converts Images to GameBoy Tileset and Tilemap
+=======================================================
 
-+----------------------------------------------+----------------------------------------------+----------------------------------------------+----------------------------------------------+----------------------------------------------+
-| .. image:: static/samples/NotesHolder.jpg    | .. image:: static/samples/OttoBody.jpg       | .. image:: static/samples/PaintStorage.jpg   | .. image:: static/samples/ShutterBox.jpg     | .. image:: static/samples/TwoPiece.jpg       |
-+----------------------------------------------+----------------------------------------------+----------------------------------------------+----------------------------------------------+----------------------------------------------+
+|Build Status| |PYPI Version| |License|
 
-* Boxes.py is an online box generator
+    img2gb generates GameBoy Tilesets and Tilemaps from standard image (PNG,
+    JPEG,...). It converts the images into the GameBoy image format and
+    generates C code (``.c`` and ``.h`` files) that can be used in GameBoy
+    projects.
 
-  * https://www.festi.info/boxes.py/index.html
+.. image:: ./doc/_static/banner.png
 
-* Boxes.py is an Inkscape plug-in
-* Boxes.py is library to write your own
-* Boxes.py is free software licensed under GPL v3+
-* Boxes.py is written in Python and runs with Python 3
+* Documentation: https://flozz.github.io/img2gb/
+* HowTo: https://flozz.github.io/img2gb/howto.html
 
-Boxes.py comes with a growing set of ready-to-use, fully parametrized
-generators. See https://florianfesti.github.io/boxes/html/generators.html for the full list.
 
-+----------------------------------------------+----------------------------------------------+----------------------------------------------+
-| .. image:: static/samples/AngledBox.jpg      | .. image:: static/samples/FlexBox2.jpg       | .. image:: static/samples/HingeBox.jpg       |
-+----------------------------------------------+----------------------------------------------+----------------------------------------------+
+Dependencies
+------------
 
-Features
---------
+* Python 2.7 / 3.5
+* Pillow
 
-Boxes.py generates SVG images that can be viewed directly in a web browser but also
-postscript and - with pstoedit as external helper - other vector formats
-including dxf, plt (aka hpgl) and gcode.
 
-Of course the library and the generators allow selecting the "thickness"
-of the material used and automatically adjusts lengths and width of
-joining fingers and other elements.
+Install
+-------
 
-The "burn" parameter compensates for the material removed by the laser. This
-allows fine tuning the gaps between joins up to the point where plywood
-can be press fitted even without any glue.
+* See https://flozz.github.io/img2gb/install.html
 
-Finger Joints are the work horse of the library. They allow 90° edges
-and T connections. Their size is scaled up with the material
-"thickness" to maintain the same appearance. The library also allows
-putting holes and slots for screws (bed bolts) into finger joints,
-although this is currently not supported for the included generators.
 
-Dovetail joints can be used to join pieces in the same plane.
+Usage
+-----
 
-Flex cuts allows bending and stretching the material in one direction. This
-is used for rounded edges and living hinges.
+* See https://flozz.github.io/img2gb/cli.html
 
-+----------------------------------------------+----------------------------------------------+----------------------------------------------+
-|   .. image:: static/samples/TypeTray.jpg     |     .. image:: static/samples/BinTray.jpg    | .. image:: static/samples/DisplayShelf.jpg   |
-+----------------------------------------------+----------------------------------------------+----------------------------------------------+
-| .. image:: static/samples/AgricolaInsert.jpg | .. image:: static/samples/HeartBox.jpg       | .. image:: static/samples/Atreus21.jpg       |
-+----------------------------------------------+----------------------------------------------+----------------------------------------------+
 
-Documentation
--------------
+Hacking
+-------
 
-Boxes.py comes with Sphinx based documentation for usage, installation
-and development.
+To work on img2gb first create a virtualenv::
 
-The rendered version can be viewed at <https://florianfesti.github.io/boxes/html/index.html>.
+    python3 -m venv __env__
+
+and activate it::
+
+    source __env__/bin/activate
+
+Then install the project will all devs dependencies::
+
+    pip install -e .[dev]
+
+You can now lint the code::
+
+    nox -s lint
+
+You can fix codding style using Black::
+
+    nox -s black_fix
+
+And you can run tests::
+
+    nox -s test       # Run on all Python version
+    nox -s test-3.7   # Run on Python 3.7
+    nox -s test-3.8   # Run on Python 3.8
+    nox -s test-3.9   # Run on Python 3.9
+    nox -s test-3.10  # Run on Python 3.10
+
+
+Links
+-----
+
+* Examples of GameBoy programs that uses img2gb for graphics:
+  * https://github.com/flozz/gameboy-examples/tree/master/05-graphics2
+  * https://github.com/flozz/gameboy-examples/tree/master/06-graphics3-background
+* Article about the tile encoding and img2gb: https://blog.flozz.fr/2018/11/19/developpement-gameboy-5-creer-des-tilesets/ (French)
+
+
+Changelog
+---------
+
+* **1.1.0:**
+
+  * Removes arbitrary size limit for tilmaps
+  * Implements ``offset`` option (#2)
+
+* **1.0.0:**
+
+  * Refacto of the Python API, with new high-level fuction to be easier to use
+  * Refacto of the CLI: now tileset and tilemap are generated separately, this allow more options for both and covers more usecases.
+  * New option to handle alternative palette
+  * New option to handle 8x16px sprites
+  * Documentation
+  * Unit test (everything is not coverd but it is better than nothing :))
+
+* **0.10.0:** Adds non-RGB image support (indexed images,...)
+* **0.9.1:** Fixes an issue with Python 3
+* **0.9.0:** Initial release (generates tiles, tilesets and tilemaps)
+
+
+.. |Build Status| image:: https://travis-ci.org/flozz/img2gb.svg?branch=master
+   :target: https://travis-ci.org/flozz/img2gb
+.. |PYPI Version| image:: https://img.shields.io/pypi/v/img2gb.svg
+   :target: https://pypi.python.org/pypi/img2gb
+.. |License| image:: https://img.shields.io/pypi/l/img2gb.svg
+   :target: https://github.com/flozz/img2gb/blob/master/LICENSE
