@@ -1,42 +1,49 @@
-#!/bin/env python
+from pathlib import Path
 
-import fbpic
-from setuptools import setup, find_packages
+from setuptools import find_packages, setup
 
-# 读取说明文档
-with open('./README.md') as f:
-    long_description = f.read()
+VERSION = '2.2.0'
+github_url = 'https://github.com/fdemmer/django-weasyprint'
 
-# 读取依赖项
-with open('requirements.txt') as f:
-    install_requires = [line.strip() for line in f.readlines()]
 
 setup(
-    name='fbpic',
-    version=fbpic.__version__,
-    description='Spectral, quasi-3D Particle-In-Cell for CPU and GPU',
-    long_description=long_description,
-    long_description_content_type='text/markdown',
-    maintainer='Remi Lehe',
-    maintainer_email='remi.lehe@normalesup.org',
-    license='BSD-3-Clause-LBNL',
-    packages=find_packages('.'),
-    install_requires=install_requires,
-    extras_require={
-        'test': ["pytest", "more-itertools<6.0.0", "openpmd_viewer"]
+    name='django-weasyprint',
+    version=VERSION,
+    author='Florian Demmer',
+    author_email='fdemmer@gmail.com',
+    description='Django WeasyPrint CBV',
+    long_description=(Path(__file__).parent.resolve() / 'README.rst').read_text(),
+    download_url=f'{github_url}/archive/v{VERSION}.tar.gz',
+    url=github_url,
+    project_urls={
+        'Changelog': f'{github_url}/blob/v{VERSION}/CHANGELOG.md',
     },
-    include_package_data=True,
-    platforms='any',
-    url='http://github.com/fbpic/fbpic',
+    license='Apache-2.0',
     classifiers=[
-        'Programming Language :: Python',
-        'Development Status :: 3 - Alpha',
-        'Environment :: Console',
-        'Intended Audience :: Science/Research',
+        'Development Status :: 5 - Production/Stable',
+        'Environment :: Web Environment',
+        'Framework :: Django',
+        'Framework :: Django :: 3.2',
+        'Framework :: Django :: 4.0',
+        'Framework :: Django :: 4.1',
+        'Intended Audience :: Developers',
+        'License :: OSI Approved :: Apache Software License',
         'Operating System :: OS Independent',
-        'Topic :: Scientific/Engineering :: Physics',
-        'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3.4',
-        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python',
+        'Programming Language :: Python :: 3 :: Only',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
+        'Programming Language :: Python :: 3.10',
+        'Topic :: Software Development :: Libraries :: Python Modules',
+    ],
+    packages=find_packages(),
+    python_requires='>=3.6',
+    setup_requires=['wheel'],
+    install_requires=[
+        'Django>=2.2',
+        'WeasyPrint>=53',
     ],
 )
