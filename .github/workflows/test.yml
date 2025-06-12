@@ -15,23 +15,23 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-22.04]
-        python-version: [3.7]
+        python-version: [3.8]
         arch: [amd64, ppc64le]
         include:
           - os: ubuntu-22.04
-            python-version: 3.7
+            python-version: 3.8
             arch: amd64
             env: TOXENV=flake8
           - os: ubuntu-22.04
-            python-version: 3.7
+            python-version: 3.8
             arch: amd64
             env: TOXENV=isort
           - os: ubuntu-22.04
-            python-version: 3.7
+            python-version: 3.8
             arch: ppc64le
             env: TOXENV=flake8
           - os: ubuntu-22.04
-            python-version: 3.7
+            python-version: 3.8
             arch: ppc64le
             env: TOXENV=isort
     steps:
@@ -54,7 +54,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-22.04]
-        python-version: [3.5, 3.7, 3.7, 3.8]
+        python-version: [3.5, 3.8]
         arch: [amd64, ppc64le]
     steps:
       - uses: actions/checkout@v2
