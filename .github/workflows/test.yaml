@@ -52,7 +52,7 @@ jobs:
         ${{ env.PYTHON }} -m pip install --upgrade --constraint .constraints .[${{ env.EXTRAS }}] coverage coveralls ${{ matrix.dep || '' }}
 
     - name: Run tests
-      run: ${{ env.PYTHON }} -m coverage run -m unittest -b
+      run: python -m coverage run -m unittest -b
 
     - name: Coveralls
       if: success()
