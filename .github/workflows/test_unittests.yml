@@ -9,6 +9,7 @@ jobs:
     name: conda-tests
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         ffmpeg-version: ["3.2.4", "3.4", "4.0.2", "4.1", "4.2", "4.3"]
 
