@@ -1,12 +1,14 @@
 [run]
-source=vault
+include =
+    tibiapy/*.py
 
 [report]
-omit =
-  setup.py
-  src/__main__.py
-  src/unittest/*
-  venv/*
 exclude_lines =
-  if __name__ == "__main__":
-  main()
+    pragma: no cover
+    if __name__ == .__main__.:
+    def __repr__
+    def __eq__
+    def __len__
+    def __lt__
+    def __gt__
+    return NotImplemented
