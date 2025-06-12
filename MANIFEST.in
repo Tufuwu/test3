@@ -1,2 +1,5 @@
-include README.md requirements.txt requirements-test.txt requirements-tox.txt
-include LICENSE
+include README.rst CHANGES.rst LICENSE Makefile
+recursive-include tests *.py
+recursive-include docs *
+prune docs/_build
+global-exclude *.pyc
