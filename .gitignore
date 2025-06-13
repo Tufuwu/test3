@@ -1,10 +1,48 @@
-/asttokens/version.py
+*.py[cod]
 
+# C extensions
+*.so
+
+# Packages
+*.egg
+*.egg-info
+.installed.cfg
+__pycache__
+bin
+build
+develop-eggs
+dist
+eggs
+lib
+lib64
+parts
+sdist
+var
+
+# Installer logs
+pip-log.txt
+
+# Unit test / coverage reports
 .coverage
-*.py[co]
+.tox
+coverage.xml
+nosetests.xml
 
-# Building and packaging
-build/
-dist/
-*.egg-info/
-docs/_build/
+# Translations
+*.mo
+
+# Mr Developer
+.cache
+.coveralls.yml
+.env
+.idea
+.mr.developer.cfg
+.project
+.pydevproject
+.python-version
+htmlcov
+tests/middlewares/throttle/sample
+tests/throttle/sample
+
+# Virtualenvs
+.venv*
