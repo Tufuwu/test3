@@ -22,7 +22,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        os: ["ubuntu-22s.04"]
+        os: ["ubuntu-22.04"]
         python-version: [
           "3.6",
           "3.11",
