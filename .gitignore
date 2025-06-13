@@ -1,12 +1,10 @@
-*~
-*.pyc
-*.egg-info
-*.eggs/
-*.pybuild/
-__pycache__/
-/build
-/dist
-/deb_dist
-/debian/stcgal*
-/debian/files
-/.vscode
+/asttokens/version.py
+
+.coverage
+*.py[co]
+
+# Building and packaging
+build/
+dist/
+*.egg-info/
+docs/_build/
