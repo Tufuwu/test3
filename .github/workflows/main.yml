@@ -1,71 +1,93 @@
----
-name: Tests
+name: CI
 
 on:
-  pull_request: ~
   push:
     branches: [ main ]
-
-  # Allow job to be triggered manually.
-  workflow_dispatch:
-
-# Cancel in-progress jobs when pushing to the same branch.
-concurrency:
-  cancel-in-progress: true
-  group: ${{ github.workflow }}-${{ github.ref }}
+  pull_request:
+    branches: [ master ]
 
 jobs:
+  lint:
+    name: lint and style checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.9
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install flake8 black isort
+      - name: Lint with flake8
+        run: |
+          flake8 .
+      - name: Black style check
+        run: |
+          black --check .
+      - name: Isort import check
+        run: |
+          isort --check .
 
-  tests:
-
-    runs-on: ${{ matrix.os }}
+  build_0:
+    name: h5py2 tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash -l {0}
     strategy:
       fail-fast: false
       matrix:
-        os: ["ubuntu-22.04"]
-        python-version: [
-          "3.6",
-          "3.11",
-        ]
-
-    env:
-      OS: ${{ matrix.os }}
-      PYTHON: ${{ matrix.python-version }}
-      OPS_KEY: ${{ secrets.OPS_API_CONSUMER_KEY }}
-      OPS_SECRET: ${{ secrets.OPS_API_CONSUMER_SECRET }}
-
-    name: Python ${{ matrix.python-version }} on OS ${{ matrix.os }}
+        python-version: ["3.6", "3.7", "3.8", "3.9"]
     steps:
-
-    - name: Acquire sources
-      uses: actions/checkout@v3
-
-    - name: Set up Python
-      uses: actions/setup-python@v4
+    - uses: actions/checkout@v2
+    - uses: conda-incubator/setup-miniconda@v2
       with:
+        channels: conda-forge
+        mamba-version: "*"
+        activate-environment: h5netcdf-tests
+        channel-priority: strict
+        auto-update-conda: false
         python-version: ${{ matrix.python-version }}
-        architecture: x64
-        cache: 'pip'
-        cache-dependency-path: 'setup.py'
-
-    - name: Setup project
+    - name: Set up conda environment
       run: |
-        make install-develop
-
-    - name: Run linter
-      if: matrix.python-version != '3.6'
+        mamba install pip wheel pytest h5py==2.10.0 netCDF4
+        conda list
+    - name: Install h5netcdf
       run: |
-        make lint
-
-    - name: Run tests
+        python -m pip install . --no-deps --ignore-installed --no-cache-dir -vvv
+    - name: Test with pytest
       run: |
-        make test-ci
+        pytest -v h5netcdf/
 
-    - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v3
+  build_1:
+    name: h5py3 tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash -l {0}
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.6", "3.7", "3.8", "3.9"]
+    steps:
+    - uses: actions/checkout@v2
+    - uses: conda-incubator/setup-miniconda@v2
       with:
-        files: ./coverage.xml
-        flags: unittests
-        env_vars: OS,PYTHON
-        name: codecov-umbrella
-        fail_ci_if_error: false
+        channels: conda-forge
+        mamba-version: "*"
+        activate-environment: h5netcdf-tests
+        channel-priority: strict
+        auto-update-conda: false
+        python-version: ${{ matrix.python-version }}
+    - name: Set up conda environment
+      run: |
+        mamba install pip wheel pytest h5py netCDF4
+        conda list
+    - name: Install h5netcdf
+      run: |
+        python -m pip install . --no-deps --ignore-installed --no-cache-dir -vvv
+    - name: Test with pytest
+      run: |
+        pytest -v h5netcdf/
