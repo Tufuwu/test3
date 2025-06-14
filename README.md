@@ -1,19 +1,14 @@
-![Build Status](https://github.com/hotdoc/hotdoc/workflows/python/badge.svg)
+# Client software for the EBRAINS Neuromorphic Computing Platform, developed by the Human Brain Project
 
-![Hotdoc logo](https://cdn.rawgit.com/hotdoc/hotdoc/master/documentation/hotdoc.svg)
 
-This project needs a logo. In the meantime, eyes will get hurt by this 
-horrible illustration of programmer art.
+For documentation, see https://electronicvisions.github.io/hbp-sp9-guidebook/
 
-Hotdoc is a documentation micro-framework. It provides an interface for
-extensions to plug upon, along with some base objects (formatters, ...)
+For more information about EBRAINS, see https://ebrains.eu/
+For more information about the Human Brain Project, see https://www.humanbrainproject.eu/
 
-Please check the packages listed at [https://github.com/hotdoc](https://github.com/hotdoc) to
-pick the extensions you are interested in.
 
-You can find the documentation for hotdoc, by hotdoc [here](https://hotdoc.github.io/)
+[![Build Status](https://travis-ci.org/HumanBrainProject/hbp-neuromorphic-client.svg?branch=master)](https://travis-ci.org/HumanBrainProject/hbp-neuromorphic-client)
 
-### Licensing
-
-hotdoc is licensed under the LGPL version 2.1 (or, at your option, any
-later version). See COPYING for more details.
+This software was developed in the Human Brain Project,
+funded from the European Union’s Horizon 2020 Framework Programme for Research and Innovation
+under Specific Grant Agreements No. 720270, No. 785907 and No. 945539 (Human Brain Project SGA1, SGA2 and SGA3).
