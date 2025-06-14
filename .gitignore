@@ -1,4 +1,6 @@
-*.egg-info
-build
-dist
-__pycache__
+# Python setuptools 
+build/
+dist/
+*egg-info/
+*__pycache__
+*.pyc
