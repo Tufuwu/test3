@@ -29,11 +29,12 @@ jobs:
     - name: Install dependencies
       run: |
         sudo apt-get -qq update
+        pip install -q ansible==${{ matrix.ansible-version }}
         pip install -U pip setuptools wheel
         sudo apt-get install -y graphviz
         
         pip install -qUr tests/requirements_tests.txt
-        pip install -q ansible==${{ matrix.ansible-version }}
+
         pip freeze
 
     - name: Run tests
