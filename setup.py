@@ -1,65 +1,82 @@
-import sys
+"""
+Mizani
+
+Mizani is a scales package for graphics. It is based on Hadley
+Wickham's *Scales* package.
+"""
 
 from setuptools import setup, find_packages
 
-from ansibleplaybookgrapher import __version__, __prog__
+import versioneer
 
 
-def read_requirements(path):
+__author__ = 'Hassan Kibirige'
+__email__ = 'has2k1@gmail.com'
+__description__ = "Scales for Python"
+__license__ = 'BSD (3-clause)'
+__url__ = 'https://github.com/has2k1/mizani'
+__classifiers__ = [
+    'Intended Audience :: Science/Research',
+    'License :: OSI Approved :: BSD License',
+    'Programming Language :: Python :: 3',
+    'Topic :: Scientific/Engineering :: Visualization',
+]
+
+
+def check_dependencies():
     """
-    Read requirements file
-    :param path:
-    :type path:
-    :return:
-    :rtype:
+    Check for system level dependencies
     """
-    requirements = []
-    with open(path) as f_r:
-        for l in f_r:
-            requirements.append(l.strip())
-    return requirements
+    pass
 
 
-install_requires = read_requirements('requirements.txt')
-test_require = read_requirements('tests/requirements_tests.txt')[1:]
+def get_required_packages():
+    """
+    Return required packages
 
-with open('README.md') as f:
-    long_description = f.read()
+    Plus any version tests and warnings
+    """
+    install_requires = ['numpy',
+                        'pandas >= 1.1.0',
+                        'matplotlib >= 3.1.1',
+                        'palettable']
+    return install_requires
 
-# add `pytest-runner` distutils plugin for test;
-# see https://pypi.python.org/pypi/pytest-runner
-setup_requires = []
-if {'pytest', 'test', 'ptr'}.intersection(sys.argv[1:]):
-    setup_requires.append('pytest-runner')
 
-setup(name=__prog__,
-      version=__version__,
-      description="A command line tool to create a graph representing your Ansible playbook tasks and roles",
-      long_description=long_description,
-      long_description_content_type='text/markdown',
-      url="https://github.com/haidaraM/ansible-playbook-grapher",
-      author="HAIDARA Mohamed El Mouctar",
-      author_email="elmhaidara@gmail.com",
-      license="MIT",
-      install_requires=install_requires,
-      tests_require=test_require,
-      setup_requires=setup_requires,
-      packages=find_packages(exclude=['tests']),
-      package_data={"ansible-playbook-grapher": ['data/*']},
-      include_package_data=True,
-      download_url="https://github.com/haidaraM/ansible-playbook-grapher/archive/v" + __version__ + ".tar.gz",
-      classifiers=[
-          'Development Status :: 5 - Production/Stable',
-          'Intended Audience :: Developers',
-          'Intended Audience :: System Administrators',
-          'License :: OSI Approved :: MIT License',
-          'Environment :: Console',
-          'Topic :: Utilities',
-          'Programming Language :: Python :: 3.5',
-          'Programming Language :: Python :: 2.7',
-      ],
-      entry_points={
-          'console_scripts': [
-              '%s = ansibleplaybookgrapher.cli:main' % __prog__
-          ]
-      })
+def get_package_data():
+    """
+    Return package data
+
+    For example:
+
+        {'': ['*.txt', '*.rst'],
+         'hello': ['*.msg']}
+
+    means:
+        - If any package contains *.txt or *.rst files,
+          include them
+        - And include any *.msg files found in
+          the 'hello' package, too:
+    """
+    return {}
+
+
+if __name__ == '__main__':
+
+    check_dependencies()
+
+    setup(name='mizani',
+          maintainer=__author__,
+          maintainer_email=__email__,
+          description=__description__,
+          long_description=__doc__,
+          license=__license__,
+          version=versioneer.get_version(),
+          cmdclass=versioneer.get_cmdclass(),
+          url=__url__,
+          python_requires='>=3.6',
+          install_requires=get_required_packages(),
+          packages=find_packages(),
+          package_data=get_package_data(),
+          classifiers=__classifiers__
+          )

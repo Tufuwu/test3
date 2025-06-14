@@ -1,35 +1,66 @@
-ANSIBLE_VERSION=2.9
-VIRTUALENV_DIR=venv
-PACKAGE := dist/$(shell ls dist 2> /dev/null)
-SRC=$(wildcard ansibleplaybookgrapher/*.py setup.py ansibleplaybookgrapher/data/*)
+.PHONY: clean-pyc clean-build doc clean
+BROWSER := python -mwebbrowser
 
-build: $(PACKAGE)
+help:
+	@echo "clean - remove all build, test, coverage and Python artifacts"
+	@echo "clean-build - remove build artifacts"
+	@echo "clean-pyc - remove Python file artifacts"
+	@echo "clean-test - remove test and coverage artifacts"
+	@echo "lint - check style with flake8"
+	@echo "test - run tests quickly with the default Python"
+	@echo "test-all - run tests on every Python version with tox"
+	@echo "coverage - check code coverage quickly with the default Python"
+	@echo "doc - generate Sphinx HTML documentation, including API docs"
+	@echo "release - package and upload a release"
+	@echo "dist - package"
+	@echo "install - install the package to the active Python's site-packages"
 
-$(PACKAGE): $(SRC)
-	@echo "Building the package..."
-	@python setup.py bdist_wheel
+clean: clean-build clean-pyc clean-test
 
-# Deploy to Pypi Live environment
-deploy: clean build
-	@echo "Deploying to Pypi Live environment..."
-	@twine upload dist/*
+clean-build:
+	rm -fr build/
+	rm -fr dist/
+	rm -fr .eggs/
+	find . -name '*.egg-info' -exec rm -fr {} +
+	find . -name '*.egg' -exec rm -f {} +
 
-# Deploy to Pypi test environment
-deploy_test: clean build
-	@echo "Deploying to Pypi Test environment..."
-	@twine upload --repository-url https://test.pypi.org/legacy/ dist/*
+clean-pyc:
+	find . -name '*.pyc' -exec rm -f {} +
+	find . -name '*.pyo' -exec rm -f {} +
+	find . -name '*~' -exec rm -f {} +
+	find . -name '__pycache__' -exec rm -fr {} +
 
-test_install: build
-	@./test_install.sh $(VIRTUALENV_DIR) $(ANSIBLE_VERSION)
+clean-test:
+	rm -fr .tox/
+	rm -f .coverage
+	rm -f coverage.xml
+	rm -fr htmlcov/
+
+lint:
+	flake8 --exclude=mizani/external mizani
 
 test:
-	# Ansible 2.8 CLI sets some global variables causing the tests to fail if the cli tests are run before
-	# the grapher tests. It works in Ansible 2.9. So here we explicitly set the tests order.
-	# TODO: Remove pytest arguments when we drop support for Ansible 2.8
-	cd tests && pytest test_grapher.py test_cli.py test_postprocessor.py
+	pytest
 
-clean:
-	@echo "Cleaning..."
-	rm -rf ansible_playbook_grapher.egg-info build dist $(VIRTUALENV_DIR) tests/htmlcov tests/.pytest_cache .eggs tests/generated_svg tests/.coverage
+test-all:
+	tox
 
-.PHONY: clean test_install
+coverage:
+	coverage report -m
+	coverage html
+	$(BROWSER) htmlcov/index.html
+
+doc:
+	$(MAKE) -C doc clean
+	$(MAKE) -C doc html
+	$(BROWSER) doc/_build/html/index.html
+
+release: clean
+	bash ./tools/release.sh
+
+dist: clean
+	python setup.py sdist bdist_wheel
+	ls -l dist
+
+install: clean
+	python setup.py install

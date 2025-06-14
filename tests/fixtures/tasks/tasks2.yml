@@ -1,9 +1,0 @@
----
-- name: Included task one
-  command: /bin/foo
-
-- name: Included task two
-  command: /bin/bar
-
-- name: Included task three
-  command: /bin/bar
