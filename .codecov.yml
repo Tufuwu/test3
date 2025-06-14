@@ -1,13 +1,3 @@
-coverage:
-  precision: 2
-  round: nearest
-  range: 60...90
-  status:
-    project:
-      default: yes
-
 ignore:
-  - hatchet/tests/*
-  - docs/examples/*
-
-comment: off
+  - "/runner.py"
+  - "/setup.py"

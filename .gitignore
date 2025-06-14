@@ -1,9 +1,7 @@
+**/.idea/
 *.pyc
-.cache
-.pytest_cache
-.ipynb_checkpoints
-
-build
-docs/_build
-hatchet/cython_modules/libs/graphframe_modules.*.so
-hatchet/cython_modules/libs/reader_modules.*.so
+*.egg-info/
+/build/
+/dist/
+.tox
+.coverage
