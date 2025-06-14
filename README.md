@@ -1,199 +1,124 @@
-# py-solc-x
+[![CI Status](https://github.com/BiomedSciAI/causallib/actions/workflows/build.yml/badge.svg?branch=master)](https://github.com/BiomedSciAI/causallib/actions/workflows/build.yml)
+[![Code Climate coverage](https://img.shields.io/codeclimate/coverage/BiomedSciAI/causallib?logo=codeclimate)](https://codeclimate.com/github/BiomedSciAI/causallib/test_coverage)
+[![PyPI](https://img.shields.io/pypi/v/causallib?color=blue&logo=pypi&logoColor=yellow)](https://badge.fury.io/py/causallib)
+[![Documentation Status](https://readthedocs.org/projects/causallib/badge/?version=latest)](https://causallib.readthedocs.io/en/latest/)
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/BiomedSciAI/causallib/HEAD)
+[![Slack channel](https://img.shields.io/badge/join-slack-blue.svg?logo=slack)](https://join.slack.com/t/causallib/shared_invite/zt-mwxnwe1t-htEgAXr3j3T2UeZj61gP6g)
+[![Slack channel](https://img.shields.io/badge/support-slack-blue.svg?logo=slack)](https://causallib.slack.com/)
+[![Downloads](https://pepy.tech/badge/causallib)](https://pepy.tech/project/causallib)
+# Causal Inference 360
+A Python package for inferring causal effects from observational data.
 
-[![Pypi Status](https://img.shields.io/pypi/v/py-solc-x.svg)](https://pypi.org/project/py-solc-x/) [![Build Status](https://img.shields.io/travis/com/iamdefinitelyahuman/py-solc-x.svg)](https://travis-ci.com/iamdefinitelyahuman/py-solc-x) [![Coverage Status](https://coveralls.io/repos/github/iamdefinitelyahuman/py-solc-x/badge.svg?branch=master)](https://coveralls.io/github/iamdefinitelyahuman/py-solc-x?branch=master)
+## Description
+Causal inference analysis enables estimating the causal effect of 
+an intervention on some outcome from real-world non-experimental observational data.  
 
-Python wrapper around the `solc` Solidity compiler with `0.5.x` and `0.6.x` support.
+This package provides a suite of causal methods, 
+under a unified scikit-learn-inspired API.
+It implements meta-algorithms that allow plugging in arbitrarily complex machine learning models. 
+This modular approach supports highly-flexible causal modelling.
+The fit-and-predict-like 
+API makes it possible to train on one set of examples 
+and estimate an effect on the other (out-of-bag),
+which allows for a more "honest"<sup>1</sup> effect estimation.
 
-Forked from [py-solc](https://github.com/ethereum/py-solc).
+The package also includes an evaluation suite. 
+Since most causal-models utilize machine learning models internally, 
+we can diagnose poor-performing models by re-interpreting known ML evaluations from  a causal perspective.
 
-## Dependencies
-
-Py-solc-x allows the use of multiple versions of solc and installs them as needed. You must have all required [solc dependencies](https://solidity.readthedocs.io/en/latest/installing-solidity.html#building-from-source) installed for it to work properly.
-
-## Supported Versions
-
-Py-solc-x can install the following solc versions:
-
-* Linux and Windows: `>=0.4.11`
-* OSX: `>=0.5.0`
-
-`0.4.x` versions are available on OSX if they have been [installed via brew](https://github.com/ethereum/homebrew-ethereum), but cannot be installed directly by py-solc-x.
-
-## Quickstart
-
-Installation
-
-```sh
-pip install py-solc-x
+If you use the package, please consider citing [Shimoni et al., 2019](https://arxiv.org/abs/1906.00442):
+<details>
+  <summary>Reference</summary>
+  
+```bibtex
+@article{causalevaluations,
+  title={An Evaluation Toolkit to Guide Model Selection and Cohort Definition in Causal Inference},
+  author={Shimoni, Yishai and Karavani, Ehud and Ravid, Sivan and Bak, Peter and Ng, Tan Hung and Alford, Sharon Hensley and Meade, Denise and Goldschmidt, Yaara},
+  journal={arXiv preprint arXiv:1906.00442},
+  year={2019}
+}
 ```
 
-## Installing the `solc` Executable
+-------------
+</details>
 
-The first time py-solc-x is imported it will automatically check for an installed version of solc on your system. If none is found, you must manually install via `solcx.install_solc`:
+<sup>1</sup> Borrowing [Wager & Athey](https://arxiv.org/abs/1510.04342) terminology of avoiding overfit.  
 
-```python
->>> from solcx import install_solc
->>> install_solc('v0.4.25')
-```
 
-Or via the command line:
-
+## Installation
 ```bash
-python -m solcx.install v0.4.25
+pip install causallib
 ```
 
-By default, `solc` versions are installed at `~/.solcx/`. If you wish to use a different directory you can specify it with the `SOLCX_BINARY_PATH` environment variable.
+## Usage
+The package is imported using the name `causallib`.
+Each causal model requires an internal machine-learning model.
+`causallib` supports any model that has a sklearn-like fit-predict API
+(note some models might require a `predict_proba` implementation).
+For example:
+```Python
+from sklearn.linear_model import LogisticRegression
+from causallib.estimation import IPW 
+from causallib.datasets import load_nhefs
 
-## Setting the `solc` Version
-
-Py-solc-x defaults to the most recent installed version set as the active one. To check or modify the active version:
-
-```python
->>> from solcx import get_solc_version, set_solc_version
->>> get_solc_version()
-Version('0.5.7+commit.6da8b019.Linux.gpp')
->>> set_solc_version('v0.4.25')
->>>
+data = load_nhefs()
+ipw = IPW(LogisticRegression())
+ipw.fit(data.X, data.a)
+potential_outcomes = ipw.estimate_population_outcome(data.X, data.a, data.y)
+effect = ipw.estimate_effect(potential_outcomes[1], potential_outcomes[0])
 ```
+Comprehensive Jupyter Notebooks examples can be found in the [examples directory](examples).
 
-You can also set the version based on the pragma version string. The highest compatible version will be used:
+### Community support
+We use the Slack workspace at [causallib.slack.com](https://causallib.slack.com/) for informal communication.
+We encourage you to ask questions regarding causal-inference modelling or 
+usage of causallib that don't necessarily merit opening an issue on Github.  
 
-```python
->>> from solcx import set_solc_version_pragma
->>> set_solc_version_pragma('^0.4.20 || >0.5.5 <0.7.0')
-Using solc version 0.5.8
->>> set_solc_version_pragma('^0.4.20 || >0.5.5 <0.7.0', check_new=True)
-Using solc version 0.5.8
-Newer compatible solc version exists: 0.6.0
-```
+Use this [invite link to join causallib on Slack](https://join.slack.com/t/causallib/shared_invite/zt-mwxnwe1t-htEgAXr3j3T2UeZj61gP6g). 
 
-To view available and installed versions:
+### Approach to causal-inference
+Some key points on how we address causal-inference estimation
 
-```python
->>> from solcx import get_installed_solc_versions, get_available_solc_versions
->>> get_installed_solc_versions()
-['v0.4.25', 'v0.5.3', 'v0.6.0']
->>> get_available_solc_versions()
-['v0.6.0', 'v0.5.15', 'v0.5.14', 'v0.5.13', 'v0.5.12', 'v0.5.11', 'v0.5.10', 'v0.5.9', 'v0.5.8', 'v0.5.7', 'v0.5.6', 'v0.5.5', 'v0.5.4', 'v0.5.3', 'v0.5.2', 'v0.5.1', 'v0.5.0', 'v0.4.25', 'v0.4.24', 'v0.4.23', 'v0.4.22', 'v0.4.21', 'v0.4.20', 'v0.4.19', 'v0.4.18', 'v0.4.17', 'v0.4.16', 'v0.4.15', 'v0.4.14', 'v0.4.13', 'v0.4.12', 'v0.4.11']
-```
+##### 1. Emphasis on potential outcome prediction  
+Causal effect may be the desired outcome. 
+However, every effect is defined by two potential (counterfactual) outcomes. 
+We adopt this two-step approach by separating the effect-estimating step 
+from the potential-outcome-prediction step. 
+A beneficial consequence to this approach is that it better supports 
+multi-treatment problems where "effect" is not well-defined.
 
-To install the highest compatible version based on the pragma version string:
+##### 2. Stratified average treatment effect
+The causal inference literature devotes special attention to the population 
+on which the effect is estimated on.
+For example, ATE (average treatment effect on the entire sample),
+ATT (average treatment effect on the treated), etc. 
+By allowing out-of-bag estimation, we leave this specification to the user.
+For example, ATE is achieved by `model.estimate_population_outcome(X, a)`
+and ATT is done by stratifying on the treated: `model.estimate_population_outcome(X.loc[a==1], a.loc[a==1])`
 
-```python
->>> from solcx import install_solc_pragma
->>> install_solc_pragma('^0.4.20 || >0.5.5 <0.7.0')
-```
+##### 3. Families of causal inference models
+We distinguish between two types of models:
+* *Weight models*: weight the data to balance between the treatment and control groups, 
+   and then estimates the potential outcome by using a weighted average of the observed outcome. 
+   Inverse Probability of Treatment Weighting (IPW or IPTW) is the most known example of such models. 
+* *Direct outcome models*: uses the covariates (features) and treatment assignment to build a
+   model that predicts the outcome directly. The model can then be used to predict the outcome
+   under any assignment of treatment values, specifically the potential-outcome under assignment of
+   all controls or all treated.  
+   These models are usually known as *Standardization* models, and it should be noted that, currently,
+   they are the only ones able to generate *individual effect estimation* (otherwise known as CATE).
 
-## Standard JSON Compilation
+##### 4. Confounders and DAGs
+One of the most important steps in causal inference analysis is to have 
+proper selection on both dimensions of the data to avoid introducing bias:
+* On rows: thoughtfully choosing the right inclusion\exclusion criteria 
+  for individuals in the data. 
+* On columns: thoughtfully choosing what covariates (features) act as confounders 
+  and should be included in the analysis.
 
-Use the `solcx.compile_standard` function to make use of the [standard-json](http://solidity.readthedocs.io/en/latest/using-the-compiler.html#compiler-input-and-output-json-description) compilation feature.
+This is a place where domain expert knowledge is required and cannot be fully and truly automated
+by algorithms. 
+This package assumes that the data provided to the model fit the criteria. 
+However, filtering can be applied in real-time using a scikit-learn pipeline estimator
+that chains preprocessing steps (that can filter rows and select columns) with a causal model at the end.
 
-```python
->>> from solcx import compile_standard
->>> compile_standard({
-...     'language': 'Solidity',
-...     'sources': {'Foo.sol': 'content': "...."},
-... })
-{
-    'contracts': {...},
-    'sources': {...},
-    'errors': {...},
-}
->>> compile_standard({
-...     'language': 'Solidity',
-...     'sources': {'Foo.sol': {'urls': ["/path/to/my/sources/Foo.sol"]}},
-... }, allow_paths="/path/to/my/sources")
-{
-    'contracts': {...},
-    'sources': {...},
-    'errors': {...},
-}
-```
-
-## Legacy Combined JSON compilation
-
-```python
->>> from solcx import compile_source, compile_files
->>> compile_source("contract Foo { function Foo() {} }")
-{
-    'Foo': {
-        'abi': [{'inputs': [], 'type': 'constructor'}],
-        'code': '0x60606040525b5b600a8060126000396000f360606040526008565b00',
-        'code_runtime': '0x60606040526008565b00',
-        'source': None,
-        'meta': {
-            'compilerVersion': '0.3.5-9da08ac3',
-            'language': 'Solidity',
-            'languageVersion': '0',
-        },
-    },
-}
->>> compile_files(["/path/to/Foo.sol", "/path/to/Bar.sol"])
-{
-    'Foo': {
-        'abi': [{'inputs': [], 'type': 'constructor'}],
-        'code': '0x60606040525b5b600a8060126000396000f360606040526008565b00',
-        'code_runtime': '0x60606040526008565b00',
-        'source': None,
-        'meta': {
-            'compilerVersion': '0.3.5-9da08ac3',
-            'language': 'Solidity',
-            'languageVersion': '0',
-        },
-    },
-    'Bar': {
-        'abi': [{'inputs': [], 'type': 'constructor'}],
-        'code': '0x60606040525b5b600a8060126000396000f360606040526008565b00',
-        'code_runtime': '0x60606040526008565b00',
-        'source': None,
-        'meta': {
-            'compilerVersion': '0.3.5-9da08ac3',
-            'language': 'Solidity',
-            'languageVersion': '0',
-        },
-    },
-}
-```
-
-## Unlinked Libraries
-
-```python
->>> from solcx import link_code
->>> unlinked_bytecode = "606060405260768060106000396000f3606060405260e060020a6000350463e7f09e058114601a575b005b60187f0c55699c00000000000000000000000000000000000000000000000000000000606090815273__TestA_________________________________90630c55699c906064906000906004818660325a03f41560025750505056"
->>> link_code(unlinked_bytecode, {'TestA': '0xd3cda913deb6f67967b99d67acdfa1712c293601'})
-... "606060405260768060106000396000f3606060405260e060020a6000350463e7f09e058114601a575b005b60187f0c55699c00000000000000000000000000000000000000000000000000000000606090815273d3cda913deb6f67967b99d67acdfa1712c29360190630c55699c906064906000906004818660325a03f41560025750505056"
-```
-
-## Import Path Remappings
-
-`solc` provides path aliasing allow you to have more reusable project configurations.
-
-You can use this like:
-
-```python
->>> from solcx import compile_files
-
->>> compile_files([source_file_path], import_remappings=["zeppeling=/my-zeppelin-checkout-folder"])
-```
-
-[More information about solc import aliasing](http://solidity.readthedocs.io/en/latest/layout-of-source-files.html#paths)
-
-## Development
-
-This project was forked from [py-solc](https://github.com/ethereum/py-solc) and should be considered a beta. Comments, questions, criticisms and pull requests are welcomed.
-
-### Tests
-
-Py-solc-x is tested on Linux and Windows with solc versions ``>=0.4.11``.
-
-To run the test suite:
-
-```bash
-pytest tests/
-```
-
-By default, the test suite installs all available solc versions for your OS. If you only wish to test against already installed versions, include the `--no-install` flag.
-
-## License
-
-This project is licensed under the [MIT license](LICENSE).
