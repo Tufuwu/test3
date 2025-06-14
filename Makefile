@@ -1,43 +1,45 @@
-install: .env
-	@poetry install
+MAKE   = make
+PYTHON = python
+SETUP  = $(PYTHON) ./setup.py
 
-.env:
-	@test ! -f .env && cp .env.example .env
+.PHONY: clean cleandocs coverage dist docs opendocs unit-coverage upload help
 
-setup:
-	@poetry run python manage.py migrate
-	@echo Create a super user
-	@poetry run python manage.py createsuperuser
+help:
+	@echo "Usage: \`make <target>' where <target> is one or more of"
+	@echo "  clean          delete intermediate work product and start fresh"
+	@echo "  cleandocs      delete cached HTML documentation and start fresh"
+	@echo "  coverage       report overall test coverage"
+	@echo "  docs           build HTML documentation using Sphinx (incremental)"
+	@echo "  opendocs       open local HTML documentation in browser"
+	@echo "  dist           generate source and wheel distribution into dist/"
+	@echo "  unit-coverage  report unit test coverage"
+	@echo "  upload         upload distribution to PyPI"
 
-shell:
-	@poetry run python manage.py shell
+clean:
+	find . -type f -name \*.pyc -exec rm {} \;
+	find . -type f -name .DS_Store -exec rm {} \;
+	rm -rf dist .coverage
 
-# Need to have GNU gettext installed
-transprepare:
-	@poetry run django-admin makemessages --add-location file
+cleandocs:
+	$(MAKE) -C docs clean
 
-transcompile:
-	@poetry run django-admin compilemessages
+coverage:
+	pytest --cov-report term-missing --cov=src --cov=tests
 
-lint:
-	@poetry run flake8
+dist:
+	rm -rf dist/
+	$(SETUP) sdist bdist_wheel
 
-test:
-	@poetry run python manage.py test
+docs:
+	$(MAKE) -C docs html
 
-check: lint test requirements.txt
+opendocs:
+	open docs/_build/html/index.html
 
-start: test
-	@poetry run python manage.py runserver --noreload
+unit-coverage:
+	pytest --cov-report term-missing --cov=src tests/unit
 
-sync:
-	@poetry run python manage.py fetchdata $(ARGS)
-
-secretkey:
-	@poetry run python -c 'from django.utils.crypto import get_random_string; print(get_random_string(40))'
-
-requirements.txt: poetry.lock
-	@poetry export --format requirements.txt --output requirements.txt
-
-.PHONY: install setup shell transprepare transcompile lint test check start
-.PHONY: sync secretkey
+upload:
+	rm -rf dist/
+	$(SETUP) sdist bdist_wheel
+	twine upload dist/*
