@@ -1,0 +1,8 @@
+certifi
+elasticsearch
+gunicorn
+pyramid
+pyramid-jinja2
+requests
+requests-aws4auth
+raven
