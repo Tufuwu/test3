@@ -1,26 +1,28 @@
 ---
 name: Bug report
 about: Create a report to help us improve
-title: ''
-labels: bug
+title: "[Bug report]"
+labels: ''
 assignees: ''
 
 ---
 
 **Describe the bug**
-A clear and concise description of what the bug is. Ex. My PDB file is blank after I use this tool!
+A clear and concise description of what the bug is.
 
 **To Reproduce**
-Steps to reproduce the behavior. Preferrably, a code snippet.
-```
-pdb_fetch.py 1xxx.pdb | pdb_oopsy.py > result
-cat result  # result is empty!
-```
+Steps to reproduce the behavior: playbooks example, command line etc...
 
 **Expected behavior**
-The output PDB file should not be blank, but should have YY replaced!
+A clear and concise description of what you expected to happen.
 
+**Screenshots**
+If applicable, add screenshots to help explain your problem.
 
-**Desktop (please complete the following information):**
- - OS: [e.g. Mac OS, Linux, Windows]
- - Python Version [e.g. 2.7, 3.6, 3.7]
+**Versions:**
+Outputs of :
+ - `ansible --version`
+ - `ansible-playbook-grapher --version`
+
+**Additional context**
+Add any other context about the problem here.

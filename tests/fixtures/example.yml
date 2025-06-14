@@ -1,0 +1,43 @@
+---
+- hosts: all
+  vars:
+    backport: "stretch-backports"
+    packages:
+      - git
+      - tree
+      - curl
+  pre_tasks:
+    - name: Pre task 1
+      debug: msg="Pretask"
+    - name: Pre task 2
+      debug: msg="Pretask"
+
+  tasks:
+    - name: Add the backbport
+      become: yes
+      apt_repository:
+        repo: deb http://ftp.debian.org/debian {{backport}} main
+        filename: "{{backport}}"
+        state: present
+
+    - name: Install packages
+      become: yes
+      apt:
+        name: "{{packages}}"
+        state: present
+        default_release: "{{backport}}"
+
+    - name: Command that should fails
+      command: /bin/false
+      ignore_errors: true
+
+    - name: This task has "double quotes" in the name
+      command: /bin/true
+
+  post_tasks:
+    - name: Post task
+      debug: msg="Post task 1"
+
+    # We use the same name here just to test if we have two distinct nodes in the graph.
+    - name: Post task
+      debug: msg="Post task"

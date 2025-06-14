@@ -1,152 +1,111 @@
-# pdb-tools
+# Ansible Playbook Grapher
 
-[![PyPI version](https://badge.fury.io/py/pdb-tools.svg)](https://badge.fury.io/py/pdb-tools)
-[![tests](https://github.com/haddocking/pdb-tools/workflows/ci/badge.svg?branch=master)](https://github.com/haddocking/pdb-tools/actions?workflow=ci)
-[![codecov](https://codecov.io/gh/haddocking/pdb-tools/branch/master/graph/badge.svg)](https://codecov.io/gh/haddocking/pdb-tools)
-[![DOI](https://zenodo.org/badge/27217350.svg)](https://doi.org/10.12688/f1000research.17456.1)
+![Testing](https://github.com/haidaraM/ansible-playbook-grapher/workflows/Testing/badge.svg)
+[![PyPI version](https://badge.fury.io/py/ansible-playbook-grapher.svg)](https://badge.fury.io/py/ansible-playbook-grapher)
+[![Coverage Status](https://coveralls.io/repos/github/haidaraM/ansible-playbook-grapher/badge.svg?branch=master)](https://coveralls.io/github/haidaraM/ansible-playbook-grapher?branch=master)
 
-A swiss army knife for manipulating and editing PDB files.
+[ansible-playbook-grapher](https://github.com/haidaraM/ansible-playbook-grapher) is a command line tool to create a graph representing your Ansible playbook tasks and roles. The aim of
+this project is to quickly have an overview of your playbook.
 
+Inspired by [Ansible Inventory Grapher](https://github.com/willthames/ansible-inventory-grapher).
 
-## Looking for the _other_ pdb-tools?
-The Harms lab maintains a set of tools also called `pdbtools`, which perform a
-slightly different set of functions. You can find them [here](https://github.com/harmslab/pdbtools).
+## Prerequisites
+ * **Ansible** >= 2.8: The script has not been tested with an earlier version of Ansible, some features may not work. 
+ If you still use an older version of Ansible, create an virtual environment and install ansible-playbook-grapher. **`pip install` will install a version of Ansible >= 2.8** 
 
-
-## About
-Manipulating PDB files is often painful. Extracting a particular chain or set of
-residues, renumbering residues, splitting or merging models and chains, or just
-ensuring the file is conforming to the PDB specifications are examples of tasks
-that can be done using any decent parsing library or graphical interface. These,
-however, almost always require 1) scripting knowledge, 2) time, and 3) installing
-one or more programs.
-
-`pdb-tools` were designed to be a swiss-knife for the PDB format. They have no
-external dependencies, besides obviously the [Python programming language](http://www.python.org).
-They are the descendant of a set of old FORTRAN77 programs that had the 
-particular advantage of working with streams, i.e. the output of one script 
-could be piped into another. Since FORTRAN77 is a pain too, I rewrote them in
-Python and added a few more utilities. 
-
-The philosophy of the scripts is simple: one script, one task. If you want to 
-do two things, pipe the scripts together. Requests for new scripts will be taken
-into consideration - use the Issues button or write them yourself and create a
-Pull Request.
-
-
-## Installation Instructions
-`pdb-tools` are available on PyPi and can be installed though `pip`. This is the
-recommended way as it makes updating/uninstalling rather simple:
-```bash
-pip install pdb-tools
+ * **graphviz**: The tool used to generate the graph in SVG. 
+ ```shell script
+ $ sudo apt-get install graphviz # or yum install or brew install
+ ```
+ 
+## Installation
+```shell script
+$ pip install ansible-playbook-grapher
 ```
 
-Because we use semantic versioning in the development of `pdb-tools`, every bugfix
-or new feature results in a new version of the software that is automatically published
-on PyPI. As such, there is no difference between the code on github and the latest version
-you can install with `pip`. To update your installation to the latest version of the code
-run:
-```bash
-pip install --upgrade pdb-tools
+## Usage
+
+```shell
+$ ansible-playbook-grapher tests/fixtures/example.yml
 ```
 
-## What can I do with them?
-The names of the tools should be self-explanatory. Their command-line interface
-is also pretty consistent. Therefore, here is a couple of examples to get you
-started:
+![Example](https://raw.githubusercontent.com/haidaraM/ansible-playbook-grapher/master/img/example.png)
 
-* Downloading a structure
-   ```bash
-   pdb_fetch 1brs > 1brs.pdb  # 6 chains
-   pdb_fetch -biounit 1brs > 1brs.pdb  # 2 chains
-   ```
-
-* Renumbering a structure
-   ```bash
-   pdb_reres -1 1ctf.pdb > 1ctf_renumbered.pdb
-   ```
-
-* Selecting chain(s)
-   ```bash
-   pdb_selchain -A 1brs.pdb > 1brs_A.pdb
-   pdb_selchain -A,D 1brs.pdb > 1brs_AD.pdb
-   ```
-
-* Deleting hydrogens
-   ```bash
-   pdb_delelem -H 1brs.pdb > 1brs_noH.pdb
-   ```
-
-* Selecting backbone atoms
-   ```bash
-   pdb_selatom -CA,C,N,O 1brs.pdb > 1brs_bb.pdb
-   ```
-
-* Selecting chains, removing HETATM, and producing a valid PDB file
-  ```bash
-  pdb_selchain -A,D 1brs.pdb | pdb_delhetatm | pdb_tidy > 1brs_AD_noHET.pdb
-  ```
-
-*Note: On Windows the tools will have the `.exe` extension.*
-
-
-## What _can't_ I do with them?
-Operations that involve coordinates or numerical calculations are usually not in
-the scope of `pdb-tools`. Use a proper library for that, it will be much faster
-and scalable. Also, although we provide mmCIF<->PDB converters, we do not support
-large mmCIF files with more than 99999 atoms, or 9999 residues in a single chain.
-Our tools will complain if you try using them on such a molecule. 
-
-
-## Citation
-We finally decided to write up a small publication describing the tools. If you
-used them in a project that is going to be published, please cite us:
-
-```
-Rodrigues JPGLM, Teixeira JMC, Trellet M and Bonvin AMJJ.
-pdb-tools: a swiss army knife for molecular structures. 
-F1000Research 2018, 7:1961 (https://doi.org/10.12688/f1000research.17456.1) 
-```
-
-If you use a reference manager that supports BibTex, use this record:
-```
-@Article{ 10.12688/f1000research.17456.1,
-AUTHOR = { Rodrigues, JPGLM and Teixeira, JMC and Trellet, M and Bonvin, AMJJ},
-TITLE = {pdb-tools: a swiss army knife for molecular structures [version 1; peer review: 2 approved]
-},
-JOURNAL = {F1000Research},
-VOLUME = {7},
-YEAR = {2018},
-NUMBER = {1961},
-DOI = {10.12688/f1000research.17456.1}
-}
-```
-
-## Requirements
-`pdb-tools` should run on Python 2.7+ and Python 3.x. We test on Python 2.7, 3.6,
-and 3.7. There are no dependencies.
-
-
-## Installing from Source
-Download the zip archive or clone the repository with git. We recommend the `git`
-approach since it makes updating the tools extremely simple.
 
 ```bash
-# To download
-git clone https://github.com/haddocking/pdb-tools
-cd pdb-tools
-
-# To update
-git pull origin master
-
-# To install
-python setup.py install
+$ ansible-playbook-grapher --include-role-tasks  tests/fixtures/with_roles.yml
 ```
 
-## Contributing
-If you want to contribute to the development of `pdb-tools`, provide a bug fix,
-or a new tools, read our `CONTRIBUTING` instructions [here](https://github.com/haddocking/pdb-tools/blob/master/CONTRIBUTING.md).
+![Example](https://raw.githubusercontent.com/haidaraM/ansible-playbook-grapher/master/img/with_roles.png)
 
-## License
-`pdb-tools` are open-source and licensed under the Apache License, version 2.0.
-For details, see the LICENSE file.
+Some options are available:
+
+```
+$ ansible-playbook-grapher --help
+usage: ansible-playbook-grapher [-h] [-v] [-i INVENTORY]
+                                [--include-role-tasks] [-s]
+                                [-o OUTPUT_FILENAME] [--version] [-t TAGS]
+                                [--skip-tags SKIP_TAGS] [--vault-id VAULT_IDS]
+                                [--ask-vault-pass | --vault-password-file VAULT_PASSWORD_FILES]
+                                [-e EXTRA_VARS]
+                                playbook
+
+Make graphs from your Ansible Playbooks.
+
+positional arguments:
+  playbook              Playbook to graph
+
+optional arguments:
+  --ask-vault-pass      ask for vault password
+  --include-role-tasks  Include the tasks of the role in the graph.
+  --skip-tags SKIP_TAGS
+                        only run plays and tasks whose tags do not match these
+                        values
+  --vault-id VAULT_IDS  the vault identity to use
+  --vault-password-file VAULT_PASSWORD_FILES
+                        vault password file
+  --version             show program's version number and exit
+  -e EXTRA_VARS, --extra-vars EXTRA_VARS
+                        set additional variables as key=value or YAML/JSON, if
+                        filename prepend with @
+  -h, --help            show this help message and exit
+  -i INVENTORY, --inventory INVENTORY
+                        specify inventory host path or comma separated host
+                        list.
+  -o OUTPUT_FILENAME, --ouput-file-name OUTPUT_FILENAME
+                        Output filename without the '.svg' extension. Default:
+                        <playbook>.svg
+  -s, --save-dot-file   Save the dot file used to generate the graph.
+  -t TAGS, --tags TAGS  only run plays and tasks tagged with these values
+  -v, --verbose         verbose mode (-vvv for more, -vvvv to enable
+                        connection debugging)
+
+```
+
+## Configuration: ansible.cfg
+The content of `ansible.cfg` is loaded automatically when running the grapher according to Ansible's behavior. The 
+corresponding environment variables are also loaded. 
+ 
+The values in the config file (and their corresponding environment variables) may affect the behavior of the grapher. 
+For example `TAGS_RUN` and `TAGS_SKIP` or vault configuration.
+
+More information [here](https://docs.ansible.com/ansible/latest/reference_appendices/config.html).
+
+## Contribution
+Contributions are welcome. Feel free to contribute by creating an issue or submitting a PR :smiley: 
+
+### Dev environment
+To setup a new development environment :
+ - Install graphviz `sudo apt-get install graphviz # or yum install or brew install graphviz`
+ - (cd tests && pip install -r requirements_tests.txt)
+
+Run the tests with:
+```shell script
+$ make test # run all tests
+```
+
+The graphs are generated in the folder `tests/generated_svg`.
+
+## TODO
+ - Graphviz : properly rank the edge of the graph to represent the order of the execution of the tasks and roles
+ - Graphviz : find a way to avoid or reduce edges overlapping
