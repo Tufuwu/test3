@@ -28,9 +28,12 @@ jobs:
 
     - name: Install dependencies
       run: |
-          pip install ansible==${{ matrix.ansible-version }} virtualenv setuptools wheel coveralls
-          pip install -r tests/requirements_tests.txt
-          sudo apt-get install -y graphviz
+        sudo apt-get -qq update
+        sudo apt-get install -y graphviz
+        pip install -U pip setuptools wheel
+        pip install -qUr tests/requirements_tests.txt
+        pip install -q ansible==${{ matrix.ansible-version }}
+        pip freeze
 
     - name: Run tests
       run: |
