@@ -2,92 +2,60 @@ name: CI
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
   pull_request:
-    branches: [ master ]
+    branches:
+      - main
 
 jobs:
-  lint:
-    name: lint and style checks
+  build:
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: Set up Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: 3.9
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install flake8 black isort
-      - name: Lint with flake8
-        run: |
-          flake8 .
-      - name: Black style check
-        run: |
-          black --check .
-      - name: Isort import check
-        run: |
-          isort --check .
-
-  build_0:
-    name: h5py2 tests
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        shell: bash -l {0}
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.6", "3.7", "3.8", "3.9"]
-    steps:
-    - uses: actions/checkout@v2
-    - uses: conda-incubator/setup-miniconda@v2
-      with:
-        channels: conda-forge
-        mamba-version: "*"
-        activate-environment: h5netcdf-tests
-        channel-priority: strict
-        auto-update-conda: false
-        python-version: ${{ matrix.python-version }}
-    - name: Set up conda environment
-      run: |
-        mamba install pip wheel pytest h5py==2.10.0 netCDF4
-        conda list
-    - name: Install h5netcdf
-      run: |
-        python -m pip install . --no-deps --ignore-installed --no-cache-dir -vvv
-    - name: Test with pytest
-      run: |
-        pytest -v h5netcdf/
+        python-version: [3.6, 3.7, 3.8]
+        h5pyd-version: [v0.6.0]
 
-  build_1:
-    name: h5py3 tests
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        shell: bash -l {0}
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version: ["3.6", "3.7", "3.8", "3.9"]
     steps:
-    - uses: actions/checkout@v2
-    - uses: conda-incubator/setup-miniconda@v2
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Miniconda
+      uses: conda-incubator/setup-miniconda@v2
       with:
-        channels: conda-forge
-        mamba-version: "*"
-        activate-environment: h5netcdf-tests
-        channel-priority: strict
-        auto-update-conda: false
+        auto-update-conda: true
+        activate-environment: test_env
+        environment-file: environment.yml
         python-version: ${{ matrix.python-version }}
-    - name: Set up conda environment
+
+    - name: Install dependencies
       run: |
-        mamba install pip wheel pytest h5py netCDF4
+        conda create -c conda-forge --yes -n test_env python=${{ matrix.python-version }} pip pytest h5py cython netCDF4
+        source activate test_env
+        python setup.py install
+        curl ${HS_ENDPOINT}/about && export WITHRESTAPI=--restapi
+        if [ -n "${WITHRESTAPI}" ]; then
+          pip install requests pytz
+          pip install git+https://github.com/HDFGroup/h5pyd.git@${{ matrix.h5pyd-version }}
+          export H5PYD_TEST_FOLDER=${TEST_BASE_DIR}/h5pyd_test/${{ matrix.python-version }}
+        fi
         conda list
-    - name: Install h5netcdf
+
+    - name: Run tests
       run: |
-        python -m pip install . --no-deps --ignore-installed --no-cache-dir -vvv
-    - name: Test with pytest
-      run: |
-        pytest -v h5netcdf/
+        echo python_version ${{ matrix.python-version }}
+        echo endpoint ${HS_ENDPOINT}
+        echo test folder ${H5PYD_TEST_FOLDER}
+        if [ -n "${HS_USERNAME}" ]; then
+          echo username IS defined
+        else
+          echo username IS NOT defined
+        fi
+        if [ -n "${HS_PASSWORD}" ]; then
+          echo password IS defined
+        else
+          echo password IS NOT defined
+        fi
+        echo withrestapi ${WITHRESTAPI}
+        py.test -v h5netcdf/
