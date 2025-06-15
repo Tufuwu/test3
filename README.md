@@ -1,44 +1,66 @@
-[![Build Status](https://github.com/isik-kaplan/django-urls/actions/workflows/tests.yml/badge.svg)](https://github.com/isik-kaplan/django-urls/actions/workflows/tests.yml/badge.svg)
-[![PyPI - License](https://img.shields.io/pypi/l/django-urls.svg)](https://pypi.org/project/django-urls/)
-[![PyPI - Downloads](https://img.shields.io/pypi/dm/django-urls.svg)](https://pypi.org/project/django-urls/)
- 
-## What is *django_urls*?
+# apiron
 
-It is flask style urls for django. 
+[![PyPI version](https://badge.fury.io/py/apiron.svg)](https://pypi.org/project/apiron/#history)
+[![Supported Python versions](https://img.shields.io/pypi/pyversions/apiron.svg)](https://pypi.org/project/apiron/)
+[![Build status](https://github.com/github/docs/actions/workflows/main.yml/badge.svg)](https://github.com/ithaka/apiron/actions)
+[![Documentation Status](https://readthedocs.org/projects/apiron/badge/?version=latest)](https://apiron.readthedocs.io)
+[![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-v1.4%20adopted-ff69b4.svg)](code-of-conduct.md)
 
-## How to use it?
+`apiron` helps you cook a tasty client for RESTful APIs. Just don't wash it with SOAP.
 
-```python
-# app/urls.py or where-ever you want really.
-from django_urls import UrlManager
-app_urls = UrlManager(views_root='dotted.path.to.app.views.module')
+<img src="https://github.com/ithaka/apiron/raw/dev/docs/_static/cast-iron-skillet.png" alt="Pie in a cast iron skillet" width="200">
 
-app_urls.extend(extra_urls_list)
-```
+Gathering data from multiple services has become a ubiquitous task for web application developers.
+The complexity can grow quickly:
+calling an API endpoint with multiple parameter sets,
+calling multiple API endpoints,
+calling multiple endpoints in multiple APIs.
+While the business logic can get hairy,
+the code to interact with those APIs doesn't have to.
 
-```python
-# app/views/foo.py
+`apiron` provides declarative, structured configuration of services and endpoints
+with a unified interface for interacting with them.
 
-from app.urls import app_urls
 
-@app_urls.path('path/', name='MyView', importance=5) # the bigger the importance higher in the list it goes
-class MyView(View):
-    ...
-    
-@app_urls.re_path('path2/', name='my_view', importance=1)
-def my_view(request):
-    ...    
-```
+## Defining a service
+
+A service definition requires a domain
+and one or more endpoints with which to interact:
 
 ```python
-# project/urls.py
-from django.urls import include, path
-from app.urls import app_urls
+from apiron import JsonEndpoint, Service
 
-url_patterns = [
-    path('some_path/', include(app_urls.url_patterns))
-]
+class GitHub(Service):
+    domain = 'https://api.github.com'
+    user = JsonEndpoint(path='/users/{username}')
+    repo = JsonEndpoint(path='/repos/{org}/{repo}')
 ```
 
 
-That's it, not too much setup, right?
+## Interacting with a service
+
+Once your service definition is in place, you can interact with its endpoints:
+
+```python
+response = GitHub.user(username='defunkt')
+# {"name": "Chris Wanstrath", ...}
+
+response = GitHub.repo(org='github', repo='hub')
+# {"description": "hub helps you win at git.", ...}
+```
+
+To learn more about building clients, head over to [the docs](https://apiron.readthedocs.io).
+
+
+## Contributing
+
+We are happy to consider contributions via pull request,
+especially if they address an existing bug or vulnerability.
+Please read our [contribution guidelines](./.github/CONTRIBUTING.md) before getting started.
+
+## License
+
+This package is available under the MIT license.
+For more information, [view the full license and copyright notice](./LICENSE).
+
+Copyright 2018-2021 Ithaka Harbors, Inc.
