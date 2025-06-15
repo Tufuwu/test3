@@ -19,11 +19,11 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: Install test dependencies
       run: |
-        chomd +x ./install-test.sh
+        chmod +x ./install-test.sh
         ./install-test.sh
     - name: Run unit tests
       run: |
-       chomd +x ./runtests.sh
+        chmod +x ./runtests.sh
         ./runtests.sh
     - name: Coveralls
       env:
