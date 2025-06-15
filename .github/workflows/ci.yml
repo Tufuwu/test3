@@ -22,10 +22,10 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout demo
-        uses: actions/checkoutv2
+        uses: actions/checkout@v2
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-pythonv2
+        uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
 
