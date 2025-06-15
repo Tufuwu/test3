@@ -1,19 +1,11 @@
-docs/_build
+.idea
+.vscode
 __pycache__
-*.*~
-*.pyc
-# this fixes a dummy version on the public repository
-#git update-index --assume-unchanged python/openneurodata/oneibl/params_secret.py
-python/scratch
-.idea/*
-.vscode/
-*checkpoint.ipynb
-build/
+test_files
+docker/env_file_app
+docker/env_file_postgres
+docker/env_file_integrations
 venv/
-ibllibenv/
-dist/
-ibllib.egg-info/
-.DS_Store
-scratch/
-_autosummary/
-brainbox/docs/_build/
+intel_owl_test_env/
+docker-compose-override.yml
+compose-elk.yml

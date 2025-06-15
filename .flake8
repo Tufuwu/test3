@@ -1,14 +1,14 @@
 [flake8]
-max-line-length = 99
-ignore = W504, W503, E266
+max-line-length = 88
+ignore =
+    W503, # line break before binary operator
+    E231, # missing whitespace after ',' (caused by black style)
+    W605, # invalid escape sequence (caused by regex)
 exclude =
-    .git,
-    __pycache__,
-    __init__.py,
-    scratch_*.py,
-    tutorial_script.py,
+    Dockerfile,
+    docker-compose*,
     venv,
-    test_imports.py,
-    build,
-    dist,
-    brainbox/examples/
+    docs,
+    migrations,
+    virtualenv,
+    ldap_config.py

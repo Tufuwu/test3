@@ -1,0 +1,13 @@
+.gitignore
+.git
+.vscode
+.lgtm.yml
+__pycache__
+venv/
+.env
+docker/env_file_*
+docs/
+integrations/
+docker-compose*
+*.quark.log
+.pre-commit-config.yaml
