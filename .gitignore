@@ -1,5 +1,3 @@
-# Created by .ignore support plugin (hsz.mobi)
-### Python template
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -10,7 +8,7 @@ __pycache__/
 
 # Distribution / packaging
 .Python
-env*/
+env/
 build/
 develop-eggs/
 dist/
@@ -53,14 +51,6 @@ coverage.xml
 
 # Django stuff:
 *.log
-local_settings.py
-
-# Flask stuff:
-instance/
-.webassets-cache
-
-# Scrapy stuff:
-.scrapy
 
 # Sphinx documentation
 docs/_build/
@@ -68,44 +58,13 @@ docs/_build/
 # PyBuilder
 target/
 
-# Jupyter Notebook
-.ipynb_checkpoints
-
-# pyenv
+# pyenv python configuration file
 .python-version
 
-# celery beat schedule file
-celerybeat-schedule
-
-# dotenv
-.env
-
-# virtualenv
-.venv/
-venv/
-ENV/
-
-# Spyder project settings
-.spyderproject
-
-# Rope project settings
-.ropeproject
-
-# IDE
-.idea
-.vscode
-
-# Custom
-*.snap
-*.xlog
-*.xctl
-protocol.c
-protocol.h
-asynctnt/iproto/*.html
-__tnt*
-!third_party/**/*
-vinyl.meta
-*.vymeta
-deploy_key*
-!.ci/deploy_key.enc
-/core
+# Other
+*.dot
+.pytest_cache
+site
+issues-temp
+tests/perf/*.pstats
+*.pgt
