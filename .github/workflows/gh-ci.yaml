@@ -16,7 +16,7 @@ defaults:
 
 jobs:
   unittests:
-    if: "github.repository == 'MDAnalysis/panedr'"
+
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
