@@ -1,9 +1,45 @@
-#!/usr/bin/env python
+from setuptools import setup, find_packages
+import sys
+from pathlib import Path
 
-from setuptools import setup
+CURRENT_DIRECTORY = Path(__file__).parent.absolute()
+
+CURRENT_PYTHON = sys.version_info[:2]
+REQUIRED_PYTHON = (3, 7)
+if CURRENT_PYTHON < REQUIRED_PYTHON:
+    sys.stderr.write("""
+==========================
+Unsupported Python version
+==========================
+This version of ibllib requires Python {}.{}, but you're trying to
+install it on Python {}.{}.
+""".format(*(REQUIRED_PYTHON + CURRENT_PYTHON)))
+    sys.exit(1)
+
+with open("README.md", 'r') as f:
+    long_description = f.read()
+
+with open('requirements.txt') as f:
+    require = [x.strip() for x in f.readlines() if not x.startswith('git+')]
 
 setup(
-    setup_requires=['pbr>=1.9', 'setuptools>=17.1'],
-    pbr=True,
-    python_requires=">=3.5",
+    name='ibllib',
+    version='1.10.0',
+    python_requires='>={}.{}'.format(*REQUIRED_PYTHON),
+    description='IBL libraries',
+    license="MIT",
+    long_description=long_description,
+    long_description_content_type='text/markdown',
+    author='IBL Staff',
+    url="https://www.internationalbrainlab.com/",
+    packages=find_packages(exclude=['scratch']),  # same as name
+    include_package_data=True,
+    # external packages as dependencies
+    install_requires=require,
+    entry_points={
+        'console_scripts': [
+            'onelight=oneibl.onelight:one',
+        ],
+    },
+    scripts={},
 )
