@@ -42,9 +42,3 @@ jobs:
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v2
 
-  notifications:
-    email:
-      recipients:
-        - jealous@163.com
-      on_success: always
-      on_failure: always
