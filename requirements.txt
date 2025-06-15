@@ -1,1 +1,1 @@
-pandas>=0.24.2
+python-magic==0.4.27
