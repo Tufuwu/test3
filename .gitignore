@@ -1,64 +1,82 @@
+
+# Created by https://www.gitignore.io/api/python,ipythonnotebook,vim
+
+### Python ###
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
+*$py.class
+.pytest_cache
+
+# C extensions
+*.so
 
 # Distribution / packaging
+.Python
 env/
-bin/
 build/
 develop-eggs/
 dist/
+downloads/
 eggs/
+.eggs/
 lib/
 lib64/
 parts/
 sdist/
 var/
 *.egg-info/
-*.egg
-.eggs
 .installed.cfg
+*.egg
+
+# PyInstaller
+#  Usually these files are written by a python script from a template
+#  before PyInstaller builds the exe, so as to inject date/other infos into it.
+*.manifest
+*.spec
 
 # Installer logs
 pip-log.txt
 pip-delete-this-directory.txt
 
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*,cover
+.hypothesis/
+
 # Translations
 *.mo
+*.pot
 
-# Related to Desktops and OS
-.DS_Store
-.AppleDouble
-.LSOverride
-._*
-.~
-.bak
-*.swp
-*.swo
-*.swn
-
-# VCS and DVCS
-.svn
-
-# Common IDE's
-.idea
-.project
-.pydevproject
-.ropeproject
+# Django stuff:
+*.log
 
 # Sphinx documentation
 docs/_build/
 
-# Virtualenv
-.python-version
-.env/
+# PyBuilder
+target/
 
-# dbm stuff
-tests/thumbnail_kvstore
-tests/thumbnail_kvstore.db
-tests/thumbnail_kvstore.lock
 
-# test related
-.coverage
-.tox
-htmlcov/
+### IPythonNotebook ###
+# Temporary data
+.ipynb_checkpoints/
+
+
+### Vim ###
+[._]*.s[a-w][a-z]
+[._]s[a-w][a-z]
+*.un~
+Session.vim
+.netrwhist
+*~
+
+
+### Gromacs ###
+\#*

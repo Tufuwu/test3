@@ -1,5 +1,3 @@
-include LICENSE README.rst CHANGES.rst AUTHORS
-recursive-include docs *
-recursive-include tests *
-recursive-exclude * *.pyc
-prune docs/_build
+include README.rst LICENSE.txt
+include setup.py setup.cfg
+include panedr/VERSION
