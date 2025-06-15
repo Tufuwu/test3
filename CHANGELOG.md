@@ -1,159 +1,203 @@
-# Changelog
-##### `1.13.0`
-* Implement `--rmdirs` [#225](https://github.com/ivandokov/phockup/pull/225)
-##### `1.12.0`
-* Implement `--movedel` [#223](https://github.com/ivandokov/phockup/pull/223)
-##### `1.11.3`
-* Fixed wrong tag in Git
-##### `1.11.2`
-* Fixed [deployment to Homebrew](https://github.com/ivandokov/phockup/commit/33aec10e7506fe5f70a8e244e963304ff6f54337)
-##### `1.11.1`
-* Fixed code styling
-##### `1.11.0`
-* Added `--from-date` and `--to-datezz options to limit the processed files [#202](https://github.com/ivandokov/phockup/pull/202)
-* Merged dependabot PRs
-* Improved documentation
-##### `1.10.1`
-* Fixed python versions for tests and deployments
-##### `1.10.0`
-* Fixed Dependabot
-* Documented AUR install [#175](https://github.com/ivandokov/phockup/pull/175)
-* Timezone support [#182](https://github.com/ivandokov/phockup/pull/182)
-* Implementation of Issue [#146](https://github.com/ivandokov/phockup/issues/146) to support prefix and suffix [#189](https://github.com/ivandokov/phockup/pull/189)
-* Documented `--max-concurrency` [#188](https://github.com/ivandokov/phockup/pull/188)
-* Make sure arguments are not split [#190](https://github.com/ivandokov/phockup/pull/190)
-* Dependabot PRs
-##### `1.9.2`
-* Fix brew SHA256 mismatch [#169](https://github.com/ivandokov/phockup/issues/169)
-* Fix deploy for buildx [#168](https://github.com/ivandokov/phockup/pull/168)
-* Use Python 3.10 for Docker [#167](https://github.com/ivandokov/phockup/pull/167)
-* Add dependabot to project [#166](https://github.com/ivandokov/phockup/pull/166)
-* Update tests.yml [#164](https://github.com/ivandokov/phockup/pull/164)
-* Bump pre-commit packages [#165](https://github.com/ivandokov/phockup/pull/165)
-* Fix "WARNING: --use-feature=2020-resolver no longer has any effect..."
-##### `1.9.1`
-* Specify platforms for Dockerhub action
-##### `1.9.0`
-* Rename `unknown` folder [#141](https://github.com/ivandokov/phockup/pull/141)
-* Week date format [#142](https://github.com/ivandokov/phockup/pull/142)
-* [Update snap to core20](https://github.com/ivandokov/phockup/commit/69783c84fe07b94e9b2c62117cf3c0ae5ca2a29e)
-* [Fixed missing dep for snap](https://github.com/ivandokov/phockup/commit/b865b56f31c6fde1eadf71540bcf66ceb7744dd3)
-##### `1.8.0`
-* Added support for threads (`--max-concurrency`) to speed up the process [#123](https://github.com/ivandokov/phockup/pull/123)
-##### `1.7.1`
-* Fix dependencies due to tqdm [#133](https://github.com/ivandokov/phockup/pull/133)
-* Improve check_directories output on error [#132](https://github.com/ivandokov/phockup/pull/132)
-* Other improvements [#135](https://github.com/ivandokov/phockup/pull/135), [#128](https://github.com/ivandokov/phockup/pull/128)
-##### `1.7.0`
-* Add `--progress` functionality [#118](https://github.com/ivandokov/phockup/pull/118)
-* Add pre-commit integration [#121](https://github.com/ivandokov/phockup/pull/121)
-##### `1.6.5`
-* Add missing checkout step to the dockerhub deployment action
-##### `1.6.4`
-* Add argument "--file-type" to be able to choose between image or video [#114](https://github.com/ivandokov/phockup/issues/114)
-* Improved Docker image [#117](https://github.com/ivandokov/phockup/issues/117)
-* Automatically deploy new Docker image to Docker Hub [#120](https://github.com/ivandokov/phockup/issues/120)
-##### `1.6.3`
-* Fixed double `sed`
-##### `1.6.2`
-* Fixed version extraction for snaps
-##### `1.6.1`
-* Fixed `--log` argument ([discussion](https://github.com/ivandokov/phockup/pull/106#discussion_r642048830))
-* Fixed multiple custom date fields (`-f|--date-field`) [#113](https://github.com/ivandokov/phockup/issues/113)
-##### `1.6.0`
-* Added `--maxdepth` mode [#104](https://github.com/ivandokov/phockup/issues/104)
-* Added `--quiet` mode to hide generic output [#103](https://github.com/ivandokov/phockup/issues/103)
-* Fixed tests comatibility for Windows [#102](https://github.com/ivandokov/phockup/issues/102)
-* Readme updates
-##### `1.5.26`
-* Fixed [#98](https://github.com/ivandokov/phockup/issues/98)
-* [Disabled automated snap build and deploy for linux/arm64](https://github.com/ivandokov/phockup/issues/99).
-##### `1.5.25`
-* Fixed [#97](https://github.com/ivandokov/phockup/issues/97)
-##### `1.5.24`
-* Fixed broken `--date` after the merge of [#87](https://github.com/ivandokov/phockup/issues/87)
-##### `1.5.23`
-* Removed s930x architecture
-* Update snapcraft.yml to more simple setup
-##### `1.5.22`
-* Fix quotes
-##### `1.5.21`
-* Fix hard coded variable
-##### `1.5.20`
-* When taking the current version for snaps get the version for the current architecture and for stable channel
-##### `1.5.19`
-* Fixed Homebrew sha256 replacing in the deployment workflow job
-##### `1.5.18`
-* Move Homebrew deployment in a separate job because it was executed multiple times because of the python matrix
-##### `1.5.17`
-* Fixed workflow wrong step id
-##### `1.5.16`
-* Fixed snap deploy condition
-##### `1.5.15`
-* Fixed snap build volume directory
-##### `1.5.14`
-* Automatic snap deployment thanks to [Daniel Llewellyn's blog post](https://snapcraft.ninja/2020/08/03/snapcraft-continuous-integration-github-actions/)
-##### `1.5.13`
-* Fix snapcraft version extraction by [#87](https://github.com/ivandokov/phockup/issues/87)
-##### `1.5.12`
-* Merged [#87](https://github.com/ivandokov/phockup/issues/87)
-* Merged [#88](https://github.com/ivandokov/phockup/issues/88)
-##### `1.5.11`
-* Added Docker support [#75](https://github.com/ivandokov/phockup/issues/75)
-##### `1.5.10`
-* Merged [#78](https://github.com/ivandokov/phockup/issues/78)
-* Merged [#81](https://github.com/ivandokov/phockup/issues/81)
-##### `1.5.9`
-* Fixed [#70](https://github.com/ivandokov/phockup/issues/70) related to Windows issues
-##### `1.5.8`
-* Add `--date-field` option to set date extraction fields  [#54](https://github.com/ivandokov/phockup/issues/54)
-* Handle regex with optional hour information  [#62](https://github.com/ivandokov/phockup/issues/62)
-* Fix regex support for incomplete time on filename  [#55](https://github.com/ivandokov/phockup/issues/55)
-* Fix to handle files with illegal characters [#53](https://github.com/ivandokov/phockup/issues/53)
-##### `1.5.7`
-* Resolved [#44](https://github.com/ivandokov/phockup/issues/44)
-##### `1.5.6`
-* Add `-o | --original-names` option to allow keeping the original filenames
-##### `1.5.5`
-* Add `-t` option to allow using file modification time as a last resort
-* Workaround EXIF DateTaken time of all-zeros
-##### `1.5.4`
-* Handle gracefully files without MIMEType
-##### `1.5.3`
-* Handle broken symlinks
-##### `1.5.2`
-* Add `SubSecCreateDate` and `SubSecDateTimeOriginal` EXIF dates to the list of allowed ones because exiftool changed the default behavior to not include the subseconds for `CreateDate` and `DateTimeOriginal`
-##### `1.5.1`
-* Handle filenames with spaces
-##### `1.5.0`
-* Major refactoring.
-* Updated all tests.
-* Added TravisCI.
-##### `1.4.1`
-* Add `-l | --link` flag to link files instead of copy.
-##### `1.4.0`
-* Add `-m | --move` flag to move files instead of copy.
-##### `1.3.2`
-* More snapcraft.yaml fixes (removed architecture which were producing wrong snaps for amd64).
-* Catch some possible write permission for directories and expand absolute path and home directory on *nix
-##### `1.3.1`
-* Fixed issue with the snap application and simplified the snapcraft.yaml
-##### `1.3.0`
-* Allow different output directories date format with `-d | --date` option.
-##### `1.2.2`
-* Allow access to removable media (external HDD, USB, etc) for snap the application
-* Continue execution even if date attribute is not present [[#6](https://github.com/ivandokov/phockup/pull/6)]
-##### `1.2.1`
-* Windows compatibility fixes
-##### `1.2.0`
-* Changed synopsis of the script. `-i|--inputdir` and `-o|--outputdir` are not required anymore. Use first argument for input directory and second for output directory.
-* Do not process duplicated files located in different directories.
-* Suffix duplicated file names of different files. Sha256 checksum is used for comparison of the source and target files to see if they are identical.
-* Ignore `.DS_Store` and `Thumbs.db` files
-* Handle case when `exiftool` returns exit code > 0.
-* Use `os.walk` instead of `iglob` to support Python < 3.5
-* Handle some different date formats from exif data.
-##### `1.1.0`
-* Collect all files instead only specified file types. This also enables video sorting.
-##### `1.0.0`
-Initial version.
+# Release Notes
+
+## 2.2.2 (2024-01-06)
+
+- Fixed `Manager.all()` behavior for patterns with default vales.
+
+## 2.2.1 (2024-01-04)
+
+- Updated `Manager.get()` to handle default values in pattern arguments.
+
+## 2.2 (2023-10-14)
+
+- Added a `sync()` utility to map arbitrary objects to the filesystem.
+
+## 2.1.2 (2023-05-27)
+
+- Fixed the `mypy` plugin to support newer versions.
+
+## 2.1.1 (2023-05-04)
+
+- Fixed missing default value for `target_object` in container converters.
+
+## 2.1 (2023-03-26)
+
+- Added support for Python 3.11.
+- Updated `Manager.get()` to be more flexible with positional arguments.
+- Added support for passing `frozen=True` to the underlying `dataclass`.
+- Added `py.typed` to tell type checkers that `datafiles` has types.
+
+## 2.0 (2022-08-20)
+
+- Dropped support for Python 3.7.
+
+## 1.4.3 (2022-08-19)
+
+- Fixed handling of invalid YAML files in manager methods.
+
+## 1.4.2 (2022-07-29)
+
+- Fixed exception when `Union[int, float]` or `Union[str, ...]` is used.
+
+## 1.4.1 (2022-07-28)
+
+- Fixed exception when `TypedDict` is used, but schema is not yet supported.
+
+## 1.4 (2022-06-03)
+
+- Added support for accessing `Dict` keys as attributes.
+- Added a proper `repr()` implementation for `auto()` datafiles.
+- Added support for "thawing" objects upon exiting the `frozen()` context manager.
+
+## 1.3 (2022-04-09)
+
+- Added support for paths relative to the user's home directory.
+
+## 1.2 (2022-02-24)
+
+- Added a `frozen()` context manager to temporarily disable file updates.
+
+## 1.1.1 (2022-02-02)
+
+- Fixed handling of `OSError` when trying to determine a models path.
+
+## 1.1 (2022-01-21)
+
+- Added support for Python 3.10's builtin optional types (e.g. `int | None`).
+- Fixed handling of commented blocks in YAML files.
+- Fixed serialization for `list` of `dict` in YAML.
+
+## 1.0 (2021-10-04)
+
+- Initial stable release.
+
+## 0.15.2 (2021-09-03)
+
+- Fixed `ValueError` when loading enum values from TOML files.
+
+## 0.15.1 (2021-07-01)
+
+- Fixed handling of no file extension to use YAML by default.
+
+## 0.15 (2021-05-26)
+
+- Removed `auto_load`/`auto_save` model options.
+- Removed `INDENT_YAML_BLOCKS` setting.
+- Removed `YAML_LIBRARY` setting.
+- Renamed `HIDE_TRACEBACK_IN_HOOKS` setting to `HIDDEN_TRACEBACK`.
+- Renamed `MINIMIZE_LIST_DIFFS` settings to `MINIMAL_DIFFS`.
+
+## 0.14 (2021-05-21)
+
+- Renamed model option `auto_attr` to `infer`.
+- Deprecated `auto_load`/`auto_save` model options in favor of `manual`.
+
+## 0.13.3 (2021-05-20)
+
+- Added support for filtering on nested attributes.
+
+## 0.13.2 (2021-05-16)
+
+- Fixed loading of partially defined nested objects with optional attributes.
+
+## 0.13.1 (2021-04-18)
+
+- Fixed handling of string annotations for extended types.
+
+## 0.13 (2021-04-17)
+
+- Added support for generic types.
+- Added support for sets.
+- Updated default `attrs` to exclude computed properties, i.e. `field(init=False)`.
+- Fixed automatic save when modifying nested dictionary values.
+- Fixed initialization for non-compliant `None` default values.
+
+## 0.12 (2021-03-05)
+
+- Added `_exclude` parameter to `all()` and `filter()` manager methods to exclude certain objects from loading as a performance optimization.
+- Fixed handling of untyped `List`/`Dict` annotations in Python 3.9.
+- Fixed `ValueError` when setting an `Optional[<enum>]` to `None`.
+
+## 0.11.1 (2020-09-12)
+
+- Fixed error message for `Dict` annotations lacking types.
+
+## 0.11 (2020-09-10)
+
+- Added support to treat `Mapping` type annotations as dictionaries.
+- Fixed handling of default values for `dataclass` attributes.
+- Added `MINIMIZE_LIST_DIFFS` setting to control the semantic representation of empty lists.
+
+## 0.10 (2020-07-03)
+
+- Added support for recursively matching arbitrary depth paths of files.
+- Fixed `AttributeError` when attempting to load malformed YAML files.
+
+## 0.9 (2020-04-13)
+
+- Fixed serialization of optional nested dataclasses with a value of `None`.
+- Fixed preservation of comments on nested dataclass attributes.
+- Added support for using `enum.Enum` subclasses as type annotations.
+
+## 0.8.1 (2020-03-30)
+
+- Fixed loading of `Missing` nested dataclasses attributes.
+
+## 0.8 (2020-03-28)
+
+- Updated the `@datafile(...)` decorator to be used as a drop-in replacement for `@dataclass(...)`.
+- Added support for loading unlimited levels of nested objects.
+
+## 0.7 (2020-02-20)
+
+- Added a `YAML_LIBRARY` setting to control the underlying YAML library.
+- Fixed ORM methods to handle relative file patterns.
+- Updated the `@datafile` decorator to be able to be called without parentheses to act as `@dataclass`.
+- Updated YAML serialization to preserve quotation marks in files.
+
+## 0.6 (2020-01-25)
+
+- Added a registration system for custom formatter classes.
+- Fixed loading of missing attribute from disk for ORM methods.
+- Added support for file patterns relative to the current directory.
+
+## 0.5.1 (2019-11-14)
+
+- Removed unnecessary warning when loading objects.
+
+## 0.5 (2019-09-28)
+
+- Added an `INDENT_YAML_BLOCKS` setting to optionally use the old serialization behavior.
+- Disabled initial file creation when `settings.HOOKS_ENABLED = False` is set.
+
+## 0.4.2 (2019-09-27)
+
+- Fixed a `TypeError` when converting custom types with `from __future__ import annotations` enabled.
+
+## 0.4.1 (2019-08-25)
+
+- Fixed a `TypeError` when converting non-builtin attributes.
+
+## 0.4 (2019-06-29)
+
+- Fixed ORM methods for datafiles with relative path patterns.
+- Added plugin for `mypy` support.
+- Updated YAML format to indent lists.
+
+## 0.3 (2019-06-09)
+
+- Added ORM method: `all()`
+- Added ORM method: `get_or_none()`.
+- Added ORM method: `get_or_create()`.
+- Added ORM method: `filter`.
+
+## 0.2 (2019-03-30)
+
+- Added an option to automatically resave files after loading.
+- Added an option to automatically reload files after saving.
+- Added a registration system for custom converter classes.
+- Added initial support for file inference via `auto(filename)`.
+
+## 0.1 (2019-01-13)
+
+- Initial release.
