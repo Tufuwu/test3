@@ -59,8 +59,3 @@ jobs:
     - name: Run Coveralls
       run: coveralls
 
-  notifications:
-    email:
-      if: failure()
-      on_success: never
-      on_failure: never
