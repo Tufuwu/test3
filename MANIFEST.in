@@ -1,6 +1,5 @@
-include MANIFEST.in
-include *.rst
-include *.txt
-recursive-include docs *.rst
-recursive-include simple_history/locale *
-recursive-include simple_history/templates *
+include LICENSE README.rst CHANGES.rst AUTHORS
+recursive-include docs *
+recursive-include tests *
+recursive-exclude * *.pyc
+prune docs/_build
