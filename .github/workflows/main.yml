@@ -1,51 +1,66 @@
-name: main
+name: CI
 
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
   build:
-
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
       matrix:
-        python-version: ['3.8', '3.9', '3.10', '3.11']
+        python-version: ["3.8", "3.9", "3.10", "3.11"]
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
 
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v4
       with:
         python-version: ${{ matrix.python-version }}
+
+    - name: Cache pip
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
 
     - name: Install Poetry
       run: curl -sSL https://install.python-poetry.org | python3 -
 
-    - name: Check dependencies
-      run: |
-        chmod +x bin/checksum bin/verchew
-        make doctor
-
-    - uses: actions/cache@v4
-      with:
-        path: .venv
-        key: ${{ runner.os }}-poetry-${{ hashFiles('poetry.lock') }}
+    - name: Run make doctor
+      run: make doctor
 
     - name: Install dependencies
       run: make install
 
-    - name: Test code
+    - name: Run tests
       run: make test-repeat
 
-    - name: Upload coverage
-      uses: codecov/codecov-action@v4
-      with:
-        fail_ci_if_error: true
-        token: ${{ secrets.CODECOV_TOKEN }}
-
-    - name: Check code
+    - name: Run checks
       run: make check
 
-    - name: Check documentation
-      run: make mkdocs notebooks
+    - name: Build notebooks
+      run: make notebooks
+
+    - name: Build mkdocs
+      run: make mkdocs
+
+    - name: Install Coveralls
+      run: pip install coveralls
+
+    - name: Run Coveralls
+      run: coveralls
+
+  notifications:
+    email:
+      if: failure()
+      on_success: never
+      on_failure: never
