@@ -1,29 +1,55 @@
-Welcome to python-zeroconf documentation!
-=========================================
+.. Charm Tools documentation master file, created by
+   sphinx-quickstart on Tue Feb 19 14:28:07 2019.
+   You can adapt this file completely to your liking, but it should at least
+   contain the root `toctree` directive.
 
-.. image:: https://github.com/jstasiak/python-zeroconf/workflows/CI/badge.svg
-   :target: https://github.com/jstasiak/python-zeroconf?query=workflow%3ACI+branch%3Amaster
+Charm Tools documentation
+=========================
 
-.. image:: https://img.shields.io/pypi/v/zeroconf.svg
-    :target: https://pypi.python.org/pypi/zeroconf
+The `charm` command includes several subcommands used to build, maintain,
+and release `Juju Charms`_, which are Open Source encapsulated operations
+logic for managing software in the cloud or bare-metal servers using
+cloud-like APIs.
 
-.. image:: https://codecov.io/gh/jstasiak/python-zeroconf/branch/master/graph/badge.svg
-   :target: https://codecov.io/gh/jstasiak/python-zeroconf
+Installation is easy with snaps:
 
-GitHub (code repository, issues): https://github.com/jstasiak/python-zeroconf
+.. code-block:: bash
 
-PyPI (installable, stable distributions): https://pypi.org/project/zeroconf. You can install python-zeroconf using pip::
+    snap install --classic charm
 
-    pip install zeroconf
+Reference for the various available commands can be found below, or via
+the command-line with:
 
-python-zeroconf works with CPython 3.5+ and PyPy 3 implementing Python 3.5+.
+.. code-block:: bash
 
-Contents
---------
+    charm help
+
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
+   :caption: Reference
 
-   api
+   commands
+   tactics
+   reproducible-charms
 
-See `the project's README <https://github.com/jstasiak/python-zeroconf/blob/master/README.rst>`_ for more information.
+
+.. toctree::
+   :caption: Project
+   :glob:
+   :maxdepth: 3
+
+   contributing
+   changelog
+
+
+
+Indices and tables
+==================
+
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`
+
+
+.. _Juju Charms: https://docs.jujucharms.com/

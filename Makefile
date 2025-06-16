@@ -1,45 +1,95 @@
-.PHONY: all virtualenv
-MAX_LINE_LENGTH=110
-PYTHON_IMPLEMENTATION:=$(shell python -c "import sys;import platform;sys.stdout.write(platform.python_implementation())")
-PYTHON_VERSION:=$(shell python -c "import sys;sys.stdout.write('%d.%d' % sys.version_info[:2])")
+# Makefile debugging hack: uncomment the two lines below and make will tell you
+# more about what is happening.  The output generated is of the form
+# "FILE:LINE [TARGET (DEPENDENCIES) (NEWER)]" where DEPENDENCIES are all the
+# things TARGET depends on and NEWER are all the files that are newer than
+# TARGET.  DEPENDENCIES will be colored green and NEWER will be blue.
+#OLD_SHELL := $(SHELL)
+#SHELL = $(warning [$@ [32m($^) [34m($?)[m ])$(OLD_SHELL)
 
-LINT_TARGETS:=flake8
+WD := $(shell pwd)
+DESTDIR =
+prefix = /usr
+DDIR = $(DESTDIR)$(prefix)
+bindir = $(DDIR)/bin
+mandir = $(DDIR)/share/man/man1
+datadir = $(DDIR)/share/charm-tools
+helperdir = $(DDIR)/share/charm-helper
+confdir = $(DESTDIR)/etc
+INSTALL = install
 
-ifneq ($(findstring PyPy,$(PYTHON_IMPLEMENTATION)),PyPy)
-	LINT_TARGETS:=$(LINT_TARGETS) mypy black_check
-endif
+develop:
+	tox --develop --notest
 
+build: deps develop
 
-virtualenv: ./env/requirements.built
+PYTHON_DEPS=build-essential bzr python-dev python-tox
+python-deps: scripts/packages.sh
+	$(if $(shell ./scripts/packages.sh $(PYTHON_DEPS)), \
+	tox -r --notest)
 
-env:
-	virtualenv env
+deps: python-deps
 
-./env/requirements.built: env requirements-dev.txt
-	./env/bin/pip install -r requirements-dev.txt
-	cp requirements-dev.txt ./env/requirements.built
+test: build
+	tox
 
-.PHONY: ci
-ci: test_coverage lint
+tags:
+	ctags --tag-relative --python-kinds=-iv -Rf tags --sort=yes \
+	    --exclude=.bzr --languages=python
 
-.PHONY: lint
-lint: $(LINT_TARGETS)
+clean:
+	find . -name '*.py[co]' -delete
+	find . -type f -name '*~' -delete
+	find . -name '*.bak' -delete
+	rm -rf bin include lib local man dependencies dist
+	rm -f charmtools/VERSION
 
-flake8:
-	flake8 --max-line-length=$(MAX_LINE_LENGTH) setup.py examples zeroconf
+install:
+	$(INSTALL) -d $(mandir)
+	$(INSTALL) -t $(mandir) charm.1
+	$(INSTALL) -d $(datadir)
+	$(INSTALL) -t $(datadir) charm
+	$(INSTALL) -d $(bindir)
+	$(INSTALL) -d $(helperdir)
+	$(INSTALL) -d $(confdir)/bash_completion.d
+	$(INSTALL) misc/bash-completion $(confdir)/bash_completion.d/charm
+	ln -sf $(datadir)/charm $(bindir)
+	gzip $(mandir)/charm.1
+	cp -rf scripts templates $(datadir)
+	cp -rf helpers/* $(helperdir)
 
-.PHONY: black_check
-black_check:
-	black --check setup.py examples zeroconf
+pypi: clean
+	tox -e pypi
 
-mypy:
-	mypy examples/*.py zeroconf/*.py
+integration: build
+	tests_functional/helpers/helpers.sh || sh -x tests_functional/helpers/helpers.sh timeout
+	@echo Test shell helpers with bash
+	bash tests_functional/helpers/helpers.sh \
+	    || bash -x tests_functional/helpers/helpers.sh timeout
+	tests_functional/helpers/helpers.bash || sh -x tests_functional/helpers/helpers.bash timeout
+	@echo Test shell helpers with bash
+	bash tests_functional/helpers/helpers.bash \
+	    || bash -x tests_functional/helpers/helpers.bash timeout
+	@echo Test charm proof
+	tests_functional/proof/test.sh
+	tests_functional/create/test.sh
+	tests_functional/add/test.sh
 
-test:
-	pytest -v zeroconf/test.py
+coverage: build
+	tox
 
-test_coverage:
-	pytest -v --cov=zeroconf --cov-branch --cov-report html --cov-report term-missing zeroconf/test.py
+check: build integration test
 
-autopep8:
-	autopep8 --max-line-length=$(MAX_LINE_LENGTH) -i setup.py examples zeroconf
+define phony
+  build
+  check
+  clean
+  deps
+  install
+  pypi
+  tags
+  test
+endef
+
+.PHONY: $(phony)
+
+.DEFAULT_GOAL := build
