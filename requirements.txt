@@ -5,7 +5,7 @@ future==0.18.2
 Twisted==20.3.0
 
 # SSL connections
-pyOpenSSL==19.0.0
+pyOpenSSL<24.0.0
 service_identity==18.1.0
 enum34==1.1.9
 
