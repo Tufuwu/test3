@@ -30,12 +30,12 @@ jobs:
         pip install -r tests/config/requirements.txt
         pip install requests pytest-cov coveralls
 
-    - name: Start Docker services
-      run: |
-        docker-compose -f tests/config/docker-compose.yml up -d
-        sleep 120
-        chmod +x ./tests/config/graylog-setup.sh
-        ./tests/config/bootstrap
+      - name: Set up Graylog
+        run: |
+          docker compose -f tests/config/docker-compose.yml up -d
+          sleep 60
+          chmod +x ./tests/config/graylog-setup.sh
+          ./tests/config/graylog-setup.sh
 
     - name: Run tests
       run: py.test -v --cov=pygelf
