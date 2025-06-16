@@ -1,2 +1,7 @@
 [run]
-branch = True
+include = fimfarchive/*
+
+[report]
+exclude_lines =
+    pragma: no cover
+    raise NotImplementedError

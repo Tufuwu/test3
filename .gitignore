@@ -1,12 +1,50 @@
-.cache/
-.coverage
-dist/
-doc/_build/
-.idea/
+# Common files.
+.DS_Store
+Thumbs.db
+
+# Common extensions.
+*.diff
+*.err
+*.orig
+*.log
+*.rej
+*.swo
+*.swp
+*.vi
+*~
+
+# Python cache.
 __pycache__/
-*.egg-info/
+
+# Virtual environment.
+venv/
+
+# Vim settings.
+.vim/
+
+# PyCharm project.
+/.idea/
 *.iml
-*.pyc
-env*/
-htmlcov/
+
+# Eclipse project.
+.project
+.pydevproject
+.settings/
+
+# Rope project.
+.ropeproject/
+
+# Mypy cache.
 .mypy_cache/
+
+# Coverage output.
+.coverage
+coverage.xml
+htmlcov/
+*.py,cover
+
+# Fimfarchive data.
+fimfarchive.zip
+
+# Operations configuration.
+operations/inventory.yml
