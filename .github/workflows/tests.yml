@@ -27,6 +27,7 @@ jobs:
     - name: Install dependencies
       run: |
         pip install -e .
+        pip install -r tests/config/requirements.txt
         pip install requests pytest-cov coveralls
 
     - name: Start Docker services
