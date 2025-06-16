@@ -1,74 +1,98 @@
-# Meet Cardinal.
+# JILL.py
 
-[![Build Status](https://github.com/JohnMaguire/Cardinal/workflows/Cardinal/badge.svg)](https://github.com/JohnMaguire/Cardinal/actions?query=workflow%3ACardinal) [![Coverage Status](https://codecov.io/github/JohnMaguire/Cardinal/coverage.svg?branch=master)](https://codecov.io/github/JohnMaguire/Cardinal?branch=master)
+[![py version](https://img.shields.io/pypi/pyversions/jill.svg?logo=python&logoColor=white)](https://pypi.org/project/jill)
+[![version](https://img.shields.io/pypi/v/jill.svg)](https://github.com/johnnychen94/jill.py/releases)
+[![Actions Status](https://github.com/johnnychen94/jill.py/workflows/Unit%20test/badge.svg
+)](https://github.com/johnnychen94/jill.py/actions)
+[![codecov](https://codecov.io/gh/johnnychen94/jill.py/branch/master/graph/badge.svg)](https://codecov.io/gh/johnnychen94/jill.py)
 
-Python Twisted IRC bot with a focus on ease of development.
+The Python fork of [JILL](https://github.com/abelsiqueira/jill) - Julia Installer 4 Linux (and MacOS) - Light
 
-You can find us at [#cardinal](https://www.mibbit.com/#cardinal@irc.darkscience.net:+6697) on the [DarkScience](http://www.darkscience.net/) IRC network. (irc.darkscience.net/+6697 &mdash; SSL required)
+## Features
 
-## What can Cardinal do?
+* download *latest* Julia release from *nearest* mirror server. Check [sources](jill/config/sources.json) for the list of all registered mirrors.
+* install julia for Linux and MacOS (including nightly build: `latest`)
+* easily set up a new release mirror 🚧
 
-Anything, if you're creative! Cardinal does come with some plugins to get you started...
+## Installation
 
-* Fetching URL titles
-* sed-like substitutions
-* Reminders
-* Weather reports
-* Google searches
-* Now playing w/ Last.fm
-* Urban Dictionary definitions
-* Wikipedia definitions
-* Stock ticker
-* ... and more!
+`pip install jill --user -U`
 
-But the best part of Cardinal is how easy it is to add more!
+Note that `Python >= 3.6` is required.
 
-## Basic Usage
+## Basic usage examples
 
-### Configuration
+* download:
+    - latest stable release for current system: `jill download`
+    - latest `1.y` version: `jill download 1`
+    - latest `1.3.z` version: `jill download 1.3`
+    - from specific upstream: `jill download --upstream Official`
+    - specific release version: `jill download --version 1.3.0`
+    - specific system: `jill download --sys freebsd`
+    - specific architecture: `jill download --arch i686`
+    - download Julia to specific dir: `jill download --outdir another/dir`
+* install Julia for current system:
+    - system-wide: `sudo jill install` (make symlink in `/usr/bin`)
+    - only for current user: `jill install` (make symlink in `~/.local/bin`)
+    - don't need interactive promopt: `jill install --confirm`
+* check if there're new Julia versions:
+    - `jill update`
+    - add `--update` flag to `download` or `install` commands
+* find out all registered upstreams: `jill upstream`
+* check the not-so-elaborative documentation: `jill [COMMAND] -h` (e.g., `jill download -h`)
 
-1. Copy the `config/config.example.json` file to `config/config.json` (you can use another filename as well, such as `config.freenode.json` if you plan to run Cardinal on multiple networks).
+## Mirror 🚧
 
-2. Copy `plugins/admin/config.example.json` to `plugins/admin/config.json` and add your `nick` and `vhost` in order to take advantage of admin-only commands (such as reloading plugins, telling Cardinal to join a channel, or blacklisting plugins within a channel).
+`jill mirror [outdir]` downloads all Julia releases into `outdir`(default `./julia_pkg`)
 
-### Running
+You can create a `mirror.json` in current folder to override the default mirror
+behaviors. The [mirror configuration example](mirror.example.json) shows all possible
+configurable items, where only `version` is required.
 
-Cardinal is run via Docker. To get started, install [Docker](https://docs.docker.com/install/) and [docker-compose](https://docs.docker.com/compose/install/).
+## Register new mirror
 
-If your config file is named something other than `config/config.json`, you will need to create a `docker-compose.override.yml` file like so:
+If it's an public mirror and you want to share it worldwide. You can add an entry to the
+[public registry](jill/config/sources.json), make a PR, then I will tag a new release for that.
 
-```yaml
-version: "2.1"
-services:
-    cardinal:
-        command: config/config_file_name.json
-```
+If it's an internal mirror and you don't plan to make it public, you can create a config
+file at `~/.config/jill/sources.json` locally. The contents will be appended to
+the public registry and overwrite already existing items if there are.
 
-To start Cardinal, run `docker-compose up -d`. To restart Cardinal, run `docker-compose restart`. To stop Cardinal, run `docker-compose down`.
+In the registry config file, a new mirror is a dictionary in the `upstream` field:
 
-## Writing Plugins
+* `name`: a distinguishable mirror name
+* `urls`: URL template to retrive Julia release
+* `latest_urls`: URL template to retrive the nightly build of Julia release
 
-Cardinal was designed with ease of development in mind.
+## Placeholders
 
-```python
-from cardinal.decorators import command, help
+Placeholders are used to register new mirrors. For example, the stable release url of
+the "Official" release server owned by [JuliaComputing](https://juliacomputing.com) is
+`"https://julialang2.s3.amazonaws.com/bin/$sys/$arch/$minor_version/$filename"`
 
-class HelloWorldPlugin(object):
-    @command(['hello', 'hi'])
-    @help("Responds to the user with a greeting.")
-    @help("Syntax: .hello")
-    def hello(self, cardinal, user, channel, msg):
-        nick, ident, vhost = user
-        cardinal.sendMsg(channel, "Hello {}!".format(nick))
+There're several predefined placeholders for various systems and architectures:
 
-def setup():
-    return HelloWorldPlugin()
-```
+* `system`: `windows`, `macos`, `linux`, `freebsd`
+* `sys`: `winnt`, `mac`, `linux`, `freebsd`
+* `os`: `win`, `mac`, `linux`, `freebsd`
+* `architecture`: `x86_64`, `i686`, `ARMv7`, `ARMv8`
+* `arch`: `x86`, `x64`, `armv7l`, `aarch64`
+* `osarch`: `win32`, `win64`, `mac64`, `linux-armv7l`, `linux-aarch64`
+* `osbit`: `win32`, `win64`, `linux32`, `linux64`, `linuxaarch64`
+* `bit`: `32`, `64`
+* `extension`: `exe`, `tar.gz`, `dmg` (no leading `.`)
 
-[Visit the wiki](https://github.com/JohnMaguire/Cardinal/wiki/Writing-Plugins) for detailed instructions.
+There're also placeholders for versions:
 
-## Contributing
+* `patch_version`: `1.2.3`, `latest`
+* `minor_version`: `1.2`, `latest`
+* `major_version`: `1`
+* `version`: `v1.2.3-pre`, `latest`
+* `vpatch_version`: `v1.2.3`, `latest`
+* `vminor_version`: `v1.2`, `latest`
+* `vmajor_version`: `v1`, `latest`
 
-Cardinal is a public, open-source project, licensed under the [MIT License](LICENSE). Anyone may contribute.
+To keep consistent names with official releases, you can use predefined name placeholders:
 
-When submitting a pull request, you may add your name to the [CONTRIBUTORS](CONTRIBUTORS) file.
+* stable release `filename`: `julia-$patch_version-$osarch.$extension`
+* nightly release `latest_filename`: `"julia-latest-$osbit.$extension"`
