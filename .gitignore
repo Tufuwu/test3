@@ -1,7 +1,12 @@
-*.pyc
-*.swp
 .cache/
-.pytest_cache/
-build/
+.coverage
 dist/
-demultiplex.egg-info/
+doc/_build/
+.idea/
+__pycache__/
+*.egg-info/
+*.iml
+*.pyc
+env*/
+htmlcov/
+.mypy_cache/
