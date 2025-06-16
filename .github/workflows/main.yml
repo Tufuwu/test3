@@ -2,36 +2,48 @@ name: CI
 
 on:
   push:
-    branches: '*'
+    branches:
+      - main
   pull_request:
-    branches: '*'
-  schedule:
-    - cron: '0 0 * * *'
+    branches:
+      - main
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
+    strategy:
+      matrix:
+        python-version: ["3.9"]
+
     steps:
-    - name: Checkout
-      uses: actions/checkout@v2
-    - name: Install node
-      uses: actions/setup-node@v2
-      with:
-       node-version: '10.x'
-    - name: Install Python
+    - uses: actions/checkout@v2
+
+    - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v2
       with:
-        python-version: '3.9'
-        architecture: 'x64'
+        python-version: ${{ matrix.python-version }}
+
+    - name: Cache pip
+      uses: actions/cache@v4
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+
     - name: Install dependencies
-      run: python -m pip install jupyterlab cookiecutter
-    - name: Run tests
+      run: |
+        python -m pip install -q -U pip
+        pip install notebook
+        pip install cookiecutter
+        pip install --pre -U jupyterlab
+
+    - name: Run script
       run: |
         cookiecutter . --no-input
         cd myextension
-        jlpm && jlpm run build
+        npm install
         jupyter labextension install .
         jupyter lab clean
         jupyter labextension link .
