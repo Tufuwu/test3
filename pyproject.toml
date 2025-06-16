@@ -1,8 +1,4 @@
-[build-system]
-requires = ["setuptools>=42", "wheel", "setuptools_scm[toml]>=3.4.1"]
-build-backend = "setuptools.build_meta"
-
 [tool.black]
-skip-string-normalization = true
-
-[tool.setuptools_scm]
+line-length = 110
+target_version = ['py35', 'py36', 'py37']
+skip_string_normalization = true
