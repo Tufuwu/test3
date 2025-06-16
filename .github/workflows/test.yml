@@ -12,14 +12,9 @@ jobs:
   test:
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
-        python-version: [2.7, 3.6, 3.7]
-        env:
-          TOX_ENV:
-            - py27
-            - py36
-            - py37
-            - flake8
+        python-version: [3.9, 3.8, 3.7]
 
     steps:
     - uses: actions/checkout@v2
