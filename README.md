@@ -1,58 +1,158 @@
-<div align="center">
+About
+=====
 
-# PyLaia
+This is a Japanese-English dictionary based on the
+[JMdict](http://www.edrdg.org/jmdict/j_jmdict.html) and [JMnedict](https://www.edrdg.org/enamdict/enamdict_doc.html) and [Tatoeba](https://tatoeba.org/) database for
+_e-Ink_ Kindle devices.
 
-**PyLaia is a device agnostic, PyTorch based, deep learning toolkit for handwritten document analysis.**
+Features:
 
-**It is also a successor to [Laia](https://github.com/jpuigcerver/Laia).**
+* lookup of inflected verbs.
+* lookup for Japanese names.
+* Example sentences
+* Pronunciation
+* the dictionaries can be downloaded as separate files or as one big dictionary
 
-[![Build](https://img.shields.io/github/workflow/status/carmocca/PyLaia/Laia%20CI?&label=Build&logo=GitHub&labelColor=1b1f23)](https://github.com/carmocca/PyLaia/actions?query=workflow%3A%22Laia+CI%22)
-[![Coverage](https://img.shields.io/codecov/c/github/carmocca/PyLaia?&label=Coverage&logo=Codecov&logoColor=ffffff&labelColor=f01f7a)](https://codecov.io/gh/carmocca/PyLaia)
-[![Code quality](https://img.shields.io/codefactor/grade/github/carmocca/PyLaia?&label=CodeFactor&logo=CodeFactor&labelColor=2782f7)](https://www.codefactor.io/repository/github/carmocca/PyLaia)
+<!--
+Screenshots were captured inside the Kindle device as explained in
+http://blog.blankbaby.com/2012/10/take-a-screenshot-on-a-kindle-paperwhite.html
+then processed with ImageMagick's
+`mogrify -colorspace gray -level 0%,111.11% -define PNG:compression-level=9`
+to look like E-Ink display.
+-->
 
-[![Python: 3.6+](https://img.shields.io/badge/Python-3.6%2B-FFD43B.svg?&logo=Python&logoColor=white&labelColor=306998)](https://www.python.org/)
-[![PyTorch: 1.4.0+](https://img.shields.io/badge/PyTorch-1.4.0%2B-8628d5.svg?&logo=PyTorch&logoColor=white&labelColor=%23ee4c2c)](https://pytorch.org/)
-[![pre-commit: enabled](https://img.shields.io/badge/pre--commit-enabled-76877c?&logo=pre-commit&labelColor=1f2d23)](https://github.com/pre-commit/pre-commit)
-[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg?)](https://github.com/ambv/black)
+![Inflection lookup screenshot](screenshots/infl.png)
 
-</div>
+![Word lookup screenshot](screenshots/word.png)
 
-Get started by having a look at our [Wiki](https://github.com/jpuigcerver/PyLaia/wiki)!
-###### Several (mostly undocumented) examples of its use are provided at [PyLaia-examples](https://github.com/carmocca/PyLaia-examples).
+![Name lookup screenshot](screenshots/name.png)
 
-## Installation
+Supported Devices
+=================
 
-In order to install PyLaia, follow this recipe:
+The dictionary has been tested on _Kindle Paperwhite_ and _Kindle Oasis_.  It _should_ also work
+well with other _e-ink_ Kindle devices
 
-```bash
-git clone https://github.com/jpuigcerver/PyLaia
-cd PyLaia
-pip install --editable .
-# alternatively, to install extras
-pip install --editable .[dev,test]
+The dictionary will *not* work well on _Kindle Fire_ or _Kindle Android App_,
+or any Android based Kindle, because the Kindle software on those platforms
+does not support inflection lookups.
+
+
+Download
+========
+
+You can download the latest version of the dictionary from
+[here](https://github.com/jrfonseca/jmdict-kindle/releases).
+
+
+Install
+=======
+
+_e-Ink_ Kindle
+-----------------
+
+There are in total 3 dictionaries:
+
+* `jmdict.mobi`: Contains only data from the JMedict database, with additional examples. It does not contain proper names.
+* `jmnedict.mobi`: Contains only Japanese proper names from the JMnedict databse.
+* `combined.mobi`: Contains the data from both of the above dictionaries
+
+To install any of the dictionaries (you can also install all three of them) into your device follow these steps:
+
+* for 1st-generation Kindle Paperwhite devices, ensure you have
+  [firmware version 5.3.9 or higher](http://www.amazon.com/gp/help/customer/display.html/ref=hp_left_cn?ie=UTF8&nodeId=201064850) as it includes improved homonym lookup for Japanese;
+* connect your Kindle device via USB;
+* copy the the `.mobi` file for the dictionary you want to use to the `documents/dictionaries` sub-folder;
+* eject the USB device;
+* on your device go to
+  _Home > Settings > Device Options > Language and Dictionaries > Dictionaries_
+  and set _JMdict Japanese-English Dictionary_ as the default dictionary for
+  Japanese.
+
+Kindle Android App
+------------------
+
+**NOTE: Unfortunately the Kindle Android App does not support dictionary inflections, yielding verbs lookup practically impossible. No known workaround.**
+
+* rename `jmdict.mobi` or any of the other two dictionaries as `B005FNK020_EBOK.prc`
+
+* connect your Android device via USB
+
+* copy `B005FNK020_EBOK.prc` into `Internal Storage/Android/data/com.amazon.kindle/files/` or `/sdcard/android/data/com.amazon.kindle/files`
+
+This will override the
+[default Japanese-Japanese dictionary](https://kindle.amazon.com/work/daijisen-x5927-x8f9e-japanese-edition-ebook/B005FNK020/B005FNK020).
+
+
+Building from source
+====================
+
+![Build](https://github.com/jrfonseca/jmdict-kindle/workflows/build/badge.svg?branch=master)
+
+Requirements:
+
+* Linux or Windows with Cygwin (might also work on macOS with a few changes)
+* Python version 3
+
+  * [Pycairo](http://www.cairographics.org/pycairo)
+  * [Pillow](http://pillow.readthedocs.io/en/latest/)
+  * [htmlmin](https://htmlmin.readthedocs.io/en/latest/index.html)
+
+Inside of the makefile you can change the max number of sentences per entry, compression, as well as which sentences to include:
+
+```makefile
+# The Kindle Publishing Guidelines recommend -c2 (huffdic compression),
+# but it is excruciatingly slow. That's why -c1 is selected by default.
+COMPRESSION ?= 1
+# Sets the max sentences per entry only for the jmdict.mobi.
+# It is ignored by combined.mobi due to size restrictions.
+# If there are too many sentences for the combined dictionary,
+# it will not build (exceeds 650MB size limit). The amount is limited to 3 in this makefile
+SENTENCES ?= 5
+# This flag determines wheter only good and verified sentences are used in the
+# dictionary. Set it to TRUE if you only want those sentences.
+# It is only used by jmdict.mobi
+# It is ignored bei combined.mobi. there it is always true
+# this is due to size constraints.
+ONLY_CHECKED_SENTENCES ?= FALSE
+# If true adds pronunciations indication
+PRONUNCIATIONS ?= TRUE
 ```
 
-The following Python scripts will be installed in your system:
-
-- [`pylaia-htr-create-model`](laia/scripts/htr/create_model.py): Create a VGG-like model with BLSTMs on top for handwriting text recognition. The script has different options to costumize the model. The architecture is based on the paper ["Are Multidimensional Recurrent Layers Really Necessary for Handwritten Text Recognition?"](https://ieeexplore.ieee.org/document/8269951) (2017) by J. Puigcerver.
-- [`pylaia-htr-train-ctc`](laia/scripts/htr/train_ctc.py): Train a model using the CTC algorithm and a set of text-line images and their transcripts.
-- [`pylaia-htr-decode-ctc`](laia/scripts/htr/decode_ctc.py): Decode text line images using a trained model and the CTC algorithm. It can also output the char/word segmentation boundaries of the symbols recognized.
-- [`pylaia-htr-netout`](laia/scripts/htr/netout.py): Dump the output of the model for a set of text-line images in order to decode using an external language model.
-
-## Acknowledgments
-
-Work in this toolkit was financially supported by the [Pattern Recognition and Human Language Technology (PRHLT) Research Center](https://www.prhlt.upv.es/wp/)
-
-## BibTeX
-
+Build with make to create all 3 dictionaries:
 ```
-@misc{puigcerver2018pylaia,
-  author = {Joan Puigcerver and Carlos Mocholí},
-  title = {PyLaia},
-  year = {2018},
-  publisher = {GitHub},
-  journal = {GitHub repository},
-  howpublished = {\url{https://github.com/jpuigcerver/PyLaia}},
-  commit = {commit SHA}
-}
+make
 ```
+or use any of the following commands to create a specific one:
+```
+make jmdict.mobi
+make jmnedict.mobi
+make combined.mobi
+```
+
+To do
+=====
+
+* Leverage more of the JMdict data:
+
+  * cross references
+* Add Furigana to example sentences
+* Create better covers
+
+
+Credits
+=======
+
+* Jim Breen and the [JMdict/EDICT project](http://www.edrdg.org/jmdict/j_jmdict.html) as well as the [ENAMDICT/JMnedict](https://www.edrdg.org/enamdict/enamdict_doc.html)
+* The [Tatoeba](https://tatoeba.org/) project
+* John Mettraux for his [EDICT2 Japanese-English Kindle dictionary](https://github.com/jmettraux/edict2-kindle)
+* Choplair-network for their [Nihongo conjugator](http://www.choplair.org/?Nihongo%20conjugator)
+* javdejong for the [pronunciation](https://github.com/javdejong/nhk-pronunciation)
+
+
+Alternatives
+============
+
+* [John Mettraux's EDICT2 Japanese-English Kindle dictionary](https://github.com/jmettraux/edict2-kindle)
+
+* [Amazon Kindle Store](http://www.amazon.com/s/url=search-alias%3Ddigital-text&field-keywords=japanese+english+dictionary)
