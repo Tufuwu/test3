@@ -1,33 +1,105 @@
-.. Renpy-Encyclopaedia documentation master file, created by
-   sphinx-quickstart on Sat Nov 18 13:25:26 2017.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
+========================
+jsonpickle Documentation
+========================
 
-Encyclopaedia Framework for Ren'Py
-==================================
+``jsonpickle`` is a Python library for
+serialization and deserialization of complex Python objects to and from
+JSON.  The standard Python libraries for encoding Python into JSON, such as
+the stdlib's json, simplejson, and demjson, can only handle Python
+primitives that have a direct JSON equivalent (e.g. dicts, lists, strings,
+ints, etc.).  jsonpickle builds on top of these libraries and allows more
+complex data structures to be serialized to JSON. jsonpickle is highly
+configurable and extendable--allowing the user to choose the JSON backend
+and add additional backends.
 
-A plugin for the `Ren'py Visual Novel engine <https://www.renpy.org/>`_
+.. contents::
 
-Simplifies creating an encyclopaedia, bestiary, glossary, or similar system.
+jsonpickle Usage
+================
 
-Compatible Ren'Py Version: 6.99.12.3 and higher
+.. note::
 
-Features
---------
-- Sort entries by Number, Alphabetically, Reverse Alphabetically, by Subject, or by Unread status.
-- Filter entries by Subject.
-- Sub-page system for nesting entries. Allows an entry to be unlocked progressively.
-- Locking/unlocking allows you to decide when entries should be accessible.
-- Locked entries can be displayed with customizable placeholders or outright hidden.
-- Entry Unlocks can be tied to individual save games or universal (using Ren'py persistent data).
-- Default visual template is provided, but can be completely customized or replaced using `Ren'py Screen Language <https://www.renpy.org/doc/html/screens.html>`_.
+   Please see the note in the :ref:`api-docs` when serializing dictionaries
+   that contain non-string dictionary keys.
 
-Documentation
--------------
-The :ref:`Documentation <documentation>` section has installation instructions and tutorials.
+.. automodule:: jsonpickle
 
-The :ref:`Module Index <modindex>` has in-depth information on the Encyclopaedia's classes and functions.
+Download & Install
+==================
+
+The easiest way to get jsonpickle is via PyPi_ with pip_::
+
+    $ pip install -U jsonpickle
+
+jsonpickle has no required dependencies (it uses the standard library's
+:mod:`json` module by default).
+
+You can also download or :ref:`checkout <jsonpickle-contrib-checkout>` the
+latest code and install from source::
+
+    $ python setup.py install
+
+.. _PyPi: https://pypi.org/project/jsonpickle/
+.. _pip: https://pypi.org/project/pip/
+.. _download: https://pypi.org/project/jsonpickle/
+
+
+API Reference
+=============
+
+.. toctree::
+
+   api
+
+Extensions
+==========
+
+.. toctree::
+
+   extensions
 
 Contributing
-------------
-For filing bugs or feature requests, please use the `GitHub issue tracker <https://github.com/jsfehler/renpy-encyclopaedia/issues>`_
+============
+
+.. toctree::
+
+   contrib
+
+Contact
+=======
+
+Please join our `mailing list <https://groups.google.com/group/jsonpickle>`_.
+You can send email to *jsonpickle@googlegroups.com*.
+
+Check https://github.com/jsonpickle/jsonpickle for project updates.
+
+
+Authors
+=======
+
+ * John Paulett - john -at- paulett.org - https://github.com/johnpaulett
+ * David Aguilar - davvid -at- gmail.com - https://github.com/davvid
+ * Dan Buch - https://github.com/meatballhat
+ * Ian Schenck - https://github.com/ianschenck
+ * David K. Hess - https://github.com/davidkhess
+ * Alec Thomas - https://github.com/alecthomas
+ * jaraco - https://github.com/jaraco
+ * Marcin Tustin - https://github.com/marcintustin
+
+
+Change Log
+==========
+
+.. toctree::
+   :maxdepth: 2
+
+   history
+
+License
+=======
+
+jsonpickle is provided under a
+`New BSD license <https://github.com/jsonpickle/jsonpickle/raw/master/COPYING>`_,
+
+Copyright (C) 2008-2011 John Paulett (john -at- paulett.org)
+Copyright (C) 2009-2016 David Aguilar (davvid -at- gmail.com)
