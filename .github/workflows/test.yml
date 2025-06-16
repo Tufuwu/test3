@@ -19,7 +19,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip setuptools wheel beautifulsoup4 pytz
+          python -m pip install --upgrade pip setuptools wheel beautifulsoup4 pytz pycryptodome
           pip install pytest
           python setup.py install
       - name: Test with pytest
