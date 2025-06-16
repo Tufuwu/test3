@@ -1,60 +1,43 @@
-# -*- coding: utf-8 -*-
-"""Build script for setuptools, used to create PyPi package."""
-import os
-
-from setuptools import setup
-from setuptools import find_packages
-
-from prometheus_speedtest import version
+import codecs
+try:
+    from setuptools import setup
+except ImportError:
+    from distutils.core import setup
 
 
-def read_file(rel_path):
-    """Reads a relative file, returns contents as a string.
-
-    Args:
-      rel_path: relative file path, string.
-    """
-    here = os.path.abspath(os.path.dirname(__file__))
-    with open(os.path.join(here, rel_path), 'r', encoding='utf-8') as rel_file:
-        return rel_file.read().strip()
-
+with codecs.open('README.rst', encoding='utf-8') as f:
+    long_description = f.read()
 
 setup(
-    name='prometheus_speedtest',
-    author='Jean-Ralph Aviles',
-    author_email='jeanralph.aviles+pypi@gmail.com',
+    name='yahoofinancials',
+    version='1.7',
+    description='A powerful financial data module used for pulling both fundamental and technical data from Yahoo Finance',
+    long_description=long_description,
+    url='https://github.com/JECSand/yahoofinancials',
+    download_url='https://github.com/JECSand/yahoofinancials/archive/1.7.tar.gz',
+    author='Connor Sanders',
+    author_email='connor@exceleri.com',
+    license='MIT',
+    keywords=['finance data', 'stocks', 'commodities', 'cryptocurrencies', 'currencies', 'forex', 'yahoo finance'],
+    packages=['yahoofinancials'],
+    install_requires=[
+        "beautifulsoup4",
+        "pytz",
+        "pycryptodome"
+    ],
     classifiers=[
         'Development Status :: 5 - Production/Stable',
-        'Environment :: Console',
         'Intended Audience :: Developers',
-        'License :: OSI Approved :: Apache Software License',
+        'Intended Audience :: Financial and Insurance Industry',
+        'Topic :: Office/Business :: Financial :: Investment',
+        'Topic :: Software Development :: Libraries :: Python Modules',
         'Operating System :: OS Independent',
-        'Topic :: System :: Monitoring',
-        'Topic :: System :: Networking :: Monitoring',
-        'Programming Language :: Python :: 3.13',
-        'Programming Language :: Python',
+        'License :: OSI Approved :: MIT License',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
+        'Programming Language :: Python :: 3.10'
     ],
-    description=('Performs speedtest-cli tests and pushes metrics to '
-                 'Prometheus Pushgateway'),
-    entry_points={
-        'console_scripts': [
-            ('prometheus_speedtest='
-             'prometheus_speedtest.prometheus_speedtest:init'),
-        ],
-    },
-    include_package_data=True,
-    packages=find_packages(),
-    install_requires=[
-        'absl-py==2.1.0',
-        'prometheus_client==0.21.1',
-        'speedtest-cli==2.1.3',
-    ],
-    keywords=['prometheus', 'monitoring', 'speedtest', 'speedtest.net'],
-    license='Apache License, Version 2.0',
-    long_description=read_file('README.md'),
-    long_description_content_type='text/markdown',
-    py_modules=['prometheus_speedtest'],
-    setup_requires=['setuptools==75.6.0'],
-    url='https://github.com/jeanralphaviles/prometheus_speedtest',
-    version=version.VERSION,
+    zip_safe=False
 )
