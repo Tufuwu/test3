@@ -40,9 +40,7 @@ jobs:
     - name: Run tests
       run: py.test -v --cov=pygelf
 
-    - name: Stop Docker services
-      if: always()
-      run: docker-compose -f tests/config/docker-compose.yml down
+
 
     - name: Upload coverage to Coveralls
       if: success()
