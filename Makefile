@@ -1,95 +1,56 @@
-# Makefile debugging hack: uncomment the two lines below and make will tell you
-# more about what is happening.  The output generated is of the form
-# "FILE:LINE [TARGET (DEPENDENCIES) (NEWER)]" where DEPENDENCIES are all the
-# things TARGET depends on and NEWER are all the files that are newer than
-# TARGET.  DEPENDENCIES will be colored green and NEWER will be blue.
-#OLD_SHELL := $(SHELL)
-#SHELL = $(warning [$@ [32m($^) [34m($?)[m ])$(OLD_SHELL)
+BIN := .tox/py3/bin
+PY := $(BIN)/python
+PIP := $(BIN)/pip
+VERSION=$(shell cat VERSION)
 
-WD := $(shell pwd)
-DESTDIR =
-prefix = /usr
-DDIR = $(DESTDIR)$(prefix)
-bindir = $(DDIR)/bin
-mandir = $(DDIR)/share/man/man1
-datadir = $(DDIR)/share/charm-tools
-helperdir = $(DDIR)/share/charm-helper
-confdir = $(DESTDIR)/etc
-INSTALL = install
-
-develop:
-	tox --develop --notest
-
-build: deps develop
-
-PYTHON_DEPS=build-essential bzr python-dev python-tox
-python-deps: scripts/packages.sh
-	$(if $(shell ./scripts/packages.sh $(PYTHON_DEPS)), \
-	tox -r --notest)
-
-deps: python-deps
-
-test: build
-	tox
-
-tags:
-	ctags --tag-relative --python-kinds=-iv -Rf tags --sort=yes \
-	    --exclude=.bzr --languages=python
-
+.PHONY: clean
 clean:
-	find . -name '*.py[co]' -delete
-	find . -type f -name '*~' -delete
-	find . -name '*.bak' -delete
-	rm -rf bin include lib local man dependencies dist
-	rm -f charmtools/VERSION
+	find . -name __pycache__ -type d -exec rm -r {} +
+	find . -name *.pyc -delete
+	rm -rf .tox
+	rm -rf docs/_build/
 
-install:
-	$(INSTALL) -d $(mandir)
-	$(INSTALL) -t $(mandir) charm.1
-	$(INSTALL) -d $(datadir)
-	$(INSTALL) -t $(datadir) charm
-	$(INSTALL) -d $(bindir)
-	$(INSTALL) -d $(helperdir)
-	$(INSTALL) -d $(confdir)/bash_completion.d
-	$(INSTALL) misc/bash-completion $(confdir)/bash_completion.d/charm
-	ln -sf $(datadir)/charm $(bindir)
-	gzip $(mandir)/charm.1
-	cp -rf scripts templates $(datadir)
-	cp -rf helpers/* $(helperdir)
+.PHONY: .tox
+.tox:
+	tox -r --notest
 
-pypi: clean
-	tox -e pypi
+.PHONY: client
+client: .tox
+	$(PY) -m juju.client.facade -s "juju/client/schemas*" -o juju/client/
 
-integration: build
-	tests_functional/helpers/helpers.sh || sh -x tests_functional/helpers/helpers.sh timeout
-	@echo Test shell helpers with bash
-	bash tests_functional/helpers/helpers.sh \
-	    || bash -x tests_functional/helpers/helpers.sh timeout
-	tests_functional/helpers/helpers.bash || sh -x tests_functional/helpers/helpers.bash timeout
-	@echo Test shell helpers with bash
-	bash tests_functional/helpers/helpers.bash \
-	    || bash -x tests_functional/helpers/helpers.bash timeout
-	@echo Test charm proof
-	tests_functional/proof/test.sh
-	tests_functional/create/test.sh
-	tests_functional/add/test.sh
-
-coverage: build
+.PHONY: test
+test:
 	tox
 
-check: build integration test
+.PHONY: lint
+lint: 
+	tox -e lint --notest
 
-define phony
-  build
-  check
-  clean
-  deps
-  install
-  pypi
-  tags
-  test
-endef
+.PHONY: docs
+docs: .tox
+	$(PIP) install -r docs/requirements.txt
+	rm -rf docs/_build/
+	$(BIN)/sphinx-build -b html docs/  docs/_build/
+	cd docs/_build/ && zip -r docs.zip *
 
-.PHONY: $(phony)
+.PHONY: release
+release:
+	git fetch --tags
+	rm dist/*.tar.gz || true
+	$(PY) setup.py sdist
+	$(BIN)/twine upload --repository-url https://upload.pypi.org/legacy/ dist/*
+	git tag ${VERSION}
+	git push --tags
 
-.DEFAULT_GOAL := build
+.PHONY: upload
+upload: release
+
+.PHONY: install-deb-build-deps
+install-deb-build-deps:
+	sudo apt install -y python3-all debhelper sbuild schroot ubuntu-dev-tools
+	$(PIP) install stdeb
+
+.PHONY: build-deb
+build-deb: install-deb-build-deps
+	rm -rf deb_dist
+	$(PY) setup.py --command-packages=stdeb.command bdist_deb

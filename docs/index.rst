@@ -1,45 +1,37 @@
-.. Charm Tools documentation master file, created by
-   sphinx-quickstart on Tue Feb 19 14:28:07 2019.
+.. libjuju documentation master file, created by
+   sphinx-quickstart on Thu May 19 11:21:38 2016.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Charm Tools documentation
-=========================
 
-The `charm` command includes several subcommands used to build, maintain,
-and release `Juju Charms`_, which are Open Source encapsulated operations
-logic for managing software in the cloud or bare-metal servers using
-cloud-like APIs.
+.. include:: readme.rst
 
-Installation is easy with snaps:
 
-.. code-block:: bash
+Table of Contents
+-----------------
 
-    snap install --classic charm
+.. toctree::
+   :caption: Overview
+   :glob:
+   :maxdepth: 3
 
-Reference for the various available commands can be found below, or via
-the command-line with:
-
-.. code-block:: bash
-
-    charm help
+   narrative/index
 
 
 .. toctree::
-   :maxdepth: 2
-   :caption: Reference
+   :caption: API Documentation
+   :glob:
+   :maxdepth: 3
 
-   commands
-   tactics
-   reproducible-charms
-
+   api/modules
+   api/juju.client
 
 .. toctree::
    :caption: Project
    :glob:
    :maxdepth: 3
 
-   contributing
+   upstream-updates/index
    changelog
 
 
@@ -51,5 +43,3 @@ Indices and tables
 * :ref:`modindex`
 * :ref:`search`
 
-
-.. _Juju Charms: https://docs.jujucharms.com/

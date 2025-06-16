@@ -1,5 +1,0 @@
-options:
-  foo:
-    type: integer
-    description: bar
-    default: 1

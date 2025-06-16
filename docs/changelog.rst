@@ -1,233 +1,400 @@
 Changelog
-=========
+---------
 
-charm-tools 2.8.3 + charmstore-client 2.5.0
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Monday February 8 2021
+2.8.0
+^^^^^
 
-**charm-tools**
+Wednesday May 13 2020
 
-* Update pinned version of PyYAML (#600)
+ * Update facade methods for Juju 2.8.0
+ * Fixes codegen for Python 3.7+
+ * Nested facade definitions are now deserialised properly (e.g. storage on ApplicationDeploy)
+ * Missing client facades are now ignored and a warning is printed (#382)
+ * Add SCP example (#383)
+ * Add watch_model_summaries method to Controller (#390)
+ * Bug fix - make_archive on Model handles symlinks (#391 #392)
+ * Add SSH support for units and machines (#393)
+ * Add connection HA support (#402)
+ * Bug fix - resolve api_endpoints from controller (#406 #407)
 
-charm-tools 2.8.2 + charmstore-client 2.5.0
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Monday February 1 2021
+2.7.1
+^^^^^
 
-**charm-tools**
+Thursday January 9 2020
 
-* Fix reproducible charms issues (#598)
+ * Added the missing facade type, when attempting to connect to a model.
 
-charm-tools 2.8.1 + charmstore-client 2.5.0
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Wednesday January 27 2021
+2.7.0
+^^^^^
 
-**charm-tools**
+Tuesday January 7 2020
 
-* Add option to create .charm file (#592)
-* Add 'docs' to known metadata fields (#591)
-* Add reproducible charm build feature (#585)
-* Fix exception rendering "already promulgated" error (#590)
-* Align setup.py to requirements.txt (#589)
-* Fix TypeError from linter on X.Y min-juju-version (#588)
-* Make output_dir the same as build_dir (#564)
+ * Update facade methods for Juju 2.7.0
+ * Fix an issue when querying CMR relations (#366) 
+ * Fix storage support in bundles (#361)
+ * Fix reporting of unit leaders (#374)
+ * AddCloud API support (#370)
 
-charm-tools 2.8.0 + charmstore-client 2.5.0
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Tuesday November 10 2020
+2.6.3
+^^^^^
 
-**charm-tools**
+ * Refactor bundle handler code so that it can be more resilient against changes
+   to the bundle changes API.
+ * Updated the dependencies to the latest version (pyyaml)
 
-* Fix snap build for updated charmstore-client (#587)
-* Store rev when pull-source on a subdir layer (#583)
-* Add revision info to output of pull-source (#582)
-* Add --branch option to pull-source (#581)
-* Raise more useful BuildError on missing pkg name (#579)
-* Deprecate Operator charm template (#578)
+2.6.2
+^^^^^
+Wednesday August 27 2019
 
-**charmstore-client**
+ * Fixes validation issue with a go interface{} type (Any type) being returned
+   from the Juju API server (#344)
 
-* Update dependencies
-* Make charm-push support archives
+2.6.1
+^^^^^
+Wednesday August 21 2019
 
-charm-tools 2.7.8 + charmstore-client 2.4.0+git-13-547c6f2
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Tuesday July 21 2020
+ * Pylibjuju now validates arguments correctly, instead of relying on default
+   positional argument values.
 
-**charm-tools**
+2.6.0
+^^^^^
+Wednesday August 14 2019
 
-* Normalize package names when processing wheelhouse (#576)
+* Update facade methods for Juju 2.6.6
+* Pylibjuju release now follows the cadence of Juju releases, which also
+  includes bumping the version number to follow suit.
+* Pinned API facades. All facades in Pylibjuju are now pinned to a set of
+  facade versions that is more conservative to prevent breakages against new
+  features. The ability to override the pinned facades and specify your own
+  facade versions is possible upon connection to a controller or model.
+* Cross model relations (CMR) when deploying and adding relations. Additionally
+  getting information about the CMR offers are available on the model.
+* Cross model relations (CMR) in bundles.
+* Ability to export bundle including overlays.
+* Manual provisioning without a ubuntu user (#335)
+* Addition of remote applications when adding relations via SAAS blocks
+* Applying topological sorting to bundle changes API response, allows deployment
+  of complex bundles possible.
+* Updated definitions types to include the latest information from Juju.
+* Keyword arguments (`unknown_field` in code) are now available on Juju
+  responses.
 
-charm-tools 2.7.7 + charmstore-client 2.4.0+git-13-547c6f2
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Monday July 20 2020
+0.11.7
+^^^^^^
+Wednesday April 19 2019
 
-**charm-tools**
+* Update facade methods for Juju 2.6.4
+* Support for trusted bundles and charms (See: Trust_ documentation)
 
-* Fix handling of comments in wheelhouse (#574)
+.. _Trust: https://discourse.jujucharms.com/t/deploying-applications-advanced/1061#heading--trusting-an-application-with-a-credential
 
-charm-tools 2.7.6 + charmstore-client 2.4.0+git-13-547c6f2
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Thursday July 16 2020
+0.11.6
+^^^^^^
+Wednesday May 22 2019
 
-**charm-tools**
-
-* Switch to requirements-parser for wheelhouse (#572)
-
-charm-tools 2.7.5 + charmstore-client 2.4.0+git-13-547c6f2
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Thursday June 25 2020
-
-**charm-tools**
-
-* Process wheelhouse.txt holistically rather than per-layer (#569)
-* Handle invalid config file more gracefully (#567)
-* Default to charming category of the Juju Discourse (#565)
-
-charm-tools 2.7.5 + charmstore-client 2.4.0+git-13-547c6f2
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Thursday June 25 2020
-
-**charm-tools**
-
-* Process wheelhouse.txt holistically rather than per-layer (#569)
-* Handle invalid config file more gracefully (#567)
-* Default to charming category of the Juju Discourse (#565)
-
-charm-tools 2.7.4 + charmstore-client 2.4.0+git-13-547c6f2
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Thursday March 26 2020
-
-**charm-tools**
-
-* Add workaround for user site package conflicts (#561)
-* Add Build Snap action so PRs have snap to test easily (#562)
-
-charm-tools 2.7.3 + charmstore-client 2.4.0+git-13-547c6f2
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Saturday Feb 29 2020
-
-**charm-tools**
-
-* Add Operator charm template (#557)
-* Add OpenStack templates to requirements (#558)
-* Fix 471 (#556)
-* Add functions support; (#555)
-* Allow boolean config options to have null default (#554)
-
-**charmstore-client**
-
-* fix dependencies
-* cmd/charm: allow users with domains in ACLs
-* Updated charmstore and charmrepo dependency.
-* charm whoami: return an error when the user is not logged in
-* Update dependencies
-* Fix dependency files
-
-charm-tools 2.7.2 + charmstore-client 2.4.0+git-3-cbbf887
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Tuesday October 8 2019
-
-**charm-tools**
-
-* Add opendev.org https and git fetcher (#553)
-
-**charmstore-client**
-
-* Disallow release in promulgated namespace
-
-charm-tools 2.7.1 + charmstore-client 2.4.0
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Tuesday September 24 2019
-
-**charm-tools**
-
-* Fix maintainer validation not handling unicode (#550)
-* Fix snap builds on other arches (#548)
-* Change deployment.type optional (for k8s charms) (#547)
-* Move daemonset to deployment.type (for k8s charms) (#546)
+* Disable hostname checking on controller connection (#305)
+* Handle RedirectError payloads returned by Login RPCs (#303)
 
 
-charm-tools 2.7.0 + charmstore-client 2.4.0
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Wednesday September 18 2019
+0.11.5
+^^^^^^
+Monday April 1 2019
 
-**charm-tools**
-
-* Fix charm-build conflict when building concurrently (#545)
-* Rename README files with markdown extension (#543)
-* Update charm.1 manpage (#522)
-* Feature/add deployment field2metadata (#544)
-* fix charm build help message (#542)
-* Cleanup cached layers / interfaces after build (#540)
-* edge case for setting charm_ver (#538)
+* Handle deltas of unknown types (fixes connecting to Juju 2.6 controllers) (#299)
+* Test fixes (#298)
 
 
-charm-tools 2.6.1 + charmstore-client 2.4.0
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Thursday July 11 2019
+0.11.4
+^^^^^^
+Monday April 1 2019
 
-**charm-tools**
-
-* Remove bad URL from PR template (#537)
-* Update pypi release target to work with newer tox (#530)
-* requirements.txt: update version limit for requests (#535) (#536)
-* Fix config key regexp to allow short config keys. (#534)
+* Additional work with annotations. (#290)
+* Check server cert. (#296)
 
 
-charm-tools 2.6.0 + charmstore-client 2.4.0
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Thursday June 6 2019
+0.11.3
+^^^^^^
+Wednesday March 13 2019
 
-**charm-tools**
+* k8s bundles no longer have application placement (#293)
+* Add retry for connection if all endpoints fail (#288)
+* Support generation of registration string for model sharing. (#279)
+* Add Twine for dist upload on release (#284)
 
-* Honor ignores / excludes when checking for post-build changes (#529)
-* Resolve vergit runtime dependency (#527)
-* Upgrade to use py3.7 on Travis (#523)
-* Fix installing from git without vergit installed (#520)
-* Fix installation dependency on vergit (#519)
-* Gracefully handle JSON decode errors from layer index (#516)
-* Add support for layer-index and fallback-layer-index (#515)
-* Ensure setuptools for charmstore-client build (#509)
-* Refactor version handling in snap to work with core18 (#508)
-* Make series required (#499)
-* Add setuptools to requirements.txt (#498)
-* Fix charm-layer handling of old format build-manifest (#496)
-* Fix nested build dir check in Python2 (#494)
-* Improve docs for LayerYAML tactic (#493)
-* Add promulgate and unpromulgate commands (#491)
-* Fix and improve charm-layers (#492)
-* Fix checking of build dir nested under source dir (#490)
-* Add basic documentation (#489)
-* Allow `build` folders in the charm (#486)
-* Fix CHARM_HIDE_METRICS environment variable (#483)
-* Address security alerts from GitHub (#484)
-* Use shutil.copytree instead of path.rename (#482)
 
-**charmstore-client**
+0.11.2
+^^^^^^
+Wednesday January 16 2019
 
-* Remove the temporary file
-* update charmrepo dependency
-* update charm dependency
-* internal/ingest: set permissions correctly
-* cmd/charm-ingest: use --hardlimit not --softlimit
-* cmd/charm-ingest: expose disk limits
-* make tests pass
-* internal/ingest: transfer resources
-* cmd/charm-ingest: Add a basic ingest command
-* internal/ingest: resolve resources in whitelist
-* internal/ingest: expose public ingest API.
-* cmd/charm-ingest: Add the basics of whitelist parsing
-* restore go-cmp dependency version
-* Move cmd/ingest to internal/ingest
-* cmd/ingest: fix comment from previous review
-* cmd/ingest: run tests against real charmstore servers
-* cmd/ingest: core ingestion logic
-* cmd/charm/charmcmd: add some basic tests for show command
-* cmd/charm/charmcmd: improve output in `charm show` for unpublished charms
-* cmd/ingest: new ingest command
-* cmd/charm/charmcmd: improve incompatible registry version error
-* Update usage of docker to oci-image resource type.
-* Reviews.
-* cmd/charmcmd: Better yaml output for resources.
-* cmd/charmcmd: Allow multiple users in list.
-* all: use quicktest for tests
+* update facade methods for Juju 2.5-rc2 (#281)
+* Add test case for redirect during connect (#275)
+* Implement App.get_resources and pinned resources in bundles (#278)
+
+
+0.11.1
+^^^^^^
+Thursday December 13 2018
+
+* Fix bundles with subordinates for Juju <2.5 (#277)
+
+
+0.11.0
+^^^^^^
+Tuesday December 11 2018
+
+* Updates for new Juju version (#274)
+* Fix wrong variable name in revoke_model function (#271)
+
+
+0.10.2
+^^^^^^
+Tuesday September 18 2018
+
+* set include_stats to false to reduce request time (#266)
+
+
+0.10.1
+^^^^^^
+Monday September 17 2018
+
+* Retry ssh in manual provision test (#265)
+* Clean up lint and add lint coverage to travis config (#263)
+* Increase the timeout for charmstore connections (#262)
+* Fix log level of `Driver connected to juju` message (#258)
+
+
+0.10.0
+^^^^^^
+Thursday August 16 2018
+
+* Fix error due to scp extra opts order (#260)
+* Implement set/get model constraints (#253)
+
+
+0.9.1
+^^^^^
+Monday July 16 2018
+
+* Update websockets to 6.0 to fix OS X support due to Brew update to Py3.7 (#254)
+
+
+0.9.0
+^^^^^
+Friday June 29 2018
+
+* python3.7 compatibility updates (#251)
+* Handle juju not installed in is_bootstrapped for tests (#250)
+* Add app.reset_config(list). (#249)
+* Implement model.get_action_status (#248)
+* Fix `make client` in Python 3.6 (#247)
+
+
+0.8.0
+^^^^^
+Thursday June 14 2018
+
+* Add support for adding a manual (ssh) machine (#240)
+* Backwards compatibility fixes (#213)
+* Implement model.get_action_output (#242)
+* Fix JSON serialization error for bundle with lxd to unit placement (#243)
+* Fix reference in docs to connect_current (#239)
+* Wrap machine agent status workaround in version check (#238)
+* Convert seconds to nanoseconds for juju.unit.run (#237)
+* Fix spurious intermittent failure in test_machines.py::test_status (#236)
+* Define an unused juju-zfs lxd storage pool for Travis (#235)
+* Add support for Application get_actions (#234)
+
+
+0.7.5
+^^^^^
+Friday May 18 2018
+
+* Surface errors from bundle plan (#233)
+* Always send auth-tag even with macaroon auth (#217)
+* Inline jsonfile credential when sending to controller (#231)
+
+0.7.4
+^^^^^
+Tuesday Apr 24 2018
+
+* Always parse tags and spaces constraints to lists (#228)
+* Doc index improvements (#211)
+* Add doc req to force newer pymacaroons to fix RTD builds
+* Fix dependency conflict for building docs
+
+0.7.3
+^^^^^
+Tuesday Feb 20 2018
+
+* Full macaroon bakery support (#206)
+* Fix regression with deploying local charm, add test case (#209)
+* Expose a machines series (#208)
+* Automated test runner fixes (#205)
+
+0.7.2
+^^^^^
+Friday Feb 9 2018
+
+* Support deploying bundle YAML file directly (rather than just directory) (#202)
+
+0.7.1
+^^^^^
+Monday Dec 18 2017
+
+* Fix missed renames of model_uuids (#197)
+
+0.7.0
+^^^^^
+Fri Dec 15 2017
+
+* Fix race condition in adding relations (#192)
+* Fix race condition in connection monitor test (#183)
+* Fix example in README (#178)
+* Fix rare hang during Unit.run (#177)
+* Fix licensing quirks (#176)
+* Refactor model handling (#171)
+* Refactor users handling, add get_users (#170)
+* Upload credential to controller when adding model (#168)
+* Support 'applications' key in bundles (#165)
+* Improve handling of thread error handling for loop.run() (#169)
+* Fix encoding when using to_json() (#166)
+* Fix intermittent test failures (#167)
+
+0.6.1
+^^^^^
+Fri Sept 29 2017
+
+* Fix failure when controller supports newer facade version (#145)
+* Fix test failures (#163)
+* Fix SSH key handling when adding a new model (#161)
+* Make Application.upgrade_charm upgrade resources (#158)
+* Expand integration tests to use stable/edge versions of juju (#155)
+* Move docs to ReadTheDocs (https://pythonlibjuju.readthedocs.io/en/latest/)
+
+0.6.0
+^^^^^
+Thu June 29 2017
+
+* Implement scp functionality (#149)
+* Add Unit.public_address property (#153)
+* Adds support for getting/setting config on a model (#152)
+
+0.5.3
+^^^^^
+Thu June 22 2017
+
+* Improve handling of closed connections (#148)
+* Configurable and larger max message size (#146)
+
+0.5.2
+^^^^^
+Wed June 14 2017
+
+* Fix deploying non-stable channels and explicit revs (#144)
+
+0.5.1
+^^^^^
+Tue June 13 2017
+
+* Update schema for Juju 2.3 alpha1 (#142)
+* Improve API doc navigation and coverage (#141)
+* Add type info to Model.add_machine docs (#138)
+
+0.5.0
+^^^^^
+Thu June 8 2017
+
+* Add machine status properties (#133)
+* Add model context manager (#128)
+* Implement Application.upgrade_charm method (#132)
+
+0.4.3
+^^^^^
+Thu June 1 2017
+
+* Accept new / unknown API fields gracefully (#131)
+* Add support for new agent-version field in ModelInfo (#131)
+* Replace pip with pip3 in install instructions (#129)
+* Strip local:-prefix from local charm urls (#121)
+
+0.4.2
+^^^^^
+Wed May 10 2017
+
+* Support (and prefer) per-controller macaroon files (#125)
+
+0.4.1
+^^^^^
+Wed Apr 27 2017
+
+* Remove VERSION_MAP and rely on facade list from controller (#118)
+* Refactor connection task management to avoid cancels (#117)
+* Refactored login code to better handle redirects (#116)
+
+0.4.0
+^^^^^
+Wed Apr 19 2017
+
+* Feature/api version support (#109)
+* Expanding controller.py with basic user functions, get_models and
+  destroy (#89)
+* Added Monitor class to Connection. (#105)
+* Support placement lists (#103)
+* Include resources from store when deploying (#102)
+* Allow underscore to dash translation when accessing model
+  attributes (#101)
+* Added controller to ssh fix. (#100)
+* Regen schema to pick up missing APIs
+* Improve error handling
+* Fix issue where we do not check to make sure that we are receiving the
+  correct response.
+* Retry calls to charmstore and increase timeout to 5s
+* Make connect_model and deploy a bit more friendly
+* Fix model name not including user
+* Implement Model.get_status
+* Add integration tests.
+
+0.3.0
+^^^^^
+Mon Feb 27 2017
+
+* Fix docstrings for placement directives.
+* Implement Model.add_machine()
+* Bug fix - "to" parameter to Model.deploy() was broken
+* Add docs and examples for adding machines and containers and deploying
+  charms to them.
+* Make Machine.destroy() block the current coroutine, returning only after
+  the machine is actually removed from the remote model. This is more
+  consistent with the way the other apis work (e.g. Model.deploy(),
+  Application.add_unit(), etc).
+* Raise NotImplementedError in all unimplemented method stubs instead of
+  silently passing.
+
+0.2.0
+^^^^^
+Thu Feb 16 2017
+
+* Add default ssh key to newly created model.
+* Add loop helpers and simplify examples/deploy.py
+* Add support for deploying local charms, and bundles containing local charm paths.
+* Add ability to get cloud name for controller.
+* Bug fix - fix wrong api used in Model.destroy_unit()
+* Add error detection in bundle deploy.
+
+0.1.2
+^^^^^
+Thu Dec 22 2016
+
+* Bug fix - Include docs in package
+
+0.1.1
+^^^^^
+Thu Dec 22 2016
+
+* Bug fix - Include VERSION file in package
+
+0.1.0
+^^^^^
+Wed Dec 21 2016
+
+* Initial Release

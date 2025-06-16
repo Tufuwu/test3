@@ -1,3 +1,0 @@
-#!/bin/bash
-
-$MYSQL -e "REVOKE USAGE ON *.* FROM '${monitor_user}'@'${remote_addr}'"
