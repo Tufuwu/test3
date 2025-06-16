@@ -33,6 +33,7 @@ jobs:
       run: |
         docker-compose -f tests/config/docker-compose.yml up -d
         sleep 120
+        chmod +x ./tests/config/graylog-setup.sh
         ./tests/config/bootstrap
 
     - name: Run tests
