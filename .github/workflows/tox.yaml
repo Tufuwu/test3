@@ -16,6 +16,8 @@ jobs:
       with:
         python-version: 3.9
     - name: Install Tox
-      run: pip install tox
+      run: |
+        pip install 'setuptools<58'
+        pip install tox
     - name: Run tests
       run: tox
