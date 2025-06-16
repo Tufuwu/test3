@@ -23,7 +23,7 @@ jobs:
         MAKEFLAGS: -j2
         PYTHON3: /usr/bin/python3
     - name: upload-artifact
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: mobi
         path: '*.mobi'
