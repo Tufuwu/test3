@@ -1,36 +1,40 @@
-.. module:: apachelogs
+.. image:: http://www.repostatus.org/badges/latest/active.svg
+    :target: http://www.repostatus.org/#active
+    :alt: Project Status: Active — The project has reached a stable, usable
+          state and is being actively developed.
 
-=====================================
-apachelogs — Parse Apache access logs
-=====================================
+.. image:: https://github.com/jwodder/apachelogs/workflows/Test/badge.svg?branch=master
+    :target: https://github.com/jwodder/apachelogs/actions?workflow=Test
+    :alt: CI Status
+
+.. image:: https://codecov.io/gh/jwodder/apachelogs/branch/master/graph/badge.svg
+    :target: https://codecov.io/gh/jwodder/apachelogs
+
+.. image:: https://img.shields.io/pypi/pyversions/apachelogs.svg
+    :target: https://pypi.org/project/apachelogs/
+
+.. image:: https://img.shields.io/github/license/jwodder/apachelogs.svg
+    :target: https://opensource.org/licenses/MIT
+    :alt: MIT License
 
 `GitHub <https://github.com/jwodder/apachelogs>`_
 | `PyPI <https://pypi.org/project/apachelogs/>`_
 | `Documentation <https://apachelogs.readthedocs.io>`_
 | `Issues <https://github.com/jwodder/apachelogs/issues>`_
-| :doc:`Changelog <changelog>`
+| `Changelog <https://github.com/jwodder/apachelogs/blob/master/CHANGELOG.md>`_
 
-.. toctree::
-    :hidden:
-
-    parser
-    utils
-    errors
-    directives
-    changelog
-
-`apachelogs` parses Apache access log files.  Pass it a `log format string
+``apachelogs`` parses Apache access log files.  Pass it a `log format string
 <http://httpd.apache.org/docs/current/mod/mod_log_config.html>`_ and get back a
-parser for logfile entries in that format.  `apachelogs` even takes care of
+parser for logfile entries in that format.  ``apachelogs`` even takes care of
 decoding escape sequences and converting things like timestamps, integers, and
-bare hyphens to `~datetime.datetime` values, `int`\s, and `None`\s.
+bare hyphens to ``datetime`` values, ``int``\s, and ``None``\s.
 
 
 Installation
 ============
-`apachelogs` requires Python 3.5 or higher.  Just use `pip
+``apachelogs`` requires Python 3.6 or higher.  Just use `pip
 <https://pip.pypa.io>`_ for Python 3 (You have pip, right?) to install
-`apachelogs` and its dependencies::
+``apachelogs`` and its dependencies::
 
     python3 -m pip install apachelogs
 
@@ -76,9 +80,3 @@ Parse a file full of log entries:
 2019-01-01 12:34:57-05:00 GET /favicon.ico HTTP/1.1
 2019-01-01 12:34:57-05:00 GET /styles.css HTTP/1.1
 # etc.
-
-
-Indices and tables
-==================
-* :ref:`genindex`
-* :ref:`search`
