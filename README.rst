@@ -1,98 +1,64 @@
-==============================
-Python API Client for Kanboard
-==============================
-
-Client library for Kanboard API.
-
-- Author: Frédéric Guillot
-- License: MIT
-
-Installation
-============
-
-.. code-block:: bash
-
-    pip install kanboard
-
-
-This library is compatible with Python >= 3.5.
-
-Note: **Support for Python 2.7 has been dropped from version 1.1.0.**
-
-Examples
-========
-
-Methods and arguments are the same as the JSON-RPC procedures described in the
-`official documentation <https://docs.kanboard.org/en/latest/api/index.html>`_.
-
-Python methods are dynamically mapped to the API procedures. **You must use named arguments.**
-
-By default, calls are made synchronously, meaning that they will block the program until completed.
-
-Creating a new team project
----------------------------
-
-.. code-block:: python
-
-    import kanboard
-
-    kb = kanboard.Client('http://localhost/jsonrpc.php', 'jsonrpc', 'your_api_token')
-    project_id = kb.create_project(name='My project')
-
-
-Authenticate as user
---------------------
-
-.. code-block:: python
-
-    import kanboard
-
-    kb = kanboard.Client('http://localhost/jsonrpc.php', 'admin', 'secret')
-    kb.get_my_projects()
-
-Create a new task
------------------
-
-.. code-block:: python
-
-    import kanboard
-
-    kb = kanboard.Client('http://localhost/jsonrpc.php', 'jsonrpc', 'your_api_token')
-    project_id = kb.create_project(name='My project')
-    task_id = kb.create_task(project_id=project_id, title='My task title')
-
-Asynchronous I/O
+Mail Deduplicate
 ================
 
-The client also exposes async/await style method calls. Similarly to the synchronous calls (see above),
-the method names are mapped to the API methods.
+Command-line tool to deduplicate mails from a set of mbox files and/or maildir
+folders.
 
-To invoke an asynchronous call, the method name must be appended with ``_async``. For example, a synchronous call
-to ``create_project`` can be made asynchronous by calling ``create_project_async`` instead.
+Stable release: |release| |versions| |license| |dependencies|
 
-.. code-block:: python
+Development: |build| |docs| |coverage| |quality|
 
-    import asyncio
-    import kanboard
+.. |release| image:: https://img.shields.io/pypi/v/mail-deduplicate.svg
+    :target: https://pypi.python.org/pypi/mail-deduplicate
+    :alt: Last release
+.. |versions| image:: https://img.shields.io/pypi/pyversions/mail-deduplicate.svg
+    :target: https://pypi.python.org/pypi/mail-deduplicate
+    :alt: Python versions
+.. |license| image:: https://img.shields.io/pypi/l/mail-deduplicate.svg
+    :target: https://www.gnu.org/licenses/gpl-2.0.html
+    :alt: Software license
+.. |dependencies| image:: https://requires.io/github/kdeldycke/mail-deduplicate/requirements.svg?branch=main
+    :target: https://requires.io/github/kdeldycke/mail-deduplicate/requirements/?branch=main
+    :alt: Requirements freshness
+.. |build| image:: https://travis-ci.org/kdeldycke/mail-deduplicate.svg?branch=develop
+    :target: https://travis-ci.org/kdeldycke/mail-deduplicate
+    :alt: Unit-tests status
+.. |docs| image:: https://readthedocs.org/projects/maildir-deduplicate/badge/?version=develop
+    :target: https://maildir-deduplicate.readthedocs.io/en/develop/
+    :alt: Documentation Status
+.. |coverage| image:: https://codecov.io/gh/kdeldycke/mail-deduplicate/branch/develop/graph/badge.svg
+    :target: https://codecov.io/github/kdeldycke/mail-deduplicate?branch=develop
+    :alt: Coverage Status
+.. |quality| image:: https://scrutinizer-ci.com/g/kdeldycke/mail-deduplicate/badges/quality-score.png?b=develop
+    :target: https://scrutinizer-ci.com/g/kdeldycke/mail-deduplicate/?branch=develop
+    :alt: Code Quality
 
-    kb = kanboard.Client('http://localhost/jsonrpc.php', 'jsonrpc', 'your_api_token')
 
-    loop = asyncio.get_event_loop()
-    project_id = loop.run_until_complete(kb.create_project_async(name='My project'))
+Features
+--------
 
-
-.. code-block:: python
-
-    import asyncio
-    import kanboard
-
-    async def call_within_function():
-        kb = kanboard.Client('http://localhost/jsonrpc.php', 'jsonrpc', 'your_api_token')
-        return await kb.create_project_async(name='My project')
-
-    loop = asyncio.get_event_loop()
-    project_id = loop.run_until_complete(call_within_function())
+* Duplicate detection based on cherry-picked mail headers.
+* Source mails from multiple mbox files and/or maildir folders.
+* Multiple removal strategies based on size, timestamp or file path.
+* Dry-run mode.
+* Protection against false-positives by checking for size and content
+  differences.
 
 
-See the `official API documentation <https://docs.kanboard.org/en/latest/api/index.html>`_ for the complete list of
-methods and arguments.
+Installation
+------------
+
+This package is `available on PyPi
+<https://pypi.python.org/pypi/mail-deduplicate>`_, so you can install the
+latest stable release and its dependencies with a simple ``pip`` call:
+
+.. code-block:: shell-session
+
+    $ pip install mail-deduplicate
+
+
+Documentation
+-------------
+
+Docs are `hosted on Read the Docs
+<https://maildir-deduplicate.readthedocs.io>`_.
