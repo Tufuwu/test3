@@ -1,186 +1,84 @@
 # Changelog
 
-## 2.4.3 (2020-08-18)
+## unreleased changes
 
-* [PR-340](https://github.com/jupyter/kernel_gateway/pull/340) enable ssl_version as a JKG config option
+Added (user)
 
-## 2.4.2 (2020-08-10)
+* PR #170: SlurmSpawner: add `req_gres` to specify `-go-res`.
+* PR #137: GridEngineSpawner: spawner will now add the following system environment values to the spawner environment, in accordance with the Univa Admin Guide: `SGE_CELL`, `SGE_EXECD`, `SGE_ROOT`, `SGE_CLUSTER_NAME`, `SGE_QMASTER_PORT`, `SGE_EXECD_PORT`, `PATH`
 
-* [PR-338](https://github.com/jupyter/kernel_gateway/pull/338) Use appropriate maybe-future to handle asyncio futures
+Added (developer)
 
-## 2.4.1 (2020-06-05)
+Changed
 
-* [PR-327](https://github.com/jupyter/kernel_gateway/pull/327) Use ==/!= to compare str, bytes, and int literals
-* [PR-325](https://github.com/jupyter/kernel_gateway/pull/325) fix: module 'signal' has no attribute 'SIGHUP' on Windows
+* PR #177: Fail on first error in batch script by setting `set -e` to script templates.
+* PR #165: SlurmSpawner: Update template to use `--chdir` instead of `--workdir`. Users of Slurm older than 17.11 may need to revert this locally.
 
-## 2.4.0 (2019-08-11)
+Fixed
 
-* [PR-323](https://github.com/jupyter/kernel_gateway/pull/323): Update handler not use deprecated maybe_future call
-* [PR-322](https://github.com/jupyter/kernel_gateway/pull/322): Update handler compatibility with tornado/pyzmq updates
-* [PR-321](https://github.com/jupyter/kernel_gateway/pull/321): Allow Notebook 6.x dependencies
-* [PR-317](https://github.com/jupyter/kernel_gateway/pull/317): Better error toleration during server initialization
 
-## 2.3.0 (2019-03-15)
+## v1.0 (requires minimum JupyterHub 0.9 and Python 3.5)
 
-* [PR-315](https://github.com/jupyter/kernel_gateway/pull/315): Call tornado StaticFileHandler.get() as a coroutine
+Added (user)
 
-## 2.2.0 (2019-02-26)
+* Add support for JupyterHub named servers. #167
+* Add Jinja2 templating as an option for all scripts and commands.  If '{{' or `{%` is used anywhere in the string, it is used as a jinja2 template.
+* Add new option exec_prefix, which defaults to `sudo -E -u {username}`.  This replaces explicit `sudo` in every batch command - changes in local commands may be needed.
+* New option: `req_keepvars_extra`, which allows keeping extra variables in addition to what is defined by JupyterHub itself (addition of variables to keep instead of replacement).  #99
+* Add `req_prologue` and `req_epilogue` options to scripts which are inserted before/after the main jupyterhub-singleuser command, which allow for generic setup/cleanup without overriding the entire script.  #96
+* SlurmSpawner: add the `req_reservation` option.  #91
+* Add basic support for JupyterHub progress updates, but this is not used much yet.  #86
 
-* [PR-314](https://github.com/jupyter/kernel_gateway/pull/314): Support serving kernelspec resources
-* [PR-307](https://github.com/jupyter/kernel_gateway/pull/307): features.md: Fix a link typo
-* [PR-304](https://github.com/jupyter/kernel_gateway/pull/304): Add ability for Kernel Gateway to ignore SIGHUP signal
-* [PR-303](https://github.com/jupyter/kernel_gateway/pull/303): Fixed the link to section
+Added (developer)
 
-## 2.1.0 (2018-08-13)
+* Add many more tests.
+* Add a new page `SPAWNERS.md` which information on specific spawners.  Begin trying to collect a list of spawner-specific contacts.  #97
+* Rename `current_ip` and `current_port` commands to `ip` and `port`.  No user impact.  #139
+* Update to Python 3.5 `async` / `await` syntax to support JupyterHub progress updates.  #90
 
-* [PR-299](https://github.com/jupyter/kernel_gateway/pull/299): adds x_header configuration option for use behind proxies
-* [PR-294](https://github.com/jupyter/kernel_gateway/pull/294): Allow access from remote hosts (Notebook 5.6)
-* [PR-292](https://github.com/jupyter/kernel_gateway/pull/292): Update dependencies of Jupyter components
-* [PR-290](https://github.com/jupyter/kernel_gateway/pull/290): Include LICENSE file in wheels
-* [PR-285](https://github.com/jupyter/kernel_gateway/pull/285): Update Kernel Gateway test base class to be compatible with Tornado 5.0
-* [PR-284](https://github.com/jupyter/kernel_gateway/pull/284): Add reason argument to set_status() so that custom messages flow back to client
-* [PR-280](https://github.com/jupyter/kernel_gateway/pull/280): Add whitelist of environment variables to be inherited from gateway process by kernel
-* [PR-275](https://github.com/jupyter/kernel_gateway/pull/275): Fix broken links to notebook-http mode page in docs
-* [PR-272](https://github.com/jupyter/kernel_gateway/pull/272): Fix bug when getting kernel language in notebook-http mode
-* [PR-271](https://github.com/jupyter/kernel_gateway/pull/271): Fix IPerl notebooks running in notebook-http mode
+Changed
 
-## 2.0.2 (2017-11-10)
+* PR #58 and #141 changes logic of port selection, so that it is selected *after* the singleuser server starts.  This means that the port number has to be conveyed back to JupyterHub.  This requires the following changes:
+  - `jupyterhub_config.py` *must* explicitely import `batchspawner`
+  - Add a new option `batchspawner_singleuser_cmd` which is used as a wrapper in the single-user servers, which conveys the remote port back to JupyterHub.  This is now an integral part of the spawn process.
+  - If you have installed with `pip install -e`, you will have to re-install so that the new script `batchspawner-singleuser` is added to `$PATH`.
+* Update minimum requirements to JupyterHub 0.9 and Python 3.5.  #143
+* Update Slurm batch script.  Now, the single-user notebook is run in a job step, with a wrapper of `srun`.  This may need to be removed using `req_srun=''` if you don't want environment variables limited.
+* Pass the environment dictionary to the queue and cancel commands as well.  This is mostly user environment, but may be useful to these commands as well in some cases. #108, #111  If these environment variables were used for authentication as an admin, be aware that there are pre-existing security issues because they may be passed to the user via the batch submit command, see #82.
 
-* [PR-266](https://github.com/jupyter/kernel_gateway/pull/266): Make KernelManager and KernelSpecManager configurable
-* [PR-263](https://github.com/jupyter/kernel_gateway/pull/263): Correct JSONErrorsMixin for compatibility with notebook 5.2.0
 
-## 2.0.1 (2017-09-09)
+Fixed
 
-* [PR-258](https://github.com/jupyter/kernel_gateway/pull/258): Remove auth token check for OPTIONS requests (CORS)
+* Improve debugging on failed submission by raising errors including error messages from the commands.  #106
+* Many other non-user or developer visible changes.  #107 #106 #100
+* In Travis CI, blacklist jsonschema=3.0.0a1 because it breaks tests
 
-## 2.0.0 (2017-05-30)
+Removed
 
-* Update compatibility to notebook>=5.0
-* Remove kernel activity API in favor of the one in the notebook package
-* Update project overview in the documentation
-* Inherit the server `PATH` when launching a new kernel via POST request
-  with custom environment variables
-* Fix kernel cleanup upon SIGTERM
-* Fix security requirements in the swagger spec
-* Fix configured headers for OPTIONS requests
 
-## 1.2.2 (2017-05-30)
+## v0.8.1 (bugfix release)
 
-* Inherit the server `PATH` when launching a new kernel via POST request
-  with custom environment variables
-* Fix kernel cleanup upon SIGTERM
+* Fix regression: single-user server binding address is overwritten by previous session server address, resulting in failure to start.  Issue #76
 
-## 1.2.1 (2017-04-01)
+## v0.8.0 (compatible with JupyterHub 0.5.0 through 0.8.1/0.9dev)
 
-* Add support for auth token as a query parameter
+* SlurmSpawner: Remove `--uid` for (at least) Slurm 17.11 compatibility.  If you use `sudo`, this should not be necessary, but because this is security related you should check that user management is as you expect.  If your configuration does not use `sudo` then you may need to add the `--uid` option in a custom `batch_script`.
+* add base options `req_ngpus` `req_partition` `req_account` and `req_options` 
+* Fix up logging
+* Merge `user_options` with the template substitution vars instead of having it as a separate key
+* Update ip/port handling for JupyterHub 0.8
+* Add `LICENSE` (BSD3) and `CONTRIBUTING.md`
+* Add `LsfSpawner` for IBM LFS
+* Add `MultiSlurmSpawner`
+* Add `MoabSpawner`
+* Add `condorSpawner`
+* Add `GridEngineSpawner`
+* SlurmSpawner: add `req_qos` option
+* WrapSpawner and ProfilesSpawner, which provide mechanisms for runtime configuration of spawners, have been split out and moved to the [`wrapspawner`](https://github.com/jupyterhub/wrapspawner) package
+* Enable CI testing via Travis-CI
 
-## 1.2.0 (2017-02-12)
 
-* Add command line option to whitelist environment variables for `POST /api/kernels`
-* Add support for HTTPS key and certificate files
-* Improve the flow and explanations in the `api_intro` notebook
-* Fix incorrect use of `metadata.kernelspec.name` as a language name instead of
-  `metadata.language.info`
-* Fix lingering kernel regression after Ctrl-C interrupt
-* Switch to a conda-based dev setup from docker
+## v0.3 (tag: jhub-0.3, compatible with JupyterHub 0.3.0)
 
-## 1.1.2 (2016-12-16)
+* initial release containing `TorqueSpawner` and `SlurmSpawner`
 
-* Fix compatibility with Notebook 4.3 session handler `create_session` call
-
-## 1.1.1 (2016-09-10)
-
-* Add LICENSE file to package distributions
-
-## 1.1.0 (2016-09-08)
-
-* Add an option to force a specific kernel spec for all requests and seed notebooks
-* Add support for specifying notebook-http APIs using full Swagger specs
-* Add option to serve static web assets from Tornado in notebook-http mode
-* Add command line aliases for common options (e.g., `--ip`)
-* Fix Tornado 4.4 compatbility: sending an empty body string with a 204 response
-
-## 1.0.0 (2016-07-15)
-
-* Introduce an [API for developing mode plug-ins](https://jupyter-kernel-gateway.readthedocs.io/en/latest/plug-in.html)
-* Separate `jupyter-websocket` and `notebook-http` modes into  plug-in packages
-* Move mode specific command line options into their respective packages (see `--help-all`)
-* Report times with respect to UTC in `/_api/activity` responses
-
-## 0.6.0 (2016-06-17)
-
-* Switch HTTP status from 402 for 403 when server reaches the max kernel limit
-* Explicitly shutdown kernels when the server shuts down
-* Remove `KG_AUTH_TOKEN` from the environment of kernels
-* Fix missing swagger document in release
-* Add `--KernelGateway.port_retries` option like in Jupyter Notebook
-* Fix compatibility with Notebook 4.2 session handler `create_session` call
-
-## 0.5.1 (2016-04-20)
-
-* Backport `--KernelGateway.port_retries` option like in Jupyter Notebook
-* Fix compatibility with Notebook 4.2 session handler `create_session` call
-
-## 0.5.0 (2016-04-04)
-
-* Support multiple cells per path in `notebook-http` mode
-* Add a Swagger specification of the `jupyter-websocket` API
-* Add `KERNEL_GATEWAY=1` to all kernel environments
-* Support environment variables in `POST /api/kernels`
-* numpydoc format docstrings on everything
-* Convert README to Sphinx/ReadTheDocs site
-* Convert `ActivityManager` to a traitlets `LoggingConfigurable`
-* Fix `base_url` handling for all paths
-* Fix unbounded growth of ignored kernels in `ActivityManager`
-* Fix caching of Swagger spec in `notebook-http` mode
-* Fix failure to install due to whitespace in `setup.py` version numbers
-* Fix call to kernel manager base class when starting a kernel
-* Fix test fixture hangs
-
-## 0.4.1 (2016-04-20)
-
-* Backport `--KernelGateway.port_retries` option like in Jupyter Notebook
-* Fix compatibility with Notebook 4.2 session handler `create_session` call
-
-## 0.4.0 (2016-02-17)
-
-* Enable `/_api/activity` resource with stats about kernels in `jupyter-websocket` mode
-* Enable `/api/sessions` resource with in-memory name-to-kernel mapping for non-notebook clients that want to look-up kernels by associated session name
-* Fix prespawn kernel logic regression for `jupyter-websocket` mode
-* Fix all handlers so that they return application/json responses on error
-* Fix missing output from cells that emit display data in `notebook-http` mode
-
-## 0.3.1 (2016-01-25)
-
-* Fix CORS and auth token headers for `/_api/spec/swagger.json` resource
-* Fix `allow_origin` handling for non-browser clients
-* Ensure base path is prefixed with a forward slash
-* Filter stderr from all responses in `notebook-http` mode
-* Set Tornado logging level and Jupyter logging level together with `--log-level`
-
-## 0.3.0 (2016-01-15)
-
-* Support setting of status and headers in `notebook-http` mode
-* Support automatic, minimal Swagger doc generation in `notebook-http` mode
-* Support download of a notebook in `notebook-http` mode
-* Support CORS and token auth in `notebook-http` mode
-* Expose HTTP request headers in `notebook-http` mode
-* Support multipart form encoding in `notebook-http` mode
-* Fix request value JSON encoding when passing requests to kernels
-* Fix kernel name handling when pre-spawning
-* Fix lack of access logs in `notebook-http` mode
-
-## 0.2.0 (2015-12-15)
-
-* Support notebook-defined HTTP APIs on a pool of kernels
-* Disable kernel instance list by default
-
-## 0.1.0 (2015-11-18)
-
-* Support Jupyter Notebook kernel CRUD APIs and Jupyter kernel protocol over Websockets
-* Support shared token auth
-* Support CORS headers
-* Support base URL
-* Support seeding kernels code from a notebook at a file path or URL
-* Support default kernel, kernel pre-spawning, and kernel count limit
-* First PyPI release

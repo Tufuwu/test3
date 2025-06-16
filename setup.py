@@ -1,91 +1,76 @@
+#!/usr/bin/env python
+# coding: utf-8
+
 # Copyright (c) Jupyter Development Team.
 # Distributed under the terms of the Modified BSD License.
 
+#-----------------------------------------------------------------------------
+# Minimal Python version sanity check (from IPython/Jupyterhub)
+#-----------------------------------------------------------------------------
+
+from __future__ import print_function
+
 import os
 import sys
-from setuptools import setup
 
+from setuptools import setup
+from glob import glob
+
+pjoin = os.path.join
 here = os.path.abspath(os.path.dirname(__file__))
 
+# Get the current package version.
 version_ns = {}
-with open(os.path.join(here, 'kernel_gateway', '_version.py')) as f:
+with open(pjoin(here, 'version.py')) as f:
     exec(f.read(), {}, version_ns)
 
+with open(pjoin(here, 'README.md'), encoding='utf-8') as f:
+    long_desc = f.read()
+
 setup_args = dict(
-    name='jupyter_kernel_gateway',
-    author='Jupyter Development Team',
-    author_email='jupyter@googlegroups.com',
-    url='http://github.com/jupyter-incubator/kernel_gateway',
-    description='A web server for spawning and communicating with Jupyter kernels',
-    long_description='''\
-Jupyter Kernel Gateway is a web server that supports different mechanisms for
-spawning and communicating with Jupyter kernels, such as:
-
-* A Jupyter Notebook server-compatible HTTP API used for requesting kernels
-  and talking the `Jupyter kernel protocol <https://jupyter-client.readthedocs.io/en/latest/messaging.html>`_
-  with the kernels over Websockets
-* A HTTP API defined by annotated notebook cells that maps HTTP verbs and
-  resources to code to execute on a kernel
-
-The server launches kernels in its local process/filesystem space. It can be
-containerized and scaled out using common technologies like
-`tmpnb <https://github.com/jupyter/tmpnb>`_,
-`Cloud Foundry <https://github.com/cloudfoundry>`_, and
-`Kubernetes <http://kubernetes.io/>`_.
-''',
-    version=version_ns['__version__'],
-    license='BSD',
-    platforms="Linux, Mac OS X, Windows",
-    keywords=['Interactive', 'Interpreter', 'Kernel', 'Web', 'Cloud'],
-    packages=[
-        'kernel_gateway',
-        'kernel_gateway.base',
-        'kernel_gateway.jupyter_websocket',
-        'kernel_gateway.notebook_http',
-        'kernel_gateway.notebook_http.cell',
-        'kernel_gateway.notebook_http.swagger',
-        'kernel_gateway.services',
-        'kernel_gateway.services.kernels',
-        'kernel_gateway.services.kernelspecs',
-        'kernel_gateway.services.sessions',
-    ],
-    scripts=[
-        'scripts/jupyter-kernelgateway'
-    ],
-    install_requires=[
-        'jupyter_core>=4.4.0',
-        'jupyter_client>=5.2.0',
-        'notebook>=5.7.6,<7.0',
-        'traitlets>=4.2.0',
-        'tornado>=4.2.0',
-        'requests>=2.7,<3.0'
-    ],
-    python_requires='>=3.6.1',
-    classifiers=[
+    name                = 'batchspawner',
+    scripts             = glob(pjoin('scripts', '*')),
+    packages            = ['batchspawner'],
+    version             = version_ns['__version__'],
+    description         = """Batchspawner: A spawner for Jupyterhub to spawn notebooks using batch resource managers.""",
+    long_description    = long_desc,
+    long_description_content_type = 'text/markdown',
+    author              = "Michael Milligan, Andrea Zonca, Mike Gilbert",
+    author_email        = "milligan@umn.edu",
+    url                 = "http://jupyter.org",
+    license             = "BSD",
+    platforms           = "Linux, Mac OS X",
+    python_requires     = '~=3.3',
+    keywords            = ['Interactive', 'Interpreter', 'Shell', 'Web', 'Jupyter'],
+    classifiers         = [
         'Intended Audience :: Developers',
         'Intended Audience :: System Administrators',
         'Intended Audience :: Science/Research',
         'License :: OSI Approved :: BSD License',
-        'Operating System :: OS Independent',
         'Programming Language :: Python',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.6',
-        'Programming Language :: Python :: 3.7',
-        'Programming Language :: Python :: 3.8',
-        'Programming Language :: Python :: 3.9',
     ],
-    include_package_data=True,
+    project_urls        = {
+        'Bug Reports':      'https://github.com/jupyterhub/batchspawner/issues',
+        'Source':           'https://github.com/jupyterhub/batchspawner/',
+        'About Jupyterhub': 'http://jupyterhub.readthedocs.io/en/latest/',
+        'Jupyter Project':  'http://jupyter.org',
+    }
 )
 
+# setuptools requirements
 if 'setuptools' in sys.modules:
-    # setupstools turns entrypoint scripts into executables on windows
-    setup_args['entry_points'] = {
-        'console_scripts': [
-            'jupyter-kernelgateway = kernel_gateway:launch_instance'
-        ]
-    }
-    # Don't bother installing the .py scripts if if we're using entrypoints
-    setup_args.pop('scripts', None)
+    setup_args['install_requires'] = install_requires = []
+    with open('requirements.txt') as f:
+        for line in f.readlines():
+            req = line.strip()
+            if not req or req.startswith(('-e', '#')):
+                continue
+            install_requires.append(req)
+
+
+def main():
+    setup(**setup_args)
 
 if __name__ == '__main__':
-    setup(**setup_args)
+    main()
