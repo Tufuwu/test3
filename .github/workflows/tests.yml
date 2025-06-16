@@ -27,6 +27,7 @@ jobs:
         run: |
           docker compose -f tests/config/docker-compose.yml up -d
           sleep 60
+          chmod +x ./tests/config/graylog-setup.sh
           ./tests/config/graylog-setup.sh
       - name: Run tests
         run: pytest -v --cov=pygelf
