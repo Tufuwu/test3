@@ -1,5 +1,0 @@
-wget
-requests
-fire
-semantic_version
-coverage

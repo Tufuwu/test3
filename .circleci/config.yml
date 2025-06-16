@@ -1,0 +1,103 @@
+# See: https://circleci.com/blog/deploying-documentation-to-github-pages-with-continuous-integration/
+version: 2.1
+
+jobs:
+    build_docs:
+      docker:
+          - image: circleci/python:3.8.1-buster
+      steps:
+          - checkout
+
+          - run:
+              name: Install miniconda
+              command: |
+                  sudo apt-get install wget
+                  wget -q https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda.sh;
+                  chmod +x ~/miniconda.sh;
+                  ~/miniconda.sh -b -p ~/miniconda;
+
+          - run:
+              name: Install openmpi
+              command: |
+                  sudo apt-get install libopenmpi-dev openmpi-bin
+
+          - run:
+              name: Setup Python environment
+              command: |
+                  export PATH=~/miniconda/bin:$PATH
+                  conda update --yes --quiet conda
+                  conda create -n testenv --yes pip python=3.6
+                  source activate testenv
+                  conda install --yes scipy numpy matplotlib
+                  pip install mne psutil mpi4py joblib
+
+          - run:
+              name: Setup doc building stuff
+              command: |
+                  source ~/miniconda/bin/activate testenv
+                  pip install sphinx numpydoc sphinx-gallery sphinx_bootstrap_theme pillow
+
+          - run:
+              name: Setup Neuron
+              command: |
+                  source ~/miniconda/bin/activate testenv
+                  pip install NEURON
+
+          - run:
+              name: Setup hnn-core
+              command: |
+                  source ~/miniconda/bin/activate testenv
+                  pip install -U pip setuptools virtualenv
+                  python setup.py install
+
+          - run:
+              name: Build the documentation
+              command: |
+                  source ~/miniconda/bin/activate testenv
+                  cd doc/ && make html
+
+          - persist_to_workspace:
+              root: doc/_build
+              paths: html
+
+          - store_artifacts:
+              path: doc/_build/html/
+              destination: html
+
+    docs-deploy:
+        # will only be run on master branch
+        docker:
+          - image: node:8.10.0
+        steps:
+          - checkout
+
+          - attach_workspace:
+              at: doc/_build
+
+          - run:
+              name: Install and configure dependencies
+              command: |
+                npm install -g --silent gh-pages@2.2
+                git config --global user.email "circle@jonescompneurolab.com"
+                git config --global user.name "Circle Ci"
+          - add_ssh_keys:
+              fingerprints:
+                - "30:88:9c:32:2f:33:a7:dd:fe:f6:7a:19:4b:8b:c1:ce"
+
+          - run:
+              # push built docs directory on the `gh-pages` branch
+              name: Deploy docs to gh-pages branch
+              command: |
+                touch doc/_build/html/.nojekyll
+                gh-pages --dotfiles --message "doc updates [skip ci]" --dist doc/_build/html --dest ./dev
+
+workflows:
+  build:
+    jobs:
+      - build_docs
+      - docs-deploy:
+          requires:
+            - build_docs
+          filters:
+            branches:
+              only: master
