@@ -10,4 +10,3 @@ scipy
 scikit-learn
 tensorboard
 ipython
-tensorflow>=2.3,<2.7
