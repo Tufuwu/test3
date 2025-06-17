@@ -32,7 +32,7 @@ jobs:
     - name: Upload coverage to Coveralls
       if: success()
       env:
-        COVERALLS_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
         pip install coveralls
         coveralls
