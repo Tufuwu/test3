@@ -1,68 +1,84 @@
-# Copyright 2019 The Keras Tuner Authors
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     https://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+#!/usr/bin/env python
 
-"""Setup script."""
+import codecs
+import os
+import re
+import sys
 
-from __future__ import absolute_import
+from setuptools import setup, find_packages
+from setuptools.command.test import test as TestCommand
 
-from setuptools import find_packages
-from setuptools import setup
+long_description = open("README.rst", "r").read()
+here = os.path.abspath(os.path.dirname(__file__))
 
-version = '1.0.3'
+
+def read(*parts):
+    # intentionally *not* adding an encoding option to open, See:
+    #   https://github.com/pypa/virtualenv/issues/201#issuecomment-3145690
+    with codecs.open(os.path.join(here, *parts), "r") as fp:
+        return fp.read()
+
+
+def find_version(*file_paths):
+    version_file = read(*file_paths)
+    version_match = re.search(r"^__version__ = ['\"]([^'\"]*)['\"]", version_file, re.M)
+    if version_match:
+        return version_match.group(1)
+
+    raise RuntimeError("Unable to find version string.")
+
+
+class PyTest(TestCommand):
+    def finalize_options(self):
+        TestCommand.finalize_options(self)
+        self.test_args = []
+        self.test_suite = True
+
+    def run_tests(self):
+        # import here, cause outside the eggs aren't loaded
+        import pytest
+
+        errno = pytest.main(self.test_args)
+        sys.exit(errno)
+
+
+install_requires = [
+    "PyYAML",
+    "wrapt",
+    "six>=1.5",
+    "yarl",
+]
 
 setup(
-    name='keras-tuner',
-    version=version,
-    description='Hypertuner for Keras',
-    url='https://github.com/keras-team/keras-tuner',
-    author='The Keras Tuner authors',
-    author_email='kerastuner@google.com',
-    license='Apache License 2.0',
-    # tensorflow isn't a dependency because it would force the
-    # download of the gpu version or the cpu version.
-    # users should install it manually.
-    install_requires=[
-        'packaging',
-        'future',
-        'numpy',
-        'tabulate',
-        'terminaltables',
-        'colorama',
-        'tqdm',
-        'requests',
-        'scipy',
-        'scikit-learn',
-        'tensorboard',
-        'ipython'
-    ],
-    extras_require={
-        'tests': ['pytest',
-                  'flake8',
-                  'mock',
-                  'portpicker',
-                  'pytest-xdist',
-                  'pytest-cov'],
-    },
+    name="vcrpy",
+    version=find_version("vcr", "__init__.py"),
+    description=("Automatically mock your HTTP interactions to simplify and speed up testing"),
+    long_description=long_description,
+    long_description_content_type="text/x-rst",
+    author="Kevin McCarthy",
+    author_email="me@kevinmccarthy.org",
+    url="https://github.com/kevin1024/vcrpy",
+    packages=find_packages(exclude=["tests*"]),
+    python_requires=">=3.6",
+    install_requires=install_requires,
+    license="MIT",
+    tests_require=["pytest", "mock", "pytest-httpbin"],
     classifiers=[
-        'Programming Language :: Python',
-        'Programming Language :: Python :: 3.6',
-        'Operating System :: Unix',
-        'Operating System :: Microsoft :: Windows',
-        'Operating System :: MacOS',
-        'Intended Audience :: Science/Research',
-        'Topic :: Scientific/Engineering',
-        'Topic :: Software Development'
+        "Development Status :: 5 - Production/Stable",
+        "Environment :: Console",
+        "Intended Audience :: Developers",
+        "Programming Language :: Python",
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3 :: Only",
+        "Programming Language :: Python :: Implementation :: CPython",
+        "Programming Language :: Python :: Implementation :: PyPy",
+        "Topic :: Software Development :: Testing",
+        "Topic :: Internet :: WWW/HTTP",
+        "License :: OSI Approved :: MIT License",
     ],
-    packages=find_packages(exclude=('tests',))
 )
