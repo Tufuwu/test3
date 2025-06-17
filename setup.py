@@ -1,46 +1,53 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
+import re
 
-from setuptools import setup, find_packages
-import os
+from setuptools import find_packages, setup
 
-this_dir = os.path.dirname(os.path.abspath(__file__))
-with open(os.path.join(this_dir, "README.rst"), "r") as f:
-    long_description = f.read()
+with open("README.md") as fl:
+    LONG_DESCRIPTION = fl.read()
 
-PACKAGES = find_packages(exclude=["tests", "tests.*", "build"])
+
+def get_version():
+    version_file = open("django_prometheus/__init__.py", "r").read()
+    version_match = re.search(
+        r'^__version__ = [\'"]([^\'"]*)[\'"]', version_file, re.MULTILINE
+    )
+    if version_match:
+        return version_match.group(1)
+    raise RuntimeError("Unable to find version string.")
+
 
 setup(
-    name="pyCEC",
-    version="0.4.14",
-    author="Petr Vraník",
-    author_email="hpa@suteren.net",
-    description=(
-        "Provide HDMI CEC devices as objects,"
-        " especially for use with Home Assistant"
-    ),
-    license="MIT",
-    keywords="cec hdmi home-assistant",
-    url="https://github.com/konikvranik/pycec/",
-    packages=PACKAGES,
-    install_requires=[],
-    long_description=long_description,
-    test_suite="tests",
+    name="django-prometheus",
+    version=get_version(),
+    author="Uriel Corfa",
+    author_email="uriel@corfa.fr",
+    description=("Django middlewares to monitor your application with Prometheus.io."),
+    license="Apache",
+    keywords="django monitoring prometheus",
+    url="http://github.com/korfuri/django-prometheus",
+    packages=find_packages(exclude=["tests",]),
+    test_suite="django_prometheus.tests",
+    long_description=LONG_DESCRIPTION,
+    long_description_content_type="text/markdown",
+    tests_require=["pytest", "pytest-django"],
+    setup_requires=["pytest-runner"],
+    options={"bdist_wheel": {"universal": "1"}},
+    install_requires=["prometheus-client>=0.7",],
     classifiers=[
-        "Development Status :: 4 - Beta",
-        "Topic :: Utilities",
-        "Topic :: Home Automation",
-        "Topic :: Multimedia",
-        "License :: OSI Approved :: MIT License",
-        "Programming Language :: Python :: 3 :: Only",
-        "Programming Language :: Python :: 3.5",
+        "Development Status :: 5 - Production/Stable",
+        "Intended Audience :: Developers",
+        "Intended Audience :: Information Technology",
+        "Intended Audience :: System Administrators",
+        "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+        "Framework :: Django :: 2.2",
+        "Framework :: Django :: 3.0",
+        "Framework :: Django :: 3.1",
+        "Framework :: Django :: 3.2",
+        "Topic :: System :: Monitoring",
+        "License :: OSI Approved :: Apache Software License",
     ],
-    entry_points={
-        "console_scripts": [
-            "pycec=pycec.__main__:main",
-        ],
-    },
 )
