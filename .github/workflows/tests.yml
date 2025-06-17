@@ -37,7 +37,9 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
     - name: Prepare for Installing Dependencies
-      run: deploy/travis/before_install
+      run: |
+        chmod +x deploy/travis/before_install
+        deploy/travis/before_install
     - name: Install Dependencies for ${{ matrix.travis_job }}
       env:
         TRAVIS_JOB: ${{ matrix.travis_job }}
