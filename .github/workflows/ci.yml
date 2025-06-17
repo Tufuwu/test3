@@ -12,7 +12,7 @@ jobs:
   test:
     runs-on: ubuntu-22.04
     strategy:
-      ail-fast: false
+      fail-fast: false
       matrix:
         python-version: ["3.6", "3.7", "3.8", "3.9-dev"]
         include:
