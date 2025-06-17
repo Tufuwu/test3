@@ -24,4 +24,5 @@ jobs:
         python -m pip install --quiet --upgrade codecov
     - name: Test
       run: |
+        chmod +x setup.py
         make test
