@@ -25,6 +25,6 @@ jobs:
           path: .tox
           key: ${{ runner.os }}-${{ hashFiles('poetry.lock') }}
     strategy:
-      fail-fats: false
+      fail-fast: false
       matrix:
         toxenv: [py36, py37, py38, py39]
