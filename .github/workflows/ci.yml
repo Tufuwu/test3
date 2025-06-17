@@ -43,13 +43,13 @@ jobs:
         run: TOXENV=lint tox
 
   check-docs:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python 3.7
         uses: actions/setup-python@v2
         with:
-          python-version: 3.7
+          python-version: 3.9
       - name: Install dependencies
         run: pip install tox-travis tox tox-venv
       - name: Check docs
