@@ -48,7 +48,7 @@ botocore==1.13.15
     # via
     #   boto3
     #   s3transfer
-celery[redis]==4.0.0r
+celery[redis]==3.1.25
     # via -r dependencies/pip/requirements.in
 certifi==2019.9.11
     # via requests
