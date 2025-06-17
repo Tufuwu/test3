@@ -1,33 +1,69 @@
-import re
-import setuptools
-import sys
+import os
+import os.path
 
-with open("README.md", "r") as fh:
-    long_description = fh.read()
+from setuptools import find_packages, setup
 
-with open('requirements.txt') as f:
-    requirements = f.read().splitlines()
+name = 'autosuspend'
 
-setuptools.setup(
-    name="ladybug-pandas",
-    use_scm_version = True,
-    setup_requires=['setuptools_scm'],
-    author="Ladybug Tools",
-    author_email="info@ladybug.tools",
-    description="A ladybug extension powered by pandas",
-    long_description=long_description,
-    long_description_content_type="text/markdown",
-    url="https://github.com/ladybug-tools/ladybug-pandas",
-    packages=setuptools.find_packages(exclude=["tests"]),
-    install_requires=requirements,
-    extras_require={
-        'arrow': ['pyarrow']
-    },
-    classifiers=[
-        "Programming Language :: Python :: 3.6",
-        "Programming Language :: Python :: Implementation :: CPython",
-        "License :: OSI Approved :: GNU Affero General Public License v3",
-        "Operating System :: OS Independent"
+with open(os.path.join(
+        os.path.abspath(os.path.dirname(os.path.realpath(__file__))),
+        'VERSION'), 'r') as version_file:
+    lines = version_file.readlines()
+release = lines[1].strip()
+
+extras_require = {
+    'Mpd': ['python-mpd2'],
+    'Kodi': ['requests'],
+    'XPath': ['lxml', 'requests'],
+    'Logind': ['dbus-python'],
+    'ical': ['requests', 'icalendar', 'python-dateutil', 'tzlocal'],
+    'localfiles': ['requests-file'],
+    'test': [
+        'pytest',
+        'pytest-cov',
+        'pytest-mock',
+        'freezegun',
+        'pytest-freezegun',
     ],
-    license="AGPL-3.0"
+}
+extras_require['test'].extend(
+    {dep for k, v in extras_require.items() if k != 'test' for dep in v},
+)
+
+setup(
+    name=name,
+    version=release,
+
+    description='A daemon to suspend your server in case of inactivity',
+    author='Johannes Wienke',
+    author_email='languitar@semipol.de',
+    license='GPL2',
+
+    zip_safe=False,
+
+    setup_requires=[
+        'pytest-runner',
+    ],
+    install_requires=[
+        'psutil>=5.0',
+    ],
+    extras_require=extras_require,
+
+    package_dir={
+        '': 'src',
+    },
+    packages=find_packages('src'),
+
+    entry_points={
+        'console_scripts': [
+            'autosuspend = autosuspend:main',
+        ],
+    },
+
+    data_files=[
+        ('etc', ['data/autosuspend.conf',
+                 'data/autosuspend-logging.conf']),
+        ('lib/systemd/system', ['data/autosuspend.service',
+                                'data/autosuspend-detect-suspend.service']),
+    ],
 )

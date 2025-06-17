@@ -1,57 +1,11 @@
-[![Python 3.6](https://img.shields.io/badge/python-3.6-blue.svg)](https://www.python.org/downloads/release/python-360/)
+# autosuspend
 
-# ladybug-pandas
+[![Actions Status](https://github.com/languitar/autosuspend/workflows/CI%20build/badge.svg)](https://github.com/languitar/autosuspend/actions) [![codecov](https://codecov.io/gh/languitar/autosuspend/branch/master/graph/badge.svg)](https://codecov.io/gh/languitar/autosuspend) [![Documentation Status](https://readthedocs.org/projects/autosuspend/badge/?version=latest)](http://autosuspend.readthedocs.io/en/latest/?badge=latest) [![Debian CI](https://badges.debian.net/badges/debian/testing/autosuspend/version.svg)](https://buildd.debian.org/autosuspend) [![AUR](https://img.shields.io/aur/version/autosuspend.svg)](https://aur.archlinux.org/packages/autosuspend/)
 
-A ladybug extension powered by pandas
+`autosuspend` is a python daemon that suspends a system if certain conditions are met, or not met. This enables a server to sleep in case of inactivity without depending on the X infrastructure usually used by normal desktop environments.
 
-## Installation
-```console
-pip install ladybug-pandas
-```
+Documentation is [available here](https://autosuspend.readthedocs.io).
 
-## QuickStart
-```python
-import ladybug_pandas as lbp
-from ladybug.epw import EPW
+## License
 
-epw_path = 'tests/assets/epw/tokyo.epw'
-
-epw = EPW(epw_path)
-
-df = lbp.DataFrame.from_epw(epw)
-
-df_ip = df.ladybug.to_ip()
-
-```
-
-## [API Documentation](http://ladybug-tools.github.io/ladybug-pandas)
-
-You can also find some usage examples in the [examples](https://github.com/ladybug-tools/ladybug-pandas/blob/master/examples) folder of the code repository.
-
-
-## Local Development
-1. Clone this repo locally
-```console
-git clone git@github.com:ladybug-tools/ladybug-pandas
-
-# or
-
-git clone https://github.com/ladybug-tools/ladybug-pandas
-```
-2. Install dependencies:
-```console
-cd ladybug-pandas
-pip install -r dev-requirements.txt
-pip install -r requirements.txt
-```
-
-3. Run Tests:
-```console
-python -m pytest tests/
-```
-
-4. Generate Documentation:
-```console
-sphinx-apidoc -f -e -d 4 -o ./docs ./ladybug_pandas
-sphinx-build -b html ./docs ./docs/_build/docs
-```
+This software is licensed using the [GPL2 license](https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html).
