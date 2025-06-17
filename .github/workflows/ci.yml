@@ -1,47 +1,50 @@
-name: Tests
+name: Python package
 
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
-  pytest:
+  test:
     runs-on: ubuntu-latest
+
     strategy:
       fail-fast: false
       matrix:
-        python-version: [3.5, 3.6, 3.7, 3.8]
-    steps:
-      - uses: actions/checkout@v2
-      - name: Setup Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v2
-        with:
-          python-version: ${{ matrix.python-version }}
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r test_requirements.txt
-          pip install coveralls==2.1.2
-      - name: Run Tests
-        run: pytest -vvv --cov=pycec tests/
-      - name: Upload Coverage
-        run: coveralls
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          COVERALLS_FLAG_NAME: ${{ matrix.test-name }}-${{ matrix.python-version }}
-          COVERALLS_PARALLEL: true
-      - name: Test Build
-        run: python setup.py sdist
+        python-version: ["3.4", "3.5", "3.6", "3.7-dev", "nightly"]
 
-  style:
-    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - name: Setup Python 3.8
-        uses: actions/setup-python@v2
-        with:
-          python-version: 3.8
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r lint_requirements.txt
-      - name: Run Flake8
-        run: flake8 .
+    - uses: actions/checkout@v2
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install dependencies
+      run: |
+        pip install -r test_requirements.txt
+        pip install .
+        pip install coveralls
+        pip install codeclimate-test-reporter
+        pip install pytest-cov
+
+    - name: Run tests
+      run: |
+        py.test --cov=pycec tests/
+        coverage run --source=pycec setup.py test
+        coverage run --source=pycec `which py.test`
+
+    - name: Upload coverage to Code Climate
+      env:
+        CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
+      run: codeclimate-test-reporter
+
+    - name: Upload coverage to Coveralls
+      env:
+        COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
+      run: coveralls
