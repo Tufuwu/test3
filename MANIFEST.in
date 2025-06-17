@@ -1,5 +1,4 @@
-graft pkg
+include CHANGELOG.md
+include LICENSE
+include README.md
 graft tests
-recursive-exclude * *.py[co]
-recursive-exclude * .DS_Store
-recursive-exclude * __pycache__
