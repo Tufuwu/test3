@@ -1,28 +1,57 @@
-[![Build Status](https://travis-ci.com/ladybug-tools/ladybug-grasshopper.svg?branch=master)](https://travis-ci.com/ladybug-tools/ladybug-grasshopper)
+[![Python 3.6](https://img.shields.io/badge/python-3.6-blue.svg)](https://www.python.org/downloads/release/python-360/)
 
-[![IronPython](https://img.shields.io/badge/ironpython-2.7-red.svg)](https://github.com/IronLanguages/ironpython2/releases/tag/ipy-2.7.8/)
+# ladybug-pandas
 
-# ladybug-grasshopper
-
-:beetle: :green_book: Ladybug plugin for Grasshopper (aka. ladybug[+])
-
-This repository contains all Grasshopper components for the ladybug plugin.
-The package includes both the userobjects (`.ghuser`) and the Python source (`.py`).
-Note that this library only possesses the Grasshopper components and, in order to
-run the plugin, the core libraries must be installed in a way that
-they can be found by Rhino (see dependencies).
-
-## Dependencies
-
-The ladybug-grasshopper plugin has the following dependencies (other than Rhino/Grasshopper):
-
-* [ladybug-core](https://github.com/ladybug-tools/ladybug)
-* [ladybug-geometry](https://github.com/ladybug-tools/ladybug-geometry)
-* [ladybug-comfort](https://github.com/ladybug-tools/ladybug-comfort)
-* [ladybug-rhino](https://github.com/ladybug-tools/ladybug-rhino)
+A ladybug extension powered by pandas
 
 ## Installation
+```console
+pip install ladybug-pandas
+```
 
-See the [Wiki of the lbt-grasshopper repository](https://github.com/ladybug-tools/lbt-grasshopper/wiki)
-for the installation instructions for the entire Ladybug Tools Grasshopper plugin
-(including this repository).
+## QuickStart
+```python
+import ladybug_pandas as lbp
+from ladybug.epw import EPW
+
+epw_path = 'tests/assets/epw/tokyo.epw'
+
+epw = EPW(epw_path)
+
+df = lbp.DataFrame.from_epw(epw)
+
+df_ip = df.ladybug.to_ip()
+
+```
+
+## [API Documentation](http://ladybug-tools.github.io/ladybug-pandas)
+
+You can also find some usage examples in the [examples](https://github.com/ladybug-tools/ladybug-pandas/blob/master/examples) folder of the code repository.
+
+
+## Local Development
+1. Clone this repo locally
+```console
+git clone git@github.com:ladybug-tools/ladybug-pandas
+
+# or
+
+git clone https://github.com/ladybug-tools/ladybug-pandas
+```
+2. Install dependencies:
+```console
+cd ladybug-pandas
+pip install -r dev-requirements.txt
+pip install -r requirements.txt
+```
+
+3. Run Tests:
+```console
+python -m pytest tests/
+```
+
+4. Generate Documentation:
+```console
+sphinx-apidoc -f -e -d 4 -o ./docs ./ladybug_pandas
+sphinx-build -b html ./docs ./docs/_build/docs
+```
