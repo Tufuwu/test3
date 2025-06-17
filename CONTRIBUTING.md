@@ -1,56 +1,43 @@
-# Contributing
+# Contributing to afancontrol
 
-## Git
+I started afancontrol in 2013 in an attempt to make my custom PC case quiet.
+It's been working 24/7 ever since with no issues, and eventually I started using
+it on my other machines as well.
 
-Feel free to send pull requests, even for the tiniest things. Watch
-for Travis' opinion on them ([![Build
-Status](https://travis-ci.org/korfuri/django-prometheus.svg?branch=master)](https://travis-ci.org/korfuri/django-prometheus)).
+I'm quite happy with how this package serves my needs, and I hope
+it can be useful for someone else too.
 
-Travis will also make sure your code is pep8 compliant, and it's a
-good idea to run flake8 as well (on django_prometheus/ and on
-tests/). The code contains "unused" imports on purpose so flake8 isn't
-run automatically.
+Contributions are welcome, however, keep in mind, that:
+* Complex features and large diffs would probably be rejected,
+  because it would make maintenance more complicated for me,
+* I don't have any plans for active development and promotion
+  of the package.
 
-## Tests
 
-Please write unit tests for your change. There are two kinds of tests:
+## Dev workflow
 
-* Regular unit tests that test the code directly, without loading
-  Django. This is limited to pieces of the code that don't depend on
-  Django, since a lot of the Django code will require a full Django
-  environment (anything that interacts with models, for instance,
-  needs a full database configuration).
-* End-to-end tests are Django unit tests in a test application. The
-  test application doubles as an easy way to interactively test your
-  changes. It uses most of the basic Django features and a few
-  advanced features, so you can test things for yourself.
+Prepare a virtualenv:
 
-### Running all tests
+    mkvirtualenv afancontrol
+    make develop
 
-```shell
-python setup.py test
-cd tests/end2end/ &&  PYTHONPATH=../.. ./manage.py test
-```
+I use [TDD](https://en.wikipedia.org/wiki/Test-driven_development) for development.
 
-The former runs the regular unit tests, the latter runs the Django
-unit test.
+Run tests:
 
-To avoid setting PYTHONPATH every time, you can also run `python
-setup.py install`.
+    make test
 
-### Running the test Django app
+Autoformat the code and imports:
 
-```shell
-cd tests/end2end/ &&  PYTHONPATH=../.. ./manage.py runserver
-```
+    make format
 
-By default, this will start serving on http://localhost:8000/. Metrics
-are available at `/metrics`.
+Run linters:
 
-## Running Prometheus
+    make lint
 
-See <http://prometheus.io/docs/> for instructions on installing
-Prometheus. Once you have Prometheus installed, you can use the
-example rules and dashboard in `examples/prometheus/`. See
-`examples/prometheus/README.md` to run Prometheus and view the example
-dashboard.
+So essentially after writing a small part of code and tests I call these
+three commands and fix the errors until they stop failing.
+
+To build docs:
+
+    make docs
