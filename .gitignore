@@ -1,17 +1,10 @@
-*.pyc
-.tox
-.cache
-.pytest_cache/
-build/
-dist/
-*.egg/
-.coverage
-coverage.xml
-htmlcov/
-*.egg-info/
-pytestdebug.log
-pip-wheel-metadata/
-.python-version
+bin
+include
+lib
+local
+man
+venv
 
-fixtures/
-/docs/_build
+*.pyc
+dist
+*.egg-info
