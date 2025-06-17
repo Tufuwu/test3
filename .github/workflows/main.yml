@@ -35,7 +35,9 @@ jobs:
           pip install codecov tox tox-gh-actions
 
       - name: Run tests with tox
-        run: tox
+        run: |
+          chmod +x runtests.sh
+          tox
 
       - name: Run coverage
         run: codecov
