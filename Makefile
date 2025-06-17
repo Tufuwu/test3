@@ -1,38 +1,93 @@
-# Makefile for use in deploying stable releases to sites.
-# To use this, cd to the chapter site, then run `make -f path/to/this/file`.
-# If the chapter has a custom branch, or local changes that can't be rebased,
-# the script will exit, and you'll need to fix it up then run "make finish".
-# TODO(benkraft): at some point maybe we'll want a proper automation framework
-# like puppet or chef or whatever.
-SHELL=/bin/bash
-SITE:=$(notdir $(PWD))
-STASH:=$(shell sudo -u www-data git diff HEAD --quiet || echo true)
+.PHONY: clean clean-test clean-pyc clean-build docs help
+.DEFAULT_GOAL := help
+define BROWSER_PYSCRIPT
+import os, webbrowser, sys
+try:
+	from urllib import pathname2url
+except:
+	from urllib.request import pathname2url
 
-sr-12: NEWBRANCH=stable-release-12
-sr-12: OLDBRANCH=stable-release-11
-sr-12: pre src finish
+webbrowser.open("file://" + pathname2url(os.path.abspath(sys.argv[1])))
+endef
+export BROWSER_PYSCRIPT
 
-pre:
-	@echo "Backing things up and fixing permissions."
-	@# get credentials, if we lack them, before we try to do anything fancy with pipes
-	sudo -v
-	@# We might not have write permissions on the homedir, but www-data should.
-	set -o pipefail; sudo -u postgres pg_dump $(SITE)_django | gzip | sudo -u www-data tee $(SITE)_$(shell date +"%Y%m%d").sql.gz >/dev/null
-	-sudo chown -RL "www-data:www-data" .
+define PRINT_HELP_PYSCRIPT
+import re, sys
 
-src:
-	@echo "Attempting to do the git stuff automatically; if this fails for any reason, fix it up and run 'make finish'."
-	[ "$$(git rev-parse --abbrev-ref HEAD)" = "$(OLDBRANCH)" ]  # Assert we're on OLDBRANCH
-	if [ "$(STASH)" = "true" ] ; then sudo -u www-data git stash ; fi
-	sudo -u www-data git fetch origin
-	sudo -u www-data git remote prune origin
-	sudo -u www-data git checkout origin/$(NEWBRANCH)
-	if [ "$(STASH)" = "true" ] ; then sudo -u www-data git stash pop ; fi
+for line in sys.stdin:
+	match = re.match(r'^([a-zA-Z_-]+):.*?## (.*)$$', line)
+	if match:
+		target, help = match.groups()
+		print("%-20s %s" % (target, help))
+endef
+export PRINT_HELP_PYSCRIPT
+BROWSER := python -c "$$BROWSER_PYSCRIPT"
 
-finish:
-	@echo "Updating the site; if this fails for any reason, fix it up and (re-)run 'make finish'."
-	esp/update_deps.sh
-	sudo -u www-data esp/manage.py update
-	@echo "Done! Go test some things."
+help:
+	@python -c "$$PRINT_HELP_PYSCRIPT" < $(MAKEFILE_LIST)
 
-.PHONY: pre src finish
+clean: clean-build clean-pyc clean-test ## remove all build, test, coverage and Python artifacts
+
+
+clean-build: ## remove build artifacts
+	rm -fr build/
+	rm -fr dist/
+	rm -fr .eggs/
+	find . -name '*.egg-info' -exec rm -fr {} +
+	find . -name '*.egg' -exec rm -f {} +
+
+clean-pyc: ## remove Python file artifacts
+	find . -name '*.pyc' -exec rm -f {} +
+	find . -name '*.pyo' -exec rm -f {} +
+	find . -name '*~' -exec rm -f {} +
+	find . -name '__pycache__' -exec rm -fr {} +
+
+clean-test: ## remove test and coverage artifacts
+	rm -fr .tox/
+	rm -f .coverage
+	rm -fr htmlcov/
+	rm -rf tests/testcontent/downloaded/*
+	rm -rf tests/testcontent/generated/*
+
+lint: ## check style with flake8
+	flake8 ricecooker tests
+
+test: clean-test ## run tests quickly with the default Python
+	pytest
+
+
+test-all: clean-test ## run tests on every Python version with tox
+	tox
+
+coverage: ## check code coverage quickly with the default Python
+	pip install coverage pytest
+	coverage run --source ricecooker -m pytest
+	coverage report -m
+	coverage html
+	$(BROWSER) htmlcov/index.html
+
+docsclean:
+	$(MAKE) -C docs clean
+	rm -f docs/_build/*
+
+docs: ## generate Sphinx HTML documentation
+	pip install -r docs/requirements.txt
+	$(MAKE) -C docs clean
+	$(MAKE) -C docs html
+	# $(BROWSER) docs/build/html/index.html
+
+latexdocs:
+	pip install -r docs/requirements.txt
+	$(MAKE) -C docs clean
+	$(MAKE) -C docs latex
+
+servedocs: docs ## compile the docs watching for changes
+	watchmedo shell-command -p '*.rst' -c '$(MAKE) -C docs html' -R -D .
+
+release: clean ## package and upload a release
+	pip install twine
+	python setup.py sdist
+	twine upload dist/*
+
+install: clean ## install the package to the active Python's site-packages
+	python setup.py install
