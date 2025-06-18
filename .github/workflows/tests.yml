@@ -1,39 +1,33 @@
 name: Tests
-on:
-  push:
-    ranches: [ mainin ]
-  pull_request:
-    branches: [ master ]
 
-defaults:
-  run:
-    shell: bash
+on: [push, pull_request]
 
 jobs:
   test:
+    name: "Python ${{ matrix.python-version }} on ${{ matrix.os }}"
+    runs-on: ${{ matrix.os }}
+
     strategy:
       fail-fast: false
       matrix:
-        py_version:
-          - '3.5'
-          - '3.6'
-          - '3.7'
-          - '3.8'
-          - '3.9'
-        lldb_version:
-          - '7'
-          - '9'
-          - '10'
-          - '11'
-
-    runs-on: ubuntu-latest
+        os: [ubuntu-22.04]
+        python-version: [3.6, 3.7, 3.8]
 
     steps:
       - uses: actions/checkout@v2
 
-      - name: Run the tests
-        env:
-          PY_VERSION: ${{ matrix.py_version }}
-          LLDB_VERSION: ${{ matrix.lldb_version }}
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
         run: |
-          make test
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run pytest
+        run: python -m pytest --cov-report=xml --cov=symspellpy
+
+      - name: Upload code coverage
+        uses: codecov/codecov-action@v2
