@@ -1,124 +1,65 @@
-"""a binding for the libvips image processing library
+#!/usr/bin/env python3
 
-See:
-https://github.com/libvips/pyvips
-"""
+from setuptools import setup, find_namespace_packages
+import nvchecker
 
-# flake8: noqa
+# The complex upload command:
+# rm -rf dist && python setup.py sdist && twine check dist/* && twine upload -s dist/*
 
-import sys
-from codecs import open
-from os import path
+setup(
+  name = 'nvchecker',
+  version = nvchecker.__version__,
+  author = 'lilydjwg',
+  author_email = 'lilydjwg@gmail.com',
+  description = 'New version checker for software',
+  license = 'MIT',
+  keywords = 'new version build check',
+  url = 'https://github.com/lilydjwg/nvchecker',
+  long_description = open('README.rst', encoding='utf-8').read(),
+  long_description_content_type = 'text/x-rst',
+  platforms = 'any',
+  zip_safe = True,
 
-from setuptools import setup, find_packages
-from distutils import log
-
-here = path.abspath(path.dirname(__file__))
-
-info = {}
-with open(path.join(here, 'pyvips', 'version.py'), encoding='utf-8') as f:
-    exec(f.read(), info)
-
-with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
-    long_description = f.read()
-
-# See https://pypi.python.org/pypi?%3Aaction=list_classifiers
-pyvips_classifiers = [
-    'Development Status :: 5 - Production/Stable',
-    'Environment :: Console',
-    'Intended Audience :: Developers',
-    'Intended Audience :: Science/Research',
-    'Topic :: Multimedia :: Graphics',
-    'Topic :: Multimedia :: Graphics :: Graphics Conversion',
-    'License :: OSI Approved :: MIT License',
-    'Programming Language :: Python :: 2.7',
-    'Programming Language :: Python :: 3',
-    'Programming Language :: Python :: 3.3',
-    'Programming Language :: Python :: 3.4',
-    'Programming Language :: Python :: 3.5',
-    'Programming Language :: Python :: 3.6',
-    'Programming Language :: Python :: 3.7',
-    'Programming Language :: Python :: 3.8',
-    'Programming Language :: Python :: 3.9',
-    'Programming Language :: Python :: 3.10',
-    'Programming Language :: Python :: Implementation :: PyPy',
-    'Programming Language :: Python :: Implementation :: CPython',
-]
-
-setup_deps = [
-    'cffi>=1.0.0',
-]
-
-install_deps = [
-    'cffi>=1.0.0',
-]
-
-test_deps = [
-    'cffi>=1.0.0',
+  packages = find_namespace_packages(exclude=['tests', 'build*', 'docs']),
+  install_requires = ['setuptools', 'packaging', 'toml', 'structlog', 'appdirs', 'tornado>=6', 'pycurl'],
+  extras_require = {
+    'vercmp': ['pyalpm'],
+  },
+  tests_require = [
     'pytest',
-    'pyperf',
-]
+    'pytest-asyncio',
+    'pytest-httpbin',
+    'flaky',
+  ],
+  entry_points = {
+    'console_scripts': [
+      'nvchecker = nvchecker.__main__:main',
+      'nvtake = nvchecker.tools:take',
+      'nvcmp = nvchecker.tools:cmp',
+    ],
+  },
+  scripts = [
+    'scripts/nvchecker-ini2toml',
+    'scripts/nvchecker-notify',
+  ],
 
-extras = {
-    'test': test_deps,
-    'doc': ['sphinx', 'sphinx_rtd_theme'],
-}
-
-pyvips_packages = find_packages(exclude=['docs', 'tests', 'examples'])
-
-sys.path.append(path.join(here, 'pyvips'))
-
-def setup_API():
-    setup(
-        name='pyvips',
-        version=info['__version__'],
-        description='binding for the libvips image processing library, API mode',
-        long_description=long_description,
-        url='https://github.com/libvips/pyvips',
-        author='John Cupitt',
-        author_email='jcupitt@gmail.com',
-        license='MIT',
-        classifiers=pyvips_classifiers,
-        keywords='image processing',
-
-        packages=pyvips_packages,
-        setup_requires=setup_deps + ['pkgconfig'],
-        cffi_modules=['pyvips/pyvips_build.py:ffibuilder'],
-        install_requires=install_deps + ['pkgconfig'],
-        tests_require=test_deps,
-        extras_require=extras,
-
-        # we will try to compile as part of install, so we can't run in a zip
-        zip_safe=False,
-    )
-
-def setup_ABI():
-    setup(
-        name='pyvips',
-        version=info['__version__'],
-        description='binding for the libvips image processing library, ABI mode',
-        long_description=long_description,
-        url='https://github.com/libvips/pyvips',
-        author='John Cupitt',
-        author_email='jcupitt@gmail.com',
-        license='MIT',
-        classifiers=pyvips_classifiers,
-        keywords='image processing',
-
-        packages=pyvips_packages,
-        setup_requires=setup_deps,
-        install_requires=install_deps,
-        tests_require=test_deps,
-        extras_require=extras,
-    )
-
-# try to install in API mode first, then if that fails, fall back to ABI
-
-# API mode requires a working C compiler plus all the libvips headers whereas
-# ABI only needs the libvips shared library to be on the system
-
-try:
-    setup_API()
-except Exception as e:
-    log.warn('Falling back to ABI mode. Details: {0}'.format(e))
-    setup_ABI()
+  classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Intended Audience :: System Administrators",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Topic :: Internet",
+    "Topic :: Internet :: WWW/HTTP",
+    "Topic :: Software Development",
+    "Topic :: System :: Archiving :: Packaging",
+    "Topic :: System :: Software Distribution",
+    "Topic :: Utilities",
+  ],
+)
