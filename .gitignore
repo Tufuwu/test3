@@ -1,0 +1,16 @@
+.idea
+env
+env38
+
+*.py[cod]
+__pycache__
+.DS_Store
+
+MANIFEST
+dist/*
+mahjong.egg-info
+build/*
+
+
+temp
+temp.py
