@@ -1,285 +1,358 @@
-![Ludwig logo](https://github.com/ludwig-ai/ludwig-docs/raw/master/docs/images/ludwig_hero.png "Ludwig logo")
+# Mahotas
 
-<div align="center">
+## Python Computer Vision Library
 
-[![PyPI version](https://badge.fury.io/py/ludwig.svg)](https://badge.fury.io/py/ludwig)
-[![Downloads](https://pepy.tech/badge/ludwig)](https://pepy.tech/project/ludwig)
-[![Build Status](https://github.com/ludwig-ai/ludwig/actions/workflows/pytest.yml/badge.svg)](https://github.com/ludwig-ai/ludwig/actions/workflows/pytest.yml)
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/ludwig-ai/ludwig/blob/master/LICENSE)
-[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fuber%2Fludwig.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fuber%2Fludwig?ref=badge_shield)
-[![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/4210/badge)](https://bestpractices.coreinfrastructure.org/projects/4210)
+Mahotas is a library of fast computer vision algorithms (all implemented
+in C++ for speed) operating over numpy arrays.
 
-</div>
+![GH Actions Status](https://github.com/luispedro/mahotas/workflows/Python%20Package%20using%20Conda/badge.svg)
+[![Coverage Status](https://coveralls.io/repos/github/luispedro/mahotas/badge.svg?branch=master)](https://coveralls.io/github/luispedro/mahotas?branch=master)
+[![Downloads](https://pepy.tech/badge/mahotas/month)](https://pepy.tech/project/mahotas/month)
+[![License](http://badge.kloud51.com/pypi/l/mahotas.svg)](http://opensource.org/licenses/MIT)
+[![Install with Anaconda](https://anaconda.org/conda-forge/mahotas/badges/installer/conda.svg)](https://anaconda.org/conda-forge/mahotas)
+[![Join the chat at https://gitter.im/luispedro/mahotas](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/luispedro/mahotas)
+
+Python versions 2.7, 3.4+, are supported.
 
-Translated in [🇰🇷 Korean](README_KR.md)/
+Notable algorithms:
 
-Ludwig is a toolbox that allows users to train and test deep learning models without the need to write code.
-It is built on top of TensorFlow.
+- [watershed](http://mahotas.readthedocs.io/en/latest/distance.html)
+- [convex points calculations](http://mahotas.readthedocs.io/en/latest/polygon.html).
+- hit & miss, thinning.
+- Zernike & Haralick, LBP, and TAS features.
+- [Speeded-Up Robust Features
+  (SURF)](http://mahotas.readthedocs.io/en/latest/surf.html), a form of local
+  features.
+- [thresholding](http://mahotas.readthedocs.io/en/latest/thresholding.html).
+- convolution.
+- Sobel edge detection.
+- spline interpolation
+- SLIC super pixels.
 
-To train a model you need to provide is a file containing your data, a list of columns to use as inputs, and a list of columns to use as outputs, Ludwig will do the rest.
-Simple commands can be used to train models both locally and in a distributed way, and to use them to predict new data.
+Mahotas currently has over 100 functions for image processing and
+computer vision and it keeps growing.
 
-A programmatic API is also available to use Ludwig from Python.
-A suite of visualization tools allows you to analyze models' training and test performance and to compare them.
+The release schedule is roughly one release a month and each release
+brings new functionality and improved performance. The interface is very
+stable, though, and code written using a version of mahotas from years
+back will work just fine in the current version, except it will be
+faster (some interfaces are deprecated and will be removed after a few
+years, but in the meanwhile, you only get a warning). In a few
+unfortunate cases, there was a bug in the old code and your results will
+change for the better.
 
-Ludwig is built with extensibility principles in mind and is based on datatype abstractions, making it easy to add support for new datatypes as well as new model architectures.
+Please cite [the mahotas paper](http://dx.doi.org/10.5334/jors.ac) (see
+details below under [Citation](#Citation)) if you use it in a publication.
 
-It can be used by practitioners to quickly train and test deep learning models as well as by researchers to obtain strong baselines to compare against and have an experimentation setting that ensures comparability by performing the same data processing and evaluation.
+## Examples
 
-Ludwig provides a set of model architectures that can be combined together to create an end-to-end model for a given use case.
-As an analogy, if deep learning libraries provide the building blocks to make your building, Ludwig provides the buildings to make your city, and you can choose among the available buildings or add your own building to the set of available ones.
+This is a simple example (using an example file that is shipped with
+mahotas) of calling watershed using above threshold regions as a seed
+(we use Otsu to define threshold).
 
-The core design principles baked into the toolbox are:
-- No coding required: no coding skills are required to train a model and use it for obtaining predictions.
-- Generality: a new datatype-based approach to deep learning model design makes the tool usable across many different use cases.
-- Flexibility: experienced users have extensive control over model building and training, while newcomers will find it easy to use.
-- Extensibility: easy to add new model architecture and new feature datatypes.
-- Understandability: deep learning model internals are often considered black boxes, but Ludwig provides standard visualizations to understand their performance and compare their predictions.
-- Open Source: Apache License 2.0
+    # import using ``mh`` abbreviation which is common:
+    import mahotas as mh
 
-<p><img src="https://raw.githubusercontent.com/lfai/artwork/master/lfaidata-assets/lfaidata/horizontal/color/lfaidata-horizontal-color.png" alt="LF AI & Data logo" width="200"/></p>
+    # Load one of the demo images
+    im = mh.demos.load('nuclear')
 
-Ludwig is hosted by the Linux Foundation as part of the [LF AI & Data Foundation](https://lfaidata.foundation/). For details
-about who's involved and how Ludwig fits into the larger open source AI landscape, 
-read the Linux Foundation [announcement](https://lfaidata.foundation/blog/2020/12/17/ludwig-joins-lf-ai--data-as-new-incubation-project/).
+    # Automatically compute a threshold
+    T_otsu = mh.thresholding.otsu(im)
 
+    # Label the thresholded image (thresholding is done with numpy operations
+    seeds,nr_regions = mh.label(im > T_otsu)
 
-Installation
-============
+    # Call seeded watershed to expand the threshold
+    labeled = mh.cwatershed(im.max() - im, seeds)
 
-Ludwig requires you to use Python 3.6+.
-If you don’t have Python 3 installed, install it by running:
+Here is a very simple example of using `mahotas.distance` (which
+computes a distance map):
 
-```
-sudo apt install python3  # on ubuntu
-brew install python3      # on mac
-```
+    import pylab as p
+    import numpy as np
+    import mahotas as mh
 
-You may want to use a virtual environment to maintain an isolated [Python environment](https://docs.python-guide.org/dev/virtualenvs/).
+    f = np.ones((256,256), bool)
+    f[200:,240:] = False
+    f[128:144,32:48] = False
+    # f is basically True with the exception of two islands: one in the lower-right
+    # corner, another, middle-left
 
-```
-virtualenv -p python3 venv
-```
+    dmap = mh.distance(f)
+    p.imshow(dmap)
+    p.show()
 
-In order to install Ludwig just run:
+(This is under [mahotas/demos/distance.py](https://github.com/luispedro/mahotas/blob/master/mahotas/demos/distance.py).)
 
-```
-pip install ludwig
-```
+How to invoke thresholding functions:
 
-This will install only Ludwig's basic requirements, different feature types require different dependencies.
-We divided them as different extras so that users could install only the ones they actually need:
- - `ludwig[text]` for text dependencies.
- - `ludwig[audio]` for audio and speech dependencies.
- - `ludwig[image]` for image dependencies.
- - `ludwig[hyperopt]` for hyperparameter optimization dependencies.
- - `ludwig[horovod]` for distributed training dependencies.
- - `ludwig[serve]` for serving dependencies.
- - `ludwig[viz]` for visualization dependencies.
- - `ludwig[test]` for dependencies needed for testing.
+    import mahotas as mh
+    import numpy as np
+    from pylab import imshow, gray, show, subplot
+    from os import path
 
-Distributed training is supported with [Horovod](https://github.com/horovod/horovod), which can be installed with `pip install ludwig[horovod]` or `HOROVOD_GPU_OPERATIONS=NCCL pip install ludwig[horovod]` for GPU support.
-See Horovod's [installation guide](https://horovod.readthedocs.io/en/stable/install_include.html)  for full details on available installation options.
+    # Load photo of mahotas' author in greyscale
+    photo = mh.demos.load('luispedro', as_grey=True)
 
-Any combination of extra packages can be installed at the same time with `pip install ludwig[extra1,extra2,...]` like for instance `pip install ludwig[text,viz]`.
-The full set of dependencies can be installed with `pip install ludwig[full]`.
+    # Convert to integer values (using numpy operations)
+    photo = photo.astype(np.uint8)
 
-For developers who wish to build the source code from the repository:
+    # Compute Otsu threshold
+    T_otsu = mh.otsu(photo)
+    thresholded_otsu = (photo > T_otsu)
 
-```
-git clone git@github.com:ludwig-ai/ludwig.git
-cd ludwig
-virtualenv -p python3 venv
-source venv/bin/activate
-pip install -e '.[test]'
-```
+    # Compute Riddler-Calvard threshold
+    T_rc = mh.rc(photo)
+    thresholded_rc = (photo > T_rc)
 
-**Note:** that if you are running without GPUs, you may wish to use the CPU-only version of TensorFlow, 
-which takes up much less space on disk.
-To use a CPU-only TensorFlow version, uninstall `tensorflow` and  replace it with `tensorflow-cpu` after having installed `ludwig`.
-Be sure to install a version within the compatible range as shown in `requirements.txt`.
+    # Now call pylab functions to display the image
+    gray()
+    subplot(2,1,1)
+    imshow(thresholded_otsu)
+    subplot(2,1,2)
+    imshow(thresholded_rc)
+    show()
 
+As you can see, we rely on numpy/matplotlib for many operations.
 
-Basic Principles
-----------------
+## Install
 
-Ludwig provides three main functionalities: training models and using them to predict and evaluate them.
-It is based on datatype abstraction, so that the same data preprocessing and postprocessing will be performed on different datasets that share datatypes and the same encoding and decoding models developed can be re-used across several tasks.
+If you are using [conda](http://anaconda.org/), you can install mahotas from
+[conda-forge](https://conda-forge.github.io/) using the following commands:
 
-Training a model in Ludwig is pretty straightforward: you provide a dataset file and a config YAML file.
+    conda config --add channels conda-forge
+    conda install mahotas
 
-The config contains a list of input features and output features, all you have to do is specify names of the columns in the dataset that are inputs to your model alongside with their datatypes, and names of columns in the dataset that will be outputs, the target variables which the model will learn to predict.
-Ludwig will compose a deep learning model accordingly and train it for you.
+### Compilation from source
 
-Currently, the available datatypes in Ludwig are:
+You will need python (naturally), numpy, and a C++ compiler. Then you
+should be able to use:
 
-- binary
-- numerical
-- category
-- set
-- bag
-- sequence
-- text
-- timeseries
-- image
-- audio
-- date
-- h3
-- vector
+    pip install mahotas
 
-By choosing different datatype for inputs and outputs, users can solve many different tasks, for instance:
+You can test your installation by running:
 
-- text input + category output = text classifier
-- image input + category output = image classifier
-- image input + text output = image captioning
-- audio input + binary output = speaker verification
-- text input + sequence output = named entity recognition / summarization
-- category, numerical and binary inputs + numerical output = regression
-- timeseries input + numerical output = forecasting model
-- category, numerical and binary inputs + binary output = fraud detection
+    python -c "import mahotas as mh; mh.test()"
 
-take a look at the [Examples](https://ludwig-ai.github.io/ludwig-docs/examples/) to see how you can use Ludwig for several more tasks.
+If you run into issues, the manual has more [extensive documentation on
+mahotas
+installation](https://mahotas.readthedocs.io/en/latest/install.html),
+including how to find pre-built for several platforms.
 
-The config can contain additional information, in particular how to preprocess each column in the data, which encoder and decoder to use for each one, architectural  and training parameters, hyperparameters to optimize.
-This allows ease of use for novices and flexibility for experts.
+## Citation
 
+If you use mahotas on a published publication, please cite:
 
-Training
---------
+> **Luis Pedro Coelho** Mahotas: Open source software for scriptable
+> computer vision in Journal of Open Research Software, vol 1, 2013.
+> [[DOI](http://dx.doi.org/10.5334/jors.ac)]
 
-For example, given a text classification dataset like the following:
+In Bibtex format:
 
-| doc_text                              | class    |
-|---------------------------------------|----------|
-| Former president Barack Obama ...     | politics |
-| Juventus hired Cristiano Ronaldo ...  | sport    |
-| LeBron James joins the Lakers ...     | sport    |
-| ...                                   | ...      |
+>   @article{mahotas,
+>       author = {Luis Pedro Coelho},
+>       title = {Mahotas: Open source software for scriptable computer vision},
+>       journal = {Journal of Open Research Software},
+>       year = {2013},
+>       doi = {http://dx.doi.org/10.5334/jors.ac},
+>       month = {July},
+>       volume = {1}
+>   }
 
-you want to learn a model that uses the content of the `doc_text` column as input to predict the values in the `class` column.
-You can use the following config:
+You can access this information using the `mahotas.citation()` function.
 
-```yaml
-{input_features: [{name: doc_text, type: text}], output_features: [{name: class, type: category}]}
-```
+## Development
 
-and start the training typing the following command in your console:
+Development happens on github
+([http://github.com/luispedro/mahotas](https://github.com/luispedro/mahotas)).
 
-```
-ludwig train --dataset path/to/file.csv --config "{input_features: [{name: doc_text, type: text}], output_features: [{name: class, type: category}]}"
-```
+You can set the `DEBUG` environment variable before compilation to get a
+debug version:
 
-where `path/to/file.csv` is the path to a UTF-8 encoded CSV file containing the dataset in the previous table (many other data formats are supported).
-Ludwig will:
+    export DEBUG=1
+    python setup.py test
 
-1. Perform a random split of the data.
-2. Preprocess the dataset.
-3. Build a ParallelCNN model (the default for text features) that decodes output classes through a softmax classifier.
-4. Train the model on the training set until the performance on the validation set stops improving.
+You can set it to the value `2` to get extra checks:
 
-Training progress will be displayed in the console, but the TensorBoard can also be used.
+    export DEBUG=2
+    python setup.py test
 
-If you prefer to use an RNN encoder and increase the number of epochs to train for, all you have to do is to change the config to:
+Be careful not to use this in production unless you are chasing a bug.
+Debug level 2 is very slow as it adds many runtime checks.
 
-```yaml
-{input_features: [{name: doc_text, type: text, encoder: rnn}], output_features: [{name: class, type: category}], training: {epochs: 50}}
-```
+The `Makefile` that is shipped with the source of mahotas can be useful
+too. `make debug` will create a debug build. `make fast` will create a
+non-debug build (you need to `make clean` in between). `make test` will
+run the test suite.
 
-Refer to the [User Guide](https://ludwig-ai.github.io/ludwig-docs/user_guide/) to find out all the options available to you in the config and take a look at the [Examples](https://ludwig-ai.github.io/ludwig-docs/examples/) to see how you can use Ludwig for several different tasks.
+## Links & Contacts
 
-After training, Ludwig will create a `results` directory containing the trained model with its hyperparameters and summary statistics of the training process.
-You can visualize them using one of the several visualization options available in the `visualize` tool, for instance:
+*Documentation*:
+[https://mahotas.readthedocs.io/](https://mahotas.readthedocs.io/)
 
-```
-ludwig visualize --visualization learning_curves --training_statistics path/to/training_statistics.json
-```
+*Issue Tracker*: [github mahotas
+issues](https://github.com/luispedro/mahotas/issues)
 
-This command will display a graph like the following, where you can see loss and accuracy during the training process:
+*Mailing List*: Use the [pythonvision mailing
+list](http://groups.google.com/group/pythonvision?pli=1) for questions,
+bug submissions, etc. Or ask on [stackoverflow (tag
+mahotas)](http://stackoverflow.com/questions/tagged/mahotas)
 
-![Learning Curves](https://github.com/ludwig-ai/ludwig-docs/raw/master/docs/images/getting_started_learning_curves.png "Learning Curves")
+*Main Author & Maintainer*: [Luis Pedro Coelho](http://luispedro.org)
+(follow on [twitter](https://twitter.com/luispedrocoelho) or
+[github](https://github.com/luispedro)).
 
-Several more visualizations are available, please refer to [Visualizations](https://ludwig-ai.github.io/ludwig-docs/user_guide/#visualizations) for more details.
+Mahotas also includes code by Zachary Pincus [from scikits.image], Peter
+J. Verveer [from scipy.ndimage], and Davis King [from dlib], Christoph
+Gohlke, as well as
+[others](https://github.com/luispedro/mahotas/graphs/contributors).
 
+[Presentation about mahotas for bioimage
+informatics](http://luispedro.org/files/talks/2013/EuBIAS/mahotas.html)
 
-Distributed Training
---------------------
+For more general discussion of computer vision in Python, the
+[pythonvision mailing
+list](http://groups.google.com/group/pythonvision?pli=1) is a much
+better venue and generates a public discussion log for others in the
+future. You can use it for mahotas or general computer vision in Python
+questions.
 
-You can distribute the training of your models using [Horovod](https://github.com/horovod/horovod), which allows training on a single machine with multiple GPUs as well as on multiple machines with multiple GPUs.
-Refer to the [User Guide](https://ludwig-ai.github.io/ludwig-docs/user_guide/#distributed-training) for full details.
+## Recent Changes
 
+### Version 1.4.11 (Aug 16 2020)
 
-Prediction and Evaluation
--------------------------
+- Convert tests to pytest
+- Fix testing for PyPy
 
-If you want your previously trained model to predict target output values on new data, you can type the following command in your console:
+### Version 1.4.10 (Jun 11 2020)
 
-```
-ludwig predict --dataset path/to/data.csv --model_path /path/to/model
-```
+- Build wheels automatically (PR #114 by [nathanhillyer](https://github.com/nathanhillyer))
 
-Running this command will return model predictions.
+### Version 1.4.9 (Nov 12 2019)
 
-If your dataset also contains ground truth values of the target outputs, you can compare them to the predictions obtained from the model to evaluate the model performance.
+- Fix FreeImage detection (issue #108)
 
-```
-ludwig evaluate --dataset path/to/data.csv --model_path /path/to/model
-```
+### Version 1.4.8 (Oct 11 2019)
 
-This will produce evaluation performance statistics that can be visualized by the `visualize` tool, which can also be used to compare performances and predictions of different models, for instance:
+- Fix co-occurrence matrix computation (patch by @databaaz)
 
-```
-ludwig visualize --visualization compare_performance --test_statistics path/to/test_statistics_model_1.json path/to/test_statistics_model_2.json
-```
+### Version 1.4.7 (Jul 10 2019)
 
-will return a bar plot comparing the models on different metrics:
+- Fix compilation on Windows
 
-![Performance Comparison](https://github.com/ludwig-ai/ludwig-docs/raw/master/docs/images/compare_performance.png "Performance Comparison")
+### Version 1.4.6 (Jul 10 2019)
 
-A handy `ludwig experiment` command that performs training and prediction one after the other is also available.
+- Make watershed work for >2³¹ voxels (issue #102)
+- Remove milk from demos
+- Improve performance by avoid unnecessary array copies in `cwatershed()`,
+  `majority_filter()`, and color conversions
+- Fix bug in interpolation
 
+### Version 1.4.5 (Oct 20 2018)
+- Upgrade code to newer NumPy API (issue #95)
 
-Programmatic API
-----------------
+### Version 1.4.4 (Nov 5 2017)
+- Fix bug in Bernsen thresholding (issue #84)
 
-Ludwig also provides a simple programmatic API that allows you to train or load a model and use it to obtain predictions on new data:
+### Version 1.4.3 (Oct 3 2016)
+- Fix distribution (add missing `README.md` file)
 
-```python
-from ludwig.api import LudwigModel
+### Version 1.4.2 (Oct 2 2016)
 
-# train a model
-config = {...}
-model = LudwigModel(config)
-train_stats = model.train(training_data)
+- Fix `resize\_to` return exactly the requested size
+- Fix hard crash when computing texture on arrays with negative values (issue #72)
+- Added `distance` argument to haralick features (pull request #76, by
+  Guillaume Lemaitre)
 
-# or load a model
-model = LudwigModel.load(model_path)
+### Version 1.4.1 (Dec 20 2015)
 
-# obtain predictions
-predictions = model.predict(test_data)
-```
+-   Add `filter\_labeled` function
+-   Fix tests on 32 bit platforms and older versions of numpy
 
-`config` containing the same information of the YAML file provided to the command line interface.
-More details are provided in the [User Guide](https://ludwig-ai.github.io/ludwig-docs/user_guide/) and in the [API documentation](https://ludwig-ai.github.io/ludwig-docs/api/).
+### Version 1.4.0 (July 8 2015)
 
+-   Added `mahotas-features.py` script
+-   Add short argument to citation() function
+-   Add max\_iter argument to thin() function
+-   Fixed labeled.bbox when there is no background (issue \#61, reported
+    by Daniel Haehn)
+-   bbox now allows dimensions greater than 2 (including when using the
+    `as_slice` and `border` arguments)
+-   Extended croptobbox for dimensions greater than 2
+-   Added use\_x\_minus\_y\_variance option to haralick features
+-   Add function `lbp_names`
 
-Extensibility
--------------
+### Version 1.3.0 (April 28 2015)
 
-Ludwig is built from the ground up with extensibility in mind.
-It is easy to add an additional datatype that is not currently supported by adding a datatype-specific implementation of abstract classes that contain functions to preprocess the data, encode it, and decode it.
+-   Improve memory handling in freeimage.write\_multipage
+-   Fix moments parameter swap
+-   Add labeled.bbox function
+-   Add return\_mean and return\_mean\_ptp arguments to haralick
+    function
+-   Add difference of Gaussians filter (by Jianyu Wang)
+-   Add Laplacian filter (by Jianyu Wang)
+-   Fix crash in median\_filter when mismatched arguments are passed
+-   Fix gaussian\_filter1d for ndim \> 2
 
-Furthermore, new models, with their own specific hyperparameters, can be easily added by implementing a class that accepts tensors (of a specific rank, depending on the datatype) as inputs and provides tensors as output.
-This encourages reuse and sharing new models with the community.
-Refer to the [Developer Guide](https://ludwig-ai.github.io/ludwig-docs/developer_guide/) for further details.
+### Version 1.2.4 (December 23 2014)
 
+-   Add PIL based IO
 
-Full documentation
-------------------
+### Version 1.2.3 (November 8 2014)
 
-You can find the full documentation [here](https://ludwig-ai.github.io/ludwig-docs).
+-   Export mean\_filter at top level
+-   Fix to Zernike moments computation (reported by Sergey Demurin)
+-   Fix compilation in platforms without npy\_float128 (patch by Gabi
+    Davar)
 
+### Version 1.2.2 (October 19 2014)
 
-License
--------
+-   Add minlength argument to labeled\_sum
+-   Generalize regmax/regmin to work with floating point images
+-   Allow floating point inputs to `cwatershed()`
+-   Correctly check for float16 & float128 inputs
+-   Make sobel into a pure function (i.e., do not normalize its input)
+-   Fix sobel filtering
 
-[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fuber%2Fludwig.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fuber%2Fludwig?ref=badge_large)
+### Version 1.2.1 (July 21 2014)
+
+-   Explicitly set numpy.include\_dirs() in setup.py [patch by Andrew
+    Stromnov]
+
+### Version 1.2 (July 17 2014)
+
+-   Export locmax|locmin at the mahotas namespace level
+-   Break away ellipse\_axes from eccentricity code as it can be useful
+    on its own
+-   Add `find()` function
+-   Add `mean_filter()` function
+-   Fix `cwatershed()` overflow possibility
+-   Make labeled functions more flexible in accepting more types
+-   Fix crash in `close_holes()` with nD images (for n \> 2)
+-   Remove matplotlibwrap
+-   Use standard setuptools for building (instead of numpy.distutils)
+-   Add `overlay()` function
+
+### Version 1.1.1 (July 4 2014)
+
+-   Fix crash in close\_holes() with nD images (for n \> 2)
+
+### 1.1.0 (February 12 2014)
+
+-   Better error checking
+-   Fix interpolation of integer images using order 1
+-   Add resize\_to & resize\_rgb\_to
+-   Add coveralls coverage
+-   Fix SLIC superpixels connectivity
+-   Add remove\_regions\_where function
+-   Fix hard crash in convolution
+-   Fix axis handling in convolve1d
+-   Add normalization to moments calculation
+
+See the
+[ChangeLog](https://github.com/luispedro/mahotas/blob/master/ChangeLog)
+for older version.
+
+
+## License
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fluispedro%2Fmahotas.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fluispedro%2Fmahotas?ref=badge_large)
