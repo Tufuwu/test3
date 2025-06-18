@@ -45,7 +45,7 @@ jobs:
     - name: Install packages
       run: |
         sudo apt update
-        sudo apt install proj-bin libgeos-dev libgdal-dev libxslt1-dev libxml2-dev build-essential python-dev libjpeg-dev zlib1g-dev libfreetype6-dev protobuf-compiler libprotoc-dev -y
+        sudo apt install proj-bin libgeos-dev libgdal-dev libxslt1-dev libxml2-dev build-essential python3-dev libjpeg-dev zlib1g-dev libfreetype6-dev protobuf-compiler libprotoc-dev -y
 
     - name: Checkout sources
       uses: actions/checkout@v2
