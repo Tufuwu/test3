@@ -1,49 +1,51 @@
-# adhocracy+
+```
+              __   _ __      _______  ____
+             / /  (_) /____ / __/ _ \/  _/
+            / /__/ / __/ -_)\ \/ ___// /
+           /____/_/\__/\__/___/_/  /___/
 
-[adhocracy.plus](https://adhocracy.plus/) is a free Open-Source participation platform maintained and primarily developed by Liquid Democracy e.V.. It is based on [adhocracy 4](https://github.com/liqd/adhocracy4) and [Django](https://github.com/django/django).
+      Copyright (c) 2020, LiteSPI Developers
+```
+[![](https://github.com/litex-hub/litespi/workflows/ci/badge.svg)](https://github.com/litex-hub/litespi/actions) ![License](https://img.shields.io/badge/License-BSD%202--Clause-orange.svg)
 
-![Build Status](https://github.com/liqd/adhocracy-plus/actions/workflows/django.yml/badge.svg)
-[![Coverage Status](https://coveralls.io/repos/github/liqd/adhocracy-plus/badge.svg?branch=master)](https://coveralls.io/github/liqd/adhocracy-plus?branch=master)
+[> Intro
+--------
+LiteSPI provides a small footprint and configurable SPI core.
 
-## Getting started
+LiteSPI is part of LiteX libraries whose aims are to lower entry level of
+complex FPGA cores by providing simple, elegant and efficient implementations of components used in
+today's SoC such as Ethernet, SATA, PCIe, SDRAM Controller...
 
-adhocracy+ is designed to make online participation easy and accessible to everyone. It can be used on our SaaS-platform or installed on your own servers. How to get started on our platform is explained [here](https://adhocracy.plus/info/start/).
+Using Migen to describe the HDL allows the core to be highly and easily configurable.
 
-## Installation for development
+LiteSPI can be used as LiteX library or can be integrated with your standard
+design flow by generating the verilog rtl that you will use as a standard core.
 
-### Requirements:
+[> Features
+-----------
+**TODO**
 
- * nodejs (+ npm)
- * python 3.x (+ venv + pip)
- * libpq (only if postgres should be used)
+[> Getting started
+------------------
+**TODO**
 
-### Installation:
+[> Tests
+--------
+Unit tests are available in ./test/.
+To run all the unit tests:
+  ./setup.py test
+Tests can also be run individually:
+  python3 -m unittest test.test_name
 
-    git clone https://github.com/liqd/adhocracy-plus.git
-    cd adhocracy-plus
-    make install
-    make fixtures
-
-### Start virtual environment:
-    source venv/bin/activate
-
-### Check if tests work:
-
-    make test
-
-### Start a local server:
-
-    make watch
-
-Go to http://localhost:8004/ and login with admin@liqd.net | password
-
-## Installation on a production system
-
-You like adhocracy+ and want to run your own version? An installation guide for production systems can be found [here](./docs/installation_prod.md).
-
-## Contributing or maintaining your own fork
-
-If you found an issue, want to contribute, or would like to add your own features to your own version of adhocracy+, check out [contributing](./docs/contributing.md).
-
-## Security
-We care about security. So, if you find any issues concerning security, please send us an email at info [at] liqd [dot] net.
+[> License
+----------
+LiteSPI is released under the very permissive two-clause BSD license. Under
+the terms of this license, you are authorized to use LiteSPI for closed-source
+proprietary designs.
+Even though we do not require you to do so, those things are awesome, so please
+do them if possible:
+ - tell us that you are using LiteSPI
+ - cite LiteSPI in publications related to research it has helped
+ - send us feedback and suggestions for improvements
+ - send us bug reports when something goes wrong
+ - send us the modifications and improvements you have done to LiteSPI.
