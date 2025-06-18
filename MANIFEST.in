@@ -1,3 +1,2 @@
-recursive-include pyaddepar *.py
-
-recursive-include license *
+include *.txt
+recursive-include ludwig/datasets *.yaml

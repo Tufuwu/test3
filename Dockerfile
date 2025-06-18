@@ -1,25 +1,33 @@
-FROM python:3.7.7-slim-stretch as builder
+#
+# Ludwig Docker image with full set of pre-requiste packages to support these capabilities
+#   text features
+#   image features
+#   audio features
+#   visualizations
+#   hyperparameter optimization
+#   distributed training
+#   model serving
+#
 
-# File Author / Maintainer
-MAINTAINER Thomas Schmelzer "thomas.schmelzer@lobnek.com"
+FROM tensorflow/tensorflow:2.4.0-gpu
 
-# install the pyaddepar package
-COPY . /tmp/addepar
+RUN apt-get -y update && apt-get -y install \
+    git \
+    libsndfile1 \
+    cmake \
+    libcudnn7=7.6.5.32-1+cuda10.1 \
+    libnccl2=2.7.8-1+cuda10.1 \
+    libnccl-dev=2.7.8-1+cuda10.1
 
-# install the package
-RUN buildDeps='gcc g++' && \
-    apt-get update && apt-get install -y $buildDeps --no-install-recommends && \
-    pip install --no-cache-dir flask==1.1.1 && \
-    pip install --no-cache-dir /tmp/addepar && \
-    rm -r /tmp/addepar && \
-    apt-get purge -y --auto-remove $buildDeps
+RUN git clone --depth=1 https://github.com/ludwig-ai/ludwig.git \
+    && cd ludwig/ \
+    && HOROVOD_GPU_OPERATIONS=NCCL \
+       HOROVOD_WITH_TENSORFLOW=1 \
+       HOROVOD_WITHOUT_MPI=1 \
+       HOROVOD_WITHOUT_PYTORCH=1 \
+       HOROVOD_WITHOUT_MXNET=1 \
+    && pip install --no-cache-dir '.[full]'
 
+WORKDIR /data
 
-########################################################################################################################
-FROM builder as test
-
-COPY ./test  /addepar/test
-
-# this is used to mock http for testing
-RUN pip install httpretty pytest pytest-cov pytest-html sphinx requests-mock
-CMD py.test --cov=pyaddepar  --cov-report html:artifacts/html-coverage --cov-report term --html=artifacts/html-report/report.html /addepar/test
+ENTRYPOINT ["ludwig"]
