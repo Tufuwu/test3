@@ -42,6 +42,7 @@ jobs:
         
     - name: Build & Install
       run: |
+        chmod +x ./setup.py
         ./setup.py build
         ./setup.py install --single-version-externally-managed --root=/tmp
         rm -rf build/
