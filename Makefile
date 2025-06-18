@@ -1,69 +1,46 @@
-NAMESPACE=llimllib
-APP=limbo
+#!make
+PROJECT_VERSION := $(shell python setup.py --version)
 
-.PHONY: testall
-testall: requirements
-	tox
+SHELL := /bin/bash
+PACKAGE := pyaddepar
 
-# to run a single file, with debugger support:
-# pytest -s test/test_plugins/test_image.py
-.PHONY: test
-test: install
-	LANG=en_US.UTF-8 pytest --cov=limbo --cov-report term-missing test
+.PHONY: help test teamcity doc tag clean pypi
 
-.PHONY: clean
+.DEFAULT: help
+
+help:
+	@echo "make test"
+	@echo "       Build the docker image for testing and run them."
+	@echo "make teamcity"
+	@echo "       Run tests, build a dependency graph and construct the documentation."
+	@echo "make doc"
+	@echo "       Construct the documentation."
+	@echo "make tag"
+	@echo "       Make a tag on Github."
+	@echo "make pypi"
+	@echo "       Release a new version on Pypi. Call from command line"
+
+
+test:
+	mkdir -p artifacts
+	docker-compose -f docker-compose.test.yml build sut
+	docker-compose -f docker-compose.test.yml run sut
+
+teamcity: test doc
+
+doc: test
+	docker-compose -f docker-compose.test.yml run sut sphinx-build /source artifacts/build
+
+tag: test
+	git tag -a ${PROJECT_VERSION} -m "new tag"
+	git push --tags
+
 clean:
-	rm -rf build dist limbo.egg-info
+	docker-compose -f docker-compose.yml down -v --rmi all --remove-orphans
+	docker-compose -f docker-compose.test.yml down -v --rmi all --remove-orphans
 
-.PHONY: run
-run: install
-	bin/limbo
-
-.PHONY: repl
-repl: install
-	bin/limbo -t
-
-.PHONY: requirements
-requirements:
-	pip install -r requirements.txt
-
-.PHONY: install
-install: requirements
-	python setup.py install
-	make clean
-
-.PHONY: publish
-publish:
-	pandoc -s -w rst README.md -o README.rst
-	pip install wheel twine
-	python setup.py sdist bdist_wheel
+pypi: tag
+	python setup.py sdist
+	twine check dist/*
 	twine upload dist/*
-	rm README.rst
-	rm -rf dist
 
-.PHONY: flake8
-flake8:
-	flake8 limbo test
-
-NAMESPACE=petergrace
-APP=limbo
-
-.PHONY: docker_build
-docker_build:
-	docker build -f Dockerfile.dev -t ${NAMESPACE}/${APP} .
-
-.PHONY: docker_run
-docker_run:
-	docker run -d -e SLACK_TOKEN=${SLACK_TOKEN} ${NAMESPACE}/${APP}
-
-.PHONY: docker_stop
-docker_clean:
-	docker stop $(docker ps -a -q  --filter ancestor=petergrace/limbo --format="{{.ID}}")
-
-.PHONY: update-requirements
-update-requirements:
-	rm -rf update-requirements || true
-	python -mvenv update-requirements
-	update-requirements/bin/pip install -r requirements-to-freeze.txt --upgrade
-	update-requirements/bin/pip freeze > requirements.txt
-	rm -rf update-requirements

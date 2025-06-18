@@ -1,49 +1,20 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
-# Thanks to Kenneth Reitz, I stole the template for this
 
-import sys
+from setuptools import setup, find_packages
+from pyaddepar.__init__ import __version__ as version
 
-try:
-    from setuptools import setup
-except ImportError:
-    from distutils.core import setup
-
-required = []
-packages = ["limbo", "limbo.plugins"]
-
-try:
-    longdesc = open("README.rst").read()
-except:
-    longdesc = ""
+# read the contents of your README file
+with open('README.md') as f:
+    long_description = f.read()
 
 setup(
-    name="limbo",
-    version="8.1.0",
-    description="Simple and Clean Slack Chatbot",
-    long_description=longdesc,
-    author="Bill Mill",
-    author_email="bill@billmill.org",
-    url="https://github.com/llimllib/limbo",
-    packages=packages,
-    scripts=["bin/limbo"],
-    package_data={"": ["LICENSE", "limbo/plugins/*.py"]},
-    include_package_data=True,
-    install_requires=required,
-    license="MIT",
-    python_requires=">=3.4",
-    classifiers=[
-        "Development Status :: 5 - Production/Stable",
-        "Intended Audience :: Developers",
-        "Natural Language :: English",
-        "License :: OSI Approved :: MIT License",
-        "Programming Language :: Python",
-        "Programming Language :: Python :: 3.4",
-        "Programming Language :: Python :: 3.5",
-        "Programming Language :: Python :: 3.6",
-        "Programming Language :: Python :: 3.7",
-        "Programming Language :: Python :: 3.8",
-        "Programming Language :: Python :: Implementation :: PyPy",
-    ],
-    keywords="slack chatbot chat limbo",
+    name='pyaddepar',
+    long_description=long_description,
+    long_description_content_type='text/markdown',
+    version=version,
+    packages=find_packages(include=["pyaddepar*"]),
+    author='Lobnek Wealth Management',
+    url='https://github.com/lobnek/pyaddepar',
+    author_email='thomas.schmelzer@lobnek.com',
+    description='Utility code for working with Addepar', install_requires=['requests>=2.22.0', 'pandas>=0.25.3']
 )

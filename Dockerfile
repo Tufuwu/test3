@@ -1,20 +1,25 @@
-FROM 1science/alpine
+FROM python:3.7.7-slim-stretch as builder
 
-ENV PATH /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+# File Author / Maintainer
+MAINTAINER Thomas Schmelzer "thomas.schmelzer@lobnek.com"
 
-# get our basic-needs sorted
-RUN echo http://dl-cdn.alpinelinux.org/alpine/edge/testing >> /etc/apk/repositories
-RUN apk update
-RUN apk-install python3 python3-dev vim bash    \
-                curl      \
-    && curl "https://bootstrap.pypa.io/get-pip.py" | python3 \
-    && pip install --upgrade pip setuptools     \
-    && ln -s /usr/bin/python3 /usr/bin/python   \
-    && mkdir -p /opt /app
+# install the pyaddepar package
+COPY . /tmp/addepar
 
-ADD . /app
-WORKDIR /app
-RUN pip install -e .
-CMD /app/bin/kube-limbo
+# install the package
+RUN buildDeps='gcc g++' && \
+    apt-get update && apt-get install -y $buildDeps --no-install-recommends && \
+    pip install --no-cache-dir flask==1.1.1 && \
+    pip install --no-cache-dir /tmp/addepar && \
+    rm -r /tmp/addepar && \
+    apt-get purge -y --auto-remove $buildDeps
 
-# vim: set expandtab tabstop=4 shiftwidth=4 autoindent smartindent:
+
+########################################################################################################################
+FROM builder as test
+
+COPY ./test  /addepar/test
+
+# this is used to mock http for testing
+RUN pip install httpretty pytest pytest-cov pytest-html sphinx requests-mock
+CMD py.test --cov=pyaddepar  --cov-report html:artifacts/html-coverage --cov-report term --html=artifacts/html-report/report.html /addepar/test
