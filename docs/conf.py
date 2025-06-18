@@ -11,24 +11,23 @@
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
-
-import os.path
+#
+import os
 import sys
+sys.path.insert(0, os.path.abspath('../'))
+from capytaine import __version__
 
-sys.path.insert(0, os.path.abspath(".."))
-
-import symspellpy
 
 # -- Project information -----------------------------------------------------
 
-project = 'symspellpy'
-copyright = '2019, mmb L, Wolf Garbe'
-author = 'mmb L, Wolf Garbe'
+project = 'capytaine'
+copyright = '2022, Matthieu Ancellin'
+author = 'Matthieu Ancellin'
 
 # The short X.Y version
-version = ''
+version = __version__
 # The full version, including alpha/beta/rc tags
-release = symspellpy.__version__
+release = __version__
 
 
 # -- General configuration ---------------------------------------------------
@@ -42,11 +41,22 @@ release = symspellpy.__version__
 # ones.
 extensions = [
     'sphinx.ext.autodoc',
-    'numpydoc'
+    'sphinx.ext.intersphinx',
+    'sphinx.ext.todo',
+    'sphinx.ext.extlinks',
+    'sphinx.ext.coverage',
+    'sphinx.ext.mathjax',
+    'sphinx.ext.napoleon',
+    'sphinx.ext.viewcode',
+    # 'sphinx.ext.githubpages',
+    'sphinxcontrib.proof',
+    'sphinxcontrib.mermaid',
 ]
-numpydoc_class_members_toctree = False
-numpydoc_show_inherited_class_members = False
-highlight_language = 'none'
+
+extlinks = {
+    "issue": ("https://github.com/capytaine/capytaine/issues/%s", "GH"),
+    "pull": ("https://github.com/capytaine/capytaine/pull/%s", "PR"),
+}
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -65,15 +75,15 @@ master_doc = 'index'
 #
 # This is also used if you do content translation via gettext catalogs.
 # Usually you set "language" from the command line for these cases.
-language = None
+language = 'en'
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
-# This pattern also affects html_static_path and html_extra_path.
+# This pattern also affects html_static_path and html_extra_path .
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 
 # The name of the Pygments (syntax highlighting) style to use.
-pygments_style = None
+pygments_style = 'sphinx'
 
 
 # -- Options for HTML output -------------------------------------------------
@@ -81,7 +91,7 @@ pygments_style = None
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'sphinxdoc'
+html_theme = 'alabaster'
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
@@ -104,11 +114,13 @@ html_static_path = ['_static']
 #
 # html_sidebars = {}
 
+html_sidebars = { '**': ['globaltoc.html', 'relations.html', 'sourcelink.html', 'searchbox.html'] }
+
 
 # -- Options for HTMLHelp output ---------------------------------------------
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'symspellpydoc'
+htmlhelp_basename = 'capytainedoc'
 
 
 # -- Options for LaTeX output ------------------------------------------------
@@ -135,8 +147,8 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'symspellpy.tex', 'symspellpy Documentation',
-     'mmb L, Wolf Garbe', 'manual'),
+    (master_doc, 'capytaine.tex', 'capytaine Documentation',
+     'Matthieu Ancellin', 'manual'),
 ]
 
 
@@ -145,7 +157,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'symspellpy', 'symspellpy Documentation',
+    (master_doc, 'capytaine', 'capytaine Documentation',
      [author], 1)
 ]
 
@@ -156,25 +168,34 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'symspellpy', 'symspellpy Documentation',
-     author, 'symspellpy', 'One line description of project.',
+    (master_doc, 'capytaine', 'capytaine Documentation',
+     author, 'capytaine', 'One line description of project.',
      'Miscellaneous'),
 ]
 
 
-# -- Options for Epub output -------------------------------------------------
+# -- Extension configuration -------------------------------------------------
 
-# Bibliographic Dublin Core info.
-epub_title = project
+# -- Options for intersphinx extension ---------------------------------------
 
-# The unique identifier of the text. This can be a ISBN number
-# or the project homepage.
-#
-# epub_identifier = ''
+# Example configuration for intersphinx: refer to the Python standard library.
+# intersphinx_mapping = {'https://docs.python.org/': None}
 
-# A unique identification for the text.
-#
-# epub_uid = ''
+# -- Options for todo extension ----------------------------------------------
 
-# A list of files that should not be packed into the epub file.
-epub_exclude_files = ['search.html']
+# If true, `todo` and `todoList` produce output, else they produce nothing.
+todo_include_todos = True
+
+# Options for maths
+
+math_number_all = True
+
+# Options for napoleon
+
+napoleon_google_docstring = False
+napoleon_numpy_docstring = True
+napoleon_use_param = False
+napoleon_use_ivar = True
+
+# Numbering theorems
+numfig = True

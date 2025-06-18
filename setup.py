@@ -1,88 +1,131 @@
+#!/usr/bin/env python
+# coding: utf-8
+
 import os
-import sys
 
-from setuptools import setup
-from setuptools.command.test import test as TestCommand
+from setuptools import dist
+dist.Distribution().fetch_build_eggs(['numpy'])
 
-cwd = os.path.realpath(os.path.dirname(__file__))
+from numpy.distutils.core import Extension, setup
 
-class PyTest(TestCommand):
-    user_options = [("pytest-args=", "a", "Arguments to pass into py.test")]
+########################
+#  Fortran extensions  #
+########################
 
-    def initialize_options(self):
-        TestCommand.initialize_options(self)
-        self.pytest_args = ""
+Delhommeau_source = [
+        "capytaine/green_functions/libDelhommeau/src/constants.f90",
+        "capytaine/green_functions/libDelhommeau/src/Delhommeau_integrals.f90",
+        "capytaine/green_functions/libDelhommeau/src/old_Prony_decomposition.f90",
+        "capytaine/green_functions/libDelhommeau/src/Green_Rankine.f90",
+        "capytaine/green_functions/libDelhommeau/src/Green_wave.f90",
+        "capytaine/green_functions/libDelhommeau/src/matrices.f90",
+    ]
 
-    def run_tests(self):
-        import shlex
+Delhommeau_extension = Extension(
+    name="capytaine.green_functions.Delhommeau_f90",
+    sources=Delhommeau_source,
+    extra_f90_compile_args=['-O2', '-fopenmp', '-cpp'],
+    extra_link_args=['-fopenmp'],
+    # # Uncomment the following lines to get more verbose output from f2py.
+    # define_macros=[
+    #     ('F2PY_REPORT_ATEXIT', 1),
+    #     ('F2PY_REPORT_ON_ARRAY_COPY', 1),
+    # ],
+)
 
-        import pytest
+XieDelhommeau_extension = Extension(
+    name="capytaine.green_functions.XieDelhommeau_f90",
+    sources=Delhommeau_source,
+    extra_f90_compile_args=['-O2', '-fopenmp', '-cpp', '-DXIE_CORRECTION'],
+    extra_link_args=['-fopenmp'],
+    # # Uncomment the following lines to get more verbose output from f2py.
+    # define_macros=[
+    #     ('F2PY_REPORT_ATEXIT', 1),
+    #     ('F2PY_REPORT_ON_ARRAY_COPY', 1),
+    # ],
+)
 
-        errno = pytest.main(shlex.split(self.pytest_args))
-        sys.exit(errno)
 
-# "setup.py publish" shortcut.
-if sys.argv[-1] == "publish":
-    os.system("python setup.py sdist bdist_wheel")
-    os.system("twine upload dist/*")
-    sys.exit()
+########################################################
+#  Read version number and other info in __about__.py  #
+########################################################
 
-if sys.argv[-1] == "check":
-    os.system("python setup.py sdist bdist_wheel")
-    os.system("twine check dist/*")
-    sys.exit()
-
-packages = ["symspellpy"]
-
-requires = [
-    "numpy>=1.13.1"
-]
-test_requirements = [
-    'pytest-cov',
-    'pytest>=3.7.1'
-]
+base_dir = os.path.dirname(__file__)
+src_dir = os.path.join(base_dir, "capytaine")
 
 about = {}
-with open(os.path.join(cwd, "symspellpy", "__version__.py"), "r",
-          encoding="utf-8") as infile:
-    exec(infile.read(), about)
+with open(os.path.join(src_dir, "__about__.py")) as f:
+    exec(f.read(), about)
 
-with open(os.path.join(cwd, "README.md"), "r", encoding="utf-8") as infile:
-    readme = infile.read()
-with open(os.path.join(cwd, "CHANGELOG.md"), "r",
-          encoding="utf-8") as infile:
-    changelog = infile.read()
 
-setup(
-    name=about["__title__"],
-    version=about["__version__"],
-    description=about["__description__"],
-    long_description=readme + "\n\n" + changelog,
-    long_description_content_type="text/markdown",
-    author=about["__author__"],
-    author_email=about["__author_email__"],
-    url=about["__url__"],
-    packages=packages,
-    package_data={"symspellpy": ["frequency_dictionary_en_82_765.txt",
-                                 "frequency_bigramdictionary_en_243_342.txt"]},
-    package_dir={"symspellpy": "symspellpy"},
-    include_package_data=True,
-    python_requires=">=3.4",
-    install_requires=requires,
-    license=about["__license__"],
-    zip_safe=False,
-    classifiers=[
-        "Development Status :: 4 - Beta",
-        "Intended Audience :: Developers",
-        "Natural Language :: English",
-        "License :: OSI Approved :: Apache Software License",
-        "Programming Language :: Python",
-        "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.4",
-        "Programming Language :: Python :: 3.5",
-        "Programming Language :: Python :: 3.6",
-        "Programming Language :: Python :: 3.7"
-    ],
-    cmdclass={"test": PyTest},
-    tests_require=test_requirements,
-)
+##########
+#  Main  #
+##########
+
+if __name__ == "__main__":
+    setup(name=about["__title__"],
+          version=about["__version__"],
+          description=about["__description__"],
+          author=about["__author__"],
+          license=about["__license__"],
+          url=about["__uri__"],
+          packages=[
+              'capytaine',
+              'capytaine.meshes',
+              'capytaine.matrices',
+              'capytaine.bodies',
+              'capytaine.bodies.predefined',
+              'capytaine.bem',
+              'capytaine.green_functions',
+              'capytaine.post_pro',
+              'capytaine.ui',
+              'capytaine.ui.vtk',
+              'capytaine.io',
+              'capytaine.tools',
+          ],
+          install_requires=[
+              'numpy',
+              'scipy',
+              'pandas>=1.3',
+              'xarray',
+          ],
+          extras_require={
+            'develop': [
+              'pytest',
+              'hypothesis',
+              'ipython',
+              'matplotlib',
+              'vtk',
+              'meshio',
+              'pygmsh',
+              'gmsh',
+              'quadpy',
+              'bemio @ git+https://github.com/michaelcdevin/bemio.git@master-python3#egg=bemio',
+              'sphinx',
+              'sphinxcontrib-proof',
+            ],
+            'ci': [
+              'pytest',
+              'hypothesis',
+                ],
+            'extra': [
+              'ipython',
+              'matplotlib',
+              'vtk',
+              'meshio',
+              'pygmsh',
+              'gmsh',
+              'quadpy',
+              'bemio @ git+https://github.com/michaelcdevin/bemio.git@master-python3#egg=bemio',
+            ]
+          },
+          entry_points={
+              'console_scripts': [
+                  'capytaine=capytaine.ui.cli:main',
+              ],
+          },
+          ext_modules=[
+              Delhommeau_extension,
+              XieDelhommeau_extension,
+          ],
+          )

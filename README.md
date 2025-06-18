@@ -1,19 +1,33 @@
-symspellpy <br>
-[![PyPI version](https://badge.fury.io/py/symspellpy.svg)](https://badge.fury.io/py/symspellpy)
-[![Build Status](https://travis-ci.com/mammothb/symspellpy.svg?branch=master)](https://travis-ci.com/mammothb/symspellpy)
-[![Documentation Status](https://readthedocs.org/projects/symspellpy/badge/?version=latest)](https://symspellpy.readthedocs.io/en/latest/?badge=latest)
-[![codecov](https://codecov.io/gh/mammothb/symspellpy/branch/master/graph/badge.svg)](https://codecov.io/gh/mammothb/symspellpy)
-========
+# Capytaine: a linear potential flow BEM solver with Python.
 
-symspellpy is a Python port of [SymSpell](https://github.com/wolfgarbe/SymSpell) v6.5, which provides much higher speed and lower memory consumption. Unit tests
-from the original project are implemented to ensure the accuracy of the port.
+[![DOI](http://joss.theoj.org/papers/10.21105/joss.01341/status.svg)](https://doi.org/10.21105/joss.01341)
 
-Please note that the port has not been optimized for speed.
+Capytaine is Python package for the simulation of the interaction between water waves and floating bodies in frequency domain.
+It is built around a full rewrite of the open source Boundary Element Method (BEM) solver Nemoh for the linear potential flow wave theory.
 
-Install
-=======
-For installation instructions, see the `INSTALL.rst` file or the [install](https://symspellpy.readthedocs.io/en/latest/users/installing.html) documentation.
+## Installation
 
-Usage
-=====
-Check out the [examples](https://symspellpy.readthedocs.io/en/latest/examples/index.html) provided for sample usage.
+On Windows, macOS and Linux, using the [Conda package manager](https://www.anaconda.com/distribution/):
+
+```bash
+conda install -c conda-forge capytaine
+```
+
+## Documentation
+
+[https://ancell.in/capytaine/latest/](https://ancell.in/capytaine/latest/)
+
+## License
+
+Copyright (C) 2017-2022, Matthieu Ancellin
+
+Since April 2022, the development of Capytaine is funded by the Alliance for Sustainable Energy, LLC, Managing and Operating Contractor for the National Renewable Energy Laboratory (NREL) for the U.S. Department of Energy.
+
+This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+
+It is based on [Nemoh](https://lheea.ec-nantes.fr/logiciels-et-brevets/nemoh-presentation-192863.kjsp), which has been developed by Gérard Delhommeau, Aurélien Babarit et al., (École Centrale de Nantes) and is distributed under the Apache License 2.0.
+
+It includes code from [meshmagick](https://github.com/LHEEA/meshmagick/) by François Rongère (École
+Centrale de Nantes), licensed under the GNU General Public License (GPL).
