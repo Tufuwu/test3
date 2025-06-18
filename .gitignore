@@ -1,29 +1,7 @@
-*.py[co]
-
-# Pydev/Eclipse files
-.project
-.pydevproject
-.settings
-
-# PyCharm files
-/.idea
-*.cover
-
-# Created by editors
-*~
-\#*
-\.\#*
-*.swp
-*.nfsc*
-
-# Site-specific setup
-etc/site-init
-
-# Files from build of doc
-*.rst
-!/doc/source/extended_documentation/**
-/doc/build/
-
-# Code coverage files
-lib/.coverage
-lib/coverage.xml
+.coverage
+.tox
+*.pyc
+*.egg-info
+htmlcov
+build
+dist

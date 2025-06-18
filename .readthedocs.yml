@@ -1,9 +1,0 @@
-conda:
-    file: doc/rtd_environment.yml
-build:
-    image: latest
-python:
-    version: 3.6
-    system_packages: true
-formats:
-    - htmlzip
