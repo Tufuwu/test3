@@ -1,200 +1,95 @@
-# Debspawn
+# Limbo
+### A [Slack](https://slack.com/) chatbot
 
-![Build & Test](https://github.com/lkorigin/debspawn/workflows/Build%20&%20Test/badge.svg)
+![](https://travis-ci.org/llimllib/limbo.svg?branch=master)
 
-Debspawn is a tool to build Debian packages in an isolated environment. Unlike similar tools like `sbuild`
-or `pbuilder`, `debspawn` uses `systemd-nspawn` instead of plain chroots to manage the isolated environment.
-This allows Debspawn to isolate builds from the host system much further via container technology. It also allows
-for more advanced features to manage builds, for example setting resource limits for individual builds.
+## Installation
 
-Please keep in mind that Debspawn is *not* a security feature! While it provides a lot of isolation from the
-host system, you should not run arbitrary untrusted code with it. The usual warnings for all container technology
-apply here.
+1. Clone the repo
+2. [Create a bot user](https://my.slack.com/services/new/bot) if you don't have one yet, and copy the API Token
+3. export SLACK_TOKEN="your-api-token"
+4. `make run` (or `make repl` for local testing)
+5. Invite Limbo into any channels you want it in, or just message it in #general. Try typing `!gif dubstep cat` to test it out
 
-Debspawn also allows one to run arbitrary custom commands in its environment. This is used by the Laniakea[1] Spark workers
-to execute a variety of non-package builds and QA actions in the same environment in which we usually build packages.
+![kitten mittens](http://i.imgur.com/xhmD6QO.png)
 
-Debspawn was built with simplicity in mind. It should both be usable in an automated environment on large build farms,
-as well as on a personal workstation by a human user.
-Due to that, the most common operations are as easily accessible as possible. Additionally, `debspawn` will always try
-to do the right thing automatically before resorting to a flag that the user has to set.
-Options which change the build environment are - with one exception - not made available intentionally, so
-achieving reproducible builds is easier.
-See the FAQ below for more details.
+I recommend that you always run limbo in a [virtualenv](http://docs.python-guide.org/en/latest/dev/virtualenvs/) so that you are running in a clean environment.
 
-[1]: https://github.com/lkorigin/laniakea
+## Command Arguments
 
-## Usage
+* --test, -t: Enter command line mode to enter a limbo repl.
+* --hook: Specify the hook to test. (Defaults to "message").
+* -c: Run a single command.
+* --database, -d: Where to store the limbo sqlite3 database. Defaults to limbo.sqlite3.
+* --pluginpath, -pp: The path where limbo should look to find its plugins (defaults to /plugins).
 
-### Installing Debspawn
+## Environment Variables
 
-#### Via the Debian package
+* SLACK_TOKEN: Slack API token. Required.
+* LIMBO_LOGLEVEL: The logging level. Defaults to INFO.
+* LIMBO_LOGFILE: File to log info to. Defaults to none.
+* LIMBO_LOGFORMAT: Format for log messages. Defaults to `%(asctime)s:%(levelname)s:%(name)s:%(message)s`.
+* LIMBO_PLUGINS: Comma-delimited string of plugins to load. Defaults to loading all plugins in the plugins directory (which defaults to "limbo/plugins")
 
-On Debian/Ubuntu, simply run
-```bash
-sudo apt install debspawn
-```
-to start using Debspawn.
+Note that if you are getting an error message about not seeing environment variables, you may be running limbo as `sudo`, which will clear the environment. Use a virtualenv and always run limbo as a user process!
 
-#### Via the Git repository
+## Commands
 
-Clone the Git repository, install the (build and runtime) dependencies of `debspawn`:
-```bash
-sudo apt install xsltproc docbook-xsl python3-setuptools zstd systemd-container debootstrap
-```
+It's super easy to add your own commands! Just create a python file in the plugins directory with an `on_message` function that returns a string.
 
-You can the run `debspawn.py` directly from the Git repository, or choose to install it:
-```bash
-sudo pip3 install --no-binary debspawn .
-```
-(or use `sudo python3 setup.py install --single-version-externally-managed --root=/` to install without pip)
+You can use the `!help` command to print out all available commands and a brief help message about them. `!help <plugin>` will return just the help for a particular plugin.
 
-Debspawn requires at least Python 3.5. We try to keep the dependency footprint of this tool as
-small as possible, so it is not planned to raise that requirement or add any more dependencies
-anytime soon.
+By default, plugins won't react to messages from other bots (just messages from humans). Define an `on_bot_message` function to handle bot messages too. See the example plugins for an easy way to define these functions.
 
-### On superuser permission
+These are the current default plugins:
 
-If `sudo` is available on the system, `debspawn` will automatically request root permission
-when it needs it, there is no need to run it as root explicitly.
-If it can not obtain privileges, `debspawn` will exit with the appropriate error message.
+* [calc](https://github.com/llimllib/limbo/wiki/Calc-Plugin)
+* [emoji](https://github.com/llimllib/limbo/wiki/Emoji-Plugin)
+* [flip](https://github.com/llimllib/limbo/wiki/Flip-Plugin)
+* [gif](https://github.com/llimllib/limbo/wiki/Gif-Plugin)
+* [google](https://github.com/llimllib/limbo/wiki/Google-Plugin)
+* [help](https://github.com/llimllib/limbo/wiki/Help-Plugin)
+* [image](https://github.com/llimllib/limbo/wiki/Image-Plugin)
+* [map](https://github.com/llimllib/limbo/wiki/Map-Plugin)
+* [poll](https://github.com/llimllib/limbo/wiki/Poll-Plugin)
+* [stock](https://github.com/llimllib/limbo/wiki/Stock-Plugin)
+* [stockphoto](https://github.com/llimllib/limbo/wiki/Stock-Photo-Plugin)
+* [weather](https://github.com/llimllib/limbo/wiki/Weather-Plugin)
+* [wiki](https://github.com/llimllib/limbo/wiki/Wiki-Plugin)
+* [youtube](https://github.com/llimllib/limbo/wiki/Youtube-Plugin)
 
-### Creating a new image
+## Docker
 
-You can easily create images for any suite that has a script in `debootstrap`. For Debian Unstable for example:
-```bash
-$ debspawn create sid
-```
-This will create a Debian Sid (unstable) image for the current system architecture.
+  * How do I try out Limbo via docker?
+    - @PeterGrace maintains a public build of limbo, available from the docker registry.  Executing `make docker_run` will start the default bot.
+    - `make docker_stop` will stop the bot
+  * When I start the docker container, I see an error about unable to source limbo.env.  Is this a problem?
+    - No.  The limbo.env file only exists when using Kubernetes with the included opaque secret recipe for storing your environment variables.
+  * I'd like to develop plugins for Limbo, but would still like to use Docker to run the bot.  Is there a quick way to add plugins to the bot?
+    - Yes!  Use the included Dockerfile.dev as a template, and simply build via `make docker_build`  You'll then need to start the bot with your new_image_name, for example `docker run -d -e SLACK_TOKEN=<your_token> new_image_name`
 
-To create an image for testing Ubuntu builds:
-```bash
-$ debspawn create --arch=i386 cosmic
-```
-This creates an `i386` image for Ubuntu 18.10. If you want to use a different mirror than set by default, pass it with the `--mirror` option.
+## Contributors
 
-### Refreshing an image
-
-Just run `debspawn update` and give the details of the base image that should be updated:
-```bash
-$ debspawn update sid
-$ debspawn update --arch=i386 cosmic
-```
-
-This will update the base image contents and perform other maintenance actions.
-
-### Building a package
-
-You can build a package from its source directory, or just by passing a plain `.dsc` file to `debspawn`. If the result should
-be automatically signed, the `--sign` flag needs to be passed too:
-```bash
-$ cd ~/packages/hello
-$ debspawn build sid --sign
-
-$ debspawn build --arch=i386 cosmic ./hello_2.10-1.dsc
-```
-
-Build results are by default returned in `/var/lib/debspawn/results/`
-
-If you need to inject other local packages as build dependencies, place `deb` files in `/var/lib/debspawn/injected-pkgs` (or other location set in the config file).
-
-### Building a package - with git-buildpackage
-
-You can use a command like this to build your project with gbp and Debspawn:
-```bash
-$ gbp buildpackage --git-builder='debspawn build sid --sign'
-```
-
-You might also want to add `--results-dir ..` to the debspawn arguments to get the resulting artifacts in the directory to which the package repository was originally exported.
-
-### Manual interactive-shell action
-
-If you want to, you can log into the container environment and either play around in
-ephemeral mode with no persistent changes, or pass `--persistent` to `debspawn` so all changes are permanently saved:
-```bash
-$ debspawn login sid
-
-# Attention! This may alter the build environment!
-$ debspawn login --persistent sid
-```
-
-### Deleting a container image
-
-At some point, you may want to permanently remove a container image again, for example because the
-release it was built for went end of life.
-This is easily done as well:
-```bash
-$ debspawn delete sid
-$ debspawn delete --arch=i386 cosmic
-```
-
-### Running arbitrary commands
-
-This is achieved with the `debspawn run` command and is a bit more involved. Refer to the manual page
-and help output for more information.
-
-### Global configuration
-
-Debspawn will read a global configuration file from `/etc/debspawn/config.json`, or a configuration file in a location specified by the `--config` flag. If a config file is specified on the command line, the global file is ignored rather than merged.
-
-The config is a JSON file containing any of the following (all optional) keys:
-
-* `OSRootsDir`: directory for os images (`/var/lib/debspawn/containers/`)
-* `ResultsDir`: directory for build artifacts (`/var/lib/debspawn/results/`)
-* `APTCacheDir`: directory for debspawn's own package cache (`/var/lib/debspawn/aptcache/`)
-* `InjectedPkgsDir`: packages placed in this directory will be available as dependencies for builds (`/var/lib/debspawn/injected-pkgs/`)
-* `TempDir`: temporary directory used for running containers (`/var/tmp/debspawn/`)
-* `AllowUnsafePermissions`: allow usage of risker container permissions, such as binding the host `/dev` and `/proc` into the container (`false`)
-
-## FAQ
-
-#### Why use systemd-nspawn? Why not $other_container?
-
-Systemd-nspawn is a very lightweight container solution readily available without much (or any) setup on all Linux systems
-that are running systemd. It does not need any background daemon and while it is light on features, it
-fits the relatively simple usecase of building in an isolated environment perfectly.
-
-
-#### Do I need to set up apt-cacher-ng to use this efficiently?
-
-No - while `apt-cacher-ng` is generally a useful tool, it is not required for efficient use of `debspawn`. `debspawn` will cache
-downloaded packages between runs fully automatically, so packages only get downloaded when they have not been retrieved before.
-
-
-#### Is the build environment the same as sbuild?
-
-No, unfortunately. Due to the different technology used, there are subtle differences between sbuild chroots and `debspawn` containers.
-The differences should not have any impact on package builds, and any such occurrence is highly likely a bug in the package's
-build process. If you think it is not, please file a bug against Debspawn. We try to be as close to sbuild's default environment
-as possible.
-
-One way the build environment differs from Debian's default sbuild setup intentionally is in its consistent use of unicode.
-By default, `debspawn` will ensure that unicode is always available and default. If you do not want this behavior, you can pass
-the `--no-unicode` flag to `debspawn` to disable unicode in the tool itself and in the build environment.
-
-
-#### Will this replace sbuild?
-
-Not in the foreseeable future on Debian itself.
-Sbuild is a proven tool that works well for Debian and supports other OSes than Linux, while `debspawn` is Linux-only,
-a thing that will not change.
-However, Laniakea-using derivatives such as PureOS use the tool for building all packages and for constructing other build
-environments to e.g. build disk images.
-
-
-#### What is the relation of this project with Laniakea?
-
-The Laniakea job runner uses `debspawn` for a bunch of tasks and the integration with the Laniakea system is generally quite tight.
-Of course you can use `debspawn` without Laniakea and integrate it with any tool you want. Debspawn will always be usable
-without Laniakea automation.
-
-
-#### This tool is really fast! What is the secret?
-
-Surprisingly, building packages with `debspawn` is often a bit faster than using `pbuilder` and `sbuild` with their default settings.
-The speed gain comes in large part from the internal use of the Zstandard compression algorithm for base images. Zstd allows for fast
-decompression of the tarballs, which is exactly why it was chosen (LZ4 would be even faster, but Zstd actually is a good compromise between
-compression ration and speed). This shaves off a few seconds of time for each build that is used on base image decompression.
-Additionally, Debspawn uses `eatmydata` to disable fsync & co. by default in a few places, improving the time it takes to set up the build environment
-by quite a bit as well.
-If you want, you can configure other tools to make use of the same methods (eatmydata & zstd) as well and see if they run faster.
+* [@fsalum](https://github.com/fsalum)
+* [@rodvodka](https://github.com/rodvodka)
+* [@mattfora](https://github.com/mattfora)
+* [@dguido](https://github.com/dguido)
+* [@JoeGermuska](https://github.com/JoeGermuska)
+* [@MathyV](https://github.com/MathyV)
+* [@stopspazzing](https://github.com/stopspazzing)
+* [@noise](https://github.com/noise)
+* [@drewp](https://github.com/drewp)
+* [@TetraEtc](https://github.com/TetraEtc)
+* [@LivingInSyn](https://github.com/LivingInSyn)
+* [@reversegremlin](https://github.com/reversegremlin)
+* [@adamghill](https://github.com/adamghill)
+* [@PeterGrace](https://github.com/PeterGrace)
+* [@SkiftCreative](https://github.com/SkiftCreative)
+* [@diceone](https://github.com/diceone)
+* [@rnagle](https://github.com/rnagle)
+* [@topher200](https://github.com/topher200)
+* [@StewPoll](https://github.com/StewPoll)
+* [@eSoares](https://github.com/eSoares)
+* [@sweinstein89](https://github.com/sweinstein89)
+* [@fenwar](https://github.com/fenwar)
+* [@rdimartino](https://github.com/rdimartino)
