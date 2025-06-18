@@ -1,131 +1,89 @@
-#!/usr/bin/env python
-# coding: utf-8
+import platform
+from setuptools import setup, find_packages
+import pkg_resources
 
-import os
 
-from setuptools import dist
-dist.Distribution().fetch_build_eggs(['numpy'])
+install_requires = [
+    'PyYAML>=3.0',
+]
 
-from numpy.distutils.core import Extension, setup
+def package_installed(pkg):
+    """Check if package is installed"""
+    req = pkg_resources.Requirement.parse(pkg)
+    try:
+        pkg_resources.get_provider(req)
+    except pkg_resources.DistributionNotFound:
+        return False
+    else:
+        return True
 
-########################
-#  Fortran extensions  #
-########################
+# depend in Pillow if it is installed, otherwise
+# depend on PIL if it is installed, otherwise
+# require Pillow
+if package_installed('Pillow'):
+    install_requires.append('Pillow !=2.4.0,!=8.3.0,!=8.3.1')
+elif package_installed('PIL'):
+    install_requires.append('PIL>=1.1.6,<1.2.99')
+else:
+    install_requires.append('Pillow !=2.4.0,!=8.3.0,!=8.3.1')
 
-Delhommeau_source = [
-        "capytaine/green_functions/libDelhommeau/src/constants.f90",
-        "capytaine/green_functions/libDelhommeau/src/Delhommeau_integrals.f90",
-        "capytaine/green_functions/libDelhommeau/src/old_Prony_decomposition.f90",
-        "capytaine/green_functions/libDelhommeau/src/Green_Rankine.f90",
-        "capytaine/green_functions/libDelhommeau/src/Green_wave.f90",
-        "capytaine/green_functions/libDelhommeau/src/matrices.f90",
-    ]
+if platform.python_version_tuple() < ('2', '6'):
+    # for mapproxy-seed
+    install_requires.append('multiprocessing>=2.6')
 
-Delhommeau_extension = Extension(
-    name="capytaine.green_functions.Delhommeau_f90",
-    sources=Delhommeau_source,
-    extra_f90_compile_args=['-O2', '-fopenmp', '-cpp'],
-    extra_link_args=['-fopenmp'],
-    # # Uncomment the following lines to get more verbose output from f2py.
-    # define_macros=[
-    #     ('F2PY_REPORT_ATEXIT', 1),
-    #     ('F2PY_REPORT_ON_ARRAY_COPY', 1),
-    # ],
+def long_description(changelog_releases=10):
+    import re
+    import textwrap
+
+    readme = open('README.rst').read()
+    changes = ['Changes\n-------\n']
+    version_line_re = re.compile(r'^\d\.\d+\.\d+\S*\s20\d\d-\d\d-\d\d')
+    for line in open('CHANGES.txt'):
+        if version_line_re.match(line):
+            if changelog_releases == 0:
+                break
+            changelog_releases -= 1
+        changes.append(line)
+
+    changes.append(textwrap.dedent('''
+        Older changes
+        -------------
+        See https://raw.github.com/mapproxy/mapproxy/master/CHANGES.txt
+        '''))
+    return readme + ''.join(changes)
+
+setup(
+    name='MapProxy',
+    version="1.13.2",
+    description='An accelerating proxy for tile and web map services',
+    long_description=long_description(7),
+    author='Oliver Tonnhofer',
+    author_email='olt@omniscale.de',
+    url='https://mapproxy.org',
+    license='Apache Software License 2.0',
+    packages=find_packages(),
+    include_package_data=True,
+    entry_points = {
+        'console_scripts': [
+            'mapproxy-seed = mapproxy.seed.script:main',
+            'mapproxy-util = mapproxy.script.util:main',
+        ],
+    },
+    package_data = {'': ['*.xml', '*.yaml', '*.ttf', '*.wsgi', '*.ini']},
+    install_requires=install_requires,
+    classifiers=[
+        "Development Status :: 5 - Production/Stable",
+        "License :: OSI Approved :: Apache Software License",
+        "Operating System :: OS Independent",
+        "Programming Language :: Python :: 2.7",
+        "Programming Language :: Python :: 3.4",
+        "Programming Language :: Python :: 3.5",
+        "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
+        "Topic :: Internet :: Proxy Servers",
+        "Topic :: Internet :: WWW/HTTP :: WSGI",
+        "Topic :: Scientific/Engineering :: GIS",
+    ],
+    zip_safe=False,
 )
-
-XieDelhommeau_extension = Extension(
-    name="capytaine.green_functions.XieDelhommeau_f90",
-    sources=Delhommeau_source,
-    extra_f90_compile_args=['-O2', '-fopenmp', '-cpp', '-DXIE_CORRECTION'],
-    extra_link_args=['-fopenmp'],
-    # # Uncomment the following lines to get more verbose output from f2py.
-    # define_macros=[
-    #     ('F2PY_REPORT_ATEXIT', 1),
-    #     ('F2PY_REPORT_ON_ARRAY_COPY', 1),
-    # ],
-)
-
-
-########################################################
-#  Read version number and other info in __about__.py  #
-########################################################
-
-base_dir = os.path.dirname(__file__)
-src_dir = os.path.join(base_dir, "capytaine")
-
-about = {}
-with open(os.path.join(src_dir, "__about__.py")) as f:
-    exec(f.read(), about)
-
-
-##########
-#  Main  #
-##########
-
-if __name__ == "__main__":
-    setup(name=about["__title__"],
-          version=about["__version__"],
-          description=about["__description__"],
-          author=about["__author__"],
-          license=about["__license__"],
-          url=about["__uri__"],
-          packages=[
-              'capytaine',
-              'capytaine.meshes',
-              'capytaine.matrices',
-              'capytaine.bodies',
-              'capytaine.bodies.predefined',
-              'capytaine.bem',
-              'capytaine.green_functions',
-              'capytaine.post_pro',
-              'capytaine.ui',
-              'capytaine.ui.vtk',
-              'capytaine.io',
-              'capytaine.tools',
-          ],
-          install_requires=[
-              'numpy',
-              'scipy',
-              'pandas>=1.3',
-              'xarray',
-          ],
-          extras_require={
-            'develop': [
-              'pytest',
-              'hypothesis',
-              'ipython',
-              'matplotlib',
-              'vtk',
-              'meshio',
-              'pygmsh',
-              'gmsh',
-              'quadpy',
-              'bemio @ git+https://github.com/michaelcdevin/bemio.git@master-python3#egg=bemio',
-              'sphinx',
-              'sphinxcontrib-proof',
-            ],
-            'ci': [
-              'pytest',
-              'hypothesis',
-                ],
-            'extra': [
-              'ipython',
-              'matplotlib',
-              'vtk',
-              'meshio',
-              'pygmsh',
-              'gmsh',
-              'quadpy',
-              'bemio @ git+https://github.com/michaelcdevin/bemio.git@master-python3#egg=bemio',
-            ]
-          },
-          entry_points={
-              'console_scripts': [
-                  'capytaine=capytaine.ui.cli:main',
-              ],
-          },
-          ext_modules=[
-              Delhommeau_extension,
-              XieDelhommeau_extension,
-          ],
-          )

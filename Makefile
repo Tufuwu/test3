@@ -1,24 +1,40 @@
-compile_fortran:
-	python setup.py build_ext --inplace
+# Makefile for building MapProxy-Debian-packages
+#
+# (c) 2011 Stephan Holl, <stephan.holl@intevation.de>
+#
 
-install: compile_fortran
-	pip install .
+PYTHON=`which python`
+DESTDIR=/
+BUILDIR=$(CURDIR)/debian/mapproxy
+PROJECT=MapProxy
+VERSION=1.1.0
 
-develop: compile_fortran
-	pip install -e .[develop]
+all:
+	@echo "make source - Create source package"
+	@echo "make install - Install on local system"
+	@echo "make buildrpm - Generate a rpm package"
+	@echo "make builddeb - Generate a deb package"
+	@echo "make clean - Get rid of scratch and byte files"
 
-test: develop
-	python -m pytest
+source:
+	$(PYTHON) setup.py sdist $(COMPILE)
+
+install:
+	$(PYTHON) setup.py install --root $(DESTDIR) $(COMPILE)
+
+buildrpm:
+	$(PYTHON) setup.py bdist_rpm
+
+builddeb:
+	# build the source package in the parent directory
+	# then rename it to project_version.orig.tar.gz
+	$(PYTHON) setup.py sdist $(COMPILE) --dist-dir=../
+	rename -f 's/$(PROJECT)-(.*)\.tar\.gz/$(PROJECT)_$$1\.orig\.tar\.gz/' ../*
+	# build the package
+	dpkg-buildpackage -i -I -rfakeroot
 
 clean:
-	rm -f capytaine/green_functions/*.so
-	rm -rf build
-	rm -rf capytaine.egg-info/
-	rm -rf .pytest_cache/
-	rm -rf __pycache__ */__pycache__ */*/__pycache__
-
-pypi: clean
-	python setup.py sdist
-	python -m twine upload dist/capytaine*.tar.gz
-
-.PHONY: compile_fortran develop test clean pypi
+	$(PYTHON) setup.py clean
+	fakeroot $(MAKE) -f $(CURDIR)/debian/rules clean
+	rm -rf build/ MANIFEST
+	find . -name '*.pyc' -delete
