@@ -22,4 +22,5 @@ jobs:
         # run as root; current Ubuntu podman breaks user networking ("could not find slirp4netns")
         run: |
           chmod +x tests/run
+          chmod +x setup.py
           sudo tests/run ${{ matrix.scenario }}
