@@ -1,6 +1,12 @@
-dist/
-build/
-mahotas.egg-info/
+# Byte-compiled / optimized / DLL files
 *.pyc
-*.so
-*.pyd
+__pycache__/
+
+# Sphinx documentation
+docs/_build/
+
+# Jupyter notebook
+.ipynb_checkpoints
+
+# VSCode
+.vscode/
