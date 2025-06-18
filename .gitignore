@@ -1,12 +1,15 @@
-# Byte-compiled / optimized / DLL files
+*~
 *.pyc
-__pycache__/
-
-# Sphinx documentation
-docs/_build/
-
-# Jupyter notebook
-.ipynb_checkpoints
-
-# VSCode
-.vscode/
+*.pyo
+*.pyt
+*.pytc
+*.egg-info
+.*.swp
+.DS_Store
+/venv*
+.cache/
+build/
+.idea/
+.coverage
+.mypy_cache
+*.vscode
