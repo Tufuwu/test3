@@ -1,33 +1,20 @@
-MapProxy is written and maintained by Omniscale and
-various contributors:
+This software package was created and is maintained and improved by
 
-Development Lead
-----------------
+* Marcus von Appen <marcus@sysfault.org>
+* Austin Hurst
 
-- Oliver Tonnhofer <olt@omniscale.de>
+with contributions from
 
-Contributors
-------------
+* Steven Johnson
+* Marcel Rodrigues
+* Dan Gillett
 
-- Dominik Helle <helle@omniscale.de>
-- Marcel Radischat <radischat@omniscale.de>
+Thanks to everyone else for their assistance, support, fixes and improvements:
 
-Patches and Suggestions
------------------------
-
-- Bruno Binet
-- Denis Rykov
-- Frederic Junod
-- Iván Sánchez Ortega
-- Josh Doe
-- Kai Culemann
-- Keith Moss
-- Matt Walker
-- Miloslav Kmeť
-- Paul Norman
-- Ramūnas Dronga
-- Richard Duivenvoorde
-- Stephan Holl
-- Steven D. Lander
-- Tom Payne
-- Joseph Svrcek
+Sven Eckelmann, Marcel Rodrigues, Michael McCandless, Andreas Schiefer,
+Franz Schrober, Roger Flores, otus, Mihail Latyshov, Todd Rovito, Bil Bas,
+Dan McCombs, William Manire, Radomir Dopieralski, Joe Polak, Jordan F, DR0ID,
+Filip M. Nowak, David Farler, Max Bareiss, Kenneth Long, Robert Winkler,
+Jones Romao, smea lum, Linus Heckemann, DBLobster, Michael Noronha, mgorny,
+Szymon Zmilczak, Bao "Mantle" Rong, Zack Marvel, stillinbeta, Fabian Jarrett,
+Rob Rolls
