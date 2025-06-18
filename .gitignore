@@ -1,8 +1,4 @@
-*.pyc
-.*
-/svgpathtools/nonunittests
-build
-svgpathtools.egg-info
-!.travis.yml
-!/.gitignore
-!/.github
+*.egg-info/
+dist/
+psrqpy/_version.py
+__pycache__/
