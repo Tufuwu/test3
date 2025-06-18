@@ -24,7 +24,7 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
       - name: Run tests
-        run: python -m pytest test
+        run: python -m pytest --cov-report=xml --cov=symspellpy
 
   coverage:
     runs-on: ubuntu-latest
