@@ -1,42 +1,47 @@
-export W := $(shell pwd)
+.PHONY: setup setup_pipenv install docs-serve update test test_mypy test_unit test_format test_doctests assert_package_safety publish format enforce_docs
+PIPENV_VERBOSITY=-1
 
-# create a full source package
-sdist: build
-	python setup.py sdist
-	-# mv dist/pyang-*.tar.gz dist/pyang_src-*.tar.gz
+setup: setup_pipenv install
 
-# create a minimal package
-dist: build
-	python setup.py sdist
+setup_pipenv:
+	pip install pipenv
 
-.PHONY:	test tags clean doc build lint pylint
-build: doc pyang/xpath_parsetab.py
+install:
+	pipenv install --dev --skip-lock
 
-doc:
-	(cd doc; $(MAKE))
+update:
+	pipenv update --dev
+	pipenv clean
+	pipenv run  pip list --outdated
 
-pyang/xpath_parsetab.py: pyang/xpath_parser.py
-	python -m pyang.xpath_parser
+docs_serve:
+	pipenv run mkdocs serve --dev-addr 0.0.0.0:8004
 
-test: lint
-	(cd test; $(MAKE) test)
+test: test_mypy test_unit enforce_docs test_doctests test_format
 
-lint:
-	flake8 .
+test_mypy:
+	pipenv run mypy --config-file mypy.ini lagom tests
 
-pylint:
-	touch bin/__init__.py  # makes pylint tell pyang script apart from pyang package
-	pylint bin/pyang bin/json2xml bin/yang2html pyang $(shell find test -name '*.py') || true
-	rm -f bin/__init__.py
+test_unit:
+	pipenv run pytest tests -vv
 
-clean:
-	rm -f pyang/parser.out pyang/xpath_parsetab.py
-	(cd test && $(MAKE) clean)
-	(cd doc &&  $(MAKE) clean)
-	python setup.py clean --all
-	rm -rf build dist MANIFEST
-	find . -name "*.pyc" -delete
-	find . -name "__pycache__" -delete
+test_format:
+	pipenv run black --check tests lagom
 
-tags:
-	find . -name "*.py" | etags -
+test_doctests:
+	pipenv run  pytest --doctest-modules lagom
+
+assert_package_safety:
+	pip freeze | safety check --stdin
+
+publish:
+	./scripts/publish.sh
+
+coverage:
+	pipenv run pytest tests -vv --cov=lagom --cov-report=html
+
+format:
+	pipenv run black tests lagom
+
+enforce_docs:
+	pipenv run interrogate --ignore-semiprivate --ignore-magic --ignore-private --fail-under 70 -vv lagom

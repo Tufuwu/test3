@@ -1,183 +1,101 @@
-# pyang #
+# Lagom - Dependency injection container
+[![](https://img.shields.io/pypi/pyversions/lagom.svg)](https://pypi.org/pypi/lagom/)
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/meadsteve/lagom/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/meadsteve/lagom/?branch=master)
+[![Code Coverage](https://scrutinizer-ci.com/g/meadsteve/lagom/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/meadsteve/lagom/?branch=master)
+![PyPI](https://img.shields.io/pypi/v/lagom.svg?style=plastic)
+[![Downloads](https://pepy.tech/badge/lagom/month)](https://pepy.tech/project/lagom/)
 
-[![Release](https://img.shields.io/github/v/release/mbj4668/pyang)](https://github.com/mbj4668/pyang/releases) [![Build Status](https://github.com/mbj4668/pyang/actions/workflows/run-tests/badge.svg)](https://github.com/mbj4668/pyang/actions)
+## What
+Lagom is a dependency injection container designed to give you "just enough"
+help with building your dependencies. The intention is that almost
+all of your code doesn't know about or rely on lagom. Lagom will
+only be involved at the top level to pull everything together.
 
-## Overview ##
+### Features
 
-pyang is a YANG validator, transformator and code generator, written
-in python. It can be used to validate YANG modules for correctness, to
-transform YANG modules into other formats, and to write plugins to
-generate code from the modules.
+ * Typed based auto wiring with zero configuration.
+ * Fully based on types. Strong integration with mypy.
+ * Minimal changes to existing code.
+ * Integration with a few common web frameworks.
+ * Support for async python.
+ * Thread-safe at runtime
+ 
+You can see a [comparison to other frameworks here](./docs/comparison.md)
 
-YANG ([RFC 7950](http://tools.ietf.org/html/rfc7950)) is a data modeling language for NETCONF ([RFC 6241](http://tools.ietf.org/html/rfc6241)), developed by the IETF [NETMOD](http://www.ietf.org/html.charters/netmod-charter.html) WG.
-
-## Documentation ##
-
-See [Documentation](https://github.com/mbj4668/pyang/wiki/Documentation).
-
-## Installation ##
-
-- **1 PyPI**
-
-Pyang can be installed from [PyPI](https://pypi.python.org/pypi):
-
-```sh
-# pip install pyang
+## Installation
+```bash
+pip install lagom
+# or: 
+# pipenv install lagom
+# poetry add lagom
+```
+## Usage
+Everything in Lagom is based on types. To create an object
+you pass the type to the container:
+```python
+container = Container()
+some_thing = container[SomeClass]
 ```
 
-- **2 Source**
+### Auto-wiring (with zero configuraton)
+Most of the time Lagom doesn't need to be told how to build your classes. If 
+the `__init__` method has type hints then lagom will use these to inject
+the correct dependencies. The following will work without any special configuration:
 
-```sh
-  git clone https://github.com/mbj4668/pyang.git
-  cd pyang
-  python setup.py install
-  (this might require root access)
+```python
+class MyDataSource:
+    pass
+    
+class SomeClass:
+   def __init__(datasource: MyDataSource)
+      pass
+
+container = Container()
+some_thing = container[SomeClass] # An instance of SomeClass will be built with an instance of MyDataSource provided
 ```
 
+and later if you extend your class no changes are needed to lagom:
 
-To install in a different location, run:
+```python
+class SomeClass:
+   def __init__(datasource: MyDataSource, service: SomeFeatureProvider)
+      pass
 
-```sh
-  python setup.py install --prefix=/usr/local
+# Note the following code is unchaged
+container = Container()
+some_thing = container[SomeClass] # An instance of SomeClass will be built with an instance of MyDataSource provided
 ```
 
-If you do this, it is recommended to set the environment variable
-**YANG_INSTALL** to the prefix directory.  This ensures that pyang will
-find standard YANG modules. In addition, make sure that **PYTHONPATH** is set
-to something as follows:
-
-```sh
-export PYTHONPATH=/usr/local/lib/python2.7/site-packages
+### Singletons
+You can tell the container that something should be a singleton:
+```python
+container[SomeExpensiveToCreateClass] = SomeExpensiveToCreateClass("up", "left")
 ```
 
-or whatever version of python you are running.
+### Explicit build instructions when required
+You can explicitly tell the container how to construct something by giving it a function:
 
-
-Run locally without installing
-
-```sh
-export PATH=`pwd`/bin:$PATH
-export MANPATH=`pwd`/man:$MANPATH
-export PYTHONPATH=`pwd`:$PYTHONPATH
-export YANG_MODPATH=`pwd`/modules:$YANG_MODPATH
-export PYANG_XSLT_DIR=`pwd`/xslt
-export PYANG_RNG_LIBDIR=`pwd`/schema
+```python
+container[SomeClass] = lambda: SomeClass("down", "spiral")
 ```
 
-or:
+All of this is done without modifying any of your classes. This is one of the design goals of
+lagom. 
 
-```sh
-source ./env.sh
+### Hooks in to existing systems
+A decorator is provided to hook top level functions into the container.
+
+```python
+@bind_to_container(container)
+def handle_move_post_request(request: typing.Dict, game: Game = lagom.injectable):
+    # do something to the game
+    return Response()
 ```
 
-## Compatibility ##
+(There's also a few common framework integrations [provided here](https://lagom-di.readthedocs.io/en/latest/framework_integrations/))
 
-pyang is compatible with the following IETF RFCs:
+[Full docs here here](https://lagom-di.readthedocs.io/en/latest/)
 
-  * [RFC 6020: YANG - A Data Modeling Language for the Network Configuration Protocol (NETCONF)](https://tools.ietf.org/html/rfc6020)
-  * [RFC 6087: Guidelines for Authors and Reviewers of YANG Data Model Documents](https://tools.ietf.org/html/rfc6087)
-  * [RFC 6110: Mapping YANG to Document Schema Definition Languages and Validating NETCONF Content](https://tools.ietf.org/html/rfc6110)
-  * [RFC 6643: Translation of Structure of Management Information Version 2 (SMIv2) MIB Modules to YANG Modules](https://tools.ietf.org/html/rfc6643)
-  * [RFC 7950: The YANG 1.1 Data Modeling Languages](https://tools.ietf.org/html/rfc7950)
-  * [RFC 7952: Defining and Using Metadata with YANGs](https://tools.ietf.org/html/rfc7952)
-  * [RFC 8040: RESTCONF Protocols](https://tools.ietf.org/html/rfc8040)
-  * [RFC 8407: Guidelines for Authors and Reviewers of Documents Containing YANG Data Models](https://tools.ietf.org/html/rfc8407)
-  * [RFC 8791: YANG Data Structure Extensions](https://tools.ietf.org/html/rfc8791)
+## Contributing
 
-## Features ##
-
-  * Validate YANG modules.
-  * Convert YANG modules to YIN, and YIN to YANG.
-  * Translate YANG data models to DSDL schemas, which can be used for
-    validating various XML instance documents. See
-    [InstanceValidation](https://github.com/mbj4668/pyang/wiki/InstanceValidation).
-  * Translate YANG data models to XSD.
-  * Generate UML diagrams from YANG models. See
-    [UMLOutput](https://github.com/mbj4668/pyang/wiki/UMLOutput) for
-    an example.
-  * Generate compact tree representation of YANG models for quick
-    visualization. See
-    [TreeOutput](https://github.com/mbj4668/pyang/wiki/TreeOutput) for
-    an example.
-  * Generate a skeleton XML instance document from the data model.
-  * Schema-aware translation of instance documents encoded in XML to
-    JSON and vice-versa. See
-    [XmlJson](https://github.com/mbj4668/pyang/wiki/XmlJson).
-  * Plugin framework for simple development of other outputs, such as
-    code generation.
-
-## Usage ##
-
-```sh
-pyang -h
-```
-
-or
-
-```sh
-man pyang
-```
-
-## Code structure ##
-
-* **bin/**
-  Executable scripts.
-
-* **pyang/**
-  Contains the pyang library code.
-
-* **pyang/__init__.py**
-  Initialization code for the pyang library.
-
-* **pyang/context.py**
-  Defines the Context class, which represents a parsing session
-
-* **pyang/repository.py**
-  Defines the Repository class, which is used to access modules.
-
-* **pyang/syntax.py**
-  Generic syntax checking for YANG and YIN statements.
-  Defines regular expressions for argument checking of core
-  statements.
-
-* **pyang/grammar.py**
-  Generic grammar for YANG and YIN.
-  Defines chk_module_statements() which validates a parse tree
-  according to the grammar.
-
-* **pyang/statements.py**
-  Defines the generic Statement class and all validation code.
-
-* **pyang/yang_parser.py**
-  YANG tokenizer and parser.
-
-* **pyang/yin_parser.py**
-  YIN parser.  Uses the expat library for XML parsing.
-
-* **pyang/types.py**
-  Contains code for checking built-in types.
-
-* **pyang/plugin.py**
-  Plugin API.  Defines the class PyangPlugin which all plugins
-  inherits from. All output handlers are written as plugins.
-
-* **pyang/plugins/**
-  Directory where plugins can be installed.  All plugins in this
-  directory are automatically initialized when the library is
-  initialized.
-
-* **pyang/translators/**
-  Contains output plugins for YANG, YIN, XSD, and DSDL translation.
-
-* **xslt**
-  Contains XSLT style sheets for generating RELAX NG, Schematron and
-  DSRL schemas and validating instance documents. Also included is the
-  free implementation of ISO Schematron by Rick Jelliffe from
-  http://www.schematron.com/ (files iso_schematron_skeleton_for_xslt1.xsl,
-  iso_abstract_expand.xsl and iso_svrl_for_xslt1.xsl).
-
-* **schema**
-  Contains RELAX NG schemas and pattern libraries.
-
-
-
+Contributions are very welcome. [Please see instructions here](docs/development_of_lagom.md)
