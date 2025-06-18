@@ -42,7 +42,7 @@ jobs:
           liblcms2-dev \
           libmagickwand-dev \
           libopenexr-dev \
-          libcfitsio3-dev \
+          libcfitsio-dev \
           libfftw3-dev \
           libgif-dev \
           libgs-dev \
