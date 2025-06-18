@@ -1,3 +1,2 @@
-include tests/*.py
-include COPYING*
-include NEWS
+include *.svg LICENSE*
+recursive-include test *.svg

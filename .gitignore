@@ -1,5 +1,8 @@
-/dist
-__pycache__
-*.egg-info
-MANIFEST
-/build
+*.pyc
+.*
+/svgpathtools/nonunittests
+build
+svgpathtools.egg-info
+!.travis.yml
+!/.gitignore
+!/.github
