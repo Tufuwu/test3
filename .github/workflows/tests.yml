@@ -20,4 +20,6 @@ jobs:
 
       - name: Run unit tests
         # run as root; current Ubuntu podman breaks user networking ("could not find slirp4netns")
-        run: sudo tests/run ${{ matrix.scenario }}
+        run: |
+          chmod +x tests/run
+          sudo tests/run ${{ matrix.scenario }}
