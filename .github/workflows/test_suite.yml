@@ -1,8 +1,7 @@
 name: Launch tests
 
 on:
-  pull_request:
-    types: [opened, synchronize]
+
   push:
 
   test:
