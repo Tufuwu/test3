@@ -1,7 +1,7 @@
 futures; python_version == '2.7'
 imageio==2.6.1
 mss==4.0.3
-robotframework
+robotframework==5.0.1
 robotstatuschecker
 pillow
 opencv-python == 4.2.0.32; python_version == '2.7'
