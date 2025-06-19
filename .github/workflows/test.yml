@@ -17,6 +17,7 @@ jobs:
         ports:
           - 27017:27017
     strategy:
+      fail-fast: false
       matrix:
         python-version: [3.7, 3.8, 3.9, pypy3]
         django-version: ["Django>=2.2,<2.3", "Django>=3.0,<3.2", "Django>=3.2,<3.3"]
