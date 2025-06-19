@@ -1,89 +1,76 @@
-#!/usr/bin/env python
-import os
-from codecs import open
+# Copyright 2009 Shikhar Bhushan
+# Copyright 201[2-5] Leonidas Poulopoulos (@leopoul)
+# Copyright 2013 Ebben Aries
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
-from setuptools import find_packages, setup
+from setuptools import setup, find_packages
+from distutils.command.install import install as _install
 
-here = os.path.abspath(os.path.dirname(__file__))
+import sys
+import platform
+import codecs
+import versioneer
 
-with open(os.path.join(here, 'README.rst'), 'r', 'utf-8') as handle:
-    readme = handle.read()
+__author__ = "Shikhar Bhushan, Leonidas Poulopoulos, Ebben Aries, Einar Nilsen-Nygaard"
+__author_email__ = "shikhar@schmizz.net, lpoulopoulos@verisign.com, exa@dscp.org, einarnn@gmail.com"
+__licence__ = "Apache 2.0"
+
+if sys.version_info.major == 2 and sys.version_info.minor < 7:
+    print ("Sorry, Python < 2.7 is not supported")
+    exit()
+
+#parse requirements
+req_lines = [line.strip() for line in open("requirements.txt").readlines()]
+install_reqs = list(filter(None, req_lines))
+
+test_req_lines = [line.strip() for line in open("test-requirements.txt").readlines()]
+test_reqs = list(filter(None, test_req_lines))
+
+with codecs.open('README.rst', 'r', encoding='utf8') as file:
+    long_description = file.read()
 
 
-setup(
-    name='nameko',
-    version='2.13.0',
-    description='A microservices framework for Python that lets service '
-                'developers concentrate on application logic and encourages '
-                'testability.',
-    long_description=readme,
-    author='onefinestay',
-    url='http://github.com/nameko/nameko',
-    packages=find_packages(exclude=['test', 'test.*']),
-    install_requires=[
-        "dnspython<2",
-        "eventlet>=0.20.1",
-        "kombu>=4.2.0,<5",
-        "mock>=1.2",
-        "path.py>=6.2",
-        "pyyaml>=5.1",
-        "requests>=1.2.0",
-        "six>=1.9.0",
-        "werkzeug>=0.9",
-        "wrapt>=1.0.0",
-    ],
-    extras_require={
-        'dev': [
-            "astroid==1.6.5",
-            "coverage==4.5.1",
-            "flake8==3.3.0",
-            "isort==4.2.15",
-            "mccabe==0.6.1",
-            "pycodestyle==2.3.1",
-            "pyflakes==1.5.0",
-            "pylint==1.7.1",
-            "pytest==4.3.1",
-            "pytest-cov==2.5.1",
-            "pytest-timeout==1.3.3",
-            "requests==2.19.1",
-            "urllib3==1.23",
-            "websocket-client==0.48.0",
-        ],
-        'docs': [
-            "pyenchant==1.6.11",
-            "Sphinx==1.8.5",
-            "sphinxcontrib-spelling==4.2.1",
-            "sphinx-nameko-theme==0.0.3",
-        ],
-        'examples': [
-            "nameko-sqlalchemy==0.0.1",
-            "PyJWT==1.5.2",
-            "moto==1.3.6",
-            "bcrypt==3.1.3",
-            "regex==2018.2.21"
-        ]
-    },
-    entry_points={
-        'console_scripts': [
-            'nameko=nameko.cli.main:main',
-        ],
-        'pytest11': [
-            'pytest_nameko=nameko.testing.pytest'
-        ]
-    },
-    zip_safe=True,
-    license='Apache License, Version 2.0',
-    classifiers=[
-        "Programming Language :: Python",
-        "Operating System :: MacOS :: MacOS X",
-        "Operating System :: POSIX",
-        "Programming Language :: Python :: 2",
-        "Programming Language :: Python :: 2.7",
-        "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.5",
-        "Programming Language :: Python :: 3.6",
-        "Topic :: Internet",
-        "Topic :: Software Development :: Libraries :: Python Modules",
-        "Intended Audience :: Developers",
-    ]
-)
+setup(name='ncclient',
+      version=versioneer.get_version(),
+      cmdclass=versioneer.get_cmdclass(),
+      description="Python library for NETCONF clients",
+      long_description = long_description,
+      author=__author__,
+      author_email=__author_email__,
+      url="https://github.com/ncclient/ncclient",
+      packages=find_packages(exclude=['test', 'test.*']),
+      install_requires=install_reqs,
+      tests_require=test_reqs,
+      license=__licence__,
+      platforms=["Posix; OS X; Windows"],
+      keywords=['NETCONF', 'NETCONF Python client', 'Juniper Optimization', 'Cisco NXOS Optimization'],
+      python_requires='>=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*',
+      classifiers=[
+          'Development Status :: 5 - Production/Stable',
+          'Programming Language :: Python :: 2.7',
+          'Programming Language :: Python :: 3.5',
+          'Programming Language :: Python :: 3.6',
+          'Programming Language :: Python :: 3.7',
+          'Topic :: System :: Networking',
+          'Intended Audience :: Developers',
+          'Operating System :: OS Independent',
+          'Topic :: Software Development :: Libraries :: Python Modules',
+      ])
+
+
+
+
+
+
+

@@ -1,9 +1,7 @@
-include readme.rst
-include LICENSE
-include pylintrc
-
+include *.rst requirements.txt LICENSE
 graft docs
-prune docs/build
-
-graft test
-global-exclude *.pyc
+graft examples
+include versioneer.py
+include ncclient/_version.py
+include test
+include test-requirements.txt
