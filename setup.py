@@ -1,42 +1,55 @@
 #!/usr/bin/env python
 
+import re
+import sys
+from os.path import abspath, dirname, join
 from setuptools import setup
-import os.path
 
-ns = {}
-with open(os.path.join(os.path.dirname(__file__), 'mf2py/version.py'))\
-        as version_file:
-    exec(version_file.read(), ns)
+CURDIR = dirname(abspath(__file__))
+REQUIREMENTS = ['robotframework >= 3.0', 'pillow >= 5.2.0']
+with open(join(CURDIR, 'src', 'ScreenCapLibrary', 'version.py')) as f:
+    VERSION = re.search("\nVERSION = '(.*)'", f.read()).group(1)
+with open(join(CURDIR, 'README.rst')) as f:
+    DESCRIPTION = f.read()
+if sys.version_info[0] < 3:
+    REQUIREMENTS.append('imageio == 2.6.1')
+    REQUIREMENTS.append('futures >= 3.2.0')
+    REQUIREMENTS.append('mss == 4.0.3')
+    REQUIREMENTS.append('opencv-python == 4.2.0.32')
+else:
+    REQUIREMENTS.append('imageio >= 2.6.1')
+    REQUIREMENTS.append('mss >= 4.0.3')
+    REQUIREMENTS.append('opencv-python >= 4.2.0.32')
+    REQUIREMENTS.append('pyautogui >= 0.9.52')
+CLASSIFIERS = '''
+Development Status :: 5 - Production/Stable
+License :: OSI Approved :: Apache Software License
+Operating System :: OS Independent
+Programming Language :: Python
+Programming Language :: Python :: 2.7
+Programming Language :: Python :: 3.4
+Programming Language :: Python :: 3.5
+Programming Language :: Python :: 3.6
+Programming Language :: Python :: 3.7
+Programming Language :: Python :: 3.8
+Topic :: Software Development :: Testing
+Framework :: Robot Framework
+Framework :: Robot Framework :: Library
+'''.strip().splitlines()
 
-
-setup(name='mf2py',
-      version=ns['__version__'],
-      description='Python Microformats2 parser',
-      long_description=open('README.md').read(),
-      long_description_content_type='text/markdown',
-      author='Tom Morris',
-      author_email='tom@tommorris.org',
-      url='http://microformats.org/wiki/mf2py',
-      install_requires=[
-          # Keep in sync with requirements.txt!
-          'html5lib>=1.0.1',
-          'requests>=2.18.4',
-          'BeautifulSoup4>=4.6.0',
-      ],
-      tests_require=[
-          'lxml',
-          'mock',
-          'nose',
-      ],
-      packages=['mf2py'],
-      package_data={'mf2py': ['backcompat-rules/*.json']},
-      test_suite='nose.collector',
-      classifiers=[
-          'Development Status :: 4 - Beta',
-          'Intended Audience :: Developers',
-          'License :: OSI Approved :: MIT License',
-          'Natural Language :: English',
-          'Programming Language :: Python :: 2.7',
-          'Programming Language :: Python :: 3',
-          'Topic :: Text Processing :: Markup :: HTML'
-      ])
+setup(
+    name='robotframework-screencaplibrary',
+    version=VERSION,
+    description='Robot Framework test library for taking screenshots',
+    long_description=DESCRIPTION,
+    author=u'Mihai Pârvu',
+    author_email='mihai-catalin.parvu@nokia.com',
+    url='https://github.com/mihaiparvu/ScreenCapLibrary',
+    license='Apache License 2.0',
+    keywords='robotframework testing testautomation screenshot screencap',
+    platforms='any',
+    classifiers=CLASSIFIERS,
+    install_requires=REQUIREMENTS,
+    package_dir={'': 'src'},
+    packages=['ScreenCapLibrary']
+)
