@@ -1,119 +1,296 @@
-# moira-trigger-role
+checkQC
+=======
+[![Build Status](https://travis-ci.org/Molmed/checkQC.svg?branch=master)](https://travis-ci.org/Molmed/checkQC)
+[![codecov](https://codecov.io/gh/Molmed/checkQC/branch/master/graph/badge.svg)](https://codecov.io/gh/Molmed/checkQC)
+[![PyPI](https://img.shields.io/pypi/v/checkqc.svg)](https://pypi.python.org/pypi/checkQC)
+[![Conda](https://img.shields.io/conda/v/bioconda/checkqc)](https://anaconda.org/bioconda/checkqc)
+[![Documentation Status](https://readthedocs.org/projects/checkqc/badge/?version=latest)](http://checkqc.readthedocs.io/en/latest/?badge=latest)
+[![DOI](http://joss.theoj.org/papers/10.21105/joss.00556/status.svg)](https://doi.org/10.21105/joss.00556)
 
-If you're new here, better check out our main [README](https://github.com/moira-alert/moira/blob/master/README.md).
+More documentation is available at [http://checkqc.readthedocs.io/](http://checkqc.readthedocs.io/en/latest/)
 
-Ansible role to create, update and delete Moira triggers based on
-[python-moira-client](https://github.com/moira-alert/python-moira-client)
+CheckQC is a program designed to check a set of quality criteria against an Illumina runfolder.
 
-## Role usage
+This is useful as part of a pipeline, where one needs to evaluate a set of quality criteria after demultiplexing. CheckQC is fast, and
+should finish within a few seconds. It will warn if there are problems breaching warning criteria, and will emit a non-zero exit status if it finds
+any errors, thus making it easy to stop further processing if the run that is being evaluated needs troubleshooting.
 
-[Installation](#installation)
--   [Ansible Galaxy](#ansible-galaxy)
--   [Ansible Role with Makefile](#ansible-role)
+CheckQC has been designed to be modular, and exactly which "qc handlers" are executed with which parameters for a specific run type (i.e. machine
+type and run length) is determined by a configuration file.
 
-[Configuration](#configuration)
--   [Authentication](#authentication)
--   [Trigger state](#trigger-state)
+Instrument types supported in checkQC are the following:
+ - HiSeqX
+ - HiSeq2500
+ - iSeq
+ - MiSeq
+ - NovaSeq
+ - NovaSeq X Plus
 
-[Role tasks](#role-tasks)
--   [Manage dependencies](#manage-dependencies)
--   [Manage triggers](#manage-triggers)
-
-## <a name="installation"></a> Installation
-
-### <a name="ansible-galaxy"></a> Ansible Galaxy
-
-```
-ansible-galaxy install moira-alert.moira-trigger-role
-```
-
-### <a name="ansible-role"></a> Ansible Role with Makefile
-
-Place the contents from [example](https://github.com/moira-alert/moira-trigger-role/blob/master/tests/Makefile) inside your Makefile to download role from Ansible Galaxy <br>
-and create playbook to manage triggers with predefined parameters inside your vars files:
+Install instructions
+--------------------
+CheckQC requires **Python 3.10**. CheckQC can be installed with pip.
 
 ```
-- name: manage moira triggers
-  hosts: serviceName
-  roles:
-    - role: moira-alert.moira-trigger-role
-      moira_api: http://localhost:8081/api
-      moira_triggers: '{{ ServiceNameTriggers }}'
-      delegate_to: 127.0.0.1
-      run_once: True
-      dry_run: False
+pip install checkqc
 ```
 
-> **Note:** All tasks must be done from your ansible control machine
-
-## <a name="configuration"></a> Configuration
-
-Predefine following parameters inside your vars files. Working examples can be found [here](https://github.com/moira-alert/moira-trigger-role/tree/master/tests/group_vars)
-
-### <a name="authentication"></a> Authentication
-
-| Parameter | Description | Type | Required | Default | Example |
-| ------ | ------ | ------ | ------ | ------ | ------ |
-| moira_api | Url of Moira API | String | True | N/A | <http://localhost/api/> |
-| moira_auth_custom | Custom authorization headers | Dictionary | False | None | Authorization: apiKey |
-| moira_auth_user | Auth User (Basic Auth) | String | False | None | admin |
-| moira_auth_pass | Auth Password (Basic Auth) | String | False | None | pass |
-| moira_auth_login | Auth Login (Basic Auth) | String | False | None | admin |
-
-> **Note:** Use moira_auth_custom if you're using additional authentication mechanisms instead of <br>
-> single basic auth, use moira_auth_user, moira_auth_pass and moira_auth_login otherwise. <br>
-> moira_auth_login must contain value for X-Webauth-User header.
-
-### <a name="trigger-state"></a> Trigger state
-
-| Parameter | Description | Type | Required | Choices | Default | Example |
-| ------ | ------ | ------ | ------ | ------ | ------ | ------ |
-| state | Desired state of a trigger | String | True | present <br> absent | N/A | present |
-| id | Trigger id | String | True | N/A | N/A | trigger_1 |
-| name | Trigger name | String | True | N/A | N/A | Trigger 1 |
-| tags | List of trigger tags | List | True | N/A | N/A | - Project <br> - Service |
-| targets | List of trigger targets <br> [See available graphite functions](https://github.com/go-graphite/carbonapi/blob/master/COMPATIBILITY.md#functions) | List | True | N/A | N/A | - prefix.*.postfix |
-| warn_value | Value to set WARN status | Float | False | N/A | None | 300 |
-| error_value | Value to set ERROR status | Float | False | N/A | None | 600 |
-| trigger_type | Type of a trigger | String | False | rising <br> falling <br> expression | N/A | rising |
-| expression | [C-like expression](https://github.com/Knetic/govaluate) | String | False | N/A | Empty string | t1 >= 10 ? ERROR : (t1 >= 1 ? WARN : OK) |
-| ttl | Time to Live (in seconds) | Int | False | N/A | 600 | 600 |
-| ttl_state | Trigger state at the expiration of 'ttl' | String | False | NODATA <br> DEL <br> ERROR <br> WARN <br> OK | NODATA | WARN |
-| is_remote | Use remote storage | Bool | False | True <br> False | False | False |
-| desc | Trigger description | String | False | N/A | Empty string | trigger test description |
-| mute_new_metrics | Mute new metrics | Bool | False | True <br> False | False | False |
-| disabled_days | Days for trigger to be in silent mode | List | False | N/A | Empty list | - Mon <br> - Wed |
-| timezone_offset | Timezone offset (minutes) | Int | False | N/A | 0 | -180 |
-| start_hour | Start hour to send alerts | Int | False | N/A | 0 | 9 |
-| start_minute | Start minute to send alerts | Int | False | N/A | 0 | 0 |
-| end_hour | End hour to send alerts | Int | False | N/A | 23 | 17 |
-| end_minute | End minute to send alerts | Int | False | N/A | 59 | 0 |
-| alone_metrics | Set some target as single metric | Object, example:  | False | N/A | {'t1': False, 't2': True, ... 'tN': True} | {'t1': False, 't2': False} |
-
-## <a name="role-tasks"></a> Role tasks
-
-### <a name="manage-dependencies"></a> Manage dependencies
-
-Task to check [python-moira-client](https://github.com/moira-alert/python-moira-client) is  installed (via pip)
-
-### <a name="manage-triggers"></a> Manage triggers
-
-Use state 'present' to create and edit existing triggers:
+Alternatively it can be installed with conda using the bioconda channel:
 
 ```
- - name: create trigger
-   moira_trigger:
-      ...
-      state: present
-      ...  
+conda install -c bioconda checkqc
 ```
 
-To delete existing triggers use state 'absent':
+Running CheckQC
+---------------
+
+After installing CheckQC you can run it by specifying the path to the runfolder you want to
+analyze like this:
 
 ```
- - name: remove trigger
-   moira_trigger:
-      ...
-      state: absent
-      ...  
+checkqc <RUNFOLDER>
+```
+
+This will use the default configuration file packaged with CheckQC if you want to specify
+your own custom file, you can do so by adding a path to the config like this:
+
+```
+checkqc --config_file <path to your config> <RUNFOLDER>
+```
+
+When CheckQC starts and no path to the config file is specified it will give you
+the path to where the default file is located on your system, if you want a template
+that you can customize according to your own needs.
+
+When you run CheckQC you can expect to see output similar to this:
+
+```
+checkqc  tests/resources/170726_D00118_0303_BCB1TVANXX/
+INFO     ------------------------
+INFO     Starting checkQC (1.1.2)
+INFO     ------------------------
+INFO     Runfolder is: tests/resources/170726_D00118_0303_BCB1TVANXX/
+INFO     No config file specified, using default config from /home/MOLMED/johda411/workspace/checkQC/checkQC/default_config/config.yaml.
+INFO     Run summary
+INFO     -----------
+INFO     Instrument and reagent version: hiseq2500_rapidhighoutput_v4
+INFO     Read length: 125-125
+INFO     Enabled handlers and their config values were:
+INFO            ClusterPFHandler Error=unknown Warning=180
+INFO            Q30Handler Error=unknown Warning=80
+INFO            ErrorRateHandler Error=unknown Warning=2
+INFO            ReadsPerSampleHandler Error=90 Warning=unknown
+INFO            UndeterminedPercentageHandler Error=10 Warning=unknown
+WARNING  QC warning: Cluster PF was to low on lane 1, it was: 117.93 M
+WARNING  QC warning: Cluster PF was to low on lane 7, it was: 122.26 M
+WARNING  QC warning: Cluster PF was to low on lane 8, it was: 177.02 M
+ERROR    Fatal QC error: Number of reads for sample Sample_pq-27 was too low on lane 7, it was: 6.893 M
+ERROR    Fatal QC error: Number of reads for sample Sample_pq-28 was too low on lane 7, it was: 7.104 M
+INFO     Finished with fatal qc errors and will exit with non-zero exit status.
+```
+
+The program will summarize the type of run it has identified and output any warnings and/or errors in finds.
+If any qc errors were found the CheckQC will output a non-zero exit status. This means it can easily be used to
+decide if a further steps should run or not, e.g. in a workflow.
+
+In addition to the normal output CheckQC has a json mode, enabled by adding `--json` to the commandline.
+This outputs the results normally shown in the log as json on `stdout` (while the log itself is written to `stderr`),
+so that this can either be written to a file, or redirected to other programs which can parse the data further.
+In this example we use the python json tool to pretty print the json output:
+
+```
+checkqc --json tests/resources/170726_D00118_0303_BCB1TVANXX/  | python -m json.tool
+INFO     ------------------------
+INFO     Starting checkQC (1.1.2)
+INFO     ------------------------
+INFO     Runfolder is: tests/resources/170726_D00118_0303_BCB1TVANXX/
+INFO     No config file specified, using default config from /home/MOLMED/johda411/workspace/checkQC/checkQC/default_config/config.yaml.
+INFO     Run summary
+INFO     -----------
+INFO     Instrument and reagent version: hiseq2500_rapidhighoutput_v4
+INFO     Read length: 125-125
+INFO     Enabled handlers and their config values were:
+INFO     	ClusterPFHandler Error=unknown Warning=180
+INFO     	Q30Handler Error=unknown Warning=80
+INFO     	ErrorRateHandler Error=unknown Warning=2
+INFO     	ReadsPerSampleHandler Error=90 Warning=unknown
+INFO     	UndeterminedPercentageHandler Error=10 Warning=unknown
+WARNING  QC warning: Cluster PF was to low on lane 1, it was: 117.93 M
+WARNING  QC warning: Cluster PF was to low on lane 7, it was: 122.26 M
+WARNING  QC warning: Cluster PF was to low on lane 8, it was: 177.02 M
+ERROR    Fatal QC error: Number of reads for sample Sample_pq-27 was too low on lane 7, it was: 6.893 M
+ERROR    Fatal QC error: Number of reads for sample Sample_pq-28 was too low on lane 7, it was: 7.104 M
+INFO     Finished with fatal qc errors and will exit with non-zero exit status.
+{
+    "exit_status": 1,
+    "ClusterPFHandler": [
+        {
+            "type": "warning",
+            "message": "Cluster PF was to low on lane 1, it was: 117.93 M",
+            "data": {
+                "lane": 1,
+                "lane_pf": 117929896,
+                "threshold": 180
+            }
+        },
+        {
+            "type": "warning",
+            "message": "Cluster PF was to low on lane 7, it was: 122.26 M",
+            "data": {
+                "lane": 7,
+                "lane_pf": 122263375,
+                "threshold": 180
+            }
+        },
+        {
+            "type": "warning",
+            "message": "Cluster PF was to low on lane 8, it was: 177.02 M",
+            "data": {
+                "lane": 8,
+                "lane_pf": 177018999,
+                "threshold": 180
+            }
+        }
+    ],
+    "ReadsPerSampleHandler": [
+        {
+            "type": "error",
+            "message": "Number of reads for sample Sample_pq-27 was too low on lane 7, it was: 6.893 M",
+            "data": {
+                "lane": 7,
+                "number_of_samples": 12,
+                "sample_id": "Sample_pq-27",
+                "sample_reads": 6.893002,
+                "threshold": 90
+            }
+        },
+        {
+            "type": "error",
+            "message": "Number of reads for sample Sample_pq-28 was too low on lane 7, it was: 7.104 M",
+            "data": {
+                "lane": 7,
+                "number_of_samples": 12,
+                "sample_id": "Sample_pq-28",
+                "sample_reads": 7.10447,
+                "threshold": 90
+            }
+        }
+    ],
+    "run_summary": {
+        "instrument_and_reagent_type": "hiseq2500_rapidhighoutput_v4",
+        "read_length": "125-125",
+        "handlers": [
+            {
+                "handler": "ClusterPFHandler",
+                "error": "unknown",
+                "warning": 180
+            },
+            {
+                "handler": "Q30Handler",
+                "error": "unknown",
+                "warning": 80
+            },
+            {
+                "handler": "ErrorRateHandler",
+                "error": "unknown",
+                "warning": 2
+            },
+            {
+                "handler": "ReadsPerSampleHandler",
+                "error": 90,
+                "warning": "unknown"
+            },
+            {
+                "handler": "UndeterminedPercentageHandler",
+                "error": 10,
+                "warning": "unknown"
+            }
+        ]
+    }
+}
+```
+
+Running CheckQC as a webservice
+-------------------------------
+
+In addition to running like a commandline application, CheckQC can be run as a simple webservice.
+
+To run it you simply need to provide the path to a directory where runfolders that you want to
+be able to check are located. This is given as `MONITOR_PATH` below. There are also a number
+of optional arguments that can be passed to the service.
+
+```
+$ checkqc-ws --help
+Usage: checkqc-ws [OPTIONS] MONITOR_PATH
+
+Options:
+  --port INTEGER     Port which checkqc-ws will listen to (default: 9999).
+  --config PATH      Path to the checkQC configuration file (optional)
+  --log_config PATH  Path to the checkQC logging configuration file (optional)
+  --debug            Enable debug mode.
+  --help             Show this message and exit.
+
+```
+
+Once the webserver is running you can query the `/qc/` endpoint and get any errors and warnings back as json.
+Here is an example how to query the endpoint, and what type of results it will return:
+
+```
+$ curl -s -w'\n' localhost:9999/qc/170726_D00118_0303_BCB1TVANXX | python -m json.tool
+{
+    "ClusterPFHandler": [
+        {
+            "data": {
+                "lane": 1,
+                "lane_pf": 117929896,
+                "threshold": 180
+            },
+            "message": "Cluster PF was to low on lane 1, it was: 117.93 M",
+            "type": "warning"
+        },
+        {
+            "data": {
+                "lane": 7,
+                "lane_pf": 122263375,
+                "threshold": 180
+            },
+            "message": "Cluster PF was to low on lane 7, it was: 122.26 M",
+            "type": "warning"
+        },
+        {
+            "data": {
+                "lane": 8,
+                "lane_pf": 177018999,
+                "threshold": 180
+            },
+            "message": "Cluster PF was to low on lane 8, it was: 177.02 M",
+            "type": "warning"
+        }
+    ],
+    "ReadsPerSampleHandler": [
+        {
+            "data": {
+                "lane": 7,
+                "number_of_samples": 12,
+                "sample_id": "Sample_pq-27",
+                "sample_reads": 6.893002,
+                "threshold": 90
+            },
+            "message": "Number of reads for sample Sample_pq-27 was too low on lane 7, it was: 6.893 M",
+            "type": "warning"
+        },
+        {
+            "data": {
+                "lane": 7,
+                "number_of_samples": 12,
+                "sample_id": "Sample_pq-28",
+                "sample_reads": 7.10447,
+                "threshold": 90
+            },
+            "message": "Number of reads for sample Sample_pq-28 was too low on lane 7, it was: 7.104 M",
+            "type": "warning"
+        }
+    ],
+    "exit_status": 0,
+    "version": "1.1.0"
+}
 ```
