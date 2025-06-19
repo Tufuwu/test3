@@ -27,7 +27,7 @@ jobs:
 
     - name: Install dependencies
       run: |
-        python3 setup.py install
+
         sudo apt-get -y update
         pip install pytest-cov
         pip install .[ja]
