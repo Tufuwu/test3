@@ -1,3 +1,2 @@
 [build-system]
-# Keep synchronized with the minimum version to install in setup.py
-requires = ["setuptools >= 38.4.1", "wheel"]
+requires = ["setuptools >= 30.3.0", "wheel"]

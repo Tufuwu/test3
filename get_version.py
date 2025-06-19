@@ -5,12 +5,12 @@
 # @Author: oesteban
 # @Date:   2017-06-13 09:42:38
 import sys
-import os.path as op
+from pathlib import Path
 
 
 def main():
-    sys.path.insert(0, op.abspath('.'))
-    from niworkflows.__about__ import __version__
+    sys.path.insert(0, str(Path().resolve()))
+    from smriprep.__about__ import __version__
     print(__version__)
 
 

@@ -1,2 +1,7 @@
-recursive-exclude niworkflows/ conftest.py
+#Misc
+include CHANGES.rst
+include LICENSE
+
+# versioneer
 include versioneer.py
+include smriprep/_version.py

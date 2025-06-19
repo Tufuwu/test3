@@ -1,7 +1,6 @@
-
 {
-  "title": "NIWorkflows: NeuroImaging Workflows",
-  "description": "<p>A collection of Nipype interfaces, patches and workflows for reuse in NIPreps (NeuroImaging PREProcesssing tools) such as fMRIPrep.</p>",
+  "title": "sMRIPrep: Structural MRI PREProcessing workflows",
+  "description": "<p>A BIDS-App to preprocess anatomical (T1w, T2w and FLAIR) data, providing workflows for reuse in NIPreps (NeuroImaging PREProcesssing tools) such as fMRIPrep.</p>",
   "creators": [
     {
       "affiliation": "Department of Psychology, Stanford University, CA, USA",
@@ -14,18 +13,9 @@
       "orcid": "0000-0002-6533-164X"
     },
     {
-      "affiliation": "Department of Psychology, Stanford University, CA, USA",
-      "name": "Goncalves, Mathias",
-      "orcid": "0000-0002-7252-7771"
-    },
-    {
       "name": "Blair, Ross",
       "affiliation": "Department of Psychology, Stanford University, CA, USA",
       "orcid": "0000-0003-3007-1056"
-    },
-    {
-      "name": "Berleant, Shoshana L.",
-      "affiliation": "Department of Psychology, Stanford University, CA, USA"
     },
     {
       "affiliation": "Department of Psychology, Stanford University, CA, USA",
@@ -46,33 +36,15 @@
       "type": "Researcher"
     },
     {
-      "name": "Kent, James D.",
-      "affiliation": "Neuroscience Program, University of Iowa, IA, USA",
-      "orcid": "0000-0002-4892-2659",
-      "type": "Researcher"
-    },
-    {
-      "name": "Ye, Zhifang",
-      "affiliation": "State Key Laboratory of Cognitive Neuroscience and Learning, Beijing Normal University",
-      "orcid": "0000-0003-0489-2619",
-      "type": "Researcher"
-    },
-    {
-      "name": "Tooley, Ursula A.",
-      "affiliation": "Department of Neuroscience, University of Pennsylvania, PA, USA",
-      "orcid": "0000-0001-6377-3885",
+      "affiliation": "McGovern Institute for Brain Research, MIT, MA, USA",
+      "name": "Goncalves, Mathias",
+      "orcid": "0000-0002-7252-7771",
       "type": "Researcher"
     },
     {
       "affiliation": "McGovern Institute for Brain Research (MIT), and Department of Otolaryngology (Harvard Medical School), MA, USA",
       "name": "Ghosh, Satrajit",
       "orcid": "0000-0002-5312-6729",
-      "type": "Researcher"
-    },
-    {
-      "affiliation": "Department of Psychology, Stanford University, CA, USA",
-      "name": "Thompson, William H.",
-      "orcid": "0000-0002-0533-6035",
       "type": "Researcher"
     }
   ],
@@ -84,10 +56,10 @@
     "MRI",
     "BIDS"
   ],
-  "license": "Apache-2.0",
+  "license": "apache-2.0",
   "related_identifiers": [
     {
-      "identifier": "http://fmriprep.org",
+      "identifier": "https://fmriprep.org",
       "relation": "isPartOf",
       "scheme": "url"
     },

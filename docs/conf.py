@@ -16,19 +16,27 @@ import os
 import sys
 from packaging.version import Version
 
-from niworkflows import __version__, __copyright__, __packagename__
+from smriprep import (
+    __package__ as _package,
+    __version__ as _version,
+    __copyright__ as _copyright,
+)
 
-sys.path.append(os.path.abspath('sphinxext'))
+sys.path.append(os.path.abspath(
+    os.path.join(os.path.dirname(__file__), 'sphinxext')))
+from github_link import make_linkcode_resolve
+
+sys.path.insert(0, os.path.abspath('../wrapper'))
 
 # -- Project information -----------------------------------------------------
-project = __packagename__
-copyright = __copyright__
-author = 'The NiPreps Developers'
+project = _package
+copyright = _copyright
+author = 'The sMRIPrep Developers'
 
 # The short X.Y version
-version = Version(__version__).base_version
+version = Version(_version).public
 # The full version, including alpha/beta/rc tags
-release = __version__
+release = version
 
 
 # -- General configuration ---------------------------------------------------
@@ -39,8 +47,9 @@ extensions = [
     'sphinx.ext.coverage',
     'sphinx.ext.mathjax',
     'sphinx.ext.ifconfig',
-    'sphinx.ext.viewcode',
+    'sphinx.ext.linkcode',
     'sphinx.ext.githubpages',
+    'sphinxarg.ext',  # argparse extension
     'nipype.sphinxext.plot_workflow',
     'sphinxcontrib.apidoc',
     'sphinxcontrib.napoleon'
@@ -91,7 +100,9 @@ language = None
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
-exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store', 'api/modules.rst', 'api/niworkflows.rst']
+exclude_patterns = [
+    '_build', 'Thumbs.db', '.DS_Store',
+    'api/modules.rst', 'api/smriprep.rst']
 
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = None
@@ -129,7 +140,7 @@ html_static_path = ['_static']
 # -- Options for HTMLHelp output ---------------------------------------------
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'niworkflowsdoc'
+htmlhelp_basename = 'smriprepdoc'
 
 
 # -- Options for LaTeX output ------------------------------------------------
@@ -156,8 +167,8 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'niworkflows.tex', 'NiWorkflows Documentation',
-     'The NiPreps Developers', 'manual'),
+    (master_doc, 'smriprep.tex', 'sMRIPrep Documentation',
+     'The sMRIPrep Developers', 'manual'),
 ]
 
 
@@ -166,7 +177,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'niworkflows', 'NiWorkflows Documentation',
+    (master_doc, 'smriprep', 'sMRIPrep Documentation',
      [author], 1)
 ]
 
@@ -177,8 +188,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'niworkflows', 'NiWorkflows Documentation',
-     author, 'NiWorkflows', 'One line description of project.',
+    (master_doc, 'smriprep', 'sMRIPrep Documentation',
+     author, 'sMRIPrep', 'One line description of project.',
      'Miscellaneous'),
 ]
 
@@ -203,16 +214,26 @@ epub_exclude_files = ['search.html']
 
 # -- Extension configuration -------------------------------------------------
 
-apidoc_module_dir = '../niworkflows'
+apidoc_module_dir = '../smriprep'
 apidoc_output_dir = 'api'
-apidoc_excluded_paths = ['conftest.py', '*/tests/*', 'tests/*', 'data/*']
+apidoc_excluded_paths = ['conftest.py', '*/tests/*', 'tests/*', 'data/*', 'conf/*']
 apidoc_separate_modules = True
 apidoc_extra_args = ['--module-first', '-d 1', '-T']
+
+# Options for github links
+# The following is used by sphinx.ext.linkcode to provide links to github
+linkcode_resolve = make_linkcode_resolve('smriprep',
+                                         'https://github.com/nipreps/'
+                                         'smriprep/blob/{revision}/'
+                                         '{package}/{path}#L{lineno}')
 
 # -- Options for intersphinx extension ---------------------------------------
 
 # Example configuration for intersphinx: refer to the Python standard library.
-intersphinx_mapping = {'https://docs.python.org/': None}
+intersphinx_mapping = {
+    'python': ('https://docs.python.org/', None),
+    'niworkflows': ('https://www.nipreps.org/niworkflows/', None),
+}
 
 # -- Options for versioning extension ----------------------------------------
 scv_show_banner = True
