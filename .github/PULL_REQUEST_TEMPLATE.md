@@ -1,15 +1,23 @@
-<!--
-    Thank you for your interest in contributing to NetBox! Please note
-    that our contribution policy requires that a feature request or bug
-    report be opened for approval prior to filing a pull request. This
-    helps avoid wasting time and effort on something that we might not
-    be able to accept.
+##### ISSUE TYPE
+<!--- Pick one below and delete the rest: -->
+ - New Template Pull Request
+ - Bugfix Pull Request
+ - Additional Testing
+ - Docs Pull Request
 
-    Please indicate the relevant feature request or bug report below.
-    IF YOUR PULL REQUEST DOES NOT REFERENCE AN ACCEPTED BUG REPORT OR
-    FEATURE REQUEST, IT WILL BE MARKED AS INVALID AND CLOSED.
+##### COMPONENT
+<!--- Name of the template, os and command  -->
+
+##### SUMMARY
+<!--- Describe the change, including rationale and design decisions -->
+
+<!---
+If you are fixing an existing issue, please include "Fixes #nnn" in your
+commit message and your description; but you should still explain what
+the change does.
 -->
-### Fixes: <ISSUE NUMBER GOES HERE>
-<!--
-    Please include a summary of the proposed changes below.
--->
+
+<!-- Paste verbatim command output below, e.g. before and after your change -->
+```
+
+```
