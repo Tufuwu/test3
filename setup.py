@@ -1,31 +1,58 @@
+"""
+Django-MongoEngine
+------------------
+
+Django support for MongoDB using MongoEngine.
+
+This is work-in-progress. Some things working, some don't. Fix what you need and make
+pull-request.
+
+Links
+`````
+
+* `development version
+  <https://github.com/MongoEngine/django-mongoengine>`_
+
+"""
 from setuptools import setup, find_packages
-from checkQC import __version__
+import sys
+import os
+
+
+__version__ = '0.4.6'
+__description__ = 'Django support for MongoDB via MongoEngine'
+__license__ = 'BSD'
+__author__ = 'Ross Lawley'
+__email__ = 'ross.lawley@gmail.com'
+
+
+sys.path.insert(0, os.path.dirname(__file__))
+
 
 setup(
-    name='checkQC',
+    name='django-mongoengine',
     version=__version__,
-    description="A simple program to parse Illumina NGS data and check it for quality criteria.",
-    long_description="A simple program to parse Illumina NGS data and check it for quality criteria.",
-    keywords=['bioinformatics', 'ngs', 'quality control'],
-    author='Johan Dahlberg, SNP&SEQ Technology Platform, Uppsala University',
-    author_email='johan.dahlberg@medsci.uu.se',
-    url="https://www.github.com/Molmed/checkQC",
-    download_url='https://github.com/Molmed/checkQC/archive/{}.tar.gz'.format(__version__),
-    python_requires='>3.10, <3.11',
-    install_requires=[
-        "click",
-        "PyYAML>=6.0",
-        "interop>=1.2.4",
-        "xmltodict",
-        "tornado",
-        "sample_sheet"],
-    packages=find_packages(exclude=["tests*"]),
-    test_suite="tests",
-    package_data={'checkQC': ['default_config/config.yaml', 'default_config/logger.yaml']},
+    url='https://github.com/mongoengine/django-mongoengine',
+    download_url='https://github.com/mongoengine/django-mongoengine/tarball/master',
+    license=__license__,
+    author=__author__,
+    author_email=__email__,
+    description=__description__,
+    long_description=__doc__,
+    zip_safe=False,
+    platforms='any',
+    install_requires=["django>2.2,<3.3", "mongoengine>=0.14"],
+    packages=find_packages(exclude=('doc', 'docs',)),
     include_package_data=True,
-    license='GPLv3',
-    entry_points={
-        'console_scripts': ['checkqc = checkQC.app:start',
-                            'checkqc-ws = checkQC.web_app:start']
-    },
+    classifiers=[
+        'Development Status :: 4 - Beta',
+        'Environment :: Web Environment',
+        'Intended Audience :: Developers',
+        'License :: OSI Approved :: BSD License',
+        'Operating System :: OS Independent',
+        'Programming Language :: Python',
+        'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
+        'Topic :: Software Development :: Libraries :: Python Modules',
+        'Framework :: Django'
+    ]
 )
