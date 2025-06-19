@@ -1,72 +1,103 @@
-Contributing to Surprise
-========================
+# Contributing
 
-Disclamer: please note that starting from version 1.1.0, only bugfixes and
-documentation improvements are considered. We will not accept new features.
+Contributions are welcome, and they are greatly appreciated! Every
+little bit helps, and credit will always be given.
 
-Before submitting a new pull request, please make sure that:
+## Contribution Guidelines
 
-* Your code is [clean](https://www.youtube.com/watch?v=wf-BqAjZb8M),
-  [pythonic](https://www.youtube.com/watch?v=OSGv2VnC0go), well commented and
-  also well documented (see below for building the docs).
-* The tests are passing. Also, write some tests for the changes you're
-  proposing. If you're not willing to write tests, it's best not to submit a PR
-  (it's just a waste of time for everyone).
-* Your code follows [PEP 8](https://www.python.org/dev/peps/pep-0008/) as much
-  as possible. Coding style is automatically checked when tests are run. About
-  line length: it's best to respect to 80 columns constraint, but tests will
-  pass as long as the length is less than 88.
-* For new prediction algorithms or similarity metrics, please submit a
-  relevent benchmark outlining the performance of the new feature (in terms of
-  accuracy, computation time, etc.). You can take a look at
-  [`examples/benchmarks`](https://github.com/NicolasHug/Surprise/blob/master/examples/benchmark.py)
-  for inspiration.
+### Documentation
 
-Set up
-------
+We use [Sphinx](http://www.sphinx-doc.org/en/master/), and the references page is automatically
+generated thanks to `sphinx.ext.autodoc` and `sphinx_autodoc_typehints` extensions. All
+functions / methods / classes should have proper docstrings.
 
-It's highly recommended to use a virtual environment. All the packages needed
-for the development of Surprise (sphinx, flake8, etc...) can be installed by
-running
+To build the docs locally:
+```bash
+$ tox -e docs
+```
 
-    pip install -r requirements_dev.txt
+To preview:
+```bash
+# MacOS:
+$ open docs/_build/index.html
+# Linux:
+$ xdg-open docs/_build/index.html
+```
 
-Then, you can install your local copy of the repo:
+[Hosted documentation](https://pyinaturalist.readthedocs.io/) is automatically updated when code
+gets pushed to the `master` branch.
 
-    pip install -e .
+For any new or changed behavior, add a brief high-level summary to `HISTORY.md`.
+This isn't needed for internal changes (tests, other docs, refactoring, etc.).
 
-Any change to the code should now be immediately reflected during execution. If
-you're modifying Cython code (`.pyx` files), you'll need to compile the code in
-order to see the changes. This can be achieved by running `pip install -e .`
-again.
+### Tests
 
-Running and writing tests
--------------------------
+We use the [pytest](https://docs.pytest.org/en/latest/) framework for unit testing.
 
-Our testing tool is [pytest](http://doc.pytest.org/en/latest/). Running the tests is as
-simple as running
+Just run the `pytest` command to run locally.
 
-    pytest
+We also use [tox](https://tox.readthedocs.io/en/latest/) to test multiple python versions, as well as test coverage, style, and type checks:
 
-in the root directory.
+Use the `tox` command to run locally. This is also run by Travis CI on all pull requests.
 
-For writing new tests, check out pytest getting started guide and / or take
-inspiration from the current tests in the `tests` directory.
+### Type Annotations
+
+All functions / methods should have parameters and return value type annotations.
+Those type annotations are checked by MyPy (`tox -e mypy`) and will appear in the documentation.
+
+### Pull Requests
+Here are some general guidelines for submitting a pull request:
+
+- If the changes are trivial, just briefly explain the changes in the PR description.
+- Otherwise, please submit an issue describing the proposed change prior to submitting a PR.
+- Make sure the code is tested, annotated and documented as described above.
+- Submit the PR to be merged into the `dev` branch.
+
+### Releases
+For maintainers:
+
+Releases are based on git tags. Travis CI will build and deploy packages to PyPi on tagged commits
+on the `master` branch. Release steps:
+
+- Update the version in `pyinaturalist/__init__.py`
+- Update the release notes in `HISTORY.md`
+- Merge changes into the `master` branch
+- Push a new tag, e.g.: `git tag v0.1 && git push origin --tags`
+- This will trigger a deployment. Verify that this completes successfully and that the new version
+  can be installed from pypi with `pip install`
 
 
-Building the docs locally
--------------------------
+## Types of Contributions
+You can contribute in many ways:
 
-The docs can be compiled with
+### Report Bugs
+Report bugs at https://github.com/niconoe/pyinaturalist/issues.
 
-    cd doc
-    make html
+If you are reporting a bug, please include:
 
-You can check the results in `doc/build/html`. Please make sure that the docs
-compile without errors. Run `make clean` from time to time in order to avoid
-hidden warnings. You can check spelling mistakes by running
+* Your operating system name and version.
+* Any details about your local setup that might be helpful in troubleshooting.
+* Detailed steps to reproduce the bug.
 
-    make spelling
+### Fix Bugs
+Look through the GitHub issues for bugs. Anything tagged with "bug"
+is open to whoever wants to implement it.
 
-Legit words that are not recognized can be added in the
-`source/spelling_wordlist.txt` file.
+### Implement Features
+Look through the GitHub issues for features. Anything tagged with "feature"
+is open to whoever wants to implement it.
+
+### Write Documentation
+pyinaturalist could always use more documentation, whether as part of the
+official pyinaturalist docs, in docstrings, or even on the web in blog posts,
+articles, and such.
+
+### Submit Feedback
+The best way to send feedback is to file an issue at https://github.com/niconoe/pyinaturalist/issues.
+
+If you are proposing a feature:
+
+* Explain in detail how it would work.
+* Keep the scope as narrow as possible, to make it easier to implement.
+* Remember that this is a volunteer-driven project, and that contributions
+  are welcome :)
