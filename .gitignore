@@ -1,33 +1,12 @@
-$ cat .gitignore
-
-# File Types
-*.asv
-*.m
-*.mat
-*.pyc
-*.py~
-*.swp
-*.tws
-*~
-
-# Directories
-**/__pycache__/
-**/_build/
-**/build/
-**/dist/
-**/mhkit.egg-info/
-**/.ipynb_checkpoints
-**/tests/*.png
-**/workspace/data_peetz/
-**/workspace/data_mooring/
-**/workspace/data_GE/
-**/.vscode/
-
-.coverage
 .DS_Store
-.DS_Store?
-.gitignore
-
-# Exemptions
-!**/examples/data/wave/*.mat
-!**/tests/data/wave/*.mat
+*.swp
+*.pyc
+.idea/
+.eggs/
+build/
+dist/
+local/
+mf2py.egg-info/
+nbproject/
+venv/
+*~

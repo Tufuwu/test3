@@ -1,36 +1,82 @@
-![](figures/logo.png) MHKiT-Python
-=====================================
+mf2py
+=====
 
-[![Py 3.8,3.9 | Windows Mac Linux](https://github.com/MHKiT-Software/MHKiT-Python/actions/workflows/main.yml/badge.svg)](https://github.com/MHKiT-Software/MHKiT-Python/actions/workflows/main.yml)
-[![Coverage Status](https://coveralls.io/repos/github/MHKiT-Software/MHKiT-Python/badge.svg?branch=master)](https://coveralls.io/github/MHKiT-Software/MHKiT-Python?branch=master)
-[![Downloads](https://pepy.tech/badge/mhkit)](https://pepy.tech/project/mhkit)
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3924683.svg)](https://doi.org/10.5281/zenodo.3924683)
+[![Build Status](https://travis-ci.org/microformats/mf2py.svg?branch=master)](https://travis-ci.org/microformats/mf2py)
 
+[![Can I Use Python 3?](https://caniusepython3.com/project/mf2py.svg)](https://caniusepython3.com/project/mf2py)
 
-MHKiT-Python is a Python package designed for marine renewable energy applications to assist in 
-data processing and visualization.  The software package include functionality for:
+Python parser for [microformats 2](http://microformats.org/wiki/Microformats2).
 
-* Data processing
-* Data visualization
-* Data quality control
-* Resource assessment
-* Device performance
-* Device loads
+Current status: Full-featured and mostly stable. Implements the full
+mf2 spec, including backward compatibility with microformats1.
 
-Documentation
-------------------
-MHKiT-Python documentation includes overview information, installation instructions, API documentation, and examples.
-See the [MHKiT documentation](https://mhkit-software.github.io/MHKiT) for more information.
+Documentation, code tidying and so on is rather lacking.    
 
-Installation
-------------------------
-MHKiT-Python requires Python (3.8, or 3.9) along with several Python 
-package dependencies.  MHKiT-Python can be installed from PyPI using the command ``pip install mhkit``.
-See [installation instructions](https://mhkit-software.github.io/MHKiT/installation.html) for more information.
+License: [MIT](http://opensource.org/licenses/mit-license.php)
 
-Copyright and license
-------------------------
-MHKiT-Python is copyright through the National Renewable Energy Laboratory, 
-Pacific Northwest National Laboratory, and Sandia National Laboratories. 
-The software is distributed under the Revised BSD License.
-See [copyright and license](LICENSE.md) for more information.
+Install
+-------
+
+`pip install mf2py`
+
+Usage
+-----
+
+Import the parser using
+
+    import mf2py
+
+Parse a file containing the content
+
+    with open('file/content.html','r') as file:
+        obj = mf2py.parse(doc=file)
+
+Parse string containing content
+
+    content = '<article class="h-entry"><h1 class="p-name">Hello</h1></article>'
+    obj = mf2py.parse(doc=content)
+
+Parse content from a URL
+
+    obj = mf2py.parse(url="http://tommorris.org/")
+
+`parse` is a convenience method that actually delegates to
+`mf2py.Parser` to do the real work. More sophisticated behaviors are
+available by invoking the object directly.
+
+Get parsed microformat in a variety of formats
+
+    p = mf2py.Parser(...)
+    p.to_dict()  # returns a python dictionary
+    p.to_json()  # returns a JSON string
+
+Filter by microformat type
+
+    p.to_dict(filter_by_type="h-entry")
+    p.to_json(filter_by_type="h-entry")
+
+Experimental features
+---------------------
+- pass the optional argument `img_with_alt=True` to either the `Parser` object or to the `parse` method to enable parsing of the `alt` attribute of `<img>` tags according to [issue: image alt text is lost during parsing](https://github.com/microformats/microformats2-parsing/issues/2). By default this is `False` to be backwards compatible.
+
+FAQ
+---
+
+* I passed `mf2py.parse()` a BeautifulSoup document, and it got modified!
+
+Yes, mf2py currently does that. We're working on preventing it! Hopefully soon.
+
+Frontends
+-------------
+
+A basic web interface for mf2py and [mf2util](https://github.com/kylewm/mf2util) is available at [mf2py-web](https://github.com/kylewm/mf2py-web).
+
+A hosted live version can be found at [python.microformats.io](https://python.microformats.io).
+
+Contributions
+-------------
+
+We welcome contributions and bug reports via Github, and on the microformats wiki.
+
+We try to follow the [IndieWebCamp code of conduct](http://indiewebcamp.com/code-of-conduct). Please be respectful of other contributors, and forge a spirit of positive co-operation without discrimination or disrespect.
+
