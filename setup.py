@@ -1,139 +1,142 @@
 #!/usr/bin/env python
+# -*- encoding: utf-8 -*-
+from __future__ import absolute_import
+from __future__ import print_function
 
+import io
 import os
+import shutil
 import subprocess
 import tarfile
-import shutil
-import sysconfig
+from glob import glob
+from os.path import basename
+from os.path import dirname
+from os.path import join
+from os.path import splitext
 
 import requests
+from setuptools import find_packages
 from setuptools import setup
-from setuptools.command.build_ext import build_ext
-from setuptools.extension import Extension
+from setuptools.command.install import install as DistutilsInstall
 
 
-def urlretrieve(source_url, destination_path):
-    response = requests.get(source_url, stream=True)
-    if response.status_code != 200:
-        raise Exception("status code was: {}".format(response.status_code))
-
-    with open(destination_path, "wb") as fileobj:
-        for chunk in response.iter_content(chunk_size=128):
-            fileobj.write(chunk)
-
-def path_in_dir(relative_path):
-    return os.path.abspath(os.path.join(os.path.dirname(__file__), relative_path))
-
-def dependency_path(relative_path):
-    return os.path.join(path_in_dir("_deps"), relative_path)
-
-def read(fname):
-    return open(os.path.join(os.path.dirname(__file__), fname)).read()
-
-
-jq_lib_tarball_path = dependency_path("jq-lib-1.6.tar.gz")
-jq_lib_dir = dependency_path("jq-1.6")
-
-oniguruma_version = "6.9.4"
-oniguruma_lib_tarball_path = dependency_path("onig-{}.tar.gz".format(oniguruma_version))
-oniguruma_lib_build_dir = dependency_path("onig-{}".format(oniguruma_version))
-oniguruma_lib_install_dir = dependency_path("onig-install-{}".format(oniguruma_version))
-
-class jq_build_ext(build_ext):
+class MyInstall(DistutilsInstall):
     def run(self):
-        if not os.path.exists(dependency_path(".")):
-            os.makedirs(dependency_path("."))
-        self._build_oniguruma()
-        self._build_libjq()
-        build_ext.run(self)
+        self._install_mccortex()
 
-    def _build_oniguruma(self):
-        self._build_lib(
-            source_url="https://github.com/kkos/oniguruma/releases/download/v{0}/onig-{0}.tar.gz".format(oniguruma_version),
-            tarball_path=oniguruma_lib_tarball_path,
-            lib_dir=oniguruma_lib_build_dir,
-            commands=[
-                ["./configure", "CFLAGS=-fPIC", "--prefix=" + oniguruma_lib_install_dir],
-                ["make"],
-                ["make", "install"],
-            ])
+    def _get_mykrobe_data(self):
+        data_tarball_url = "https://ndownloader.figshare.com/files/20996829"
+        dir_of_this_file = os.path.dirname(os.path.realpath(__file__))
+        mykrobe_dir = os.path.join(dir_of_this_file, "src", "mykrobe")
+        assert os.path.exists(mykrobe_dir)
+        data_dir = os.path.join(mykrobe_dir, "data")
+        if os.path.exists(data_dir):
+            shutil.rmtree(data_dir)
+        extracted_name = "mykrobe-data"
+        tarball_filename = "mykrobe_data.tar.gz"
+        request = requests.get(data_tarball_url, allow_redirects=True)
+        with open(tarball_filename, "wb") as t:
+            t.write(request.content)
+        if os.path.exists(extracted_name):
+            shutil.rmtree(extracted_name)
+        with tarfile.open(tarball_filename, mode="r") as t:
+            t.extractall()
+        assert os.path.exists(extracted_name)
+        os.rename(extracted_name, data_dir)
+        os.unlink(tarball_filename)
 
+    def _install_mccortex(self):
+        dir_of_this_file = os.path.dirname(os.path.realpath(__file__))
 
-    def _build_libjq(self):
-        self._build_lib(
-            source_url="https://github.com/stedolan/jq/releases/download/jq-1.6/jq-1.6.tar.gz",
-            tarball_path=jq_lib_tarball_path,
-            lib_dir=jq_lib_dir,
-            commands=[
-                ["./configure", "CFLAGS=-fPIC -pthread", "--disable-maintainer-mode", "--with-oniguruma=" + oniguruma_lib_install_dir],
-                ["make"],
-            ])
+        # This is for the appveyor testing with tox. Building mccortex required
+        # some hacking, so we can't use the simple call to `make` here.
+        # Tox runs somewhere else, in an isolated dir, which means it doesn't
+        # see the build mccortex31 binary. Use an environment variable to
+        # find the built checkout of mccortex, so it doesn't try to build again,
+        # which will just fail
+        if "TOX_INI_DIR" in os.environ:
+            mccortex_git_dir = os.path.join(os.environ["TOX_INI_DIR"], "mccortex")
+        else:
+            mccortex_git_dir = os.path.join(dir_of_this_file, "mccortex")
 
-    def _build_lib(self, source_url, tarball_path, lib_dir, commands):
-        self._download_tarball(
-            source_url=source_url,
-            tarball_path=tarball_path,
-            lib_dir=lib_dir,
+        if not os.path.exists(mccortex_git_dir):
+            subprocess.call(
+                [
+                    "git",
+                    "clone",
+                    "--recursive",
+                    "-b",
+                    "geno_kmer_count",
+                    "https://github.com/Mykrobe-tools/mccortex",
+                    mccortex_git_dir,
+                ],
+                cwd=dir_of_this_file,
+            )
+
+        mccortex31_binary_name = "mccortex31.exe" if os.name=="nt" else "mccortex31"
+        mccortex_build_binary = os.path.join(mccortex_git_dir, "bin", mccortex31_binary_name)
+        if not os.path.exists(mccortex_build_binary):
+            subprocess.call(["make", "clean"], cwd=mccortex_git_dir)
+            subprocess.call(["make"], cwd=mccortex_git_dir)
+
+        mccortex_install_dir = os.path.join(
+            dir_of_this_file, "src", "mykrobe", "cortex"
         )
+        mccortex_install_binary = os.path.join(mccortex_install_dir, mccortex31_binary_name)
+        assert os.path.exists(mccortex_install_dir)
+        shutil.copy(mccortex_build_binary, mccortex_install_binary)
 
-        macosx_deployment_target = sysconfig.get_config_var("MACOSX_DEPLOYMENT_TARGET")
-        if macosx_deployment_target:
-            os.environ['MACOSX_DEPLOYMENT_TARGET'] = str(macosx_deployment_target)
-
-        def run_command(args):
-            print("Executing: %s" % ' '.join(args))
-            subprocess.check_call(args, cwd=lib_dir)
-
-        for command in commands:
-            run_command(command)
-
-    def _download_tarball(self, source_url, tarball_path, lib_dir):
-        if os.path.exists(tarball_path):
-            os.unlink(tarball_path)
-        print("Downloading {}".format(source_url))
-        urlretrieve(source_url, tarball_path)
-        print("Downloaded {}".format(source_url))
-
-        if os.path.exists(lib_dir):
-            shutil.rmtree(lib_dir)
-        tarfile.open(tarball_path, "r:gz").extractall(dependency_path("."))
+        DistutilsInstall.run(self)
 
 
-jq_extension = Extension(
-    "jq",
-    sources=["jq.c"],
-    include_dirs=[os.path.join(jq_lib_dir, "src")],
-    extra_link_args=["-lm"],
-    extra_objects=[
-        os.path.join(jq_lib_dir, ".libs/libjq.a"),
-        os.path.join(oniguruma_lib_install_dir, "lib/libonig.a"),
-    ],
-)
+def read(*names, **kwargs):
+    return io.open(
+        join(dirname(__file__), *names), encoding=kwargs.get("encoding", "utf8")
+    ).read()
+
 
 setup(
-    name='jq',
-    version='1.1.1',
-    description='jq is a lightweight and flexible JSON processor.',
-    long_description=read("README.rst"),
-    author='Michael Williamson',
-    url='http://github.com/mwilliamson/jq.py',
-    python_requires='>=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*',
-    license='BSD 2-Clause',
-    ext_modules = [jq_extension],
-    cmdclass={"build_ext": jq_build_ext},
+    name="mykrobe",
+    version="0.11.0",
+    license="MIT",
+    description="Antibiotic resistance prediction in minutes",
+    author="Phelim Bradley",
+    author_email="wave@phel.im",
+    url="https://github.com/Mykrobe-tools/mykrobe",
+    packages=find_packages("src"),
+    package_dir={"": "src"},
+    py_modules=[splitext(basename(path))[0] for path in glob("src/*.py")]
+    + [splitext(basename(path))[0] for path in glob("src/*/*.py")]
+    + [splitext(basename(path))[0] for path in glob("src/*/*/*.py")],
+    include_package_data=True,
+    package_data={"mykrobe": ["cortex/mccortex31"]},
+    zip_safe=False,
     classifiers=[
-        'Development Status :: 5 - Production/Stable',
-        'Intended Audience :: Developers',
-        'License :: OSI Approved :: BSD License',
-        'Programming Language :: Python',
-        'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.4',
-        'Programming Language :: Python :: 3.5',
-        'Programming Language :: Python :: 3.6',
-        'Programming Language :: Python :: 3.7',
-        'Programming Language :: Python :: 3.8',
+        "Intended Audience :: Developers",
+        "Operating System :: Unix",
+        "Operating System :: POSIX",
+        "Programming Language :: Python",
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.3",
+        "Programming Language :: Python :: 3.4",
+        "Programming Language :: Python :: 3.5",
+        "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: Implementation :: CPython",
+        "Programming Language :: Python :: Implementation :: PyPy",
+        "Topic :: Utilities",
     ],
+    install_requires=[
+        "anytree",
+        "Biopython",
+        "PyVCF3",
+        "mongoengine",
+        "requests",
+        "numpy",
+    ],
+    entry_points={
+        "console_scripts": [
+            "mykrobe = mykrobe.cli:main",
+        ]
+    },
+    cmdclass={"install": MyInstall},
 )
-
