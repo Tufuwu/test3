@@ -1,58 +1,32 @@
-"""
-Django-MongoEngine
-------------------
-
-Django support for MongoDB using MongoEngine.
-
-This is work-in-progress. Some things working, some don't. Fix what you need and make
-pull-request.
-
-Links
-`````
-
-* `development version
-  <https://github.com/MongoEngine/django-mongoengine>`_
-
-"""
 from setuptools import setup, find_packages
-import sys
-import os
+from os import path
 
+here = path.abspath(path.dirname(__file__))
+with open(path.join(here, 'README.md')) as f:
+    long_description = f.read()
 
-__version__ = '0.4.6'
-__description__ = 'Django support for MongoDB via MongoEngine'
-__license__ = 'BSD'
-__author__ = 'Ross Lawley'
-__email__ = 'ross.lawley@gmail.com'
+version = '2.2.2'
 
-
-sys.path.insert(0, os.path.dirname(__file__))
-
-
-setup(
-    name='django-mongoengine',
-    version=__version__,
-    url='https://github.com/mongoengine/django-mongoengine',
-    download_url='https://github.com/mongoengine/django-mongoengine/tarball/master',
-    license=__license__,
-    author=__author__,
-    author_email=__email__,
-    description=__description__,
-    long_description=__doc__,
-    zip_safe=False,
-    platforms='any',
-    install_requires=["django>2.2,<3.3", "mongoengine>=0.14"],
-    packages=find_packages(exclude=('doc', 'docs',)),
-    include_package_data=True,
-    classifiers=[
-        'Development Status :: 4 - Beta',
-        'Environment :: Web Environment',
-        'Intended Audience :: Developers',
-        'License :: OSI Approved :: BSD License',
-        'Operating System :: OS Independent',
-        'Programming Language :: Python',
-        'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
-        'Topic :: Software Development :: Libraries :: Python Modules',
-        'Framework :: Django'
-    ]
-)
+setup(name='agithub',
+      version=version,
+      description="A lightweight, transparent syntax for REST clients",
+      long_description=long_description,
+      long_description_content_type='text/markdown',
+      classifiers=[
+          'Development Status :: 5 - Production/Stable',
+          'Environment :: Console',
+          'Intended Audience :: Developers',
+          'Operating System :: OS Independent',
+          'Programming Language :: Python :: 2.6',
+          'Programming Language :: Python :: 3',
+          'Topic :: Utilities',
+      ],
+      keywords=['api', 'REST', 'GitHub', 'Facebook', 'SalesForce'],
+      author='Jonathan Paugh',
+      author_email='jpaugh@gmx.us',
+      url='https://github.com/mozilla/agithub',
+      license='MIT',
+      packages=find_packages(exclude=['ez_setup', 'examples', 'tests']),
+      include_package_data=True,
+      zip_safe=False,
+      )
