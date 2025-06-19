@@ -16,15 +16,6 @@ indent_size = 4
 [Makefile]
 indent_style = tab
 
-[{.travis.yml,codecov.yml}]
+[{.travis.yml,.codecov.yml}]
 indent_style = space
 indent_size = 2
-
-# Ignore paths
-[/modoboa/bower_components/**]
-charset = none
-end_of_line = none
-insert_final_newline = none
-trim_trailing_whitespace = none
-indent_style = none
-indent_size = none

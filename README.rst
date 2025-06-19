@@ -1,79 +1,56 @@
-################################
-`Modoboa <http://modoboa.org/>`_
-################################
+modoboa-amavis
+==============
 
-|travis| |codecov| |latest-version|
+|gha| |codecov|
 
-Modoboa is a mail hosting and management platform including a modern
-and simplified Web User Interface. It provides useful components such
-as an administration panel or a webmail.
+The `amavis <http://www.amavis.org/>`_ frontend of Modoboa.
 
-Modoboa integrates with well known software such as `Postfix
-<http://postfix.org/>`_ or `Dovecot <http://dovecot.org/>`_. A SQL
-database (`MySQL <http://www.mysql.com>`_, `PostgreSQL
-<http://www.postgresql.org/>`_ or `SQLite <http://www.sqlite.org>`_)
-is used as a central point of communication between all components.
+Installation
+------------
 
-Modoboa is developed with modularity in mind, expanding it is really
-easy. Actually, all current features are extensions.
+Install this extension system-wide or inside a virtual environment by
+running the following command::
 
-It is written in Python 3 and uses the `Django
-<https://www.djangoproject.com>`_, `jQuery <http://jquery.com>`_ and
-`Bootstrap <http://getbootstrap.com/>`_
-frameworks.
+  $ pip install modoboa-amavis
 
-*************
-Main features
-*************
+Edit the settings.py file of your modoboa instance and add
+``modoboa_amavis`` inside the ``MODOBOA_APPS`` variable like this::
 
-* Administration panel
-* Reputation protection: `DNSBL <https://en.wikipedia.org/wiki/DNSBL>`_ checks, `DMARC <https://dmarc.org/>`_ `reports <https://github.com/modoboa/modoboa-dmarc>`_ and more
-* `Amavis <http://www.amavis.org>`_ `frontend <https://github.com/modoboa/modoboa-amavis>`_
-* `Webmail <https://github.com/modoboa/modoboa-webmail>`_
-* `Calendar <https://github.com/modoboa/modoboa-radicale>`_
-* `Address book <https://github.com/modoboa/modoboa-contacts>`_
-* `Per-user Sieve filters <https://github.com/modoboa/modoboa-sievefilters>`_
-* `Autoreply messages for Postfix <https://github.com/modoboa/modoboa-postfix-autoreply>`_
-* `Graphical statistics about email traffic <https://github.com/modoboa/modoboa-stats>`_
+    MODOBOA_APPS = (
+        'modoboa',
+        'modoboa.core',
+        'modoboa.lib',
+        'modoboa.admin',
+        'modoboa.relaydomains',
+        'modoboa.limits',
+        'modoboa.parameters',
+        # Extensions here
+        # ...
+        'modoboa_amavis',
+    )
 
-*************
-Documentation
-*************
+Then, add the following at the end of the file::
 
-A detailed `documentation <https://modoboa.readthedocs.io/>`_ will help you
-to install, use or extend Modoboa.
+  from modoboa_amavis import settings as modoboa_amavis_settings
+  modoboa_amavis_settings.apply(globals())
 
-*****************
-Demo Installation
-*****************
+Run the following commands to setup the database tables::
 
-If you want to try out Modoboa, check out our `demo installation <https://demo.modoboa.org/>`_.
+  $ cd <modoboa_instance_dir>
+  $ python manage.py migrate
+  $ python manage.py collectstatic
+  $ python manage.py load_initial_data
 
-************
-Getting help
-************
+Finally, restart the python process running modoboa (uwsgi, gunicorn,
+apache, whatever).
 
-If you have any question, you can use the following ways to get help:
+Note
+----
+Notice that if you dont configure amavis and its database, Modoboa
+won't work. Check `docs/setup` for more information.
 
-* IRC: join the ``#modoboa`` channel on Freenode
-* Mailing list: join the `modoboa-users <https://groups.google.com/forum/#!forum/modoboa-users>`_ group on Google Groups
-* Github: open an issue if you found a bug
+.. |gha| image:: https://github.com/modoboa/modoboa-amavis/actions/workflows/plugin.yml/badge.svg
+   :target: https://github.com/modoboa/modoboa-amavis/actions/workflows/plugin.yml
 
-*************
-External code
-*************
-
-The following external libraries are provided with Modoboa:
-
-* `jQuery version 1.9.1 <http://www.jquery.org/>`_
-* `jQuery-UI 1.10+ <http://jqueryui.com/>`_
-* `Bootstrap version 3.3.7 <http://getbootstrap.com/>`_
-* `Bootstrap datetimepicker <http://eonasdan.github.io/bootstrap-datetimepicker/>`_
-
-.. |latest-version| image:: https://img.shields.io/pypi/v/modoboa.svg
-   :target: https://pypi.python.org/pypi/modoboa/
-   :alt: Latest version on Pypi
-.. |travis| image:: https://travis-ci.org/modoboa/modoboa.png?branch=master
-   :target: https://travis-ci.org/modoboa/modoboa
-.. |codecov| image:: http://codecov.io/github/modoboa/modoboa/coverage.svg?branch=master
-   :target: http://codecov.io/github/modoboa/modoboa?branch=master
+.. |codecov| image:: https://codecov.io/gh/modoboa/modoboa-amavis/branch/master/graph/badge.svg
+   :target: https://codecov.io/gh/modoboa/modoboa-amavis
