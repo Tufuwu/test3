@@ -1,17 +1,3 @@
-*.err
-*.tmp
-*.json
-venv*
-mykrobe-data/
-src/mykrobe/data/
-*.gz
-example-data/
-# Custom
-.pytest_cache/
-mccortex/
-atlas/
-tmp/
-
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -34,7 +20,6 @@ lib64/
 parts/
 sdist/
 var/
-wheels/
 *.egg-info/
 .installed.cfg
 *.egg
@@ -57,8 +42,10 @@ htmlcov/
 .cache
 nosetests.xml
 coverage.xml
-*.cover
-.hypothesis/
+*,cover
+
+# Unit tests for matplotlib images
+result_images/
 
 # Translations
 *.mo
@@ -66,14 +53,6 @@ coverage.xml
 
 # Django stuff:
 *.log
-local_settings.py
-
-# Flask stuff:
-instance/
-.webassets-cache
-
-# Scrapy stuff:
-.scrapy
 
 # Sphinx documentation
 docs/_build/
@@ -81,43 +60,13 @@ docs/_build/
 # PyBuilder
 target/
 
-# Jupyter Notebook
-.ipynb_checkpoints
+# JetBrains
+.idea/
 
-# pyenv
-.python-version
-
-# celery beat schedule file
-celerybeat-schedule
-
-# SageMath parsed files
-*.sage.py
-
-# dotenv
-.env
-
-# virtualenv
-.venv
+# Virtualenv
 venv/
-ENV/
 
-# Spyder project settings
-.spyderproject
-.spyproject
+# Jupyter
+.ipynb_checkpoints/
 
-# Rope project settings
-.ropeproject
-
-# mkdocs documentation
-/site
-
-# mypy
-.mypy_cache/
-src/api/123.json
-data
-test-probes.txt
-z.test.pncA_T2ATAC.txt
-
-.idea
-src/mykrobe/cortex/mccortex31
-.mongodb
+*.lock
