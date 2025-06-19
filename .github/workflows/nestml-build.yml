@@ -63,6 +63,7 @@ jobs:
           cd $GITHUB_WORKSPACE
           find pynestml/generated -not -name __init__.py -a -not -name generated -delete
           cd pynestml/grammars
+          chmod +x ./generate_lexer_parser
           ./generate_lexer_parser
 
       # Static code analysis
