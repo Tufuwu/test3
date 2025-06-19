@@ -1,15 +1,10 @@
 [run]
-branch = True
-source = .
-omit =
-    */venv/*
-    */tests/*
+concurrency = eventlet
+branch = ${BRANCH}
+source =
+    nameko
+    test
 
 [report]
-omit = */migrations/*
-exclude_lines =
-    pragma: no cover
-    raise AssertionError
-    raise NotImplementedError
-    if __name__ == .__main__.:
-    except KeyboardInterrupt:
+show_missing = true
+fail_under = 100
