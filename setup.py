@@ -1,101 +1,91 @@
-import io
-import os
-import sys
+#!/usr/bin/env python
 
-from advanced_filters import __version__
+"""
+A setuptools based setup module.
+
+See:
+https://packaging.python.org/en/latest/distributing.html
+"""
+
+from os import path
+
+try:
+    from pip.req import parse_requirements
+except ImportError:
+    # pip >= 10
+    from pip._internal.req import parse_requirements
+
 from setuptools import find_packages, setup
-from setuptools.command.test import test as TestCommand
 
 
-class Tox(TestCommand):
-    user_options = [('tox-args=', 'a', "Arguments to pass to tox")]
-
-    def initialize_options(self):
-        TestCommand.initialize_options(self)
-        self.tox_args = None
-
-    def finalize_options(self):
-        TestCommand.finalize_options(self)
-        self.test_args = []
-        self.test_suite = True
-
-    def run_tests(self):
-        # import here, cause outside the eggs aren't loaded
-        import tox
-        import shlex
-        args = self.tox_args
-        if args:
-            args = shlex.split(self.tox_args)
-        errno = tox.cmdline(args=args)
-        sys.exit(errno)
+def get_requirements(requirements_file):
+    """Use pip to parse requirements file."""
+    requirements = []
+    if path.isfile(requirements_file):
+        for req in parse_requirements(requirements_file, session="hack"):
+            try:
+                if req.markers:
+                    requirements.append("%s;%s" % (req.req, req.markers))
+                else:
+                    requirements.append("%s" % req.req)
+            except AttributeError:
+                # pip >= 20.0.2
+                requirements.append(req.requirement)
+    return requirements
 
 
-def get_full_description():
-    # get long description from README
-    readme = 'README.rst'
-    changelog = 'CHANGELOG.rst'
-    base = os.path.dirname(__file__)
-    with io.open(os.path.join(base, readme), encoding='utf-8') as readme:
-        README = readme.read()
-    with io.open(os.path.join(base, changelog), encoding='utf-8') as changelog:
-        CHANGELOG = changelog.read()
-    return '%s\n%s' % (README, CHANGELOG)
+if __name__ == "__main__":
+    HERE = path.abspath(path.dirname(__file__))
+    INSTALL_REQUIRES = get_requirements(path.join(HERE, "requirements.txt"))
+    MYSQL_REQUIRES = get_requirements(path.join(HERE, "mysql-requirements.txt"))
+    POSTGRESQL_REQUIRES = get_requirements(
+        path.join(HERE, "postgresql-requirements.txt"))
+    LDAP_REQUIRES = get_requirements(path.join(HERE, "ldap-requirements.txt"))
 
+    with open(path.join(HERE, "README.rst")) as readme:
+        LONG_DESCRIPTION = readme.read()
 
-# allow setup.py to be run from any path
-CUR_DIR = os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir))
-os.chdir(CUR_DIR)
-TEST_REQ_FILE = os.path.join(CUR_DIR, 'test-reqs.txt')
-if os.path.exists(TEST_REQ_FILE):
-    with open(TEST_REQ_FILE) as f:
-        TEST_REQS = list(f.readlines())
-else:
-    TEST_REQS = []
+    def local_scheme(version):
+        """Skip the local version (eg. +xyz of 0.6.1.dev4+gdf99fe2)
+            to be able to upload to Test PyPI"""
+        return ""
 
-
-setup(
-    name='django-advanced-filters',
-    version=__version__,
-    url='https://github.com/modlinltd/django-advanced-filters',
-    license='MIT',
-    description='A Django application for advanced admin filters',
-    keywords='django-admin admin advanced filters custom query',
-    long_description=get_full_description(),
-    packages=find_packages(exclude=['tests*', 'tests.*', '*.tests']),
-    include_package_data=True,
-    install_requires=[
-        'simplejson>=3.6.5,<4',
-    ],
-    extras_require=dict(test=TEST_REQS),
-    zip_safe=False,
-    author='Pavel Savchenko',
-    author_email='pavel@modlinltd.com',
-    classifiers=[
-        'Environment :: Web Environment',
-        'Framework :: Django',
-        'Intended Audience :: Developers',
-        'License :: OSI Approved :: MIT License',
-        'Operating System :: OS Independent',
-        'Programming Language :: Python',
-        'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.5',
-        'Programming Language :: Python :: 3.6',
-        'Programming Language :: Python :: 3.7',
-        'Programming Language :: Python :: 3.8',
-        'Framework :: Django',
-        'Framework :: Django :: 1.9',
-        'Framework :: Django :: 1.10',
-        'Framework :: Django :: 1.11',
-        'Framework :: Django :: 2.0',
-        'Framework :: Django :: 2.1',
-        'Framework :: Django :: 2.2',
-        'Framework :: Django :: 3.0',
-        'Framework :: Django :: 3.1',
-        'Topic :: Internet :: WWW/HTTP',
-        'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
-    ],
-    tests_require=['tox'],
-    cmdclass={'test': Tox},
-)
+    setup(
+        name="modoboa",
+        description="Mail hosting made simple",
+        long_description=LONG_DESCRIPTION,
+        license="ISC",
+        url="http://modoboa.org/",
+        author="Antoine Nguyen",
+        author_email="tonio@ngyn.org",
+        classifiers=[
+            "Development Status :: 5 - Production/Stable",
+            "Environment :: Web Environment",
+            "Framework :: Django :: 2.2",
+            "Intended Audience :: System Administrators",
+            "License :: OSI Approved :: ISC License (ISCL)",
+            "Operating System :: OS Independent",
+            "Programming Language :: Python :: 3",
+            "Programming Language :: Python :: 3.5",
+            "Programming Language :: Python :: 3.6",
+            "Programming Language :: Python :: 3.7",
+            "Programming Language :: Python :: 3.8",
+            "Topic :: Communications :: Email",
+            "Topic :: Internet :: WWW/HTTP",
+        ],
+        keywords="email",
+        packages=find_packages(exclude=["doc", "test_data", "test_project"]),
+        include_package_data=True,
+        zip_safe=False,
+        scripts=["bin/modoboa-admin.py"],
+        install_requires=INSTALL_REQUIRES,
+        use_scm_version={"local_scheme": local_scheme},
+        python_requires=">=3.4",
+        setup_requires=["setuptools_scm"],
+        extras_require={
+            "ldap": LDAP_REQUIRES,
+            "mysql": MYSQL_REQUIRES,
+            "postgresql": POSTGRESQL_REQUIRES,
+            "argon2": ["argon2-cffi >= 16.1.0"],
+        },
+    )
