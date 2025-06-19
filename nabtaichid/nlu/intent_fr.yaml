@@ -1,0 +1,9 @@
+---
+type: intent
+name: nabtaichid/taichi
+utterances:
+  - tai-chi
+  - c'est l'heure du tai-chi
+  - c'est l'heure de ton tai-chi
+  - tu me referais le tai-chi
+  - j'adore le tai-chi tu me le referais

@@ -1,89 +1,100 @@
-[![PyPI version](https://badge.fury.io/py/alns.svg)](https://badge.fury.io/py/alns)
-[![ALNS](https://github.com/N-Wouda/ALNS/actions/workflows/alns.yml/badge.svg)](https://github.com/N-Wouda/ALNS/actions/workflows/alns.yml)
-[![codecov](https://codecov.io/gh/N-Wouda/ALNS/branch/master/graph/badge.svg)](https://codecov.io/gh/N-Wouda/ALNS)
+# Nabaztag en Python pour Raspberry Pi
 
-This package offers a general, well-documented and tested
-implementation of the adaptive large neighbourhood search (ALNS)
-meta-heuristic, based on the description given in [Pisinger and Ropke
-(2010)][1]. It may be installed in the usual way as
+[![build (qemu)](https://github.com/nabaztag2018/pynab/actions/workflows/arm-runner.yml/badge.svg?branch=master)](https://github.com/pguyot/pynab/actions/workflows/arm-runner.yml)
+[![tests](https://github.com/nabaztag2018/pynab/actions/workflows/tests.yml/badge.svg?branch=master)](https://github.com/pguyot/pynab/actions/workflows/tests.yml)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![Total alerts](https://img.shields.io/lgtm/alerts/g/nabaztag2018/pynab.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/nabaztag2018/pynab/alerts/)
+[![Language grade: Python](https://img.shields.io/lgtm/grade/python/g/nabaztag2018/pynab.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/nabaztag2018/pynab/context:python)
+[![codecov](https://codecov.io/gh/nabaztag2018/pynab/branch/master/graph/badge.svg)](https://codecov.io/gh/nabaztag2018/pynab)
+
+# Cartes
+
+Ce système est conçu pour deux cartes :
+- Une carte réalisée pour Maker Faire 2018, qui ne fonctionne qu'avec les Nabaztag v1 (sans micro ni RFID).
+- Une nouvelle version de la carte, proposée via la campagne Ulule en mai 2019, qui fonctionne avec les Nabaztag v1 et v2 (les micros sont sur la carte, du coup les Nabaztag v1 bénéficient aussi de la reconnaissance vocale).
+
+Les schémas et fichiers de fabrication de ces deux cartes sont dans le repository [hardware](https://github.com/nabaztag2018/hardware), respectivement [`RPI_Nabaztag`](https://github.com/nabaztag2018/hardware/blob/master/RPI_Nabaztag.PDF) (2018) et [`tagtagtag_V2.0`](https://github.com/nabaztag2018/hardware/tree/master/tagtagtag_V2.0) (2019).
+
+# Images
+
+Les [releases](https://github.com/nabaztag2018/pynab/releases) sont des images de Raspbian Buster Lite 2019-09-26 avec pynab pré-installé. Elles ont les mêmes réglages que [Raspbian](https://www.raspberrypi.org/downloads/raspbian/).
+
+Les releases actuelles (0.7.x) ne fonctionnent que sur les cartes 2019 (cf #44)
+
+# Installation sur Raspbian (pour développeurs !)
+
+0. S'assurer que le système est bien à jour
+
+Le script d'installation requiert désormais une Raspbian avec buster, pour bénéficier de Python 3.7.
+Il est nécessaire que les headers depuis le paquet apt correspondent à la version du noyau.
+
 ```
-pip install alns
+sudo apt update
+sudo apt upgrade
 ```
 
-### Examples
-If you wish to dive right in, the `examples/` directory contains example notebooks
-showing how the ALNS library may be used. These include:
+1. Configurer la carte son, les oreilles et le lecteur RFID et redémarrer.
 
-- The travelling salesman problem (TSP), [here][2]. We solve an
-  instance of 131 cities to within 2.1% of optimality, using simple
-  destroy and repair heuristics with a post-processing step.
-- The cutting-stock problem (CSP), [here][4]. We solve an instance with
-  180 beams over 165 distinct sizes to within 1.35% of optimality in
-  only a very limited number of iterations.
-- The resource-constrained project scheduling problem, [here][6]. We solve an
-  instance with 90 jobs and 4 resources to within 4% of the best known solution,
-  using a number of different operators and enhancement techniques from the 
-  literature.
+Maker Faire 2018 :
+https://support.hifiberry.com/hc/en-us/articles/205377651-Configuring-Linux-4-x-or-higher
 
-Finally, the weight schemes and acceptance criteria notebook gives an overview
-of various options available in the `alns` package (explained below). In the
-notebook we use these different options to solve a toy 0/1-knapsack problem. The
-notebook is a good starting point for when you want to use the different schemes
-and criteria yourself. It is available [here][5].
+Ulule 2019 :
+https://github.com/pguyot/wm8960/tree/tagtagtag-sound
 
-## How to use
-The `alns` package exposes two classes, `ALNS` and `State`. The first
-may be used to run the ALNS algorithm, the second may be subclassed to
-store a solution state - all it requires is to define an `objective`
-member function, returning an objective value.
+Les deux cartes :
+https://github.com/pguyot/tagtagtag-ears
 
-The ALNS algorithm must be supplied with a _weight scheme_ and an _acceptance
-criterion_.
+Nabaztag:tag uniquement (non requis sur les Nabaztag, mais installé par les mises à jour)
+https://github.com/pguyot/cr14
 
-### Weight scheme
-The weight scheme determines how to select destroy and repair operators in each
-iteration of the ALNS algorithm. Several have already been implemented for you,
-in `alns.weight_schemes`:
+2. Installer PostgreSQL et les paquets requis
 
-- `SimpleWeights`. This weight scheme applies a convex combination of the 
-   existing weight vector, and a reward given for the current candidate 
-   solution.
-- `SegmentedWeights`. This weight scheme divides the iteration horizon into
-   segments. In each segment, scores are summed for each operator. At the end
-   of each segment, the weight vector is updated as a convex combination of 
-   the existing weight vector, and these summed scores.
+```
+sudo apt-get install postgresql libpq-dev git python3 python3-venv python3-dev gettext nginx openssl libssl-dev libffi-dev libmpg123-dev libasound2-dev libatlas-base-dev libgfortran3 libopenblas-dev liblapack-dev gfortran
+```
 
-Each weight scheme inherits from `WeightScheme`, which may be used to write 
-your own.
+3. Récupérer le code
 
-### Acceptance criterion
-The acceptance criterion determines the acceptance of a new solution state at
-each iteration. An overview of common acceptance criteria is given in
-[Santini et al. (2018)][3]. Several have already been implemented for you, in
-`alns.criteria`:
+```
+git clone https://github.com/nabaztag2018/pynab.git
+cd pynab
+```
 
-- `HillClimbing`. The simplest acceptance criterion, hill-climbing solely
-  accepts solutions improving the objective value.
-- `RecordToRecordTravel`. This criterion accepts solutions when the improvement
-  meets some updating threshold.
-- `SimulatedAnnealing`. This criterion accepts solutions when the
-  scaled probability is bigger than some random number, using an
-  updating temperature.
+4. Lancer le script d'installation qui fait le reste, notamment l'installation et le démarrage des services via systemd.
 
-Each acceptance criterion inherits from `AcceptanceCriterion`, which may
-be used to write your own.
+```
+bash install.sh
+```
 
-## References
-- Pisinger, D., and Ropke, S. (2010). Large Neighborhood Search. In M.
-  Gendreau (Ed.), _Handbook of Metaheuristics_ (2 ed., pp. 399-420).
-  Springer.
-- Santini, A., Ropke, S. & Hvattum, L.M. (2018). A comparison of
-  acceptance criteria for the adaptive large neighbourhood search
-  metaheuristic. *Journal of Heuristics* 24 (5): 783-815.
+ou, pour les cartes Maker Faire 2018 :
 
-[1]: http://orbit.dtu.dk/en/publications/large-neighborhood-search(61a1b7ca-4bf7-4355-96ba-03fcdf021f8f).html
-[2]: https://github.com/N-Wouda/ALNS/blob/master/examples/travelling_salesman_problem.ipynb
-[3]: https://link.springer.com/article/10.1007%2Fs10732-018-9377-x
-[4]: https://github.com/N-Wouda/ALNS/blob/master/examples/cutting_stock_problem.ipynb
-[5]: https://github.com/N-Wouda/ALNS/blob/master/examples/weight_schemes_acceptance_criteria.ipynb
-[6]: https://github.com/N-Wouda/ALNS/blob/master/examples/resource_constrained_project_scheduling_problem.ipynb
+```
+bash install.sh --makerfaire2018
+```
+
+# Mise à jour
+
+A priori, cela fonctionne via l'interface web.
+Si nécessaire, il est possible de le faire en ligne de commande avec :
+```
+cd pynab
+bash upgrade.sh
+``` 
+
+# Nabblockly
+
+[Nabblockly](https://github.com/pguyot/nabblockly), une interface de programmation des chorégraphies du lapin par blocs, est installé sur les images des releases depuis la 0.6.3b et fonctionne sur le port 8080. L'installation est possible sur le port 80 en modifiant la configuration de Nginx.
+
+# Architecture
+
+Cf le document [PROTOCOL.md](PROTOCOL.md)
+
+- nabd : daemon qui gère le lapin (i/o, chorégraphies)
+- nab8balld : daemon pour le service gourou
+- nabairqualityd : daemon pour le service de qualité de l'air
+- nabclockd : daemon pour le service horloge
+- nabsurprised : daemon pour le service surprises
+- nabtaichid : daemon pour le service taichi
+- nabmastodond : daemon pour le service mastodon
+- nabweatherd : daemon pour le service météo
+- nabweb : interface web pour la configuration

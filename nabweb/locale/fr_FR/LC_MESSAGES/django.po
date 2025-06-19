@@ -1,0 +1,717 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2021-04-30 18:33+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: settings.py:140
+msgid "French"
+msgstr "Français"
+
+#: settings.py:141
+msgid "German"
+msgstr "Allemand"
+
+#: settings.py:142
+msgid "U.S. English"
+msgstr "Anglais des États-Unis"
+
+#: settings.py:143
+msgid "British English"
+msgstr "Anglais britannique"
+
+#: settings.py:144
+msgid "Italian"
+msgstr "Italien"
+
+#: settings.py:145
+msgid "Spanish"
+msgstr "Espagnol"
+
+#: settings.py:146
+msgid "Japanese"
+msgstr "Japonais"
+
+#: settings.py:147
+msgid "Brazilian Portuguese"
+msgstr "Portugais brésilien"
+
+#: templates/nabweb/_base.html:13 templates/nabweb/_base.html:26
+#: templates/nabweb/index.html:7
+msgid "Nabaztag configuration"
+msgstr "Configuration du Nabaztag"
+
+#: templates/nabweb/_base.html:32 templates/nabweb/index.html:3
+#: templates/nabweb/upgrade/index.html:3
+msgid "Home"
+msgstr "Accueil"
+
+#: templates/nabweb/_base.html:32 templates/nabweb/_base.html:33
+#: templates/nabweb/_base.html:34 templates/nabweb/_base.html:35
+#: templates/nabweb/_base.html:36
+msgid "(current)"
+msgstr "(actif)"
+
+#: templates/nabweb/_base.html:33 templates/nabweb/services/index.html:3
+msgid "Services"
+msgstr "Services"
+
+#: templates/nabweb/_base.html:34 templates/nabweb/rfid/index.html:4
+#: templates/nabweb/rfid/index.html:26
+#: templates/nabweb/system-info/index.html:100
+msgid "RFID"
+msgstr "RFID"
+
+#: templates/nabweb/_base.html:35
+msgid "System Information"
+msgstr "Information système"
+
+#: templates/nabweb/_base.html:36 templates/nabweb/upgrade/index.html:40
+msgid "Upgrade"
+msgstr "Mise à jour"
+
+#: templates/nabweb/_base.html:37
+msgid "Help!"
+msgstr "Aide !"
+
+#: templates/nabweb/_base.html:51
+msgid "Upgrading"
+msgstr "Mise à jour"
+
+#: templates/nabweb/_base.html:54
+msgid "Please wait while upgrading pynab..."
+msgstr "Veuillez patienter pendant la mise à jour de pynab"
+
+#: templates/nabweb/_base.html:85
+msgid "Unknown server error"
+msgstr "Erreur serveur inconnue"
+
+#: templates/nabweb/index.html:8
+msgid "You're currently deeply connected with your inner rabbit."
+msgstr "Vous êtes actuellement en connexion avec votre lapin."
+
+#: templates/nabweb/index.html:10
+msgid ""
+"First, make sure the language is properly configured below. Maybe create an "
+"account to connect your Nabaztag to <a href='https://mstdn.fr/auth/"
+"sign_up'>Mastodon</a> where it will join fellow rabbits <small>(for now, "
+"this is only used by ear communion service)</small>."
+msgstr ""
+"Le mieux est de commencer par sélectionner la langue dans laquelle votre "
+"Nabaztag va s'exprimer. Ensuite, si vous connaissez d'autres lapins, vous "
+"pouvez aussi <a href='https://mstdn.fr/auth/sign_up'>créer un profil "
+"Mastodon</a> pour qu'il puisse dialoguer avec d'autres lapins (Mastodon est "
+"une sorte de Twitter open-source)."
+
+#: templates/nabweb/index.html:11
+msgid ""
+"Eventually, explore top navigation bar to configure <a href='/"
+"services/'>Nabaztag services</a>, <a href='/upgrade/'>upgrade software</a> "
+"or even visit the <a target='_blank' href='https://github.com/nabaztag2018/"
+"pynab' rel='noopener noreferrer'>GitHub repository</a> to start hacking, "
+"adding features or simply report bugs."
+msgstr ""
+"Pour configurer les services, allez dans l'onglet <a href='/"
+"services/'>Services</a>, ou <a href='/upgrade/'>Mise à jour</a> pour mettre "
+"à jour le logiciel. Vous pouvez aussi visiter le <a target='_blank' "
+"href='https://github.com/nabaztag2018/pynab' rel='noopener "
+"noreferrer'>GitHub repository</a> pour contribuer ou simplement nous "
+"reporter des bugs !"
+
+#: templates/nabweb/index.html:13
+msgid ""
+"You can trigger some services with your voice. The processing is done "
+"locally and you need to push the button long enough to hear a 'bip' (keep "
+"the button pushed), then wait a couple of seconds (We'll have a look at this "
+"later!) then speak and when you're done just release the button. Your "
+"service should be played shortly!"
+msgstr ""
+"Vous pouvez aussi déclencher certains services en demandant à Nabaztag. La "
+"reconnaissance vocale est effectuée localement et il vous faut appuyer sur "
+"le bouton (en le maintenant appuyé), attendre le 'bip', attendre encore "
+"quelques secondes (oui c'est un bug) puis parler. Relacher quand vous n'avez "
+"plus rien à dire et attendez que Nabaztag vous réponde."
+
+#: templates/nabweb/index.html:14
+msgid ""
+"And don't forget to try <a href='/' onclick='javascript:event.target."
+"port=8080' target='_blank' rel='noopener noreferrer'>Nabblocky</a> and learn "
+"how to code with Nabaztag. It's fantastic."
+msgstr ""
+"Et n'oubliez pas d'essayer <a href='/' onclick='javascript:event.target."
+"port=8080' target='_blank' rel='noopener noreferrer'>Nabblocky</a>. Pour "
+"tous ceux qui veulent apprendre à développer avec Nabaztag. C'est "
+"fantastique !"
+
+#: templates/nabweb/index.html:23 templates/nabweb/index.html:28
+msgid "Language"
+msgstr "Langue"
+
+#: templates/nabweb/index.html:26
+msgid ""
+"The language is used by services with recorded sounds. U.S. English and "
+"British English are based on distinct voices."
+msgstr ""
+"La langue est utilisée par les services avec des sons enregistrés. Une "
+"nouvelle façon d'apprendre des langues étrangères !"
+
+#: templates/nabweb/index.html:41
+msgid "Save"
+msgstr "Enregistrer"
+
+#: templates/nabweb/index.html:42
+msgid "Reset"
+msgstr "Annuler"
+
+#: templates/nabweb/rfid/index.html:10
+msgid "Tag with foreign data"
+msgstr "Tag avec des données inconnues"
+
+#: templates/nabweb/rfid/index.html:13
+msgid "This tag has foreign data. Are you sure you want to replace this data?"
+msgstr ""
+"Ce tag contient des données inconnues. Êtes-vous sûr que vous souhaitez les "
+"remplacer?"
+
+#: templates/nabweb/rfid/index.html:16
+#: templates/nabweb/system-info/index.html:95
+#: templates/nabweb/system-info/index.html:101
+#: templates/nabweb/upgrade/index.html:30
+msgid "Yes"
+msgstr "Oui"
+
+#: templates/nabweb/rfid/index.html:17
+#: templates/nabweb/system-info/index.html:95
+#: templates/nabweb/system-info/index.html:101
+#: templates/nabweb/upgrade/index.html:31
+msgid "No"
+msgstr "Non"
+
+#: templates/nabweb/rfid/index.html:36
+msgid ""
+"To be used by applications, RFID tags (including Violet's ztamp:s) must be "
+"configured. Once configured, an RFID tag will work with any Nabaztag:tag "
+"with a tagtagtag card."
+msgstr ""
+"Pour être utilisés par les applications, les tags RFID (y compris les ztamp:"
+"s de Violet) doivent être configurés. Une fois configuré, un tag "
+"fonctionnera avec n'importe quel Nabaztag:tag équipé de la carte tagtagtag."
+
+#: templates/nabweb/rfid/index.html:37
+msgid ""
+"To configure an RFID tag, start with pressing the button below and then when "
+"your Nabaztag's nose turns red, put a tag under it."
+msgstr ""
+"Pour configurer un tag RFID, commencez par appuyer sur le bouton ci-dessous "
+"puis quand le nez se met en rouge, mettez-y le tag."
+
+#: templates/nabweb/rfid/index.html:40
+msgid ""
+"Edit the configuration, then press <kbd class=\"btn-danger\">Write tag</kbd> "
+"button below and put the tag under your Nabaztag's red nose."
+msgstr ""
+"Éditer la configuration, puis appuyez sur le bouton <kbd class=\"btn-danger"
+"\">Écrire le tag</kbd> ci-dessous et remettez le tag sous le nez devenu "
+"rouge."
+
+#: templates/nabweb/rfid/index.html:41
+msgid ""
+"To configure another RFID tag, press the <kbd class=\"btn-primary"
+"\">Configure another tag</kbd> button."
+msgstr ""
+"Pour configurer un autre tag RFID, appuyez sur le bouton <kbd class=\"btn-"
+"primary\">Configurer un autre tag</kbd>."
+
+#: templates/nabweb/rfid/index.html:45
+msgid "No tag was detected."
+msgstr "Aucun tag n'a été détecté"
+
+#: templates/nabweb/rfid/index.html:46
+msgid ""
+"Nabaztag:tag RFID reader only supports ISO/IEC 14443 type B tags. Also make "
+"sure the reader is not too close from the Raspberry Pi (add some cardboard "
+"as mentioned in <a target='_blank' href='https://www.instructables.com/id/"
+"Installation-De-La-Carte-TagTagTag-Pour-Nabaztagta/' rel='noopener "
+"noreferrer'>tutorial</a>)."
+msgstr ""
+"Le lecteur RFID du Nabaztag:tag ne fonctionne qu'avez les tags ISO/IEC 14443 "
+"type B. Assurez-vous également que le lecteur n'est pas trop prêt du "
+"RaspberryPi (ajoutez du carton comme mentionné dans <a target='_blank' "
+"href='https://www.instructables.com/id/Installation-De-La-Carte-TagTagTag-"
+"Pour-Nabaztagta/' rel='noopener noreferrer'>le tutoriel</a>)."
+
+#: templates/nabweb/rfid/index.html:50
+msgid ""
+"This tag was not detected. To write it, click the 'Write tag' button and put "
+"it again under your Nabaztag's nose when it turns red. If you want to write "
+"another tag, click 'Configure' button first."
+msgstr ""
+"Le tag n'a pas été détecté. Pour l'écrire, cliquez sur le bouton 'Write tag' "
+"et mettez-le sous le nez du nabaztag lorsqu'il devient rouge. Si vous "
+"souhaitez configurer un autre tag, appuyez d'abord sur le bouton "
+"'Configurer'."
+
+#: templates/nabweb/rfid/index.html:53
+msgid "Tag was successfully configured."
+msgstr "Le tag a été configuré avec succès."
+
+#: templates/nabweb/rfid/index.html:62
+msgid "Status"
+msgstr "Statut"
+
+#: templates/nabweb/rfid/index.html:68
+msgid "Picture"
+msgstr "Visuel"
+
+#: templates/nabweb/rfid/index.html:71
+msgid "Unknown"
+msgstr "Inconnu"
+
+#: templates/nabweb/rfid/index.html:72
+msgid "Violet Rabbit"
+msgstr "Lapin violet"
+
+#: templates/nabweb/rfid/index.html:73
+msgid "Blue note"
+msgstr "Note bleue"
+
+#: templates/nabweb/rfid/index.html:74
+msgid "Red heart"
+msgstr "Cœur rouge"
+
+#: templates/nabweb/rfid/index.html:75
+msgid "Orange apple"
+msgstr "Pomme orange"
+
+#: templates/nabweb/rfid/index.html:76
+msgid "Orange teacup"
+msgstr "Tasse orange"
+
+#: templates/nabweb/rfid/index.html:77
+msgid "Violet rocket"
+msgstr "Fusée violette"
+
+#: templates/nabweb/rfid/index.html:78
+msgid "Green cabbage"
+msgstr "Chou vert"
+
+#: templates/nabweb/rfid/index.html:79
+msgid "Blue dog"
+msgstr "Chien bleu"
+
+#: templates/nabweb/rfid/index.html:80
+msgid "Red flower"
+msgstr "Fleur rouge"
+
+#: templates/nabweb/rfid/index.html:81
+msgid "Green snail"
+msgstr "Escargot vert"
+
+#: templates/nabweb/rfid/index.html:82
+msgid "Yellow smile"
+msgstr "Sourire jaune"
+
+#: templates/nabweb/rfid/index.html:83
+msgid "Yellow gift"
+msgstr "Cadeau jaune"
+
+#: templates/nabweb/rfid/index.html:84
+msgid "Green bike"
+msgstr "Vélo vert"
+
+#: templates/nabweb/rfid/index.html:85
+msgid "Violet key"
+msgstr "Clef violette"
+
+#: templates/nabweb/rfid/index.html:86
+msgid "Blue can"
+msgstr "Boîte bleue"
+
+#: templates/nabweb/rfid/index.html:88
+msgid "Dark moderate green"
+msgstr "Vert moyennement foncé"
+
+#: templates/nabweb/rfid/index.html:89
+msgid "Grayish blue"
+msgstr "Gris qui tend vers le bleu"
+
+#: templates/nabweb/rfid/index.html:90
+msgid "Vivid orange"
+msgstr "Orange vif"
+
+#: templates/nabweb/rfid/index.html:91
+msgid "Bright yellow"
+msgstr "Jaune brillant"
+
+#: templates/nabweb/rfid/index.html:92
+msgid "Dark cyan"
+msgstr "Cyan foncé"
+
+#: templates/nabweb/rfid/index.html:93
+msgid "Vivid pink"
+msgstr "Rose vif"
+
+#: templates/nabweb/rfid/index.html:94
+msgid "Pure yellow"
+msgstr "Jaune pur"
+
+#: templates/nabweb/rfid/index.html:95
+msgid "Darker vivid orange"
+msgstr "Orange vif un peu plus foncé"
+
+#: templates/nabweb/rfid/index.html:97
+msgid "Nanoztag kiwi"
+msgstr "Nanoztag kiwi"
+
+#: templates/nabweb/rfid/index.html:98
+msgid "Nanoztag azur"
+msgstr "Nanoztag azur"
+
+#: templates/nabweb/rfid/index.html:99
+msgid "Nanoztag black"
+msgstr "Nanoztag black"
+
+#: templates/nabweb/rfid/index.html:107
+msgid "Application"
+msgstr "Application"
+
+#: templates/nabweb/rfid/index.html:110
+msgid "None"
+msgstr "Aucune"
+
+#: templates/nabweb/rfid/index.html:127
+msgid "RFID is not available (no reader detected)"
+msgstr "Le RFID n'est pas disponible (aucun lecteur détecté)"
+
+#: templates/nabweb/rfid/index.html:134 templates/nabweb/rfid/index.html:137
+msgid "Configure tag"
+msgstr "Configurer un tag"
+
+#: templates/nabweb/rfid/index.html:134
+msgid "Configure another tag"
+msgstr "Configurer un autre tag"
+
+#: templates/nabweb/rfid/index.html:135
+msgid "Write tag"
+msgstr "Écrire le tag"
+
+#: templates/nabweb/rfid/index.html:261
+msgid "Supported (but read-only)"
+msgstr "Géré (mais en lecture seule)"
+
+#: templates/nabweb/rfid/index.html:263 templates/nabweb/rfid/index.html:267
+msgid "Supported"
+msgstr "Géré"
+
+#: templates/nabweb/rfid/index.html:270
+msgid "Supported (but with unknown data)"
+msgstr "Géré (mais avec des données inconnues)"
+
+#: templates/nabweb/rfid/index.html:274
+msgid "Locked (cannot be used)"
+msgstr "Verrouillé (ne peut pas être utilisé)"
+
+#: templates/nabweb/rfid/index.html:276
+msgid ""
+"Unsupported PICC (file a GitHub issue with UID to see if support can be "
+"added)"
+msgstr ""
+"PICC non géré (créez un ticket sur GitHub avec le UID pour voir si cela peut "
+"se corriger)"
+
+#: templates/nabweb/rfid/index.html:332 templates/nabweb/rfid/index.html:399
+msgid "Unknown response: "
+msgstr "Réponse inconnue: "
+
+#: templates/nabweb/rfid/index.html:337 templates/nabweb/rfid/index.html:372
+#: templates/nabweb/rfid/index.html:404
+msgid "An unknown server error occurred"
+msgstr "Une erreur serveur inconnue est survenue"
+
+#: templates/nabweb/system-info/index.html:4
+msgid "System information"
+msgstr "Information système"
+
+#: templates/nabweb/system-info/index.html:10
+msgid "Raspberry Pi OS"
+msgstr "Système d'exploitation Raspberry Pi"
+
+#: templates/nabweb/system-info/index.html:14
+msgid "Version"
+msgstr "Version"
+
+#: templates/nabweb/system-info/index.html:16
+msgid "Hostname"
+msgstr "Nom d'hôte"
+
+#: templates/nabweb/system-info/index.html:18
+msgid "IP address"
+msgstr "Adresse IP"
+
+#: templates/nabweb/system-info/index.html:20
+#: templates/nabweb/system-info/index.html:63
+msgid "Uptime"
+msgstr "Levé depuis"
+
+#: templates/nabweb/system-info/index.html:22
+msgid "SSH (Secure shell)"
+msgstr "SSH (shell sécurisé)"
+
+#: templates/nabweb/system-info/index.html:23
+msgid "Enabled with default password"
+msgstr "Activé avec le mot de passe par défaut"
+
+#: templates/nabweb/system-info/index.html:23
+msgid "Enabled"
+msgstr "Activé"
+
+#: templates/nabweb/system-info/index.html:23
+msgid "Disabled"
+msgstr "Désactivé"
+
+#: templates/nabweb/system-info/index.html:26
+msgid "Maintenance"
+msgstr "Maintenance"
+
+#: templates/nabweb/system-info/index.html:28
+#: templates/nabweb/system-info/index.html:118
+#: templates/nabweb/system-info/index.html:128
+msgid "Reboot"
+msgstr "Redémarrer"
+
+#: templates/nabweb/system-info/index.html:29
+#: templates/nabweb/system-info/index.html:137
+#: templates/nabweb/system-info/index.html:147
+msgid "Shutdown"
+msgstr "Arrêter"
+
+#: templates/nabweb/system-info/index.html:35
+msgid "<b>Reboot is in progress!</b>"
+msgstr "<b>Le redémarrage est en cours!</b>"
+
+#: templates/nabweb/system-info/index.html:41
+msgid "<b>Shutdown is in progress!</b>"
+msgstr "<b>L'arrêt est en cours!</b>"
+
+#: templates/nabweb/system-info/index.html:41
+msgid "Please wait at least 10 seconds before unplugging the power cable."
+msgstr ""
+"Veuillez attendre au moins 10 secondes avant de débrancher le cable "
+"d'alimentation."
+
+#: templates/nabweb/system-info/index.html:52
+msgid "Nabd daemon"
+msgstr "Processus Nabd"
+
+#: templates/nabweb/system-info/index.html:61
+msgid "State"
+msgstr "État"
+
+#: templates/nabweb/system-info/index.html:65
+msgid "Clients (including website)"
+msgstr "Clients (y compris ce site Web)"
+
+#: templates/nabweb/system-info/index.html:77
+msgid "Hardware"
+msgstr "Matériel"
+
+#: templates/nabweb/system-info/index.html:81
+msgid "Computer"
+msgstr "Ordinateur"
+
+#: templates/nabweb/system-info/index.html:90
+msgid "Hat card"
+msgstr "Carte chapeau"
+
+#: templates/nabweb/system-info/index.html:92
+msgid "Sound card"
+msgstr "Carte son"
+
+#: templates/nabweb/system-info/index.html:94
+msgid "Sound input"
+msgstr "Entrée son"
+
+#: templates/nabweb/system-info/index.html:96
+msgid "Left ear"
+msgstr "Oreille gauche"
+
+#: templates/nabweb/system-info/index.html:98
+msgid "Right ear"
+msgstr "Oreille droite"
+
+#: templates/nabweb/system-info/index.html:105
+msgid "Hardware test"
+msgstr "Test matériel"
+
+#: templates/nabweb/system-info/index.html:107
+msgid "LEDs"
+msgstr "LEDs"
+
+#: templates/nabweb/system-info/index.html:108
+msgid "Ears"
+msgstr "Oreilles"
+
+#: templates/nabweb/system-info/index.html:124
+msgid "You are about to <b>reboot</b> the Raspberry Pi Linux system."
+msgstr ""
+"Vous êtes sur le point de <b>redémarrer</b> le système Linux du Raspberry Pi."
+
+#: templates/nabweb/system-info/index.html:124
+#: templates/nabweb/system-info/index.html:143
+msgid "Do you want to proceed?"
+msgstr "Voulez-vous continuer?"
+
+#: templates/nabweb/system-info/index.html:127
+#: templates/nabweb/system-info/index.html:146
+msgid "Cancel"
+msgstr "Annuler"
+
+#: templates/nabweb/system-info/index.html:143
+msgid "You are about to <b>shutdown</b> the Raspberry Pi Linux system."
+msgstr ""
+"Vous êtes sur le point d'<b>éteindre</b> le système Linux du Raspberry Pi."
+
+#: templates/nabweb/upgrade/_repository.html:9
+msgid "Up to date"
+msgstr "À jour"
+
+#: templates/nabweb/upgrade/_repository.html:17
+msgid "Branch:"
+msgstr "Branche"
+
+#: templates/nabweb/upgrade/_repository.html:20
+msgid "Version:"
+msgstr "Version"
+
+#: templates/nabweb/upgrade/_repository.html:23
+msgid "You have unpushed local commits in this repository."
+msgstr "Vous avez des commits locaux non publiés"
+
+#: templates/nabweb/upgrade/_repository.html:26
+msgid "You have local changes in this repository."
+msgstr "Vous avez des modifications locales dans ce repository"
+
+#: templates/nabweb/upgrade/index.html:9
+msgid "Upgrade in progress"
+msgstr "Mise à jour en cours"
+
+#: templates/nabweb/upgrade/index.html:15
+msgid "Upgrade is currently in progress..."
+msgstr "La mise à jour est en cours"
+
+#: templates/nabweb/upgrade/index.html:24
+msgid "Local changes"
+msgstr "Modifications locales"
+
+#: templates/nabweb/upgrade/index.html:27
+msgid ""
+"Local changes have been detected in at least one repository. Automatic "
+"upgrade may fail. Are you sure you want to proceed?"
+msgstr ""
+"Des modifications locales ont été détectées dans au moins un repository. La "
+"mise à jour automatique risque d'échouer. Souhaitez-vous néanmoins continuer?"
+
+#: templates/nabweb/upgrade/index.html:43
+msgid ""
+"Through this interface, you can upgrade your Nabaztag software (provided "
+"that it is connected to the internet). This can take up a while depending on "
+"the size and the scope of the update : <b>don't restart your rabbit before "
+"the process is finished</b>."
+msgstr ""
+"Grâce à cette interface, vous pouvez mettre à jour votre Nabaztag (mais il "
+"doit être connecté à Internet). Attention, le process peut être assez long "
+"en fonction de ce qu'il y a à faire. <b>Attendez la fin de la mise à jour "
+"sinon on ne répond plus de rien</b>."
+
+#: templates/nabweb/upgrade/index.html:45
+msgid ""
+"Your Nabaztag is apparently tracking the master branch. Please note that web-"
+"based upgrade mechanism may fail and require that you connect over SSH."
+msgstr ""
+"Attention, apparemment, votre Nabaztag est monté sur la branche master : la "
+"mise à jour avec l'interface web peut échouer. Et là, que la force soit avec "
+"vous, il faudra terminer en SSH."
+
+#: templates/nabweb/upgrade/index.html:48
+msgid ""
+"You can switch to master branch to benefit from changes between releases, "
+"however this is not for the faint-hearted and requires good command of <a "
+"href='https://www.raspberrypi.org/documentation/remote-access/ssh/' "
+"target='_blanck'>SSH</a> and <a href='https://en.wikipedia.org/wiki/Git' "
+"target='_blanck'>Git</a>."
+msgstr ""
+"Vous pouvez sauter sur la branche master pour avoir les dernières "
+"nouveautés, mais attention j'espère juste que vous n'avez pas peur de <a "
+"href='https://www.raspberrypi.org/documentation/remote-access/ssh/' "
+"target='_blanck'>SSH</a> et de  <a href='https://en.wikipedia.org/wiki/Git' "
+"target='_blanck'>Git</a>."
+
+#: templates/nabweb/upgrade/index.html:50
+msgid "Current versions"
+msgstr "Version actuelle"
+
+#: templates/nabweb/upgrade/index.html:73
+msgid "Last check:"
+msgstr "Dernière vérification :"
+
+#: templates/nabweb/upgrade/index.html:73
+#, python-format
+msgid "%(last_check_since)s ago"
+msgstr "il y a %(last_check_since)s"
+
+#: templates/nabweb/upgrade/index.html:78
+msgid "Check now"
+msgstr "Vérifier maintenant"
+
+#: templates/nabweb/upgrade/index.html:79
+msgid "Upgrade now"
+msgstr "Mise à jour"
+
+#: templatetags/duration_filter.py:12
+msgid "less than one minute"
+msgstr "moins d'une minute"
+
+#: templatetags/duration_filter.py:14
+msgid "1 minute"
+msgstr "1 minute"
+
+#: templatetags/duration_filter.py:16
+msgid "{} minutes"
+msgstr "{} minutes"
+
+#: templatetags/duration_filter.py:18
+msgid "1 hour"
+msgstr "1 heure"
+
+#: templatetags/duration_filter.py:20
+msgid "1 hour and 1 minute"
+msgstr "1 heure et 1 minute"
+
+#: templatetags/duration_filter.py:22
+msgid "1 hour and {} minutes"
+msgstr "1 heure et {} minutes"
+
+#: templatetags/duration_filter.py:24
+msgid "{} hours"
+msgstr "{} heures"
+
+#: templatetags/duration_filter.py:26
+msgid "{} hours and 1 minute"
+msgstr "{} heures et 1 minute"
+
+#: templatetags/duration_filter.py:27
+msgid "{} hours and {} minutes"
+msgstr "{} heures et {} minutes"

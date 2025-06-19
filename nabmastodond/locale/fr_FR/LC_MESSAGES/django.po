@@ -1,0 +1,233 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2021-04-28 00:52+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: templates/nabmastodond/settings.html:5
+msgid "Mastodon"
+msgstr "Mastodon"
+
+#: templates/nabmastodond/settings.html:18
+msgid ""
+"You can propose another Nabaztag registered on Mastodon with the button "
+"below. They will receive the proposal and will be able to accept it."
+msgstr ""
+"Vous pouvez envoyer une demande de communion à un autre Nabaztag enregistré "
+"sur Mastodon avec le bouton ci-dessous. Il/elle recevra la demande et pourra "
+"l'accepter."
+
+#: templates/nabmastodond/settings.html:23
+#: templates/nabmastodond/settings.html:82
+msgid "Kindred soul"
+msgstr "Âme sœur"
+
+#: templates/nabmastodond/settings.html:25
+msgid "Friend address"
+msgstr "Adresse de votre ami(e)"
+
+#: templates/nabmastodond/settings.html:25
+msgid "e.g. name@instance.tld"
+msgstr "ex: nom@instance.tld"
+
+#: templates/nabmastodond/settings.html:27
+msgid "Propose"
+msgstr "Envoyer une demande"
+
+#: templates/nabmastodond/settings.html:50
+msgid "An unknown error occurred trying to send proposal"
+msgstr "Une erreur inconnue est survenue en essayant d'envoyer votre demande"
+
+#: templates/nabmastodond/settings.html:52
+msgid "An error occurred trying to send proposal: "
+msgstr "Une erreur est survenue en essayant d'envoyer votre demande : "
+
+#: templates/nabmastodond/settings.html:67
+#, python-format
+msgid ""
+"Really cancel proposal to <a href=\"%(profile_url)s\" target=\"_blank\">"
+"%(spouse_handle)s</a>?"
+msgstr ""
+"Souhaitez-vous réellement annuler votre demande de communion à <a href="
+"\"%(profile_url)s\" target=\"_blank\">%(spouse_handle)s</a> ?"
+
+#: templates/nabmastodond/settings.html:73
+msgid "Really cancel"
+msgstr "Annuler la demande"
+
+#: templates/nabmastodond/settings.html:78
+#, python-format
+msgid ""
+"You sent a proposal to your friend <a href=\"%(profile_url)s\" target="
+"\"_blank\">%(spouse_handle)s</a>. They have yet to accept it."
+msgstr ""
+"Vous avez envoyé une demande de communion à votre ami(e) <a href="
+"\"%(profile_url)s\" target=\"_blank\">%(spouse_handle)s</a>. Il/elle doit "
+"encore l'accepter."
+
+#: templates/nabmastodond/settings.html:86
+msgid "Cancel proposal"
+msgstr "Annuler la demande"
+
+#: templates/nabmastodond/settings.html:112
+msgid "An unknown error occurred trying to cancel proposal"
+msgstr "Une erreur inconnue est survenue en tentant d'annuler la demande"
+
+#: templates/nabmastodond/settings.html:114
+msgid "An error occurred trying to cancel proposal: "
+msgstr "Une erreur est survenue en tentant d'annuler la demande : "
+
+#: templates/nabmastodond/settings.html:125
+#, python-format
+msgid ""
+"You received a proposal from <a href=\"%(profile_url)s\" target=\"_blank\">"
+"%(spouse_handle)s</a>. Do you want to accept it?"
+msgstr ""
+"Vous avez reçu une demande de communion de <a href=\"%(profile_url)s\" "
+"target=\"_blank\">%(spouse_handle)s</a>. Souhaitez-vous l'accepter ?"
+
+#: templates/nabmastodond/settings.html:126
+msgid "Accept"
+msgstr "Accepter"
+
+#: templates/nabmastodond/settings.html:127
+msgid "Reject"
+msgstr "Refuser"
+
+#: templates/nabmastodond/settings.html:148
+msgid "An unknown error occurred responding to proposal"
+msgstr "Une erreur inconnue est survenue en répondant à cette demande"
+
+#: templates/nabmastodond/settings.html:150
+msgid "An error occurred responding to proposal: "
+msgstr "Une erreur est survenue en répondant à cette demande : "
+
+#: templates/nabmastodond/settings.html:171
+#, python-format
+msgid ""
+"Really divorce from <a href=\"%(profile_url)s\" target=\"_blank\">"
+"%(spouse_handle)s</a>?"
+msgstr ""
+"Souhaitez-vous réellement divorcer de <a href=\"%(profile_url)s\" target="
+"\"_blank\">%(spouse_handle)s</a> ?"
+
+#: templates/nabmastodond/settings.html:177
+#: templates/nabmastodond/settings.html:321
+msgid "Cancel"
+msgstr "Annuler"
+
+#: templates/nabmastodond/settings.html:178
+#: templates/nabmastodond/settings.html:184
+msgid "Divorce"
+msgstr "Divorcer"
+
+#: templates/nabmastodond/settings.html:183
+#, python-format
+msgid ""
+"This Nabaztag is married to <a href=\"%(profile_url)s\" target=\"_blank\">"
+"%(spouse_handle)s</a>. Married Nabaztags have a special ear-based "
+"relationship."
+msgstr ""
+"Ce Nabaztag est en communion avec <a href=\"%(profile_url)s\" target=\"_blank"
+"\">%(spouse_handle)s</a>. Les Nabaztag en communion ont une relation "
+"spéciale au niveau des oreilles."
+
+#: templates/nabmastodond/settings.html:208
+msgid "An unknown error occurred trying to divorce"
+msgstr "Une erreur inconnue est survenue en tenant de supprimer la communion"
+
+#: templates/nabmastodond/settings.html:210
+msgid "An error occurred trying to divorce: "
+msgstr "Une erreur est survenue en tentant de supprimer la communion : "
+
+#: templates/nabmastodond/settings.html:221
+msgid "Fetching account data..."
+msgstr "Récupération des données du compte"
+
+#: templates/nabmastodond/settings.html:244
+msgid "An unknown error occurred fetching account data"
+msgstr ""
+"Une erreur inconnue est survenue lors de la récupération des données du "
+"compte"
+
+#: templates/nabmastodond/settings.html:246
+msgid "An error occurred fetching account data: "
+msgstr ""
+"Une erreur est survenue lors de la récupération des données du compte : "
+
+#: templates/nabmastodond/settings.html:257
+msgid ""
+"As we don't want Nabaztag to live in the cloud we're using <a href='https://"
+"en.wikipedia.org/wiki/Mastodon_(software)'>Mastodon</a> to connect rabbits "
+"(Mastodon is a sort of decentralized Twitter - and Open Source). Currently "
+"your Nabaztag is not connected to Mastodon."
+msgstr ""
+"Comme on a décidé que Nabaztag n'habiterait plus jamais dans le cloud mais "
+"que nous aimons bien la communion d'oreilles (notamment), nous utilisons <a "
+"href='https://fr.wikipedia.org/wiki/Mastodon_(r%C3%A9seau_social)'>Mastodon</"
+"a> pour connecter les lapins entre eux. <b>En ce moment, votre Nabaztag "
+"n'est pas connecté à Mastodon</b>."
+
+#: templates/nabmastodond/settings.html:259
+msgid ""
+"First, <strong>create an account for your Nabaztag</strong> on a given "
+"Mastodon instance, you can find a directory of Mastodon instances <a href="
+"\"https://joinmastodon.org/\" target=\"_blank\">here</a>."
+msgstr ""
+"Tout d'abord,<strong> créez un compte pour votre Nabaztag</strong> sur une "
+"instance Mastodon, vous trouverez <a href=\"https://joinmastodon.org/\" "
+"target=\"_blank\">ici</a> un répertoire des instances."
+
+#: templates/nabmastodond/settings.html:260
+msgid ""
+"Enter the instance your Nabaztag's account is on in the instance box below "
+"and connect this account with the <kbd class=\"btn-primary\">Connect</kbd> "
+"button."
+msgstr ""
+"Indiquez l'instance de Mastodon sur laquelle est le compte de votre Nabaztag "
+"ci-dessous et connectez ce compte avec le bouton <kbd class=\"btn-primary"
+"\">Connexion</kbd>."
+
+#: templates/nabmastodond/settings.html:264
+msgid "Instance"
+msgstr "Instance"
+
+#: templates/nabmastodond/settings.html:267
+msgid "Mastodon instance"
+msgstr "Instance Mastodon"
+
+#: templates/nabmastodond/settings.html:269
+msgctxt "button"
+msgid "Connect"
+msgstr "Connexion"
+
+#: templates/nabmastodond/settings.html:294
+msgid "An unknown error occurred trying to connect with Mastodon"
+msgstr "Une erreur inconnue est survenue en tentant de se connecter à Mastodon"
+
+#: templates/nabmastodond/settings.html:296
+msgid "An error occurred trying to connect with Mastodon: "
+msgstr "Une erreur est survenue en tentant de se connecter à Mastodon : "
+
+#: templates/nabmastodond/settings.html:315
+msgid "Disconnect from Mastodon?"
+msgstr "Déconnexion de Mastodon ?"
+
+#: templates/nabmastodond/settings.html:322
+#: templates/nabmastodond/settings.html:328
+msgctxt "button"
+msgid "Disconnect"
+msgstr "Déconnexion"
