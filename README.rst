@@ -1,56 +1,37 @@
-modoboa-amavis
-==============
+======
+mixsea
+======
 
-|gha| |codecov|
 
-The `amavis <http://www.amavis.org/>`_ frontend of Modoboa.
+.. image:: https://img.shields.io/pypi/v/mixsea.svg
+        :target: https://pypi.python.org/pypi/mixsea
 
-Installation
-------------
+.. image:: https://travis-ci.com/modscripps/mixsea.svg?branch=main
+        :target: https://travis-ci.com/modscripps/mixsea
 
-Install this extension system-wide or inside a virtual environment by
-running the following command::
+.. image:: https://readthedocs.org/projects/mixsea/badge/?version=stable
+        :target: https://mixsea.readthedocs.io/en/latest/?badge=stable
+        :alt: Documentation Status
 
-  $ pip install modoboa-amavis
+.. image:: https://img.shields.io/badge/code%20style-black-000000.svg
+        :target: https://github.com/psf/black
 
-Edit the settings.py file of your modoboa instance and add
-``modoboa_amavis`` inside the ``MODOBOA_APPS`` variable like this::
 
-    MODOBOA_APPS = (
-        'modoboa',
-        'modoboa.core',
-        'modoboa.lib',
-        'modoboa.admin',
-        'modoboa.relaydomains',
-        'modoboa.limits',
-        'modoboa.parameters',
-        # Extensions here
-        # ...
-        'modoboa_amavis',
-    )
+Ocean mixing parameterizations in python. 
 
-Then, add the following at the end of the file::
+* Free software: MIT license
+* Documentation: https://mixsea.readthedocs.io.
 
-  from modoboa_amavis import settings as modoboa_amavis_settings
-  modoboa_amavis_settings.apply(globals())
 
-Run the following commands to setup the database tables::
+Features
+--------
 
-  $ cd <modoboa_instance_dir>
-  $ python manage.py migrate
-  $ python manage.py collectstatic
-  $ python manage.py load_initial_data
+* Thorpe scale based mixing estimates
 
-Finally, restart the python process running modoboa (uwsgi, gunicorn,
-apache, whatever).
+* Shear/strain based mixing estimates
 
-Note
-----
-Notice that if you dont configure amavis and its database, Modoboa
-won't work. Check `docs/setup` for more information.
+Credits
+-------
 
-.. |gha| image:: https://github.com/modoboa/modoboa-amavis/actions/workflows/plugin.yml/badge.svg
-   :target: https://github.com/modoboa/modoboa-amavis/actions/workflows/plugin.yml
-
-.. |codecov| image:: https://codecov.io/gh/modoboa/modoboa-amavis/branch/master/graph/badge.svg
-   :target: https://codecov.io/gh/modoboa/modoboa-amavis
+For most parts based on theory and code previously developed in the
+oceanographic community.

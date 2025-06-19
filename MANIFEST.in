@@ -1,3 +1,13 @@
-include README.rst LICENSE requirements.txt
-recursive-include modoboa_amavis *.html *.js *.css *.png *.po *.mo
-recursive-include doc *
+include AUTHORS.rst
+include CONTRIBUTING.rst
+include HISTORY.rst
+include LICENSE
+include README.rst
+
+include mixsea/tests/data/*.csv
+
+recursive-include tests *
+recursive-exclude * __pycache__
+recursive-exclude * *.py[co]
+
+recursive-include docs *.rst conf.py Makefile *.jpg *.png *.gif
