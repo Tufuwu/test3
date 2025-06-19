@@ -6,13 +6,6 @@ SPHINXOPTS    =
 SPHINXBUILD   = sphinx-build
 PAPER         =
 BUILDDIR      = _build
-CURBRANCH     = master
-PYTHONPATH    = $(PWD)
-
-# User-friendly check for sphinx-build
-ifeq ($(shell which $(SPHINXBUILD) >/dev/null 2>&1; echo $$?), 1)
-	$(error The '$(SPHINXBUILD)' command was not found. Make sure you have Sphinx installed, then set the SPHINXBUILD environment variable to point to the full path of the '$(SPHINXBUILD)' executable. Alternatively you can add the directory with the executable to your PATH. If you don\'t have Sphinx installed, grab it from http://sphinx-doc.org/)
-endif
 
 # Internal variables.
 PAPEROPT_a4     = -D latex_paper_size=a4
@@ -49,16 +42,15 @@ help:
 	@echo "  linkcheck  to check all external links for integrity"
 	@echo "  doctest    to run all doctests embedded in the documentation (if enabled)"
 	@echo "  coverage   to run coverage check of the documentation (if enabled)"
+	@echo "  dummy      to check syntax errors of document sources"
 
 .PHONY: clean
 clean:
 	rm -rf $(BUILDDIR)/*
-	rm -f *.dot*
-	rm -rf api/*
 
 .PHONY: html
 html:
-	PYTHONPATH=$(PYTHONPATH) $(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html
+	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html
 	@echo
 	@echo "Build finished. The HTML pages are in $(BUILDDIR)/html."
 
@@ -99,9 +91,9 @@ qthelp:
 	@echo
 	@echo "Build finished; now you can run "qcollectiongenerator" with the" \
 	      ".qhcp project file in $(BUILDDIR)/qthelp, like this:"
-	@echo "# qcollectiongenerator $(BUILDDIR)/qthelp/fMRIprep.qhcp"
+	@echo "# qcollectiongenerator $(BUILDDIR)/qthelp/django-cas-server.qhcp"
 	@echo "To view the help file:"
-	@echo "# assistant -collectionFile $(BUILDDIR)/qthelp/fMRIprep.qhc"
+	@echo "# assistant -collectionFile $(BUILDDIR)/qthelp/django-cas-server.qhc"
 
 .PHONY: applehelp
 applehelp:
@@ -118,8 +110,8 @@ devhelp:
 	@echo
 	@echo "Build finished."
 	@echo "To view the help file:"
-	@echo "# mkdir -p $$HOME/.local/share/devhelp/fMRIprep"
-	@echo "# ln -s $(BUILDDIR)/devhelp $$HOME/.local/share/devhelp/fMRIprep"
+	@echo "# mkdir -p $$HOME/.local/share/devhelp/django-cas-server"
+	@echo "# ln -s $(BUILDDIR)/devhelp $$HOME/.local/share/devhelp/django-cas-server"
 	@echo "# devhelp"
 
 .PHONY: epub
@@ -226,6 +218,8 @@ pseudoxml:
 	@echo
 	@echo "Build finished. The pseudo-XML files are in $(BUILDDIR)/pseudoxml."
 
-.PHONY: versioned
-versioned:
-	PYTHONPATH=$(PYTHONPATH) sphinx-versioning -vv -l ./docs/conf.py build -r $(CURBRANCH) ./docs/ docs/$(BUILDDIR)/html/
+.PHONY: dummy
+dummy:
+	$(SPHINXBUILD) -b dummy $(ALLSPHINXOPTS) $(BUILDDIR)/dummy
+	@echo
+	@echo "Build finished. Dummy builder generates no files."
