@@ -54,7 +54,7 @@ jobs:
         if: runner.os != 'Linux'
         run: |
           python atest/run.py -e gtk atest
-      - uses: actions/upload-artifact@v1
+      - uses: actions/upload-artifact@v4
         if: success() || failure()
         with:
           name: Test Results - Python ${{ matrix.python-version }} ${{ runner.os }}
