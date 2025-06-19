@@ -50,7 +50,7 @@ tsplib95 = ">=0.7.0"
 [tool.mypy]
 # These are generally already settled anyway, so there's no real
 # need to worry about them here
-ignore_missing_imports = true
+ignore_missing_imports = false
 
 
 
