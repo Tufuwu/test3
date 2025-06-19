@@ -30,15 +30,15 @@ jobs:
           - os: ubuntu-24.04
             python: 3.8
             numpy: "==1.18.*"
-            pins: "pygdal==3.0.4.* scipy==1.4.* dask[delayed]==2.9.* pandas==1.0.* geopandas==0.8.*"
+            pins: "pygdal==3.8.4.* scipy==1.4.* dask[delayed]==2.9.* pandas==1.0.* geopandas==0.8.*"
           - os: ubuntu-24.04
             python: 3.9
             numpy: "==1.20.*"
-            pins: "pygdal==3.0.4.* scipy==1.6.* dask[delayed]==2020.* pandas==1.1.* geopandas==0.9.*"
+            pins: "pygdal==3.8.4.* scipy==1.6.* dask[delayed]==2020.* pandas==1.1.* geopandas==0.9.*"
           - os: ubuntu-24.04
             python: 3.9
             display_name: "latest"
-            pins: "pygdal==3.0.4.*"
+            pins: "pygdal==3.8.4.*"
 
     steps:
       - uses: actions/checkout@v2
