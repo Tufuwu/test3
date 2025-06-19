@@ -1,104 +1,172 @@
-# mozregression
 
-mozregression is an interactive regression rangefinder for quickly tracking down the source of bugs in Mozilla nightly and integration builds.
+# Dunamai
+[![Version](https://img.shields.io/pypi/v/dunamai)](https://pypi.org/project/dunamai)
+[![License: MIT](https://img.shields.io/badge/license-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-You can start using mozregression today:
+Dunamai is a Python 3.5+ library and command line tool for producing dynamic,
+standards-compliant version strings, derived from tags in your version
+control system. This facilitates uniquely identifying nightly or per-commit
+builds in continuous integration and releasing new versions of your software
+simply by creating a tag.
 
-- [start with our installation guide](https://mozilla.github.io/mozregression/install.html), then
-- take a look at [our Quick Start document](https://mozilla.github.io/mozregression/quickstart.html).
+Dunamai is also available as a [GitHub Action](https://github.com/marketplace/actions/run-dunamai).
 
-## Status
+## Features
+* Version control system support:
+  * [Git](https://git-scm.com) (minimum version: 2.7.0)
+  * [Mercurial](https://www.mercurial-scm.org)
+  * [Darcs](http://darcs.net)
+  * [Subversion](https://subversion.apache.org)
+  * [Bazaar](https://bazaar.canonical.com/en)
+  * [Fossil](https://www.fossil-scm.org/home/doc/trunk/www/index.wiki)
+* Version styles:
+  * [PEP 440](https://www.python.org/dev/peps/pep-0440)
+  * [Semantic Versioning](https://semver.org)
+  * [Haskell Package Versioning Policy](https://pvp.haskell.org)
+  * Custom output formats
+* Can be used for projects written in any programming language.
+  For Python, this means you do not need a setup.py.
 
-[![Latest Version](https://img.shields.io/pypi/v/mozregression.svg)](https://pypi.python.org/pypi/mozregression/)
-[![License](https://img.shields.io/pypi/l/mozregression.svg)](https://pypi.python.org/pypi/mozregression/)
+## Usage
+Install with `pip install dunamai`, and then use as either a CLI:
 
-Build status:
+```console
+# Suppose you are on commit g29045e8, 7 commits after the v0.2.0 tag.
+# Note that the "v" prefix on the tag is required, unless you specify
+# a different tag style using "--pattern".
 
-- Linux:
-  [![Linux Build Status](https://travis-ci.org/mozilla/mozregression.svg?branch=master)](https://travis-ci.org/mozilla/mozregression)
-  [![Coverage Status](https://img.shields.io/coveralls/mozilla/mozregression.svg)](https://coveralls.io/r/mozilla/mozregression)
-- Windows: [![Windows Build status](https://ci.appveyor.com/api/projects/status/bcg7t1pt2bahggdr?svg=true)](https://ci.appveyor.com/project/wlach/mozregression/branch/master)
+# Auto-detect the version control system and generate a version:
+$ dunamai from any
+0.2.0.post7.dev0+g29045e8
 
-For more information see:
+# Or use an explicit VCS and style:
+$ dunamai from git --no-metadata --style semver
+0.2.0-post.7
 
-https://mozilla.github.io/mozregression/
+# Custom formats:
+$ dunamai from any --format "v{base}+{distance}.{commit}"
+v0.2.0+7.g29045e8
 
-## Contact
+# Validation of custom formats:
+$ dunamai from any --format "v{base}" --style pep440
+Version 'v0.2.0' does not conform to the PEP 440 style
 
-You can chat with the mozregression developers on Mozilla's instance of [Matrix](https://chat.mozilla.org/#/room/#mozregression:mozilla.org): https://chat.mozilla.org/#/room/#mozregression:mozilla.org
+# Validate your own freeform versions:
+$ dunamai check 0.01.0 --style semver
+Version '0.01.0' does not conform to the Semantic Versioning style
 
-## Issue Tracking
-
-Found a problem with mozregression? Have a feature request? We track bugs [on bugzilla](https://bugzilla.mozilla.org/buglist.cgi?quicksearch=product%3ATesting%20component%3Amozregression&list_id=14890897).
-You can file a new bug [here](https://bugzilla.mozilla.org/enter_bug.cgi?product=Testing&component=mozregression).
-
-## Building And Developing mozregression
-
-Want to hack on mozregression ? Cool!
-
-### Installing dependencies
-
-To make setup more deterministic, we have provided requirements files to use a known-working
-set of python dependencies. From your mozregression checkout, you can install these inside
-a virtual development environment.
-
-After checking out the mozregression repository from GitHub, this is a two step process:
-
-1. Be sure you are using Python 3.6 or above: earlier versions are not supported (if you
-   are not sure, run `python --version` or `python3 --version` on the command line).
-
-2. If you don't have it already, install [virtualenv](https://virtualenv.pypa.io/en/stable/).
-
-3. From inside your mozregression checkout, create a virtualenv, activate it, and install the dependencies. The instructions are slightly different depending on whether you are using Windows or Linux/MacOS.
-
-On Windows:
-
-```bash
-virtualenv -p python venv
-venv\Scripts\activate
-pip install -r requirements\build.txt -r requirements\linters.txt
-pip install -e .
+# More info:
+$ dunamai --help
+$ dunamai from --help
+$ dunamai from git --help
 ```
 
-On Linux/MacOS:
+Or as a library:
 
-```bash
-virtualenv -p python3 venv
-source venv/bin/activate
-pip install -r requirements/build.txt -r requirements/linters.txt
-pip install -e .
+```python
+from dunamai import Version, Style
+
+# Let's say you're on commit g644252b, which is tagged as v0.1.0.
+version = Version.from_git()
+assert version.serialize() == "0.1.0"
+
+# Let's say there was a v0.1.0rc5 tag 44 commits ago
+# and you have some uncommitted changes.
+version = Version.from_any_vcs()
+assert version.serialize() == "0.1.0rc5.post44.dev0+g644252b"
+assert version.serialize(metadata=False) == "0.1.0rc5.post44.dev0"
+assert version.serialize(dirty=True) == "0.1.0rc5.post44.dev0+g644252b.dirty"
+assert version.serialize(style=Style.SemVer) == "0.1.0-rc.5.post.44+g644252b"
 ```
 
-### Hacking on mozregression
+The `serialize()` method gives you an opinionated, PEP 440-compliant default
+that ensures that versions for untagged commits are compatible with Pip's
+`--pre` flag. The individual parts of the version are also available for you
+to use and inspect as you please:
 
-After running the above commands, you should be able to run the command-line version of
-mozregression as normal (e.g. `mozregression --help`) inside the virtual environment. If
-you wish to try running the GUI, use the provided helper script:
-
-```bash
-python gui/build.py run
+```python
+assert version.base == "0.1.0"
+assert version.stage == "rc"
+assert version.revision == 5
+assert version.distance == 44
+assert version.commit == "g644252b"
+assert version.dirty is True
 ```
 
-To run the unit tests for the console version:
+## Comparison to Versioneer
+[Versioneer](https://github.com/warner/python-versioneer) is another great
+library for dynamic versions, but there are some design decisions that
+prompted the creation of Dunamai as an alternative:
 
-```bash
-pytest tests
-```
+* Versioneer requires a setup.py file to exist, or else `versioneer install`
+  will fail, rendering it incompatible with non-setuptools-based projects
+  such as those using Poetry or Flit. Dunamai can be used regardless of the
+  project's build system.
+* Versioneer has a CLI that generates Python code which needs to be committed
+  into your repository, whereas Dunamai is just a normal importable library
+  with an optional CLI to help statically include your version string.
+* Versioneer produces the version as an opaque string, whereas Dunamai provides
+  a Version class with discrete parts that can then be inspected and serialized
+  separately.
+* Versioneer provides customizability through a config file, whereas Dunamai
+  aims to offer customizability through its library API and CLI for both
+  scripting support and use in other libraries.
 
-For the GUI version:
+## Integration
+* Setting a `__version__` statically:
 
-```bash
-python gui/build.py test
-```
+  ```console
+  $ echo "__version__ = '$(dunamai from any)'" > your_library/_version.py
+  ```
+  ```python
+  # your_library/__init__.py
+  from your_library._version import __version__
+  ```
 
-Before submitting a pull request, please lint your code for errors and formatting (we use [black](https://black.readthedocs.io/en/stable/), [flake8](https://flake8.pycqa.org/en/latest/) and [isort](https://isort.readthedocs.io/en/latest/))
+  Or dynamically (but Dunamai becomes a runtime dependency):
 
-```bash
-./bin/lint-check.sh
-```
+  ```python
+  # your_library/__init__.py
+  import dunamai as _dunamai
+  __version__ = _dunamai.get_version("your-library", third_choice=_dunamai.Version.from_any_vcs).serialize()
+  ```
 
-If it turns up errors, try using the `lint-fix.sh` script to fix any errors which can be addressed automatically:
+* setup.py (no install-time dependency on Dunamai as long as you use wheels):
 
-```bash
-./bin/lint-fix.sh
-```
+  ```python
+  from setuptools import setup
+  from dunamai import Version
+
+  setup(
+      name="your-library",
+      version=Version.from_any_vcs().serialize(),
+  )
+  ```
+
+  Or you could use a static inclusion approach as in the prior example.
+
+* [Poetry](https://poetry.eustace.io):
+
+  ```console
+  $ poetry version $(dunamai from any)
+  ```
+
+## Development
+This project is managed using [Poetry](https://poetry.eustace.io).
+Development requires Python 3.6+ because of [Black](https://github.com/ambv/black).
+
+* If you want to take advantage of the default VSCode integration, then first
+  configure Poetry to make its virtual environment in the repository:
+  ```
+  poetry config settings.virtualenvs.in-project true
+  ```
+* After cloning the repository, activate the tooling:
+  ```
+  poetry install
+  poetry run pre-commit install
+  ```
+* Run unit tests:
+  ```
+  poetry run pytest --cov
+  poetry run tox
+  ```
