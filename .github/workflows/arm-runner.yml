@@ -20,7 +20,7 @@ jobs:
             sudo mkdir -p /run/systemd/timesync/ && sudo touch /run/systemd/timesync/synchronized
             sudo -u pi taskset -c 0 /bin/bash install.sh ci-chroot-test
     - name: Upload image if tests failed
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       if: failure()
       with:
         name: Image of failed tests
