@@ -117,7 +117,7 @@ jobs:
           LDAP_SERVER_PORT: ${{ job.services.openldap.ports[389] }}
       - name: Upload coverage result
         if: ${{ matrix.python-version == '3.8' }}
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: coverage-results
           path: test_project/.coverage
@@ -135,7 +135,7 @@ jobs:
         run: |
           pip install codecov
       - name: Download coverage results
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: coverage-results
       - name: Report coverage
