@@ -19,7 +19,7 @@ CLASSIFIERS=['Development Status :: 3 - Alpha',
             ]
 DEPENDENCIES = ['pandas>=1.0.0', 
                 'numpy<1.21.0', 
-                'scipy',
+                'scipy>=1.7,<1.10',
                 'matplotlib', 
                 'requests', 
                 'pecos>=0.1.9',
