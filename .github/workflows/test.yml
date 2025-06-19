@@ -30,11 +30,13 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
 
-    - name: Set up env
+    - name: Install Poetry
+      run: pip install poetry
+
+    - name: Install dependencies
       run: |
-        python -m pip install -q poetry
         poetry install -q
-        poetry run pip install -q "${{ matrix.django-version }}"
+        poetry run pip install -q ${{ matrix.django-version }}
 
     - name: Run tests
       run: poetry run python -m pytest
