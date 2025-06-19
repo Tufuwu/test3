@@ -5,4 +5,5 @@ mock==2.0.0
 lxml==4.2.5
 requests==2.21.0
 BeautifulSoup4==4.6.3
+python3-dev
 -e .
