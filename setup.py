@@ -15,7 +15,7 @@ setup(
     python_requires=">=3.6",
     zip_safe=False,
     install_requires=[
-        "Flask>=1.0"
+        "Flask>=2.2"
     ],
     entry_points={
         "flask.commands": [
