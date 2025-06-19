@@ -1,58 +1,63 @@
-from setuptools import setup
+# -*- coding: utf-8 -*-
+#
+# setup.py
+#
+# This file is part of NEST.
+#
+# Copyright (C) 2004 The NEST Initiative
+#
+# NEST is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# NEST is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+
 import os
+import sys
+from setuptools import setup, find_packages
 
-version = '2.3.5.dev0'
+assert sys.version_info.major >= 3, "Python 3 is required to run PyNESTML"
 
-long_description = "\n\n".join([open("README.rst").read(), open("CHANGES.rst").read()])
+with open("requirements.txt") as f:
+    requirements = f.read().splitlines()
 
-install_requires = (
-    [
-        "dask[delayed]>=0.18",
-        "pandas>=0.19",
-        "geopandas>=0.4",
-        "pytz",
-        "numpy>=1.12",
-        "scipy>=0.19",
-    ],
-)
-
-# emulate "--no-deps" on the readthedocs build (there is no way to specify this
-# behaviour in the .readthedocs.yml)
-if os.environ.get('READTHEDOCS') == 'True':
-    install_requires = []
-
-
-tests_require = ["pytest"]
+data_files = []
+for dir_to_include in ["doc", "models", "extras"]:
+    for dirname, dirnames, filenames in os.walk(dir_to_include):
+        fileslist = []
+        for filename in filenames:
+            fullname = os.path.join(dirname, filename)
+            fileslist.append(fullname)
+        data_files.append((dirname, fileslist))
 
 setup(
-    name="dask-geomodeling",
-    version=version,
-    description="On-the-fly operations on geographical maps.",
-    long_description=long_description,
-    # Get strings from http://www.python.org/pypi?%3Aaction=list_classifiers
-    classifiers=[
-        "Development Status :: 4 - Beta",
-        "License :: OSI Approved :: BSD License",
-        "Operating System :: OS Independent",
-        "Programming Language :: Python :: 3 :: Only",
-        "Topic :: Scientific/Engineering :: GIS",
-    ],
-    keywords=["dask"],
-    author="Casper van der Wel",
-    author_email="casper.vanderwel@nelen-schuurmans.nl",
-    url="https://github.com/nens/dask-geomodeling",
-    license="BSD 3-Clause License",
-    packages=[
-        "dask_geomodeling",
-        "dask_geomodeling.core",
-        "dask_geomodeling.geometry",
-        "dask_geomodeling.raster",
-    ],
-    include_package_data=True,
-    zip_safe=False,
-    install_requires=install_requires,
-    tests_require=tests_require,
-    python_requires='>=3.5',
-    extras_require={"test": tests_require, "cityhash": ["cityhash"]},
-    entry_points={"console_scripts": []},
+    name="NESTML",
+    version="3.1-post-dev",
+    description="NESTML is a domain specific language that supports the specification of neuron models in a"
+                " precise and concise syntax, based on the syntax of Python. Model equations can either be given"
+                " as a simple string of mathematical notation or as an algorithm written in the built-in procedural"
+                " language. The equations are analyzed by NESTML to compute an exact solution if possible or use an "
+                " appropriate numeric solver otherwise.",
+    license="GNU General Public License v2.0",
+    url="https://github.com/nest/nestml",
+    packages=find_packages(),
+    package_data={"pynestml": ["codegeneration/resources_nest/*.jinja2",
+                               "codegeneration/resources_nest/setup/*.jinja2",
+                               "codegeneration/resources_nest/directives/*.jinja2"]},
+    data_files=data_files,
+    entry_points={
+        "console_scripts": [
+            "nestml = pynestml.frontend.pynestml_frontend:main",
+        ],
+    },
+
+    install_requires=requirements,
+    test_suite="tests",
 )
