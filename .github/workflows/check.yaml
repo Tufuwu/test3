@@ -27,6 +27,7 @@ jobs:
       run: |
         pip install .
         pip install -r requirements.txt
+        pip install -r test-requirements.txt
         pip install rednose coverage coveralls
     - name: Test with nosetests
       run: nosetests test --rednose --verbosity=3 --with-coverage --cover-package ncclient
