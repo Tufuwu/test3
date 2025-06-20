@@ -1,72 +1,66 @@
-import os
-import pkg_resources
+#!/usr/bin/env python3
+
 from setuptools import setup
-from cas_server import VERSION
 
-with open(os.path.join(os.path.dirname(__file__), 'README.rst')) as readme:
-    README = readme.read()
-
-if __name__ == '__main__':
-    # allow setup.py to be run from any path
-    os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
-
-    setup(
-        name='django-cas-server',
-        version=VERSION,
-        packages=[
-            'cas_server', 'cas_server.migrations',
-            'cas_server.management', 'cas_server.management.commands',
-            'cas_server.tests', 'cas_server.templatetags'
-        ],
-        include_package_data=True,
-        license='GPLv3',
-        description=(
-            'A Django Central Authentication Service server '
-            'implementing the CAS Protocol 3.0 Specification'
-        ),
-        long_description=README,
-        author='Valentin Samir',
-        author_email='valentin.samir@crans.org',
-        classifiers=[
-            'Environment :: Web Environment',
-            'Development Status :: 5 - Production/Stable',
-            'Framework :: Django',
-            'Framework :: Django :: 1.11',
-            'Framework :: Django :: 2.2',
-            'Framework :: Django :: 3.1',
-            'Framework :: Django :: 3.2',
-            'Intended Audience :: Developers',
-            'Intended Audience :: System Administrators',
-            'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
-            'Operating System :: OS Independent',
-            'Programming Language :: Python',
-            'Programming Language :: Python :: 3',
-            'Programming Language :: Python :: 3.5',
-            'Programming Language :: Python :: 3.6',
-            'Programming Language :: Python :: 3.7',
-            'Programming Language :: Python :: 3.8',
-            'Programming Language :: Python :: 3.9',
-            'Programming Language :: Python :: 3.10',
-            'Topic :: Software Development :: Libraries :: Python Modules',
-            'Topic :: Internet :: WWW/HTTP',
-            'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
-            'Topic :: System :: Systems Administration :: Authentication/Directory'
-        ],
-        package_data={
-            'cas_server': [
-                'templates/cas_server/*',
-                'static/cas_server/*',
-                'locale/*/LC_MESSAGES/*',
-            ]
-        },
-        keywords=['django', 'cas', 'cas3', 'server', 'sso', 'single sign-on', 'authentication', 'auth'],
-        install_requires=[
-            'Django >= 1.11,<4.2', 'requests >= 2.4', 'requests_futures >= 0.9.5',
-            'lxml >= 3.4', 'six >= 1'
-        ],
-        url="https://github.com/nitmir/django-cas-server",
-        download_url="https://github.com/nitmir/django-cas-server/releases/latest",
-        zip_safe=False,
-        setup_requires=['pytest-runner'],
-        tests_require=['pytest', 'pytest-django', 'pytest-pythonpath', 'pytest-warnings', 'mock>=1'],
-    )
+setup(
+    name = "django-jinja",
+    version = "2.9.1",
+    description = "Jinja2 templating language integrated in Django.",
+    long_description = open("README.rst").read(),
+    long_description_content_type='text/x-rst',
+    keywords = "django, jinja2",
+    author = "Andrey Antukh",
+    author_email = "niwi@niwi.be",
+    maintainer = "Asif Saif Uddin",
+    maintainer_email = "auvipy@gmail.com",
+    url = "https://github.com/niwinz/django-jinja",
+    license = "BSD",
+    packages = [
+        "django_jinja",
+        "django_jinja.builtins",
+        "django_jinja.management",
+        "django_jinja.management.commands",
+        "django_jinja.contrib",
+        "django_jinja.contrib._pipeline",
+        "django_jinja.contrib._pipeline.templatetags",
+        "django_jinja.contrib._easy_thumbnails",
+        "django_jinja.contrib._easy_thumbnails.templatetags",
+        "django_jinja.contrib._humanize",
+        "django_jinja.contrib._humanize.templatetags",
+        "django_jinja.contrib._subdomains",
+        "django_jinja.contrib._subdomains.templatetags",
+        "django_jinja.views",
+        "django_jinja.views.generic",
+    ],
+    include_package_data = True,
+    package_data = {
+        "django_jinja": ["contrib/_pipeline/templates/pipeline/*.jinja"],
+    },
+    python_requires = ">=3.6",
+    install_requires = [
+        "jinja2>=3",
+        "django>=2.2",
+    ],
+    tests_require = [
+        "pytz",
+    ],
+    classifiers = [
+        "Development Status :: 5 - Production/Stable",
+        "Framework :: Django",
+        "Framework :: Django :: 2.2",
+        "Framework :: Django :: 3.0",
+        "Framework :: Django :: 3.1",
+        "Framework :: Django :: 3.2",
+        "Intended Audience :: Developers",
+        "License :: OSI Approved :: BSD License",
+        "Operating System :: OS Independent",
+        "Programming Language :: Python",
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3 :: Only",
+        "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+        "Topic :: Internet :: WWW/HTTP",
+    ]
+)
