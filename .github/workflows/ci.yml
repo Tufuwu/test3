@@ -161,9 +161,3 @@ jobs:
       env:
         TOXENV: py${{ matrix.python-version }}-django${{ matrix.django-version }}
       run: tox
-    - name: Notify on success
-      if: success()
-      run: echo "Build succeeded" | mail -s "Build Success" niwi@niwi.nz
-    - name: Notify on failure
-      if: failure()
-      run: echo "Build failed" | mail -s "Build Failure" niwi@niwi.nz
