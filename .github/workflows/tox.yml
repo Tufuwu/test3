@@ -14,7 +14,6 @@ jobs:
   test:
     runs-on: ubuntu-latest
     strategy:
-      fail-fast: false
       matrix:
         python-version: [3.8, 3.9]
         tox-env: [pep8, py38, docs, py36]
@@ -25,7 +24,7 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies
-      run: pip install tox
+      run: pip install tox tox-gh-actions
     - name: Run tests
       run: tox -e ${{ matrix.tox-env }}
 
