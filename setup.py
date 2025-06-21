@@ -1,25 +1,71 @@
-# Copyright 2013 Novo Nordisk Foundation Center for Biosustainability,
-# Technical University of Denmark.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
+from setuptools import setup, find_packages
 
-"""Set up the optlang package."""
+with open('README.rst') as readme_file:
+    readme = readme_file.read()
 
+with open('HISTORY.rst') as history_file:
+    history = history_file.read()
 
-import versioneer
-from setuptools import setup
+requirements = [
+    'datacube',
+    'Flask',
+    'flask_log_request_id',
+    'requests',
+    'affine',
+    'click',
+    'colour',
+    'lxml',
+    'matplotlib',
+    'numpy',
+    'opencensus',
+    'Pillow',
+    'prometheus_client',
+    'psycopg2',
+    'python_dateutil',
+    'pytz',
+    'rasterio',
+    'regex',
+    'scikit-image',
+    'timezonefinderL',
+    'python-slugify',
+    'xarray'
+]
 
+test_requirements = [
+    # TODO: put package test requirements here
+    'pytest', 'pytest-cov', 'pytest_localserver', 'owslib', 'mock', 'pep8', 'pylint==1.6.4',
+]
 
-# All other arguments are defined in `setup.cfg`.
-setup(version=versioneer.get_version(), cmdclass=versioneer.get_cmdclass())
+setup(
+    name='datacube_ows',
+    version='0.2.0',
+    description="Datacube Open Web Services",
+    long_description=readme + '\n\n' + history,
+    author="Open Data Cube",
+    author_email='earth.observation@ga.gov.au',
+    url='https://github.com/opendatacube/datacube-wms',
+    entry_points={
+        'console_scripts': [
+            'datacube-ows=datacube_ows.wsgi:main',
+            'datacube-ows-update=datacube_ows.update_ranges:main'
+        ]
+    },
+    packages=find_packages(),
+    include_package_data=True,
+    install_requires=requirements,
+    license="Apache Software License 2.0",
+    zip_safe=False,
+    keywords='datacube, wms, wcs',
+    classifiers=[
+        'Development Status :: 2 - Pre-Alpha',
+        'Intended Audience :: Developers',
+        'License :: OSI Approved :: Apache Software License',
+        'Natural Language :: English',
+        'Programming Language :: Python :: 3.5',
+    ],
+    test_suite='tests',
+    tests_require=test_requirements
+)

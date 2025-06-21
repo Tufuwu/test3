@@ -1,4 +1,0 @@
-Optimization and solution retrieval
-===================================
-
-...

@@ -1,5 +1,12 @@
+
+include CONTRIBUTING.rst
+include HISTORY.rst
 include LICENSE
 include README.rst
-include versioneer.py
-include src/optlang/_version.py
-recursive-exclude slow_tests *
+graft datacube_ows/templates
+
+recursive-include tests *
+recursive-exclude * __pycache__
+recursive-exclude * *.py[co]
+
+recursive-include docs *.rst conf.py Makefile make.bat *.jpg *.png *.gif
