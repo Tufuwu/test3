@@ -24,10 +24,7 @@ jobs:
 
     - name: Install dependencies
       run: |
-        sudo apt-get update
-        sudo apt-get install -y git build-essential automake libtool python-dev gettext swig
-        pip install flake8
-
+          pip3 install six flake8
     - name: Run flake8
       run: flake8 --version
 
