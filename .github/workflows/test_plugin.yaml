@@ -49,7 +49,9 @@ jobs:
         pip install --upgrade pycodestyle
 
     - name: Pull Docker image
-      run: docker pull ${{ env.IMAGE }}:${{ env.QGIS_VERSION_TAG }}
+      run: |
+        docker pull "$DOCKER_IMAGE":${{ matrix.docker_tags }}
+        docker run -d --name qgis-testing-environment -v "$GITHUB_WORKSPACE":/tests_directory -e DISPLAY=:99 "$DOCKER_IMAGE":${{ matrix.docker_tags }}
 
     - name: Run Docker container
       run: |
