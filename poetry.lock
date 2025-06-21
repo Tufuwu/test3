@@ -132,7 +132,7 @@ files = [
 
 [package.dependencies]
 pycparser = "*"
-
+setuptools = "*"
 [[package]]
 name = "click"
 version = "8.1.3"
