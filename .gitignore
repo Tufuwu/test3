@@ -1,46 +1,52 @@
-# Developers
-.hg
-.git
-.svn
-.idea/
-.sass-cache/
-.vscode/
-*.db
-*.pyc
-__pycache__
-*~
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
 
-# Javascript libraries
-/node_modules/
+# C extensions
+*.so
 
-# Generated files
-src/openzaak/static/fonts
-src/openzaak/static/css/screen.css
-src/openzaak/static/css/admin/
-src/openzaak/static/js/
-docs/_build
-/volumes/
+# Distribution / packaging
+.Python
+env/
+build/
+develop-eggs/
+dist/
+eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
 
-# Coverage reports
-/reports/
-/htmlcov/
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
 .coverage
+.cache
+nosetests.xml
 coverage.xml
 
-# Environment
-src/openzaak/conf/includes/local.py
-/env/
-/media/
-/static/
-/mail/
-/log/*.log*
-/log/nginx/*.log*
-.env
-/private-media/
+# Translations
+*.mo
+*.pot
 
-# Ansible secrets
-deployment/single-server/vars/*
-!deployment/single-server/vars/*example*
+# Django stuff:
+*.log
 
-deployment/kubernetes/vars/*
-!deployment/kubernetes/vars/*example*
+# Sphinx documentation
+docs/_build/
+
+.*.swp
+.vagrant
+.pypirc
+.eggs/
+
+# VS Code
+.vscode/
