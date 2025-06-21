@@ -1,7 +1,0 @@
-Resources:
-  SSMString:
-    Type: AWS::SSM::Parameter
-    Properties: 
-      Name: /runway/integration-test/stacker
-      Type: String
-      Value: foo

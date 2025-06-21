@@ -1,7 +1,0 @@
-namespace: ${CFNGIN_NAMESPACE}
-stacker_bucket: ''
-sys_path: ./
-
-stacks:
-  vpc:
-    class_path: fixtures.mock_blueprints.VPC
