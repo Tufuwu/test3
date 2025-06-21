@@ -1,0 +1,13 @@
+node_modules
+Dockerfile*
+docker-compose*
+.dockerignore
+.git
+.vscode
+env/
+private-media/
+media/
+log/
+.env
+includes/local.py
+volumes/

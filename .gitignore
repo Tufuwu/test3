@@ -1,0 +1,46 @@
+# Developers
+.hg
+.git
+.svn
+.idea/
+.sass-cache/
+.vscode/
+*.db
+*.pyc
+__pycache__
+*~
+
+# Javascript libraries
+/node_modules/
+
+# Generated files
+src/openzaak/static/fonts
+src/openzaak/static/css/screen.css
+src/openzaak/static/css/admin/
+src/openzaak/static/js/
+docs/_build
+/volumes/
+
+# Coverage reports
+/reports/
+/htmlcov/
+.coverage
+coverage.xml
+
+# Environment
+src/openzaak/conf/includes/local.py
+/env/
+/media/
+/static/
+/mail/
+/log/*.log*
+/log/nginx/*.log*
+.env
+/private-media/
+
+# Ansible secrets
+deployment/single-server/vars/*
+!deployment/single-server/vars/*example*
+
+deployment/kubernetes/vars/*
+!deployment/kubernetes/vars/*example*

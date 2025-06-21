@@ -1,3 +1,0 @@
-jsonschema
-requests
-pytest
