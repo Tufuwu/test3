@@ -1,52 +1,125 @@
-# Kraken
-Chaos and resiliency testing tool for Kubernetes and OpenShift.
-Kraken injects deliberate failures into Kubernetes/OpenShift clusters to check if it is resilient to turbulent conditions.
+[![Build Status](https://travis-ci.org/openstax/openstax-cms.svg?branch=master)](https://travis-ci.org/openstax/openstax-cms)
+[![codecov](https://codecov.io/gh/openstax/openstax-cms/branch/master/graph/badge.svg)](https://codecov.io/gh/openstax/openstax-cms)
 
+OpenStax CMS
+=======================
 
-### Workflow
-![Kraken workflow](media/kraken-workflow.png)
+Built using [Wagtail CMS](http://wagtail.io) on top of [Django Framework](https://www.djangoproject.com). All installation instructions assume you already have [Homebrew](http://brew.sh) installed. If you are not running on MacOSX or a Linux distribution, see the hyperlinks for dependencies.
 
+Dependencies
+=======================
+* [PostgreSQL](http://www.postgresql.org) (≥ 11.3)  
+```bash
+brew install postgresql
+```
+* [Python](https://www.python.org/) (≥ 3.6)
+* [PIP](https://github.com/pypa/pip) (≥ 8.0.0)
+```bash
+brew install python3
+```
 
-### Installation and usage
-Instructions on how to setup, configure and run Kraken can be found at [Installation](docs/installation.md).
+Installation
+=======================
+Verify you have Python ≥ 3.6 installed:  
+```bash
+python --version
+python3 --version
+```
 
+Start PostgreSQL:
+```bash
+brew services start postgresql
+```
+This will also make sure PostgreSQL service starts on boot.
 
-### Config
-Instructions on how to setup the config and the options supported can be found at [Config](docs/config.md).
+Create a database (this is also a shell script), which is named as `oscms_prodcms`. However, it can be renamed as long as the change is reflected on the appropriate field in `openstax/settings/base.py`:
+```bash
+createdb oscms_prodcms
+```
 
+Now we can install the repository. Run the following commands line by line:
 
-### Kubernetes/OpenShift chaos scenarios supported
-Kraken supports pod, node, time/date and [litmus](https://github.com/litmuschaos/litmus) based scenarios.
+```bash
+git clone https://github.com/openstax/openstax-cms
+cd openstax-cms/
+pip3 install -r requirements/dev.txt
+```
 
-- [Pod Scenarios](docs/pod_scenarios.md)
+After all the modules in requirements are installed, run the migration script:
 
-- [Node Scenarios](docs/node_scenarios.md)
+```bash
+python3 manage.py migrate
+```
+Now, create a super user. Run the following command and then proceed with the instructions:
 
-- [Time Scenarios](docs/time_scenarios.md)
+```bash
+python3 manage.py createsuperuser
+```
 
-- [Litmus Scenarios](docs/litmus_scenarios.md)
+Finally, start the server:
 
+```bash
+python3 manage.py runserver
+```
 
-### Kraken scenario pass/fail criteria and report
-It's important to make sure to check if the targeted component recovered from the chaos injection and also if the Kubernetes/OpenShift cluster is healthy as failures in one component can have an adverse impact on other components. Kraken does this by:
-- Having built in checks for pod and node based scenarios to ensure the expected number of replicas and nodes are up. It also supports running custom scripts with the checks.
-- Leveraging [Cerberus](https://github.com/openshift-scale/cerberus) to monitor the cluster under test and consuming the aggregated go/no-go signal to determine pass/fail. It is highly recommended to turn on the Cerberus health check feature avaliable in Kraken. Instructions on installing and setting up Cerberus can be found [here](https://github.com/openshift-scale/cerberus#installation). Once Cerberus is up and running, set cerberus_enabled to True and cerberus_url to the url where Cerberus publishes go/no-go signal in the Kraken config file.
+Testing
+=======================
+To test OpenStax CMS on a local device, you need to overwrite some settings. This can be streamlined by introducing `local.py` in `openstax/settings/`. Any changes on or additions to `local.py` will overwrite settings. Make copy of `local.py.example` and rename it to `local.py`:
+```bash
+cd openstax/settings/
+cp local.py.example local.py
+```
 
+Start the server:
+```bash
+python3 manage.py test --liveserver=localhost:8001 --settings=openstax.settings.dev
+```
 
-### Performance monitoring
-Monitoring the Kubernetes/OpenShift cluster to observe the impact of Kraken chaos scenarios on various components is key to find out the bottlenecks as it's important to make sure the cluster is healthy in terms if both recovery as well as performance during/after the failure has been injected. Instructions on enabling it can be found [here](docs/performance_dashboards.md).
+SQLite Support
+=======================
+SQLite is supported as an alternative to PostgreSQL. In order to switch to SQLite, change the `DATABASES` setting
+in `openstax/settings/base.py` to use `'django.db.backends.sqlite3'`, and set `NAME` to be the full path of your database file, as you would with a regular Django project.
 
-### Blogs and other useful resources
-- Blog post on introduction to Kraken: https://www.openshift.com/blog/introduction-to-kraken-a-chaos-tool-for-openshift/kubernetes
-- Discussion and demo on how Kraken can be leveraged to ensure OpenShift is reliable, performant and scalable: https://www.youtube.com/watch?v=s1PvupI5sD0&ab_channel=OpenShift
-- Blog post emphasizing the importance of making Chaos part of Performance and Scale runs to mimic the production environments: https://www.openshift.com/blog/making-chaos-part-of-kubernetes/openshift-performance-and-scalability-tests
+Docker
+=======================
+To run the CMS in Docker containers:
 
-### Contributions
-We are always looking for more enhancements, fixes to make it better, any contributions are most welcome. Feel free to report or work on the issues filed on github.
+```bash
+docker-compose up
+```
 
-[More information on how to Contribute](docs/contribute.md)
+The CMS code directory from your host machine is mounted in the `app` container at `/code`. To drop into a bash terminal in the `app` container:
 
-### Community
-Key Members(slack_usernames): paigerube14, rook, mffiedler, mohit, dry923, rsevilla, ravi
-* [**#sig-scalability on Kubernetes Slack**](https://kubernetes.slack.com)
-* [**#forum-perfscale on CoreOS Slack**](https://coreos.slack.com)
+```bash
+docker-compose exec -e DJANGO_SETTINGS_MODULE=openstax.settings.docker app bash
+```
+
+This command has been wrapped in a tiny script:
+
+```bash
+./docker/bash
+```
+
+From within the bash shell, you can run the tests:
+
+```bash
+python3 manage.py test --keepdb
+```
+
+or pound on a specific test:
+
+```bash
+python3 manage.py test --keepdb books.tests.BookTests.test_can_create_book
+```
+
+The `--keepdb` option reuses the test database from run to run so you don't have to wait for it to recreate the database and run the migrations every time.
+
+To debug tests, you can insert the normal `import pdb; pdb.set_trace()` lines in your code and test runs from the bash environment will show you the debugger.
+
+API Endpoints
+=======================
+[View the Wiki Page](https://github.com/openstax/openstax-cms/wiki/API-Endpoints) for the list of all available API endpoints and their descriptions.
+
+Documentation
+=============
+[CMS Application Documentation](docs/app-design.md)
