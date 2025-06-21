@@ -1,50 +1,62 @@
+![Build Status](https://github.com/ocadotechnology/codeforlife-portal/workflows/CI%2FCD/badge.svg)
+[![codecov](https://codecov.io/gh/ocadotechnology/codeforlife-portal/branch/master/graph/badge.svg)](https://codecov.io/gh/ocadotechnology/codeforlife-portal)
+[![Code Climate](https://codeclimate.com/github/ocadotechnology/codeforlife-portal/badges/gpa.svg)](https://codeclimate.com/github/ocadotechnology/codeforlife-portal)
 
-[![Runboat](https://img.shields.io/badge/runboat-Try%20me-875A7B.png)](https://runboat.odoo-community.org/builds?repo=OCA/connector-telephony&target_branch=14.0)
-[![Pre-commit Status](https://github.com/OCA/connector-telephony/actions/workflows/pre-commit.yml/badge.svg?branch=14.0)](https://github.com/OCA/connector-telephony/actions/workflows/pre-commit.yml?query=branch%3A14.0)
-[![Build Status](https://github.com/OCA/connector-telephony/actions/workflows/test.yml/badge.svg?branch=14.0)](https://github.com/OCA/connector-telephony/actions/workflows/test.yml?query=branch%3A14.0)
-[![codecov](https://codecov.io/gh/OCA/connector-telephony/branch/14.0/graph/badge.svg)](https://codecov.io/gh/OCA/connector-telephony)
-[![Translation Status](https://translation.odoo-community.org/widgets/connector-telephony-14-0/-/svg-badge.svg)](https://translation.odoo-community.org/engage/connector-telephony-14-0/?utm_source=widget)
+## A [Code for Life](https://www.codeforlife.education/) repository
 
-<!-- /!\ do not modify above this line -->
+- Ocado Technology's [Code for Life initiative](https://www.codeforlife.education/) has been developed to inspire the next generation of computer scientists and to help teachers deliver the computing curriculum.
+- This repository hosts the source code of the **main website**: the portal for the Code For Life initiative, the registration/log in, the teachers' dashboards, the teaching materials, etc
+- The other repos for Code For Life:
+  - the first game, [Rapid Router](https://github.com/ocadotechnology/rapid-router)
+  - the new game for teenagers, [currently at a very early stage](https://github.com/ocadotechnology/aimmo)
+  - the [deployment code for Google App Engine](https://github.com/ocadotechnology/codeforlife-deploy-appengine)
 
-# connector-telephony
+## Running Locally
 
-Tools for telephony services and phone number rendering
+- Clone the repo. Fork it first if you want to contribute, or make sure you work on separate branches.
+- Install prerequisites. E.g. on Ubuntu / Linux Mint:
+  - `sudo apt-get install git`
+  - `sudo apt-get install python-dev`
+  - `sudo apt-get install libxml2-dev libxslt1-dev zlib1g-dev`
+- Make and activate a virtualenv (We recommend [pipenv](<(https://docs.pipenv.org/)>))
+  - On **Mac**, run `brew install pipenv` using the `brew` package manager. Then run `pipenv install` followed by `pipenv shell`.
+  - On Linux, follow the instructions [here](https://docs.pipenv.org/install/#installing-pipenv) to install pipenv. Then run `pipenv install` followed by `pipenv shell`.
+- `./run` - This will:
+  - sync the database
+  - collect the static files
+  - run the server
+- Once you see `Quit the server with CONTROL-C`, you can open the portal in your browser at `localhost:8000`.
 
-<!-- /!\ do not modify below this line -->
+- To setup test dependencies run `pipenv install --dev` and then `pytest` to run tests.
 
-<!-- prettier-ignore-start -->
+- If you have problems seeing the portal on machines with different locale (e.g. Polish), check the terminal for errors mentioning `ValueError: unknown locale: UTF-8`. If you see them, you need to have environment variables `LANG` and `LC_ALL` both set to `en_US.UTF-8`.
+  - Either export them in your `.bashrc` or `.bash_profile`
+  - or restart the portal with command `LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 ./run`.
 
-[//]: # (addons)
+## How to contribute!
 
-Available addons
-----------------
-addon | version | maintainers | summary
---- | --- | --- | ---
-[asterisk_click2dial](asterisk_click2dial/) | 14.0.1.0.0 | [![alexis-via](https://github.com/alexis-via.png?size=30px)](https://github.com/alexis-via) | Asterisk-Odoo connector
-[base_phone](base_phone/) | 14.0.1.0.0 | [![alexis-via](https://github.com/alexis-via.png?size=30px)](https://github.com/alexis-via) | Validate phone numbers
-[connector_voicent](connector_voicent/) | 14.0.1.0.0 | [![max3903](https://github.com/max3903.png?size=30px)](https://github.com/max3903) | Connect Odoo with Voicent
-[crm_phone](crm_phone/) | 14.0.1.1.0 | [![alexis-via](https://github.com/alexis-via.png?size=30px)](https://github.com/alexis-via) | Improve phone support in CRM
-[event_phone](event_phone/) | 14.0.1.0.0 | [![alexis-via](https://github.com/alexis-via.png?size=30px)](https://github.com/alexis-via) | Validate phone numbers in Events
-[hr_phone](hr_phone/) | 14.0.1.0.0 | [![alexis-via](https://github.com/alexis-via.png?size=30px)](https://github.com/alexis-via) | Validate phone numbers in HR
-[hr_recruitment_phone](hr_recruitment_phone/) | 14.0.1.0.0 | [![alexis-via](https://github.com/alexis-via.png?size=30px)](https://github.com/alexis-via) | Validate phone numbers in HR Recruitment
-[sms_no_alter_body](sms_no_alter_body/) | 14.0.1.0.0 |  | Avoid sms formatting between html and text
-[sms_no_automatic_delete](sms_no_automatic_delete/) | 14.0.1.1.0 |  | Avoid automatic delete of sended sms
-[sms_ovh_http](sms_ovh_http/) | 14.0.1.0.1 | [![sebastienbeau](https://github.com/sebastienbeau.png?size=30px)](https://github.com/sebastienbeau) | Send sms using ovh http API
+**Guidelines** Read the [contributing guidelines](CONTRIBUTING.md), thanks!<br>
+You can also read about the [life cycle of a code change](docs/life-cycle-of-a-code-change.md).
 
-[//]: # (end addons)
+One word of caution: please do not add any issues related to security. Evil hackers are everywhere nowadays... If you do find a security issue, let us know using our [contact form][c4l-contact-form].
 
-<!-- prettier-ignore-end -->
+**Want to help?** You can contact us using this [contact form][c4l-contact-form] and we'll get in touch as soon as possible! Thanks a lot.
 
-## Licenses
+## Common Problems
 
-This repository is licensed under [AGPL-3.0](LICENSE).
+### Unapplied migrations on first run
 
-However, each module can have a totally different license, as long as they adhere to Odoo Community Association (OCA)
-policy. Consult each module's `__manifest__.py` file, which contains a `license` key
-that explains its license.
+It may be that some migrations were changed and you have .pyc files from the old ones. Try removing all .pyc migrations by running `rm migrations/*.pyc` from the repository.
 
-----
-OCA, or the [Odoo Community Association](http://odoo-community.org/), is a nonprofit
-organization whose mission is to support the collaborative development of Odoo features
-and promote its widespread use.
+### Mac OS Mojave
+
+On MacOS Mojave there is an error when installing `Pillow 3.3.2`.
+To fix this issue you need to run the following command:
+
+```
+sudo installer -pkg /Library/Developer/CommandLineTools/Packages/macOS_SDK_headers_for_macOS_10.14.pkg -target /
+```
+
+cf: https://github.com/python-pillow/Pillow/issues/3438#issuecomment-435169249
+
+[c4l-contact-form]: https://www.codeforlife.education/help/#contact
