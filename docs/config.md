@@ -1,9 +1,11 @@
+### Config
+Set the scenarios to inject and the tunings like duration to wait between each scenario in the config file located at config/config.yaml. A sample config looks like:
+
+```
 kraken:
     kubeconfig_path: /root/.kube/config                    # Path to kubeconfig
     exit_on_failure: False                                 # Exit when a post action scenario fails
-    litmus_version: v1.10.0                                # Litmus version to install
-    litmus_uninstall: False                                # If you want to uninstall litmus if failure
-    chaos_scenarios:                                       # List of policies/chaos scenarios to load
+    chaos_scenarios:                                         # List of policies/chaos scenarios to load
         -   pod_scenarios:                                 # List of chaos pod scenarios to load
             - -    scenarios/etcd.yml
             - -    scenarios/regex_openshift_pod_kill.yml
@@ -15,9 +17,6 @@ kraken:
             - -    scenarios/openshift-kube-apiserver.yml
         -   time_scenarios:                                # List of chaos time scenarios to load
             - scenarios/time_scenarios_example.yml
-        -   litmus_scenarios:                              # List of litmus scenarios to load
-            - - https://hub.litmuschaos.io/api/chaos/1.10.0?file=charts/generic/node-cpu-hog/rbac.yaml
-              - scenarios/node_hog_engine.yaml
 
 cerberus:
     cerberus_enabled: False                                # Enable it when cerberus is previously installed
@@ -31,3 +30,4 @@ tunings:
     wait_duration: 60                                      # Duration to wait between each chaos scenario
     iterations: 1                                          # Number of times to execute the scenarios
     daemon_mode: False                                     # Iterations are set to infinity which means that the kraken will cause chaos forever
+```
