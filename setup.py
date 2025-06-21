@@ -1,44 +1,35 @@
-from setuptools import setup, find_packages
-import client
+from setuptools import setup
 
-VERSION = client.__version__
+with open("README.md") as f:
+    readme = f.read()
+
+with open("aioitertools/__init__.py") as f:
+    for line in f:
+        if line.startswith("__version__"):
+            version = line.split('"')[1]
 
 setup(
-    name='okpy',
-    version=VERSION,
-    author='John Denero, Soumya Basu, Stephen Martinis, Sharad Vikram, Albert Wu',
-    # author_email='',
-    description=('ok.py supports programming projects by running tests, '
-                'tracking progress, and assisting in debugging.'),
-    # long_description=long_description,
-    url='https://github.com/okpy/ok-client',
-    # download_url='https://github.com/okpy/ok/releases/download/v{}/ok'.format(VERSION),
-
-    license='Apache License, Version 2.0',
-    keywords=['education', 'autograding'],
-    packages=find_packages(include=[
-        'client',
-        'client.*',
-    ]),
-    package_data={
-        'client': ['config.ok'],
-    },
-    # install_requires=[],
-    entry_points={
-        'console_scripts': [
-            'ok=client.cli.ok:main',
-            'ok-publish=client.cli.publish:main',
-            'ok-lock=client.cli.lock:main',
-            'ok-test=client.cli.test:main',
-        ],
-    },
+    name="aioitertools",
+    description="asyncio version of the standard multiprocessing module",
+    long_description=readme,
+    long_description_content_type="text/markdown",
+    version=version,
+    author="John Reese",
+    author_email="john@noswap.com",
+    url="https://github.com/jreese/aioitertools",
     classifiers=[
-        'Programming Language :: Python :: 3.4',
-        'Programming Language :: Python :: 3.5',
-        'Programming Language :: Python :: 3.6',
+        "Development Status :: 4 - Beta",
+        "Framework :: AsyncIO",
+        "Intended Audience :: Developers",
+        "License :: OSI Approved :: MIT License",
+        "Programming Language :: Python",
+        "Programming Language :: Python :: 3",
+        "Topic :: Software Development :: Libraries",
     ],
-    install_requires=[
-        'requests==2.12.4',
-        'coverage==4.4'
-    ],
+    license="MIT",
+    packages=["aioitertools", "aioitertools.tests"],
+    package_data={"aioitertools": ["py.typed"]},
+    python_requires=">=3.6",
+    setup_requires=["setuptools>=38.6.0"],
+    install_requires=[],
 )
