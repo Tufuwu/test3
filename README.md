@@ -1,84 +1,107 @@
-aioitertools
-============
+# Runway
 
-itertools for AsyncIO and mixed iterables.
+[![CI/CD](https://github.com/onicagroup/runway/workflows/CI/CD/badge.svg?branch=master)](https://github.com/onicagroup/runway/actions?query=workflow%3ACI%2FCD)
+[![PyPi](https://img.shields.io/pypi/v/runway?style=flat)](https://pypi.org/project/runway/)
+[![npm](https://img.shields.io/npm/v/@onica/runway?style=flat)](https://www.npmjs.com/package/@onica/runway)
 
-[![build status](https://travis-ci.org/jreese/aioitertools.svg?branch=master)](https://travis-ci.org/jreese/aioitertools)
-[![version](https://img.shields.io/pypi/v/aioitertools.svg)](https://pypi.org/project/aioitertools)
-[![license](https://img.shields.io/pypi/l/aioitertools.svg)](https://github.com/jreese/aioitertools/blob/master/LICENSE)
-[![code style](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/ambv/black)
+![runway-example.gif](https://raw.githubusercontent.com/onicagroup/runway/master/docs/runway-example.gif)
 
+Runway is a lightweight integration app designed to ease management of infrastructure tools.
 
-Install
--------
-
-aioitertools requires Python 3.6 or newer.
-You can install it from PyPI:
-
-    $ pip3 install aioitertools
+Its main goals are to encourage GitOps best-practices, avoid convoluted Makefiles/scripts (enabling identical deployments from a workstation or CI job), and enable developers/admins to use the best tool for any given job.
 
 
-Usage
------
+## Features
 
-aioitertools shadows the standard library whenever possible to provide
-asynchronous version of the modules and functions you already know.  It's
-fully compatible with standard iterators and async iterators alike, giving
-you one unified, familiar interface for interacting with iterable objects:
+* Centralized environment-specific configuration
+* Automatic environment identification from git branches
+* Automatic linting/verification
+* Support of IAM roles to assume for each deployment
+* Terraform backend/workspace config management w/per-environment tfvars
+* Automatic kubectl/terraform version management per-environment
 
-    from aioitertools import iter, next, map, zip
+### Supported Deployment Tools
 
-    something = iter(...)
-    first_item = await next(something)
-
-    async for item in iter(something):
-        ...
-
-
-    async def fetch(url):
-        response = await aiohttp.request(...)
-        return response.json
-
-    async for value in map(fetch, MANY_URLS):
-        ...
+* AWS CDK
+* Kubectl
+* Serverless Framework
+* Stacker (CloudFormation)
+* Static websites (build & deploy to S3+CloudFront)
+* Terraform
 
 
-    async for a, b in zip(something, something_else):
-        ...
+## Example
+
+A typical Runway configuration is unobtrusive -- it just lists the deployment order and locations (regions).
+
+```yml
+deployments:
+  - modules:
+    - resources.tf  # terraform resources
+    - backend.sls  # serverless lambda functions
+    - frontend  # static web site
+    environments:  # Environment settings
+        dev:
+            foo: dev-bar
+        prod:
+            foo: prod-bar
+```
+
+The example above contains enough information for Runway to deploy all resources, lambda functions and a static website backed by S3 and Cloudfront in either dev or prod environments
 
 
-aioitertools emulates the entire `itertools` module, offering the same
-function signatures, but as async generators.  All functions support
-standard iterables and async iterables alike, and can take functions or
-coroutines:
+## Install
 
-    from aioitertools import chain, islice
+Runway is available via any of the following installation methods. Use whatever works best for your project/team (it's the same application no matter how you obtain it).
 
-    async def generator1(...):
-        yield ...
+### HTTPS Download (e.g cURL)
 
-    async def generator2(...):
-        yield ...
+Use one of the endpoints below to download a single-binary executable version of Runway based on your operating system.
 
-    async for value in chain(generator1(), generator2()):
-        ...
+| Operating System | Endpoint                               |
+|------------------|----------------------------------------|
+| Linux            | <https://oni.ca/runway/latest/linux>   |
+| macOS            | <https://oni.ca/runway/latest/osx>     |
+| Windows          | <https://oni.ca/runway/latest/windows> |
 
-    async for value in islice(generator1(), 2, None, 2):
-        ...
+```shell
+$ curl -L oni.ca/runway/latest/osx -o runway
+$ chmod +x runway
+$ ./runway init
+```
 
-
-See [builtins.py][builtins] and [itertools.py][itertools] for full documentation
-of functions and abilities.
-
-
-License
--------
-
-aioitertools is copyright [John Reese](https://jreese.sh), and licensed under
-the MIT license.  I am providing code in this repository to you under an open
-source license.  This is my personal repository; the license you receive to
-my code is from me and not from my employer. See the `LICENSE` file for details.
+**Suggested use:** CloudFormation or Terraform projects
 
 
-[builtins]: https://github.com/jreese/aioitertools/blob/master/aioitertools/builtins.py
-[itertools]: https://github.com/jreese/aioitertools/blob/master/aioitertools/itertools.py
+### npm
+
+```shell
+$ npm i -D @onica/runway
+$ npx runway init
+```
+
+**Suggested use:** Serverless or AWS CDK projects
+
+
+### pip (or pipenv,poetry,etc)
+
+```shell
+$ pip install runway
+$ runway init
+# OR
+$ pipenv install runway
+$ pipenv run runway init
+```
+
+**Suggested use:** Python projects
+
+
+## Documentation
+
+See the [doc site](https://docs.onica.com/projects/runway) for full documentation.
+
+Quickstart documentation, including CloudFormation templates and walkthrough can be found [here](https://docs.onica.com/projects/runway/en/latest/quickstart.html)
+
+## Community Chat
+
+Drop into the [#runway channel](https://kiwiirc.com/client/irc.freenode.net/?nick=RunwayHelp?#runway) for discussion/questions.
