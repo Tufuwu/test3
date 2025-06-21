@@ -1,9 +1,0 @@
-{
-  "test": 7789,
-  "subtest": {
-    "include": "tests/cfg/infinite_2.json",
-    "type": "json"
-  }
-}
-
-
