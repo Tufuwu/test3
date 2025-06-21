@@ -1,1 +1,2 @@
-portal/_version.py export-subst
+#*.po -diff
+*.mo -diff
