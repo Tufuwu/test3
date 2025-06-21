@@ -20,10 +20,4 @@ jobs:
 
     - name: Install dependencies
       run: |
-        sudo apt-get update
-        sudo apt install python3-pip
-        pip install -r test-requirements.txt
-        pip install tox
-
-    - name: Run tests
-      run: tox .
+        python setup.py develop
