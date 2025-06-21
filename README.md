@@ -1,143 +1,96 @@
-# Netherlands eScience Center Python Template
+# python-dispatch
+Lightweight event handling for Python
 
-[![RSD](https://img.shields.io/badge/rsd-python--template-00a3e3.svg)](https://research-software.nl/software/nlesc-python-template)
-[![Appveyor Build Status](https://ci.appveyor.com/api/projects/status/a99ph5fv1carejrr/branch/master?svg=true)](https://ci.appveyor.com/project/jvdzwaan/python-template/branch/master)
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.1310751.svg)](https://doi.org/10.5281/zenodo.1310751)
+[![Build Status](https://travis-ci.org/nocarryr/python-dispatch.svg?branch=master)](https://travis-ci.org/nocarryr/python-dispatch)[![Coverage Status](https://coveralls.io/repos/github/nocarryr/python-dispatch/badge.svg?branch=master)](https://coveralls.io/github/nocarryr/python-dispatch?branch=master)[![PyPI version](https://badge.fury.io/py/python-dispatch.svg)](https://badge.fury.io/py/python-dispatch)[![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/nocarryr/python-dispatch/master/LICENSE.txt)
 
-Spend less time setting up and configuring your new Python packages and comply with the
-[Netherlands eScience Center Software Development Guide](https://guide.esciencecenter.nl/)
-from the start.
+## Description
+This is an implementation of the "Observer Pattern" with inspiration from the
+[Kivy](kivy.org) framework. Many of the features though are intentionally
+stripped down and more generalized. The goal is to have a simple drop-in
+library with no dependencies that stays out of the programmer's way.
 
-Use this [Cookiecutter](https://cookiecutter.readthedocs.io) template to generate
-an empty Python package. Features include:
-
-- Boilerplate tests and documentation,
-- [Python setup configuration]({{cookiecutter.project_slug}}/setup.py),
-- Open source software license,
-- [Default Github actions]({{cookiecutter.project_slug}}/.github/workflows) for building, testing and deployment
-
-- Code style checking,
-- [Editorconfig]({{cookiecutter.project_slug}}/.editorconfig),
-- Miscellaneous files, such as [Change log]({{cookiecutter.project_slug}}/CHANGELOG.rst), [Code of Conduct]({{cookiecutter.project_slug}}/CODE_OF_CONDUCT.rst), and [Contributing guidelines]({{cookiecutter.project_slug}}/CONTRIBUTING.rst),
-- A [README]({{cookiecutter.project_slug}}/README.rst) and [a separate document]({{cookiecutter.project_slug}}/project_setup.rst) with extensive documentation about project setup.
-
-The file structure of the generated package looks like:
-
-```bash
-path/to/package/
-├── .editorconfig
-└── .github/
-    └── workflows
-        ├── build.yml
-        └── pypi_deploy.yml
-├── .gitignore
-├── .prospector.yml
-├── CHANGELOG.rst
-├── CODE_OF_CONDUCT.rst
-├── CONTRIBUTING.rst
-├── docs
-│   ├── conf.py
-│   ├── index.rst
-│   └── ...
-├── LICENSE
-├── MANIFEST.in
-├── NOTICE
-├── package
-│   ├── __init__.py
-│   ├── __version__.py
-│   └── package.py
-├── README.rst
-├── project_setup.rst
-├── requirements.txt
-├── setup.cfg
-├── setup.py
-└── tests
-    ├── __init__.py
-    ├── test_lint.py
-    └── test_package.py
+## Installation
+```
+pip install python-dispatch
 ```
 
-* Code (existing or new) should be placed in `path/to/package/package/` (please choose a better name for your software!).
-* Add documentation by editing `path/to/package/docs/index.rst`
-* Tests go in the `path/to/package/tests/` directory
-* The generated [project setup document]({{cookiecutter.project_slug}}/project_setup.rst) contains extensive documentation about the project setup and provides further instructions on what to do.
+## Links
 
-## How to use
-
-We recommend developing your software in an isolated Python environment and
-assume you are familiar with either **virtualenv + pip** or **conda** (check the
-[guide](https://guide.esciencecenter.nl/best_practices/language_guides/python.html#dependencies-and-package-management)
-if you are not).
-
-### Step 1: Install `cookiecutter`
-
-We recommend installing cookiecutter outside the virtual environment you will
-be using for developing your software. This way, you don't have to install
-cookiecutter for every new project.
-
-* If you are using **virtualenv + pip**:
-	```bash
-	pip install --user cookiecutter
-	```
+|               |                                              |
+| -------------:|:-------------------------------------------- |
+| Project Home  | https://github.com/nocarryr/python-dispatch  |
+| PyPI          | https://pypi.python.org/pypi/python-dispatch |
+| Documentation | https://python-dispatch.readthedocs.io       |
 
 
-* If you are using **conda**:
-	```bash
-	conda install -c conda-forge cookiecutter
-	```
+## Usage
 
-### Step 2: Generate the files and directory structure
+### Events
 
-To create a new package, type:
-```bash
-cookiecutter https://github.com/nlesc/python-template.git
+```python
+>>> from pydispatch import Dispatcher
+>>> class MyEmitter(Dispatcher):
+...     # Events are defined in classes and subclasses with the '_events_' attribute
+...     _events_ = ['on_state', 'new_data']
+...     def do_some_stuff(self):
+...         # do stuff that makes new data
+...         data = {'foo':'bar'}
+...         # Then emit the change with optional positional and keyword arguments
+...         self.emit('new_data', data=data)
+...
+>>> # An observer - could inherit from Dispatcher or any other class
+>>> class MyListener(object):
+...     def on_new_data(self, *args, **kwargs):
+...         data = kwargs.get('data')
+...         print('I got data: {}'.format(data))
+...     def on_emitter_state(self, *args, **kwargs):
+...         print('emitter state changed')
+...
+>>> emitter = MyEmitter()
+>>> listener = MyListener()
+>>> emitter.bind(on_state=listener.on_emitter_state)
+>>> emitter.bind(new_data=listener.on_new_data)
+>>> emitter.do_some_stuff()
+I got data: {'foo': 'bar'}
+>>> emitter.emit('on_state')
+emitter state changed
+
 ```
 
-You will be asked to supply the following information:
+### Properties
 
-| Name                      | Default value | Explanation |
-| ------------------------- | ------------- | ----------- |
-| project_name              | My Python Project  | Full project/package name.  |
-| project_slug              | my_python_project  | This will be the name of the directory to be created and the git repository. It is safest not to use dashes (-) or spaces in this name. |
-| project_short_description |   | The information that you enter here will end up in the README, documentation, license, and setup.py, so it may be a good idea to prepare something in advance. |
-| version                   | 0.1.0  |   |
-| github_organization       |   | GitHub organization that will contain this project's repository. This can also be your github user name. |
-| open_source_license       | Apache 2.0 (1)  | The software license under which the code is made available.  |
-| apidoc                    | no (1)  | Add support for automatically generating a module index from the `docstrings` in your Python package (look at the [scriptcwl package](http://scriptcwl.readthedocs.io/en/latest/apidocs/scriptcwl.html) for an example).
-| full_name                 | John Smith  | Your full name, e.g. _John Smith_.   |
-| email                     | yourname@esciencecenter.nl | Your (work) email address  |
-| copyright_holder          |   | Name(s) of the organization(s) or person(s) who hold the copyright of the software (e.g., Netherlands eScience Center).  |
-| code_of_conduct_email     | yourname@esciencecenter.nl | Email address of the person who should be contacted in case of violations of the Code of Conduct.  |
+```python
+>>> from pydispatch import Dispatcher, Property
+>>> class MyEmitter(Dispatcher):
+...     # Property objects are defined and named at the class level.
+...     # They will become instance attributes that will emit events when their values change
+...     name = Property()
+...     value = Property()
+...
+>>> class MyListener(object):
+...     def on_name(self, instance, value, **kwargs):
+...         print('emitter name is {}'.format(value))
+...     def on_value(self, instance, value, **kwargs):
+...         print('emitter value is {}'.format(value))
+...
+>>> emitter = MyEmitter()
+>>> listener = MyListener()
+>>> emitter.bind(name=listener.on_name, value=listener.on_value)
+>>> emitter.name = 'foo'
+emitter name is foo
+>>> emitter.value = 42
+emitter value is 42
 
-### Step 3: Create and activate a Python environment
+```
 
-* If you are using **virtualenv + pip**, do:
-	 ```bash
-	 $ virtualenv -p python3 env
-	 $ . env/bin/activate
-	 ```
-* If you are using **conda**, type:
-	```bash
-	$ conda create -n env python=3
-	$ source activate env
-	```
-	(On windows use `activate env` to activate the conda environment.)
+## Contributing
 
-## Continuous integration with Github Actions
+Contributions are welcome!
 
-The template has two Ci workflows. They can be found in **.github/workflows** folder.
+If you want to contribute through code or documentation, please see the
+[Contributing Guide](CONTRIBUTING.md) for information.
 
-1. **build.yml**
+## License
 
-This workflow install the dependencies, builds the package and runs tests.
-
-2. **pypi.yml**
-
-This workflow pushes the package to [PYPI](https://pypi.org/). This action will require PYPI token to be stored as [Github secret](https://help.github.com/en/actions/configuring-and-managing-workflows/creating-and-storing-encrypted-secrets). The workflow uses secret with a name of `PYPI_TOKEN`.
-
-You can learn more about Python packaging at [this link](https://packaging.python.org/tutorials/packaging-projects/).
-
-
-## How to contribute
-
-Suggestions/improvements/edits are most welcome. Please read the [contribution guidelines](CONTRIBUTING.md) before creating an issue or a pull request.
+This project is released under the MIT License. See the [LICENSE](LICENSE.txt) file
+for more information.
