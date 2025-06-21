@@ -1,35 +1,25 @@
-#!/usr/bin/env python
-from setuptools import setup, find_packages
+# Copyright 2013 Novo Nordisk Foundation Center for Biosustainability,
+# Technical University of Denmark.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
-install_requires = ["Django>=2.2", "psycopg2-binary"]
 
-extras_require = {
-    "dev": ["pytest>=3.6", "pytest-cov", "pytest-django", "coveralls", "flake8"]
-}
+"""Set up the optlang package."""
 
 
-setup(
-    name="opencivicdata",
-    version="3.2.0",
-    author="James Turk",
-    author_email="james@openstates.org",
-    license="BSD",
-    description="python opencivicdata library",
-    long_description="",
-    url="",
-    packages=find_packages(),
-    include_package_data=True,
-    install_requires=install_requires,
-    extras_require=extras_require,
-    platforms=["any"],
-    classifiers=[
-        "Development Status :: 5 - Production/Stable",
-        "Intended Audience :: Developers",
-        "License :: OSI Approved :: BSD License",
-        "Natural Language :: English",
-        "Operating System :: OS Independent",
-        "Programming Language :: Python :: 3.6",
-        "Programming Language :: Python :: 3.7",
-        "Programming Language :: Python :: 3.8",
-    ],
-)
+import versioneer
+from setuptools import setup
+
+
+# All other arguments are defined in `setup.cfg`.
+setup(version=versioneer.get_version(), cmdclass=versioneer.get_cmdclass())
