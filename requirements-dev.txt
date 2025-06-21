@@ -1,5 +1,5 @@
 black==19.3b0
-codecov==2.0.15
+codecov==2.1.13
 coverage==4.5.4
 isort==4.3.20
 mypy==0.720
