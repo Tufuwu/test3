@@ -1,21 +1,11 @@
-*.pyc
-*.egg
-*.egg-info
+# sphinx build folder
+_build
+# translated schema build folder
+_build_schema
+.ve
 node_modules
-doc/_build
-dist
-timeseries_data
-enhydris.db
-enhydris_project/settings/local.py
-enhydris_project/settings/urls.py
-
-# Selenium log files
-*driver.log
-
-# enhydris add-ons which may be linked or checked out in the current directory
-enhydris-openhigis
-enhydris_openhigis
-enhydris-autoprocess
-enhydris_autoprocess
-enhydris-synoptic
-enhydris_synoptic
+*~
+*.swp
+*.pytest_cache*
+*.mo
+/schema/testing
