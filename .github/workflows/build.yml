@@ -18,6 +18,7 @@ jobs:
         submodules: recursive
     - name: Dependencies
       run: |
+        sudo apt-get install python-pip
         sudo apt-get install cmake
         sudo apt-get install libffi-dev
         sudo apt-get install python3-dev
