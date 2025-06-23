@@ -1,41 +1,85 @@
-Python Classes for Data Manipulation
-====================================
+Gaupol
+======
 
-[![Test](https://github.com/otsaloma/dataiter/workflows/Test/badge.svg)](https://github.com/otsaloma/dataiter/actions)
-[![Documentation Status](https://readthedocs.org/projects/dataiter/badge/?version=latest)](https://dataiter.readthedocs.io/en/latest/?badge=latest)
-[![PyPI](https://img.shields.io/pypi/v/dataiter.svg)](https://pypi.org/project/dataiter/)
+[![Test](https://github.com/otsaloma/gaupol/workflows/Test/badge.svg)](https://github.com/otsaloma/gaupol/actions)
+[![Packages](https://repology.org/badge/tiny-repos/gaupol.svg)](https://repology.org/metapackage/gaupol)
+[![Flathub](https://img.shields.io/badge/download-flathub-blue.svg)](https://flathub.org/apps/details/io.otsaloma.gaupol)
+[![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/otsaloma/gaupol)
 
-dataiter currently includes the following classes.
+Gaupol is an editor for text-based subtitle files. It supports multiple
+subtitle file formats and provides means of creating, editing and
+translating subtitles and timing subtitles to match video.
 
-**`DataFrame`** is a class for tabular data similar to R's `data.frame`
-or `pandas.DataFrame`. It is under the hood a dictionary of NumPy arrays
-and thus capable of fast vectorized operations. You can consider this to
-be a very experimental, very light-weight alternative to Pandas with a
-simple and consistent API. Performance-wise dataiter relies on NumPy and
-is likely to be at best comparable to Pandas.
+Gaupol also includes `aeidon`, a separately installable general-purpose
+Python package for reading, writing and manipulating text-based subtitle
+files. See [`README.aeidon.md`](README.aeidon.md) for details.
 
-**`ListOfDicts`** is a class useful for manipulating data from JSON
-APIs. It provides functionality similar to libraries such as
-Underscore.js, with manipulation functions that iterate over the data
-and return a shallow modified copy of the original. `attd.AttributeDict`
-is used to provide convenient access to dictionary keys.
+## Installing
 
-**`GeoJSON`** is a simple wrapper class that allows reading a GeoJSON
-file into a `DataFrame` and writing a data frame to a GeoJSON file. Any
-operations on the data are thus done with methods provided by the data
-frame class. Geometry is read as-is into the "geometry" column, but no
-special geometric operations are currently supported.
+### Linux
 
-## Installation
+#### Packages
 
-```bash
-# Latest stable version
-pip install -U dataiter
+Gaupol is packaged for most of the popular [distros][], so easiest is to
+install via your distro's package management. If not packaged for your
+distro or you need a newer version than packaged, read below on how to
+install from Flatpak or the source code.
 
-# Latest development version
-pip install -U git+https://github.com/otsaloma/dataiter#egg=dataiter
-```
+[distros]: https://repology.org/metapackage/gaupol
 
-## Documentation
+#### Flatpak
 
-https://dataiter.readthedocs.io/
+Stable releases are available via [Flathub][].
+
+The development version can be installed by running command `make
+install` under the `flatpak` directory. You need make, flatpak-builder
+and gettext to build the Flatpak.
+
+[Flathub]: https://flathub.org/apps/details/io.otsaloma.gaupol
+
+#### Source
+
+Gaupol requires Python ≥ 3.2, PyGObject ≥ 3.12 and GTK ≥ 3.12.
+Additionally, during installation you need gettext. Optional, but
+strongly recommended dependencies include:
+
+| Dependency | Version | Required for |
+| :--------- | :------ | :----------- |
+| [GStreamer](https://gstreamer.freedesktop.org/) | ≥ 1.6 | integrated video player |
+| [gspell](https://wiki.gnome.org/Projects/gspell) | ≥ 1.0.0 | spell-check |
+| [iso-codes](https://salsa.debian.org/iso-codes-team/iso-codes) | ≥ 3.67 | translations |
+| [chardet](https://github.com/chardet/chardet) | ≥ 2.2.1 | character encoding auto-detection |
+
+From GStreamer you need at least the core, gst-plugins-base,
+gst-plugins-good and gst-plugins-bad; and for good container and codec
+support preferrably both of gst-plugins-ugly and gst-libav.
+
+On Debian/Ubuntu you can install the dependencies with the following
+command.
+
+    sudo apt install gettext \
+                     gir1.2-gspell-1 \
+                     gir1.2-gst-plugins-base-1.0 \
+                     gir1.2-gstreamer-1.0 \
+                     gir1.2-gtk-3.0 \
+                     gstreamer1.0-gtk3 \
+                     gstreamer1.0-libav \
+                     gstreamer1.0-plugins-bad \
+                     gstreamer1.0-plugins-good \
+                     gstreamer1.0-plugins-ugly \
+                     iso-codes \
+                     python3 \
+                     python3-chardet \
+                     python3-dev \
+                     python3-gi \
+                     python3-gi-cairo
+
+Then, to install Gaupol, run command
+
+    sudo python3 setup.py install --prefix=/usr/local
+
+### Windows
+
+Windows installers are built irregularly, see [releases][].
+
+[releases]: https://github.com/otsaloma/gaupol/releases
