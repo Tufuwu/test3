@@ -36,7 +36,7 @@ setup(
     test_suite="tests",
     install_requires=[
         'requests',
-        'demjson',
+        'demjson3',
         'appdirs',
         'urwid'
     ],
