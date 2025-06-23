@@ -1,7 +1,6 @@
 name: TEST and push to test.pypi.org
 
-on: workflow_dispatch
-
+on: push
 concurrency: master-${{ github.ref }}
 
 jobs:
