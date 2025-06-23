@@ -39,6 +39,7 @@ jobs:
     - name: Install and test
       shell: bash -lex {0}
       run: |
+        chmod +x ./run_scripts.shparmed/parmed
         bash -ex devtools/ci/install.sh
 
     - name: Upload Coverage Results
