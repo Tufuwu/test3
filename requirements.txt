@@ -1,5 +1,0 @@
-Jinja2
-setuptools
-metaextract
-requests
-pypi-search
