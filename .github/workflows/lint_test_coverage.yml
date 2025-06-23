@@ -42,7 +42,7 @@ jobs:
       - name: Set up PyPy
         uses: actions/setup-python@v2
         with:
-          python-version: pypy3
+          python-version: 3.9
       - name: Install dependencies
         run: |
           pip install termcolor==1.1.0 pytest==6.2.4 pytest-xdist==2.3.0 dataclasses==0.8
