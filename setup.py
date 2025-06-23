@@ -22,7 +22,7 @@ dev_requirements = [
     "black==20.8b1",
 ]
 
-doc_requirements = ["mkdocs==1.0.4", "mkdocs-material==4.6.3"]
+doc_requirements = ["mkdocs", "mkdocs-material==4.6.3"]
 
 
 setup(
