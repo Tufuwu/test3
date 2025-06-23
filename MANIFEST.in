@@ -1,3 +1,11 @@
-graft src
-
-global-exclude *.py[cod]
+include Makefile
+include LICENSE
+include *.txt
+include *.md
+include *.py
+graft cmaprsrc
+graft pdfminer
+graft tools
+global-exclude *.pyc
+prune samples
+prune docs
