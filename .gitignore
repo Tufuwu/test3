@@ -1,7 +1,9 @@
+syntax: glob
+MANIFEST
 *.pyc
-*.pyo
-.*.sw[op]
-*~
 build
-a.out
-.coverage
+dist
+casdef_wrap.*
+cas.py
+_cas.pyd
+_cas.so

@@ -1,189 +1,201 @@
+#!/usr/bin/env python
+
+"""
+setup.py file for pcaspy
+"""
 import os
+import platform
 import sys
-import versioneer
-import struct
+import shutil
+import subprocess
+import filecmp
 
-if sys.version_info < (2, 7):
-    sys.stderr.write('You must have at least Python 2.7 for ParmEd to work '
-                     'correctly.\n')
-    sys.exit(1)
-
+# Use setuptools to include build_sphinx, upload/sphinx commands
 try:
-    if '--no-setuptools' in sys.argv:
-        sys.argv.remove('--no-setuptools')
-        raise ImportError() # Don't import setuptools...
     from setuptools import setup, Extension
-    kws = dict(entry_points={
-            'console_scripts' : ['parmed = parmed.scripts:clapp'],
-            'gui_scripts' : ['xparmed = parmed.scripts:guiapp']}
-    )
-except ImportError:
+    from setuptools.command.build_py import build_py as _build_py
+except:
     from distutils.core import setup, Extension
-    kws = {'scripts' : [os.path.join('scripts', 'parmed'),
-                        os.path.join('scripts', 'xparmed')]
-    }
+    from distutils.command.build_py import build_py as _build_py
 
-from distutils.command.clean import clean as Clean
-
-def prepare_env_for_osx():
-    """ Prepares the environment for OS X building """
-    darwin_major_to_osx_map = {
-        '11': '10.7',
-        '12': '10.8',
-        '13': '10.9',
-        '14': '10.10',
-        '15': '10.11',
-        '16': '10.12',
-        '17': '10.13',
-        '18': '10.14',
-    }
-    os.environ['CXX'] = 'clang++'
-    os.environ['CC'] = 'clang'
-    darwin_major = os.uname()[2].split('.')[0]
-    if darwin_major in darwin_major_to_osx_map:
-        os.environ['MACOSX_DEPLOYMENT_TARGET'] = darwin_major_to_osx_map[darwin_major]
-
-class CleanCommand(Clean):
-    """python setup.py clean
-    """
-    # lightly adapted from scikit-learn package
-    description = "Remove build artifacts from the source tree"
-
-    def _clean(self, folder):
-        for dirpath, dirnames, filenames in os.walk(folder):
-            for filename in filenames:
-                if (filename.endswith('.so') or filename.endswith('.pyd')
-                        or filename.endswith('.dll')
-                        or filename.endswith('.pyc')):
-                    os.unlink(os.path.join(dirpath, filename))
-            for dirname in dirnames:
-                if dirname == '__pycache__':
-                    shutil.rmtree(os.path.join(dirpath, dirname))
-
+# build_py runs before build_ext so that swig generated module is not copied
+# See http://bugs.python.org/issue7562
+# This is a workaround to run build_ext ahead of build_py
+class build_py(_build_py):
     def run(self):
-        Clean.run(self)
-        if os.path.exists('build'):
-            shutil.rmtree('build')
-        self._clean('./')
+        self.run_command('build_ext')
+        _build_py.run(self)
 
+# python 2/3 compatible way to load module from file
+def load_module(name, location):
+    if sys.hexversion < 0x03050000:
+        import imp
+        module = imp.load_source(name, location)
+    else:
+        import importlib.util
+        spec = importlib.util.spec_from_file_location(name, location)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+    return module
 
-is_pypy = '__pypy__' in sys.builtin_module_names
+# check wether all paths exist
+def paths_exist(paths):
+    for path in paths:
+        if not os.path.exists(path):
+            return False
+    return True
 
-if sys.platform == 'darwin' and not is_pypy:
-    # You *need* to use clang and clang++ for ParmEd extensions on a Mac;
-    # Anaconda does annoying stuff that breaks this, since their distutils
-    # automatically tries to use "gcc", which would conflict with the MacPorts
-    # gcc... sigh.
-    prepare_env_for_osx()
-elif os.environ.get('CC', '').endswith('pgcc'):
-    # PGI compilers don't play nicely with Python extensions. So force GCC
-    sys.stderr.write('PGI compilers do not work with Python extensions generally. '
-                     'Using GCC instead.\n')
-    os.environ['CC'] = 'gcc'
-    os.environ['CXX'] = 'g++'
+# define EPICS base path and host arch
+EPICSBASE = os.environ.get("EPICS_BASE")
+HOSTARCH = os.environ.get("EPICS_HOST_ARCH")
+SHARED = os.environ.get("EPICS_SHARED")
+# guess from EPICS root environment variable
+if not EPICSBASE:
+    EPICSROOT = os.environ.get("EPICS")
+    if EPICSROOT:
+        EPICSBASE = os.path.join(EPICSROOT, 'base')
 
-# parmed package and all its subpackages
-packages = ['parmed', 'parmed.amber', 'parmed.modeller',
-            'parmed.tinker', 'parmed.unit', 'parmed.amber.mdin',
-            'parmed.charmm', 'parmed.formats.pdbx', 'parmed.rosetta', 'parmed.rdkit',
-            'parmed.formats', 'parmed.utils.fortranformat', 'parmed.openmm',
-            'parmed.utils', 'parmed.gromacs', 'parmed.tools', 'parmed.namd',
-            'parmed.tools.gui', 'parmed.tools.simulations']
+if not EPICSBASE or not os.path.exists(EPICSBASE) or not HOSTARCH:
+    raise IOError("Please define/validate EPICS_BASE and EPICS_HOST_ARCH environment variables")
 
-# Optimized readparm
-sources = [os.path.join('src', '_rdparm.cpp'),
-           os.path.join('src', 'readparm.cpp')]
-depends = [os.path.join('src', 'CompatabilityMacros.h'),
-           os.path.join('src', 'readparm.h')]
-include_dirs = [os.path.join(os.path.abspath('.'), 'src')]
+# check EPICS version
+PRE315 = True
+if os.path.exists(os.path.join(EPICSBASE, 'include', 'compiler')):
+    PRE315 = False
 
-definitions = []
+# common libraries to link
+libraries = ['cas', 'ca', 'gdd', 'Com']
+if PRE315:
+    libraries.insert(0, 'asIoc')
+else:
+    libraries.insert(0, 'dbCore')
+umacros = []
+macros   = []
+cflags = []
+lflags = []
+dlls = []
+extra_objects = []
+# platform dependent libraries and macros
+UNAME = platform.system()
+if  UNAME.find('CYGWIN') == 0:
+    UNAME = "cygwin32"
+    CMPL = 'gcc'
+elif UNAME == 'Windows':
+    UNAME = 'WIN32'
+    # MSVC compiler
+    static = False
+    if HOSTARCH in ['win32-x86', 'windows-x64', 'win32-x86-debug', 'windows-x64-debug']:
+        dlls = ['cas.dll', 'ca.dll', 'gdd.dll', 'Com.dll']
+        if PRE315:
+            dlls += ['dbIoc.dll', 'dbStaticIoc.dll', 'asIoc.dll']
+        else:
+            dlls += ['dbCore.dll']
+        for dll in dlls:
+            dllpath = os.path.join(EPICSBASE, 'bin', HOSTARCH, dll)
+            if not os.path.exists(dllpath):
+                static = True
+                break
+            dll_dest = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'pcaspy', dll)
+            if not os.path.exists(dll_dest) or not filecmp.cmp(dllpath, dll_dest):
+                shutil.copy(dllpath, dll_dest)
+        macros += [('_CRT_SECURE_NO_WARNINGS', 'None'), ('_CRT_NONSTDC_NO_DEPRECATE', 'None'), ('EPICS_CALL_DLL', '')]
+        cflags += ['/Z7']
+        CMPL = 'msvc'
+    if HOSTARCH in ['win32-x86-static', 'windows-x64-static'] or static:
+        libraries += ['ws2_32', 'user32', 'advapi32']
+        macros += [('_CRT_SECURE_NO_WARNINGS', 'None'), ('_CRT_NONSTDC_NO_DEPRECATE', 'None'), ('EPICS_DLL_NO', '')]
+        umacros+= ['_DLL']
+        cflags += ['/EHsc', '/Z7']
+        lflags += ['/LTCG']
+        if HOSTARCH[-5:] == 'debug':
+            libraries += ['msvcrtd']
+            lflags += ['/NODEFAULTLIB:libcmtd.lib']
+        else:
+            libraries += ['msvcrt']
+            lflags += ['/NODEFAULTLIB:libcmt.lib']
+        CMPL = 'msvc'
+    # GCC compiler
+    if HOSTARCH in ['win32-x86-mingw', 'windows-x64-mingw']:
+        macros += [('_MINGW', ''), ('EPICS_DLL_NO', '')]
+        lflags += ['-static',]
+        CMPL = 'gcc'
+    if HOSTARCH == 'windows-x64-mingw':
+        macros += [('MS_WIN64', '')]
+        CMPL = 'gcc'
+elif UNAME == 'Darwin':
+    CMPL = 'clang'
+    if not SHARED:
+        extra_objects = [os.path.join(EPICSBASE, 'lib', HOSTARCH, 'lib%s.a'%lib) for lib in libraries]
+        if paths_exist(extra_objects):
+            libraries = []
+        else:
+            extra_objects = []
+            SHARED = True
+elif UNAME == 'Linux':
+    if not SHARED:
+        extra_objects = [os.path.join(EPICSBASE, 'lib', HOSTARCH, 'lib%s.a'%lib) for lib in libraries]
+        if paths_exist(extra_objects):
+            # necessary when EPICS is statically linked
+            libraries = ['rt']
+            if subprocess.call('nm -u %s | grep -q rl_' % os.path.join(EPICSBASE, 'lib', HOSTARCH, 'libCom.a'), shell=True) == 0:
+                libraries += ['readline']
+        else:
+            extra_objects = []
+            SHARED = True
+    CMPL = 'gcc'
+elif UNAME == 'SunOS':
+    # OS_CLASS used by EPICS
+    UNAME = 'solaris'
+    CMPL = 'solStudio'
+else:
+    raise IOError("Unsupported OS {0}".format(UNAME))
 
-#if using 64 bit python interpreter on Windows, add the MS_WIN64 flag for 64 bit pointers
-if sys.platform == 'win32' and (struct.calcsize("P") == 8):
-    definitions.append(('MS_WIN64', None))
-    definitions.append(('_hypot', 'hypot')) #fix MinGW build -- see http://stackoverflow.com/questions/10660524/error-building-boost-1-49-0-with-gcc-4-7-0/12124708#12124708
+cas_module = Extension('pcaspy._cas',
+                       sources  =[os.path.join('pcaspy','casdef.i'),
+                                  os.path.join('pcaspy','pv.cpp'),
+                                  os.path.join('pcaspy','channel.cpp'),],
+                       swig_opts=['-c++','-threads','-nodefaultdtor','-I%s'% os.path.join(EPICSBASE, 'include')],
+                       extra_compile_args=cflags,
+                       include_dirs = [ os.path.join(EPICSBASE, 'include'),
+                                        os.path.join(EPICSBASE, 'include', 'os', UNAME),
+                                        os.path.join(EPICSBASE, 'include', 'compiler', CMPL)],
+                       library_dirs = [ os.path.join(EPICSBASE, 'lib', HOSTARCH),],
+                       libraries = libraries,
+                       extra_link_args = lflags,
+                       extra_objects = extra_objects,
+                       define_macros = macros,
+                       undef_macros  = umacros,)
+# use runtime library path option if linking share libraries on *NIX
+if UNAME not in ['WIN32'] and SHARED:
+    cas_module.runtime_library_dirs += [os.path.join(EPICSBASE, 'lib', HOSTARCH)]
 
-extensions = [Extension('parmed.amber._rdparm',
-                        sources=sources,
-                        include_dirs=include_dirs,
-                        depends=depends,
-                        define_macros=definitions)
-]
+long_description = open('README.rst').read()
+_version = load_module('_version', 'pcaspy/_version.py')
 
-if __name__ == '__main__':
+dist = setup (name = 'pcaspy',
+              version = _version.__version__,
+              description = """Portable Channel Access Server in Python""",
+              long_description = long_description,
+              author      = "Xiaoqiang Wang",
+              author_email= "xiaoqiangwang@gmail.com",
+              url         = "https://pypi.python.org/pypi/pcaspy",
+              ext_modules = [cas_module],
+              packages    = ["pcaspy"],
+              package_data={"pcaspy" : dlls},
+              cmdclass    = {'build_py':build_py},
+              license     = "BSD",
+              platforms   = ["Windows","Linux", "Mac OS X"],
+              classifiers = ['Development Status :: 4 - Beta',
+                             'Environment :: Console',
+                             'Intended Audience :: Developers',
+                             'License :: OSI Approved :: BSD License',
+                             'Programming Language :: C++',
+                             'Programming Language :: Python :: 2',
+                             'Programming Language :: Python :: 3',
+                             ],
+              )
 
-    import shutil
-
-    # See if we have the Python development headers.  If not, don't build the
-    # optimized prmtop parser extension
-    from distutils import sysconfig
-    if not is_pypy and not os.path.exists(
-            os.path.join(sysconfig.get_config_vars()['INCLUDEPY'], 'Python.h')):
-        extensions = []
-
-    # Delete old versions with old names of scripts and packages (chemistry and
-    # ParmedTools for packages, parmed.py and xparmed.py for scripts)
-    def deldir(folder):
-        try:
-            shutil.rmtree(folder)
-        except OSError:
-            sys.stderr.write(
-                    'Could not remove old package %s; you should make sure\n'
-                      'this is completely removed in order to make sure you\n'
-                      'do not accidentally use the old version of ParmEd\n' %
-                      folder
-            )
-    def delfile(file):
-        try:
-            os.unlink(file)
-        except OSError:
-            sys.stderr.write(
-                    'Could not remove old script %s; you should make sure\n'
-                      'this is completely removed in order to make sure you\n'
-                      'do not accidentally use the old version of ParmEd\n' %
-                      file
-            )
-
-    for folder in sys.path:
-        folder = os.path.realpath(os.path.abspath(folder))
-        if folder == os.path.realpath(os.path.abspath('.')): continue
-        chem = os.path.join(folder, 'chemistry')
-        pmdtools = os.path.join(folder, 'ParmedTools')
-        pmd = os.path.join(folder, 'parmed.py')
-        xpmd = os.path.join(folder, 'xparmed.py')
-        pmdc = os.path.join(folder, 'parmed.pyc')
-        xpmdc = os.path.join(folder, 'xparmed.pyc')
-        if os.path.isdir(chem): deldir(chem)
-        if os.path.isdir(pmdtools): deldir(pmdtools)
-        if os.path.exists(pmd): delfile(pmd)
-        if os.path.exists(xpmd): delfile(xpmd)
-        if os.path.exists(pmdc): delfile(pmdc)
-        if os.path.exists(xpmdc): delfile(xpmdc)
-
-    for folder in os.getenv('PATH').split(os.pathsep):
-        pmd = os.path.join(folder, 'parmed.py')
-        xpmd = os.path.join(folder, 'xparmed.py')
-        pmdc = os.path.join(folder, 'parmed.pyc')
-        xpmdc = os.path.join(folder, 'xparmed.pyc')
-        if os.path.exists(pmd): delfile(pmd)
-        if os.path.exists(xpmd): delfile(xpmd)
-        if os.path.exists(pmdc): delfile(pmdc)
-        if os.path.exists(xpmdc): delfile(xpmdc)
-
-    cmdclass = dict(clean=CleanCommand)
-    cmdclass.update(versioneer.get_cmdclass())
-    setup(name='ParmEd',
-          version=versioneer.get_version(),
-          description='Amber parameter file editor',
-          author='Jason Swails',
-          author_email='jason.swails@gmail.com',
-          url='https://parmed.github.io/ParmEd/html/index.html',
-          license='LGPL',
-          packages=packages,
-          ext_modules=extensions,
-          cmdclass=cmdclass,
-          test_suite='nose.collector',
-          package_data={'parmed.modeller': ['data/*.lib']},
-          **kws
-    )
+# Re-run the build_py to ensure that swig generated py files are also copied
+build_py = build_py(dist)
+build_py.ensure_finalized()
+build_py.run()
