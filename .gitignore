@@ -1,5 +1,16 @@
+# tox/cache
+.tox/
+.cache/
+**/__pycache__/
+
+# coverage
+htmlcov/
+.coverage
+
+# setuptools
+build/
+dist/
+*.egg-info/
+
 *.pyc
-profiles/*.pyc
-*~
-*.log
-*.pcap
+*.sublime-workspace
