@@ -1,59 +1,49 @@
-import sys
-from pathlib import Path
-
-from setuptools import setup
-from os import path
-
-sys.path.append(str(Path(__file__).parent))
-import pdfminer as package
+from setuptools import find_packages, setup
 
 
-with open(path.join(path.abspath(path.dirname(__file__)), 'README.md')) as f:
-    readme = f.read()
+def read_file(name):
+    with open(name) as fobj:
+        return fobj.read().strip()
+
+
+LONG_DESCRIPTION = read_file("README.md")
+VERSION = read_file("Ctl/VERSION")
+REQUIREMENTS = read_file("Ctl/requirements.txt").split("\n")
+TEST_REQUIREMENTS = read_file("Ctl/requirements-test.txt").split("\n")
+
 
 setup(
-    name='pdfminer.six',
-    version=package.__version__,
-    packages=['pdfminer'],
-    package_data={'pdfminer': ['cmap/*.pickle.gz', 'py.typed']},
-    install_requires=[
-        'chardet ; python_version > "3.0"',
-        'cryptography',
-    ],
-    extras_require={
-        "dev": ["pytest", "nox", "mypy == 0.931"],
-        "docs": ["sphinx", "sphinx-argparse"],
-    },
-    description='PDF parser and analyzer',
-    long_description=readme,
-    long_description_content_type='text/markdown',
-    license='MIT/X',
-    author='Yusuke Shinyama + Philippe Guglielmetti',
-    author_email='pdfminer@goulu.net',
-    url='https://github.com/pdfminer/pdfminer.six',
-    scripts=[
-        'tools/pdf2txt.py',
-        'tools/dumppdf.py',
-    ],
-    keywords=[
-        'pdf parser',
-        'pdf converter',
-        'layout analysis',
-        'text mining',
-    ],
-    python_requires='>=3.6',
+    name="django-peeringdb",
+    version=VERSION,
+    author="PeeringDB",
+    author_email="support@peeringdb.com",
+    description="PeeringDB models and local synchronization for Django",
+    long_description=LONG_DESCRIPTION,
+    long_description_content_type="text/markdown",
+    license="LICENSE.txt",
     classifiers=[
-        'Programming Language :: Python',
-        'Programming Language :: Python :: 3.6',
-        'Programming Language :: Python :: 3.7',
-        'Programming Language :: Python :: 3.8',
-        'Programming Language :: Python :: 3.9',
-        'Programming Language :: Python :: 3 :: Only',
-        'Development Status :: 5 - Production/Stable',
-        'Environment :: Console',
-        'Intended Audience :: Developers',
-        'Intended Audience :: Science/Research',
-        'License :: OSI Approved :: MIT License',
-        'Topic :: Text Processing',
+        "Development Status :: 5 - Production/Stable",
+        "Framework :: Django :: 1.11",
+        "Framework :: Django :: 2.0",
+        "Framework :: Django :: 2.1",
+        "Framework :: Django :: 2.2",
+        "Framework :: Django :: 3.0",
+        "Intended Audience :: Developers",
+        "License :: OSI Approved :: Apache Software License",
+        "Programming Language :: Python :: 3.5",
+        "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
+        "Topic :: Software Development :: Libraries :: Python Modules",
+        "Topic :: Internet",
     ],
+    packages=find_packages(),
+    include_package_data=True,
+    url="https://github.com/peeringdb/django-peeringdb",
+    download_url="https://github.com/peeringdb/django-peeringdb/archive/{}.zip".format(
+        VERSION
+    ),
+    install_requires=REQUIREMENTS,
+    tests_require=TEST_REQUIREMENTS,
+    zip_safe=True,
 )
