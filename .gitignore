@@ -1,8 +1,5 @@
-*~
 *.pyc
-.coverage
-venv
-build
-dist
-*.egg-info
-.vscode
+profiles/*.pyc
+*~
+*.log
+*.pcap

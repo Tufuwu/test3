@@ -1,30 +1,33 @@
+from setuptools import setup
 
-import os
-from setuptools import setup, find_packages
-project_root = os.path.dirname(os.path.realpath(__file__))
+with open('README.md') as readme_file:
+    readme = readme_file.read()
 
 setup(
-    name = "p4runtime-shell",
-    version = "0.0.2",
-    packages = find_packages("."),
-    install_requires = [
-        "ipaddr==2.2.0",
-        "jedi==0.17.2",
-        "ipython==7.19.0",
-        "protobuf==3.14.0",
-        "grpcio==1.35.0",
-        "p4runtime==1.3.0",
+    name='ptf',
+    version='0.9.1',
+    description='PTF is a Python based dataplane test framework.',
+    long_description=readme,
+    author='Antonin Bas',
+    author_email='antonin@barefootnetworks.com',
+    url='https://github.com/p4lang/ptf',
+    packages=[
+        'ptf', 'ptf.platforms',
     ],
-    author = "P4 API Working Group",
-    author_email = "p4-api@lists.p4.org",
-    classifiers = [
-        'License :: OSI Approved :: Apache Software License',
-        'Programming Language :: Python',
-        'Programming Language :: Python :: 3',
+    package_dir={'': 'src'},
+    scripts=[
+        'ptf',
+        'ptf_nn/ptf_nn_agent.py'
     ],
-    description = "The P4Runtime shell",
-    long_description = open(project_root + "/README.md").read(),
-    long_description_content_type = "text/markdown",
-    license = "Apache-2.0",
-    url = "https://github.com/p4lang/p4runtime-shell"
+    zip_safe=False,
+    license='Apache License',
+    keywords='ptf',
+    classifiers=[
+        'Development Status :: 2 - Pre-Alpha',
+        'Intended Audience :: Developers',
+        'License :: OSI Approved :: Apache License',
+        'Natural Language :: English',
+        "Programming Language :: Python :: 2",
+        'Programming Language :: Python :: 2.7',
+    ]
 )

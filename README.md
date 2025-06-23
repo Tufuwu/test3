@@ -1,370 +1,238 @@
-# A shell for P4Runtime
+PTF Packet Testing Framework
 
-![Build Status](https://github.com/p4lang/p4runtime-shell/workflows/Test/badge.svg?branch=main&event=push)
+---
 
-**This is still a work in progress. Feedback is welcome.**
+# Introduction
 
-p4runtime-sh is an interactive Python shell for
-[P4Runtime](https://github.com/p4lang/p4runtime) based on
-[IPython](https://ipython.org/).
+PTF is a Python based dataplane test framework. It is based on unittest, which
+is included in the standard Python distribution.
 
-## Using the shell
+This document is meant to provide an introduction to the framework, discuss the
+basics of running tests and to provide examples of how to add tests.
 
-### Run with Docker
+Most of the code was taken from the [OFTest
+framework](https://github.com/floodlight/oftest). However, PTF focuses on the
+dataplane and is independent of OpenFlow. We also added several
+[new features](#New-features).
 
-We recommend that you download the Docker image (~142MB) and use it, but you can
-also build the image directly with:
+---
 
-```bash
-git clone https://github.com/p4lang/p4runtime-shell
-cd p4runtime-shell
-docker build -t p4lang/p4runtime-sh .
-```
+# Longer Start
 
-Run the shell as follows:
+## Dependencies
 
-```bash
-[sudo] docker run -ti p4lang/p4runtime-sh \
-  --grpc-addr <server IP>:<server port> \
-  --device-id 0 --election-id 0,1
-```
+The following software is required to run PTF:
 
-The above command will retrieve the forwarding pipeline configuration from the
-P4Runtime server. You can also push a forwarding pipeline configuration with the
-shell (you will need to mount the directory containing the P4Info and binary
-device config in the docker):
+ * Python 2.7
+ * Scapy
+ * pypcap (optional - VLAN tests will fail without this)
+ * tcpdump (optional - Scapy will complain if it's missing)
 
-```bash
-[sudo] docker run -ti -v /tmp/:/tmp/ p4lang/p4runtime-sh \
-  --grpc-addr <server IP>:<server port> \
-  --device-id 0 --election-id 0,1 --config /tmp/p4info.txt,/tmp/bmv2.json
-```
+We recommend that you install our extension of Scapy, which you can obtain
+[here](https://github.com/p4lang/scapy-vxlan). It adds support for additional
+header types: `VXLAN`, `ERSPAN`, `GENEVE`, `MPLS` and `NVGRE`.
 
-The above command assumes that the P4Info (p4info.txt) and the binary device
-config (bmv2.json) are under /tmp/.
+Root/sudo privilege is required on the host, in order to run `ptf`.
 
-To make the process more convenient, we provide a wrapper script, which takes
-care of running the docker (including mounting the P4Info and binary device
-config files in the docker if needed):
+## Run PTF
 
-```bash
-[sudo] ./p4runtime-sh-docker --grpc-addr <server IP>:<server port> \
-  --device-id 0 --election-id 0,1 \
-  --config <path to p4info>,<path to binary config>
-```
+Once you have written tests and your switch is running, you can run 'ptf'. Use
+`--help` to see command line switches.
 
-*If you are a Linux user, you can follow this
- [guide](https://docs.docker.com/install/linux/linux-postinstall/) to run Docker
- commands without `sudo`. You will be able to use `p4runtime-sh-docker` as a
- non-privileged user.*
+For example:
 
-*If you are using the Docker image to run p4runtime-shell and you are trying to
- connect to a P4Runtime server running natively on the same system and listening
- on the localhost interface, you will not be able to connect to the server using
- `--grpc-addr localhost:<port>` or `--grpc-addr 127.0.0.1:<port>`. Instead, you
- should have your P4Runtime server listen on all interfaces (`0.0.0.0`) and you
- will need to use the IP address assigned to the Docker bridge (`docker0` by
- default) or the IP address assigned to the local network management interface
- (e.g. `eth0`).*
+    sudo ./ptf --test-dir mytests/ --pypath $PWD \
+    	 --interface 0@veth1 --interface 1@veth3 --interface 2@veth5 \
+    	 --interface 3@veth7 --interface 4@veth9 --interface 5@veth11 \
+    	 --interface 6@veth13 --interface 7@veth15 --interface 8@veth17
 
-### Run without Docker
+This will run all the tests included in the `mytests` directory. The `--pypath`
+option can be used to easily add directories to the Python PATH. This is useful
+if you use a Python interface to configure your data plane (as part of your
+tests). The `--interface` option (or `-i`) can be used to specify the interfaces
+on which to inject packets (along with the corresponding port number).
 
-You can also install P4Runtime shell via `pip3` and run it directly.
+## Install PTF
 
-```bash
-# (optional) Set up virtual environment
-python3 -m venv venv
-source venv/bin/activate
+PTF can be installed by running `sudo python setup.py install`. For more
+information on the different options accepted by `setup.py` (e.g. installing in
+a custom location), please refer to the [setuptools documentation]
+(https://pythonhosted.org/setuptools/setuptools.html).
 
-# Install p4runtime-shell package and run it
-pip3 install p4runtime-shell
-python3 -m p4runtime_sh --grpc-addr <server IP>:<server port> \
-  --device-id 0 --election-id 0,1 --config <p4info.txt>,<pipeline config>
-```
+---
 
-## Available commands
+# Writing tests for your switch
 
-`tables`, `actions`, `action_profiles`, `counters`, `direct_counters`, `meters`,
-`direct_meters` (named after the P4Info message fields) to query information
-about P4Info objects.
+Take a look at the `example` directory. This is not a working example as it is
+(the switch is not included), but it will show you how to write tests. This
+directory contains the following:
 
-`table_entry`, `action_profile_member`, `action_profile_group`, `counter_entry`,
-`direct_counter_entry`, `meter_entry`, `direct_meter_entry` (named after the
-P4Runtime `Entity` fields), along with `multicast_group_entry` and
-`clone_session_entry`, for runtime entity programming.
+* `run_client.sh`: a wrapper around `ptf`
+* `switch_sai_thrift`: empty directory, this is where the Python bindings to
+  program the switch's control plane would be copied
+* `mytests/sai_base_test.py`: a wrapper Python class around PTF's BaseTest
+  class. It is the base class for all the tests we added to `mytests/switch.py`
+* `mytests/switch.py`: some example tests
 
-`packet_in` and `packet_out` are commands for packet IO, see the [usage](usage/packet_io.md) for more information.
+## Running the example
 
-The `Write` command can be used to read a `WriteRequest` message from a file
-(for now, Protobuf text format only) and send it to a server:
+If you want to run the example, you will need to obtain
+[p4factory](https://github.com/p4lang/p4factory). For the following, I will
+assume that you cloned the repository and installed the dependencies. I will
+assume that environment variable `P4FACTORY` contains the path to the cloned
+repository.
 
-```text
-Write <path to file encoding WriteRequest message in text format>
-```
+First, you need to create the required veths:
 
-Type the command name followed by `?` for information on each command,
-e.g. `table_entry?`.
+    cd $P4FACTORY/tools/
+    sudo ./veth_setup.sh
 
-## Canonical representation of bytestrings
+The next step is to compile the target switch and to run it:
 
-The [P4Runtime
-specification](https://p4.org/p4runtime/spec/v1.3.0/P4Runtime-Spec.html#sec-bytestrings)
-defines a canonical representation for binary strings, which all P4Runtime
-servers must support. This representation can be used to format all binary
-strings (match fields, action parameters, ...) in P4Runtime messages exchanged
-between the client and the server. For legacy reasons, some P4Runtime servers do
-not support the canonical representation and require binary strings to be
-byte-padded according to the bitwidth specified in the P4Info message. While all
-P4Runtime-conformant servers must also accept this legacy format, it can lead to
-read-write asymmetry for P4Runtime entities. For example a client may insert a
-TableEntry using the legacy format for match fields, but when reading the same
-TableEntry back, the server may return a message with match field values in the
-canonical representation. When a client uses the canonical representation,
-read-write symmetry is always guaranteed.
+    cd $P4FACTORY/targets/switch/
+    make bm-switchsai
+    sudo ./behavioral-model
 
-If you are dealing with a legacy server which rejects binary strings formatted
-using the canonical representation (making this server non conformant to the
-specification), you can revert to the byte-padded format by typing the following
-command in the shell:
+Finally, you can run the example tests:
 
-```python
-P4Runtime sh >>> global_options["canonical_bytestrings"] = False
-```
+    cd <ptf-dir>/example/
+    sudo ../ptf --test-dir mytests/ \
+    	 --pypath $P4FACTORY/targets/switch/tests/pd_thrift/
+    	 --interface 0@veth1 --interface 1@veth3 --interface 2@veth5 \
+    	 --interface 3@veth7 --interface 4@veth9 --interface 5@veth11 \
+    	 --interface 6@veth13 --interface 7@veth15 --interface 8@veth17
 
-## Example usage
+---
 
-Here is some of what you can do when using p4runtime-sh with ONF's
-[fabric.p4](https://github.com/opennetworkinglab/onos/blob/master/pipelines/fabric/impl/src/main/resources/fabric.p4).
+# New features
 
-More examples of usage can be found in the [usage/ folder](usage/).
+We added the following features to the base OFTest framework:
 
-```python
-*** Welcome to the IPython shell for P4Runtime ***
-P4Runtime sh >>> tables
-FabricEgress.egress_next.egress_vlan
-FabricIngress.acl.acl
-FabricIngress.filtering.fwd_classifier
-FabricIngress.filtering.ingress_port_vlan
-FabricIngress.forwarding.bridging
-FabricIngress.forwarding.mpls
-FabricIngress.forwarding.routing_v4
-FabricIngress.next.hashed
-FabricIngress.next.multicast
-FabricIngress.next.next_vlan
-FabricIngress.next.xconnect
+## Filters
 
-P4Runtime sh >>> tables["FabricIngress.forwarding.routing_v4"]
-Out[2]:
-preamble {
-  id: 33562650
-  name: "FabricIngress.forwarding.routing_v4"
-  alias: "routing_v4"
-}
-match_fields {
-  id: 1
-  name: "ipv4_dst"
-  bitwidth: 32
-  match_type: LPM
-}
-action_refs {
-  id: 16777434 ("FabricIngress.forwarding.set_next_id_routing_v4")
-}
-action_refs {
-  id: 16804187 ("FabricIngress.forwarding.nop_routing_v4")
-}
-action_refs {
-  id: 16819938 ("nop")
-  annotations: "@defaultonly"
-  scope: DEFAULT_ONLY
-}
-const_default_action_id: 16819938 ("nop")
-direct_resource_ids: 318811107 ("FabricIngress.forwarding.routing_v4_counter")
-size: 1024
+They can be used to discard some of the packets received from the switch. Take a
+look at [sai_base_test.py](example/mytests/sai_base_test.py) for an example. You
+will see the following code `testutils.add_filter(testutils.not_ipv6_filter)`
+which tells PTF to discard received IPv6 packets. You can add your own filters
+(they have to be callable Python objects which take a Scapy packet as input).
 
+## Ternary matching
 
-P4Runtime sh >>> te = table_entry["FabricIngress.forwarding.routing_v4"](action="set_next_id_routing_v4")
+A PTF test -just like an OFTest test- matches the received packets against
+expected packets. This is an exact match. However, sometimes one does not care
+about all the fields in the packets. PTF introduces the Mask class which lets
+you specified some field you do not care about when performing the match. For
+example:
 
-P4Runtime sh >>> te?
-Signature:   te(**kwargs)
-Type:        TableEntry
-String form:
-table_id: 33562650 ("FabricIngress.forwarding.routing_v4")
-action {
-  action {
-    action_id: 16777434 ("FabricIngress.forwarding.set_next_id_routing_v4")
-  }
-}
-File:        /p4runtime-sh/p4runtime_sh/shell.py
-Docstring:
-An entry for table 'FabricIngress.forwarding.routing_v4'
+    import mask
+    m = mask.Mask(expected_pkt)
+    m.set_do_not_care_scapy(IP, 'ttl')
+    verify_packets(<test>, m, <port list>)
 
-Use <self>.info to display the P4Info entry for this table.
+## Test timeout
 
-To set the match key, use <self>.match['<field name>'] = <expr>.
-Type <self>.match? for more details.
+A timeout for test cases can be specified using the `--test-case-timeout`
+command line option. This timeout must be expressed in seconds. A timeout of 0
+is the same as no timeout (the default). If the timeout expires before the test
+is done executing, an exception will be raised and the test counts as an
+error. A timeout can also be specified for each individual test case, using the
+`@testtimeout` decorator, which needs to be imported from `ptf.testutils`. This
+timeout takes precedence over the global timeout passed on the command line.
 
-To set the action specification <self>.action = <instance of type Action>.
-To set the value of action parameters, use <self>.action['<param name>'] = <expr>.
-Type <self>.action? for more details.
+---
 
-To set the priority, use <self>.priority = <expr>.
+# Configuring PTF
 
-To mark the entry as default, use <self>.is_default = True.
+## Platforms
 
-Typical usage to insert a table entry:
-t = table_entry['<table_name>'](action='<action_name>')
-t.match['<f1>'] = ...
-...
-t.match['<fN>'] = ...
-# OR t.match.set(f1=..., ..., fN=...)
-t.action['<p1>'] = ...
-...
-t.action['<pM>'] = ...
-# OR t.action.set(p1=..., ..., pM=...)
-t.insert
+The "platform" is a configuration file (written in Python) that tells PTF how to
+send packets to and receive packets from the dataplane of the switch.
 
-Typical usage to set the default entry:
-t = table_entry['<table_name>'](is_default=True)
-t.action['<p1>'] = ...
-...
-t.action['<pM>'] = ...
-# OR t.action.set(p1=..., ..., pM=...)
-t.modify
+### `eth`
 
-For information about how to read table entries, use <self>.read?
+The default platform, `eth`, uses Linux Ethernet interfaces and is configured
+with the `-i` option (or `--interface`). Pass the option as `-i
+ofport@interface`, for example `-i 1@eth1`. If no `-i` options are given the the
+default configuration uses vEths.
 
-P4Runtime sh >>> te.match?
-Type:      MatchKey
-File:      /p4runtime-sh/p4runtime_sh/shell.py
-Docstring:
-Match key fields for table 'FabricIngress.forwarding.routing_v4':
+### `remote`
 
-id: 1
-name: "ipv4_dst"
-bitwidth: 32
-match_type: LPM
+Another common platform, `remote`, provides support for testing of switches on a
+different host. This can be useful for cases where interfaces are not available
+on one host (i.e. they're not bound to a Linux interface driver) or where PTF
+cannot run on the same host (unsupported OS, missing software, etc.).
 
-Set a field value with <self>['<field_name>'] = '...'
-  * For exact match: <self>['<f>'] = '<value>'
-  * For ternary match: <self>['<f>'] = '<value>&&&<mask>'
-  * For LPM match: <self>['<f>'] = '<value>/<mask>'
-  * For range match: <self>['<f>'] = '<value>..<mask>'
-  * For optional match: <self>['<f>'] = '<value>'
+This can be enable by modifying the `platforms/remote.py` file to point to 4
+NICs on the host running PTF, like so:
 
-If it's inconvenient to use the whole field name, you can use a unique suffix.
-
-You may also use <self>.set(<f>='<value>')
-        (<f> must not include a '.' in this case, but remember that you can use a unique suffix)
-
-P4Runtime sh >>> te.match["ipv4_dst"] = "10.0.0.0/16"
-field_id: 1
-lpm {
-  value: "\n\000\000\000"
-  prefix_len: 16
-}
-
-
-P4Runtime sh >>> te.action?
-Type:      Action
-File:      /p4runtime-sh/p4runtime_sh/shell.py
-Docstring:
-Action parameters for action 'set_next_id_routing_v4':
-
-id: 1
-name: "next_id"
-bitwidth: 32
-
-
-Set a param value with <self>['<param_name>'] = '<value>'
-You may also use <self>.set(<param_name>='<value>')
-
-P4Runtime sh >>> te.action["next_id"] = "10"
-param_id: 1
-value: "\000\000\000\n"
-
-
-P4Runtime sh >>> te.insert
-
-P4Runtime sh >>> for te in table_entry["FabricIngress.forwarding.routing_v4"].read():
-            ...:     print(te)
-            ...:
-table_id: 33562650 ("FabricIngress.forwarding.routing_v4")
-match {
-  field_id: 1 ("ipv4_dst")
-  lpm {
-    value: "\\x0a\\x00\\x00\\x00"
-    prefix_len: 16
-  }
-}
-action {
-  action {
-    action_id: 16777434 ("FabricIngress.forwarding.set_next_id_routing_v4")
-    params {
-      param_id: 1 ("next_id")
-      value: "\\x00\\x00\\x00\\x0a"
+    remote_port_map = {
+        (0, 23) : "eth2", # port 23 of device 0 is connected to physical port on the server eth2
+        (0, 24) : "eth3", # port 24 of device 0 is connected to physical port on the server eth3
+        (0, 25) : "eth4",
+        (0, 26) : "eth5"
     }
-  }
-}
 
+### `nn`
 
-P4Runtime sh >>> table_entry["FabricIngress.forwarding.routing_v4"].read(lambda te: te.delete())
+We introduce a new platform, `nn`, which uses [nanomsg] (http://nanomsg.org/) to
+send and receive packet to the switch. We support IPC and TCP nanomsg
+sockets. When using this platform, you need to make sure that the Python package
+[nnpy] (https://github.com/nanomsg/nnpy) is installed. With `nn`, do not use
+`--interface`, instead use `--device-socket`. For each device, you need to
+provide a list of enabled ports and a nanomsg socket address. For example:
 
-P4Runtime sh >>> table_entry["FabricIngress.forwarding.routing_v4"].read(lambda te: print(te))
+    --device-socket 0-{1,2,5-8}@ipc:///tmp/bmv2_packets_1.ipc
 
-P4Runtime sh >>>
-```
+This command will enable ports 1, 2, 5, 6, 7, 8 on device 0. Packets for device
+0 will be captured and send on IPC socket `ipc:///tmp/bmv2_packets_1.ipc`.
 
-## Using p4runtime-shell in scripts
+## Passing Parameters to Tests
 
-You can also leverage this project as a convenient P4Runtime wrapper to
-programmatically program switches using Pyhton scripts:
+There is a facility for passing test-specific parameters into tests that works as follows. On the command line, give the parameter
 
-```python
-import p4runtime_sh.shell as sh
+    --test-params="key1=17;key2=True"
 
-# you can omit the config argument if the switch is already configured with the
-# correct P4 dataplane.
-sh.setup(
-    device_id=1,
-    grpc_addr='localhost:9559',
-    election_id=(0, 1), # (high, low)
-    config=sh.FwdPipeConfig('config/p4info.pb.txt', 'config/device_config.bin')
-)
+You can then access these parameters in your tests' Pyhton code using the
+following code:
 
-# see p4runtime_sh/test.py for more examples
-te = sh.TableEntry('<table_name>')(action='<action_name>')
-te.match['<name>'] = '<value>'
-te.action['<name>'] = '<value>'
-te.insert()
+    import ptf.testutils as testutils
+    # Returns a dictionary which includes all your parameters
+    test_params = testutils.test_params_get()
+    # Returns the value of the parameter "param", or None if not found
+    param_value = testutils.test_param_get("param")
 
-# ...
+Take a look at [sai_base_test.py](example/mytests/sai_base_test.py) for an
+example.
 
-sh.teardown()
-```
+## Grouping Tests together
 
-Note that at the moment the P4Runtime client object is a global variable, which
-means that we only support one P4Runtime connection to a single switch.
+It is very easy to create groups of tests, using the provided `group` Python
+decorator. Simply decorate your test with `@group(<name of group>)`.
 
-## Target-specific support
+Take a look at [switch.py](example/mytests/switch.py) for an example.
 
-### P4.org Bmv2
+One given test can belong to several groups. You can choose to run only the
+tests belonging to a given group using a command like this one:
 
-Just use the bmv2 JSON file generated by the
-[compiler](https://github.com/p4lang/p4c) as the binary device config.
+    sudo ./ptf --test-dir mytests/ --pypath $PWD <name of group>
 
-### Barefoot Tofino
+We also provide a convenient `disabled` decorator for tests.
 
-We provide a script which can be used to "pack" the Barefoot p4c compiler output
-(part of the Barefoot SDE) into one binary file, to be used as the binary device
-config.
-```bash
-./config_builders/tofino.py --ctx-json <path to context JSON> \
-  --tofino-bin <path to tofino.bin> -p <program name> -o out.bin
-```
+## Support for multidevice tests
 
-You can then use `out.bin` when invoking `p4runtime-sh-docker`:
-```bash
-[sudo] ./p4runtime-sh-docker --grpc-addr <server IP>:<server port> \
-  --device-id 0 --election-id 0,1 \
-  --config <path to p4info>,out.bin
-```
+The original OFTest was meant to unit test a single OF-compliant switch. With
+PTF, we tried to add support for testing a network of several devices. If you do
+not intend to use this multi-device feature, you do not need to worry about it,
+it should not impact you. If you want to leverage this feature, here is what you
+need to do:
+
+* when adding interfaces, instead of writing `<port_number>@<interface_name>`,
+  you need to write `<device_number>-<port_number>@<interface_name>`
+* when sending a packet, the port number becomes a tuple (device, port):
+  `send_packet(self, (<device_number>, <port_number>), pkt)`
+* the `verify_*` functions where also updated to include device information. For
+  example: `verify_packets(self, pkt, device_number=<device_number>,
+  ports=<port_list>)`. For more information, you can take a look at these
+  functions in [src/ptf/dataplane.py](src/ptf/dataplane.py).
+
+---
