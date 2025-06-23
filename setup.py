@@ -15,5 +15,5 @@ setup(
     license="MIT",
     packages=find_packages(exclude=["*.test"]),
     python_requires=">=3.6.0",
-    install_requires=["attd>=0.3", "numpy>=1.7", "pandas>=1.0"],
+    install_requires=["attd>=0.3", "numpy<1.20", "pandas>=1.0"],
 )
