@@ -1,3 +1,0 @@
-[bandit]
-targets: pandevice/
-skips: B314,B405

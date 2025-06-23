@@ -1,134 +1,176 @@
-===================================
-Palo Alto Networks Device Framework
-===================================
+***
+PEX
+***
+.. image:: https://github.com/pantsbuild/pex/workflows/CI/badge.svg?branch=master
+    :target: https://travis-ci.org/pantsbuild/pex
+.. image:: https://img.shields.io/pypi/l/pex.svg
+    :target: https://pypi.org/project/pex/
+.. image:: https://img.shields.io/pypi/v/pex.svg
+    :target: https://pypi.org/project/pex/
+.. image:: https://img.shields.io/pypi/pyversions/pex.svg
+    :target: https://pypi.org/project/pex/
+.. image:: https://img.shields.io/pypi/wheel/pex.svg
+    :target: https://pypi.org/project/pex/#files
 
-The Device Framework is a mechanism for interacting with Palo Alto Networks
-devices (including physical and virtualized Next-generation Firewalls and
-Panorama).  The Device Framework is object oriented and mimics the traditional
-interaction with the device via the GUI or CLI/API.
+.. contents:: **Contents**
 
-* Documentation: http://pandevice.readthedocs.io
-* Overview: http://paloaltonetworks.github.io/pandevice
-* Free software: ISC License
+Overview
+========
+pex is a library for generating .pex (Python EXecutable) files which are
+executable Python environments in the spirit of `virtualenvs <http://virtualenv.org>`_.
+pex is an expansion upon the ideas outlined in
+`PEP 441 <http://legacy.python.org/dev/peps/pep-0441/>`_
+and makes the deployment of Python applications as simple as ``cp``.  pex files may even
+include multiple platform-specific Python distributions, meaning that a single pex file
+can be portable across Linux and OS X.
 
------
+pex files can be built using the ``pex`` tool.  Build systems such as `Pants
+<http://pantsbuild.org/>`_, `Buck <http://facebook.github.io/buck/>`_, and  `{py}gradle <https://github.com/linkedin/pygradle>`_  also
+support building .pex files directly.
 
-|pypi| |travis| |rtd| |gitter|
+Still unsure about what pex does or how it works?  Watch this quick lightning
+talk: `WTF is PEX? <http://www.youtube.com/watch?v=NmpnGhRwsu0>`_.
 
------
-
-Features
---------
-
-- Object model of Firewall and Panorama configuration
-- Multiple connection methods including Panorama as a proxy
-- All operations natively vsys-aware
-- Support for high availability pairs and retry/recovery during node failure
-- Batch User-ID operations
-- Device API exception classification
-
-Status
-------
-
-Palo Alto Networks Device Framework is considered **alpha**. It is fully tested
-and used in many production environments, but it maintains alpha status because
-the API interface could change at any time without notification. Please be
-prepared to modify your scripts to work with each subsequent version of this
-package because backward compatibility is not guaranteed.
-
-Install
--------
-
-Install using pip::
-
-    pip install pandevice
-
-Upgrade to the latest version::
-
-    pip install --upgrade pandevice
-
-If you have poetry installed, you can also add pandevice to your project::
-
-    poetry add pandevice
-
-How to import
--------------
-
-To use Palo Alto Networks Device Framework in a project::
-
-    import pandevice
-
-You can also be more specific about which modules you want to import::
-
-    from pandevice import firewall
-    from pandevice import network
+pex is licensed under the Apache2 license.
 
 
-A few examples
---------------
+Installation
+============
 
-For configuration tasks, create a tree structure using the classes in
-each module. Nodes hierarchy must follow the model in the
-`Configuration Tree`_.
+To install pex, simply
 
-The following examples assume the modules were imported as such::
+.. code-block:: bash
 
-    from pandevice import firewall
-    from pandevice import network
+    $ pip install pex
 
-Create an interface and commit::
+You can also build pex in a git clone using tox:
 
-    fw = firewall.Firewall("10.0.0.1", api_username="admin", api_password="admin")
-    eth1 = network.EthernetInterface("ethernet1/1", mode="layer3")
-    fw.add(eth1)
-    eth1.create()
-    fw.commit()
+.. code-block:: bash
 
-Operational commands leverage the 'op' method of the device::
+    $ tox -e package
+    $ cp dist/pex ~/bin
 
-    fw = firewall.Firewall("10.0.0.1", api_username="admin", api_password="admin")
-    print fw.op("show system info")
-
-Some operational commands have methods to refresh the variables in an object::
-
-    # populates the version, serial, and model variables from the live device
-    fw.refresh_system_info()
-
-See more examples in the `Usage Guide`_.
+This builds a pex binary in ``dist/pex`` that can be copied onto your ``$PATH``.
+The advantage to this approach is that it keeps your Python environment as empty as
+possible and is more in-line with what pex does philosophically.
 
 
-Contributors
-------------
+Simple Examples
+===============
 
-- Brian Torres-Gil - `github <https://github.com/btorresgil>`__
-- Garfield Freeman - `github <https://github.com/shinmog>`__
-- John Anderson - `github <https://github.com/lampwins>`__
-- Aditya Sripal - `github <https://github.com/AdityaSripal>`__
+Launch an interpreter with ``requests``, ``flask`` and ``psutil`` in the environment:
 
-Thank you to Kevin Steves, creator of the pan-python library:
-    https://github.com/kevinsteves/pan-python
+.. code-block:: bash
+
+    $ pex requests flask 'psutil>2,<3'
+
+Or instead freeze your current virtualenv via requirements.txt and execute it anywhere:
+
+.. code-block:: bash
+
+    $ pex $(pip freeze) -o my_virtualenv.pex
+    $ deactivate
+    $ ./my_virtualenv.pex
+
+Run webserver.py in an environment containing ``flask`` as a quick way to experiment:
+
+.. code-block:: bash
+
+    $ pex flask -- webserver.py
+
+Launch Sphinx in an ephemeral pex environment using the Sphinx entry point ``sphinx:main``:
+
+.. code-block:: bash
+
+    $ pex sphinx -e sphinx:main -- --help
+
+Build a standalone pex binary into ``pex.pex`` using the ``pex`` console_scripts entry point:
+
+.. code-block:: bash
+
+    $ pex pex -c pex -o pex.pex
+
+You can also build pex files that use a specific interpreter type:
+
+.. code-block:: bash
+
+    $ pex pex -c pex --python=pypy -o pypy-pex.pex
+
+Most pex options compose well with one another, so the above commands can be
+mixed and matched.  For a full list of options, just type ``pex --help``.
 
 
-.. _pan-python: http://github.com/kevinsteves/pan-python
-.. _Configuration Tree: http://pandevice.readthedocs.io/en/latest/configtree.html
-.. _Usage Guide: http://pandevice.readthedocs.io/en/latest/usage.html
+Integrating pex into your workflow
+==================================
 
-.. |pypi| image:: https://img.shields.io/pypi/v/pandevice.svg
-    :target: https://pypi.python.org/pypi/pandevice
-    :alt: Latest version released on PyPi
+If you use tox (and you should!), a simple way to integrate pex into your
+workflow is to add a packaging test environment to your ``tox.ini``:
 
-.. |rtd| image:: https://img.shields.io/badge/docs-latest-brightgreen.svg
-    :target: http://pandevice.readthedocs.io/en/latest/?badge=latest
-    :alt: Documentation Status
+.. code-block:: ini
 
-.. |coverage| image:: https://img.shields.io/coveralls/PaloAltoNetworks/pandevice/master.svg?label=coverage
-    :target: https://coveralls.io/r/PaloAltoNetworks/pandevice?branch=master
-    :alt: Test coverage
+    [testenv:package]
+    deps = pex
+    commands = pex . -o dist/app.pex
 
-.. |travis| image:: https://img.shields.io/travis/PaloAltoNetworks/pandevice/master.svg
-    :target: http://travis-ci.org/PaloAltoNetworks/pandevice
-    :alt: Build status from Travis
+Then ``tox -e package`` will produce a relocateable copy of your application
+that you can copy to staging or production environments.
 
-.. |gitter| image:: https://badges.gitter.im/PaloAltoNetworks/pandevice.svg
-    :target: https://gitter.im/PaloAltoNetworks/pandevice
-    :alt: Chat on Gitter
+
+Documentation
+=============
+
+More documentation about Pex, building .pex files, and how .pex files work
+is available at https://pex.readthedocs.io.
+
+
+Development
+===========
+
+Pex uses `tox <https://testrun.org/tox/en/latest/>`_ for test and development automation. To run
+the test suite, just invoke tox:
+
+.. code-block:: bash
+
+    $ tox
+
+If you don't have tox, you can generate a pex of tox:
+
+.. code-block::
+
+    $ pex tox -c tox -o ~/bin/tox
+
+Tox provides many useful commands and options, explained at https://tox.readthedocs.io/en/latest/.
+Below, we provide some of the most commonly used commands used when working on Pex, but the
+docs are worth acquainting yourself with to better understand how Tox works and how to do more
+advanced commmands.
+
+To run a specific environment, identify the name of the environment you'd like to invoke by
+running ``tox --listenvs-all``, then invoke like this:
+
+.. code-block::
+
+    $ tox -e format-run
+
+To run MyPy:
+
+.. code-block::
+
+    $ tox -e typecheck
+
+All of our tox test environments allow passthrough arguments, which can be helpful to run
+specific tests:
+
+.. code-block::
+
+    $ tox -e py37-integration -- -k test_reproducible_build
+
+To run Pex from source, rather than through what is on your PATH, invoke via Python:
+
+.. code-block::
+
+    $ python -m pex
+
+Contributing
+============
+
+To contribute, follow these instructions: https://www.pantsbuild.org/docs/contributor-overview
