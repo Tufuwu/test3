@@ -1,0 +1,113 @@
+<div metal:use-macro="layout">
+  <div metal:fill-slot="title" tal:omit-tag="1">${package}</div>
+  <div metal:fill-slot="scripts" tal:omit-tag="1">
+    <script src="/project.js"></script>
+  </div>
+  <div metal:fill-slot="content">
+    <script>
+    window.onload = () => {
+      showDownloads('${package}');
+    };
+    </script>
+
+    <div class="row">
+      <div class="small-12 medium-6 columns">
+        <h2>${package}</h2>
+        <p>${description}</p>
+      </div>
+
+      <div class="small-12 medium-6 columns">
+        <table class="stats">
+          <tr>
+            <th>PyPI page</th>
+            <td><a href="https://pypi.org/project/${package}">pypi.org/project/${package}</a></td>
+          </tr>
+          <tr>
+            <th>Versions</th>
+            <td>${'{:,}'.format(len(versions))}</td>
+          </tr>
+          <tr>
+            <th>Files</th>
+            <td>${'{:,}'.format(len(files))}</td>
+          </tr>
+          <tr>
+            <th>Downloads (all time)</th>
+            <td id="downloads-all">loading...</td>
+          </tr>
+          <tr>
+            <th>Downloads (last 30 days)</th>
+            <td id="downloads-30">loading...</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="small-12 columns">
+        <h3>Install</h3>
+        <pre tal:condition="dependencies">sudo apt install ${' '.join(dependencies)}
+sudo pip3 install ${package}</pre>
+        <pre tal:condition="not dependencies">sudo pip3 install ${package}</pre>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="small-12 columns">
+        <h3>Versions</h3>
+        <table id="versions" tal:condition="versions">
+          <tr><th>Version</th><th>Successful builds</th><th>Failed builds</th><th>Skip</th></tr>
+          <span tal:repeat="row versions" tal:omit-tag="True">
+            <tr class="${'hidden-version' if repeat.row.number > 5 else ''}">
+              <td>
+                ${row.version.original}
+                <span tal:condition="row.version.is_prerelease" class="prerelease">pre-release</span>
+                <span tal:condition="row.yanked" class="yanked">yanked</span>
+              </td>
+              <td>${row.builds_succeeded}</td>
+              <td>${row.builds_failed}</td>
+              <td>${row.skipped}</td>
+            </tr>
+          </span>
+          <tr tal:condition="len(versions) > 5" id="show-hidden-versions" class="show-more"><td colspan="4"><a onclick="showHiddenRows('hidden-version')">Show more versions</a></td></tr>
+        </table>
+        <table tal:condition="not:versions" class="empty">
+          <tr><th>No versions</th></tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="small-12 columns">
+        <h3>Files</h3>
+        <table tal:condition="files">
+          <tr><th>Version</th><th>ABI</th><th>Filename</th><th>Size</th></tr>
+          <span tal:repeat="row files" tal:omit-tag="True">
+            <tr class="${'hidden-file' if repeat.row.number > 5 else ''}">
+              <td>${row.version.original}</td>
+              <td>${row.abi_tag}</td>
+              <td><a href="${url(row.filename, row.filehash)}">${row.filename}</a></td>
+              <td>${format_size(row.filesize)}</td>
+            </tr>
+          </span>
+          <tr tal:condition="len(files) > 5" id="show-hidden-files" class="show-more"><td colspan="4"><a onclick="showHiddenRows('hidden-file')">Show more files</a></td></tr>
+        </table>
+        <table tal:condition="not:files" class="empty">
+          <tr><th>No files</th></tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="small-12 columns">
+        <h3>Issues with this package?</h3>
+        <table class="package-issues">
+          <tr><td>Check if there's an open issue</td><td><a class="button" href="https://github.com/piwheels/packages/issues?utf8=%E2%9C%93&q=is%3Aissue+${package}+is%3Aopen">Search</a></td></tr>
+          <tr><td>Package or version missing?</td><td><a class="button" href="https://github.com/piwheels/packages/issues/new?template=missing-package.md&title=Missing+package:+${package}">New issue</a></td></tr>
+          <tr><td>Something else?</td><td><a class="button" href="https://github.com/piwheels/packages/issues/new?template=package.md&title=${package}">New issue</a></td></tr>
+        </table>
+
+        <p class="small"><small>Page last updated ${timestamp}</small></p>
+      </div>
+    </div>
+  </div>
+</div>
