@@ -21,9 +21,7 @@ jobs:
             env: TOXENV=docs
           - python-version: '3.7'
             env: TOXENV=quality
-      allow_failures:
-        - python-version: 'nightly'
-        - django-version: 'master'
+
 
     steps:
     - uses: actions/checkout@v2
