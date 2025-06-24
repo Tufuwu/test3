@@ -36,9 +36,9 @@ jobs:
         python -m pip install --upgrade pip setuptools wheel
         pip install -r requirements/tests.txt django=="${{ matrix.django-version }}.*"
         pip freeze
-        
+
     - name: Run tests
       env:
         DJANGO: ${{ matrix.django-version }}
         TOXENV: ${{ matrix.env }}
-      run: tox
+      run: pytest
