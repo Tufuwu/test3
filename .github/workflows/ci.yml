@@ -41,4 +41,4 @@ jobs:
       env:
         DJANGO: ${{ matrix.django-version }}
         TOXENV: ${{ matrix.env }}
-      run: pytest
+      run: static templates data .tox
