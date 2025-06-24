@@ -27,7 +27,7 @@ jobs:
           path: $HOME/.cache/pip
           key: ${{ runner.os }}-${{ matrix.python-version }}-${{ hashFiles('**/requirements.txt') }}
       - uses: actions/checkout@v2
-      - run: pip install -U pip wheel setuptools<58
+      - run: pip install -U pip wheel 'setuptools<58'
       - run: pip install -U tox tox-gh-actions
       - run: tox
       - uses: codecov/codecov-action@v1
