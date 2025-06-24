@@ -1,26 +1,72 @@
-# Python stuff
-*.py[cdo]
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*.bak
 
-# Vim stuff
-*.vim
-*.swp
+# C extensions
+*.so
 
-# Miscellaneous
-tags
-
-# Packages
+# Distribution / packaging
+.Python
+env/
+venv/
+venv3/
+venvpypy/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
 *.egg
-*.egg-info
-*.pyc
-*.whl
-dist
-build
-man
+
+# PyInstaller
+# Usually these files are written by a python script from a template
+# before PyInstaller builds the exe, so as to inject date/other infos into it.
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
 
 # Unit test / coverage reports
-coverage
-.cache
+htmlcov/
+.tox/
 .coverage
-.tox
-.pytest_cache
+.cache
+nosetests.xml
+coverage.xml
+
+# Translations
+*.mo
+*.pot
+
+# Django stuff:
+*.log
+
+# Sphinx documentation
+docs/_build/
+
+# PyBuilder
+target/
+
+# Editor files
+.DS_Store
+*~
+.idea/
+*.sublime*
+*.swp
+tags
+
+# Vagrant
+.vagrant
+
+# VSCode
+.vscode
+
 .env
