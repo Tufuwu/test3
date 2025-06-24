@@ -1,63 +1,83 @@
-name: Python CI
+name: Python Package
 
 on:
   push:
-    branches: [ main ]
-    tags:
-    - '*'
+    branches:
+      - main
   pull_request:
-    branches: [ master ]
+    branches:
+      - master
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        python-version: ['3.8', '3.9', '3.10', '3.11']
-
+        python-version: ['3.6', '3.8', '3.9']
     steps:
     - uses: actions/checkout@v2
-    
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python-version }}
-        
     - name: Install dependencies
       run: |
-        python -m pip install --upgrade pip
         pip install -r requirements.txt
         pip install -r tests/requirements.txt
-        pip install -e .
-        
-    - name: Run tests with nosetests
-      run: pytest --cov=btcde tests/
-    
+        python setup.py -q install
+    - name: Test with nosetests
+      run: nosetests --with-coverage --cover-package=btcde
     - name: Upload coverage to Codecov
       if: success()
       uses: codecov/codecov-action@v2
-      with:
-        token: ${{ secrets.CODECOV_TOKEN }}
-  deploy-test-release:
-    needs: build
+
+  test-release:
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' && !startsWith(github.ref, 'refs/tags/') && github.ref == 'refs/heads/master'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
     steps:
-    - name: Deploy to Test PyPI
-      uses: pypa/gh-action-pypi-publish@release/v1
+    - uses: actions/checkout@v2
+    - name: Set up Python 3.8
+      uses: actions/setup-python@v2
       with:
-        user: __token__
-        password: ${{ secrets.TEST_PYPI_API_TOKEN }}
-        repository_url: https://test.pypi.org/legacy/
-        
-  deploy-release:
-    needs: build
+        python-version: 3.8
+    - name: Install dependencies
+      run: |
+        pip install -r requirements.txt
+        pip install -r tests/requirements.txt
+        python setup.py -q install
+    - name: Test with nosetests
+      run: nosetests --with-coverage --cover-package=btcde
+    - name: Publish to Test PyPI
+      env:
+        TWINE_USERNAME: __token__
+        TWINE_PASSWORD: ${{ secrets.TEST_PYPI_API_TOKEN }}
+      run: |
+        pip install twine
+        python setup.py sdist bdist_wheel
+        twine upload --repository-url https://test.pypi.org/legacy/ dist/*
+
+  release:
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/') && github.ref == 'refs/heads/master'
+    if: github.event_name == 'push' && github.ref == 'refs/tags/*'
     steps:
-    - name: Deploy to PyPI
-      uses: pypa/gh-action-pypi-publish@release/v1
+    - uses: actions/checkout@v2
+    - name: Set up Python 3.8
+      uses: actions/setup-python@v2
       with:
-        user: __token__
-        password: ${{ secrets.PYPI_API_TOKEN }}
+        python-version: 3.8
+    - name: Install dependencies
+      run: |
+        pip install -r requirements.txt
+        pip install -r tests/requirements.txt
+        python setup.py -q install
+    - name: Test with nosetests
+      run: nosetests --with-coverage --cover-package=btcde
+    - name: Publish to PyPI
+      env:
+        TWINE_USERNAME: __token__
+        TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
+      run: |
+        pip install twine
+        python setup.py sdist bdist_wheel
+        twine upload dist/*
