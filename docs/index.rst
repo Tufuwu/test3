@@ -1,13 +1,18 @@
 .. include:: ../README.rst
-  :end-before: end-of-index-doc
 
 .. toctree::
-   :maxdepth: 2
+    :maxdepth: 2
+    :caption: Contents:
 
-   quickstart
-   howto_index
-   discussions
-   reference
-   glossary
-   contributing
-   changelog
+    installation
+    configuration
+    advanced
+    changelog
+
+
+Indices and tables
+==================
+
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`

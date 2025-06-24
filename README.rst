@@ -1,124 +1,89 @@
-Procrastinate: PostgreSQL-based Task Queue for Python
-=====================================================
+Welcome to django-allauth-2fa!
+==============================
 
-.. image:: https://badge.fury.io/py/procrastinate.svg
-    :target: https://pypi.org/pypi/procrastinate
-    :alt: Deployed to PyPI
+.. image:: https://github.com/valohai/django-allauth-2fa/actions/workflows/ci.yml/badge.svg
+    :target: https://github.com/valohai/django-allauth-2fa/actions/workflows/ci.yml
 
-.. image:: https://readthedocs.org/projects/procrastinate/badge/?version=latest
-    :target: http://procrastinate.readthedocs.io/en/latest/?badge=latest
-    :alt: Documentation Status
+.. image:: https://coveralls.io/repos/github/percipient/django-allauth-2fa/badge.svg?branch=master
+    :target: https://coveralls.io/github/percipient/django-allauth-2fa?branch=master
 
-.. image:: https://github.com/peopledoc/procrastinate/workflows/CI/badge.svg?branch=master
-    :target: https://github.com/peopledoc/procrastinate/actions?workflow=CI
-    :alt: Continuous Integration Status
+.. image:: https://readthedocs.org/projects/django-allauth-2fa/badge/?version=latest
+    :target: https://django-allauth-2fa.readthedocs.io/
 
-.. image:: https://codecov.io/gh/peopledoc/procrastinate/branch/master/graph/badge.svg
-    :target: https://codecov.io/gh/peopledoc/procrastinate
-    :alt: Coverage Status
+django-allauth-2fa adds `two-factor authentication`_ to `django-allauth`_.
+django-allauth is a set of `Django`_ applications which help with
+authentication, registration, and other account management tasks.
 
-.. image:: https://img.shields.io/badge/License-MIT-green.svg
-    :target: https://github.com/peopledoc/procrastinate/blob/master/LICENSE
-    :alt: MIT License
+Source code
+    http://github.com/percipient/django-allauth-2fa
+Documentation
+    https://django-allauth-2fa.readthedocs.io/
 
-.. image:: https://img.shields.io/badge/Contributor%20Covenant-v1.4%20adopted-ff69b4.svg
-    :target: CODE_OF_CONDUCT.md
-    :alt: Contributor Covenant
+.. _two-factor authentication: https://en.wikipedia.org/wiki/Multi-factor_authentication
+.. _django-allauth: https://github.com/pennersr/django-allauth
+.. _Django: https://www.djangoproject.com/
 
+Features
+--------
 
-Procrastinate is an open-source Python 3.6+ distributed task processing
-library, leveraging PostgreSQL to store task definitions, manage locks and
-dispatch tasks. It can be used within both sync and async code.
+* Adds `two-factor authentication`_ views and workflow to `django-allauth`_.
+* Supports Authenticator apps via a QR code when enabling 2FA.
+* Supports single-use back-up codes.
 
-In other words, from your main code, you call specific functions (tasks) in a
-special way and instead of being run on the spot, they're scheduled to
-be run elsewhere, now or in the future.
+Compatibility
+-------------
 
-Here's an example
+django-allauth-2fa attempts to maintain compatibility with supported versions of
+Django, django-allauth, and django-otp. Current minimum versions are listed
+below:
 
-.. code-block:: python
+* Django 1.11
+* django-allauth 0.25.0
+* django-otp 0.3.12
+* Python 3.6
 
-    # mycode.py
+Contributing
+------------
 
-    # Make an app in your code
-    app = procrastinate.App(connector=procrastinate.AiopgConnector())
+django-allauth-2fa was initially created by
+`Víðir Valberg Guðmundsson (@valberg)`_, and is currently maintained by
+`Percipient Networks`_. Please feel free to contribute if you find
+django-allauth-2fa useful!
 
-    # Open the connection to the database
-    app.open()
+#. Check for open issues or open a fresh issue to start a discussion
+   around a feature idea or a bug.
+#. If you feel uncomfortable or uncertain about an issue or your changes,
+   feel free to email support@percipientnetworks.com and we will happily help you.
+#. Fork `the repository`_ on GitHub to start making your changes to the
+   **master** branch (or branch off of it).
+#. Write a test which shows that the bug was fixed or that the feature
+   works as expected.
+#. Send a pull request and bug the maintainer until it gets merged and
+   published.
 
-    # Then define tasks
-    @app.task(queue="sums")
-    def sum(a, b):
-        with open("myfile", "w") as f:
-            f.write(str(a + b))
+Running tests
+'''''''''''''
 
-    # Launch a job
-    sum.defer(a=3, b=5)
-
-    # Somewhere in your program, run a worker
-    worker = procrastinate.Worker(
-        app=app,
-        queues=["sums"]
-    )
-    worker.run()
-
-The worker will run the job, which will create a text file
-named ``myfile`` with the result of the sum ``3 + 5`` (that's ``8``).
-
-Similarly, from the command line:
+Tests can be run using the standard Django testing facility:
 
 .. code-block:: bash
 
-    export PROCRASTINATE_APP="mycode.app"
+    python manage.py test
 
-    # Launch a job
-    procrastinate defer mycode.sum '{"a": 3, "b": 5}'
+Running the test project
+''''''''''''''''''''''''
 
-    # Run a worker
-    procrastinate worker sums
+The test project can also be used as a minimal example using the following:
 
-Lastly, you can use Procrastinate asynchronously too:
+.. code-block:: bash
 
-.. code-block:: python
+    # Migrate the SQLite database first.
+    DJANGO_SETTINGS_MODULE=tests.run_settings python manage.py migrate
+    # Run the server with debug.
+    DJANGO_SETTINGS_MODULE=tests.run_settings python manage.py runserver_plus
+    # Run the shell.
+    DJANGO_SETTINGS_MODULE=tests.run_settings python manage.py shell_plus
 
-    # Define asynchronous tasks using coroutine functions
-    @app.task(queue="sums")
-    async def sum(a, b):
-        await asyncio.sleep(a + b)
-
-    # Launch a job asynchronously
-    await sum.defer_async(a=3, b=5)
-
-    # Somewhere in your program, run a worker asynchronously
-    worker = procrastinate.Worker(
-        app=app,
-        queues=["sums"]
-    )
-    await worker.run_async()
-
-There are quite a few interesting features that Procrastinate adds to the mix.
-You can head to the Quickstart section for a general tour or
-to the How-To sections for specific features. The Discussion
-section should hopefully answer your questions. Otherwise,
-feel free to open an `issue <https://github.com/peopledoc/procrastinate/issues>`_.
-
-The project is still quite early-stage and will probably evolve.
-
-*Note to my future self: add a quick note here on why this project is named*
-"Procrastinate_".
-
-.. _Procrastinate: https://en.wikipedia.org/wiki/Procrastination
-
-.. Below this line is content specific to the README that will not appear in the doc.
-.. end-of-index-doc
-
-Where to go from here
----------------------
-
-The complete docs_ is probably the best place to learn about the project.
-
-If you encounter a bug, or want to get in touch, you're always welcome to open a
-ticket_.
-
-.. _docs: http://procrastinate.readthedocs.io/en/latest
-.. _ticket: https://github.com/peopledoc/procrastinate/issues/new
+.. _Víðir Valberg Guðmundsson (@valberg): https://github.com/valberg
+.. _Percipient Networks: https://www.strongarm.io
+.. _the repository: http://github.com/percipient/django-allauth-2fa

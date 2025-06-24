@@ -1,14 +1,19 @@
-__pycache__
-.coverage
-.DS_Store
-.mypy_cache
-.pytest_cache
-.tox
-.venv
-*.egg-info
 *.pyc
-build
-dist
-docs/_build
+__pycache__/
+*.sw*
+db.sqlite
+.idea/
+
+# Distributions.
+.eggs/
+build/
+dist/
+django_allauth_2fa.egg-info/
+
+# Testing
+.coverage
 htmlcov
-VERSION.txt
+.tox
+
+# Docs
+_build

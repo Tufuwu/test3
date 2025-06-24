@@ -1,45 +1,49 @@
-import contextlib
-import os
-import pathlib
-import subprocess
+# -*- coding: utf-8 -*-
 
-import setuptools
+import codecs
 
-
-@contextlib.contextmanager
-def ensure_version():
-    version_filename = pathlib.Path(__file__).parent / "VERSION.txt"
-
-    # If installing from a sdist
-    try:
-        with open(version_filename) as f:
-            yield f.read().strip()
-        return
-    except IOError:
-        pass
-
-    # If running from the git repository
-    try:
-        version = (
-            subprocess.check_output(["git", "describe", "--tags"])
-            .decode("utf-8")
-            .strip()
-            .replace("-", "+", 1)
-            .replace("-", ".")
-        )
-    except subprocess.CalledProcessError:
-        # This might happen in some rare cases, like when running check-manifest.
-        # We'll update this to something better if it ever proves problematic.
-        yield "0.0.0"
-        return
-
-    try:
-        with open(version_filename, "w") as f:
-            f.write(version)
-        yield version
-    finally:
-        os.remove(version_filename)
+from setuptools import find_packages, setup
 
 
-with ensure_version() as version:
-    setuptools.setup(version=version)
+def long_description():
+    with codecs.open('README.rst', encoding='utf8') as f:
+        return f.read()
+
+
+setup(
+    name="django-allauth-2fa",
+    version="0.8",
+    packages=find_packages('.', include=('allauth_2fa', 'allauth_2fa.*')),
+    include_package_data=True,
+    install_requires=[
+        "django>=1.11",
+        "qrcode>=5.3",
+        "django-allauth>=0.25",
+        "django-otp>=0.3.12",
+    ],
+    author="Víðir Valberg Guðmundsson",
+    author_email="valberg@orn.li",
+    description="Adds two factor authentication to django-allauth",
+    license="Apache 2.0",
+    keywords=['otp', 'auth', 'two factor authentication', 'allauth', 'django', '2fa'],
+    url="https://github.com/percipient/django-allauth-2fa",
+    long_description=long_description(),
+    classifiers=[
+        'Development Status :: 4 - Beta',
+        'Intended Audience :: Developers',
+        'Topic :: Software Development :: Libraries :: Python Modules',
+        'Environment :: Web Environment',
+        'Topic :: Internet',
+        'Framework :: Django',
+        'Framework :: Django :: 1.11',
+        'Framework :: Django :: 2.2',
+        'Framework :: Django :: 3.0',
+        'Programming Language :: Python',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
+        'License :: OSI Approved :: Apache Software License',
+    ],
+    python_requires=">=3.6",
+)
