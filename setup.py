@@ -1,49 +1,45 @@
-from setuptools import find_packages, setup
+import contextlib
+import os
+import pathlib
+import subprocess
+
+import setuptools
 
 
-def read_file(name):
-    with open(name) as fobj:
-        return fobj.read().strip()
+@contextlib.contextmanager
+def ensure_version():
+    version_filename = pathlib.Path(__file__).parent / "VERSION.txt"
+
+    # If installing from a sdist
+    try:
+        with open(version_filename) as f:
+            yield f.read().strip()
+        return
+    except IOError:
+        pass
+
+    # If running from the git repository
+    try:
+        version = (
+            subprocess.check_output(["git", "describe", "--tags"])
+            .decode("utf-8")
+            .strip()
+            .replace("-", "+", 1)
+            .replace("-", ".")
+        )
+    except subprocess.CalledProcessError:
+        # This might happen in some rare cases, like when running check-manifest.
+        # We'll update this to something better if it ever proves problematic.
+        yield "0.0.0"
+        return
+
+    try:
+        with open(version_filename, "w") as f:
+            f.write(version)
+        yield version
+    finally:
+        os.remove(version_filename)
 
 
-LONG_DESCRIPTION = read_file("README.md")
-VERSION = read_file("Ctl/VERSION")
-REQUIREMENTS = read_file("Ctl/requirements.txt").split("\n")
-TEST_REQUIREMENTS = read_file("Ctl/requirements-test.txt").split("\n")
-
-
-setup(
-    name="django-peeringdb",
-    version=VERSION,
-    author="PeeringDB",
-    author_email="support@peeringdb.com",
-    description="PeeringDB models and local synchronization for Django",
-    long_description=LONG_DESCRIPTION,
-    long_description_content_type="text/markdown",
-    license="LICENSE.txt",
-    classifiers=[
-        "Development Status :: 5 - Production/Stable",
-        "Framework :: Django :: 1.11",
-        "Framework :: Django :: 2.0",
-        "Framework :: Django :: 2.1",
-        "Framework :: Django :: 2.2",
-        "Framework :: Django :: 3.0",
-        "Intended Audience :: Developers",
-        "License :: OSI Approved :: Apache Software License",
-        "Programming Language :: Python :: 3.5",
-        "Programming Language :: Python :: 3.6",
-        "Programming Language :: Python :: 3.7",
-        "Programming Language :: Python :: 3.8",
-        "Topic :: Software Development :: Libraries :: Python Modules",
-        "Topic :: Internet",
-    ],
-    packages=find_packages(),
-    include_package_data=True,
-    url="https://github.com/peeringdb/django-peeringdb",
-    download_url="https://github.com/peeringdb/django-peeringdb/archive/{}.zip".format(
-        VERSION
-    ),
-    install_requires=REQUIREMENTS,
-    tests_require=TEST_REQUIREMENTS,
-    zip_safe=True,
-)
+with ensure_version() as version:
+    setuptools.setup(version=version)
