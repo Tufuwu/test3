@@ -1,12 +1,19 @@
-graft src/plone/rest
-include *.rst
-exclude *.cfg
-exclude *.yml
-exclude bootstrap-buildout.py
+include AUTHORS.rst
+include CONTRIBUTING.rst
+include HISTORY.rst
+include LICENSE
+include README.rst
+recursive-include cid *.html *.png *.gif *js *.css *jpg *jpeg *svg *py
+
+graft docs
+prune requirements
+prune sandbox
+prune tests
+
+exclude .coveragerc
+exclude .isort.cfg
+exclude .pylintrc
 exclude Makefile
-exclude requirements.txt
-exclude CODEOWNERS
-global-exclude *.pyc
-include pyproject.toml
-recursive-exclude news *
-exclude news
+exclude conftest.py
+exclude pytest.ini
+exclude tox.ini

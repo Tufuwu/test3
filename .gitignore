@@ -1,32 +1,31 @@
-/develop-eggs
-/eggs
-/fake-eggs
-/bin
-/parts
-/downloads
-/var
-/build
-/dist
-/extras
-/local.cfg
-.coverage
+*.py[cod]
+.cache
+.ropeproject
+*.sublime-*
+.python-version
+
+# Packages
+*.egg
 *.egg-info
-*.eggs
-/.installed.cfg
-*.pyc
-/.Python
-/include
-/lib
-/.mr.developer.cfg
-*.mo
-local/
-pip-selfcheck.json
-share/
-docs/Makefile
-docs/make.bat
-docs/doctrees
-docs/html
-htmlcov
-bower_components
-.vscode/
-pyvenv.cfg
+dist
+build
+eggs
+parts
+bin
+var
+sdist
+develop-eggs
+.installed.cfg
+
+# Installer logs
+pip-log.txt
+
+# Unit test / coverage reports
+.coverage
+.tox
+
+# Sphinx
+docs/_build
+
+# Django
+*.sqlite3
