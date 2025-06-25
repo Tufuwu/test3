@@ -1,4 +1,4 @@
-black>=23.0
+black==19.3b0
 coverage==4.5.3
 flake8==3.7.7
 flake8-commas==2.0.0
@@ -8,3 +8,4 @@ pip-tools==3.6.0
 pre-commit==1.17.0
 twine==2.0.0
 readme_renderer==24.0
+click==8.0.4
