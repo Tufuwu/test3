@@ -22,8 +22,11 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
-          pip install tox codecov
+          sudo apt-get update
+          sudo apt-get install -y python-dev
+          pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install -r requirements-dev.txt
       - name: Run flake8
         run: tox -e flake8
       - name: Upload coverage to Codecov
@@ -43,8 +46,11 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
-          pip install tox codecov
+          sudo apt-get update
+          sudo apt-get install -y python-dev
+          pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install -r requirements-dev.txt
       - name: Run black
         run: tox -e black
       - name: Upload coverage to Codecov
@@ -71,8 +77,11 @@ jobs:
           sleep 60
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
-          pip install tox codecov
+          sudo apt-get update
+          sudo apt-get install -y python-dev
+          pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install -r requirements-dev.txt
       - name: Run elasticsearch tests
         run: tox -e elasticsearch
       - name: Upload coverage to Codecov
