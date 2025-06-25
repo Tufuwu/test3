@@ -1,18 +1,17 @@
-django-cid: Correlation id in Django
-====================================
+.. _index:
 
-.. include:: ../README.rst
+.. include:: intro.rst
 
 
 Topics
-------
+======
 
 .. toctree::
-   :maxdepth: 2
+    :maxdepth: 2
 
-   installation
-   api
-   contributing
-   releasing
-   authors
-   history
+    intro
+    concepts
+    advanced
+    troubleshooting
+    talks/index
+    changelog
