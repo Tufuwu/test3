@@ -1,89 +1,206 @@
-""" pygameweb
-"""
-import io
+import builtins
 import os
-import re
-from itertools import chain
+import subprocess
+import sys
+from distutils.version import LooseVersion
+from setuptools import setup, Extension
+from setuptools.command.build_ext import build_ext as _build_ext
+import logging
+import versioneer
 
-from setuptools import setup, find_packages
+# Skip Cython build if not available
+try:
+    from Cython.Build import cythonize
+except ImportError:
+    cythonize = None
 
 
-def read(*parts):
-    """ Reads in file from *parts.
+log = logging.getLogger(__name__)
+ch = logging.StreamHandler()
+log.addHandler(ch)
+
+MIN_GEOS_VERSION = "3.5"
+
+if "all" in sys.warnoptions:
+    # show GEOS messages in console with: python -W all
+    log.setLevel(logging.DEBUG)
+
+
+def get_geos_config(option):
+    """Get configuration option from the `geos-config` development utility
+
+    The PATH environment variable should include the path where geos-config is
+    located, or the GEOS_CONFIG environment variable should point to the
+    executable.
     """
+    cmd = os.environ.get("GEOS_CONFIG", "geos-config")
     try:
-        return io.open(os.path.join(*parts), 'r', encoding='utf-8').read()
-    except IOError:
-        return ''
+        stdout, stderr = subprocess.Popen(
+            [cmd, option], stdout=subprocess.PIPE, stderr=subprocess.PIPE
+        ).communicate()
+    except OSError:
+        return
+    if stderr and not stdout:
+        log.warning("geos-config %s returned '%s'", option, stderr.decode().strip())
+        return
+    result = stdout.decode().strip()
+    log.debug("geos-config %s returned '%s'", option, result)
+    return result
 
 
-def get_version():
-    """ Returns version from pygameweb/__init__.py
+def get_geos_paths():
+    """Obtain the paths for compiling and linking with the GEOS C-API
+
+    First the presence of the GEOS_INCLUDE_PATH and GEOS_INCLUDE_PATH environment
+    variables is checked. If they are both present, these are taken.
+
+    If one of the two paths was not present, geos-config is called (it should be on the
+    PATH variable). geos-config provides all the paths.
+
+    If geos-config was not found, no additional paths are provided to the extension. It is
+    still possible to compile in this case using custom arguments to setup.py.
     """
-    version_file = read('pygameweb', '__init__.py')
-    version_match = re.search(r'^__version__ = [\'"]([^\'"]*)[\'"]',
-                              version_file, re.MULTILINE)
-    if version_match:
-        return version_match.group(1)
-    raise RuntimeError('Unable to find version string.')
+    include_dir = os.environ.get("GEOS_INCLUDE_PATH")
+    library_dir = os.environ.get("GEOS_LIBRARY_PATH")
+    if include_dir and library_dir:
+        return {
+            "include_dirs": ["./src", include_dir],
+            "library_dirs": [library_dir],
+            "libraries": ["geos_c"],
+        }
+
+    geos_version = get_geos_config("--version")
+    if not geos_version:
+        log.warning(
+            "Could not find geos-config executable. Either append the path to geos-config"
+            " to PATH or manually provide the include_dirs, library_dirs, libraries and "
+            "other link args for compiling against a GEOS version >=%s.",
+            MIN_GEOS_VERSION,
+        )
+        return {}
+
+    if LooseVersion(geos_version) < LooseVersion(MIN_GEOS_VERSION):
+        raise ImportError(
+            "GEOS version should be >={}, found {}".format(
+                MIN_GEOS_VERSION, geos_version
+            )
+        )
+
+    libraries = []
+    library_dirs = []
+    include_dirs = ["./src"]
+    extra_link_args = []
+    for item in get_geos_config("--cflags").split():
+        if item.startswith("-I"):
+            include_dirs.extend(item[2:].split(":"))
+
+    for item in get_geos_config("--clibs").split():
+        if item.startswith("-L"):
+            library_dirs.extend(item[2:].split(":"))
+        elif item.startswith("-l"):
+            libraries.append(item[2:])
+        else:
+            extra_link_args.append(item)
+
+    return {
+        "include_dirs": include_dirs,
+        "library_dirs": library_dirs,
+        "libraries": libraries,
+        "extra_link_args": extra_link_args,
+    }
 
 
-def get_requirements():
-    """ returns list of requirements from requirements.txt files.
-    """
-    fnames = ['requirements.txt']
-    requirements = chain.from_iterable((open(fname) for fname in fnames))
-    requirements = list(set([l.strip() for l in requirements]) - {'-r requirements.txt'})
-    return requirements
+# Add numpy include dirs without importing numpy on module level.
+# derived from scikit-hep:
+# https://github.com/scikit-hep/root_numpy/pull/292
+class build_ext(_build_ext):
+    def finalize_options(self):
+        _build_ext.finalize_options(self)
+        # Prevent numpy from thinking it is still in its setup process:
+        try:
+            del builtins.__NUMPY_SETUP__
+        except AttributeError:
+            pass
 
+        import numpy
+
+        self.include_dirs.append(numpy.get_include())
+
+
+ext_modules = []
+
+if "clean" not in sys.argv and "sdist" not in sys.argv:
+    ext_options = get_geos_paths()
+
+    ext_modules = [
+        Extension(
+            "pygeos.lib",
+            sources=[
+                "src/c_api.c",
+                "src/coords.c",
+                "src/geos.c",
+                "src/lib.c",
+                "src/pygeom.c",
+                "src/strtree.c",
+                "src/ufuncs.c",
+            ],
+            **ext_options,
+        )
+    ]
+
+    # Cython is required
+    if not cythonize:
+        sys.exit("ERROR: Cython is required to build pygeos from source.")
+
+    cython_modules = [
+        Extension("pygeos._geometry", ["pygeos/_geometry.pyx",], **ext_options,),
+        Extension("pygeos._geos", ["pygeos/_geos.pyx",], **ext_options,),
+    ]
+
+    ext_modules += cythonize(
+        cython_modules,
+        compiler_directives={"language_level": "3"},
+        # enable once Cython >= 0.3 is released
+        # define_macros=[("NPY_NO_DEPRECATED_API", "NPY_1_7_API_VERSION")],
+    )
+
+
+try:
+    descr = open(os.path.join(os.path.dirname(__file__), "README.rst")).read()
+except IOError:
+    descr = ""
+
+
+version = versioneer.get_version()
+cmdclass = versioneer.get_cmdclass()
+cmdclass["build_ext"] = build_ext
 
 setup(
-    name='pygameweb',
-    classifiers=[
-        'Development Status :: 1 - Planning',
-        'License :: OSI Approved :: BSD License',
-        'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.6',
-    ],
-    data_files=[('.', ['alembic.ini'])],
-    license='BSD',
-    author='Rene Dudfield',
-    author_email='renesd@gmail.com',
-    description='Pygame.org website.',
+    name="pygeos",
+    version=version,
+    description="GEOS wrapped in numpy ufuncs",
+    long_description=descr,
+    url="https://github.com/pygeos/pygeos",
+    author="Casper van der Wel",
+    author_email="caspervdw@gmail.com",
+    license="BSD 3-Clause",
+    packages=["pygeos"],
+    install_requires=["numpy>=1.13"],
+    extras_require={"test": ["pytest"], "docs": ["sphinx", "numpydoc"],},
+    python_requires=">=3",
     include_package_data=True,
-    long_description=read('README.rst'),
-    package_dir={'pygameweb': 'pygameweb'},
-    packages=find_packages(),
-    package_data={'pygameweb': []},
-    url='https://github.com/pygame/pygameweb',
-    install_requires=get_requirements(),
-    version=get_version(),
-    entry_points={
-        'console_scripts': [
-            'pygameweb_front='
-                'pygameweb.run:run_front',
-            'pygameweb_generate_json='
-                'pygameweb.dashboard.generate_json:main',
-            'pygameweb_generate_static='
-                'pygameweb.dashboard.generate_static:main',
-            'pygameweb_launchpad='
-                'pygameweb.builds.launchpad_build_badge:check_pygame_builds',
-            'pygameweb_update_docs='
-                'pygameweb.builds.update_docs:update_docs',
-            'pygameweb_stackoverflow='
-                'pygameweb.builds.stackoverflow:download_stack_json',
-            'pygameweb_loadcomments='
-                'pygameweb.comment.models:load_comments',
-            'pygameweb_trainclassifier='
-                'pygameweb.comment.classifier_train:classify_comments',
-            'pygameweb_worker='
-                'pygameweb.tasks.worker:work',
-            'pygameweb_release_version_correct='
-                'pygameweb.builds.update_version_from_git:release_version_correct',
-            'pygameweb_github_releases='
-                'pygameweb.project.gh_releases:sync_github_releases',
-            'pygameweb_fixtures=' +
-                'pygameweb.fixtures:populate_db',
-        ],
-    },
+    data_files=[("geos_license", ["GEOS_LICENSE"])],
+    ext_modules=ext_modules,
+    classifiers=[
+        "Programming Language :: Python :: 3",
+        "Intended Audience :: Science/Research",
+        "Intended Audience :: Developers",
+        "Development Status :: 4 - Beta",
+        "Topic :: Scientific/Engineering",
+        "Topic :: Software Development",
+        "Operating System :: Unix",
+        "Operating System :: MacOS",
+        "Operating System :: Microsoft :: Windows",
+    ],
+    cmdclass=cmdclass,
 )

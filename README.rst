@@ -1,317 +1,134 @@
-pygame.org website |coverage-status|
-====================================
+======
+PyGEOS
+======
 
-Pieces of the pygame website (https://www.pygame.org/) will be open sourced here.
+.. Documentation at RTD — https://readthedocs.org
 
-Strategy is to bring in code one piece at a time, and clean it up as I go.
+.. image:: https://readthedocs.org/projects/pygeos/badge/?version=latest
+	:alt: Documentation Status
+	:target: https://pygeos.readthedocs.io/en/latest/?badge=latest
 
+.. Github Actions status — https://github.com/pygeos/pygeos/actions
 
-It's a community website where people can post projects, comment on them,
-but also write things in there themselves on wiki pages.
+.. image:: https://github.com/pygeos/pygeos/workflows/Conda/badge.svg
+	:alt: Github Actions status
+	:target: https://github.com/pygeos/pygeos/actions?query=workflow%3AConda
 
+.. Appveyor CI status — https://ci.appveyor.com
 
-Quick-Start
-===========
+.. image:: https://ci.appveyor.com/api/projects/status/jw48gpd88f188av6?svg=true
+	:alt: Appveyor CI status
+	:target: https://ci.appveyor.com/project/caspervdw/pygeos-3e5cu
 
-Set up the required packages::
+.. PyPI
 
-    python3.6 -m venv anenv
-    . ./anenv/bin/activate
-    pip install --upgrade pip
-    pip install -r requirements.dev.txt
-    pip install -e .
+.. image:: https://badge.fury.io/py/pygeos.svg
+	:alt: PyPI
+	:target: https://badge.fury.io/py/pygeos
 
-If you would get some error related to *pip's conflict checker update* after execute **pip install -r requirements.dev.txt**, add the flag **--use-feature=2020-resolver** to the end of the command.
+.. Anaconda
 
-For now yuicompressor is needed for css compression, and
-imagamagick and optipng are needed for creating and optimizing image thumbnails,
-additionally postgresql is the database of choice::
-    brew install yuicompressor node optipng imagemagick postgresql
-    sudo apt-get install yui-compressor nodejs optipng imagemagick postgresql postgresql-client libpq-dev
+.. image:: https://anaconda.org/conda-forge/pygeos/badges/version.svg
+  :alt: Anaconda
 
+.. Zenodo
 
-Environment setup
-=================
+.. image:: https://zenodo.org/badge/191151963.svg
+  :alt: Zenodo 
+  :target: https://zenodo.org/badge/latestdoi/191151963
 
-Define a **.env** file based on the **example.env** file.
 
-::
+PyGEOS is a C/Python library with vectorized geometry functions. The geometry
+operations are done in the open-source geometry library GEOS. PyGEOS wraps
+these operations in NumPy ufuncs providing a performance improvement when
+operating on arrays of geometries.
 
-    cp example.env .env
+Note: PyGEOS is a very young package. While the available functionality should
+be stable and working correctly, it's still possible that APIs change in upcoming
+releases. But we would love for you to try it out, give feedback or contribute!
 
-Define the **APP_SECRET_KEY** variable in the **.env** file or the tests won't work. 
-You can define any value, like **"a"** or **"s3cret-stuff-blah"**.
+What is a ufunc?
+----------------
 
-Tool setup
-==========
+A universal function (or ufunc for short) is a function that operates on
+n-dimensional arrays in an element-by-element fashion, supporting array
+broadcasting. The for-loops that are involved are fully implemented in C
+diminishing the overhead of the Python interpreter.
 
-See setup.cfg for all tool config (pytest, coverage, etc).
+Multithreading
+--------------
 
+PyGEOS functions support multithreading. More specifically, the Global
+Interpreter Lock (GIL) is released during function execution. Normally in Python, the
+GIL prevents multiple threads from computing at the same time. PyGEOS functions
+internally releases this constraint so that the heavy lifting done by GEOS can be
+done in parallel, from a single Python process.
 
+Examples
+--------
 
-Db setup instructions
-=====================
+Compare an grid of points with a polygon:
 
-postgresql 9.6
+.. code:: python
 
-One database for testing, and another one for running the app.
+  >>> geoms = points(*np.indices((4, 4)))
+  >>> polygon = box(0, 0, 2, 2)
 
-We use alembic for db migrations. http://alembic.readthedocs.org/en/latest/
+  >>> contains(polygon, geoms)
 
+    array([[False, False, False, False],
+           [False,  True, False, False],
+           [False, False, False, False],
+           [False, False, False, False]])
 
-Set up the `postgresql` database:
 
-    sudo -u postgres createdb pygame
-    sudo -u postgres psql pygame -c "CREATE USER pygame WITH PASSWORD 'password';"
-    sudo -u postgres psql pygame -c "GRANT ALL PRIVILEGES ON DATABASE pygame to pygame;"
+Compute the area of all possible intersections of two lists of polygons:
 
-We also create a database for running tests::
+.. code:: python
 
-    sudo -u postgres createdb pygame_test
-    sudo -u postgres psql pygame -c "CREATE USER pygame_test WITH PASSWORD 'password';"
-    sudo -u postgres psql pygame_test -c "GRANT ALL PRIVILEGES ON DATABASE pygame_test to pygame_test;"
+  >>> from pygeos import box, area, intersection
 
+  >>> polygons_x = box(range(5), 0, range(10, 15), 10)
+  >>> polygons_y = box(0, range(5), 10, range(10, 15))
 
-To upgrade to latest model changes do::
+  >>> area(intersection(polygons_x[:, np.newaxis], polygons_y[np.newaxis, :]))
 
-    alembic upgrade head
+  array([[100.,  90.,  80.,  70.,  60.],
+       [ 90.,  81.,  72.,  63.,  54.],
+       [ 80.,  72.,  64.,  56.,  48.],
+       [ 70.,  63.,  56.,  49.,  42.],
+       [ 60.,  54.,  48.,  42.,  36.]])
 
+See the documentation for more: https://pygeos.readthedocs.io
 
-When you change a model make an alembic revision::
 
-    alembic revision --autogenerate -m "Added a field for these reasons."
+Relationship to Shapely
+-----------------------
 
-Then you will need to apply the change to your db (and commit the version file)::
+Both Shapely and PyGEOS are exposing the functionality of the GEOS C++ library
+to Python. While Shapely only deals with single geometries, PyGEOS provides
+vectorized functions to work with arrays of geometries, giving better
+performance and convenience for such usecases.
 
-    alembic upgrade head
+There is active discussion and work toward integrating PyGEOS into Shapely:
 
+* latest proposal: https://github.com/shapely/shapely-rfc/pull/1
+* prior discussion: https://github.com/Toblerity/Shapely/issues/782
 
-Testing with pytest
-===================
+For now PyGEOS is developed as a separate project.
 
-http://docs.pytest.org/en/latest/
+References
+----------
 
-To run all unit tests and functional tests use::
+- GEOS: http://trac.osgeo.org/geos
+- Shapely: https://shapely.readthedocs.io/en/latest/
+- Numpy ufuncs: https://docs.scipy.org/doc/numpy/reference/ufuncs.html
+- Joris van den Bossche's blogpost: https://jorisvandenbossche.github.io/blog/2017/09/19/geopandas-cython/
+- Matthew Rocklin's blogpost: http://matthewrocklin.com/blog/work/2017/09/21/accelerating-geopandas-1
 
-    pytest
 
-To watch for changes and rerun tests::
+Copyright & License
+-------------------
 
-    ptw
-
-Maybe you just want to test the wiki parts::
-
-    pytest -k wiki
-
-
-tests/unit/ are for unit tests.
-tests/functional/ are for tests which would use flask and db.
-tests/conftest.py is for test configuration.
-tests/sqlpytestflask.py are some fixtures for db testing.
-
-Unit tests and functional tests are kept separate, because functional tests can take a while longer to run.
-
-We use various fixtures to make writing the tests easier and faster.
-
-
-Running the webserver locally
-=============================
-
-Use an environment variable to configure the database connection (see the
-database setup steps above)::
-
-    export APP_DATABASE_URL="postgresql://pygame:password@localhost/pygame"
-
-Configure a directory containing static files::
-
-    export APP_WWW="static/"
-
-The application may need a secure key, but for debugging it's not important
-that it's properly random::
-
-    export APP_SECRET_KEY="s3cret-stuff-blah"
-
-Finally, you can enable some Flask debugging machinery (which should be off for
-the site in production)::
-
-    export APP_DEBUG=1
-
-Now add the database fixtures to populate it with sample users. After that, you should be able to
-login as admin with email ``admin@example.com`` and  password ``password``::
-    
-    pygameweb_fixtures
-    
-Then run::
-
-    pygameweb_front
-
-
-Templates with jinja2 and bootstrap
-===================================
-
-pygameweb/templates/
-
-We use::
-
-    * `Jinja2 <http://jinja.pocoo.org/>`_
-    * `Flask-Bootstrap <https://pythonhosted.org/Flask-Bootstrap/basic-usage.html>`_
-    * `Bootstrap <http://getbootstrap.com/>`_
-
-
-Command line tools with click
-=============================
-
-We use click and setuptools entry points (in setup.py) for command line tools::
-
-    * `click <http://click.pocoo.org/5/>`_
-    * `entry points <https://packaging.python.org/distributing/#entry-points>`_
-
-Note, when you add or change a command line tool, you need to `pip install -e .` again.
-
-If you can, try not to use command line options at all. Have one command do one thing,
-and make the defaults good, or use the pygameweb.config.
-
-
-User login with Flask-security-fork
-===================================
-
-pygameweb.user
-pygameweb/templates/security
-
-Using::
-
-    * `flask-security-fork <https://flask-security-fork.readthedocs.io/en/latest/quickstart.html>`_
-
-
-Navigation with flask-nav
-=========================
-
-pygameweb.nav
-pygameweb.page.models
-
-Using::
-
-    * `flask-nav <http://pythonhosted.org/flask-nav/>`_
-    * `flask-bootstrap <https://pythonhosted.org/Flask-Bootstrap/nav.html>`_
-
-
-
-Dashboard is an overview
-========================
-
-of all sorts of things happening in the pygame worlds around the interwebs.
-
-https://pygame.org/dashboard
-
-It's a 7000px wide webpage offering a summary of what's happening.
-
-Projects people are working on,
-videos folks are making,
-tweets twits are... tweeting,
-questions asked and answered.
-
-
-
-To caching things we
-====================
-
-use `Flask-Caching <http://pythonhosted.org/Flask-Caching/>`_
-
-pygameweb.cache
-pygameweb.news.views
-
-
-With with a @cache decorator, and/or markup in a template.
-
-
-.. |coverage-status| image:: https://coveralls.io/repos/github/pygame/pygameweb/badge.svg?branch=main
-   :target: https://coveralls.io/github/pygame/pygameweb?branch=main
-   :alt: Test coverage percentage
-
-
-
-Releases
-========
-
-Step by step release instructions below.
-
-- Commits to `main` branch do a dev deploy to pypi.
-- Commits to `maintest` branch do a dev deploy to pypi.
-- Commits to a tag do a real deploy to pypi.
-
-
-Prereleases
------------
-
-https://packaging.python.org/tutorials/distributing-packages/#pre-release-versioning
-
-Pre releases should be named like this:
-```
-# pygameweb/__init__.py
-__version__ = '0.0.2'
-```
-Which is one version ahead of of the last tagged release.
-
-Release tags should be like '0.0.2', and match the `pygameweb/__init__.py __version__`.
-
-
-Preparing a release in a branch.
---------------------------------
-
-It's a good idea to start a branch first, and make any necessary changes
-for the release.
-
-```
-git checkout -b v0.0.2
-vi pygameweb/__init__.py __version__ = '0.0.2'
-git commit -m "Version 0.0.2"
-```
-
-Change log, drafting a release.
--------------------------------
-
-Github 'releases' are done as well.
-You can start drafting the release notes in there before the tag.
-https://help.github.com/articles/creating-releases/
-
-You can make the release notes with the help of the changes since last release.
-https://github.com/pygame/pygameweb/compare/0.0.1...main
-
-git log 0.0.1...main
-
-Tagging a release
------------------
-
-When the release is tagged, pushing it starts the deploy to pypi off.
-```
-git tag -a 0.0.2
-git push origin 0.0.2
-```
-Note: do not tag pre releases
-(these are made on commits to `main`/`maintest`).
-
-After the tag is pushed, then you can do the release
-in github from your draft release.
-
-
-Back to dev version.
---------------------
-
-If we were at 0.0.2 before, now we want to be at 0.0.3.dev
-```
-vi pygameweb/__init__.py __version__ = '0.0.3.dev'
-```
-
-Merge the release branch into main, and push that up.
-
-
-Contributing
-============
-
-Please discuss contributions first to avoid disappointment and rework.
-
-Please see `contribution-guide.org <http://www.contribution-guide.org/>`_ and
-`Python Code of Conduct <https://www.python.org/psf/codeofconduct/>`_ for
-details on what we expect from contributors. Thanks!
-
-The stack? python 3.6, postgresql 9.6, Flask, py.test, sqlalchemy, alembic, gulp, ansible, node.
+PyGEOS is licensed under BSD 3-Clause license. Copyright (c) 2019, Casper van der Wel.
+GEOS is available under the terms of ​GNU Lesser General Public License (LGPL) 2.1 at https://trac.osgeo.org/geos.
