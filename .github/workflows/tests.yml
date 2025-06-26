@@ -42,6 +42,7 @@ jobs:
       - name: Run check coverage and docs
         run: |
           chmod +x tests/pylint/runpylint.py
+          chmod +x docs/gen_commands_docs
           tox -e ${{ matrix.tox-env }}
       - name: Coveralls
         if: ${{ matrix.python-version }} == 3.9
