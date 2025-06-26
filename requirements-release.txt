@@ -1,4 +1,0 @@
-towncrier
-setuptools
-wheel
-twine
