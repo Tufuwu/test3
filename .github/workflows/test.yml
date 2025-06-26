@@ -35,6 +35,7 @@ jobs:
               # sudo apt-get -qq update
               sudo apt-get install -y yui-compressor optipng
               pip install --upgrade pip
+              pip install "setuptools<58"
               pip install wheel
               pip install -r requirements.dev.txt
               # pip install coveralls
