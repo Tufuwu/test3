@@ -1,0 +1,8 @@
+numpy
+scipy
+joblib
+scikit_image
+sk_video
+cython
+dask
+numba
