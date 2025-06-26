@@ -67,7 +67,7 @@ jobs:
         run: |
           pip install --disable-pip-version-check --upgrade pip
           pip install --upgrade wheel
-          if [ "$GEOS_VERSION" = "master" ]; then
+          if [ "$GEOS_VERSION" = "main" ]; then
             pip install --upgrade --pre Cython numpy pytest;
           else
             pip install --upgrade Cython numpy==${{ matrix.numpy }} pytest;
@@ -88,6 +88,6 @@ jobs:
 
       - name: Run tests
         shell: bash
-        continue-on-error: ${{ matrix.geos == 'master' }}
+        continue-on-error: ${{ matrix.geos == 'main' }}
         run: |
           pytest --doctest-modules
