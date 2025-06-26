@@ -1,5 +1,0 @@
-numpy==1.23.5
-pvlib==0.10.4
-pandas
-scipy>=1.2.0
-statsmodels>=0.9.0

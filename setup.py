@@ -1,81 +1,69 @@
 #!/usr/bin/env python
+"""Python log parser for ULog.
 
-try:
-    from setuptools import setup, find_packages
-except ImportError:
-    raise RuntimeError('setuptools is required')
+This module allows you to parse ULog files, which are used within the PX4
+autopilot middleware.
 
-DESCRIPTION = ('PVAnalytics is a python library for the analysis of ' +
-               'photovoltaic system-level data.')
+The file format is documented on https://dev.px4.io/advanced-ulog-file-format.html
 
-LONG_DESCRIPTION = """
-PVAnalytics is a collection of functions for working with data
-from photovoltaic power systems. The library includes functions for
-general data quality tests such as outlier detection, validation that
-data is physically plausible, filtering data for specific conditions,
-and labeling specific features in the data.
-
-Documentation: https://pvanalytics.readthedocs.io
-
-Source code: https://github.com/pvlib/pvanalytics
 """
 
-DISTNAME = 'pvanalytics'
-MAINTAINER = "Will Vining"
-MAINTAINER_EMAIL = 'wfvinin@sandia.gov'
-LICENSE = 'MIT'
-URL = 'https://github.com/pvlib/pvanalytics'
+from __future__ import print_function
+import os
+import sys
+import versioneer
 
-TESTS_REQUIRE = [
-    'pytest',
-]
+from setuptools import setup, find_packages
 
-INSTALL_REQUIRES = [
-    'numpy >= 1.15.0',
-    'pandas >= 0.23.0',
-    'pvlib >= 0.8.0',
-    'scipy >= 1.2.0',
-    'statsmodels >= 0.9.0'
-]
+DOCLINES = __doc__.split("\n")
 
-DOCS_REQUIRE = [
-    'sphinx == 2.2.0'
-]
+CLASSIFIERS = """\
+Development Status :: 1 - Planning
+Intended Audience :: Science/Research
+Intended Audience :: Developers
+License :: OSI Approved :: BSD License
+Programming Language :: Python
+Programming Language :: Python :: 3
+Programming Language :: Other
+Topic :: Software Development
+Topic :: Scientific/Engineering :: Artificial Intelligence
+Topic :: Scientific/Engineering :: Mathematics
+Topic :: Scientific/Engineering :: Physics
+Operating System :: Microsoft :: Windows
+Operating System :: POSIX
+Operating System :: Unix
+Operating System :: MacOS
+"""
 
-EXTRAS_REQUIRE = {
-    'optional': ['ruptures'],
-    'test': TESTS_REQUIRE,
-    'doc': DOCS_REQUIRE
-}
-
-EXTRAS_REQUIRE['all'] = sorted(set(sum(EXTRAS_REQUIRE.values(), [])))
-
-SETUP_REQUIRES = ['setuptools_scm']
-
-CLASSIFIERS = [
-    'Development Status :: 2 - Pre-Alpha',
-    'Operating System :: OS Independent',
-    'Intended Audience :: Science/Research',
-    'Programming Language :: Python :: 3',
-    'Topic :: Scientific/Engineering'
-]
-
-PACKAGES = find_packages(exclude=["*.tests", "*.tests.*", "tests.*", "tests"])
+# pylint: disable=invalid-name
 
 setup(
-    name=DISTNAME,
-    use_scm_version=True,
-    packages=PACKAGES,
-    install_requires=INSTALL_REQUIRES,
-    extras_require=EXTRAS_REQUIRE,
-    tests_require=TESTS_REQUIRE,
-    setup_requires=SETUP_REQUIRES,
-    ext_modules=[],
-    description=DESCRIPTION,
-    long_description=LONG_DESCRIPTION,
-    maintainer=MAINTAINER,
-    maintainer_email=MAINTAINER_EMAIL,
-    license=LICENSE,
-    classifiers=CLASSIFIERS,
-    url=URL
+    name='pyulog',
+    maintainer="James Goppert",
+    maintainer_email="james.goppert@gmail.com",
+    description=DOCLINES[0],
+    long_description="\n".join(DOCLINES[2:]),
+    url='https://github.com/PX4/pyulog',
+    author='Beat Kueng',
+    author_email='beat-kueng@gmx.net',
+    download_url='https://github.com/PX4/pyulog',
+    license='BSD 3-Clause',
+    classifiers=[_f for _f in CLASSIFIERS.split('\n') if _f],
+    platforms=["Windows", "Linux", "Solaris", "Mac OS-X", "Unix"],
+    install_requires=['numpy'],
+    tests_require=['nose', 'ddt'],
+    test_suite='nose.collector',
+    entry_points = {
+        'console_scripts': [
+            'ulog_extract_gps_dump=pyulog.extract_gps_dump:main',
+            'ulog_info=pyulog.info:main',
+            'ulog_messages=pyulog.messages:main',
+            'ulog_params=pyulog.params:main',
+            'ulog2csv=pyulog.ulog2csv:main',
+            'ulog2kml=pyulog.ulog2kml:main',
+        ],
+    },
+    packages=find_packages(),
+    version=versioneer.get_version(),
+    cmdclass=versioneer.get_cmdclass(),
 )
