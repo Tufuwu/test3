@@ -1,4 +1,6 @@
-prune *.pyc
-include LICENSE.txt
+include LICENSE.md
 include README.md
-recursive-include es/ *
+include Makefile
+include .travis.yml
+include requirements.txt
+include test/*.py
