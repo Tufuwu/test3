@@ -1,206 +1,133 @@
-import builtins
+# ------------------------------------------------------------------
+# Copyright (c) 2020 PyInstaller Development Team.
+#
+# This file is distributed under the terms of the GNU General Public
+# License (version 2.0 or later).
+#
+# The full license is available in LICENSE.GPL.txt, distributed with
+# this software.
+#
+# SPDX-License-Identifier: GPL-2.0-or-later
+# ------------------------------------------------------------------
+from setuptools import setup, Command
 import os
-import subprocess
-import sys
-from distutils.version import LooseVersion
-from setuptools import setup, Extension
-from setuptools.command.build_ext import build_ext as _build_ext
-import logging
-import versioneer
+import datetime
 
-# Skip Cython build if not available
-try:
-    from Cython.Build import cythonize
-except ImportError:
-    cythonize = None
+DIR = os.path.dirname(__file__)
 
 
-log = logging.getLogger(__name__)
-ch = logging.StreamHandler()
-log.addHandler(ch)
-
-MIN_GEOS_VERSION = "3.5"
-
-if "all" in sys.warnoptions:
-    # show GEOS messages in console with: python -W all
-    log.setLevel(logging.DEBUG)
-
-
-def get_geos_config(option):
-    """Get configuration option from the `geos-config` development utility
-
-    The PATH environment variable should include the path where geos-config is
-    located, or the GEOS_CONFIG environment variable should point to the
-    executable.
-    """
-    cmd = os.environ.get("GEOS_CONFIG", "geos-config")
-    try:
-        stdout, stderr = subprocess.Popen(
-            [cmd, option], stdout=subprocess.PIPE, stderr=subprocess.PIPE
-        ).communicate()
-    except OSError:
-        return
-    if stderr and not stdout:
-        log.warning("geos-config %s returned '%s'", option, stderr.decode().strip())
-        return
-    result = stdout.decode().strip()
-    log.debug("geos-config %s returned '%s'", option, result)
-    return result
-
-
-def get_geos_paths():
-    """Obtain the paths for compiling and linking with the GEOS C-API
-
-    First the presence of the GEOS_INCLUDE_PATH and GEOS_INCLUDE_PATH environment
-    variables is checked. If they are both present, these are taken.
-
-    If one of the two paths was not present, geos-config is called (it should be on the
-    PATH variable). geos-config provides all the paths.
-
-    If geos-config was not found, no additional paths are provided to the extension. It is
-    still possible to compile in this case using custom arguments to setup.py.
-    """
-    include_dir = os.environ.get("GEOS_INCLUDE_PATH")
-    library_dir = os.environ.get("GEOS_LIBRARY_PATH")
-    if include_dir and library_dir:
-        return {
-            "include_dirs": ["./src", include_dir],
-            "library_dirs": [library_dir],
-            "libraries": ["geos_c"],
-        }
-
-    geos_version = get_geos_config("--version")
-    if not geos_version:
-        log.warning(
-            "Could not find geos-config executable. Either append the path to geos-config"
-            " to PATH or manually provide the include_dirs, library_dirs, libraries and "
-            "other link args for compiling against a GEOS version >=%s.",
-            MIN_GEOS_VERSION,
-        )
-        return {}
-
-    if LooseVersion(geos_version) < LooseVersion(MIN_GEOS_VERSION):
-        raise ImportError(
-            "GEOS version should be >={}, found {}".format(
-                MIN_GEOS_VERSION, geos_version
-            )
-        )
-
-    libraries = []
-    library_dirs = []
-    include_dirs = ["./src"]
-    extra_link_args = []
-    for item in get_geos_config("--cflags").split():
-        if item.startswith("-I"):
-            include_dirs.extend(item[2:].split(":"))
-
-    for item in get_geos_config("--clibs").split():
-        if item.startswith("-L"):
-            library_dirs.extend(item[2:].split(":"))
-        elif item.startswith("-l"):
-            libraries.append(item[2:])
-        else:
-            extra_link_args.append(item)
-
-    return {
-        "include_dirs": include_dirs,
-        "library_dirs": library_dirs,
-        "libraries": libraries,
-        "extra_link_args": extra_link_args,
-    }
-
-
-# Add numpy include dirs without importing numpy on module level.
-# derived from scikit-hep:
-# https://github.com/scikit-hep/root_numpy/pull/292
-class build_ext(_build_ext):
+class BumpVersion(Command):
+    """Bump the package version in the source files."""
+    description = 'Bump the version in all registered files.'
+    user_options = [
+        ('major', None,
+         'Bump the major (leftmost) version number. If specified, build/minor version numbers will be set to 0.'),
+        ('minor', None, 'Bump the minor (middle) version number. If specified, the build NO will be set to 0.'),
+        ('build', None, 'Bump the build (rightmost) version number. (Default)')
+    ]
+    
+    def get_version_tuple(self, str_ver):
+        return list(int(x) for x in str_ver.split('.'))
+    
+    def initialize_options(self):
+        self.major = False
+        self.minor = False
+        self.build = True
+    
     def finalize_options(self):
-        _build_ext.finalize_options(self)
-        # Prevent numpy from thinking it is still in its setup process:
-        try:
-            del builtins.__NUMPY_SETUP__
-        except AttributeError:
-            pass
-
-        import numpy
-
-        self.include_dirs.append(numpy.get_include())
-
-
-ext_modules = []
-
-if "clean" not in sys.argv and "sdist" not in sys.argv:
-    ext_options = get_geos_paths()
-
-    ext_modules = [
-        Extension(
-            "pygeos.lib",
-            sources=[
-                "src/c_api.c",
-                "src/coords.c",
-                "src/geos.c",
-                "src/lib.c",
-                "src/pygeom.c",
-                "src/strtree.c",
-                "src/ufuncs.c",
-            ],
-            **ext_options,
-        )
-    ]
-
-    # Cython is required
-    if not cythonize:
-        sys.exit("ERROR: Cython is required to build pygeos from source.")
-
-    cython_modules = [
-        Extension("pygeos._geometry", ["pygeos/_geometry.pyx",], **ext_options,),
-        Extension("pygeos._geos", ["pygeos/_geos.pyx",], **ext_options,),
-    ]
-
-    ext_modules += cythonize(
-        cython_modules,
-        compiler_directives={"language_level": "3"},
-        # enable once Cython >= 0.3 is released
-        # define_macros=[("NPY_NO_DEPRECATED_API", "NPY_1_7_API_VERSION")],
-    )
-
-
-try:
-    descr = open(os.path.join(os.path.dirname(__file__), "README.rst")).read()
-except IOError:
-    descr = ""
-
-
-version = versioneer.get_version()
-cmdclass = versioneer.get_cmdclass()
-cmdclass["build_ext"] = build_ext
+        if self.major:
+            self.major = True
+            self.minor = False
+            self.build = False
+        elif self.minor:
+            self.major = False
+            self.minor = True
+            self.build = False
+        else:
+            self.major = False
+            self.minor = False
+            self.build = True
+    
+    def run(self):
+        import re
+        # REGEX:
+        #  [0-9]+  - First part of version: [4].0.1
+        #  [.][0-9]*  - Second part of version: 4[.0].1
+        #  [.]*[0-9]*  - Third - and optional - part of version
+        #  [^.]$  - The entire string must not end with a dot
+        version_regex = re.compile('[0-9]+[.][0-9]*[.]*[0-9]*[^.]$')
+        
+        # List of ABSOLUTE file paths of files to bump
+        files = [
+            os.path.abspath(os.path.join(DIR, 'src/_pyinstaller_hooks_contrib/__init__.py'))
+        ]
+        for file in files:
+            old_file = open(file).readlines()
+            changed = False
+            
+            for i in range(len(old_file)):
+                # Get rid of line endings, if they exist
+                line = old_file[i].replace('\n', '')
+                
+                # If the line starts with version, try and bump it
+                if line.startswith('__version__'):
+                    print('Line {ln} in {file} appears to be a version. Attempting to bump...'.format(ln=i, file=file))
+                    line = line.split(' = ')[1].replace(' ', '').replace("'", '')
+                    m = version_regex.match(line)
+                    if m:
+                        # Convert a "valid" version to a tuple of ints
+                        ver = self.get_version_tuple(m.string)
+                        print(ver)
+                        
+                        # If the tuple isn't valid - not len(3) - then it's not a valid version
+                        if len(ver) not in (2, 3):
+                            print('Invalid version number. Skipping...')
+                            continue
+                        
+                        if len(ver) == 3:
+                            if self.major:
+                                ver[0] += 1
+                                ver[1] = 0
+                                ver[2] = 0
+                                
+                            elif self.minor:
+                                ver[1] += 1
+                                ver[2] = 0
+                            else:
+                                ver[2] += 1
+                        else:
+                            if datetime.datetime.now().year != ver[0]:
+                                ver[0] = datetime.datetime.now().year
+                                ver[1] = 0
+                            else:
+                                ver[1] += 1
+                        
+                        ver = '.'.join(str(x) for x in ver)
+                        
+                        old_file[i] = old_file[i].replace(m.string, ver)
+                        print('Version bumped from {} to {}.'.format(m.string, ver))
+                        changed = True
+                    else:
+                        print('No version found - {file}:{ln}'.format(ln=i, file=file))
+            
+            if changed:
+                # Write the changes to the file
+                with open(file, 'w') as f:
+                    f.writelines(old_file)
+                # And print that to the console.
+                print('Changes written to {}'.format(file))
+                        
 
 setup(
-    name="pygeos",
-    version=version,
-    description="GEOS wrapped in numpy ufuncs",
-    long_description=descr,
-    url="https://github.com/pygeos/pygeos",
-    author="Casper van der Wel",
-    author_email="caspervdw@gmail.com",
-    license="BSD 3-Clause",
-    packages=["pygeos"],
-    install_requires=["numpy>=1.13"],
-    extras_require={"test": ["pytest"], "docs": ["sphinx", "numpydoc"],},
-    python_requires=">=3",
-    include_package_data=True,
-    data_files=[("geos_license", ["GEOS_LICENSE"])],
-    ext_modules=ext_modules,
-    classifiers=[
-        "Programming Language :: Python :: 3",
-        "Intended Audience :: Science/Research",
-        "Intended Audience :: Developers",
-        "Development Status :: 4 - Beta",
-        "Topic :: Scientific/Engineering",
-        "Topic :: Software Development",
-        "Operating System :: Unix",
-        "Operating System :: MacOS",
-        "Operating System :: Microsoft :: Windows",
-    ],
-    cmdclass=cmdclass,
+    setup_requires="setuptools >= 30.3.0",
+    entry_points={
+        'pyinstaller40': [
+            'hook-dirs = _pyinstaller_hooks_contrib.hooks:get_hook_dirs',
+            'tests = _pyinstaller_hooks_contrib.tests:get_test_dirs'
+        ]
+    },
+    cmdclass={
+        'bump': BumpVersion
+    },
+    long_description_content_type='text/markdown'
 )

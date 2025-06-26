@@ -1,8 +1,4 @@
-include src/*
-include pygeos/*.pyx pygeos/*.pxd
-include versioneer.py
-include pygeos/_version.py
-include pygeos/*.dll
+graft src/_pyinstaller_hooks_contrib
 include LICENSE
-include pyproject.toml
-exclude MANIFEST.in
+include LICENSE.APL.txt
+include LICENSE.GPL.txt

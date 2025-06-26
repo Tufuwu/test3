@@ -1,13 +1,32 @@
-[build-system]
-# numpy and Cython are required to execute setup.py to build Cython extensions
-requires = [
-    "setuptools",
-    "wheel",
-    "numpy==1.13.3; python_version=='3.5'",
-    "numpy==1.13.3; python_version=='3.6'",
-    "numpy==1.14.5; python_version=='3.7'",
-    "numpy==1.17.3; python_version=='3.8'",
-    # do not pin numpy on future versions of python to avoid incompatible numpy and python versions
-    "numpy; python_version>='3.9'",
-    "Cython>=0.29",
-]
+[tool.towncrier]
+	filename = "CHANGELOG.rst"
+	directory = "news"
+	template = "news/_template.rst"
+	underlines = "-~^"
+	wrap = true
+	package = "_pyinstaller_hooks_contrib"
+	package_dir = "src"
+	title_format = "{version} ({project_date})"
+
+	[[tool.towncrier.section]]
+		path = ""
+
+	[[tool.towncrier.type]]
+		directory = "new"
+		name = "New hooks"
+		showcontent = true
+
+	[[tool.towncrier.type]]
+		directory = "update"
+		name = "Updated hooks"
+		showcontent = true
+
+	[[tool.towncrier.type]]
+		directory = "process"
+		name = "Project & Process"
+		showcontent = true
+
+	[[tool.towncrier.type]]
+		directory = "tests"
+		name = "Test-suite and Continuous Integration"
+		showcontent = true

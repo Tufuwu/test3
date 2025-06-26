@@ -1,29 +1,38 @@
-# Byte-compiled / optimized / DLL files
+*~
+.\#*
+\#*#
+
+*.py[co]
 __pycache__/
-*.py[cod]
-*$py.class
+/*.egg
+*.egg-link
+/.eggs/
 
-# C extensions
-*.so
+# /
+/build/
+/dist/
+/*.patch
+/MANIFEST
+/README.html
 
-# Distribution / packaging
-.Python
+# Temporary files from editor and tools
+*.swp
+.ropeproject
+.idea
+.spyproject
+.DS_store
+*.pdb
+.cache
+*.prof
+
+# Environments
+.env
+.venv
 env/
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib64/
-parts/
-sdist/
-var/
-*.egg-info/
-.installed.cfg
-*.egg
-*.log
-*.whl
+venv/
+ENV/
+env.bak/
+venv.bak/
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
@@ -31,41 +40,36 @@ var/
 *.manifest
 *.spec
 
-# Installer logs
-pip-log.txt
-pip-delete-this-directory.txt
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
 
 # Unit test / coverage reports
 htmlcov/
 .tox/
+.nox/
 .coverage
 .coverage.*
-.cache
 nosetests.xml
 coverage.xml
-*,cover
+*.cover
+*.py,cover
 .hypothesis/
-
-# pyenv python configuration file
-.python-version
-
-# PyCharm
-.idea
-
-# VS Code
-.vscode
-
-# Pipenv
-.venv
-Pipfile
-Pipfile.lock
-
-
-# Documentation
-docs/_build
-
-# Benchmarks
-.asv
-
-# Cython C files
-pygeos/*.c
+.pytest_cache/

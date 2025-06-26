@@ -1,135 +1,303 @@
-Changelog
-=========
+2021.2 (2021-06-26)
 
-Version 0.9 (unreleased)
-------------------------
+New hooks
+~~~~~~~~~
 
-**Highlights of this release**
+* Add a hook for ``Azurerm`` which is using pkg_resources internally. (`#123
+  <https://github.com/pyinstaller/pyinstaller-hooks-contrib/issues/123>`_)
+* Add a hook for ``Office365-REST-Python-Client`` which uses data files in some
+  methods (`#125
+  <https://github.com/pyinstaller/pyinstaller-hooks-contrib/issues/125>`_)
+* Add a hook for ``spacy`` which contains hidden imports and data files (`#1
+  <https://github.com/pyinstaller/pyinstaller-hooks-contrib/issues/1>`_)
+* Add a standard hook for PyPylon. (`#114
+  <https://github.com/pyinstaller/pyinstaller-hooks-contrib/issues/114>`_)
+* Add hook for ``blspy`` that collects ``MPIR`` DLLs on Windows. (`#119
+  <https://github.com/pyinstaller/pyinstaller-hooks-contrib/issues/119>`_)
+* Add hook for ``flirpy`` that collects data files on Windows. (`#120
+  <https://github.com/pyinstaller/pyinstaller-hooks-contrib/issues/120>`_)
+* Add hook for ``jsonrpcserver`` to collect missing ``request-schema.json``
+  data file. (`#126
+  <https://github.com/pyinstaller/pyinstaller-hooks-contrib/issues/126>`_)
+* Add hook for ``plotly`` to collect data files and hidden `pandas`, `cmath`,
+  and `plotly.validator` imports
 
-* Release the GIL for ``is_geometry()``, ``is_missing()``, and
-  ``is_valid_input()`` (#207)
-* Addition of a ``is_ccw()`` function for GEOS >= 3.7 (#201)
-* Addition of a ``minimum_clearance`` function for GEOS >= 3.6.0 (#223)
-* Addition of a ``offset_curve`` function (#229)
-* Added support for pickling to ``Geometry`` objects (#190)
-* Limited the length of geometry repr to 80 characters (#189)
-* Argument in ``line_interpolate_point`` and ``line_locate_point``
-  was renamed from ``normalize`` to ``normalized`` (#209)
-* Fixed error handling in ``line_locate_point`` for incorrect geometry
-  types, now actually requiring line and point geometries (#216)
-* Addition of ``get_parts`` function to get individual parts of an array of multipart
-  geometries (#197).
-* The ``apply`` function for coordinate transformations and the ``set_coordinates``
-  function now support geometries with z-coordinates (#131).
-* Addition of Cython and internal PyGEOS C API to enable easier development of internal
-  functions (previously all significant internal functions were developed in C) (#51).
-* API change: geometry and counting functions (``get_num_coordinates``,
-  ``get_num_geometries``, ``get_num_interior_rings``, ``get_num_points``) now return 0
-  for ``None`` input values instead of -1 (#218).
-* Fixed internal GEOS error code detection for ``get_dimensions`` and ``get_srid`` (#218).
+  Add hooks for ``dash`` and related packages to collect data files and hook
+  for meta-data from ``flask-compress``
 
-Version 0.8 (2020-09-06)
-------------------------
-
-**Highlights of this release**
-
-* Handle multi geometries in ``boundary`` (#188)
-* Handle empty points in to_wkb by conversion to POINT (nan, nan) (#179)
-* Prevent segfault in to_wkt (and repr) with empty points in multipoints (#171)
-* Fixed bug in ``multilinestrings()``, it now accepts linearrings again (#168)
-* Release the GIL to allow for multithreading in functions that do not
-  create geometries (#144) and in the STRtree ``query_bulk()`` method (#174)
-* Addition of a ``frechet_distance()`` function for GEOS >= 3.7 (#144)
-* Addition of ``coverage_union()`` and ``coverage_union_all()`` functions
-  for GEOS >= 3.8 (#142)
-* Fixed segfaults when adding empty geometries to the STRtree (#147)
-* Addition of ``include_z=True`` keyword in the ``get_coordinates()`` function
-  to get 3D coordinates (#178)
-* Addition of a ``build_area()`` function for GEOS >= 3.8 (#141)
-* Addition of a ``normalize()`` function (#136)
-* Addition of a ``make_valid()`` function for GEOS >= 3.8 (#107)
-* Addition of a ``get_z()`` function for GEOS >= 3.7 (#175)
-* Addition of a ``relate()`` function (#186)
-* The ``get_coordinate_dimensions()`` function was renamed to
-  ``get_coordinate_dimension()`` for consistency with GEOS (#176)
-* Addition of ``covers``, ``covered_by``, ``contains_properly`` predicates
-  to STRtree ``query`` and ``query_bulk`` (#157)
-
-**Acknowledgments**
-
-Thanks to everyone who contributed to this release!
-People with a "+" by their names contributed a patch for the first time.
-
-* Brendan Ward
-* Casper van der Wel
-* Joris Van den Bossche
-* Krishna Chaitanya +
-* Martin Fleischmann +
-* Tom Clancy +
+  Add hook for ``dash_bootstrap_components`` to collect data files (`#103
+  <https://github.com/pyinstaller/pyinstaller-hooks-contrib/issues/103>`_)
+* Add hook for ``pyttsx3`` whose drivers are hidden imports. (`#101
+  <https://github.com/pyinstaller/pyinstaller-hooks-contrib/issues/101>`_)
+* Add hook for ``srsly.msgpack._packer`` which contains a hidden import (`#3
+  <https://github.com/pyinstaller/pyinstaller-hooks-contrib/issues/3>`_)
+* Add hook for `humanize <https://pypi.org/project/humanize>`__ to include
+  required metadata. (`#122
+  <https://github.com/pyinstaller/pyinstaller-hooks-contrib/issues/122>`_)
+* Add hooks for ``thinc`` and ``thinc.banckends.numpy_ops`` which contain data
+  files and hidden imports (`#2
+  <https://github.com/pyinstaller/pyinstaller-hooks-contrib/issues/2>`_)
+* Added a hook for ``statsmodels``, which adds ``statsmodels.tsa.statespace``
+  as a hidden import (`#100
+  <https://github.com/pyinstaller/pyinstaller-hooks-contrib/issues/100>`_)
 
 
-Version 0.7 (2020-03-18)
-------------------------
+Updated hooks
+~~~~~~~~~~~~~
 
-**Highlights of this release**
-
-* STRtree improvements for spatial indexing:
-  * Directly include predicate evaluation in ``STRtree.query()`` (#87)
-  * Query multiple input geometries (spatial join style) with ``STRtree.query_bulk`` (#108)
-* Addition of a ``total_bounds()`` function (#107)
-* Geometries are now hashable, and can be compared with ``==`` or ``!=`` (#102)
-* Fixed bug in ``create_collections()`` with wrong types (#86)
-* Fixed a reference counting bug in STRtree (#97, #100)
-* Start of a benchmarking suite using ASV (#96)
-* This is the first release that will provide wheels!
-
-**Acknowledgments**
-
-Thanks to everyone who contributed to this release!
-People with a "+" by their names contributed a patch for the first time.
-
-* Brendan Ward +
-* Casper van der Wel
-* Joris Van den Bossche
-* Mike Taves +
+* (Windows) Update ``zmq`` hook for compatibility with new shared libraries
+  location in Windows build of ``pyzmq`` 22.0.0 and later. (`#98
+  <https://github.com/pyinstaller/pyinstaller-hooks-contrib/issues/98>`_)
+* Add ```googleapiclient.discovery``` json files to work with services
+  like Blogger v3 on the ```build()``` method. (`#97
+  <https://github.com/pyinstaller/pyinstaller-hooks-contrib/issues/97>`_)
+* Remove ``win32ctypes.core`` hook, as an improved copy is provided as part
+  of main PyInstaller's hooks collection. (`#124
+  <https://github.com/pyinstaller/pyinstaller-hooks-contrib/issues/124>`_)
+* Update ``scikit-image`` hooks for compatibility with 0.18.x series. (`#107
+  <https://github.com/pyinstaller/pyinstaller-hooks-contrib/issues/107>`_)
+* Update ``scikit-learn`` hooks for compatibility with 0.24.x series. (`#108
+  <https://github.com/pyinstaller/pyinstaller-hooks-contrib/issues/108>`_)
+* Update hook for PyPylon to include data files. (`#116
+  <https://github.com/pyinstaller/pyinstaller-hooks-contrib/issues/116>`_)
+* Update the hook for ``pycountry`` to copy metadata, in addition to collecting
+  data files. (`#113
+  <https://github.com/pyinstaller/pyinstaller-hooks-contrib/issues/113>`_)
 
 
-Version 0.6 (2020-01-31)
-------------------------
-
-Highlights of this release:
-
-* Addition of the STRtree class for spatial indexing (#58)
-* Addition of a ``bounds`` function (#69)
-* A new ``from_shapely`` function to convert Shapely geometries to pygeos.Geometry (#61)
-* Reintroduction of the ``shared_paths`` function (#77)
-
-Contributors:
-
-* Casper van der Wel
-* Joris Van den Bossche
-* mattijn +
+2021.1 (2021-03-07)
+-------------------
 
 
-Version 0.5 (2019-10-25)
-------------------------
+New hooks
+~~~~~~~~~
 
-Highlights of this release:
+* Add a hook for ``googleapiclient.model`` that collects the required
+  metadata from the ``google-api-python-client`` package. (`#82
+  <https://github.com/pyinstaller/pyinstaller-hooks-contrib/issues/82>`_)
+* Add hook for ``pyqtgraph``. (`#88
+  <https://github.com/pyinstaller/pyinstaller-hooks-contrib/issues/88>`_)
+* Add hook for ``rpy2``. (`#87
+  <https://github.com/pyinstaller/pyinstaller-hooks-contrib/issues/87>`_)
+* Added a hook for 'pdfminer.six' library (`#83
+  <https://github.com/pyinstaller/pyinstaller-hooks-contrib/issues/83>`_)
+* Added a hook for the 'pygraphviz' library (`#86
+  <https://github.com/pyinstaller/pyinstaller-hooks-contrib/issues/86>`_)
 
-* Moved to the pygeos GitHub organization.
-* Addition of functionality to get and transform all coordinates (eg for reprojections or affine transformations) [#44]
-* Ufuncs for converting to and from the WKT and WKB formats [#45]
-* ``equals_exact`` has been added [PR #57]
+
+Updated hooks
+~~~~~~~~~~~~~
+
+* Add missing ``dataclasses`` hidden import to ``pydantic`` hook.
+  Add missing ``distutils.version`` hidden import to ``pydantic`` hook for
+  versions of ``pydantic`` prior to ``1.4``. (`#81
+  <https://github.com/pyinstaller/pyinstaller-hooks-contrib/issues/81>`_)
+* Update ``pydantic`` hook for compatibility with v.1.8.0 and later. (`#90
+  <https://github.com/pyinstaller/pyinstaller-hooks-contrib/issues/90>`_)
 
 
-Version 0.4 (2019-09-16)
-------------------------
+2020.11 (2020-12-21)
+--------------------
 
-This is a major release of PyGEOS and the first one with actual release notes. Most important features of this release are:
 
-* ``buffer`` and ``haussdorff_distance`` were completed  [#15]
-* ``voronoi_polygons`` and ``delaunay_triangles`` have been added [#17]
-* The PyGEOS documentation is now mostly complete and available on http://pygeos.readthedocs.io .
-* The concepts of "empty" and "missing" geometries have been separated. The ``pygeos.Empty`` and ``pygeos.NaG`` objects has been removed. Empty geometries are handled the same as normal geometries. Missing geometries are denoted by ``None`` and are handled by every pygeos function. ``NaN`` values cannot be used anymore to denote missing geometries. [PR #36]
-* Added ``pygeos.__version__`` and ``pygeos.geos_version``. [PR #43]
+New hooks
+~~~~~~~~~
 
+* Add a hook for ``gcloud`` which requires its distribution metadata. (`#68
+  <https://github.com/pyinstaller/pyinstaller-hooks-contrib/issues/68>`_)
+* Add a hook for prettytable which requires its distribution metadata. (`#77
+  <https://github.com/pyinstaller/pyinstaller-hooks-contrib/issues/77>`_)
+* Add hook for ``pydantic`` to improve support for its extension-compiled
+  distribution (default on PyPi). (`#78
+  <https://github.com/pyinstaller/pyinstaller-hooks-contrib/issues/78>`_)
+* Add hook for ``torchvision.ops`` to ensure that the required extension module
+  (``torchvision._C``) is collected. (`#80
+  <https://github.com/pyinstaller/pyinstaller-hooks-contrib/issues/80>`_)
+* Add hook for afmformats. (`#69
+  <https://github.com/pyinstaller/pyinstaller-hooks-contrib/issues/69>`_)
+* Add hook for ijson which has dynamically loaded backends. (`#64
+  <https://github.com/pyinstaller/pyinstaller-hooks-contrib/issues/64>`_)
+* Add hook for lxml which has hidden imports. (`#66
+  <https://github.com/pyinstaller/pyinstaller-hooks-contrib/issues/66>`_)
+* Collect metadata and data files for ``countryinfo`` to support version 0.1.2.
+  (`#76 <https://github.com/pyinstaller/pyinstaller-hooks-contrib/issues/76>`_)
+
+
+Updated hooks
+~~~~~~~~~~~~~
+
+* (Windows) Fix the ``win32com`` pre-safe-import hook to avoid printing the
+  ``ModuleNotFoundError`` when the module is not available. (`#67
+  <https://github.com/pyinstaller/pyinstaller-hooks-contrib/issues/67>`_)
+* Add default enabled sentry integrations dynamically to hidden imports. (`#71
+  <https://github.com/pyinstaller/pyinstaller-hooks-contrib/issues/71>`_)
+* Update ``pyproj`` hook to improve compatibility across different versions of
+  ``pyproj`` (from 2.1.3 to 3.0.0). (`#70
+  <https://github.com/pyinstaller/pyinstaller-hooks-contrib/issues/70>`_)
+
+
+2020.10 (2020-10-29)
+--------------------
+
+
+New hooks
+~~~~~~~~~
+
+* (Windows) Add a hook for ``win32ctypes.core``. (`#58
+  <https://github.com/pyinstaller/pyinstaller-hooks-contrib/issues/58>`_)
+
+
+Updated hooks
+~~~~~~~~~~~~~
+
+* (Windows) Avoid collecting ``tensorflow`` import libraries. (`#55
+  <https://github.com/pyinstaller/pyinstaller-hooks-contrib/issues/55>`_)
+* Avoid collecting non-functional ``zmq.backend.cffi`` backend in the ``zmq``
+  hook, and thus also prevent an attempt at compilation of its C extension
+  during module collection. (`#59
+  <https://github.com/pyinstaller/pyinstaller-hooks-contrib/issues/59>`_)
+* Change hook for ``tinycss2``, no longer needed after version 1.0.0. (`#54
+  <https://github.com/pyinstaller/pyinstaller-hooks-contrib/issues/54>`_)
+* Compatibility fix for ``markdown`` 3.3. (`#56
+  <https://github.com/pyinstaller/pyinstaller-hooks-contrib/issues/56>`_)
+* Update hooks for ``scikit-learn``. Supported versions are 0.21.x, 0.22.x, and
+  0.23.x. (`#53
+  <https://github.com/pyinstaller/pyinstaller-hooks-contrib/issues/53>`_)
+
+
+2020.9 (2020-10-02)
+-------------------
+
+
+New hooks
+~~~~~~~~~
+
+* Add a hook for `flask_restx <https://flask-restx.readthedocs.io>`_ which
+  contains template data files. (`#48
+  <https://github.com/pyinstaller/pyinstaller-hooks-contrib/issues/48>`_)
+* Add hooks for ``skimage.feature`` and ``skimage.graph`` to fix issues with
+  missing imports. (`#52
+  <https://github.com/pyinstaller/pyinstaller-hooks-contrib/issues/52>`_)
+
+
+Updated hooks
+~~~~~~~~~~~~~
+
+* Fix shared library duplication in ``tensorflow`` v.2.3. Avoid packaging
+  unnecessary data files (e.g., development headers) on all ``tensorflow``
+  versions. (`#50
+  <https://github.com/pyinstaller/pyinstaller-hooks-contrib/issues/50>`_)
+* Fix the ``tensorflow`` hook to be compatible across ``tensorflow`` versions
+  from <1.15.0 up to 2.3.0 (current latest). (`#46
+  <https://github.com/pyinstaller/pyinstaller-hooks-contrib/issues/46>`_)
+
+
+2020.8 (2020-09-12)
+-------------------
+
+
+New hooks
+~~~~~~~~~
+
+* Add a hook for ``iminuit`` which has hidden imports. (`#26
+  <https://github.com/pyinstaller/pyinstaller-hooks-contrib/issues/26>`_)
+* Add a hook for ``publicsuffix2`` which has some data files. (`#40
+  <https://github.com/pyinstaller/pyinstaller-hooks-contrib/issues/40>`_)
+* Add a hook for ``pyav(av)`` which has hidden imports. (`#29
+  <https://github.com/pyinstaller/pyinstaller-hooks-contrib/issues/29>`_)
+* Add a hook for ``pydivert`` which has some data files. (`#41
+  <https://github.com/pyinstaller/pyinstaller-hooks-contrib/issues/41>`_)
+* Add a hook for ``pyproj`` which has some data files. (`#33
+  <https://github.com/pyinstaller/pyinstaller-hooks-contrib/issues/33>`_)
+* Add a hook for ``spnego`` which has hidden imports. (`#37
+  <https://github.com/pyinstaller/pyinstaller-hooks-contrib/issues/37>`_)
+
+
+Updated hooks
+~~~~~~~~~~~~~
+
+* Add a missing hidden import for ``passlib``. (`#39
+  <https://github.com/pyinstaller/pyinstaller-hooks-contrib/issues/39>`_)
+
+
+2020.7 (2020-08-09)
+-------------------
+
+
+New hooks
+~~~~~~~~~
+
+* Add a hook for ``gmplot``, which has some data files. (`#21
+  <https://github.com/pyinstaller/pyinstaller-hooks-contrib/issues/21>`_)
+* Add a hook for ``tinycss2``, which is missing data files. (`#16
+  <https://github.com/pyinstaller/pyinstaller-hooks-contrib/issues/16>`_)
+* Add a hook for ``workflow``, which is missing version information contained
+  in metadata. (`#17
+  <https://github.com/pyinstaller/pyinstaller-hooks-contrib/issues/17>`_)
+* Add hook for ``AnyIO`` which dynamically imports its backend modules. (`#22
+  <https://github.com/pyinstaller/pyinstaller-hooks-contrib/issues/22>`_)
+* Add hook for ``APScheduler`` which requires entry points and dynamic imports.
+  (`#23 <https://github.com/pyinstaller/pyinstaller-hooks-contrib/issues/23>`_)
+* Add hook for ``trimesh`` which requires importing resource files. (`#25
+  <https://github.com/pyinstaller/pyinstaller-hooks-contrib/issues/25>`_)
+
+
+Updated hooks
+~~~~~~~~~~~~~
+
+* Rewrite the hooks for PyPubSub and ``wx.lib.pubsub`` so they work properly.
+
+
+2020.6 (2020-07-21)
+-------------------
+
+
+New hooks
+~~~~~~~~~
+
+* Add a hook for ``html-testRunner``, which has a hidden import. (`#8
+  <https://github.com/pyinstaller/pyinstaller-hooks-contrib/issues/8>`_)
+* Add a hook for ``parsedatetime``, which has hidden imports. (`#11
+  <https://github.com/pyinstaller/pyinstaller-hooks-contrib/issues/11>`_)
+* Add hook for ``dask``, which includes .yaml data files. (`#12
+  <https://github.com/pyinstaller/pyinstaller-hooks-contrib/issues/12>`_)
+
+
+Updated hooks
+~~~~~~~~~~~~~
+
+* (Windows) cv2: bundle the `opencv_videoio_ffmpeg*.dll`, if available. (`#13
+  <https://github.com/pyinstaller/pyinstaller-hooks-contrib/issues/13>`_)
+
+
+2020.5 (2020-06-28)
+-------------------
+
+
+No significant changes.
+
+
+2020.4 (2020-06-28)
+-------------------
+
+
+New hooks
+~~~~~~~~~
+
+* Adding a hook for sentry which has hidden imports for its integrations (`#7
+  <https://github.com/pyinstaller/pyinstaller-hooks-contrib/issues/7>`_)
+
+
+2020.3 (2020-06-21)
+-------------------
+
+
+New hooks
+~~~~~~~~~
+
+* Add a hook for ``eel``, which needs to pull in ``eel.js`` and an extra
+  library. (`#6
+  <https://github.com/pyinstaller/pyinstaller-hooks-contrib/issues/6>`_)
+* Add a hook for ``sklearn``, which needs a dynamic library including. (`#5
+  <https://github.com/pyinstaller/pyinstaller-hooks-contrib/issues/5>`_)
+* Add hook for ``jinxed``, which has hidden backends.
