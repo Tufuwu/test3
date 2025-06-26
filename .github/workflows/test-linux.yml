@@ -61,6 +61,7 @@ jobs:
           ${{ runner.os }}-geos-
 
     - name: Install GEOS
+      shell: bash
       run: |
         export GEOS_INSTALL=${{ github.workspace }}/geosinstall/geos-${{ matrix.geos-version }}
         chmod +x ./ci/install_geos.sh
