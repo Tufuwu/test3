@@ -35,9 +35,7 @@ jobs:
             with-opt-deps: true
           - python-version: pypy3
             with-opt-deps: false
-      allow_failures:
-        - python-version: pypy3
-          with-opt-deps: true
+
 
     steps:
     - uses: actions/checkout@v2
