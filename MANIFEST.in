@@ -1,6 +1,3 @@
-include LICENSE.md
-include README.md
-include Makefile
-include .travis.yml
-include requirements.txt
-include test/*.py
+include *rst LICENSE CHANGELOG MANIFEST.in
+recursive-include examples *.py
+prune examples/sample?/build
