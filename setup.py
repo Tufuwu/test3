@@ -1,51 +1,89 @@
-#!/usr/bin/env python
+""" pygameweb
+"""
+import io
+import os
+import re
+from itertools import chain
+
 from setuptools import setup, find_packages
-from os import path
 
-this_directory = path.abspath(path.dirname(__file__))
 
-with open(path.join(this_directory, 'clifford', '_version.py'), encoding='utf-8') as f:
-    exec(f.read())
+def read(*parts):
+    """ Reads in file from *parts.
+    """
+    try:
+        return io.open(os.path.join(*parts), 'r', encoding='utf-8').read()
+    except IOError:
+        return ''
 
-with open(path.join(this_directory, 'README.md'), encoding='utf-8') as f:
-    long_description = f.read()
+
+def get_version():
+    """ Returns version from pygameweb/__init__.py
+    """
+    version_file = read('pygameweb', '__init__.py')
+    version_match = re.search(r'^__version__ = [\'"]([^\'"]*)[\'"]',
+                              version_file, re.MULTILINE)
+    if version_match:
+        return version_match.group(1)
+    raise RuntimeError('Unable to find version string.')
+
+
+def get_requirements():
+    """ returns list of requirements from requirements.txt files.
+    """
+    fnames = ['requirements.txt']
+    requirements = chain.from_iterable((open(fname) for fname in fnames))
+    requirements = list(set([l.strip() for l in requirements]) - {'-r requirements.txt'})
+    return requirements
+
 
 setup(
-    name='clifford',
-    version=__version__,
-    license='bsd',
-    description='Numerical Geometric Algebra Module',
-    long_description=long_description,
-    long_description_content_type='text/markdown',
-    author='Robert Kern',
-    maintainer='Alex Arsenovic',
-    maintainer_email='alexarsenovic@gmail.com',
-    url='http://clifford.readthedocs.io',
-    packages=find_packages(),
-    install_requires=[
-        'numpy >= 1.17',
-        'scipy',
-        'numba > 0.46',
-        'h5py',
-        'sparse',
-    ],
-    package_dir={'clifford':'clifford'},
-
+    name='pygameweb',
     classifiers=[
-        'Intended Audience :: Science/Research',
-        'Topic :: Scientific/Engineering :: Mathematics',
-
+        'Development Status :: 1 - Planning',
         'License :: OSI Approved :: BSD License',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
-        'Programming Language :: Python :: 3.7',
-        'Programming Language :: Python :: 3.8',
     ],
-    project_urls={
-        "Bug Tracker": "https://github.com/pygae/clifford/issues",
-        "Source Code": "https://github.com/pygae/clifford",
+    data_files=[('.', ['alembic.ini'])],
+    license='BSD',
+    author='Rene Dudfield',
+    author_email='renesd@gmail.com',
+    description='Pygame.org website.',
+    include_package_data=True,
+    long_description=read('README.rst'),
+    package_dir={'pygameweb': 'pygameweb'},
+    packages=find_packages(),
+    package_data={'pygameweb': []},
+    url='https://github.com/pygame/pygameweb',
+    install_requires=get_requirements(),
+    version=get_version(),
+    entry_points={
+        'console_scripts': [
+            'pygameweb_front='
+                'pygameweb.run:run_front',
+            'pygameweb_generate_json='
+                'pygameweb.dashboard.generate_json:main',
+            'pygameweb_generate_static='
+                'pygameweb.dashboard.generate_static:main',
+            'pygameweb_launchpad='
+                'pygameweb.builds.launchpad_build_badge:check_pygame_builds',
+            'pygameweb_update_docs='
+                'pygameweb.builds.update_docs:update_docs',
+            'pygameweb_stackoverflow='
+                'pygameweb.builds.stackoverflow:download_stack_json',
+            'pygameweb_loadcomments='
+                'pygameweb.comment.models:load_comments',
+            'pygameweb_trainclassifier='
+                'pygameweb.comment.classifier_train:classify_comments',
+            'pygameweb_worker='
+                'pygameweb.tasks.worker:work',
+            'pygameweb_release_version_correct='
+                'pygameweb.builds.update_version_from_git:release_version_correct',
+            'pygameweb_github_releases='
+                'pygameweb.project.gh_releases:sync_github_releases',
+            'pygameweb_fixtures=' +
+                'pygameweb.fixtures:populate_db',
+        ],
     },
-
-    python_requires='>=3.5',
 )
