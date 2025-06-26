@@ -1,38 +1,70 @@
-# Default Atom output path
-output
-
-# Default cache location
-.cache
-
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
-*$py.class
 
-# egg
-*.egg-info
+# C extensions
+*.so
 
-# Tox
-.tox/
+# Pycharm config
+.idea
 
-# Sphinx
-docs/_build
-
-# Scrapy stuff
-.scrapy
-
-# virtualenv
-venv/
-
-# custom config
-feeds.cfg
-
-# pyenv
-.python-version
-
-# vim tags
-tags
-
-# distribution
+# Distribution / packaging
+.Python
+env/
 build/
+develop-eggs/
 dist/
+downloads/
+eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# PyInstaller
+#  Usually these files are written by a python script from a template
+#  before PyInstaller builds the exe, so as to inject date/other infos into it.
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.coverage
+.cache
+nosetests.xml
+coverage.xml
+
+# Translations
+*.mo
+*.pot
+
+# Django stuff:
+*.log
+
+# Sphinx documentation
+docs/_build/
+
+# PyBuilder
+target/
+
+/docs/generated
+
+.mypy_cache
+.ipynb_checkpoints
+
+/docs/api/generated/*
+
+clifford/test/\.hypothesis/
+
+clifford/test/test\.ga
+
+clifford/test/test\.json

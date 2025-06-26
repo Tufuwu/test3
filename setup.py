@@ -1,55 +1,51 @@
-from setuptools import find_packages, setup
+#!/usr/bin/env python
+from setuptools import setup, find_packages
+from os import path
 
-with open("README.rst") as f:
+this_directory = path.abspath(path.dirname(__file__))
+
+with open(path.join(this_directory, 'clifford', '_version.py'), encoding='utf-8') as f:
+    exec(f.read())
+
+with open(path.join(this_directory, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
 setup(
-    name="PyFeeds",
-    version="2020.5.16",
-    description="DIY Atom feeds in times of social media and paywalls",
+    name='clifford',
+    version=__version__,
+    license='bsd',
+    description='Numerical Geometric Algebra Module',
     long_description=long_description,
-    long_description_content_type="text/x-rst",
-    author="Florian Preinstorfer, Lukas Anzinger",
-    author_email="florian@nblock.org, lukas@lukasanzinger.at",
-    url="https://github.com/PyFeeds/PyFeeds",
-    packages=find_packages(exclude=["tests"]),
-    include_package_data=True,
+    long_description_content_type='text/markdown',
+    author='Robert Kern',
+    maintainer='Alex Arsenovic',
+    maintainer_email='alexarsenovic@gmail.com',
+    url='http://clifford.readthedocs.io',
+    packages=find_packages(),
     install_requires=[
-        "Click>=6.6",
-        "Scrapy>=2.2",
-        "bleach>=1.4.3",
-        "dateparser>=0.5.1",
-        "feedparser",
-        "lxml>=3.5.0",
-        "python-dateutil>=2.7.3",
-        "pyxdg>=0.26",
-        "readability-lxml>=0.7",
-        "scrapy-inline-requests",
-        "itemloaders",  # explicit dependency of Scrapy > 2.2.1
+        'numpy >= 1.17',
+        'scipy',
+        'numba > 0.46',
+        'h5py',
+        'sparse',
     ],
-    extras_require={
-        "docs": ["sphinx", "sphinx_rtd_theme"],
-        "style": [
-            "black",
-            "doc8",
-            "flake8",
-            "isort>=5",
-            "pygments",
-            "restructuredtext_lint",
-        ],
-        "test": ["pytest"],
-    },
-    entry_points={"console_scripts": ["feeds=feeds.cli:main"]},
+    package_dir={'clifford':'clifford'},
+
     classifiers=[
-        "Development Status :: 4 - Beta",
-        "Environment :: Console",
-        "Framework :: Scrapy",
-        "Intended Audience :: Developers",
-        "License :: OSI Approved :: GNU Affero General Public License v3",
-        "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.6",
-        "Programming Language :: Python :: 3.7",
-        "Programming Language :: Python :: 3.8",
-        "Topic :: Internet :: WWW/HTTP",
+        'Intended Audience :: Science/Research',
+        'Topic :: Scientific/Engineering :: Mathematics',
+
+        'License :: OSI Approved :: BSD License',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
     ],
+    project_urls={
+        "Bug Tracker": "https://github.com/pygae/clifford/issues",
+        "Source Code": "https://github.com/pygae/clifford",
+    },
+
+    python_requires='>=3.5',
 )

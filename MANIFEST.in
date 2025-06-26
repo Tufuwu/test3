@@ -1,5 +1,0 @@
-include LICENSE
-include README.rst
-include feeds.cfg.dist
-include scrapy.cfg
-recursive-include docs Makefile conf.py *.rst

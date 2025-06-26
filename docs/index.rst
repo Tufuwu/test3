@@ -1,60 +1,63 @@
-Welcome to Feeds
-================
-Feeds provides DIY Atom feeds in times of social media and paywall.
+======================================
+clifford: Geometric Algebra for Python
+======================================
+
+
+.. ipython::
+    :doctest:
+
+    In [138]: from clifford.g3 import *  # import GA for 3D space
+
+    In [138]: import math
+
+    In [138]: a = e1 + 2*e2 + 3*e3  # vector
+
+    In [138]: R = math.e**(math.pi/4*e12)  # rotor
+
+    @doctest
+    In [138]: R*a*~R    # rotate the vector
+    Out[138]: (2.0^e1) - (1.0^e2) + (3.0^e3)
+
+
+This module implements Geometric Algebras (a.k.a. Clifford algebras).
+Geometric Algebra (GA) is a universal algebra which subsumes complex algebra, quaternions, linear algebra and several other independent mathematical systems.
+Scalars, vectors, and higher-grade entities can be mixed freely and consistently in the form of mixed-grade multivectors.
+
+
+.. image:: _static/blades.png
+    :width: 500 px
+    :align: center
+
 
 .. toctree::
-   :maxdepth: 1
-   :hidden:
+    :maxdepth: 3
+    :hidden:
 
-   self
-   get
-   quickstart
-   configure
-   spiders
-   development
-   docker
-   api
-   contribute
-   license
+    installation
+    api/index
+    predefined-algebras
+    changelog
+    issues
 
-About Feeds
------------
-Once upon a time every website offered an RSS feed to keep readers updated
-about new articles/blog posts via the users' feed readers. These times are long
-gone. The once iconic orange RSS icon has been replaced by "social share"
-buttons.
+.. toctree::
+    :maxdepth: 1
+    :caption: Tutorials
+    :hidden:
 
-Feeds aims to bring back the good old reading times. It creates Atom feeds for
-websites that don't offer them (anymore). It allows you to read new articles of
-your favorite websites in your feed reader (e.g. TinyTinyRSS_) even if this is
-not officially supported by the website.
+    tutorials/g2-quick-start
+    tutorials/g3-algebra-of-space
+    tutorials/euler-angles
+    tutorials/space-time-algebra
+    tutorials/InterfacingOtherMathSystems
+    tutorials/PerformanceCliffordTutorial
+    tutorials/cga/index
+    tutorials/linear-transformations
+    tutorials/apollonius-cga-augmented
 
-Furthermore it can also enhance existing feeds by inlining the actual content
-into the feed entry so it can be read without leaving the feed reader.
+.. toctree::
+    :maxdepth: 1
+    :caption: Other resources
+    :hidden:
 
-Feeds is based on Scrapy_, a framework for extracting data from websites and it
-has support for a few websites already, see :ref:`Supported Websites`. It's
-easy to add support for new websites. Just take a look at the existing spiders_
-and feel free to open a :ref:`pull request <Contribute>`!
-
-Related work
-------------
-* `morss <https://github.com/pictuga/morss>`_ creates feeds, similar to Feeds
-  but in "real-time", i.e. on (HTTP) request.
-* `Full-Text RSS <https://bitbucket.org/fivefilters/full-text-rss>`_ converts
-  feeds to contain the full article and not only a teaser based on heuristics
-  and rules. Feeds are converted in "real-time", i.e. on request basis.
-* `f43.me <https://github.com/j0k3r/f43.me>`_ converts feeds to contain the
-  full article and also improves articles by adding links to the comment
-  sections of Hacker News and Reddit. Feeds are converted periodically.
-* `python-ftr <https://github.com/1flow/python-ftr>`_ is a library to extract
-  content from pages. A partial reimplementation of Full-Text RSS.
-
-Authors
--------
-Feeds is written and maintained by `Florian Preinstorfer <https://nblock.org>`_
-and `Lukas Anzinger <https://www.notinventedhere.org>`_.
-
-.. _Scrapy: https://www.scrapy.org
-.. _TinyTinyRSS: https://tt-rss.org
-.. _spiders: https://github.com/PyFeeds/PyFeeds/tree/master/feeds/spiders
+    resources
+    bibliography
