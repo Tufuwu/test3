@@ -1,3 +1,5 @@
-include README.rst NEWS.rst
-include AUTHORS LICENSE
-include bin/pyflakes
+include LICENSE
+include README.rst
+include feeds.cfg.dist
+include scrapy.cfg
+recursive-include docs Makefile conf.py *.rst
