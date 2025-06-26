@@ -1,18 +1,59 @@
-[![PyPI version](https://badge.fury.io/py/django-minio-storage.svg)](https://badge.fury.io/py/django-minio-storage)
-[![Documentation Status](http://readthedocs.org/projects/django-minio-storage/badge/?version=latest)](http://django-minio-storage.readthedocs.io/en/latest/?badge=latest)
-[![Build Status](https://travis-ci.org/py-pa/django-minio-storage.svg?branch=master)](https://travis-ci.org/py-pa/django-minio-storage)
+SQLAlchemy Adapter for PyCasbin 
+====
 
-# django-minio-storage
+[![GitHub Actions](https://github.com/pycasbin/sqlalchemy-adapter/workflows/build/badge.svg?branch=master)](https://github.com/pycasbin/sqlalchemy-adapter/actions)
+[![Coverage Status](https://coveralls.io/repos/github/pycasbin/sqlalchemy-adapter/badge.svg)](https://coveralls.io/github/pycasbin/sqlalchemy-adapter)
+[![Version](https://img.shields.io/pypi/v/casbin_sqlalchemy_adapter.svg)](https://pypi.org/project/casbin_sqlalchemy_adapter/)
+[![PyPI - Wheel](https://img.shields.io/pypi/wheel/casbin_sqlalchemy_adapter.svg)](https://pypi.org/project/casbin_sqlalchemy_adapter/)
+[![Pyversions](https://img.shields.io/pypi/pyversions/casbin_sqlalchemy_adapter.svg)](https://pypi.org/project/casbin_sqlalchemy_adapter/)
+[![Download](https://img.shields.io/pypi/dm/casbin_sqlalchemy_adapter.svg)](https://pypi.org/project/casbin_sqlalchemy_adapter/)
+[![License](https://img.shields.io/pypi/l/casbin_sqlalchemy_adapter.svg)](https://pypi.org/project/casbin_sqlalchemy_adapter/)
 
-Use [minio](https://minio.io) for django static and media file storage.
+SQLAlchemy Adapter is the [SQLAlchemy](https://www.sqlalchemy.org) adapter for [PyCasbin](https://github.com/casbin/pycasbin). With this library, Casbin can load policy from SQLAlchemy supported database or save policy to it.
 
-Minio is accessed through the Amazon S3 API, so existing django file storage
-adapters for S3 should work, but in practice they are hard to configure. This
-project uses the minio python client instead. Inspiration has been drawn from
-`django-s3-storage` and `django-storages`.
+Based on [Officially Supported Databases](http://www.sqlalchemy.org/), The current supported databases are:
 
-# Documentation
+- PostgreSQL
+- MySQL
+- SQLite
+- Oracle
+- Microsoft SQL Server
+- Firebird
+- Sybase
 
-See
-[http://django-minio-storage.readthedocs.io/en/latest/](http://django-minio-storage.readthedocs.io/en/latest/) for
-documentation and usage guides.
+## Installation
+
+```
+pip install casbin_sqlalchemy_adapter
+```
+
+## Simple Example
+
+```python
+import casbin_sqlalchemy_adapter
+import casbin
+
+adapter = casbin_sqlalchemy_adapter.Adapter('sqlite:///test.db')
+
+e = casbin.Enforcer('path/to/model.conf', adapter, True)
+
+sub = "alice"  # the user that wants to access a resource.
+obj = "data1"  # the resource that is going to be accessed.
+act = "read"  # the operation that the user performs on the resource.
+
+if e.enforce(sub, obj, act):
+    # permit alice to read data1casbin_sqlalchemy_adapter
+    pass
+else:
+    # deny the request, show an error
+    pass
+```
+
+
+### Getting Help
+
+- [PyCasbin](https://github.com/casbin/pycasbin)
+
+### License
+
+This project is licensed under the [Apache 2.0 license](LICENSE).
