@@ -1,0 +1,71 @@
+# Disable tests by default because they fail to run inside mock builds
+# at the moment, but can run locally.  To build and run tests, do:
+#     rpmbuild -ba --with runtests pykickstart.spec
+%bcond_with runtests
+
+Name:      pykickstart
+Version:   %%VERSION%%
+Release:   1%{?dist}
+License:   GPLv2 and MIT
+Summary:   Python utilities for manipulating kickstart files.
+Url:       http://fedoraproject.org/wiki/pykickstart
+Source0:   https://github.com/pykickstart/%{name}/releases/download/r%{version}/%{name}-%{version}.tar.gz
+Source1:   https://github.com/pykickstart/%{name}/releases/download/r%{version}/%{name}-%{version}.tar.gz.asc
+
+BuildArch: noarch
+
+BuildRequires: gettext
+BuildRequires: python3-coverage
+BuildRequires: python3-devel
+BuildRequires: python3-requests
+BuildRequires: python3-setuptools
+BuildRequires: python3-six
+BuildRequires: python3-sphinx
+
+Requires: python3-kickstart = %{version}-%{release}
+
+%description
+Python utilities for manipulating kickstart files.
+
+%package -n python3-kickstart
+Summary:  Python 3 library for manipulating kickstart files.
+Requires: python3-six
+Requires: python3-requests
+
+%description -n python3-kickstart
+Python 3 library for manipulating kickstart files.  The binaries are found in
+the pykickstart package.
+
+%prep
+%setup -q
+
+%build
+make PYTHON=%{__python3}
+
+%install
+make PYTHON=%{__python3} DESTDIR=%{buildroot} install
+
+%check
+%if %{with runtests}
+make PYTHON=%{__python3} test
+%endif
+
+%files
+%license COPYING
+%doc README.rst
+%doc data/kickstart.vim
+%{_bindir}/ksvalidator
+%{_bindir}/ksflatten
+%{_bindir}/ksverdiff
+%{_bindir}/ksshell
+%{_mandir}/man1/ksflatten.1.gz
+%{_mandir}/man1/ksshell.1.gz
+%{_mandir}/man1/ksvalidator.1.gz
+%{_mandir}/man1/ksverdiff.1.gz
+
+%files -n python3-kickstart
+%doc docs/2to3
+%doc docs/programmers-guide
+%doc docs/kickstart-docs.txt
+%{python3_sitelib}/pykickstart
+%{python3_sitelib}/pykickstart*.egg-info
