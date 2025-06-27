@@ -1,14 +1,19 @@
 [run]
-source =
-    pyramid_debugtoolbar
-    tests
+branch = True
+include = pympler/*
+omit = pympler/util/bottle.py
 
-[paths]
-source =
-    src/pyramid_debugtoolbar
-    */src/pyramid_debugtoolbar
-    */site-packages/pyramid_debugtoolbar
+[html]
+directory = coverage_html_report
 
 [report]
-show_missing = true
-precision = 2
+exclude_lines = 
+    pragma: no cover
+    except .*ImportError
+    except .*NameError
+    except .* # missing
+    except .* # Python (3|2)
+    if .* # Python 2.2
+    if __name__ == '__main__'
+    if sys.hexversion
+    def __repr__

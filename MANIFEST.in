@@ -1,20 +1,14 @@
-graft src
-graft tests
-graft docs
-graft demo
-prune docs/_build
-prune demo/mako_modules
+include LICENSE
+include NOTICE
+include README.md
 
-include README.rst
-include CHANGES.txt
-include LICENSE.txt
-include CONTRIBUTORS.txt
-include contributing.md
-include RELEASING.txt
-include TODO.txt
+include pympler/templates/*.html
+include pympler/templates/*.tpl
+include pympler/templates/*.css
+include pympler/templates/*.js
 
-include .coveragerc .flake8 setup.cfg pyproject.toml
-include tox.ini .travis.yml rtd.txt
-graft .github
+include pympler/static/*.js
 
-recursive-exclude * __pycache__ *.py[cod]
+recursive-include doc *
+prune doc/source
+prune doc/build

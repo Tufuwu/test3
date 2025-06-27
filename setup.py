@@ -1,89 +1,105 @@
-##############################################################################
-#
-# Copyright (c) 2008-2013 Agendaless Consulting and Contributors.
-# All Rights Reserved.
-#
-# This software is subject to the provisions of the BSD-like license at
-# http://www.repoze.org/LICENSE.txt.  A copy of the license should accompany
-# this distribution.  THIS SOFTWARE IS PROVIDED "AS IS" AND ANY AND ALL
-# EXPRESS OR IMPLIED WARRANTIES ARE DISCLAIMED, INCLUDING, BUT NOT LIMITED TO,
-# THE IMPLIED WARRANTIES OF TITLE, MERCHANTABILITY, AGAINST INFRINGEMENT, AND
-# FITNESS FOR A PARTICULAR PURPOSE
-#
-##############################################################################
+"""Setup script for Pympler.
 
-from setuptools import find_packages, setup
+To build, install and test Pympler and to try Pympler
+before building and installing it.
+
+The HTML documentation is in the doc/ directory.  Point
+your browser to the ./doc/html/index.html file.
+
+"""
+import sys
 
 
-def readfile(name):
-    with open(name) as f:
-        return f.read()
+def _not_supported(why):
+    print('NotImplementedError: ' + why + '.')
+    sys.exit(1)
 
 
-README = readfile("README.rst")
-CHANGES = readfile("CHANGES.txt")
+if sys.hexversion < 0x3050000:
+    _not_supported('Pympler requires Python 3.5 or newer')
 
-install_requires = [
-    "pyramid>=1.4",
-    "pyramid_mako>=0.3.1",  # lazy configuration loading works
-    "repoze.lru",
-    "Pygments",
-]
+import os
+from setuptools import Command
+from setuptools import setup
+from setuptools import Distribution
+from subprocess import run
 
-extra_requires = [
-    "ipaddress",
-]
 
-testing_extras = [
-    "WebTest",
-    "nose",
-    "coverage",
-]
+class BaseTestCommand(Command):
+    """Base class for the pre and the post installation commands. """
+    user_options = []
 
-docs_extras = [
-    "Sphinx >= 1.7.5",
-    "pylons-sphinx-themes >= 0.3",
-]
+    def initialize_options(self):
+        self.param = None
 
-setup(
-    name="pyramid_debugtoolbar",
-    version="4.6.1",
-    description=(
-        "A package which provides an interactive HTML debugger "
-        "for Pyramid application development"
-    ),
-    long_description=README + "\n\n" + CHANGES,
-    classifiers=[
-        "Intended Audience :: Developers",
-        "Programming Language :: Python",
-        "Programming Language :: Python :: 2.7",
-        "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.4",
-        "Programming Language :: Python :: 3.5",
-        "Programming Language :: Python :: 3.6",
-        "Programming Language :: Python :: 3.7",
-        "Programming Language :: Python :: 3.8",
-        "Framework :: Pyramid",
-        "Topic :: Internet :: WWW/HTTP :: WSGI",
-        "License :: Repoze Public License",
-    ],
-    keywords="wsgi pylons pyramid transaction",
-    author=(
-        "Chris McDonough, Michael Merickel, Casey Duncan, " "Blaise Laflamme"
-    ),
-    author_email="pylons-discuss@googlegroups.com",
-    url="https://docs.pylonsproject.org/projects/pyramid-debugtoolbar/en/latest/",  # noqa E501
-    license="BSD",
-    packages=find_packages("src", exclude=["tests"]),
-    package_dir={"": "src"},
-    include_package_data=True,
-    zip_safe=False,
-    install_requires=install_requires,
-    python_requires=">=2.7,!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*",
-    extras_require={
-        ':python_version<"3.3"': extra_requires,
-        "testing": testing_extras,
-        "docs": docs_extras,
-    },
-    test_suite="tests",
-)
+    def finalize_options(self):
+        pass
+
+    def run(self):
+        args = [sys.executable,  # this Python binary
+                os.path.join('test', 'runtest.py'),
+                self.param, '-verbose', '3']
+        args.extend(sys.argv[2:])
+        sys.exit(run(args).returncode)
+
+
+class PreinstallTestCommand(BaseTestCommand):
+    description = "run pre-installation tests"
+
+    def initialize_options(self):
+        self.param = '-pre-install'
+
+
+class PostinstallTestCommand(BaseTestCommand):
+    description = "run post-installation tests"
+
+    def initialize_options(self):
+        self.param = '-post-install'
+
+
+def run_setup(include_tests=0):
+    tests = []
+    if include_tests:
+        tests = ['test', 'test.asizeof', 'test.tracker', 'test.muppy',
+                 'test.gui']
+
+    setup(packages=['pympler', 'pympler.util'] + tests,
+          package_data={'pympler': ['templates/*.html',
+                                    'templates/*.tpl',
+                                    'templates/*.js',
+                                    'templates/*.css',
+                                    'static/*.js']},
+          platforms=['any'],
+          classifiers=['Development Status :: 4 - Beta',
+                       'Environment :: Console',
+                       'Intended Audience :: Developers',
+                       'License :: OSI Approved :: Apache Software License',
+                       'Operating System :: OS Independent',
+                       'Programming Language :: Python',
+                       'Programming Language :: Python :: 3',
+                       'Programming Language :: Python :: 3.5',
+                       'Programming Language :: Python :: 3.6',
+                       'Programming Language :: Python :: 3.7',
+                       'Programming Language :: Python :: 3.8',
+                       'Programming Language :: Python :: 3.9',
+                       'Programming Language :: Python :: 3.10',
+                       'Topic :: Software Development :: Bug Tracking',
+                       ],
+          cmdclass={'try': PreinstallTestCommand,
+                    'test': PostinstallTestCommand,
+                    }
+          )
+
+
+try:  # hack Pympler commands into setup.py help output
+    Distribution.common_usage += """
+Pympler commands
+  setup.py try     try Pympler before installation
+  setup.py test    test Pympler after installation
+"""
+except AttributeError:
+    pass
+
+# Only include tests if creating a distribution package
+# (i.e. do not install the tests).
+run_setup('sdist' in sys.argv)
