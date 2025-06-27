@@ -1,16 +1,7 @@
+# Python Stuff
 *.pyc
-.*.swp
-po/pykickstart.pot
-po/*.po
-po/*.mo
-pykickstart*.tar.gz
-pykickstart*.tar.bz2
-pylint-log
-tests/pylint/.pylint.d/
-.coverage
-coverage-report.log
-docs/_build
-docs/modules.rst
-docs/pykickstart*.rst
-weblate/
-.tox/
+.venv/
+
+# Sublime Stuff
+*.sublime-project
+*.sublime-workspace

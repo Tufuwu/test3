@@ -1,2 +1,0 @@
-# Installs all extras (for testing and documentation) in pykickstart.
-.[docs,test]
