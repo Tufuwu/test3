@@ -74,7 +74,9 @@ jobs:
     - name: Check formatting
       run: black --diff --check .
     - name: Validate README
-      run: ./bin/check_readme.sh
+      run: |
+        chmod +x ./bin/check_readme.sh
+        ./bin/check_readme.sh
 
   # Full-flow docker tests, again not python version dependent
   docker:
@@ -87,6 +89,8 @@ jobs:
         # Pretty much any python version will do
         python-version: "3.9"
     - name: Install dependencies
-      run: pip install --use-feature 2020-resolver -U twine
+      run: pip install  -U twine
     - name: Run tests
-      run: ./bin/test-docker.sh
+      run: |
+        chmod +x ./bin/test-docker.sh
+        ./bin/test-docker.sh
