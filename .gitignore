@@ -1,7 +1,16 @@
-# Python Stuff
+*.egg
+*.egg-info
 *.pyc
-.venv/
-
-# Sublime Stuff
-*.sublime-project
-*.sublime-workspace
+*$py.class
+*.pt.py
+*.txt.py
+*~
+.*.swp
+.coverage
+.coverage.*
+build/
+dist/
+.tox/
+nosetests*.xml
+coverage*.xml
+env*/
