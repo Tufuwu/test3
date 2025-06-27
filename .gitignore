@@ -1,13 +1,48 @@
-# general things to ignore
-build/
-dist/
-*.egg-info/
-*.egg
-*.py[cod]
-__pycache__/
+*.class
+*.pyc
+*.pyo
+*.o
 *.so
+*.os
+*.pyd
+*.elc
 *~
+.*.swp
+.*.swo
+.*.swn
+.~
+.envrc
+.DS_Store
+.ropeproject
+ID
+__pycache__/
+**/build/
+**/dist/
+/*.egg*
+/MANIFEST
+/README.html
+/pypi-server-standalone.py
+/.project
+/.pydevproject
+/.pytest_cache
+/.tox/
+**/*.egg-info/
+/.standalone
+/.coverage*
+/htmlcov/
+/.installed.cfg
+/develop-eggs/
+/eggs/
+/parts/
+/.cache/
+/.settings/
+.mypy_cache/
 
-# due to using tox and pytest
-.tox
-.cache
+# IDE stuff
+.idea/
+.vscode/
+
+# Venvs
+.venv/
+venv/
+
