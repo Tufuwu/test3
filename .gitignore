@@ -1,6 +1,5 @@
+build/
+.*~
+.nox
 *.pyc
-.coverage
-*.egg-info
-MANIFEST
-dist
-tags
+__pycache__
