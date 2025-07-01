@@ -16,7 +16,7 @@ dependencies:
   - h5py
   - pexpect
   - pandas
-  - pydot==1.3.0
+  - pydot
   - coverage
   - coveralls
   - mock
