@@ -1,49 +1,27 @@
-miss-islington
-==============
+##########################
+The Python Benchmark Suite
+##########################
 
-.. image:: https://github.com/python/miss-islington/actions/workflows/ci.yml/badge.svg?event=push
-    :target: https://github.com/python/miss-islington/actions
-.. image:: https://codecov.io/gh/python/miss-islington/branch/main/graph/badge.svg
-    :target: https://codecov.io/gh/python/miss-islington
-.. image:: https://img.shields.io/badge/code%20style-black-000000.svg
-    :target: https://github.com/ambv/black
+.. image:: https://img.shields.io/pypi/v/pyperformance.svg
+   :alt: Latest pyperformance release on the Python Cheeseshop (PyPI)
+   :target: https://pypi.python.org/pypi/pyperformance
 
-🐍🍒⛏🤖
+.. image:: https://travis-ci.com/python/pyperformance.svg?branch=master
+   :alt: Build status of pyperformance on Travis CI
+   :target: https://travis-ci.com/github/python/pyperformance
 
-Bot for backporting and merging `CPython <https://github.com/python/cpython/>`_ Pull Requests.
+The ``pyperformance`` project is intended to be an authoritative source of
+benchmarks for all Python implementations. The focus is on real-world
+benchmarks, rather than synthetic benchmarks, using whole applications when
+possible.
 
-miss-islington requires Python 3.6+.
+* `pyperformance documentation <http://pyperformance.readthedocs.io/>`_
+* `pyperformance GitHub project <https://github.com/python/pyperformance>`_
+  (source code, issues)
+* `Download pyperformance on PyPI <https://pypi.python.org/pypi/pyperformance>`_
 
-Backporting a PR on CPython
-===========================
+pyperformance is not tuned for PyPy yet: use the `PyPy benchmarks project
+<https://foss.heptapod.net/pypy/benchmarks>`_ instead to measure PyPy
+performances.
 
-Prior to merging a PR, a Python core developer should apply the
-``needs backport to X.Y`` label to the pull request.
-Once the pull request has been merged, `@miss-islington <https://github.com/miss-islington>`_
-will prepare the backport PR.
-
-If `@miss-islington <https://github.com/miss-islington>`_ encountered any issue while backporting,
-it will leave a comment about it, and the PR will be assigned to the core developer
-who merged the PR. The PR then needs to be backported manually.
-
-
-Merging the Backport PR
-=======================
-
-If a Python core developer approved the backport PR made by miss-islington, it will be
-automatically merged once all the CI checks passed.
-
-
-Merging PRs
-===========
-
-If a Python core developer approved a PR made by anyone and added the "🤖 automerge" label,
-it will be automatically merged once all the CI checks pass.
-
-
-**Aside**: where does the name come from?
-=========================================
-
-According to Wikipedia, Miss Islington is the name of the witch in the
-`Monty Python and the Holy Grail <https://www.youtube.com/watch?v=yp_l5ntikaU>`_
-sketch.
+pyperformance is distributed under the MIT license.
