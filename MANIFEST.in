@@ -1,13 +1,6 @@
-include *.md
-include *.rst
-include *.sh
-include *.yml
-include LICENSE
-include tox.ini
-include .editorconfig
-recursive-include docs *.bat
-recursive-include docs *.py
-recursive-include docs *.rst
-recursive-include docs Makefile
-recursive-include examples *.py
-recursive-include tests *.py *.txt
+include distribute_setup.py
+include CHANGES.txt
+include py3tool.py
+include quantities/constants/NIST_codata.txt
+include versioneer.py
+include quantities/_version.py
