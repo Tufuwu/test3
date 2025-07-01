@@ -29,7 +29,9 @@ jobs:
         run: |
           pip install -U pip setuptools wheel
           pip install cffi pycparser
+          pip install --use-pep517 -r base-requirements.txt
           pip install -r dev-requirements.txt
+          
       - name: Run Tests
         run: |
           python -Wd -m coverage run manage.py test -v2
