@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -11,23 +10,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import setuptools
+from testinfra.backend import base
 
 
-def local_scheme(version):
-    """Generate a PEP440 compatible version if PEP440_VERSION is enabled"""
-    import os
-    import setuptools_scm.version  # only present during setup time
+class LxcBackend(base.BaseBackend):
+    NAME = "lxc"
 
-    return (
-        ''
-        if 'PEP440_VERSION' in os.environ
-        else setuptools_scm.version.get_local_node_and_date(version)
-    )
+    def __init__(self, name, *args, **kwargs):
+        self.name = name
+        super().__init__(self.name, *args, **kwargs)
 
-
-if __name__ == '__main__':
-    setuptools.setup(
-        use_scm_version={'local_scheme': local_scheme},
-        setup_requires=["setuptools_scm"],
-    )
+    def run(self, command, *args, **kwargs):
+        cmd = self.get_command(command, *args)
+        out = self.run_local("lxc exec %s --mode=non-interactive -- "
+                             "/bin/sh -c %s", self.name, cmd)
+        out.command = self.encode(cmd)
+        return out

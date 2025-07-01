@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -11,23 +10,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import setuptools
+from testinfra.modules.base import InstanceModule
 
 
-def local_scheme(version):
-    """Generate a PEP440 compatible version if PEP440_VERSION is enabled"""
-    import os
-    import setuptools_scm.version  # only present during setup time
+class Command(InstanceModule):
 
-    return (
-        ''
-        if 'PEP440_VERSION' in os.environ
-        else setuptools_scm.version.get_local_node_and_date(version)
-    )
+    def __call__(self, command, *args, **kwargs):
+        return self.run(command, *args, **kwargs)
 
+    def exists(self, command):
+        return self._host.exists(command)
 
-if __name__ == '__main__':
-    setuptools.setup(
-        use_scm_version={'local_scheme': local_scheme},
-        setup_requires=["setuptools_scm"],
-    )
+    def __repr__(self):
+        return "<command>"
