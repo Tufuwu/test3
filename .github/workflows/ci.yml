@@ -28,6 +28,7 @@ jobs:
       - name: Install Python dependencies
         run: |
           pip install -U pip setuptools wheel
+          pip install cffi pycparser
           pip install -r dev-requirements.txt
       - name: Run Tests
         run: |
