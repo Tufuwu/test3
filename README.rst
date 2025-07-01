@@ -1,64 +1,49 @@
-core-workflow
-=============
-Issue tracker and relevant tools for CPython's workflow
+miss-islington
+==============
 
-.. image:: https://travis-ci.org/python/core-workflow.svg?branch=master
-    :target: https://travis-ci.org/python/core-workflow
+.. image:: https://github.com/python/miss-islington/actions/workflows/ci.yml/badge.svg?event=push
+    :target: https://github.com/python/miss-islington/actions
+.. image:: https://codecov.io/gh/python/miss-islington/branch/main/graph/badge.svg
+    :target: https://codecov.io/gh/python/miss-islington
+.. image:: https://img.shields.io/badge/code%20style-black-000000.svg
+    :target: https://github.com/ambv/black
 
-.. image:: https://img.shields.io/badge/zulip-join_chat-brightgreen.svg
-   :alt: Python Zulip chat
-   :target: https://python.zulipchat.com
+🐍🍒⛏🤖
 
-blurb
------
+Bot for backporting and merging `CPython <https://github.com/python/cpython/>`_ Pull Requests.
 
-.. image:: https://img.shields.io/pypi/v/blurb.svg
-    :target: https://pypi.org/project/blurb/
+miss-islington requires Python 3.6+.
 
-Interactive utility for writing CPython ``Misc/NEWS.d`` entries. See
-the blurb_ directory for more details.
+Backporting a PR on CPython
+===========================
 
-.. _blurb: https://github.com/python/core-workflow/tree/master/blurb
+Prior to merging a PR, a Python core developer should apply the
+``needs backport to X.Y`` label to the pull request.
+Once the pull request has been merged, `@miss-islington <https://github.com/miss-islington>`_
+will prepare the backport PR.
 
-
-Other core workflow tools
--------------------------
-
-======================================= ======================= =============================================== ================
- Name                                   Description             Issue tracker                                   Owner/Maintainer
-======================================= ======================= =============================================== ================
-`python/bedevere`_                      A bot to help identify  `GitHub <https://github.com/                    `Brett Cannon`_
-                                        missing information for python/bedevere/issues>`__
-                                        CPython pull requests.
-`python/blurb_it`_                      ``blurb add`` on the    `GitHub <https://github.com/                    `Mariatta`_
-                                        web.                    python/blurb_it/issues>`__
-`python/cherry-picker`_                 Command line tool for   `GitHub <https://github.com/                    `Mariatta`_
-                                        backporting CPython     python/cherry-picker/issues>`__
-                                        pull requests.
-`python/miss-islington`_                A bot for backporting   `GitHub <https://github.com/                    `Mariatta`_
-                                        CPython pull requests.  python/miss-islington/issues>`__
-`python/the-knights-who-say-ni`_        CLA enforcement bot for `GitHub <https://github.com/                    `Brett Cannon`_
-                                        Python organization     python/the-knights-who-say-ni/issues>`__
-                                        projects.
-`berkerpeksag/cpython-emailer-webhook`_ A webhook to send every `GitHub <https://github.com/                    `Berker Peksag`_
-                                        CPython commit to       berkerpeksag/cpython-emailer-webhook/issues>`__
-                                        python-checkins mailing 
-                                        list.
-`berkerpeksag/cpython-bpo-linkify`_     An extension that finds `GitHub <https://github.com/                    `Berker Peksag`_
-                                        bpo-NNNN annonations    berkerpeksag/cpython-bpo-linkify/issues>`__
-                                        and converts them to    
-                                        bugs.python.org links.  
-======================================= ======================= =============================================== ================
-
-.. _`python/bedevere`: https://github.com/python/bedevere
-.. _`python/blurb_it`: https://github.com/python/blurb_it
-.. _`python/cherry-picker`: https://github.com/python/cherry-picker
-.. _`python/miss-islington`: https://github.com/python/miss-islington
-.. _`python/the-knights-who-say-ni`: https://github.com/python/the-knights-who-say-ni
-.. _`berkerpeksag/cpython-emailer-webhook`: https://github.com/berkerpeksag/cpython-emailer-webhook
-.. _`berkerpeksag/cpython-bpo-linkify`: https://github.com/berkerpeksag/cpython-bpo-linkify
-.. _`Brett Cannon`: https://github.com/brettcannon
-.. _`Berker Peksag`: https://github.com/berkerpeksag
-.. _`Mariatta`: https://github.com/mariatta
+If `@miss-islington <https://github.com/miss-islington>`_ encountered any issue while backporting,
+it will leave a comment about it, and the PR will be assigned to the core developer
+who merged the PR. The PR then needs to be backported manually.
 
 
+Merging the Backport PR
+=======================
+
+If a Python core developer approved the backport PR made by miss-islington, it will be
+automatically merged once all the CI checks passed.
+
+
+Merging PRs
+===========
+
+If a Python core developer approved a PR made by anyone and added the "🤖 automerge" label,
+it will be automatically merged once all the CI checks pass.
+
+
+**Aside**: where does the name come from?
+=========================================
+
+According to Wikipedia, Miss Islington is the name of the witch in the
+`Monty Python and the Holy Grail <https://www.youtube.com/watch?v=yp_l5ntikaU>`_
+sketch.
