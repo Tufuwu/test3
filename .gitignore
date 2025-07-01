@@ -1,37 +1,28 @@
-# Ignore Build Directory #
-build/
+# PyCharm configuration
+.idea/
 
-# Ignore Docs Directory #
-#doc/
+# Compiled python modules.
+*.pyc
+__pycache__/
 
-# Ignore Temporary Build Files #
-pyslurm/pyslurm.c
-pyslurm/bluegene.pxi
-pyslurm/slurm_version.pxi
-pyslurm/*.py~
-pyslurm/*.pyc
-pyslurm/*.pyx~
-pyslurm/*.pxi~
-pyslurm/*.pxd~
-pyslurm/*.so
-pyslurm/*.c
+# Setuptools folders.
+/dist/
+/build/
 
-# Ignore vim swap files
-*.swp
+# Python egg metadata, regenerated from source files by setuptools.
+/*.egg-info
 
-# Ignore test pyc files
-tests/*.pyc
+# Hypothesis caches
+.hypothesis/
 
-# Ignore pycache (Python 3)
-*/__pycache__
+# Test coverage cache
+.coverage
 
-# Ignore job output files
-*.out
+# DS_Store
+*.DS_Store
 
-# Source distribution files
-dist
-pyslurm.egg-info
+# .png files in test_type_inference
+tests/test_type_inference/png*
 
-# IDE files
-.vscode
-.idea
+# Sphinx documentation build files
+docs/_build
