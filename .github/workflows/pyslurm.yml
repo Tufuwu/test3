@@ -4,7 +4,6 @@ jobs:
   Build:
     runs-on: ubuntu-22.04
     strategy:
-      fail-fast: false
       matrix:
         python-version:
           - "3.6"
