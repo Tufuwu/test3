@@ -1,12 +1,13 @@
-recursive-include markdown *.py
-recursive-include docs *
-recursive-include tests *.txt *.html *.py
-include setup.py
-include setup.cfg
-include makefile
-include LICENSE.md
-include README.md
-include INSTALL.md
-include MANIFEST
-include *-requirements.txt
-include mkdocs.yml
+include *.md
+include *.rst
+include *.sh
+include *.yml
+include LICENSE
+include tox.ini
+include .editorconfig
+recursive-include docs *.bat
+recursive-include docs *.py
+recursive-include docs *.rst
+recursive-include docs Makefile
+recursive-include examples *.py
+recursive-include tests *.py *.txt
