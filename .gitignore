@@ -1,23 +1,71 @@
-**/__pycache__
-*.egg
-*.egg-info
-*.pyc
-*.pyo
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
 *.so
-*.swp
-*~
-.*cache
-.DS_Store
-.idea
-.tox
-/venv*
-babel/global.dat
-babel/global.dat.json
-build
-dist
-docs/_build
-test-env
-tests/messages/data/project/i18n/en_US
-tests/messages/data/project/i18n/long_messages.pot
-tests/messages/data/project/i18n/temp*
-tests/messages/data/project/i18n/fi_BUGGY/LC_MESSAGES/*.mo
+
+# Distribution / packaging
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyInstaller
+#  Usually these files are written by a python script from a template
+#  before PyInstaller builds the exe, so as to inject date/other infos into it.
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*,cover
+.hypothesis/
+test-output.html
+
+# Translations
+*.mo
+*.pot
+
+# Scrapy stuff:
+.scrapy
+
+# PyBuilder
+target/
+
+# IPython Notebook
+.ipynb_checkpoints
+
+# pyenv
+.python-version
+
+# virtualenv
+venv/
+ENV/
+
+# MkDocs documentation
+site/

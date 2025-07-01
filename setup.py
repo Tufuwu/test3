@@ -1,96 +1,145 @@
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python
+"""
+Python Markdown
 
-import subprocess
-import sys
-from distutils.cmd import Command
+A Python implementation of John Gruber's Markdown.
 
+Documentation: https://python-markdown.github.io/
+GitHub: https://github.com/Python-Markdown/markdown/
+PyPI: https://pypi.org/project/Markdown/
+
+Started by Manfred Stienstra (http://www.dwerg.net/).
+Maintained for a few years by Yuri Takhteyev (http://www.freewisdom.org).
+Currently maintained by Waylan Limberg (https://github.com/waylan),
+Dmitry Shachnev (https://github.com/mitya57) and Isaac Muse (https://github.com/facelessuser).
+
+Copyright 2007-2018 The Python Markdown Project (v. 1.7 and later)
+Copyright 2004, 2005, 2006 Yuri Takhteyev (v. 0.2-1.6b)
+Copyright 2004 Manfred Stienstra (the original version)
+
+License: BSD (see LICENSE.md for details).
+"""
+
+
+import os
 from setuptools import setup
 
-try:
-    from babel import __version__
-except SyntaxError as exc:
-    sys.stderr.write("Unable to import Babel (%s). Are you running a supported version of Python?\n" % exc)
-    sys.exit(1)
+
+def get_version():
+    """Get version and version_info from markdown/__meta__.py file."""
+    module_path = os.path.join(os.path.dirname('__file__'), 'markdown', '__meta__.py')
+
+    import importlib.util
+    spec = importlib.util.spec_from_file_location('__meta__', module_path)
+    meta = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(meta)
+    return meta.__version__, meta.__version_info__
 
 
-class import_cldr(Command):
-    description = 'imports and converts the CLDR data'
-    user_options = []
+__version__, __version_info__ = get_version()
 
-    def initialize_options(self):
-        pass
+# Get development Status for classifiers
+dev_status_map = {
+    'dev':   '2 - Pre-Alpha',
+    'alpha': '3 - Alpha',
+    'beta':  '4 - Beta',
+    'rc':    '4 - Beta',
+    'final': '5 - Production/Stable'
+}
+DEVSTATUS = dev_status_map[__version_info__[3]]
 
-    def finalize_options(self):
-        pass
+# The command line script name.  Currently set to "markdown_py" so as not to
+# conflict with the perl implimentation (which uses "markdown").
+SCRIPT_NAME = 'markdown_py'
 
-    def run(self):
-        subprocess.check_call([sys.executable, 'scripts/download_import_cldr.py'])
+
+long_description = '''
+This is a Python implementation of John Gruber's Markdown_.
+It is almost completely compliant with the reference implementation,
+though there are a few known issues. See Features_ for information
+on what exactly is supported and what is not. Additional features are
+supported by the `Available Extensions`_.
+
+.. _Markdown: https://daringfireball.net/projects/markdown/
+.. _Features: https://Python-Markdown.github.io#features
+.. _`Available Extensions`: https://Python-Markdown.github.io/extensions/
+
+Support
+=======
+
+You may report bugs, ask for help, and discuss various other issues on
+the `bug tracker`_.
+
+.. _`bug tracker`: https://github.com/Python-Markdown/markdown/issues
+'''
 
 
 setup(
-    name='Babel',
+    name='Markdown',
     version=__version__,
-    description='Internationalization utilities',
-    long_description="""A collection of tools for internationalizing Python applications.""",
-    author='Armin Ronacher',
-    author_email='armin.ronacher@active-4.com',
-    license='BSD',
-    url='http://babel.pocoo.org/',
-
+    url='https://Python-Markdown.github.io/',
+    download_url='http://pypi.python.org/packages/source/M/Markdown/Markdown-%s-py2.py3-none-any.whl' % __version__,
+    description='Python implementation of Markdown.',
+    long_description=long_description,
+    author='Manfred Stienstra, Yuri takhteyev and Waylan limberg',
+    author_email='waylan.limberg@icloud.com',
+    maintainer='Waylan Limberg',
+    maintainer_email='waylan.limberg@icloud.com',
+    license='BSD License',
+    packages=['markdown', 'markdown.extensions'],
+    python_requires='>=3.5',
+    install_requires=["importlib_metadata;python_version<'3.8'"],
+    extras_require={
+        'testing': [
+            'coverage',
+            'pyyaml',
+        ],
+    },
+    entry_points={
+        'console_scripts': [
+            '%s = markdown.__main__:run' % SCRIPT_NAME,
+        ],
+        # Register the built in extensions
+        'markdown.extensions': [
+            'abbr = markdown.extensions.abbr:AbbrExtension',
+            'admonition = markdown.extensions.admonition:AdmonitionExtension',
+            'attr_list = markdown.extensions.attr_list:AttrListExtension',
+            'codehilite = markdown.extensions.codehilite:CodeHiliteExtension',
+            'def_list = markdown.extensions.def_list:DefListExtension',
+            'extra = markdown.extensions.extra:ExtraExtension',
+            'fenced_code = markdown.extensions.fenced_code:FencedCodeExtension',
+            'footnotes = markdown.extensions.footnotes:FootnoteExtension',
+            'md_in_html = markdown.extensions.md_in_html:MarkdownInHtmlExtension',
+            'meta = markdown.extensions.meta:MetaExtension',
+            'nl2br = markdown.extensions.nl2br:Nl2BrExtension',
+            'sane_lists = markdown.extensions.sane_lists:SaneListExtension',
+            'smarty = markdown.extensions.smarty:SmartyExtension',
+            'tables = markdown.extensions.tables:TableExtension',
+            'toc = markdown.extensions.toc:TocExtension',
+            'wikilinks = markdown.extensions.wikilinks:WikiLinkExtension',
+            'legacy_attrs = markdown.extensions.legacy_attrs:LegacyAttrExtension',
+            'legacy_em = markdown.extensions.legacy_em:LegacyEmExtension',
+        ]
+    },
     classifiers=[
-        'Development Status :: 5 - Production/Stable',
-        'Environment :: Web Environment',
-        'Intended Audience :: Developers',
+        'Development Status :: %s' % DEVSTATUS,
         'License :: OSI Approved :: BSD License',
         'Operating System :: OS Independent',
         'Programming Language :: Python',
         'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
-        'Programming Language :: Python :: 3.9',
+        'Programming Language :: Python :: 3 :: Only',
         'Programming Language :: Python :: Implementation :: CPython',
         'Programming Language :: Python :: Implementation :: PyPy',
+        'Topic :: Communications :: Email :: Filters',
+        'Topic :: Internet :: WWW/HTTP :: Dynamic Content :: CGI Tools/Libraries',
+        'Topic :: Internet :: WWW/HTTP :: Site Management',
+        'Topic :: Software Development :: Documentation',
         'Topic :: Software Development :: Libraries :: Python Modules',
-    ],
-    python_requires='>=3.6',
-    packages=['babel', 'babel.messages', 'babel.localtime'],
-    include_package_data=True,
-    install_requires=[
-        # This version identifier is currently necessary as
-        # pytz otherwise does not install on pip 1.4 or
-        # higher.
-        'pytz>=2015.7',
-    ],
-
-    cmdclass={'import_cldr': import_cldr},
-
-    zip_safe=False,
-
-    # Note when adding extractors: builtin extractors we also want to
-    # work if packages are not installed to simplify testing.  If you
-    # add an extractor here also manually add it to the "extract"
-    # function in babel.messages.extract.
-    entry_points="""
-    [console_scripts]
-    pybabel = babel.messages.frontend:main
-
-    [distutils.commands]
-    compile_catalog = babel.messages.frontend:compile_catalog
-    extract_messages = babel.messages.frontend:extract_messages
-    init_catalog = babel.messages.frontend:init_catalog
-    update_catalog = babel.messages.frontend:update_catalog
-
-    [distutils.setup_keywords]
-    message_extractors = babel.messages.frontend:check_message_extractors
-
-    [babel.checkers]
-    num_plurals = babel.messages.checkers:num_plurals
-    python_format = babel.messages.checkers:python_format
-
-    [babel.extractors]
-    ignore = babel.messages.extract:extract_nothing
-    python = babel.messages.extract:extract_python
-    javascript = babel.messages.extract:extract_javascript
-    """
+        'Topic :: Text Processing :: Filters',
+        'Topic :: Text Processing :: Markup :: HTML'
+    ]
 )

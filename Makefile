@@ -1,48 +1,63 @@
-test: import-cldr
-	@PYTHONWARNINGS=default python ${PYTHON_TEST_FLAGS} -m pytest
+# Python-Markdown makefile
 
-test-cov: import-cldr
-	@PYTHONWARNINGS=default python ${PYTHON_TEST_FLAGS} -m pytest --cov=babel
+.PHONY : help
+help:
+	@echo 'Usage: make <subcommand>'
+	@echo ''
+	@echo 'Subcommands:'
+	@echo '    install       Install Python-Markdown locally'
+	@echo '    deploy        Register and upload a new release to PyPI'
+	@echo '    build         Build a source distribution'
+	@echo '    build-win     Build a Windows exe distribution'
+	@echo '    docs          Build documentation'
+	@echo '    test          Run all tests'
+	@echo '    clean         Clean up the source directories'
 
-test-env:
-	@virtualenv test-env
-	@test-env/bin/pip install pytest
-	@test-env/bin/pip install --editable .
+.PHONY : install
+install:
+	python setup.py install
 
-clean-test-env:
-	@rm -rf test-env
+.PHONY : deploy
+deploy:
+	rm -rf build
+	rm -rf dist
+	python setup.py bdist_wheel sdist --formats gztar
+	twine upload dist/*
 
-standalone-test: import-cldr test-env
-	@test-env/bin/py.test tests
+.PHONY : build
+build:
+	rm -rf build
+	rm -rf dist
+	python setup.py bdist_wheel sdist --formats gztar
 
-clean: clean-cldr clean-pyc clean-test-env
+.PHONY : build-win
+build-win:
+	python setup.py bdist_wininst
 
-import-cldr:
-	@python scripts/download_import_cldr.py
+.PHONY : docs
+docs:
+	mkdocs build --clean
 
-clean-cldr:
-	@rm -f babel/locale-data/*.dat
-	@rm -f babel/global.dat
+.PHONY : test
+test:
+	coverage run --source=markdown -m unittest discover tests
+	coverage report --show-missing
 
-clean-pyc:
-	@find . -name '*.pyc' -exec rm {} \;
-	@find . -name '__pycache__' -type d | xargs rm -rf
-
-develop:
-	@pip install --editable .
-
-tox-test: import-cldr
-	@tox
-
-upload-docs:
-	$(MAKE) -C docs html dirhtml latex
-	$(MAKE) -C docs/_build/latex all-pdf
-	cd docs/_build/; mv html babel-docs; zip -r babel-docs.zip babel-docs; mv babel-docs html
-	rsync -a docs/_build/dirhtml/ pocoo.org:/var/www/babel.pocoo.org/docs/
-	rsync -a docs/_build/latex/Babel.pdf pocoo.org:/var/www/babel.pocoo.org/docs/babel-docs.pdf
-	rsync -a docs/_build/babel-docs.zip pocoo.org:/var/www/babel.pocoo.org/docs/babel-docs.zip
-
-release: import-cldr
-	python scripts/make-release.py
-
-.PHONY: test develop tox-test clean-pyc clean-cldr import-cldr clean release upload-docs clean-test-env standalone-test
+.PHONY : clean
+clean:
+	rm -f MANIFEST
+	rm -f test-output.html
+	rm -f *.pyc
+	rm -f markdown/*.pyc
+	rm -f markdown/extensions/*.pyc
+	rm -f *.bak
+	rm -f markdown/*.bak
+	rm -f markdown/extensions/*.bak
+	rm -f *.swp
+	rm -f markdown/*.swp
+	rm -f markdown/extensions/*.swp
+	rm -rf build
+	rm -rf dist
+	rm -rf tmp
+	rm -rf site
+	# git clean -dfx'

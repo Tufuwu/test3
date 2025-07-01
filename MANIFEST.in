@@ -1,10 +1,12 @@
-include Makefile CHANGES LICENSE AUTHORS
-include conftest.py tox.ini
-include babel/global.dat
-include babel/locale-data/*.dat
+recursive-include markdown *.py
 recursive-include docs *
-recursive-exclude docs/_build *
-include scripts/*
-recursive-include tests *
-recursive-exclude tests *.pyc
-recursive-exclude tests *.pyo
+recursive-include tests *.txt *.html *.py
+include setup.py
+include setup.cfg
+include makefile
+include LICENSE.md
+include README.md
+include INSTALL.md
+include MANIFEST
+include *-requirements.txt
+include mkdocs.yml
