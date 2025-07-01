@@ -18,7 +18,7 @@ jobs:
         python: [3.6, 3.7, 3.8, 3.9]
         cython: [0.29.24, 0.19.2]
     env:
-      SLURM: 20.02.5
+      SLURM: latest
 
     steps:
     - name: Checkout code
