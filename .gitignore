@@ -1,28 +1,62 @@
-# PyCharm configuration
-.idea/
-
-# Compiled python modules.
-*.pyc
+# Byte-compiled / optimized / DLL files
 __pycache__/
+*.py[cod]
+*$py.class
 
-# Setuptools folders.
-/dist/
-/build/
+# C extensions
+*.so
 
-# Python egg metadata, regenerated from source files by setuptools.
-/*.egg-info
+# Distribution / packaging
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
 
-# Hypothesis caches
+# PyInstaller
+#  Usually these files are written by a python script from a template
+#  before PyInstaller builds the exe, so as to inject date/other infos into it.
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*,cover
 .hypothesis/
 
-# Test coverage cache
-.coverage
+# Translations
+*.mo
+*.pot
 
-# DS_Store
-*.DS_Store
+# Django stuff:
+*.log
 
-# .png files in test_type_inference
-tests/test_type_inference/png*
+# Sphinx documentation
+docs/_build/
 
-# Sphinx documentation build files
-docs/_build
+# PyBuilder
+target/
+
+#Ipython Notebook
+.ipynb_checkpoints
