@@ -257,6 +257,7 @@ def pytest_configure(config):
         thread.join()
     if build_failed.is_set():
         raise RuntimeError("One or more docker build failed")
+    
 
     config.addinivalue_line(
         "markers",
