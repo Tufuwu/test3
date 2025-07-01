@@ -1,21 +1,37 @@
-*~
-.DS_Store
+# Ignore Build Directory #
+build/
+
+# Ignore Docs Directory #
+#doc/
+
+# Ignore Temporary Build Files #
+pyslurm/pyslurm.c
+pyslurm/bluegene.pxi
+pyslurm/slurm_version.pxi
+pyslurm/*.py~
+pyslurm/*.pyc
+pyslurm/*.pyx~
+pyslurm/*.pxi~
+pyslurm/*.pxd~
+pyslurm/*.so
+pyslurm/*.c
+
+# Ignore vim swap files
 *.swp
-*.pyc
-parser.out
-bng_files/*
-build/*
-dist/*
-doc/_build
-MANIFEST
+
+# Ignore test pyc files
+tests/*.pyc
+
+# Ignore pycache (Python 3)
+*/__pycache__
+
+# Ignore job output files
+*.out
+
+# Source distribution files
+dist
+pyslurm.egg-info
+
+# IDE files
+.vscode
 .idea
-*#
-*.#*
-*.dylib
-*.so.*
-.coverage
-setuptools*.egg
-setuptools*.zip
-*.egg-info
-.eggs
-.asv
