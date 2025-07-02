@@ -1,37 +1,39 @@
-MANIFEST
-src/*.html
-docs/_build
+# Python bytecode
+*.pyc
 
-*.py[cod]
+# distutils/distribute metadata and outputs
+pyudev.egg-info/*
+build/*
+dist/*
 
-# C extensions
-*.so
+# Sphinx outputs
+doc/_build/*
 
-# Packages
-*.egg
-*.egg-info
-dist
-build
-eggs
-.eggs
-parts
-bin
-var
-sdist
-develop-eggs
-.installed.cfg
-lib64
-__pycache__
+# Test environments and results
+.tox/*
+*-tests.xml
 
-# Installer logs
-pip-log.txt
+# Rope configuration
+.ropeproject/*
 
-# Unit test / coverage reports
+# Vagrant files
+.vagrant
+
+# coverage files
+htmlcov
 .coverage
-.hypothesis
-.cache
-.tox
-nosetests.xml
 
-# IDE
-.idea
+# pyreverse files
+_pyreverse
+
+# hypothesis files
+.hypothesis
+
+# vim
+*.swp
+
+# zip
+*.gz
+
+# pytest
+.cache

@@ -1,56 +1,92 @@
-marisa-trie |pyversions| |travis| |appveyor|
-============================================
+######
+pyudev
+######
 
-.. |pyversions| image:: https://img.shields.io/pypi/pyversions/marisa-trie.svg
-   :target: https://pypi.python.org/pypi/marisa-trie
+.. image:: https://secure.travis-ci.org/pyudev/pyudev.png?branch=develop
+   :target: http://travis-ci.org/pyudev/pyudev
 
-.. |travis| image:: https://travis-ci.org/pytries/marisa-trie.svg
-   :target: https://travis-ci.org/pytries/marisa-trie
+http://pyudev.readthedocs.org
 
-.. |appveyor| image:: https://ci.appveyor.com/api/projects/status/p887ad4jbdg6u7yo?svg=true
-   :target: https://ci.appveyor.com/project/superbobry/marisa-trie-75wx1
+pyudev is a LGPL_ licensed, pure Python_ binding for libudev_, the device and
+hardware management and information library for Linux.  It supports almost all
+libudev_ functionality. You can enumerate devices, query device properties and
+attributes or monitor devices, including asynchronous monitoring with threads,
+or within the event loops of Qt, Glib or wxPython.
 
-Static memory-efficient Trie-like structures for Python (2.7 and 3.4+)
-based on `marisa-trie`_ C++ library.
+The binding supports CPython_ 2 (2.6 or newer) and 3 (3.1 or newer), and PyPy_
+1.5 or newer.  It is tested against udev 151 or newer, earlier versions of udev
+as found on dated Linux systems may work, but are not officially supported.
 
-String data in a MARISA-trie may take up to 50x-100x less memory than
-in a standard Python dict; the raw lookup speed is comparable; trie also
-provides fast advanced methods like prefix search.
-
-.. note::
-
-    There are official SWIG-based Python bindings included
-    in C++ library distribution; this package provides alternative
-    Cython-based pip-installable Python bindings.
-
-.. _marisa-trie: https://github.com/s-yata/marisa-trie
-
-Installation
-============
-
-::
-
-    pip install marisa-trie
 
 Usage
-=====
+-----
 
-See :ref:`Tutorial <tutorial>` and :ref:`API <api>` for details.
+Usage of pyudev is quite simply thanks to the power of the underlying udev
+library. Getting the labels of all partitions just takes a few lines:
 
-Current limitations
-===================
+>>> import pyudev
+>>> context = pyudev.Context()
+>>> for device in context.list_devices(subsystem='block', DEVTYPE='partition'):
+...     print(device.get('ID_FS_LABEL', 'unlabeled partition'))
+...
+boot
+swap
+system
 
-* The library is not tested with mingw32 compiler;
-* ``.prefixes()`` method of ``BytesTrie`` and ``RecordTrie`` is quite slow
-  and doesn't have iterator counterpart;
-* ``read()`` and ``write()`` methods don't work with file-like objects
-  (they work only with real files; pickling works fine for file-like objects);
-* there are ``keys()`` and ``items()`` methods but no ``values()`` method.
+The website_ provides a detailed `user guide`_ and a complete `API reference`_.
 
-License
-=======
 
-Wrapper code is licensed under MIT License.
+Support
+-------
 
-Bundled `marisa-trie`_ C++ library is dual-licensed under
-LGPL and BSD 2-clause license.
+Please report issues and questions to the issue tracker, but respect the
+following guidelines:
+
+- Check that the issue has not already been reported.
+- Check that the issue is not already fixed in the ``master`` branch.
+- Open issues with clear title and a detailed description in grammatically
+  correct, complete sentences.
+- Include the Python version and the udev version (see ``udevadm --version``) in
+  the description of your issue.
+
+
+Development
+-----------
+
+The source code is hosted on GitHub_::
+
+   git clone git://github.com/pyudev/pyudev.git
+
+Please fork the repository and send pull requests with your fixes or new
+features, but respect the following guidelines:
+
+- Read `how to properly contribute to open source projects on GitHub
+  <http://gun.io/blog/how-to-github-fork-branch-and-pull-request/>`_.
+- Understand the `branching model
+  <http://nvie.com/posts/a-successful-git-branching-model/>`_.
+- Use a topic branch based on the ``develop`` branch to easily amend a pull
+  request later, if necessary.
+- Write `good commit messages
+  <http://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html>`_.
+- Squash commits on the topic branch before opening a pull request.
+- Respect :pep:`8` (use pep8_ to check your coding style compliance).
+- Add unit tests if possible (refer to the `testsuite documentation
+  <http://pyudev.readthedocs.org/en/latest/tests/index.html>`_).
+- Add API documentation in docstrings.
+- Open a `pull request <https://help.github.com/articles/using-pull-requests>`_
+  that relates to but one subject with a clear title and description in
+  grammatically correct, complete sentences.
+
+
+.. _LGPL: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
+.. _Python: http://www.python.org/
+.. _CPython: http://www.python.org/
+.. _PyPy: http://www.pypy.org/
+.. _libudev: http://www.kernel.org/pub/linux/utils/kernel/hotplug/libudev/
+.. _website: http://pyudev.readthedocs.org
+.. _user guide: http://pyudev.readthedocs.org/en/latest/guide.html
+.. _api reference: http://pyudev.readthedocs.org/en/latest/api/index.html
+.. _issue tracker: http://github.com/lunaryorn/pyudev/issues
+.. _GitHub: http://github.com/lunaryorn/pyudev
+.. _git: http://www.git-scm.com/
+.. _pep8: http://pypi.python.org/pypi/pep8/
