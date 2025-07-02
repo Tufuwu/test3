@@ -1,54 +1,40 @@
+#   Copyright 2020 Google
+
+#   Licensed under the Apache License, Version 2.0 (the "License");
+#   you may not use this file except in compliance with the License.
+#   You may obtain a copy of the License at
+#
+#       http://www.apache.org/licenses/LICENSE-2.0
+#
+#   Unless required by applicable law or agreed to in writing, software
+#   distributed under the License is distributed on an "AS IS" BASIS,
+#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#   See the License for the specific language governing permissions and
+#   limitations under the License.
+
+
 name: Continuous Integration
 
 on: [pull_request,push]
 
 jobs:
-  format:
-    name: Format check
-    runs-on: ubuntu-22.04
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
-        with:
-          python-version: '3.9'
-          architecture: 'x64'
-      - name: Install yapf
-        run: cat dev_tools/conf/pip-list-dev-tools.txt | grep yapf | xargs pip install
-      - name: Format
-        run: |
-          chmod +x check/format-incremental
-          check/format-incremental
-  mypy:
-    name: Type check
-    runs-on: ubuntu-16.04
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
-        with:
-          python-version: '3.9'
-          architecture: 'x64'
-      - name: Install mypy
-        run: cat dev_tools/conf/pip-list-dev-tools.txt | grep mypy | xargs pip install
-      - name: Type check
-        run: |
-          chmod +x check/mypy
-          check/mypy
-  lint:
-    name: Lint check
-    runs-on: ubuntu-22.04
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
-        with:
-          python-version: '3.9'
-          architecture: 'x64'
-      - name: Install pylint
-        run: cat dev_tools/conf/pip-list-dev-tools.txt | grep "pylint\|astroid" | grep -v "#" | xargs pip install
-      - name: Lint
-        run: |
-          chmod +x check/pylint
-          check/pylint
   pytest:
+    name: Pytest Ubuntu
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.9'
+          architecture: 'x64'
+      - name: Install requirements
+        run: |
+          pip install -r requirements.txt
+      - name: Pytest check
+        run: |
+          pip install pytest
+          pytest
+  pytest37:
     name: Pytest Ubuntu
     runs-on: ubuntu-22.04
     steps:
@@ -64,59 +50,5 @@ jobs:
           git config --global user.name ${GITHUB_ACTOR}
       - name: Pytest check
         run: |
-          chmod +x check/pytest --actually-quiet
-          check/pytest --actually-quiet
-  coverage:
-    name: Coverage check
-    runs-on: ubuntu-22.04
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
-        with:
-          python-version: '3.9'
-          architecture: 'x64'
-      - name: Install requirements
-        run: |
-          pip install -r requirements.txt
-          pip install -r dev_tools/conf/pip-list-dev-tools.txt
-          git config --global user.name ${GITHUB_ACTOR}
-      - name: Coverage check
-        run: |
-          chmod +x check/pytest-and-incremental-coverage --actually-quiet
-          check/pytest-and-incremental-coverage --actually-quiet
-  windows:
-    name: Pytest Windows
-    runs-on: windows-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
-        with:
-          python-version: '3.9'
-          architecture: 'x64'
-      - name: Install requirements
-        run: |
-          pip install -r requirements.txt
-          pip install -r dev_tools/conf/pip-list-dev-tools.txt
-      - name: Pytest Windows
-        run: |
-          chmod +x check/pytest
-          check/pytest
-        shell: bash
-  macos:
-    name: Pytest MacOS
-    runs-on: macos-10.15
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
-        with:
-          python-version: '3.9'
-          architecture: 'x64'
-      - name: Install requirements
-        run: |
-          pip install -r requirements.txt
-          pip install -r dev_tools/conf/pip-list-dev-tools.txt
-          git config --global user.name ${GITHUB_ACTOR}
-      - name: Pytest check
-        run: |
-          chmod +x check/pytest
-          check/pytest
+          pip install pytest
+          pytest

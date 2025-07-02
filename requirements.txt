@@ -1,6 +1,3 @@
-numpy>=1.11.0
-scipy>=1.1.0
-h5py>=2.8
-networkx
-pubchempy
-requests~=2.18
+openfermion>=0.5
+pyscf
+pytest

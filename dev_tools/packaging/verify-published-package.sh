@@ -15,11 +15,11 @@
 # limitations under the License.
 
 ################################################################################
-# Downloads and tests openfermion wheels from the pypi package repository. Uses the
+# Downloads and tests openfermionpyscf wheels from the pypi package repository. Uses the
 # prod pypi repository unless the --test switch is added.
 #
 # CAUTION: when targeting the test pypi repository, this script assumes that the
-# local version of openfermion has the same dependencies as the remote one (because the
+# local version of openfermionpyscf has the same dependencies as the remote one (because the
 # dependencies must be installed from the non-test pypi repository). If the
 # dependencies disagree, the tests can spuriously fail.
 #
@@ -31,7 +31,7 @@ set -e
 trap "{ echo -e '\e[31mFAILED\e[0m'; }" ERR
 
 
-PROJECT_NAME=openfermion
+PROJECT_NAME=openfermionpyscf
 PROJECT_VERSION=$1
 PROD_SWITCH=$2
 
@@ -61,7 +61,7 @@ cd "${tmp_dir}"
 trap "{ rm -rf ${tmp_dir}; }" EXIT
 
 # Test both the python 2 and python 3 versions.
-for PYTHON_VERSION in python3; do
+for PYTHON_VERSION in python2 python3; do
     # Prepare.
     RUNTIME_DEPS_FILE="${REPO_ROOT}/requirements.txt"
     echo -e "\n\e[32m${PYTHON_VERSION}\e[0m"
@@ -75,11 +75,6 @@ for PYTHON_VERSION in python3; do
     fi
     echo Installing "${PROJECT_NAME}==${PROJECT_VERSION} from ${PYPI_REPO_NAME} pypi"
     "${tmp_dir}/${PYTHON_VERSION}/bin/pip" install --quiet ${PYPI_REPOSITORY_FLAG} "${PROJECT_NAME}==${PROJECT_VERSION}"
-
-    # Check that code runs without dev deps.
-    echo Checking that code executes
-    "${tmp_dir}/${PYTHON_VERSION}/bin/python" -c "import openfermion; print(openfermion.FermionOperator((1, 1)))"
-    "${tmp_dir}/${PYTHON_VERSION}/bin/python" -c "import openfermion; print(openfermion.QubitOperator((1, 'X')))"
 
     # Run tests.
     echo Installing pytest

@@ -25,7 +25,7 @@
 #     dev_tools/packaging/produce-package.sh output_dir [version]
 ################################################################################
 
-PROJECT_NAME=openfermion
+PROJECT_NAME=openfermionpyscf
 
 set -e
 
@@ -53,7 +53,7 @@ git init --quiet
 git fetch ${repo_dir} HEAD --quiet --depth=1
 git checkout FETCH_HEAD -b work --quiet
 if [ ! -z "${SPECIFIED_VERSION}" ]; then
-    echo '__version__ = "'"${SPECIFIED_VERSION}"'"' > "${tmp_git_dir}/src/${PROJECT_NAME}/_version.py"
+    echo '__version__ = "'"${SPECIFIED_VERSION}"'"' > "${tmp_git_dir}/${PROJECT_NAME}/_version.py"
 fi
 
 # Python wheel.

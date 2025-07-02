@@ -1,17 +1,11 @@
 .DS_Store
 *lastfailed
-
-# Data files.
-*.out
-*.hdf5
-src/openfermion/data/
+*coverage
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
-.mypy_cache/*
 *.py[cod]
 *$py.class
-
 
 # C extensions
 *.so
@@ -45,6 +39,7 @@ pip-log.txt
 pip-delete-this-directory.txt
 
 # Unit test / coverage reports
+.pytest_cache/
 htmlcov/
 .tox/
 .coverage
@@ -76,16 +71,5 @@ ENV/
 
 # mkdocs documentation
 /site
+
 *.lprof
-
-# cache
-*.pytest_cache/
-
-# swap files
-*.swp
-
-# idea SDK
-.idea/
-
-# no .dat files
-*.dat

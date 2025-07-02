@@ -33,15 +33,15 @@
 #
 # Prod installation:
 #
-#     pip install openfermion==VERSION_YOU_UPLOADED
+#     pip install openfermionpyscf==VERSION_YOU_UPLOADED
 #
 # Test installation:
 #
 #     pip install -r requirements.txt
-#     pip install --index-url https://test.pypi.org/simple/ openfermion==VERSION_YOU_UPLOADED
+#     pip install --index-url https://test.pypi.org/simple/ openfermionpyscf==VERSION_YOU_UPLOADED
 ################################################################################
 
-PROJECT_NAME=openfermion
+PROJECT_NAME=openfermionpyscf
 set -e
 trap "{ echo -e '\e[31mFAILED\e[0m'; }" ERR
 
@@ -56,7 +56,7 @@ if [[ "${EXPECTED_VERSION}" != *dev* ]]; then
   echo -e "\e[31mExpected version must include 'dev'.\e[0m"
   exit 1
 fi
-ACTUAL_VERSION_LINE=$(cat "src/${PROJECT_NAME}/_version.py" | tail -n 1)
+ACTUAL_VERSION_LINE=$(cat "${PROJECT_NAME}/_version.py" | tail -n 1)
 if [ "${ACTUAL_VERSION_LINE}" != '__version__ = "'"${EXPECTED_VERSION}"'"' ]; then
   echo -e "\e[31mExpected version (${EXPECTED_VERSION}) didn't match the one in ${PROJECT_NAME}/_version.py (${ACTUAL_VERSION_LINE}).\e[0m"
   exit 1
