@@ -1,26 +1,51 @@
-import io
+#!/usr/bin/env python
 
-from setuptools import setup, find_packages
+import os
+import sys
+from setuptools import setup
 
-# This reads the __version__ variable from openfermionpyscf/_version.py
-exec(open('openfermionpyscf/_version.py').read())
+TEST_HELP = """
+Note: running tests is no longer done using 'python setup.py test'. Instead
+you will need to run:
 
-# Readme file as long_description:
-long_description = io.open('README.rst', encoding='utf-8').read()
+    tox -e test
 
-# Read in requirements.txt
-requirements = open('requirements.txt').readlines()
-requirements = [r.strip() for r in requirements]
+If you don't already have tox installed, you can install it with:
 
-setup(
-    name='openfermionpyscf',
-    version=__version__,
-    author='The OpenFermion Developers',
-    author_email='help@openfermion.org',
-    url='http://www.openfermion.org',
-    description='A plugin allowing OpenFermion to interface with PySCF.',
-    long_description=long_description,
-    install_requires=requirements,
-    license='Apache 2',
-    packages=find_packages()
-)
+    pip install tox
+
+If you only want to run part of the test suite, you can also use pytest
+directly with::
+
+    pip install -e .
+    pytest
+
+For more information, see:
+
+  http://docs.astropy.org/en/latest/development/testguide.html#running-tests
+"""
+
+if 'test' in sys.argv:
+    print(TEST_HELP)
+    sys.exit(1)
+
+DOCS_HELP = """
+Note: building the documentation is no longer done using
+'python setup.py build_docs'. Instead you will need to run:
+
+    tox -e build_docs
+
+If you don't already have tox installed, you can install it with:
+
+    pip install tox
+
+For more information, see:
+
+  http://docs.astropy.org/en/latest/install.html#builddocs
+"""
+
+if 'build_docs' in sys.argv or 'build_sphinx' in sys.argv:
+    print(DOCS_HELP)
+    sys.exit(1)
+
+setup(use_scm_version={'write_to': os.path.join('radio_beam', 'version.py')})
