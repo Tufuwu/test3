@@ -15,7 +15,9 @@ jobs:
       - name: Install yapf
         run: cat dev_tools/conf/pip-list-dev-tools.txt | grep yapf | xargs pip install
       - name: Format
-        run: check/format-incremental
+        run: |
+          chmod +x check/format-incremental
+          check/format-incremental
   mypy:
     name: Type check
     runs-on: ubuntu-16.04
@@ -28,7 +30,9 @@ jobs:
       - name: Install mypy
         run: cat dev_tools/conf/pip-list-dev-tools.txt | grep mypy | xargs pip install
       - name: Type check
-        run: check/mypy
+        run: |
+          chmod +x check/mypy
+          check/mypy
   lint:
     name: Lint check
     runs-on: ubuntu-22.04
@@ -41,7 +45,9 @@ jobs:
       - name: Install pylint
         run: cat dev_tools/conf/pip-list-dev-tools.txt | grep "pylint\|astroid" | grep -v "#" | xargs pip install
       - name: Lint
-        run: check/pylint
+        run: |
+          chmod +x check/pylint
+          check/pylint
   pytest:
     name: Pytest Ubuntu
     runs-on: ubuntu-22.04
