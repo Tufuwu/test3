@@ -19,14 +19,14 @@ jobs:
       matrix:
         include:
           # MANDATORY CHECKS USING CURRENT DEVELOPMENT INTERPRETER
-          - python-version: 3.8.6
+          - python-version: 3.8
             dependencies: >
               pytest==4.6.11
               hypothesis==4.23.8
               docutils==0.15.2
             task: PYTHONPATH=./src make -f Makefile test-travis
           # MANDATORY CHECKS USING LOWEST SUPPORTED INTERPRETER
-          - python-version: 3.6.8
+          - python-version: 3.6
             dependencies: >
               pytest==4.6.11
               hypothesis==4.23.8
@@ -51,7 +51,7 @@ jobs:
   fmt:
     env:
       TASK: fmt-travis
-      PYTHON: 3.8.6
+      PYTHON: 3.8
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -69,7 +69,7 @@ jobs:
   yamllint:
     env:
       TASK: yamllint
-      PYTHON: 3.8.6
+      PYTHON: 3.8
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
