@@ -49,6 +49,7 @@ extra_feature_requirements = {
         "sphinx-copybutton >= 0.2.5",
         "sphinx-autodoc-typehints >= 1.10.3",
         "sphinxcontrib-bibtex >= 1.0",
+        "hyperspy>=1.7,<1.8",
     ],
     "tests": ["coverage >= 5.0", "pytest >= 5.4", "pytest-cov >= 2.8.1"],
 }
