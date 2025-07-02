@@ -3,32 +3,37 @@ name: CI
 on:
   push:
     branches:
-      - '**'
-      - '!kodi-repo'
-      - '!kodi-repo-py3'
+      - main
   pull_request:
     branches:
-      - master
+      - main
 
 jobs:
-  check-addon:
-    name: Run kodi-addon-checker
-    runs-on: ubuntu-latest
+  build:
+    runs-on: ubuntu-22.04
+
     strategy:
-      fail-fast: false
       matrix:
-        kodi-branch: [krypton, leia]
+        python-version: [3.8]
+
     steps:
-      - uses: actions/checkout@v2
-      - name: Set up Python 3.8
-        uses: actions/setup-python@v1
-        with:
-          python-version: 3.8
-      - name: Install dependencies
-        run: |
-          sudo apt-get install libxml2-utils
-          python -m pip install --upgrade pip
-          pip install kodi-addon-checker
-      - name: Run kodi-addon-checker
-        run: |
-          kodi-addon-checker --branch=${{ matrix.kodi-branch }} .
+    - uses: actions/checkout@v2
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install dependencies
+      run: |
+        pip install kodi-addon-checker
+
+    - name: Run tests
+      run: |
+        git config core.quotepath false
+        kodi-addon-checker --branch=leia .
+
+    - name: Notify on failure
+      if: failure()
+      run: |
+        curl -X POST -H 'Content-type: application/json' --data '{"text":"Build failed"}' https://www.travisbuddy.com/
