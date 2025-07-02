@@ -1,52 +1,37 @@
-.. Launch binder
-.. image:: https://mybinder.org/badge_logo.svg
-    :target: https://mybinder.org/v2/gh/pyxem/kikuchipy/HEAD
-    :alt: Launch binder
+|build_status|_ |Coveralls|_ |docs|_ |pypi_version|_  |downloads|_ |black|_ |doi|_
 
-.. Read the Docs
-.. image:: https://readthedocs.org/projects/kikuchipy/badge/?version=latest
-    :target: https://kikuchipy.org/en/latest/
-    :alt: Documentation status
+.. |build_status| image:: https://github.com/pyxem/orix/workflows/build/badge.svg
+.. _build_status: https://github.com/pyxem/orix/actions
 
-.. GitHub Actions
-.. image:: https://github.com/pyxem/kikuchipy/workflows/build/badge.svg
-    :target: https://github.com/pyxem/kikuchipy/actions
-    :alt: Build status
+.. |Coveralls| image:: https://coveralls.io/repos/github/pyxem/orix/badge.svg?branch=master
+.. _Coveralls: https://coveralls.io/github/pyxem/orix?branch=master
 
-.. Coveralls
-.. image:: https://img.shields.io/coveralls/github/pyxem/kikuchipy.svg
-    :target: https://coveralls.io/github/pyxem/kikuchipy?branch=master
-    :alt: Coveralls status
+.. |docs| image:: https://readthedocs.org/projects/orix/badge/?version=latest
+.. _docs: https://orix.readthedocs.io/en/latest
 
-.. PyPI version
-.. image:: https://img.shields.io/pypi/v/kikuchipy.svg
-    :target: https://pypi.python.org/pypi/kikuchipy
-    :alt: PyPI version
+.. |pypi_version| image:: http://img.shields.io/pypi/v/orix.svg?style=flat
+.. _pypi_version: https://pypi.python.org/pypi/orix
 
-.. Downloads per month
-.. image:: https://static.pepy.tech/personalized-badge/kikuchipy?period=month&left_color=grey&right_color=yellow&left_text=downloads/month
-    :target: https://pepy.tech/project/kikuchipy
-    :alt: Downloads per month
+.. |downloads| image:: https://anaconda.org/conda-forge/orix/badges/downloads.svg
+.. _downloads: https://anaconda.org/conda-forge/orix
 
-.. Zenodo DOI
-.. image:: https://zenodo.org/badge/doi/10.5281/zenodo.3597646.svg
-    :target: https://doi.org/10.5281/zenodo.3597646
-    :alt: DOI
+.. |black| image:: https://img.shields.io/badge/code%20style-black-000000.svg
+.. _black: https://github.com/psf/black
 
-kikuchipy is an open-source Python library for processing and analysis of
-electron backscatter diffraction (EBSD) patterns.
+.. |doi| image:: https://zenodo.org/badge/DOI/10.5281/zenodo.3459662.svg
+.. _doi: https://doi.org/10.5281/zenodo.3459662
 
-The library builds on the tools for multi-dimensional data analysis provided
-by the HyperSpy library. An effort is made to keep memory usage in check and
-enable scalability by using the Dask library for pattern processing.
+orix is an open-source python library for analysing orientations and crystal symmetry.
 
-The project is in an **alpha** stage, so there will likely be breaking changes
-with each release...
+The package defines objects and functions for the analysis of orientations represented
+as quaternions or 3D rotation vectors accounting for crystal symmetry. Functionality
+builds primarily on top of `numpy <http://www.numpy.org/>`__ and
+`matplotlib <https://matplotlib.org/>`__ and is heavily inspired by the
+`MATLAB <https://www.mathworks.com/products/matlab.html>`__ package
+`MTEX <http://mtex-toolbox.github.io/>`__.
 
-kikuchipy is released under the GPLv3+ license.
+If analysis using orix forms a part of published work please cite the manuscript at the
+following `link <https://onlinelibrary.wiley.com/iucr/doi/10.1107/S1600576720011103>`_.
+You can also find demos in the `orix-demos <https://github.com/pyxem/orix-demos>`_ repo.
 
-- User guide: https://kikuchipy.org, or launch Binder, visit ``doc/`` and run
-  the Jupyter Notebooks
-- Contributing: https://kikuchipy.org/en/latest/contributing.html
-- Code of Conduct: https://kikuchipy.org/en/latest/code_of_conduct.html
-- Cite: If you find this project useful, please cite the DOI above.
+orix is released under the GPL v3 license.

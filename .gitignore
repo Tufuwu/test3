@@ -9,8 +9,7 @@ __pycache__/
 # Distribution / packaging
 .Python
 env/
-#doc/build/
-#doc/Makefile
+build/
 develop-eggs/
 dist/
 downloads/
@@ -21,6 +20,7 @@ lib64/
 parts/
 sdist/
 var/
+wheels/
 *.egg-info/
 .installed.cfg
 *.egg
@@ -35,7 +35,7 @@ var/
 pip-log.txt
 pip-delete-this-directory.txt
 
-# Unit tests / coverage reports
+# Unit test / coverage reports
 htmlcov/
 .tox/
 .coverage
@@ -43,9 +43,9 @@ htmlcov/
 .cache
 nosetests.xml
 coverage.xml
-*,cover
+*.cover
 .hypothesis/
-tests/result_images/
+.pytest_cache/
 
 # Translations
 *.mo
@@ -64,14 +64,15 @@ instance/
 
 # Sphinx documentation
 doc/_build/
+doc/build/
+doc/source/_autosummary/
 
 # PyBuilder
 target/
 
-# IPython Notebook
+# Jupyter Notebook
 .ipynb_checkpoints
-*-test.ipynb
-doc/_static/*/*/*.ipynb
+*.ipynb
 
 # pyenv
 .python-version
@@ -79,28 +80,33 @@ doc/_static/*/*/*.ipynb
 # celery beat schedule file
 celerybeat-schedule
 
+# SageMath parsed files
+*.sage.py
+
 # dotenv
 .env
 
 # virtualenv
-.venv/
+.venv
 venv/
-testenv/
 ENV/
 
 # Spyder project settings
 .spyderproject
+.spyproject
 
 # Rope project settings
 .ropeproject
 
 # PyCharm project settings
-.idea/
+.idea
 
-# Visual Studo Code
-.vscode/
+# mkdocs documentation
+/site
+
+# mypy
+.mypy_cache/
+
+# Visual Studio Code
 *.code-workspace
-
-#auto changing files
-build/
-src/
+.vscode
