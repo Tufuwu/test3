@@ -1,53 +1,47 @@
-from setuptools import setup, find_packages
+from setuptools import find_packages, setup
 
-try:
-    import pypandoc
-    long_description = pypandoc.convert('README.md', 'rst', 'md')
-except ImportError:
-    print("Warning: pypandoc module not found, could not convert Markdown to RST")
-    long_description = open('README.md', 'r').read()
-
-
-def _is_requirement(line):
-    """Returns whether the line is a valid package requirement."""
-    line = line.strip()
-    return line and not (line.startswith("-r") or line.startswith("#"))
-
-
-def _read_requirements(filename):
-    """Returns a list of package requirements read from the file."""
-    requirements_file = open(filename).read()
-    return [line.strip() for line in requirements_file.splitlines()
-            if _is_requirement(line)]
-
-
-required_packages = _read_requirements("requirements/base.txt")
-test_packages = _read_requirements("requirements/tests.txt")
+version = "0.9"
 
 setup(
-    name='rapidpro-python',
-    version=__import__('temba_client').__version__,
-    description='Python client library for the RapidPro',
-    long_description=long_description,
-
-    keywords='rapidpro client',
-    url='https://github.com/rapidpro',
-    license='BSD',
-
-    author='Nyaruka',
-    author_email='code@nyaruka.com',
-
-    classifiers=[
-        'Development Status :: 5 - Production/Stable',
-        'Intended Audience :: Developers',
-        'Topic :: Software Development :: Libraries',
-        'License :: OSI Approved :: BSD License',
-        'Programming Language :: Python :: 3',
+    name="rapydo",
+    version=version,
+    description="Manage and deploy projects based on RAPyDo framework",
+    url="https://rapydo.github.io/docs",
+    license="MIT",
+    packages=find_packages(where=".", exclude=["tests*"]),
+    package_data={"controller": ["templates/*", "confs/*"]},
+    python_requires=">=3.6.0",
+    entry_points={
+        "console_scripts": ["rapydo=controller.__main__:main"],
+    },
+    # Remember to update mypy.additional_dependencies
+    install_requires=[
+        "docker-compose==1.27.4",
+        "dockerfile-parse==1.0.0",
+        "python-dateutil",
+        "pytz",
+        "loguru",
+        "prettyprinter",
+        "jinja2",
+        "sultan==0.9.1",
+        "plumbum",
+        "glom",
+        "GitPython==3.1.11",
+        "PyYAML==5.3.1",
+        "pip>=10.0.0",
+        "typer[all]==0.3.2",
     ],
-
-    packages=find_packages(),
-    install_requires=required_packages,
-
-    test_suite='nose.collector',
-    tests_require=required_packages + test_packages,
+    keywords=["http", "api", "rest", "web", "backend", "rapydo"],
+    classifiers=[
+        "Programming Language :: Python",
+        "Intended Audience :: Developers",
+        "Development Status :: 3 - Alpha",
+        "License :: OSI Approved :: MIT License",
+        # End-of-life: 2021-12-23
+        "Programming Language :: Python :: 3.6",
+        # End-of-life: 2023-06-27
+        "Programming Language :: Python :: 3.7",
+        # End-of-life: 2024-10
+        "Programming Language :: Python :: 3.8",
+    ],
 )
