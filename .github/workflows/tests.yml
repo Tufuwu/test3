@@ -29,7 +29,9 @@ jobs:
         uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python }}
-      - name: Install test dependencies
+      - name: |
+          sudo apt-get update && sudo apt-get install -y libmarisa-dev
+          Install test dependencies
         run: python -m pip install ".[test]"
       - name: Test
         run: python -m pytest

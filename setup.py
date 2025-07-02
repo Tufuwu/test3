@@ -10,8 +10,6 @@ from setuptools import setup, Extension
 tests_require = [
     "pytest",
     "hypothesis",
-    "libmarisa-dev",
-    
 ]
 install_requires = [
     "setuptools",
