@@ -1,83 +1,112 @@
-# This code is part of Qiskit
-#
-# (C) Copyright IBM 2017.
-#
-# This code is licensed under the Apache License, Version 2.0. You may
-# obtain a copy of this license in the LICENSE.txt file in the root directory
-# of this source tree or at http://www.apache.org/licenses/LICENSE-2.0.
-#
-# Any modifications or derivative works of this code must retain this
-# copyright notice, and modified files need to carry a notice indicating
-# that they have been altered from the originals.
-
-# Copyright 2019-2020 Honeywell, Intl. (www.honeywell.com)
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
-import setuptools
+# Use setuptools in preference to distutils
+from setuptools import setup, find_packages
 import os
 
-with open("README.md", "r") as fh:
-    long_description = fh.read()
+#-Write Versions File-#
 
-requirements = [
-    'nest-asyncio>=1.2.0',
-    'qiskit-terra>=0.10',
-    'requests>=2.19',
-    'websockets>=7'
+VERSION = '0.4.8'
+
+def write_version_py(filename=None):
+    """
+    This constructs a version file for the project
+    """
+    doc = "\"\"\"\nThis is a VERSION file and should NOT be manually altered\n\"\"\""
+    doc += "\nversion = '%s'\n" % VERSION
+
+    if not filename:
+        filename = os.path.join(os.path.dirname(__file__), 'quantecon', 'version.py')
+
+    fl = open(filename, 'w')
+    try:
+        fl.write(doc)
+    finally:
+        fl.close()
+
+write_version_py()  # This is a file used to control the qe.__version__ attribute
+
+#-Meta Information-#
+#~~~~~~~~~~~~~~~~~~#
+
+DESCRIPTION = "QuantEcon is a package to support all forms of quantitative economic modelling."       #'Core package of the QuantEcon library'
+
+LONG_DESCRIPTION = """
+**QuantEcon** is an organization run by economists for economists with the aim of coordinating
+distributed development of high quality open source code for all forms of quantitative economic modelling.
+
+The project website is located at `http://quantecon.org/ <http://quantecon.org/>`_. This website provides
+more information with regards to the **quantecon** library, documentation, in addition to some resources
+in regards to how you can use and/or contribute to the package.
+
+The **quantecon** Package
+-------------------------
+
+The `repository <https://github.com/QuantEcon/QuantEcon.py>`_ includes the Python package ``quantecon``
+
+Assuming you have `pip <https://pypi.python.org/pypi/pip>`_ on your computer --- as will be the case if you've `installed Anaconda <http://quant-econ.net/getting_started.html#installing-anaconda>`_ --- you can install the latest stable release of ``quantecon`` by typing
+
+    pip install quantecon
+
+at a terminal prompt
+
+Repository
+----------
+
+The main repository is hosted on Github `QuantEcon.py <https://github.com/QuantEcon/QuantEcon.py>`_
+
+**Note:** There is also a Julia version available for Julia users `QuantEcon.jl <https://github.com/QuantEcon/QuantEcon.jl>`_
+
+Current Build and Coverage Status
+---------------------------------
+
+|Build Status| |Coverage Status|
+
+.. |Build Status| image:: https://travis-ci.org/QuantEcon/QuantEcon.py.svg?branch=master
+   :target: https://travis-ci.org/QuantEcon/QuantEcon.py
+.. |Coverage Status| image:: https://coveralls.io/repos/QuantEcon/QuantEcon.py/badge.png
+   :target: https://coveralls.io/r/QuantEcon/QuantEcon.py
+
+Additional Links
+----------------
+
+1. `QuantEcon Course Website <http://quant-econ.net>`_
+
+"""
+
+LICENSE = "BSD"
+
+#-Classifier Strings-#
+#-https://pypi.python.org/pypi?%3Aaction=list_classifiers-#
+CLASSIFIERS = [
+    'Development Status :: 4 - Beta',
+    'Operating System :: OS Independent',
+    'Intended Audience :: Science/Research',
+    'Programming Language :: Python',
+    'Programming Language :: Python :: 3',
+    'Programming Language :: Python :: 3.5',
+    'Topic :: Scientific/Engineering',
 ]
 
-version_path = os.path.abspath(os.path.join(
-    os.path.dirname(__file__), 'qiskit', 'providers', 'honeywell',
-    'VERSION.txt'))
+#-Setup-#
+#~~~~~~~#
 
-with open(version_path, 'r') as fd:
-    version_str = fd.read().rstrip()
-
-setuptools.setup(
-    name="qiskit-honeywell-provider",
-    version=version_str,
-    author="Honeywell",
-    author_email="dominic.lucchetti@honeywell.com",
-    license="Apache 2.0",
-    description="Qiskit provider for accessing the quantum devices at Honeywell",
-    long_description=long_description,
-    long_description_content_type='text/markdown',
-    url="https://github.com/qiskit-community/qiskit-honeywell-provider",
-    packages=setuptools.find_namespace_packages(include=['qiskit.*']),
-    install_requires=requirements,
-    python_requires=">=3.5",
-    include_package_data=True,
-    keywords="qiskit quantum",
-    project_urls={
-        "Bug Tracker": "https://github.com/qiskit-community/qiskit-honeywell-provider/issues",
-        "Documentation": "https://qiskit.org/documentation/",
-        "Source Code": "https://github.com/qiskit-community/qiskit-honeywell-provider"
-    },
-    classifiers=[
-        "License :: OSI Approved :: Apache Software License",
-        "Intended Audience :: Developers",
-        "Intended Audience :: Science/Research",
-        "Operating System :: OS Independent",
-        "Operating System :: Microsoft :: Windows",
-        "Operating System :: MacOS",
-        "Operating System :: POSIX :: Linux",
-        "Programming Language :: Python :: 3 :: Only",
-        "Programming Language :: Python :: 3.5",
-        "Programming Language :: Python :: 3.6",
-        "Programming Language :: Python :: 3.7",
-        "Programming Language :: Python :: 3.8",
-        "Topic :: Scientific/Engineering"
-    ],
-    zip_safe=False,
-)
+setup(name='quantecon',
+      packages=find_packages(),
+      version=VERSION,
+      description=DESCRIPTION,
+      long_description=LONG_DESCRIPTION,
+      license=LICENSE,
+      classifiers=CLASSIFIERS,
+      author='Thomas J. Sargent and John Stachurski (Project coordinators)',
+      author_email='john.stachurski@gmail.com',
+      url='https://github.com/QuantEcon/QuantEcon.py',  # URL to the repo
+      download_url='https://github.com/QuantEcon/QuantEcon.py/tarball/' + VERSION,
+      keywords=['quantitative', 'economics'],
+      install_requires=[
+          'numba>=0.38',
+          'numpy',
+          'requests',
+          'scipy>=1.0.0',
+          'sympy',
+          ],
+      include_package_data=True
+      )

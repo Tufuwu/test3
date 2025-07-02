@@ -1,1 +1,3 @@
-include qiskit/providers/honeywell/VERSION.txt
+include README.md	
+include LICENSE.txt
+recursive-include quantecon/tests/data *

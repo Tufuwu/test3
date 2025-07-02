@@ -4,5 +4,3 @@ requests>=2.19
 websockets>=7
 pyjwt>=1.7.1
 keyring>=10.6.0
-qiskit==0.33.0
-qiskit-aqt-provider==0.4.1
