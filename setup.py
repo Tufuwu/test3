@@ -41,7 +41,7 @@ setup(
         "diffpy.structure >= 3",
         "h5py",
         "matplotlib >= 3.3",
-        "numpy",
+        "numpy==1.19.5",
         "scipy",
         "tqdm",
     ],
