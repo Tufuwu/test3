@@ -1,68 +1,62 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
+# Copyright (c) 2017-2020 Renata Hodovan, Akos Kiss.
+#
+# Licensed under the BSD 3-Clause License
+# <LICENSE.rst or https://opensource.org/licenses/BSD-3-Clause>.
+# This file may not be copied, modified, or distributed except
+# according to those terms.
+
+from setuptools import find_packages, setup
 
 
-import os
+def grammarinator_version():
+    def _version_scheme(version):
+        return version.format_with('{tag}')
 
-import distutils.command.sdist
-from distutils.core import setup
-from distutils.command.install import INSTALL_SCHEMES
+    def _local_scheme(version):
+        if version.exact and not version.dirty:
+            return ''
+        parts = ['{distance}'.format(distance=version.distance)]
+        if version.node:
+            parts.append('{node}'.format(node=version.node))
+        if version.dirty:
+            parts.append('d{time:%Y%m%d}'.format(time=version.time))
+        return '+{parts}'.format(parts='.'.join(parts))
 
-
-# override default tarball format with bzip2
-distutils.command.sdist.sdist.default_format = {"posix": "bztar"}
-
-# force to install data files to site-packages
-for scheme in INSTALL_SCHEMES.values():
-    scheme["data"] = scheme["purelib"]
-
-# recursively scan for python modules to be included
-package_root_dirs = ["kobo"]
-packages = set()
-package_data = {}
-for package_root_dir in package_root_dirs:
-    for root, dirs, files in os.walk(package_root_dir):
-        # ignore PEP 3147 cache dirs and those whose names start with '.'
-        dirs[:] = [i for i in dirs if not i.startswith('.') and i != '__pycache__']
-        parts = root.split("/")
-        if "__init__.py" in files:
-            package = ".".join(parts)
-            packages.add(package)
-            relative_path = ""
-        elif files:
-            relative_path = []
-            while ".".join(parts) not in packages:
-                relative_path.append(parts.pop())
-            if not relative_path:
-                continue
-            relative_path.reverse()
-            relative_path = os.path.join(*relative_path)
-            package = ".".join(parts)
-        else:
-            # not a module, no files -> skip
-            continue
-
-        package_files = package_data.setdefault(package, [])
-        package_files.extend([os.path.join(relative_path, i) for i in files if not i.endswith(".py")])
-
-
-packages = sorted(packages)
-for package in package_data.keys():
-    package_data[package] = sorted(package_data[package])
+    return { 'version_scheme': _version_scheme, 'local_scheme': _local_scheme }
 
 
 setup(
-    name            = "kobo",
-    version         = "0.20.2",
-    description     = "A pile of python modules used by Red Hat release engineering to build their tools",
-    url             = "https://github.com/release-engineering/kobo/",
-    author          = "Red Hat, Inc.",
-    author_email    = "dmach@redhat.com",
-    license         = "LGPLv2.1",
-
-    packages        = packages,
-    package_data    = package_data,
-    scripts         = ["kobo/admin/kobo-admin"],
-    install_requires=["six"],
-    python_requires ='>2.6',
+    name='grammarinator',
+    packages=find_packages(),
+    url='https://github.com/renatahodovan/grammarinator',
+    license='BSD',
+    author='Renata Hodovan, Akos Kiss',
+    author_email='hodovan@inf.u-szeged.hu, akiss@inf.u-szeged.hu',
+    description='Grammarinator: Grammar-based Random Test Generator',
+    long_description=open('README.rst').read(),
+    install_requires=['antlerinator==4.8', 'autopep8', 'jinja2', 'setuptools'],
+    zip_safe=False,
+    include_package_data=True,
+    setup_requires=['setuptools_scm'],
+    use_scm_version=grammarinator_version,
+    entry_points={
+        'console_scripts': [
+            'grammarinator-process = grammarinator.process:execute',
+            'grammarinator-generate = grammarinator.generate:execute',
+            'grammarinator-parse = grammarinator.parse:execute',
+        ]
+    },
+    classifiers=[
+        'Intended Audience :: Developers',
+        'License :: OSI Approved :: BSD License',
+        'Operating System :: OS Independent',
+        'Programming Language :: Python',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
+        'Topic :: Software Development :: Code Generators',
+        'Topic :: Software Development :: Testing',
+    ],
 )
