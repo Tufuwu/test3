@@ -1,3 +1,8 @@
-include README.md	
-include LICENSE.txt
-recursive-include quantecon/tests/data *
+include LICENSE
+include MANIFEST.in
+include NOTICE
+include README.rst
+include requirements.txt
+include setup.py
+include examples/*.py examples/*.ipynb
+recursive-include src *.py *.hdf5 *.npy bad_type_operator.data geometry_example.txt
