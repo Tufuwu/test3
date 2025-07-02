@@ -1,10 +1,6 @@
-include LICENSE AUTHORS README.md README.rst
-
-exclude .travis.yml
-exclude dev-requirements.txt
-
-global-exclude *.py[co]
-
-prune tests
-prune docs/_build
-prune .github
+include README.md CHANGELOG.txt LICENSE.txt CONTRIBUTING.txt AUTHORS.txt MANIFEST.in setup.py .gitignore
+include raysect/VERSION
+global-exclude *.c
+recursive-include raysect *.py *.pyx *.pxd *.csv *.json
+recursive-include demos *.py *.pyx *.pxd *.csv *.obj *.rsm
+recursive-include docs *
