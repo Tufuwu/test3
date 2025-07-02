@@ -1,5 +1,10 @@
-include *.py
-include *.rst
-include *.txt
-recursive-include tests/test_data *
-include tests/*.py
+include AUTHORS
+include INSTALL
+include COPYING
+include LICENSE
+include MANIFEST.in
+include README.md
+include Makefile
+recursive-include kobo *.py *.conf *.json *.sql *.html *.css *.js *.png *.wsgi *.example *.template kobo-admin __*__
+recursive-include scripts *.py *.sh
+recursive-include tests *

@@ -1,5 +1,9 @@
-*.pyc
-*.wpr
-*.wpu
-*.egg-info
-*.egg
+*.py[co]
+build/*
+dist/*
+MANIFEST
+.spyderproject
+*.un~
+.tox/
+**/.pytest_cache/
+/testdatabase
