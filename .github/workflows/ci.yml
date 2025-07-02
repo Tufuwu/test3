@@ -63,7 +63,9 @@ jobs:
           pip install -r dev_tools/conf/pip-list-dev-tools.txt
           git config --global user.name ${GITHUB_ACTOR}
       - name: Pytest check
-        run: check/pytest --actually-quiet
+        run: |
+          chmod +x check/pytest --actually-quiet
+          check/pytest --actually-quiet
   coverage:
     name: Coverage check
     runs-on: ubuntu-22.04
@@ -79,7 +81,9 @@ jobs:
           pip install -r dev_tools/conf/pip-list-dev-tools.txt
           git config --global user.name ${GITHUB_ACTOR}
       - name: Coverage check
-        run: check/pytest-and-incremental-coverage --actually-quiet
+        run: |
+          chmod +x check/pytest-and-incremental-coverage --actually-quiet
+          check/pytest-and-incremental-coverage --actually-quiet
   windows:
     name: Pytest Windows
     runs-on: windows-latest
@@ -94,7 +98,9 @@ jobs:
           pip install -r requirements.txt
           pip install -r dev_tools/conf/pip-list-dev-tools.txt
       - name: Pytest Windows
-        run: check/pytest
+        run: |
+          chmod +x check/pytest
+          check/pytest
         shell: bash
   macos:
     name: Pytest MacOS
@@ -111,4 +117,6 @@ jobs:
           pip install -r dev_tools/conf/pip-list-dev-tools.txt
           git config --global user.name ${GITHUB_ACTOR}
       - name: Pytest check
-        run: check/pytest
+        run: |
+          chmod +x check/pytest
+          check/pytest
