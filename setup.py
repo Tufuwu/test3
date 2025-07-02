@@ -49,7 +49,6 @@ extra_feature_requirements = {
         "sphinx-copybutton >= 0.2.5",
         "sphinx-autodoc-typehints >= 1.10.3",
         "sphinxcontrib-bibtex >= 1.0",
-        "hyperspy>=1.7,<1.8",
     ],
     "tests": ["coverage >= 5.0", "pytest >= 5.4", "pytest-cov >= 2.8.1"],
 }
@@ -116,8 +115,8 @@ setup(
     extras_require=extra_feature_requirements,
     install_requires=[
         "dask[array] >= 2.14",
-        "diffsims >= 0.3",
-        "hyperspy >= 1.5.2",
+        "diffsims == 0.8.2",
+        "hyperspy>=1.7,<1.8",
         "h5py >= 2.10",
         "matplotlib >= 3.2",
         "numpy >= 1.18",
