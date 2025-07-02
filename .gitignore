@@ -1,9 +1,3 @@
-*.pyo
 *.pyc
-*.udm
-#/**/Thumbs.db
-/**/*.lnk
-.scannerwork/**
-
-/debugrun.py
-/apiserver.py
+.coverage
+htmlcov/
