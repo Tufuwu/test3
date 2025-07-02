@@ -1,39 +1,19 @@
-# Python bytecode
-*.pyc
+# Byte-compiled / DLL / optimized files...
+__pycache__/
 
-# distutils/distribute metadata and outputs
-pyudev.egg-info/*
-build/*
-dist/*
+# OSX
+.DS_STORE
 
-# Sphinx outputs
-doc/_build/*
+# Jupyter notebook
+*.ipynb_checkpoints/
 
-# Test environments and results
-.tox/*
-*-tests.xml
+# nbsite output
+builtdocs/
+doc/tools.rst
+doc/_static/cache/
 
-# Rope configuration
-.ropeproject/*
-
-# Vagrant files
-.vagrant
-
-# coverage files
-htmlcov
-.coverage
-
-# pyreverse files
-_pyreverse
-
-# hypothesis files
-.hypothesis
-
-# vim
-*.swp
-
-# zip
-*.gz
+# doit
+.doit.db
 
 # pytest
-.cache
+.pytest_cache
