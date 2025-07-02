@@ -1,51 +1,53 @@
-#!/usr/bin/env python
+from setuptools import setup, find_packages
 
-import os
-import sys
-from setuptools import setup
+try:
+    import pypandoc
+    long_description = pypandoc.convert('README.md', 'rst', 'md')
+except ImportError:
+    print("Warning: pypandoc module not found, could not convert Markdown to RST")
+    long_description = open('README.md', 'r').read()
 
-TEST_HELP = """
-Note: running tests is no longer done using 'python setup.py test'. Instead
-you will need to run:
 
-    tox -e test
+def _is_requirement(line):
+    """Returns whether the line is a valid package requirement."""
+    line = line.strip()
+    return line and not (line.startswith("-r") or line.startswith("#"))
 
-If you don't already have tox installed, you can install it with:
 
-    pip install tox
+def _read_requirements(filename):
+    """Returns a list of package requirements read from the file."""
+    requirements_file = open(filename).read()
+    return [line.strip() for line in requirements_file.splitlines()
+            if _is_requirement(line)]
 
-If you only want to run part of the test suite, you can also use pytest
-directly with::
 
-    pip install -e .
-    pytest
+required_packages = _read_requirements("requirements/base.txt")
+test_packages = _read_requirements("requirements/tests.txt")
 
-For more information, see:
+setup(
+    name='rapidpro-python',
+    version=__import__('temba_client').__version__,
+    description='Python client library for the RapidPro',
+    long_description=long_description,
 
-  http://docs.astropy.org/en/latest/development/testguide.html#running-tests
-"""
+    keywords='rapidpro client',
+    url='https://github.com/rapidpro',
+    license='BSD',
 
-if 'test' in sys.argv:
-    print(TEST_HELP)
-    sys.exit(1)
+    author='Nyaruka',
+    author_email='code@nyaruka.com',
 
-DOCS_HELP = """
-Note: building the documentation is no longer done using
-'python setup.py build_docs'. Instead you will need to run:
+    classifiers=[
+        'Development Status :: 5 - Production/Stable',
+        'Intended Audience :: Developers',
+        'Topic :: Software Development :: Libraries',
+        'License :: OSI Approved :: BSD License',
+        'Programming Language :: Python :: 3',
+    ],
 
-    tox -e build_docs
+    packages=find_packages(),
+    install_requires=required_packages,
 
-If you don't already have tox installed, you can install it with:
-
-    pip install tox
-
-For more information, see:
-
-  http://docs.astropy.org/en/latest/install.html#builddocs
-"""
-
-if 'build_docs' in sys.argv or 'build_sphinx' in sys.argv:
-    print(DOCS_HELP)
-    sys.exit(1)
-
-setup(use_scm_version={'write_to': os.path.join('radio_beam', 'version.py')})
+    test_suite='nose.collector',
+    tests_require=required_packages + test_packages,
+)

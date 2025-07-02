@@ -1,76 +1,104 @@
-Radio Beam
-==========
+Welcome to rapidpro-python's documentation!
+===========================================
 
-A tool for manipulating and utilizing two dimensional gaussian beams within the
-`astropy <http://www.astropy.org>`__ framework.
+This is the official Python client library for `RapidPro <http://rapidpro.github.io/rapidpro/>`_. The current stable API
+version is 2.
+
+To create a :class:`temba_client.v2.TembaClient` instance, you need to know the name of the host server, and your API token.
+If you don't know your API token then visit the `API Explorer <http://rapidpro.io/api/v2/explorer>`_. For example:
+
+.. code-block:: python
+
+    from temba_client.v2 import TembaClient
+    client = TembaClient('rapidpro.io', <YOUR-API-TOKEN>)
+
+Alternatively you can create a client from the complete URL of the API root. You can use this if you need to connect to
+a local RapidPro instance that doesn't use SSL. For example:
+
+.. code-block:: python
+
+    client = TembaClient('http://localhost:8000/api/v2', <YOUR-API-TOKEN>)
+
+Fetching Objects
+----------------
+
+For each type, the client provides a `get_` method for fetching a set of matching objects. If you want a single object
+then query using the unique identifier for that type. For most types this will be a UUID. However for broadcasts,
+messages and flow runs, this will be an integer id, and for fields this will be the key name.
+
+You can then use the `.first()` to resolve that to a single object, or `None` if no such object exists. For example:
+
+.. code-block:: python
+
+    contact = client.get_contacts(uuid='cc276708-7752-4b52-a4ea-d3264847220e').first()
+    message = client.get_messages(id=12345).first()
+    field = client.get_fields(key='age').first()
+
+You can also use `.all()` to fetch all of the matching objects. For example:
+
+.. code-block:: python
+
+    contacts = client.get_contacts(group='Reporters').all()
+    messages = client.get_messages(folder='Inbox').all()
+    fields = client.get_fields().all()
+
+However such calls may require multiple API requests behind the scenes and take a long time to return depending on how
+many objects match the query. For this reason `.all()` should be used with caution. If you know that the number of
+objects is going to be high, it is better to use `.iterfetches()` to iterate over each individual request to the API.
+For example:
+
+.. code-block:: python
+
+   for contact_batch in client.get_contacts(group='Reporters').iterfetches():
+     for contact in contact_batch:
+       # do something with this contact...
+
+Rate Limiting
+-------------
+
+API v2 introduces rate limits which are currently 2500 requests per hour but may change in the future. If you exceed
+the number of requests for your organization, then the next client call you make will throw a `TembaRateExceededError`
+exception. The exception will have a `retry_after` attribute which is the number of seconds you should wait for before
+making another call.
+
+For convenience the client can handle rate errors by sleeping and retrying after the specified period. For example:
+
+.. code-block:: python
+
+   contacts = client.get_contacts(group='Reporters').all(retry_on_rate_exceed=True):
+
+Error Handling
+--------------
+
+If an API request causes a validation error in RapidPro, the client call will raise a `TembaBadRequestError` which will
+contain the error messages for each field.
+
+.. code-block:: python
+
+    try:
+        client.update_label('invalid-uuid', name="Test", parent=None)
+    except TembaBadRequestError as ex:
+        for field, field_errors = ex.errors.iteritems():
+            for field_error in field_errors:
+                # TODO do something with each error message
+
+Other exceptions which may be thrown are:
+
+* `TembaConnectionError` if there was a problem connecting to the RapidPro instance.
+* `TembaTokenError` if the API token used is invalid.
+* `TembaNoSuchObjectError` if a request is made to update or delete a non-existent object.
+* `TembaRateExceededError` if you have exceeded the allowed requests in a given time window.
+* `TembaHttpError` if any other type of error code is returned
 
 
-Examples
---------
-
-Read a beam from a fits header::
-
-    >>> from radio_beam import Beam
-    >>> from astropy.io import fits
-    >>> header = fits.getheader('file.fits')  # doctest: +SKIP
-    >>> my_beam = Beam.from_fits_header(header)  # doctest: +SKIP
-    >>> print(my_beam)  # doctest: +SKIP
-    Beam: BMAJ=0.038652855902928 arcsec BMIN=0.032841067761183604 arcsec BPA=32.29655838013 deg
-
-
-Create a beam from scratch::
-
-    >>> from astropy import units as u
-    >>> my_beam = Beam(0.5*u.arcsec)
-
-
-Use a beam for Jy -> K conversion::
-
-    >>> (1*u.Jy).to(u.K, u.brightness_temperature(25*u.GHz, my_beam)) # doctest: +FLOAT_CMP
-    <Quantity 7821.572919292681 K>
-
-Convolve with another beam::
-
-    >>> my_asymmetric_beam = Beam(0.75*u.arcsec, 0.25*u.arcsec, 0*u.deg)
-    >>> my_other_asymmetric_beam = Beam(0.75*u.arcsec, 0.25*u.arcsec, 90*u.deg)
-    >>> my_asymmetric_beam.convolve(my_other_asymmetric_beam)  # doctest: +SKIP
-    Beam: BMAJ=0.790569415042 arcsec BMIN=0.790569415042 arcsec BPA=45.0 deg
-
-Deconvolve another beam::
-
-    >>> my_big_beam = Beam(1.0*u.arcsec, 1.0*u.arcsec, 0*u.deg)
-    >>> my_little_beam = Beam(0.5*u.arcsec, 0.5*u.arcsec, 0*u.deg)
-    >>> my_big_beam.deconvolve(my_little_beam)  # doctest: +SKIP
-    Beam: BMAJ=0.866025403784 arcsec BMIN=0.866025403784 arcsec BPA=0.0 deg
-
-Read a table of beams::
-
-    >>> from radio_beam import Beams
-    >>> from astropy.io import fits
-    >>> bin_hdu = fits.open('file.fits')[1]  # doctest: +SKIP
-    >>> beams = Beams.from_fits_bintable(bin_hdu)  # doctest: +SKIP
-
-Create a table of beams::
-
-    >>> my_beams = Beams([1.5, 1.3] * u.arcsec, [1., 1.2] * u.arcsec, [0, 50] * u.deg)
-
-Find the largest beam in the set::
-
-    >>> my_beams.largest_beam()
-    Beam: BMAJ=1.3 arcsec BMIN=1.2 arcsec BPA=50.0 deg
-
-Find the smallest common beam for the set (see :ref:`here <com_beam>` for more on common beams)::
-
-    >>> my_beams.common_beam()  # doctest: +SKIP
-    Beam: BMAJ=1.50671729431 arcsec BMIN=1.25695643792 arcsec BPA=6.69089813778 deg
-
-Getting started
-^^^^^^^^^^^^^^^
+See Also
+==================
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 4
 
-   install.rst
-   commonbeam.rst
-   convolution_kernels.rst
-   api.rst
+   client_v2
+
+* :ref:`genindex`
+* :ref:`search`
+
