@@ -1,7 +1,6 @@
+include LICENSE
 include README.rst
-include LICENSE.rst
-include RELNOTES.rst
-include MANIFEST.in
-recursive-include grammarinator/resources *
-global-exclude __pycache__
-global-exclude *.py[co]
+include changelog
+include markup2html.py
+recursive-include docs *.rst conf.py
+recursive-include tests *.py

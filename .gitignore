@@ -1,12 +1,6 @@
-__pycache__
-*.py[co]
 build
 dist
-.eggs
-*.egg-info
-.DS_Store
-.idea
-.cache
-.pytest_cache
-.tox
-.coverage*
+MANIFEST
+Markups.egg-info
+__pycache__
+*.pyc
