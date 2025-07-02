@@ -1,6 +1,9 @@
-build
-dist
-MANIFEST
-Markups.egg-info
-__pycache__
+*.pyo
 *.pyc
+*.udm
+#/**/Thumbs.db
+/**/*.lnk
+.scannerwork/**
+
+/debugrun.py
+/apiserver.py
