@@ -24,7 +24,9 @@ jobs:
         with:
           python-version: '${{ matrix.python }}'
       - name: Run tests
-        run: ./ci.sh
+        run: |
+          chmod +x ./ci.sh
+          ./ci.sh
         shell: bash
         env:
           # Should match 'name:' up above
@@ -58,7 +60,9 @@ jobs:
         with:
           python-version: '${{ matrix.python }}'
       - name: Run tests
-        run: ./ci.sh
+        run: |
+          chmod +x ./ci.sh
+          ./ci.sh
         env:
           OLD_CRYPTOGRAPHY: '${{ matrix.old_cryptography}}'
           # Should match 'name:' up above
@@ -80,7 +84,9 @@ jobs:
         with:
           python-version: '${{ matrix.python }}'
       - name: Run tests
-        run: ./ci.sh
+        run: |
+          chmod +x ./ci.sh
+          ./ci.sh
         env:
           # Should match 'name:' up above
           JOB_NAME: 'macOS (${{ matrix.python }})'
