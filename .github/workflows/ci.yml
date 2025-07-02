@@ -6,7 +6,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ['3.6.x', '3.7.x', '3.8.18']
+        python-version: ['3.6.x', '3.7.x', '3.8.17']
     runs-on: ubuntu-latest
     steps:
     - name: Checkout code
