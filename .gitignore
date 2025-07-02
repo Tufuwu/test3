@@ -1,5 +1,18 @@
+# SDK config file
+Qconfig.py
+
+# ply outputs
+qiskit/qasm/parser.out
+
+# editor files
+.vscode/
+.idea/
+
+#standard python ignores follow
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
+.pytest_cache/
 *.py[cod]
 *$py.class
 
@@ -15,8 +28,6 @@ dist/
 downloads/
 eggs/
 .eggs/
-lib/
-lib64/
 parts/
 sdist/
 var/
@@ -43,9 +54,12 @@ htmlcov/
 .cache
 nosetests.xml
 coverage.xml
-*.cover
+*,cover
 .hypothesis/
-.pytest_cache/
+test/python/*.log
+test/python/*.pdf
+test/python/*.prof
+.stestr/
 
 # Translations
 *.mo
@@ -63,16 +77,13 @@ instance/
 .scrapy
 
 # Sphinx documentation
-doc/_build/
-doc/build/
-doc/source/_autosummary/
+docs/_build/
 
 # PyBuilder
 target/
 
 # Jupyter Notebook
 .ipynb_checkpoints
-*.ipynb
 
 # pyenv
 .python-version
@@ -93,20 +104,42 @@ ENV/
 
 # Spyder project settings
 .spyderproject
-.spyproject
 
 # Rope project settings
 .ropeproject
 
-# PyCharm project settings
-.idea
+.DS_Store
 
-# mkdocs documentation
-/site
+dummyscripts/*
 
-# mypy
-.mypy_cache/
+token.json
 
-# Visual Studio Code
-*.code-workspace
-.vscode
+tutorial/rst/_build/*
+
+test/python/test_qasm_python_simulator.pdf
+
+doc/_build/*
+
+doc/**/_autodoc
+
+qiskit/bin/*
+
+test/python/test_save.json
+
+test/python/*.tex
+
+out/*
+
+# CMake generates this file on the fly
+qiskit/providers/local/qasm_simulator_cpp
+qiskit/providers/legacysimulators/qasm_simulator_cpp
+
+src/qasm-simulator-cpp/test/qubit_vector_tests
+
+*.o
+
+# Cython pass
+qiskit/transpiler/passes/**/cython/**/*.cpp
+
+docs/api/*
+docs/stubs/*

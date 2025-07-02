@@ -1,50 +1,83 @@
-from itertools import chain
-from setuptools import setup, find_packages
-from orix import __name__, __version__, __author__, __author_email__, __description__
+# This code is part of Qiskit
+#
+# (C) Copyright IBM 2017.
+#
+# This code is licensed under the Apache License, Version 2.0. You may
+# obtain a copy of this license in the LICENSE.txt file in the root directory
+# of this source tree or at http://www.apache.org/licenses/LICENSE-2.0.
+#
+# Any modifications or derivative works of this code must retain this
+# copyright notice, and modified files need to carry a notice indicating
+# that they have been altered from the originals.
 
-# Projects with optional features for building the documentation and running
-# tests. From setuptools:
-# https://setuptools.readthedocs.io/en/latest/setuptools.html#declaring-extras-optional-features-with-their-own-dependencies
-extra_feature_requirements = {
-    "doc": ["sphinx >= 3.0.2", "sphinx-rtd-theme >= 0.4.3"],
-    "tests": ["pytest >= 5.4", "pytest-cov >= 2.8.1", "coverage >= 5.0"],
-}
-extra_feature_requirements["dev"] = ["black >= 19.3b0", "pre-commit >= 1.16"] + list(
-    chain(*list(extra_feature_requirements.values()))
-)
+# Copyright 2019-2020 Honeywell, Intl. (www.honeywell.com)
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
-setup(
-    name=__name__,
-    version=str(__version__),
-    license="GPLv3",
-    author=__author__,
-    author_email=__author_email__,
-    description=__description__,
-    long_description=open("README.rst").read(),
+import setuptools
+import os
+
+with open("README.md", "r") as fh:
+    long_description = fh.read()
+
+requirements = [
+    'nest-asyncio>=1.2.0',
+    'qiskit-terra>=0.10',
+    'requests>=2.19',
+    'websockets>=7'
+]
+
+version_path = os.path.abspath(os.path.join(
+    os.path.dirname(__file__), 'qiskit', 'providers', 'honeywell',
+    'VERSION.txt'))
+
+with open(version_path, 'r') as fd:
+    version_str = fd.read().rstrip()
+
+setuptools.setup(
+    name="qiskit-honeywell-provider",
+    version=version_str,
+    author="Honeywell",
+    author_email="dominic.lucchetti@honeywell.com",
+    license="Apache 2.0",
+    description="Qiskit provider for accessing the quantum devices at Honeywell",
+    long_description=long_description,
+    long_description_content_type='text/markdown',
+    url="https://github.com/qiskit-community/qiskit-honeywell-provider",
+    packages=setuptools.find_namespace_packages(include=['qiskit.*']),
+    install_requires=requirements,
+    python_requires=">=3.5",
+    include_package_data=True,
+    keywords="qiskit quantum",
+    project_urls={
+        "Bug Tracker": "https://github.com/qiskit-community/qiskit-honeywell-provider/issues",
+        "Documentation": "https://qiskit.org/documentation/",
+        "Source Code": "https://github.com/qiskit-community/qiskit-honeywell-provider"
+    },
     classifiers=[
-        "Programming Language :: Python :: 3",
+        "License :: OSI Approved :: Apache Software License",
+        "Intended Audience :: Developers",
+        "Intended Audience :: Science/Research",
+        "Operating System :: OS Independent",
+        "Operating System :: Microsoft :: Windows",
+        "Operating System :: MacOS",
+        "Operating System :: POSIX :: Linux",
+        "Programming Language :: Python :: 3 :: Only",
+        "Programming Language :: Python :: 3.5",
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
-        "Development Status :: 4 - Beta",
-        "Intended Audience :: Science/Research",
-        "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
-        "Natural Language :: English",
-        "Operating System :: OS Independent",
-        "Topic :: Scientific/Engineering",
-        "Topic :: Scientific/Engineering :: Physics",
+        "Topic :: Scientific/Engineering"
     ],
-    packages=find_packages(exclude=["orix/tests"]),
-    extras_require=extra_feature_requirements,
-    # fmt: off
-    install_requires=[
-        "diffpy.structure >= 3",
-        "h5py",
-        "matplotlib >= 3.3",
-        "numpy==1.19.5",
-        "scipy",
-        "tqdm",
-    ],
-    # fmt: on
-    package_data={"": ["LICENSE", "README.rst", "readthedocs.yml"], "orix": ["*.py"],},
+    zip_safe=False,
 )
