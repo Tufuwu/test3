@@ -21,6 +21,7 @@ jobs:
         tox_env: ${{ matrix.tox_env }}
         dnf_install: python3-rpm /usr/bin/gcc /usr/bin/krb5-config /etc/mime.types
     strategy:
+      fail-fast: false
       matrix:
         tox_env: [
           # This list has to be maintained manually :(
