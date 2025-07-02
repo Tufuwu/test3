@@ -31,7 +31,9 @@ jobs:
           python-version: ${{ matrix.python }}
       - name: Install test dependencies
         run: |
-          sudo apt-get update && sudo apt-get install -y libmarisa-dev
-          python -m pip install ".[test]"
+          sudo apt-get update
+          sudo apt-get install -y libmarisa-dev
+          python -m pip install --upgrade pip
+          python -m pip install --no-binary marisa-trie ".[test]"
       - name: Test
         run: python -m pytest
