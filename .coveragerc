@@ -1,4 +1,3 @@
 [run]
-plugins = Cython.Coverage
-source = raysect
-omit = *tests*
+source=./sqllineage
+omit=./tests/*
