@@ -41,10 +41,4 @@ jobs:
           cp ../codecov.yml .
           bash <(curl -s https://codecov.io/bash) -R ../
 
-  notifications:
-    slack:
-      if: always()
-      env:
-        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-      run: |
-        curl -X POST -H 'Content-type: application/json' --data '{"text":"Build ${{ github.run_number }}: ${{ job.status }}"}' $SLACK_WEBHOOK_URL
+  
