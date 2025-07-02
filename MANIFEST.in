@@ -1,6 +1,9 @@
-include distribute_setup.py
-include CHANGES.txt
-include py3tool.py
-include quantities/constants/NIST_codata.txt
-include versioneer.py
-include quantities/_version.py
+include *.rst
+include *.txt
+include test_*.py
+
+exclude .travis.yml
+prune docs/_build
+recursive-exclude .github  *
+
+global-exclude *.py[cod] __pycache__ *.so *.dylib

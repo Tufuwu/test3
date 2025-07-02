@@ -1,86 +1,120 @@
+.. warning::
+
+   This is a development version. Do **NOT** use it
+   in production before the final 3.0.0 is released.
+
+Quickstart
 ==========
-quantities
-==========
 
-|pypi version| |pypi download| |Build status|
+.. teaser-begin
 
-.. |pypi version| image:: https://img.shields.io/pypi/v/quantities.png
-   :target: https://pypi.python.org/pypi/quantities
-.. |Build status| image:: https://secure.travis-ci.org/python-quantities/python-quantities.png?branch=master
-    :target: http://travis-ci.org/python-quantities/python-quantities
+A Python module for `semantic versioning`_. Simplifies comparing versions.
 
-A Python package for handling physical quantities. The source code and issue 
-tracker are hosted on GitHub:
+|build-status| |python-support| |downloads| |license| |docs| |black|
 
-https://www.github.com/python-quantities/python-quantities
+.. teaser-end
 
-Download
---------
-Get the latest version of quantities from
-https://pypi.python.org/pypi/quantities/
+.. note::
 
-To get the Git version do::
+   This project works for Python 3.6 and greater only. If you are
+   looking for a compatible version for Python 2, use the
+   maintenance branch |MAINT|_.
 
-    $ git clone git://github.com/python-quantities/python-quantities.git
+   The last version of semver which supports Python 2.7 to 3.5 will be
+   2.x.y However, keep in mind, the major 2 release is frozen: no new
+   features nor backports will be integrated.
+
+   We recommend to upgrade your workflow to Python 3.x to gain support,
+   bugfixes, and new features.
+
+.. |MAINT| replace:: ``maint/v2``
+.. _MAINT: https://github.com/python-semver/python-semver/tree/maint/v2
 
 
-Documentation and usage
------------------------
-You can find the official documentation at:
+The module follows the ``MAJOR.MINOR.PATCH`` style:
 
-http://python-quantities.readthedocs.io/
+* ``MAJOR`` version when you make incompatible API changes,
+* ``MINOR`` version when you add functionality in a backwards compatible manner, and
+* ``PATCH`` version when you make backwards compatible bug fixes.
 
-Here is a simple example:
+Additional labels for pre-release and build metadata are supported.
 
-.. code:: python
+To import this library, use:
 
-   >>> import quantities as pq
-   >>> distance = 42*pq.metre
-   >>> time = 17*pq.second
-   >>> velocity = distance / time
-   >>> "%.3f %s" % (velocity.magnitude, velocity.dimensionality)
-   '2.471 m/s'
-   >>> velocity + 3
-   Traceback (most recent call last):
-     ...
-   ValueError: Unable to convert between units of "dimensionless" and "m/s"
+.. code-block:: python
 
-Installation
-------------
-quantities has a hard dependency on the `NumPy <http://www.numpy.org>`_ library.
-You should install it first, please refer to the NumPy installation guide:
+    >>> import semver
 
-http://docs.scipy.org/doc/numpy/user/install.html
+Working with the library is quite straightforward. To turn a version string into the
+different parts, use the ``semver.Version.parse`` function:
 
-To install quantities itself, then simply run::
+.. code-block:: python
 
-    $ python setup.py install --user
+    >>> ver = semver.Version.parse('1.2.3-pre.2+build.4')
+    >>> ver.major
+    1
+    >>> ver.minor
+    2
+    >>> ver.patch
+    3
+    >>> ver.prerelease
+    'pre.2'
+    >>> ver.build
+    'build.4'
 
-If you install it system-wide, you may need to prefix the previous command with ``sudo``::
+To raise parts of a version, there are a couple of functions available for
+you. The function ``semver.Version.bump_major`` leaves the original object untouched, but
+returns a new ``semver.Version`` instance with the raised major part:
 
-    $ sudo python setup.py install
+.. code-block:: python
 
-Tests
------
-To execute all tests, install pytest::
+    >>> ver = semver.Version.parse("3.4.5")
+    >>> ver.bump_major()
+    Version(major=4, minor=0, patch=0, prerelease=None, build=None)
 
-    $ python -m pip install pytest
+It is allowed to concatenate different "bump functions":
 
-And run::
+.. code-block:: python
 
-    $ pytest
+    >>> ver.bump_major().bump_minor()
+    Version(major=4, minor=1, patch=0, prerelease=None, build=None)
 
-in the current directory. The master branch is automatically tested by
-GitHub Actions.
+To compare two versions, semver provides the ``semver.compare`` function.
+The return value indicates the relationship between the first and second
+version:
 
-Author
-------
-quantities is written by Darren Dale
+.. code-block:: python
 
-License
--------
-Quantities only uses BSD compatible code.  See the Open Source
-Initiative `licenses page <http://www.opensource.org/licenses>`_
-for details on individual licenses.
+    >>> semver.compare("1.0.0", "2.0.0")
+    -1
+    >>> semver.compare("2.0.0", "1.0.0")
+    1
+    >>> semver.compare("2.0.0", "2.0.0")
+    0
 
-See `doc/user/license.rst <doc/user/license.rst>`_ for further details on the license of quantities
+
+There are other functions to discover. Read on!
+
+
+.. |latest-version| image:: https://img.shields.io/pypi/v/semver.svg
+   :alt: Latest version on PyPI
+   :target: https://pypi.org/project/semver
+.. |build-status| image:: https://travis-ci.com/python-semver/python-semver.svg?branch=master
+   :alt: Build status
+   :target: https://travis-ci.com/python-semver/python-semver
+.. |python-support| image:: https://img.shields.io/pypi/pyversions/semver.svg
+   :target: https://pypi.org/project/semver
+   :alt: Python versions
+.. |downloads| image:: https://img.shields.io/pypi/dm/semver.svg
+   :alt: Monthly downloads from PyPI
+   :target: https://pypi.org/project/semver
+.. |license| image:: https://img.shields.io/pypi/l/semver.svg
+   :alt: Software license
+   :target: https://github.com/python-semver/python-semver/blob/master/LICENSE.txt
+.. |docs| image:: https://readthedocs.org/projects/python-semver/badge/?version=latest
+   :target: http://python-semver.readthedocs.io/en/latest/?badge=latest
+   :alt: Documentation Status
+.. _semantic versioning: http://semver.org/
+.. |black| image:: https://img.shields.io/badge/code%20style-black-000000.svg
+    :target: https://github.com/psf/black
+    :alt: Black Formatter
