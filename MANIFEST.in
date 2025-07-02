@@ -1,9 +1,6 @@
-include *.rst
-include *.txt
-include test_*.py
-
-exclude .travis.yml
-prune docs/_build
-recursive-exclude .github  *
-
-global-exclude *.py[cod] __pycache__ *.so *.dylib
+include LICENSE LICENSE.MIT LICENSE.APACHE2
+include README.rst CODE_OF_CONDUCT.md
+include test-requirements.txt
+recursive-include docs *
+recursive-include tests *
+prune docs/build

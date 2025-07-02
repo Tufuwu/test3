@@ -1,120 +1,107 @@
-.. warning::
+.. note that this README gets 'include'ed into the main documentation
 
-   This is a development version. Do **NOT** use it
-   in production before the final 3.0.0 is released.
+==============================================
+ trustme: #1 quality TLS certs while you wait
+==============================================
 
-Quickstart
-==========
+.. image:: https://vignette2.wikia.nocookie.net/jadensadventures/images/1/1e/Kaa%27s_hypnotic_eyes.jpg/revision/latest?cb=20140310173415
+   :width: 200px
+   :align: right
 
-.. teaser-begin
+You wrote a cool network client or server. It encrypts connections
+using `TLS
+<https://en.wikipedia.org/wiki/Transport_Layer_Security>`__. Your test
+suite needs to make TLS connections to itself.
 
-A Python module for `semantic versioning`_. Simplifies comparing versions.
+Uh oh. Your test suite *probably* doesn't have a valid TLS
+certificate. Now what?
 
-|build-status| |python-support| |downloads| |license| |docs| |black|
-
-.. teaser-end
-
-.. note::
-
-   This project works for Python 3.6 and greater only. If you are
-   looking for a compatible version for Python 2, use the
-   maintenance branch |MAINT|_.
-
-   The last version of semver which supports Python 2.7 to 3.5 will be
-   2.x.y However, keep in mind, the major 2 release is frozen: no new
-   features nor backports will be integrated.
-
-   We recommend to upgrade your workflow to Python 3.x to gain support,
-   bugfixes, and new features.
-
-.. |MAINT| replace:: ``maint/v2``
-.. _MAINT: https://github.com/python-semver/python-semver/tree/maint/v2
+``trustme`` is a tiny Python package that does one thing: it gives you
+a `fake <https://martinfowler.com/bliki/TestDouble.html>`__
+certificate authority (CA) that you can use to generate fake TLS certs
+to use in your tests. Well, technically they're real certs, they're
+just signed by your CA, which nobody trusts. But you can trust
+it. Trust me.
 
 
-The module follows the ``MAJOR.MINOR.PATCH`` style:
+Vital statistics
+================
 
-* ``MAJOR`` version when you make incompatible API changes,
-* ``MINOR`` version when you add functionality in a backwards compatible manner, and
-* ``PATCH`` version when you make backwards compatible bug fixes.
+**Install:** ``pip install -U trustme``
 
-Additional labels for pre-release and build metadata are supported.
+**Documentation:** https://trustme.readthedocs.io
 
-To import this library, use:
+**Bug tracker and source code:** https://github.com/python-trio/trustme
 
-.. code-block:: python
+**Tested on:** Python 2.7 and Python 3.5+, CPython and PyPy
 
-    >>> import semver
+**License:** MIT or Apache 2, your choice.
 
-Working with the library is quite straightforward. To turn a version string into the
-different parts, use the ``semver.Version.parse`` function:
+**Code of conduct:** Contributors are requested to follow our `code of
+conduct
+<https://github.com/python-trio/trustme/blob/master/CODE_OF_CONDUCT.md>`__
+in all project spaces.
+
+
+Cheat sheet
+===========
 
 .. code-block:: python
 
-    >>> ver = semver.Version.parse('1.2.3-pre.2+build.4')
-    >>> ver.major
-    1
-    >>> ver.minor
-    2
-    >>> ver.patch
-    3
-    >>> ver.prerelease
-    'pre.2'
-    >>> ver.build
-    'build.4'
+   import trustme
 
-To raise parts of a version, there are a couple of functions available for
-you. The function ``semver.Version.bump_major`` leaves the original object untouched, but
-returns a new ``semver.Version`` instance with the raised major part:
+   # ----- Creating certs -----
 
-.. code-block:: python
+   # Look, you just created your own certificate authority!
+   ca = trustme.CA()
 
-    >>> ver = semver.Version.parse("3.4.5")
-    >>> ver.bump_major()
-    Version(major=4, minor=0, patch=0, prerelease=None, build=None)
+   # And now you issued a cert signed by this fake CA
+   # https://en.wikipedia.org/wiki/Example.org
+   server_cert = ca.issue_cert(u"test-host.example.org")
 
-It is allowed to concatenate different "bump functions":
+   # That's it!
 
-.. code-block:: python
+   # ----- Using your shiny new certs -----
 
-    >>> ver.bump_major().bump_minor()
-    Version(major=4, minor=1, patch=0, prerelease=None, build=None)
+   # You can configure SSL context objects to trust this CA:
+   ca.configure_trust(ssl_context)
+   # Or configure them to present the server certificate
+   server_cert.configure_cert(ssl_context)
+   # You can use standard library or PyOpenSSL context objects here,
+   # trustme is happy either way.
 
-To compare two versions, semver provides the ``semver.compare`` function.
-The return value indicates the relationship between the first and second
-version:
-
-.. code-block:: python
-
-    >>> semver.compare("1.0.0", "2.0.0")
-    -1
-    >>> semver.compare("2.0.0", "1.0.0")
-    1
-    >>> semver.compare("2.0.0", "2.0.0")
-    0
+   # ----- or -----
+                
+   # Save the PEM-encoded data to a file to use in non-Python test
+   # suites:
+   ca.cert_pem.write_to_path("ca.pem")
+   server_cert.private_key_and_cert_chain_pem.write_to_path("server.pem")
+   
+   # ----- or -----
+                
+   # Put the PEM-encoded data in a temporary file, for libraries that
+   # insist on that:
+   with ca.cert_pem.tempfile() as ca_temp_path:
+       requests.get("https://...", verify=ca_temp_path)
 
 
-There are other functions to discover. Read on!
+FAQ
+===
 
+**Should I use these certs for anything real?** Certainly not.
 
-.. |latest-version| image:: https://img.shields.io/pypi/v/semver.svg
-   :alt: Latest version on PyPI
-   :target: https://pypi.org/project/semver
-.. |build-status| image:: https://travis-ci.com/python-semver/python-semver.svg?branch=master
-   :alt: Build status
-   :target: https://travis-ci.com/python-semver/python-semver
-.. |python-support| image:: https://img.shields.io/pypi/pyversions/semver.svg
-   :target: https://pypi.org/project/semver
-   :alt: Python versions
-.. |downloads| image:: https://img.shields.io/pypi/dm/semver.svg
-   :alt: Monthly downloads from PyPI
-   :target: https://pypi.org/project/semver
-.. |license| image:: https://img.shields.io/pypi/l/semver.svg
-   :alt: Software license
-   :target: https://github.com/python-semver/python-semver/blob/master/LICENSE.txt
-.. |docs| image:: https://readthedocs.org/projects/python-semver/badge/?version=latest
-   :target: http://python-semver.readthedocs.io/en/latest/?badge=latest
-   :alt: Documentation Status
-.. _semantic versioning: http://semver.org/
-.. |black| image:: https://img.shields.io/badge/code%20style-black-000000.svg
-    :target: https://github.com/psf/black
-    :alt: Black Formatter
+**Why not just use self-signed certificates?** These are more
+realistic. You don't have to disable your certificate validation code
+in your test suite, which is good, because you want to test what you
+run in production, and you would *never* disable your certificate
+validation code in production, right? Plus they're just as easy to
+work with. Actually easier, in many cases.
+
+**What if I want to test how my code handles some really weird TLS
+configuration?** Sure, I'm happy to extend the API to give more
+control over the generated certificates, at least as long as it
+doesn't turn into a second-rate re-export of everything in
+`cryptography <https://cryptography.io>`__. (If you really need a
+fully general X.509 library then they do a great job at that.) `Let's
+talk <https://github.com/python-trio/trustme/issues/new>`__, or send a
+PR.
