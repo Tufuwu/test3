@@ -37,5 +37,6 @@ jobs:
         if [ -n "${{ matrix.package }}" ]; then
           PACKAGE=${{ matrix.package }} .travis/copr-build
         else
+          chmod +x ./mock/run-tests.sh
           PYTHON=python${{ matrix.python-version }} ./mock/run-tests.sh
         fi
