@@ -1,55 +1,38 @@
-name: hk0weather
+name: CI
+
 on:
   push:
-    branches: [ "main" ]
+    branches:
+      - main
   pull_request:
-    branches: [ "main" ]
-  schedule:
-    - cron: '5 19 1 * *'
+    branches:
+      - main
+
 jobs:
-  hk0weather-tests:
+  build:
     runs-on: ubuntu-latest
-    env:
-      PYTHON: '3.9'
+
     steps:
-      - uses: actions/checkout@v2
-      - name: Setup python
-        uses: actions/setup-python@v2
-        with:
-          python-version: '3.10'
-      - name: Install required python packages
-        run: |
-          python -m pip install --upgrade pip
-          pip install flake8 coverage
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-      - name: Lint with flake8
-        run: |
-          # stop the build if there are Python syntax errors or undefined names
-          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-          # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
-          flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
-      - name: List available scrapers
-        run: |
-          coverage run -m scrapy list
-      - name: Test a scraper of regional weather
-        run: |
-          coverage run -m scrapy crawl regional -o regional.csv
-        working-directory: hk0weather
-      - name: Test a scraper of daily weather forecast
-        run: |
-          coverage run -m scrapy crawl hkoforecast -o hkoforecast.csv
-        working-directory: hk0weather
-      - name: Test a scraper of 9-day weather forecast
-        run: |
-          coverage run -m scrapy crawl hko9dayforecast -o hko9dayforecast.csv
-        working-directory: hk0weather
-      - name: Generate coverage json report
-        run: |
-          coverage json
-        working-directory: hk0weather
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v3
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-        with:
-          directory: hk0weather
+    - uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.x'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install scrapy coverage codecov
+
+    - name: Run tests
+      run: |
+        coverage run -m scrapy list
+        coverage run -m scrapy crawl regional -t csv -o regional.csv
+        coverage run -m scrapy crawl hkoforecast -t csv -o hkoforecast.csv
+        coverage run -m scrapy crawl hko9dayforecast -t csv -o hko9dayforecast.csv
+
+    - name: Upload coverage to Codecov
+      run: bash <(curl -s https://codecov.io/bash)
+      env:
+        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
