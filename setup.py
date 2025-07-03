@@ -6,7 +6,7 @@ import sys
 import os
 from setuptools import find_packages
 import versioneer
-from numpy.distutils.core import Extension, setup
+from setuptools import Extension, setup
 from numpy.distutils.fcompiler import get_default_fcompiler
 import numpy as np
 import glob
