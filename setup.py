@@ -1,79 +1,61 @@
-# -*- coding: utf-8 -*-
-# Copyright (c) 2003, Taro Ogawa.  All Rights Reserved.
-# Copyright (c) 2013, Savoir-faire Linux inc.  All Rights Reserved.
-
-# This library is free software; you can redistribute it and/or
-# modify it under the terms of the GNU Lesser General Public
-# License as published by the Free Software Foundation; either
-# version 2.1 of the License, or (at your option) any later version.
-# This library is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-# Lesser General Public License for more details.
-# You should have received a copy of the GNU Lesser General Public
-# License along with this library; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
-# MA 02110-1301 USA
+#!/usr/bin/env python
+import ast
+import codecs
+import os
 
 import re
-from io import open
-
 from setuptools import find_packages, setup
 
-PACKAGE_NAME = "num2words"
-
-CLASSIFIERS = [
-    'Development Status :: 5 - Production/Stable',
-    'Intended Audience :: Developers',
-    'License :: OSI Approved :: GNU Library or Lesser General Public License '
-    '(LGPL)',
-    'Programming Language :: Python :: 2.7',
-    'Programming Language :: Python :: 3',
-    'Topic :: Software Development :: Internationalization',
-    'Topic :: Software Development :: Libraries :: Python Modules',
-    'Topic :: Software Development :: Localization',
-    'Topic :: Text Processing :: Linguistic',
-]
-
-LONG_DESC = open('README.rst', 'rt', encoding="utf-8").read() + '\n\n' + \
-            open('CHANGES.rst', 'rt', encoding="utf-8").read()
+ROOT = os.path.realpath(os.path.join(os.path.dirname(__file__)))
+init = os.path.join(ROOT, 'src', 'adminactions', '__init__.py')
 
 
-def find_version(fname):
-    """Parse file & return version number matching 0.0.1 regex
-    Returns str or raises RuntimeError
-    """
-    version = ''
-    with open(fname, 'r', encoding="utf-8") as fp:
-        reg = re.compile(r'__version__ = [\'"]([^\'"]*)[\'"]')
-        for line in fp:
-            m = reg.match(line)
-            if m:
-                version = m.group(1)
-                break
-    if not version:
-        raise RuntimeError('Cannot find version information')
-    return version
+def read(*parts):
+    with codecs.open(os.path.join(ROOT, 'src', 'requirements', *parts), 'r') as fp:
+        return fp.read()
 
+
+_version_re = re.compile(r'__version__\s+=\s+(.*)')
+
+with open(init, 'rb') as f:
+    version = str(ast.literal_eval(_version_re.search(
+        f.read().decode('utf-8')).group(1)))
+
+requirements = read("install.pip")
+tests_require = read('testing.pip')
+dev_require = read('develop.pip')
 
 setup(
-    name=PACKAGE_NAME,
-    version=find_version("bin/num2words"),
-    description='Modules to convert numbers to words. Easily extensible.',
-    long_description=LONG_DESC,
-    license='LGPL',
-    author='Taro Ogawa <tso at users sourceforge net>',
-    author_email='tos@users.sourceforge.net',
-    maintainer='Savoir-faire Linux inc.',
-    maintainer_email='istvan.szalai@savoirfairelinux.com',
-    keywords=' number word numbers words convert conversion i18n '
-             'localisation localization internationalisation '
-             'internationalization',
-    url='https://github.com/savoirfairelinux/num2words',
-    packages=find_packages(exclude=['tests']),
-    test_suite='tests',
-    classifiers=CLASSIFIERS,
-    scripts=['bin/num2words'],
-    install_requires=["docopt>=0.6.2"],
-    tests_require=['delegator.py'],
+    name='django-adminactions',
+    version=version,
+    url='https://github.com/saxix/django-adminactions',
+    download_url='https://github.com/saxix/django-adminactions',
+    author='sax',
+    author_email='s.apostolico@gmail.com',
+    description="Collections of useful actions to use with django.contrib.admin.ModelAdmin",
+    license='MIT',
+    package_dir={'': 'src'},
+    packages=find_packages('src'),
+    include_package_data=True,
+    install_requires=requirements,
+    tests_require=tests_require,
+    extras_require={
+        'test': requirements + tests_require,
+        'dev': dev_require + tests_require,
+    },
+    zip_safe=False,
+    platforms=['any'],
+    classifiers=[
+        'Environment :: Web Environment',
+        'Framework :: Django',
+        'Operating System :: OS Independent',
+        'Framework :: Django :: 2.2',
+        'Framework :: Django :: 3.0',
+        'Framework :: Django :: 3.1',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
+        'Intended Audience :: Developers'],
+    long_description=open('README.rst').read()
 )
