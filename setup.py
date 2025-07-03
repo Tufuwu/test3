@@ -1,92 +1,137 @@
-#!/usr/bin/env python
-
+import os
 import sys
-from setuptools import find_packages, setup
+from shutil import rmtree
 
-"""
-Returns <public_version> appended with a PEP-440 compliant local version label
-(see https://www.python.org/dev/peps/pep-0440/#local-version-identifiers). The
-local version label is based on the output from
-"git describe --tags --dirty --broken". Nothing is appended if:
-- Git is not available, or
-- "git describe" might not be operating on a branch of superflore.git, or
-- there is no tag for <public_version>, or
-- the HEAD of the current branch is coincident with the tag for <public_version>.
+from setuptools import Command
+from setuptools import find_packages
+from setuptools import setup
 
-NB. Not using https://pypi.org/project/setuptools-git-version/ because it passes
-"--long" to "git describe" and doesn't pass "--broken".
-"""
-def append_local_version_label(public_version):
-    try:
-        from git import Repo
-        from os import getcwd
-        from os.path import join, samefile
+# Package meta-data.
+NAME = 'django-inlinecss'
+SRC_DIR = 'django_inlinecss'
+DESCRIPTION = 'A Django app useful for inlining CSS (primarily for e-mails)'
+URL = 'https://github.com/roverdotcom/django-inlinecss'
+EMAIL = 'philip@rover.com'
+AUTHOR = 'Philip Kimmey'
+REQUIRES_PYTHON = '>=3.8'
+VERSION = None
 
-        repo = Repo()
-        """
-        If we're been copied under the working dir of some other Git repo,
-        "git describe" won't return what we're expecting, so don't append
-        anything. The test for this case will also fail if, say, we try to
-        invoke ../setup.py from a subdirectory, but it's better to err on the
-        side of "least surprises".
-        """
-        if not samefile(repo.git_dir, join(getcwd(), '.git')):
-            return public_version
-
-        # The tags have a "v" prefix.
-        val = repo.git.describe(
-            '--match', 'v' + public_version, '--tags', '--dirty', '--broken')
-        """
-        Output from "git describe --tags --dirty --broken" is
-            <TAG>[-<NR-OF-COMMITS>-g<ABBRE-HASH>][-dirty][-broken]
-        Convert to a legal Python local version label, dropping the "v" prefix
-        of the tag.
-        """
-        return val.replace('-', '+', 1).replace('-', '.')[1:]
-    except:
-        return public_version
-
-if sys.version_info < (3, 0):
-    sys.exit('Sorry, Python < 3.0 is not supported')
-
-install_requires = [
-    'xmltodict',
-    'termcolor',
-    'setuptools',
-    'rosinstall_generator',
-    'rosdistro >= 0.7.4',
-    'rosdep >= 0.15.2',
-    'gitpython',
-    'requests',
-    'docker',
-    'pyyaml',
-    'pygithub',
-    'catkin_pkg >= 0.4.10',
-    'rospkg >= 1.1.8',
+# What packages are required for this module to be executed?
+REQUIRED = [
+    'Django>=3.2',
+    'pynliner',
+    'future>=0.16.0',
 ]
 
-setup(
-    name='superflore',
-    version=append_local_version_label('0.3.2'),
-    packages=find_packages(exclude=['tests', 'tests.*']),
-    author='Hunter L. Allen',
-    author_email='hunterlallen@protonmail.com',
-    url='https://github.com/ros-infrastructure/superflore',
-    keywords=['ROS'],
-    install_requires=install_requires,
-    python_requires='>=3',
-    classifiers=['Programming Language :: Python',
-                 'License :: OSI Approved :: Apache Software License',
-                 'License :: OSI Approved :: MIT License'
+# What packages are required only for tests?
+TESTS = [
+    'mock==5.1.0',
+    'pytest==8.0.1',
+    'pytest-django==4.8.0',
+]
+
+# What packages are optional?
+EXTRAS = {
+    'flake8': [
+        'flake8==7.0.0',
+        'flake8-isort==6.1.1',
+        'isort==5.13.2',
+        'testfixtures==8.0.0',
     ],
-    description='Super Bloom',
-    license='Apache 2.0',
-    test_suite='tests',
-    entry_points={
-        'console_scripts': [
-            'superflore-gen-ebuilds = superflore.generators.ebuild:main',
-            'superflore-gen-oe-recipes = superflore.generators.bitbake:main',
-            'superflore-check-ebuilds = superflore.test_integration.gentoo:main',
-        ]
-    }
+    "tests": TESTS,
+}
+
+here = os.path.abspath(os.path.dirname(__file__))
+
+
+# Import the README and use it as the long-description.
+# Note: this will only work if 'README.md' is present in your MANIFEST.in file!
+
+try:
+    with open(os.path.join(here, "README.md"), encoding="utf-8") as f:
+        long_description = "\n" + f.read()
+except FileNotFoundError:
+    long_description = DESCRIPTION
+
+# Load the package's __version__.py module as a dictionary.
+about = {}
+if not VERSION:
+    with open(os.path.join(here, SRC_DIR, "__version__.py")) as f:
+        exec(f.read(), about)
+else:
+    about["__version__"] = VERSION
+
+
+class UploadCommand(Command):
+    """Support setup.py upload."""
+
+    description = "Build and publish the package."
+    user_options = []
+
+    @staticmethod
+    def status(s):
+        """Prints things in bold."""
+        print(f"\033[1m{s}\033[0m")
+
+    def initialize_options(self):
+        pass
+
+    def finalize_options(self):
+        pass
+
+    def run(self):
+        try:
+            self.status("Removing previous builds…")
+            rmtree(os.path.join(here, "dist"))
+        except OSError:
+            pass
+
+        self.status("Building Source and Wheel (universal) distribution…")
+        os.system(f"{sys.executable} setup.py sdist bdist_wheel --universal")
+
+        self.status("Uploading the package to PyPI via Twine…")
+        os.system("twine upload dist/*")
+
+        self.status("Pushing git tags…")
+        os.system("git tag v{}".format(about["__version__"]))
+        os.system("git push --tags")
+
+        sys.exit()
+
+
+setup(
+    name=NAME,
+    version=about["__version__"],
+    description=DESCRIPTION,
+    long_description=long_description,
+    long_description_content_type="text/markdown",
+    author=AUTHOR,
+    author_email=EMAIL,
+    license="MIT",
+    url=URL,
+    packages=find_packages(),
+    include_package_data=True,
+    zip_safe=False,
+    keywords=["html", "css", "inline", "style", "email"],
+    classifiers=[
+        "Environment :: Other Environment",
+        "Environment :: Web Environment",
+        "Intended Audience :: Developers",
+        "License :: OSI Approved :: MIT License",
+        "Operating System :: OS Independent",
+        "Programming Language :: Python",
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
+        "Topic :: Communications :: Email",
+        "Topic :: Text Processing :: Markup :: HTML",
+    ],
+    install_requires=REQUIRED,
+    tests_require=TESTS,
+    extras_require=EXTRAS,
+    # $ setup.py upload support.
+    cmdclass={
+        "upload": UploadCommand,
+    },
 )
