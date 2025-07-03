@@ -1,22 +1,24 @@
 API Documentation
 -----------------
+.. automodule:: luma.emulator
+    :members:
+    :undoc-members:
+    :show-inheritance:
 
-.. toctree::
-   :maxdepth: 1
+.. inheritance-diagram:: luma.core.device luma.emulator luma.core.mixin luma.core.virtual luma.emulator.device
 
-   ansi_color
-   bitmap_font
-   cmdline
-   const
-   device
-   error
-   framebuffer
-   image_composition
-   interface
-   legacy
-   mixin
-   render
-   sprite_system
-   threadpool
-   util
-   virtual
+:mod:`luma.emulator.device`
+"""""""""""""""""""""""""""
+.. automodule:: luma.emulator.device
+    :members:
+    :inherited-members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`luma.emulator.render`
+"""""""""""""""""""""""""""
+.. automodule:: luma.emulator.render
+    :members:
+    :inherited-members:
+    :undoc-members:
+    :show-inheritance:

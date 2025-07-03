@@ -1,7 +1,6 @@
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
-*.py.orig
 
 # C extensions
 *.so
@@ -41,14 +40,9 @@ htmlcov/
 .tox/
 .coverage
 .cache
-.pytest_cache
+.pytest_cache/
 nosetests.xml
 coverage.xml
-
-# Eclipse
-.project
-.pydevproject
-.settings/
 
 # Translations
 *.mo
@@ -56,6 +50,11 @@ coverage.xml
 
 # Django stuff:
 *.log
+
+# Eclipse
+.project
+.pydevproject
+.settings/
 
 # Sphinx documentation
 doc/_build/
@@ -67,6 +66,3 @@ target/
 
 # OSX
 .DS_Store
-
-.vscode
-.python-version

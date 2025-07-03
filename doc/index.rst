@@ -1,19 +1,22 @@
-luma.core
-=========
+Luma.Emulator
+=============
 
-.. image:: https://github.com/rm-hull/luma.core/workflows/luma.core/badge.svg?branch=master
-   :target: https://github.com/rm-hull/luma.core/actions?workflow=luma.core
+.. image:: https://github.com/rm-hull/luma.emulator/workflows/luma.emulator/badge.svg?branch=master
+   :target: https://github.com/rm-hull/luma.emulator/actions?workflow=luma.emulator
 
-.. image:: https://coveralls.io/repos/github/rm-hull/luma.core/badge.svg?branch=master
-   :target: https://coveralls.io/github/rm-hull/luma.core?branch=master
+.. image:: https://coveralls.io/repos/github/rm-hull/luma.emulator/badge.svg?branch=master
+   :target: https://coveralls.io/github/rm-hull/luma.emulator?branch=master
 
 .. image:: https://img.shields.io/maintenance/yes/2020.svg?maxAge=2592000
 
-.. image:: https://img.shields.io/pypi/pyversions/luma.core.svg
-    :target: https://pypi.org/project/luma.core
+.. image:: https://img.shields.io/pypi/pyversions/luma.emulator.svg
+    :target: https://pypi.python.org/pypi/luma.emulator
 
-.. image:: https://img.shields.io/pypi/v/luma.core.svg
-   :target: https://pypi.org/project/luma.core
+.. image:: https://img.shields.io/pypi/v/luma.emulator.svg
+   :target: https://pypi.python.org/pypi/luma.emulator
+
+.. image:: https://img.shields.io/pypi/dm/luma.emulator
+   :target: https://pypi.python.org/project/luma.emulator
 
 .. toctree::
    :maxdepth: 2

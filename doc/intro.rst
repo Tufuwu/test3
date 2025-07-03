@@ -1,39 +1,18 @@
 Introduction
 ------------
-**luma.core** is a component library providing a Pillow-compatible drawing
-canvas for Python 3, and other functionality to support drawing primitives and
-text-rendering capabilities for small displays on the Raspberry Pi and other
-single board computers:
 
-* scrolling/panning capability,
-* terminal-style printing,
-* state management,
-* color/greyscale (where supported),
-* dithering to monochrome,
-* sprite animation,
-* flexible framebuffering (depending on device capabilities)
+There are various display emulators available for running code against, for debugging
+and screen capture functionality:
 
-Device drivers extend **luma.core** to provide the correct initialization
-sequences for specific physical display devices/chipsets.
+* The :py:class:`luma.emulator.device.capture` device will persist a numbered PNG file to
+  disk every time its ``display`` method is called.
 
-There are several drivers for different classes of device available:
+* The :py:class:`luma.emulator.device.gifanim` device will record every image when its ``display``
+  method is called, and on program exit (or Ctrl-C), will assemble the images into an
+  animated GIF.
 
-* `luma.oled <https://github.com/rm-hull/luma.oled/>`_
-* `luma.lcd <https://github.com/rm-hull/luma.lcd/>`_
-* `luma.led_matrix <https://github.com/rm-hull/luma.led_matrix/>`_
+* The :py:class:`luma.emulator.device.pygame` device uses the `pygame` library to
+  render the displayed image to a pygame display surface.
 
-There are emulators that run in real-time (with pygame) and others that can
-take screenshots, or assemble animated GIFs, as per the examples below (source
-code for these is available in the `luma.examples
-<https://github.com/rm-hull/luma.examples/tree/master/examples>`_ directory:
-
-.. image:: https://raw.githubusercontent.com/rm-hull/luma.oled/master/doc/images/clock_anim.gif?raw=true
-   :alt: clock
-
-.. image:: https://raw.githubusercontent.com/rm-hull/luma.oled/master/doc/images/invaders_anim.gif?raw=true
-   :alt: invaders
-
-.. image:: https://raw.githubusercontent.com/rm-hull/luma.oled/master/doc/images/crawl_anim.gif?raw=true
-   :alt: crawl
-
-
+Check out the `examples <https://github.com/rm-hull/luma.examples/blob/master/README.rst#emulators>`__
+on how to use the luma.emulator devices.

@@ -10,27 +10,14 @@ levels high.
 
 GitHub
 ^^^^^^
-The source code is available to clone at: https://github.com/rm-hull/luma.core
+The source code is available to clone at: https://github.com/rm-hull/luma.emulator
 
 Contributors
 ^^^^^^^^^^^^
 * Thijs Triemstra (@thijstriemstra)
 * Christoph Handel (@fragfutter)
-* @Boeeerb
-* @xes
+* Boeeerb (@Boeeerb)
+* xes (@xes)
 * Roger Dahl (@rogerdahl)
 * Václav Šmilauer (@eudoxos)
 * Claus Bjerre (@bjerrep)
-* @bkntrx
-* @7754359337
-* @theraspydev
-* @vortigont
-* Maarten Los (@mlos)
-* Jonathan Pereira (@jonathanrjpereira)
-* Daniel Smullen (@drspangle)
-* Hans Liss (@hansliss)
-* Phil Howard (@gadgetoid)
-* Manuel Baesler (@baslr)
-* Dhrone (@dhrone)
-* @jakiee3y
-* Matthew Lovell (@mattblovell)

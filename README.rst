@@ -1,67 +1,44 @@
-luma.core **|** 
+`luma.core <https://github.com/rm-hull/luma.core>`__ **|** 
 `luma.docs <https://github.com/rm-hull/luma.docs>`__ **|** 
-`luma.emulator <https://github.com/rm-hull/luma.emulator>`__ **|** 
+luma.emulator **|** 
 `luma.examples <https://github.com/rm-hull/luma.examples>`__ **|** 
 `luma.lcd <https://github.com/rm-hull/luma.lcd>`__ **|** 
 `luma.led_matrix <https://github.com/rm-hull/luma.led_matrix>`__ **|** 
 `luma.oled <https://github.com/rm-hull/luma.oled>`__ 
 
-luma.core
-=========
+Luma.Emulator
+=============
 
-.. image:: https://github.com/rm-hull/luma.core/workflows/luma.core/badge.svg?branch=master
-   :target: https://github.com/rm-hull/luma.core/actions?workflow=luma.core
+.. image:: https://github.com/rm-hull/luma.emulator/workflows/luma.emulator/badge.svg?branch=master
+   :target: https://github.com/rm-hull/luma.emulator/actions?workflow=luma.emulator
 
-.. image:: https://coveralls.io/repos/github/rm-hull/luma.core/badge.svg?branch=master
-   :target: https://coveralls.io/github/rm-hull/luma.core?branch=master
+.. image:: https://coveralls.io/repos/github/rm-hull/luma.emulator/badge.svg?branch=master
+   :target: https://coveralls.io/github/rm-hull/luma.emulator?branch=master
 
-.. image:: https://img.shields.io/pypi/pyversions/luma.core.svg
-   :target: https://pypi.python.org/project/luma.core
+.. image:: https://img.shields.io/pypi/pyversions/luma.emulator.svg
+   :target: https://pypi.python.org/pypi/luma.emulator
 
-.. image:: https://img.shields.io/pypi/v/luma.core.svg
-   :target: https://pypi.python.org/project/luma.core
+.. image:: https://img.shields.io/pypi/v/luma.emulator.svg
+   :target: https://pypi.python.org/pypi/luma.emulator
+
+.. image:: https://img.shields.io/pypi/dm/luma.emulator
+   :target: https://pypi.python.org/project/luma.emulator
 
 .. image:: https://img.shields.io/maintenance/yes/2020.svg?maxAge=2592000
 
-**luma.core** is a component library providing a `Pillow <https://pillow.readthedocs.io/>`_-compatible
-drawing canvas for Python 3, and other functionality to support drawing primitives and
-text-rendering capabilities for small displays on the Raspberry Pi and other
-single board computers:
+**luma.emulator** provides a series of pseudo-display devices which allow 
+the `luma.core <https://github.com/rm-hull/luma.core>`_ components to be used
+without running a physical device. These include:
 
-* scrolling/panning capability,
-* terminal-style printing,
-* state management,
-* color/greyscale (where supported),
-* dithering to monochrome,
-* sprite animation,
-* flexible framebuffering (depending on device capabilities)
+* Real-time (pixel) emulator, based on `pygame <http://pygame.org/docs/>`__
+* LED matrix and 7-segment renderers
+* PNG screen capture
+* Animated GIF animator
+* Real-time ASCII-art & block emulators
 
 Documentation
 -------------
-
-API documentation can be found at https://luma-core.readthedocs.io/en/latest/
-
-Drivers
--------
-
-Device drivers extend **luma.core** to provide the correct initialization
-sequences for specific physical display devices/chipsets.
-
-There are several drivers for different classes of device available:
-
-* `luma.oled <https://github.com/rm-hull/luma.oled/>`_
-* `luma.lcd <https://github.com/rm-hull/luma.lcd/>`_
-* `luma.led_matrix <https://github.com/rm-hull/luma.led_matrix/>`_
-* `luma.emulator <https://github.com/rm-hull/luma.emulator/>`_
-
-Emulators
----------
-
-There are emulators that run in real-time (with pygame) and others that can
-take screenshots, or assemble animated GIFs, as per the examples below. Source
-code for these are available in the `examples
-<https://github.com/rm-hull/luma.examples/tree/master/examples>`_
-directory of the ``luma.examples`` repository.
+Documentation can be found on https://luma-emulator.readthedocs.io.
 
 .. image:: https://raw.githubusercontent.com/rm-hull/luma.oled/master/doc/images/clock_anim.gif?raw=true
    :alt: clock
@@ -71,6 +48,12 @@ directory of the ``luma.examples`` repository.
 
 .. image:: https://raw.githubusercontent.com/rm-hull/luma.oled/master/doc/images/crawl_anim.gif?raw=true
    :alt: crawl
+
+.. image:: https://raw.githubusercontent.com/rm-hull/luma.emulator/master/doc/images/ascii-art.png?raw=true
+   :alt: asciiart
+
+.. image:: https://raw.githubusercontent.com/rm-hull/luma.led_matrix/master/doc/images/emulator.gif
+   :alt: max7219 emulator
 
 License
 -------

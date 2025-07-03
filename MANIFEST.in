@@ -1,6 +1,6 @@
 include README.rst CHANGES.rst CONTRIBUTING.rst LICENSE.rst tox.ini setup.cfg pytest.ini .coveragerc
 
-recursive-include luma *.py
+recursive-include luma *.py *.png
 
 recursive-include doc *
 prune doc/_build

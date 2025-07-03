@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# Copyright (c) 2017-18 Richard Hull and contributors
+# Copyright (c) 2017-2020 Richard Hull and contributors
 # See LICENSE.rst for details.
 
-# luma.core documentation build configuration file, created by
+# luma.emulator documentation build configuration file, created by
 # sphinx-quickstart.
 #
 # This file is execfile()d with the current directory set to its
@@ -15,15 +15,17 @@
 # All configuration values have a default; values that are commented out
 # serve to show the default.
 
-import os, sys
+import os
+import sys
 from datetime import datetime
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
+
 sys.path.insert(0, os.path.abspath('..'))
 
-from luma.core import __version__ as version
+from luma.emulator import __version__ as version
 
 # -- General configuration ------------------------------------------------
 
@@ -64,7 +66,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = 'Luma.Core: SBC display drivers'
+project = 'Luma.Emulator: SBC display drivers'
 author = 'Richard Hull and contributors'
 copyright = u'{0}, {1}'.format(datetime.now().year, author)
 
@@ -247,7 +249,7 @@ html_theme = 'default'
 # html_search_scorer = 'scorer.js'
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'luma.core_doc'
+htmlhelp_basename = 'luma.emulator_doc'
 
 # -- Options for LaTeX output ---------------------------------------------
 
@@ -273,7 +275,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'luma.core.tex', 'Luma.Core Documentation',
+    (master_doc, 'luma.emulator.tex', 'Luma.Emulator Documentation',
      author, 'manual'),
 ]
 
@@ -315,7 +317,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'luma.core', 'Luma.Core Documentation',
+    (master_doc, 'luma.emulator', 'Luma.Emulator Documentation',
      [author], 1)
 ]
 
@@ -330,8 +332,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'luma.core', 'Luma.Core Documentation',
-     author, 'luma.core', project,
+    (master_doc, 'luma.emulator', 'Luma.Emulator Documentation',
+     author, 'luma.emulator', project,
      'Miscellaneous'),
 ]
 
@@ -355,5 +357,6 @@ texinfo_documents = [
 # Configuration for intersphinx.
 intersphinx_mapping = {
     'python': ('https://docs.python.org/3', None),
-    'pillow': ('https://pillow.readthedocs.io/en/latest', None)
+    'pillow': ('https://pillow.readthedocs.io/en/latest', None),
+    'luma.core': ('https://luma-core.readthedocs.io/en/latest', None)
 }
