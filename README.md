@@ -1,249 +1,113 @@
-# Plex to AniList Sync
-[![Build Status](https://travis-ci.com/RickDB/PlexAniSync.svg?branch=master)](https://travis-ci.com/RickDB/PlexAniSync)[![Docker Pulls](https://img.shields.io/docker/pulls/rickdb/plexanisync)](https://hub.docker.com/r/rickdb/plexanisync)
+# FeedCrawler
 
-![Logo](logo.png)
+<img src="./feedcrawler/web/img/favicon.ico" data-canonical-src="./feedcrawler/web/img/favicon.ico" width="64" height="64" />
 
-If you manage your Anime with Plex this will allow you to sync your libraries to [AniList](https://anilist.co)  , recommend using Plex with the [HAMA agent](https://github.com/ZeroQI/Hama.bundle) for best Anime name matches.
+FeedCrawler (ehemals RSScrawler) automatisiert bequem das Hinzufügen von Links für den JDownloader.
 
-Unwatched Anime in Plex will not be synced so only those that have at least one watched episode, updates to AniList are only send with changes so need to worry about messing up watch history.
+[![PyPI version](https://badge.fury.io/py/feedcrawler.svg)](https://badge.fury.io/py/feedcrawler)
+[![PyPI - Downloads](https://img.shields.io/pypi/dm/feedcrawler)](https://github.com/rix1337/FeedCrawler/releases)
+[![Github Sponsorship](https://img.shields.io/badge/support-me-red.svg)](https://github.com/users/rix1337/sponsorship)
+[![Chat aufrufen unter https://gitter.im/FeedCrawler/community](https://badges.gitter.im/FeedCrawler/community.svg)](https://gitter.im/FeedCrawler/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![GitHub license](https://img.shields.io/github/license/rix1337/FeedCrawler.svg)](https://github.com/rix1337/FeedCrawler/blob/master/LICENSE.md)
+[![GitHub issues](https://img.shields.io/github/issues/rix1337/FeedCrawler.svg)](https://github.com/rix1337/FeedCrawler/issues)
+[![GitHub stars](https://img.shields.io/github/stars/rix1337/FeedCrawler.svg)](https://github.com/rix1337/FeedCrawler/stargazers)
+[![GitHub forks](https://img.shields.io/github/forks/rix1337/FeedCrawler.svg)](https://github.com/rix1337/FeedCrawler/network)
 
-
-This version is based on my previous project  [PlexMalSync](https://github.com/RickDB/PlexMALSync) which due to MAL closing their API is no longer working, this might change in the future and if it does will resume working on that again as as well.
-
-
-**If you want test it out first without updating your actual AniList entries check out ``Skip list updating for testing `` from the ``Optional features`` section of this readme**
-
-## Setup
-
-### Step 1 - install Python
-
-Make sure you have Python 3.7 or higher installed:
-
-[Python homepage](https://www.python.org/)
-
-
-### Step 2 - Download project files
-
-Get the latest version using your favorite git client or by downloading the latest release from here:
-
-https://github.com/RickDB/PlexAniSync/archive/master.zip
-
-
-### Step 3 - Configuration
-
-From the project directory rename `settings.ini.example` to `settings.ini`, open `settings.ini` with your favorite text editor and edit where needed.
-
-
-#### Plex
-
-Only choose one of the authentication methods, MyPlex is the easiest.
-
-##### MyPlex authentication (prefered)
-
-For MyPlex authentication you will need your Plex server name and Plex account login information, for example:
-
-```
-[PLEX]
-anime_section = Anime
-authentication_method = myplex
-
-server = Sadala
-myplex_user = Goku
-myplex_password = kamehameha
-```
-
-This completes the MyPlex authentication and **only** if you want to sync against a specific Plex Home user which isn't the admin user follow the below instructions:
-
-For this to work lookup the home username on your Plex server and also fill in your full Plex server URL, for example:
-
-```
-[PLEX]
-anime_section = Anime
-authentication_method = myplex
-
-# MyPlex
-server = Sadala
-myplex_user = John # has to be the Plex admin user acount
-myplex_password = Doe
-
-# if you enable home_user_sync it will only sync against that specific Plex home user, it requires the full url of your Plex server just like with the Direct IP method
-# home_username is the actual Plex home username and not their e-mail address, this is also case sensitive
-
-home_user_sync = True
-home_username = Megumin # the home user account you want to sync with and can not be the admin user
-home_server_base_url = http://127.0.0.1:32400
-```
-
-##### Direct Plex authentication (advanced users)
-
-The direct authentication method is for users that don't want to use Plex its online authentication system however is more complex to setup, for this you need to find your token manually:
-
-https://support.plex.tv/articles/204059436-finding-an-authentication-token-x-plex-token/
-
-Afterwards can enter your full Plex site url and above authentication token, for example:
-
-```
-[PLEX]
-anime_section = Anime
-authentication_method = direct
-
-base_url = http://192.168.1.234:32400
-token = abcdef123456789
-```
-
-##### Section configuration
-
-In the settings file enter your Plex library / section name containing your Anime, for example:
-
-```
-[PLEX]
-anime_section = Anime
-```
-
-Multiple libraries are now supported and you separate them by using the pipeline ("|") character like so:
-
-```
-[PLEX]
-anime_section = Anime|Anime2
-```
-
-#### AniList
-
-For AniList you need get a so called `access_token` which you can retrieve via this link and if not logged in will ask you to do so:
-
-https://anilist.co/api/v2/oauth/authorize?client_id=1549&response_type=token
-
-Make sure to copy the entire key as it is pretty long and paste that in the settings file under 'access_token', no need to enclose it just paste it as-is.
-
-Afterwards make sure to also fill in your AniList username as well which is your actual username not your e-mail address like for example:
-
-```
-[ANILIST]
-username = GoblinSlayer
-access_token = iLikeToastyGoblins.
-```
-
-### Step 4 - Install requirements
-
-Install the addtional requirements using the Python package installer (pip) from within the project folder:
-
-`pip install -r requirements.txt`
-
-
-### Step 5 - Start syncing
-
-Now that configuration is finished and requirements have been installed we can finally start the sync script:
-
-`python PlexAniSync.py`
-
-Depending on library size and server can take a few minutes to finish, for scheduled syncing you can create a cronjob or windows task which runs it every 30 minutes for instance.
-
-
-## Optional features
-
-### Custom anime mapping
-
-You can manually link a Plex title and season to an AniList ID, to do so:
-
-- From the project folder copy `custom_mappings.yaml.example` to `custom_mappings.yaml`
-- Add new entries there in the following format:
-
-```yaml
-  - title: "Plex title for series"
-    seasons:
-      - season: Plex season
-        anilist-id: AniList series ID
-      - season: Plex season
-        anilist-id: AniList series ID
-```
-
-If the Plex season should be split into 2 seasons, add an optional `start` parameter to each season like this:
-
-```yaml
-  - title: "Re:ZERO -Starting Life in Another World-"
-    seasons:
-      - season: 2
-        anilist-id: 108632
-        start: 1
-      - season: 2
-        anilist-id: 119661
-        start: 14
-```
-
-Episodes 1-13 will be mapped to Re:Zero 2nd Season Part 1, episodes 14 and higher will be mapped to Re:Zero 2nd Season Part 2.
-
-- To find out the AniList ID you can visit the series page and copy it from the site url, like for example My Shield hero has ID 99263:
-
-https://anilist.co/anime/99263/Tate-no-Yuusha-no-Nariagari
-
-- You can remove any existing entries from the example file as they are purely instructional
-- Upon startup it will check if the file is a valid YAML file. The most likely reason it's not is because you didn't put quotes around an anime title with special characters (e.g. ":") in it.
-
-### Custom settings file location
-
-If you want to load a different settings.in file you can do so by supplying it in the first argument like so:
-
-`python PlexAniSync.py settings_alternate.ini`
-
-In case of the Tautulli sync helper script you can do as well, first argument will then be settings filename and second will be the series name like so:
-
-`python TautulliSyncHelper.py  settings_alternate.ini <plex show name>`
-
-### Make Plex watched episode count take priority
-
-By default if AniList episode count watched is higher than that of Plex it will skip over, this can be overriden with the setting `plex_episode_count_priority`
-
-When set to True it will update the AniList entry if Plex watched episode count is higher than 0 and will not take into account the AniList watched episode count even if that is higher.
-
-**Use this with caution as normally this isn't required and only meant for certain use cases.**
-
-### Skip list updating for testing
-
-In your settings file there's a setting called `skip_list_update` which you can set to True or False, if set to True it will **NOT** update your AniList which is useful if you want to do a test run to check if everything lines up properly.
-
-### Tautulli Sync Helper script
-
-In the project folder you will find `TautulliSyncHelper.py` which you can use to sync a single Plex show to AniList for use in Tautulli script notifcations (trigger on playback stop).
-
-Usage is as follows:
-
-`python TautulliSyncHelper.py <plex show name>`
-
-Depending on your OS make sure to place the show name between single or double quotes, for more information see the wiki page:
-
-https://github.com/RickDB/PlexAniSync/wiki/Tautulli-sync-script
+***
 
 ## Docker
 
-There's also a Docker version based on [Thundernerd's](https://github.com/Thundernerd) which you can find here:
+* Offizielles Repo im Docker Hub: [docker-feedcrawler](https://hub.docker.com/r/rix1337/docker-feedcrawler/)
+* Der Betrieb als Docker-Container empfiehlt sich als Standardinstallation - vor allem für NAS-Systeme, Homeserver und
+  sonstige Geräte die dauerhaft und möglichst wartungsfrei (headless) betrieben werden sollen. Beim (Neu-)Start des
+  Containers wird automatisch die neueste Version heruntergeladen. Wird ein neues Image im Docker Hub bereitgestellt,
+  sollte dennoch auf dieses aktualisiert werden!
+* Für UNRAID-Server kann das Image direkt über die Community Applications bezogen und der Container so eingerichtet
+  werden.
+* Ein [FlareSolverr](https://github.com/FlareSolverr/FlareSolverr) muss lokal verfügbar sein um Cloudflare-Blockaden zu
+  umgehen (optional)
 
-[Docker](https://hub.docker.com/r/rickdb/plexanisync)
+## Windows
 
-If you are still on the Thundernerd docker image recommend switching to this one as it will be kept in sync with latest PlexAniSync changes.
+* Jedem [Release](https://github.com/rix1337/FeedCrawler/releases) wird eine selbstständig unter Windows lauffähige
+  Version des Feedcrawlers beigefügt.
+* Hierfür müssen weder Python, noch die Zusatzpakete installiert werden.
+* Einfach die jeweilige Exe herunterladen und ausführen bzw. bei Updates die Exe ersetzen.
+* Ein [FlareSolverr](https://github.com/FlareSolverr/FlareSolverr) muss lokal verfügbar sein um Cloudflare-Blockaden zu
+  umgehen (optional)
 
-## Requirements
+## Manuelle Installation
 
-[Python 3.7 or higher](https://www.python.org/)
+### Voraussetzungen
 
-## Support
+* [Python 3.6](https://www.python.org/downloads/) oder neuer
+* [pip](https://pip.pypa.io/en/stable/installing/)
+* [JDownloader 2](http://www.jdownloader.org/jdownloader2) mit [My JDownloader-Konto](https://my.jdownloader.org)
+* [FlareSolverr](https://github.com/FlareSolverr/FlareSolverr) um Cloudflare-Blockaden zu umgehen (optional)
 
-Support thread is located on AniList:
+### Installation
 
-https://anilist.co/forum/thread/6443
+```pip install feedcrawler```
 
-Optionally also on Plex forums but less active there:
+Hinweise zur manuellen Installation und Einrichtung finden sich im [Wiki](https://github.com/rix1337/FeedCrawler/wiki)!
 
-https://forums.plex.tv/t/plexanisync-sync-your-plex-library-to-anilist/365826
+### Bekannte Fehler
 
-## Planned
+Kommt es nach einem Update oder Neustart des Containers zu einer `sqlite3.OperationalError: database is locked`
+-Fehlermeldungen, so muss der Container gestoppt, die `FeedCrawler.db` beliebig (bspw. zu `FeedCrawler-Temp.db`)
+umbenannt und direkt wieder zurück zu `FeedCrawler.db` umbenannt werden. Hintergrund ist, dass der FeedCrawler nicht
+während die Datenbank verwendet wird (bspw. bei aktiver Feedsuche) gestoppt werden sollte. Der Umbenennungs-Workaround
+stellt sicher, dass das Betriebssystem die Datei wieder freigibt (also den Lock loslässt).
 
-Currently planned for future releases:
+Fehler im Installationsprozess per _pip_ deuten auf fehlende Compiler im System hin. Meist muss ein Zusatzpaket
+nachinstalliert werden (Beispielsweise die [VS C++ Build Tools](https://aka.ms/vs/16/release/vs_buildtools.exe) für
+Windows oder libffi per `apt-get install libffi-dev` für den Raspberry Pi).
 
-- [ ] XREF title matching based on HAMA which uses custom lists and AniDB
-- [ ] Add setting to skip updating shows with dropped state on user list
-- [ ] Ignore anime list support (based on content rating and / or title)
-- [ ] Improve error handling
+### Update
+
+```pip install -U feedcrawler```
+
+### Starten
+
+```feedcrawler``` in der Konsole (Python muss im System-PATH hinterlegt sein)
+
+## Hostnamen festlegen
+
+FeedCrawler kann zum durchsuchen beliebiger Webseiten verwendet werden. Ausschließlich der Anwender entscheidet, welche
+Seiten durchsucht werden sollen. Diese Entscheidung trifft der Anwender selbstständig, indem er die _Feedcrawler.ini_ in
+der Kategorie _[Hostnames]_ manuell befüllt (_ab = xyz.com_). Eingetragen werden dort reine Hostnamen (ohne _https://_).
+
+### Dabei gilt
+
+* Welcher Hostname aufgerufen wird entscheidet allein der Anwender.
+* Ist nicht mindestens ein Hostname gesetzt, wird der FeedCrawler nicht starten.
+* Passt die aufgerufene Seite hinter dem jeweiligen Hostnamen nicht zum Suchmuster des Feedcrawlers, kann es zu Fehlern
+  kommen.
+* Weder FeedCrawler noch der Autor benennen oder befürworten spezifische Hostnamen. Fragen hierzu werden ignoriert!
+
+## Sicherheitshinweis
+
+Der Webserver sollte nie ohne Absicherung im Internet freigegeben werden. Dazu lassen sich im Webinterface Nutzername
+und Passwort festlegen.
+
+Es empfiehlt sich, zusätzlich einen Reverse-Proxy mit HTTPs-Zertifikat,
+bspw. [kostenlos von letsencrypt](https://letsencrypt.org/), zu verwenden.
+
+## Startparameter
+
+| Parameter | Erläuterung |
+|---|---|
+| ```--log-level=<LOGLEVEL>``` | Legt fest, wie genau geloggt wird (`CRITICAL`, `ERROR`, `WARNING`, `INFO`, `DEBUG`, `NOTSET`) |
+| ```--config="<CFGPFAD>"``` | Legt den Ablageort für Einstellungen und Logs fest |
+| ```--port=<PORT>``` | Legt den Port des Webservers fest |
+| ```--jd-user=<NUTZERNAME>``` | Legt den Nutzernamen für My JDownloader fest |
+| ```--jd-pass=<PASSWORT>``` | Legt das Passwort für My JDownloader fest |
+| ```--jd-device=<GERÄTENAME>``` | Legt den Gerätenamen für My JDownloader fest (optional, wenn nur ein Gerät vorhanden ist) |
+| ``` --keep-cdc``` | Leere die CDC-Tabelle (Feed ab hier bereits gecrawlt) nicht vor dem ersten Suchlauf |
 
 ## Credits
 
-[Python-PlexAPI](https://github.com/pkkid/python-plexapi)
+* [mmarquezs](https://github.com/mmarquezs/)
+* [Gutz-Pilz](https://github.com/Gutz-Pilz/)
+* [zapp-brannigan](https://github.com/zapp-brannigan/)
+* [JetBrains PyCharm](https://www.jetbrains.com/?from=FeedCrawler)
