@@ -6,7 +6,7 @@ import sys
 import os
 from setuptools import find_packages
 import versioneer
-from setuptools import Extension, setup
+from numpy.distutils.core import Extension, setup
 from numpy.distutils.fcompiler import get_default_fcompiler
 import numpy as np
 import glob
@@ -76,14 +76,14 @@ setup(
     # Comment out this line to prevent the files from being packaged with your software
     include_package_data=True,
     # Allows `setup.py test` to work correctly with pytest
-    setup_requires=["numpy", "scipy"] + pytest_runner,
+    setup_requires=["numpy==1.22.4", "scipy"] + pytest_runner,
     ext_package=fpath,
     ext_modules=extensions,
     extras_require={"extra": ["pytest", "numba", "cython"]},
     # Additional entries you may want simply uncomment the lines you want and fill in the data
     # url='http://www.my_package.com',  # Website
     install_requires=[
-        "numpy",
+        "numpy==1.22.4",
         "scipy",
         "numba",
         "cython",
