@@ -1,40 +1,39 @@
+#!/usr/bin/env python
 from setuptools import setup
 
-setup(
-    name='homu',
-    version='0.3.0',
-    author='Barosl Lee',
-    url='https://github.com/barosl/homu',
-    test_suite='homu.tests',
-    description=('A bot that integrates with GitHub '
-                 'and your favorite continuous integration service'),
+readme = open('README.rst').read()
 
-    packages=['homu'],
+setup(
+    name='django-newsfeed',
+    version='0.8.4',
+    description="""A news curator and newsletter subscription package for django""",
+    long_description=readme,
+    long_description_content_type='text/markdown',
+    author='Maksudul Haque',
+    author_email='saad.mk112@gmail.com',
+    url='https://github.com/saadmk11/django-newsfeed',
+    packages=[
+        'newsfeed',
+    ],
+    include_package_data=True,
+    python_requires='>=3.6',
     install_requires=[
-        'github3.py==0.9.6',
-        'toml',
-        'Jinja2',
-        'requests',
-        'bottle',
-        'waitress',
-        'retrying',
+        'Django >= 2.2',
     ],
-    setup_requires=[
-        'pytest-runner',
-    ],
-    tests_require=[
-        'pytest',
-    ],
-    package_data={
-        'homu': [
-            'html/*.html',
-            'assets/*',
-        ],
-    },
-    entry_points={
-        'console_scripts': [
-            'homu=homu.main:main',
-        ],
-    },
+    test_suite="runtests.runtests",
+    license="GNU Public License",
     zip_safe=False,
+    keywords='django-newsfeed news curator newsletter subscription',
+    classifiers=[
+        'Development Status :: 4 - Beta',
+        'Framework :: Django',
+        'Intended Audience :: Developers',
+        'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
+        'Natural Language :: English',
+        'Operating System :: OS Independent',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
+    ],
 )
