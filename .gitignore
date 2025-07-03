@@ -1,5 +1,6 @@
-.settings/
-*.pyo
+*.iml
+.idea/*
+.venv/*
+staticfiles/
+*.log
 *.pyc
-.project
-.pydevproject
