@@ -1,162 +1,164 @@
-from click.testing import CliRunner
-from pytest_toolbox import gettree, mktree
-from pytest_toolbox.comparison import RegexStr
+import sys
+from pathlib import Path
 
-from harrier.cli import cli
-from harrier.common import HarrierProblem
+import pytest
 
+from watchgod.cli import callback, cli, run_function, set_tty, sys_argv
 
-def test_blank():
-    runner = CliRunner()
-    result = runner.invoke(cli)
-    assert result.exit_code == 0
-    assert 'harrier' in result.output
-    assert 'build the site' in result.output
+pytestmark = pytest.mark.skipif(sys.platform == 'win32', reason='many tests fail on windows')
 
 
-def test_build(tmpdir, mocker):
-    mktree(tmpdir, {
-        'pages/foobar.md': 'hello',
-        'theme/templates/main.jinja': 'main:\n {{ content }}',
-        'harrier.yml': (
-            'webpack: {run: false}\n'
-            'default_template: main.jinja\n'
-        )
-    })
-    mock_mod = mocker.patch('harrier.main.apply_modifiers', side_effect=lambda obj, mod: obj)
-
-    assert not tmpdir.join('dist').check()
-    result = CliRunner().invoke(cli, ['build', str(tmpdir)])
-    assert result.exit_code == 0
-    assert '1          pages built ' in result.output
-    assert 'Config:' not in result.output
-
-    assert tmpdir.join('dist').check()
-    assert gettree(tmpdir.join('dist')) == {
-        'foobar': {
-            'index.html': 'main:\n <p>hello</p>\n',
-        },
-    }
-    assert mock_mod.call_count == 2
+def foobar():
+    # used by tests below
+    Path('sentinel').write_text('ok')
 
 
-def test_build_bad(tmpdir):
-    mktree(tmpdir, {
-        'harrier.yml': 'whatever: whatever:\n'
-    })
-    assert not tmpdir.join('dist').check()
-    result = CliRunner().invoke(cli, ['build', str(tmpdir)])
-    assert result.exit_code == 2
-    assert 'error loading' in result.output
-    assert 'for more details' in result.output
-    assert not tmpdir.join('dist').check()
+def with_parser():
+    # used by tests below
+    Path('sentinel').write_text(' '.join(map(str, sys.argv[1:])))
 
 
-def test_build_bad_verbose(tmpdir):
-    mktree(tmpdir, {
-        'harrier.yml': 'whatever: whatever:\n'
-    })
-    result = CliRunner().invoke(cli, ['build', str(tmpdir), '-v'])
-    assert result.exit_code == 2
-    assert 'error loading' in result.output
-    assert 'for more details' not in result.output
+def test_simple(mocker, tmpdir):
+    mocker.patch('watchgod.cli.set_start_method')
+    mocker.patch('watchgod.cli.sys.stdin.fileno')
+    mocker.patch('os.ttyname', return_value='/path/to/tty')
+    mock_run_process = mocker.patch('watchgod.cli.run_process')
+    cli('tests.test_cli.foobar', str(tmpdir))
+    mock_run_process.assert_called_once_with(
+        Path(str(tmpdir)),
+        run_function,
+        args=('tests.test_cli.foobar', '/path/to/tty'),
+        callback=callback,
+        watcher_kwargs={'ignored_paths': set()},
+    )
 
 
-def test_dev(mocker):
-    mock_dev = mocker.patch('harrier.cli.main.dev')
-
-    result = CliRunner().invoke(cli, ['dev'])
-    assert result.exit_code == 0
-    assert mock_dev.called
-
-
-def test_dev_bad(mocker):
-    mocker.patch('harrier.cli.main.dev', side_effect=HarrierProblem())
-
-    result = CliRunner().invoke(cli, ['dev'])
-    assert result.exit_code == 2
-    assert 'for more details' in result.output
+def test_invalid_import1(mocker, tmpdir, capsys):
+    sys_exit = mocker.patch('watchgod.cli.sys.exit')
+    cli('foobar')
+    sys_exit.assert_called_once_with(1)
+    out, err = capsys.readouterr()
+    assert out == ''
+    assert err == 'ImportError: "foobar" doesn\'t look like a module path\n'
 
 
-def test_dev_bad_verbose(mocker):
-    mocker.patch('harrier.cli.main.dev', side_effect=HarrierProblem())
-
-    result = CliRunner().invoke(cli, ['dev', '--verbose'])
-    assert result.exit_code == 2
-    assert 'for more details' not in result.output
-
-
-def test_dev_bad_quiet(mocker):
-    mocker.patch('harrier.cli.main.dev', side_effect=HarrierProblem())
-
-    result = CliRunner().invoke(cli, ['dev', '--quiet'])
-    assert result.exit_code == 2
-    assert 'for more details' in result.output
+def test_invalid_import2(mocker, tmpdir, capsys):
+    sys_exit = mocker.patch('watchgod.cli.sys.exit')
+    cli('pprint.foobar')
+    sys_exit.assert_called_once_with(1)
+    out, err = capsys.readouterr()
+    assert out == ''
+    assert err == 'ImportError: Module "pprint" does not define a "foobar" attribute\n'
 
 
-def test_steps_pages(tmpdir, mocker):
-    mktree(tmpdir, {
-        'pages/foobar.md': '# hello',
-        'theme/templates/main.jinja': 'main:\n {{ content }}',
-    })
-    mock_mod = mocker.patch('harrier.main.apply_modifiers', side_effect=lambda obj, mod: obj)
-
-    result = CliRunner().invoke(cli, ['build', str(tmpdir), '-v', '-s', 'pages'])
-    assert result.exit_code == 0
-    assert 'Built site object model with 1 files, 1 files to render' in result.output
-    assert 'Config:' in result.output
-
-    assert tmpdir.join('dist').check()
-    assert mock_mod.call_count == 0
+def test_invalid_path(mocker, capsys):
+    sys_exit = mocker.patch('watchgod.cli.sys.exit')
+    cli('tests.test_cli.foobar', '/does/not/exist')
+    sys_exit.assert_called_once_with(1)
+    out, err = capsys.readouterr()
+    assert out == ''
+    assert err == 'path "/does/not/exist" does not exist\n'
 
 
-def test_steps_sass_dev(tmpdir, mocker):
-    mktree(tmpdir, {
-        'pages/foobar.md': '# hello',
-        'theme': {
-            'templates/main.jinja': '{{ content }}',
-            'sass/main.scss': 'body {width: 10px + 10px;}',
-        },
-    })
-    mock_mod = mocker.patch('harrier.main.apply_modifiers', side_effect=lambda obj, mod: obj)
-
-    result = CliRunner().invoke(cli, ['build', str(tmpdir), '-s', 'sass', '-s', 'extensions', '--dev'])
-    print(result.output)
-    assert result.exit_code == 0
-    assert 'Built site object model with 1 files, 1 files to render' not in result.output
-    assert 'Config:' not in result.output
-    assert gettree(tmpdir.join('dist')) == {
-        'theme': {
-            'main.css': (
-                'body {\n'
-                '  width: 20px; }\n'
-                '\n'
-                '/*# sourceMappingURL=main.css.map */'
-            ),
-            'main.css.map': RegexStr('{.*'),
-            '.src': {
-                'main.scss': 'body {width: 10px + 10px;}',
-            },
-        },
-    }
-    assert mock_mod.call_count == 2
+def test_tty_os_error(mocker, tmpworkdir):
+    mocker.patch('watchgod.cli.set_start_method')
+    mocker.patch('watchgod.cli.sys.stdin.fileno', side_effect=OSError)
+    mock_run_process = mocker.patch('watchgod.cli.run_process')
+    cli('tests.test_cli.foobar')
+    mock_run_process.assert_called_once_with(
+        Path(str(tmpworkdir)),
+        run_function,
+        args=('tests.test_cli.foobar', '/dev/tty'),
+        callback=callback,
+        watcher_kwargs={'ignored_paths': set()},
+    )
 
 
-def test_steps_sass_prod(tmpdir, mocker):
-    mktree(tmpdir, {
-        'pages/foobar.md': '# hello',
-        'theme': {
-            'templates/main.jinja': '{{ content }}',
-            'sass/main.scss': 'body {width: 10px + 10px;}',
-        },
-    })
+def test_tty_attribute_error(mocker, tmpdir):
+    mocker.patch('watchgod.cli.set_start_method')
+    mocker.patch('watchgod.cli.sys.stdin.fileno', side_effect=AttributeError)
+    mock_run_process = mocker.patch('watchgod.cli.run_process')
+    cli('tests.test_cli.foobar', str(tmpdir))
+    mock_run_process.assert_called_once_with(
+        Path(str(tmpdir)),
+        run_function,
+        args=('tests.test_cli.foobar', None),
+        callback=callback,
+        watcher_kwargs={'ignored_paths': set()},
+    )
 
-    result = CliRunner().invoke(cli, ['build', str(tmpdir), '-s', 'sass'])
-    assert result.exit_code == 0
-    assert 'Built site object model with 1 files, 1 files to render' not in result.output
-    assert 'Config:' not in result.output
-    assert gettree(tmpdir.join('dist')) == {
-        'theme': {
-            'main.a1ac3a7.css': 'body{width:20px}\n',
-        },
-    }
+
+def test_run_function(tmpworkdir):
+    assert not tmpworkdir.join('sentinel').exists()
+    run_function('tests.test_cli.foobar', None)
+    assert tmpworkdir.join('sentinel').exists()
+
+
+def test_run_function_tty(tmpworkdir):
+    # could this cause problems by changing sys.stdin?
+    assert not tmpworkdir.join('sentinel').exists()
+    run_function('tests.test_cli.foobar', '/dev/tty')
+    assert tmpworkdir.join('sentinel').exists()
+
+
+def test_callback(mocker):
+    # boring we have to test this directly, but we do
+    mock_logger = mocker.patch('watchgod.cli.logger.info')
+    callback({1, 2, 3})
+    mock_logger.assert_called_once_with('%d files changed, reloading', 3)
+
+
+def test_set_tty_error():
+    with set_tty('/foo/bar'):
+        pass
+
+
+@pytest.mark.parametrize(
+    'initial, expected',
+    [
+        ([], []),
+        (['--foo', 'bar'], []),
+        (['--foo', 'bar', '-a'], []),
+        (['--foo', 'bar', '--args'], []),
+        (['--foo', 'bar', '-a', '--foo', 'bar'], ['--foo', 'bar']),
+        (['--foo', 'bar', '-f', 'b', '--args', '-f', '-b', '-z', 'x'], ['-f', '-b', '-z', 'x']),
+    ],
+)
+def test_sys_argv(initial, expected, mocker):
+    mocker.patch('sys.argv', ['script.py', *initial])  # mocker will restore initial sys.argv after test
+    argv = sys_argv('path.to.func')
+    assert argv[0] == str(Path('path/to.py').absolute())
+    assert argv[1:] == expected
+
+
+@pytest.mark.parametrize(
+    'initial, expected',
+    [
+        ([], []),
+        (['--foo', 'bar'], []),
+        (['--foo', 'bar', '-a'], []),
+        (['--foo', 'bar', '--args'], []),
+        (['--foo', 'bar', '-a', '--foo', 'bar'], ['--foo', 'bar']),
+        (['--foo', 'bar', '-f', 'b', '--args', '-f', '-b', '-z', 'x'], ['-f', '-b', '-z', 'x']),
+    ],
+)
+def test_func_with_parser(tmpworkdir, mocker, initial, expected):
+    # setup
+    mocker.patch('sys.argv', ['foo.py', *initial])
+    mocker.patch('watchgod.cli.set_start_method')
+    mocker.patch('watchgod.cli.sys.stdin.fileno', side_effect=AttributeError)
+    mock_run_process = mocker.patch('watchgod.cli.run_process')
+    # test
+    assert not tmpworkdir.join('sentinel').exists()
+    cli('tests.test_cli.with_parser', str(tmpworkdir))  # run til mock_run_process
+    run_function('tests.test_cli.with_parser', None)  # run target function once
+    file = tmpworkdir.join('sentinel')
+    mock_run_process.assert_called_once_with(
+        Path(str(tmpworkdir)),
+        run_function,
+        args=('tests.test_cli.with_parser', None),
+        callback=callback,
+        watcher_kwargs={'ignored_paths': set()},
+    )
+    assert file.exists()
+    assert file.read_text(encoding='utf-8') == ' '.join(expected)

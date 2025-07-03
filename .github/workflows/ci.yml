@@ -1,9 +1,9 @@
-name: CI
+name: ci
 
 on:
   push:
     branches:
-      - main
+      - master
     tags:
       - '**'
   pull_request: {}
@@ -14,47 +14,54 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu, macos]
-        python-version: ['3.6', '3.7', '3.8']
+        os: [ubuntu, macos, windows]
+        python-version: ['3.6', '3.7', '3.8', '3.9']
+
+    runs-on: ${{ matrix.os }}-latest
 
     env:
       PYTHON: ${{ matrix.python-version }}
       OS: ${{ matrix.os }}
 
-    runs-on: ${{ matrix.os }}-latest
-
     steps:
     - uses: actions/checkout@v2
 
     - name: set up python
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v1
       with:
         python-version: ${{ matrix.python-version }}
 
-    - name: install dependencies
-      run: |
-        make install
-        pip freeze
-        pip install pytest==7.4.3
+    - run: pip install -r tests/requirements.txt
+    - run: pip install .
+    - run: pip freeze
 
-    - name: lint
-      run: |
-        make lint
-        make check-dist
+    - run: make test
+    - run: coverage xml
 
-    - name: test
-      run: |
-        make test
-        coverage xml
-
-    - uses: codecov/codecov-action@v1.0.7
+    - uses: codecov/codecov-action@v1.0.13
       with:
         file: ./coverage.xml
-        env_vars: OS,PYTHON
+        env_vars: PYTHON,OS
+
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - uses: actions/setup-python@v2
+      with:
+        python-version: '3.8'
+
+    - run: pip install -r tests/requirements-linting.txt
+
+    - run: make lint
+    - run: make mypy
 
   deploy:
-    name: Deploy
-    needs: test
+    needs:
+      - test
+      - lint
     if: "success() && startsWith(github.ref, 'refs/tags/')"
     runs-on: ubuntu-latest
 
@@ -62,23 +69,21 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: set up python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v1
         with:
           python-version: '3.8'
 
       - name: install
         run: |
-          make install
-          pip install -U wheel
-
-      - name: build
-        run: python setup.py sdist bdist_wheel
-
-      - name: check dist
-        run: twine check dist/*
+          pip install -U pip setuptools twine wheel
+          pip install .
 
       - name: check tag
-        run: PACKAGE=harrier python <(curl -Ls https://git.io/JvQsH)
+        run: PACKAGE=watchgod python <(curl -Ls https://git.io/JvQsH)
+
+      - run: python setup.py sdist bdist_wheel
+
+      - run: twine check dist/*
 
       - name: upload to pypi
         run: twine upload dist/*

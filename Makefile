@@ -1,39 +1,44 @@
 .DEFAULT_GOAL := all
+isort = isort watchgod tests
+black = black -S -l 120 --target-version py38 watchgod tests
 
 .PHONY: install
 install:
-	pip install -U setuptools pip
-	pip install -U -r tests/requirements.txt
-	pip install -U -e .
+	pip install -U pip wheel
+	pip install -r tests/requirements.txt
+	pip install -U .
+
+.PHONY: install-all
+install-all: install
+	pip install -r tests/requirements-linting.txt
 
 .PHONY: isort
-isort:
-	isort -rc -w 120 harrier
-	isort -rc -w 120 tests
+format:
+	$(isort)
+	$(black)
 
 .PHONY: lint
 lint:
-	flake8 harrier/ tests/
-
-.PHONY: check-dist
-check-dist:
 	python setup.py check -ms
-	python setup.py sdist
-	twine check dist/*
+	flake8 watchgod/ tests/
+	$(isort) --check-only --df
+	$(black) --check --diff
+
+.PHONY: mypy
+mypy:
+	mypy watchgod
 
 .PHONY: test
 test:
-	pytest --cov=harrier
+	pytest --cov=watchgod --log-format="%(levelname)s %(message)s"
 
 .PHONY: testcov
-testcov:
-	pytest --cov=harrier
+testcov: test
 	@echo "building coverage html"
-	@coverage combine
 	@coverage html
 
 .PHONY: all
-all: testcov lint
+all: lint mypy testcov
 
 .PHONY: clean
 clean:
@@ -48,4 +53,3 @@ clean:
 	rm -f .coverage.*
 	rm -rf build
 	python setup.py clean
-	make -C docs clean
