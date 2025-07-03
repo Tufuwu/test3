@@ -1,36 +1,26 @@
-# -*- coding: utf-8 -*-
-# FeedCrawler
-# Projekt von https://github.com/rix1337
+# Byte-compiled / optimized / DLL files
+__pycache__/
 
-# Python
-*.pyc
-*.bak
-*.spec
-file_version_info.txt
-version.txt
-__pycache__
-
-# Build Tools
-build
-dist
-venv
+# Distribution / packaging
+dist/
+poetry.lock
+.venv
 *.egg-info
+pip-wheel-metadata
+requirements.txt
 
-# FeedCrawler files
-*.conf
-*.db
-*.log
-*.crawljob
-*.ini
-*.journal
-*.zip
-*.1
-*.2
-*.3
-*.4
-*.5
+# MacOS
+.DS_Store
 
-# PyCharm
+# pytest
+.pytest_cache
+.env
+*.json
+
+# pycharm
 .idea
-.eggs
 
+# windows
+.vs
+*.pyproj
+*.sln
