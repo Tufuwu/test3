@@ -2,7 +2,7 @@ name: superflore-ci
 
 on:
   push:
-    branches: ['mainin']
+    branches: ['main']
   pull_request:
 
 jobs:
