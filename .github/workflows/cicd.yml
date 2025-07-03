@@ -15,7 +15,10 @@ jobs:
       uses: actions/setup-python@v2
       with:
         python-version: 3.9
-    - name: Set up Chromedriver for e2e
+    - name: Setup Chrome
+      uses: browser-actions/setup-chrome@v1
+
+    - name: Setup ChromeDriver
       uses: browser-actions/setup-chromedriver@latest
     - name: Install Dependencies
       run: |
