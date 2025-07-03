@@ -1,168 +1,50 @@
-# watchgod
+DESPASITO
+==============================
+[//]: # (Badges)
+[![License](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
+[![GitHub Actions Build Status](https://github.com/jaclark5/despasito/workflows/CI/badge.svg)](https://github.com/jaclark5/despasito/actions?query=workflow%3ACI)
+[![codecov](https://codecov.io/gh/jaclark5/DESPASITO/branch/master/graph/badge.svg)](https://codecov.io/gh/jaclark5/DESPASITO/branch/master)
+[![Documentation Status](https://readthedocs.org/projects/despasito/badge/?version=latest)](https://despasito.readthedocs.io)
+[![Language grade: Python](https://img.shields.io/lgtm/grade/python/g/jaclark5/despasito.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/jaclark5/despasito/context:python)
 
-[![CI](https://github.com/samuelcolvin/watchgod/workflows/ci/badge.svg?event=push)](https://github.com/samuelcolvin/watchgod/actions?query=event%3Apush+branch%3Amaster+workflow%3Aci)
-[![Coverage](https://codecov.io/gh/samuelcolvin/watchgod/branch/master/graph/badge.svg)](https://codecov.io/gh/samuelcolvin/watchgod)
-[![pypi](https://img.shields.io/pypi/v/watchgod.svg)](https://pypi.python.org/pypi/watchgod)
-[![license](https://img.shields.io/github/license/samuelcolvin/watchgod.svg)](https://github.com/samuelcolvin/watchgod/blob/master/LICENSE)
+DESPASITO: Determining Equilibrium State and Parametrization Application for SAFT, Intended for Thermodynamic Output
 
-Simple, modern file watching and code reload in python.
+**WARNING!** This package is not ready for distribution.
 
-*(watchgod is inspired by [watchdog](https://pythonhosted.org/watchdog/), hence the name, but tries to fix
-some of the frustrations I found with watchdog, namely: separate approaches for each OS, an inelegant approach to
-concurrency using threading, challenges around debouncing changes and bugs which weren't being fixed)*
+First open-source application for thermodynamic calculations and parameter fitting for the Statistical Associating Fluid Theory (SAFT) EOS and SAFT-𝛾-Mie coarse-grained simulations. This software has two primary facets. 
 
-## Usage
+The first facet is a means to evaluate the SAFT-𝛾-Mie EOS for binary VLE. This framework allows easy implementation of more advanced thermodynamic calculations as well as additional forms of SAFT or other equations of state. Feel free to contribute!
 
-To watch for changes in a directory:
+The second facet is parameterization, not only of the equation of state (EOS) but also for simulations. The SAFT-𝛾-Mie formalism is an attractive source of simulation parameters as it offers a means to directly link the intermolecular potential with thermodynamic properties. This application has the ability to fit EOS parameters to experimental thermodynamic data in a top down approach for self and cross interaction parameters. We also process an expanded multipole mixing rule for cross interaction parameters. It should be noted that it is recommended to fine tune simulation parameters in an iterative fashion, but previous works have found close agreement with those fit to the EOS.
 
-```python
-from watchgod import watch
+Installation
+------------
+**NOTE:** DESPASITO is not yet available conda-forge, but it is available with pip.
 
-for changes in watch('./path/to/dir'):
-    print(changes)
-```
+**Prerequisites**:
+  * [NumPy](https://numpy.org): needed for running setup (distutils). Follow instructions outlined [here](https://docs.scipy.org/doc/numpy/user/install.html) for installation.
+  * [SetupTools](https://pypi.org/project/setuptools): needed for running setup (find_packages). Follow instructions outlined [here](https://pythonhosted.org/an_example_pypi_project/setuptools.html) for installation. 
 
-To run a function and restart it when code changes:
+**Step 1:** Install the prerequisites listed above.
 
-```python
-from watchgod import run_process
+**Step 2:** Install using pip with ``pip install -i https://test.pypi.org/simple/ despasito``
 
-def foobar(a, b, c):
-    ...
+**NOTE** If [pip](https://pip.pypa.io/en/stable/) is unavailable, follow the instructions outlined [here](https://pip.pypa.io/en/stable/installing/) for installation. Alternatively, download the master branch from our github page as a zip file, or clone it with git via ``git clone https://github.com/jaclark5/despasito`` in your working directory. Install DESPASITO locally from the working directory with ``python setup.py install --user``.
 
-run_process('./path/to/dir', foobar, args=(1, 2, 3))
-```
+Command Line Use
+----------------
+This package has been primarily designed as a command line tool but can be used as an imported package.
 
-`run_process` uses `PythonWatcher` so only changes to python files will prompt a
-reload, see **custom watchers** below.
+In any directory with the appropriate .json input files, run DESPASITO with ``python -m despasito input.json``
 
-If you need notifications about change events as well as to restart a process you can
-use the `callback` argument to pass a function which will be called on every file change
-with one argument: the set of file changes.
+See [examples](despasito/examples) directory for input file structures.
 
-## Asynchronous Methods
+### Copyright
 
-*watchgod* comes with an asynchronous equivalents of `watch`: `awatch` which uses
-a `ThreadPoolExecutor` to iterate over files.
-
-```python
-import asyncio
-from watchgod import awatch
-
-async def main():
-    async for changes in awatch('/path/to/dir'):
-        print(changes)
-
-loop = asyncio.get_event_loop()
-loop.run_until_complete(main())
-```
-
-There's also an asynchronous equivalents of `run_process`: `arun_process` which in turn
-uses `awatch`:
-
-```python
-import asyncio
-from watchgod import arun_process
-
-def foobar(a, b, c):
-    ...
-
-async def main():
-    await arun_process('./path/to/dir', foobar, args=(1, 2, 3))
-
-loop = asyncio.get_event_loop()
-loop.run_until_complete(main())
-```
-
-`arun_process` uses `PythonWatcher` so only changes to python files will prompt a
-reload, see **custom watchers** below.
-
-The signature of `arun_process` is almost identical to `run_process` except that
-the optional `callback` argument must be a coroutine, not a function.
-
-## Custom Watchers
+Copyright (c) 2019, Jennifer A Clark
 
 
-*watchgod* comes with the following watcher classes which can be used via the `watcher_cls`
-keyword argument to any of the methods above.
-
-For example:
-
-```python
-for changes in watch(directoryin, watcher_cls=RegExpWatcher, watcher_kwargs=dict(re_files=r'^.*(\.mp3)$')):
-   print (changes)
-```
-
-For more details, checkout
-[`watcher.py`](https://github.com/samuelcolvin/watchgod/blob/master/watchgod/watcher.py),
-it's pretty simple.
-
-* **AllWatcher** The base watcher, all files are checked for changes.
-
-* **DefaultWatcher** The watcher used by default by `watch` and `awatch`, commonly ignored files
-  like `*.swp`, `*.pyc` and `*~` are ignored along with directories like
-  `.git`.
-
-* **PythonWatcher** Specific to python files, only `*.py`, `*.pyx` and `*.pyd` files are watched.
-
-* **DefaultDirWatcher** Is the base for `DefaultWatcher` and `DefaultDirWatcher`. It takes care of ignoring
-  some regular directories.
-
-
-If these classes aren't sufficient you can define your own watcher, in particular
-you will want to override `should_watch_dir` and `should_watch_file`. Unless you're
-doing something very odd, you'll want to inherit from `DefaultDirWatcher`.
-
-Note that events related to *directories* are not reported (e.g. creation of a
-directory), but new files in new directories will be reported.
-
-## CLI
-
-*watchgod* also comes with a CLI for running and reloading python code.
-
-Lets say you have `foobar.py`:
-
-```python
-from aiohttp import web
-
-async def handle(request):
-    return web.Response(text='testing')
-
-app = web.Application()
-app.router.add_get('/', handle)
-
-def main():
-    web.run_app(app, port=8000)
-```
-
-You could run this and reload it when any file in the current directory changes with::
-
-    watchgod foobar.main
-
-In case you need to ignore certain files or directories, you can use the argument
- `--ignore-paths`. 
-
-Run `watchgod --help` for more options. *watchgod* is also available as a python executable module
-via `python -m watchgod ...`.
-
-## Why no inotify / kqueue / fsevent / winapi support
-
-*watchgod* (for now) uses file polling rather than the OS's built in file change notifications.
-
-This is not an oversight, it's a decision with the following rationale:
-
-1. Polling is "fast enough", particularly since PEP 471 introduced fast `scandir`.
-  For reasonably large projects like the TutorCruncher code base with 850 files and 300k lines
-  of code, *watchgod* can scan the entire tree in ~24ms. With a scan interval of 400ms that is roughly
-  5% of one CPU - perfectly acceptable load during development.
-2. The clue is in the title, there are at least 4 different file notification systems to integrate
-  with, most of them not trivial. That is all before we get to changes between different OS versions.
-3. Polling works well when you want to group or "debounce" changes.
-  Let's say you're running a dev server and you change branch in git, 100 files change.
-  Do you want to reload the dev server 100 times or once? Right.
-  Polling periodically will likely group these changes into one event. If you're receiving a
-  stream of events you need to delay execution of the reload when you receive the first event
-  to see if it's part of a group of file changes. This is not trivial.
-
-All that said, I might still use rust's "notify" crate to do the heavy lifting of file watching,
-see[#25](https://github.com/samuelcolvin/watchgod/issues/25).
+#### Acknowledgements
+ 
+Project based on the 
+[Computational Molecular Science Python Cookiecutter](https://github.com/molssi/cookiecutter-cms) version 1.0.
