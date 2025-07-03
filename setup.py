@@ -47,7 +47,7 @@ setup(
         harrier=harrier.cli:cli
     """,
     install_requires=[
-        'Jinja2>=2.8',
+        'Jinja2<3.1.0',
         'Pygments>=2.2.0',
         'aiohttp-devtools>=0.10, <=0.11',
         'click>=6.2',
