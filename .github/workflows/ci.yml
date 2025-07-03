@@ -35,6 +35,7 @@ jobs:
       run: |
         make install
         pip freeze
+        pip install pytest==7.4.3
 
     - name: lint
       run: |
