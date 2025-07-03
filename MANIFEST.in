@@ -1,7 +1,4 @@
-include LICENSE
-include MANIFEST.in
-include versioneer.py
-
-graft despasito
-#global-exclude *.py[cod] __pycache__ *.so
-global-exclude *.py[cod] __pycache__
+include CHANGES.rst
+include COPYING
+include tests/*
+include bin/num2words

@@ -1,99 +1,79 @@
-"""
-DESPASITO
-DESPASITO: Determining Equilibrium State and Parametrization Application for SAFT, Intended for Thermodynamic Output
-"""
-import sys
-import os
-from setuptools import find_packages
-import versioneer
-from numpy.distutils.core import Extension, setup
-from numpy.distutils.fcompiler import get_default_fcompiler
-import numpy as np
-import glob
+# -*- coding: utf-8 -*-
+# Copyright (c) 2003, Taro Ogawa.  All Rights Reserved.
+# Copyright (c) 2013, Savoir-faire Linux inc.  All Rights Reserved.
 
-short_description = __doc__.split("\n")
-fpath = os.path.join("despasito", "equations_of_state", "saft", "compiled_modules")
-extensions = []
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License, or (at your option) any later version.
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+# MA 02110-1301 USA
 
-if sys.version_info.minor > 8:
-    raise ValueError(
-        "DESPASITO cannot run on python versions greater than 3.8 due to incompadibilities between python 3.9 and numba."
-    )
+import re
+from io import open
 
-try:
-    from Cython.Build import cythonize
-    flag_cython = True
-except:
-    print('Cython not available on your system. Proceeding without C-extentions.')
-    flag_cython = False
+from setuptools import find_packages, setup
 
-if flag_cython:
-    cython_list = glob.glob(os.path.join(fpath,"*.pyx"))
-    for cyext in cython_list:
-        name = os.path.split(cyext)[-1].split(".")[-2]
-        cy_ext_1 = Extension(name=name, sources=[cyext], include_dirs=[fpath])
-        extensions.extend(cythonize([cy_ext_1],compiler_directives={'language_level': 3}))
+PACKAGE_NAME = "num2words"
 
-# from https://github.com/pytest-dev/pytest-runner#conditional-requirement
-needs_pytest = {"pytest", "test", "ptr"}.intersection(sys.argv)
-pytest_runner = ["pytest-runner"] if needs_pytest else []
+CLASSIFIERS = [
+    'Development Status :: 5 - Production/Stable',
+    'Intended Audience :: Developers',
+    'License :: OSI Approved :: GNU Library or Lesser General Public License '
+    '(LGPL)',
+    'Programming Language :: Python :: 2.7',
+    'Programming Language :: Python :: 3',
+    'Topic :: Software Development :: Internationalization',
+    'Topic :: Software Development :: Libraries :: Python Modules',
+    'Topic :: Software Development :: Localization',
+    'Topic :: Text Processing :: Linguistic',
+]
 
-try:
-    with open("README.md", "r") as handle:
-        long_description = handle.read()
-except:
-    long_description = "\n".join(short_description[2:])
+LONG_DESC = open('README.rst', 'rt', encoding="utf-8").read() + '\n\n' + \
+            open('CHANGES.rst', 'rt', encoding="utf-8").read()
 
-if get_default_fcompiler() != None:
-    fortran_list = glob.glob(os.path.join(fpath, "*.f90"))
-    for fext in fortran_list:
-        name = os.path.split(fext)[-1].split(".")[-2]
-        ext1 = Extension(name=name, sources=[fext], include_dirs=[fpath])
-        extensions.append(ext1)
-else:
-    print("Fortran compiler is not found, default will use numba")
 
-# try Extension and compile
-# !!!! Note that we have fortran modules that need to be compiled with "f2py3 -m solv_assoc -c solve_assoc.f90" and the same with solve_assoc_matrix.f90
+def find_version(fname):
+    """Parse file & return version number matching 0.0.1 regex
+    Returns str or raises RuntimeError
+    """
+    version = ''
+    with open(fname, 'r', encoding="utf-8") as fp:
+        reg = re.compile(r'__version__ = [\'"]([^\'"]*)[\'"]')
+        for line in fp:
+            m = reg.match(line)
+            if m:
+                version = m.group(1)
+                break
+    if not version:
+        raise RuntimeError('Cannot find version information')
+    return version
+
 
 setup(
-    # Self-descriptive entries which should always be present
-    name="despasito",
-    author="Jennifer A Clark",
-    author_email="jennifer.clark@gnarlyoak.com",
-    description=short_description[0],
-    long_description=long_description,
-    long_description_content_type="text/markdown",
-    version=versioneer.get_version(),
-    cmdclass=versioneer.get_cmdclass(),
-    license="BSD-3-Clause",
-    # Which Python importable modules should be included when your package is installed
-    # Handled automatically by setuptools. Use 'exclude' to prevent some specific
-    # subpackage(s) from being added, if needed
-    packages=find_packages(),
-    # Optional include package data to ship with your package
-    # Customize MANIFEST.in if the general case does not suit your needs
-    # Comment out this line to prevent the files from being packaged with your software
-    include_package_data=True,
-    # Allows `setup.py test` to work correctly with pytest
-    setup_requires=["numpy==1.22.4", "scipy"] + pytest_runner,
-    ext_package=fpath,
-    ext_modules=extensions,
-    extras_require={"extra": ["pytest", "numba", "cython"]},
-    # Additional entries you may want simply uncomment the lines you want and fill in the data
-    # url='http://www.my_package.com',  # Website
-    install_requires=[
-        "numpy==1.22.4",
-        "scipy",
-        "numba",
-        "cython",
-    ],  # Required packages, pulls from pip if needed; do not use for Conda deployment
-    # platforms=['Linux',
-    #            'Mac OS-X',
-    #            'Unix',
-    #            'Windows'],            # Valid platforms your code works on, adjust to your flavor
-    python_requires=">=3.6, <=3.8.8",          # Python version restrictions
-
-    # Manual control if final package is compressible or not, set False to prevent the .egg from being made
-    zip_safe=False,
+    name=PACKAGE_NAME,
+    version=find_version("bin/num2words"),
+    description='Modules to convert numbers to words. Easily extensible.',
+    long_description=LONG_DESC,
+    license='LGPL',
+    author='Taro Ogawa <tso at users sourceforge net>',
+    author_email='tos@users.sourceforge.net',
+    maintainer='Savoir-faire Linux inc.',
+    maintainer_email='istvan.szalai@savoirfairelinux.com',
+    keywords=' number word numbers words convert conversion i18n '
+             'localisation localization internationalisation '
+             'internationalization',
+    url='https://github.com/savoirfairelinux/num2words',
+    packages=find_packages(exclude=['tests']),
+    test_suite='tests',
+    classifiers=CLASSIFIERS,
+    scripts=['bin/num2words'],
+    install_requires=["docopt>=0.6.2"],
+    tests_require=['delegator.py'],
 )
