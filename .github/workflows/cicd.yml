@@ -1,39 +1,60 @@
-name: CI/CD
+name: CI
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
+      - development
   pull_request:
-    branches: [ main ]
+    branches:
+      - master
+      - development
 
 jobs:
   build:
     runs-on: ubuntu-latest
+
+    services:
+      docker:
+        image: docker:stable-dind
+
     steps:
     - uses: actions/checkout@v2
-    - name: Set up Python 3.9
+
+    - name: Set up Python
       uses: actions/setup-python@v2
       with:
-        python-version: 3.9
-    - name: Setup Chrome
-      uses: browser-actions/setup-chrome@v1
+        python-version: '3.9'
 
-    - name: Setup ChromeDriver
-      uses: browser-actions/setup-chromedriver@latest
-    - name: Install Dependencies
+    - name: Install dependencies
+      run: pip install pipenv
+
+    - name: Install project dependencies
+      run: pipenv install
+
+    - name: Set up ChromeDriver
       run: |
-        pip install pipenv
-        pipenv install --dev
-    - name: Run Tests
+        LATEST_CHROMEDRIVER_VERSION=$(curl -s "https://chromedriver.storage.googleapis.com/LATEST_RELEASE_89")
+        curl -O "https://chromedriver.storage.googleapis.com/${LATEST_CHROMEDRIVER_VERSION}/chromedriver_linux64.zip"
+        unzip chromedriver_linux64.zip -d ~/bin
+
+    - name: Run tests
+      run: python manage.py test
+
+    - name: Collect static files
+      run: python manage.py collectstatic --noinput
+
+    - name: Run Behave tests
+      run: python manage.py behave
+
+    - name: Deploy to Heroku
+      if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+      env:
+        HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
       run: |
-        pipenv run python manage.py test
-        pipenv run python manage.py collectstatic --noinput
-        pipenv run python manage.py behave
-    - name: Build, Push and Deploy to Heroku
-      if: ${{ github.event_name == 'push' }}
-      uses: jctaveras/heroku-deploy@v2.1.3
-      with:
-        email: ${{ secrets.HEROKU_EMAIL }}
-        api_key: ${{ secrets.HEROKU_API_KEY }}
-        app_name: 'myrecommendations'
-        dockerfile_path: ''
+        export PROJECT=myrecommendations
+        docker build -f Dockerfile -t registry.heroku.com/$PROJECT/web .
+        echo "$HEROKU_API_KEY" | docker login --username=_ --password-stdin registry.heroku.com
+        docker push registry.heroku.com/$PROJECT/web
+        curl https://cli-assets.heroku.com/install.sh | sh
+        heroku container:release web --app $PROJECT
