@@ -1,23 +1,38 @@
-name: GitHub Actions Check
-run-name: ${{ github.actor }} Checks 🚀
-on: [push, pull_request]
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
 jobs:
-  Link-Format-Checks:
+  build:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v3
-      - run: |
-          chmod +x scripts/link-format-chk.sh
-          scripts/link-format-chk.sh
-  Build-Table-Checks:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - run: scripts/buildtable.pl >/tmp/table.mediawiki || exit 1
-  Diff-Checks:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - run: |
-          chmod +x scripts/diffcheck.sh
-          scripts/diffcheck.sh
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Run link format check
+      run: |
+        chmod +x scripts/link-format-chk.sh
+        scripts/link-format-chk.sh
+
+    - name: Build table and compare
+      run: |
+        chmod +x scripts/buildtable.pl
+        scripts/buildtable.pl >/tmp/table.mediawiki || exit 1
+        diff README.mediawiki /tmp/table.mediawiki | grep '^[<>] |' >/tmp/after.diff || true
+        if git checkout HEAD^ && scripts/buildtable.pl >/tmp/table.mediawiki 2>/dev/null; then
+          diff README.mediawiki /tmp/table.mediawiki | grep '^[<>] |' >/tmp/before.diff || true
+          newdiff=$(diff -s /tmp/before.diff /tmp/after.diff -u | grep '^+')
+          if [ -n "$newdiff" ]; then
+            echo "$newdiff"
+            exit 1
+          fi
+        else
+          echo 'Cannot build previous commit table for comparison'
+        fi
