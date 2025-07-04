@@ -1,14 +1,5 @@
-include setup.cfg
-include setup*.py
 include MANIFEST.in
-include *.txt
-include Makefile
-recursive-include skfuzzy *.pyx *.pxd *.pxi *.py *.c *.h *.ini *.md5 *.npy *.txt
-
-include docs/Makefile
-recursive-include docs/source *.txt
-recursive-include docs/tools *.txt
-recursive-include docs/source/_templates *.html
-recursive-include docs *.py
-prune docs/build
-prune docs/gh-pages
+include CHANGES.rst INSTALL.rst LICENSE.txt README.rst
+include logo/logo-220x200.png
+recursive-include lupa *.py *.pyx *.pxd *.pxi *.c
+recursive-include third-party *.c *.h
