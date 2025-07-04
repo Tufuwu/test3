@@ -1,0 +1,3 @@
+[MESSAGES CONTROL]
+disable=bad-continuation,  # https://git.io/fj8D6
+    fixme

@@ -1,84 +1,55 @@
-# nb-clean
+# xdg
 
-`nb-clean` cleans Jupyter notebooks of cell execution counts, metadata, and
-outputs, preparing them for committing to version control. It provides a Git
-filter to automatically clean notebooks before they are staged, and can also be
-used as a standalone tool outside Git or with other version control systems. It
-can determine if a notebook is clean or not, which can be used as a check in
-your continuous integration pipelines.
+`xdg` is a tiny Python module which provides the variables defined by the [XDG
+Base Directory Specification][spec], to save you from duplicating the same
+snippet of logic in every Python utility you write that deals with user cache,
+configuration, or data files. It has no external dependencies.
 
 ## Installation
 
 To install the latest release from [PyPI], use [pip]:
 
 ```bash
-pip install nb-clean
+pip install xdg
 ```
 
-Alternately, in Python projects using [Poetry] or [Pipenv] for dependency
-management, add `nb-clean` as a development dependency with
-`poetry add --dev nb-clean` or `pipenv install --dev nb-clean`. `nb-clean`
-requires Python 3.6 or later.
+In Python projects using [Poetry] or [Pipenv] for dependency management, add
+`xdg` as a dependency with `poetry add xdg` or `pipenv install xdg`.
+Alternatively, since `xdg` is only a single file you may prefer to just copy
+`src/xdg/__init__.py` from the source distribution into your project.
 
 ## Usage
 
-### Cleaning
-
-To install a filter in an existing Git repository to automatically clean
-notebooks before they are staged, run the following from the working tree:
-
-```bash
-nb-clean configure-git
+```python
+from xdg import (XDG_CACHE_HOME, XDG_CONFIG_DIRS, XDG_CONFIG_HOME,
+                 XDG_DATA_DIRS, XDG_DATA_HOME, XDG_RUNTIME_DIR)
 ```
 
-`nb-clean` will configure a filter in the Git repository in which it is run, and
-will not mutate your global or system Git configuration. To remove the filter,
-run:
+`XDG_CACHE_HOME`, `XDG_CONFIG_HOME`, and `XDG_DATA_HOME` are [`pathlib.Path`
+objects][path] containing the value of the environment variable of the same
+name, or the default defined in the specification if the environment variable is
+unset or empty.
 
-```bash
-nb-clean unconfigure-git
-```
+`XDG_CONFIG_DIRS` and `XDG_DATA_DIRS` are lists of `pathlib.Path` objects
+containing the value of the environment variable of the same name split on
+colons, or the default defined in the specification if the environment variable
+is unset or empty.
 
-Aside from usage from a filter in a Git repository, you can also clean up a
-Jupyter notebook manually with:
-
-```bash
-nb-clean clean -i original.ipynb -o cleaned.ipynb
-```
-
-or by passing the notebook contents on stdin:
-
-```bash
-nb-clean clean < original.ipynb > cleaned.ipynb
-```
-
-### Checking
-
-You can check if a notebook is clean with:
-
-```bash
-nb-clean check -i notebook.ipynb
-```
-
-or by passing the notebook contents on stdin:
-
-```bash
-nb-clean check < notebook.ipynb
-```
-
-`nb-clean` will exit with status code 0 if the notebook is clean, and status
-code 1 if it is not. `nb-clean` will also print details of cell execution
-counts, metadata, and outputs it finds.
+`XDG_RUNTIME_DIR` is a `pathlib.Path` object containing the value of the
+environment variable of the same name, or `None` if the environment variable is
+unset.
 
 ## Copyright
 
-Copyright © 2017-2019 [Scott Stevenson].
+Copyright © 2016-2019 [Scott Stevenson].
 
-`nb-clean` is distributed under the terms of the [ISC licence].
+`xdg` is distributed under the terms of the [ISC licence].
 
 [isc licence]: https://opensource.org/licenses/ISC
+[path]: https://docs.python.org/3/library/pathlib.html#pathlib.Path
 [pip]: https://pip.pypa.io/en/stable/
-[pipenv]: https://pipenv.readthedocs.io/en/latest/
+[pipenv]: https://docs.pipenv.org/
 [poetry]: https://poetry.eustace.io/
-[pypi]: https://pypi.org/project/nb-clean/
+[pypi]: https://pypi.org/project/xdg/
 [scott stevenson]: https://scott.stevenson.io
+[spec]: https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html
