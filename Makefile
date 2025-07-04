@@ -1,19 +1,18 @@
-# Minimal makefile for Sphinx documentation
-#
+# Makefile for creating a new release of the package and uploading it to PyPI
 
-# You can set these variables from the command line.
-SPHINXOPTS    =
-SPHINXBUILD   = sphinx-build
-SOURCEDIR     = source
-BUILDDIR      = build
+PYTHON = python3
 
-# Put it first so that "make" without argument is like "make help".
 help:
-	@$(SPHINXBUILD) -M help "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
+	@echo "Use 'make upload' to upload the package to PyPi"
 
-.PHONY: help Makefile
 
-# Catch-all target: route all unknown targets to Sphinx using the new
-# "make mode" option.  $(O) is meant as a shortcut for $(SPHINXOPTS).
-%: Makefile
-	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
+upload:
+	rm -r dist build | true
+	$(PYTHON) setup.py sdist bdist_wheel
+	twine upload dist/*
+
+# For testing:
+test-upload:
+	rm -r dist build | true
+	$(PYTHON) setup.py sdist bdist_wheel
+	twine upload --repository testpypi dist/*
