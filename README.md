@@ -1,83 +1,113 @@
-![Build Status](https://github.com/SirVer/ultisnips/actions/workflows/main.yml/badge.svg)
-[![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/SirVer/ultisnips?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
+# django-sendgrid-v5
 
-UltiSnips
-=========
+[![Latest Release](https://img.shields.io/pypi/v/django-sendgrid-v5.svg)](https://pypi.python.org/pypi/django-sendgrid-v5/)
 
-UltiSnips is the ultimate solution for snippets in Vim. It has many features,
-speed being one of them.
+This package implements an email backend for Django that relies on sendgrid's REST API for message delivery.
 
-![GIF Demo](https://raw.github.com/SirVer/ultisnips/master/doc/demo.gif)
+It is under active development, and pull requests are more than welcome\!
 
-In this demo I am editing a python file. I first expand the `#!` snippet, then
-the `class` snippet. The completion menu comes from
-[YouCompleteMe](https://github.com/Valloric/YouCompleteMe), UltiSnips also
-integrates with [deoplete](https://github.com/Shougo/deoplete.nvim), and more. I can
-jump through placeholders and add text while the snippet inserts text in other
-places automatically: when I add `Animal` as a base class, `__init__` gets
-updated to call the base class constructor. When I add arguments to the
-constructor, they automatically get assigned to instance variables. I then
-insert my personal snippet for `print` debugging. Note that I left insert mode,
-inserted another snippet and went back to add an additional argument to
-`__init__` and the class snippet was still active and added another instance
-variable.
+To use the backend, simply install the package (using pip), set the `EMAIL_BACKEND` setting in Django, and add a `SENDGRID_API_KEY` key (set to the appropriate value) to your Django settings.
 
-The official home of UltiSnips is at <https://github.com/sirver/ultisnips>.
-Please add pull requests and issues there.
+## How to Install
 
-UltiSnips was started in Jun 2009 by @SirVer. In Dec 2015, maintenance was
-handed over to [@seletskiy](https://github.com/seletskiy) who ran out of time
-in early 2017. Since Jun 2019, @SirVer is maintaining UltiSnips again on a
-very constraint time budget. If you can help triaging issues it would be
-greatly appreciated.
+1. `pip install django-sendgrid-v5`
+2. In your project's settings.py script:
+    1. Set `EMAIL_BACKEND = "sendgrid_backend.SendgridBackend"`
+    2. Set the SENDGRID\_API\_KEY in settings.py to your api key that was provided to you by sendgrid. `SENDGRID_API_KEY = os.environ["SENDGRID_API_KEY"]`
+
+### Other settings
+
+1. To toggle sandbox mode (when django is running in DEBUG mode), set `SENDGRID_SANDBOX_MODE_IN_DEBUG = True/False`.
+    1. To err on the side of caution, this defaults to True, so emails sent in DEBUG mode will not be delivered, unless this setting is explicitly set to False.
+2. `SENDGRID_ECHO_TO_STDOUT` will echo to stdout or any other file-like
+    object that is passed to the backend via the `stream` kwarg.
+3. `SENDGRID_TRACK_EMAIL_OPENS` - defaults to true and tracks email open events via the Sendgrid service. These events are logged in the Statistics UI, Email Activity interface, and are reported by the Event Webhook.
+4. `SENDGRID_TRACK_CLICKS_HTML` - defaults to true and, if enabled in your Sendgrid account, will tracks click events on links found in the HTML message sent.
+5. `SENDGRID_TRACK_CLICKS_PLAIN` - defaults to true and, if enabled in your Sendgrid account, will tracks click events on links found in the plain text message sent.
+
+## Usage
+
+### Simple
+
+```python
+from django.core.mail import send_mail
+
+send_mail(
+    'Subject here',
+    'Here is the message.',
+    'from@example.com',
+    ['to@example.com'],
+    fail_silently=False,
+)
+```
+
+### Dynamic Template with JSON Data
+
+First, create a [dynamic template](https://mc.sendgrid.com/dynamic-templates) and copy the ID.
+
+```python
+from django.core.mail import EmailMessage
+
+msg = EmailMessage(
+  from_email='to@example.com',
+  to=['to@example.com'],
+)
+msg.template_id = "your-dynamic-template-id"
+msg.dynamic_template_data = {
+  "title": foo
+}
+msg.send(fail_silently=False)
+```
+
+### The kitchen sink EmailMessage (all of the supported sendgrid-specific properties)
+
+```python
+from django.core.mail import EmailMessage
+
+msg = EmailMessage(
+  from_email='to@example.com',
+  to=['to@example.com'],
+  cc=['cc@example.com'],
+  bcc=['bcc@example.com'],
+)
+
+# Personalization custom args
+# https://sendgrid.com/docs/for-developers/sending-email/personalizations/
+msg.custom_args = {'arg1': 'value1', 'arg2': 'value2'}
+
+# Reply to email address (sendgrid only supports 1 reply-to email address)
+msg.reply_to = 'reply-to@example.com'
+
+# Send at (accepts an integer per the sendgrid docs)
+# https://sendgrid.com/docs/API_Reference/SMTP_API/scheduling_parameters.html#-Send-At
+msg.send_at = 1600188812
+
+# Transactional templates
+# https://sendgrid.com/docs/ui/sending-email/how-to-send-an-email-with-dynamic-transactional-templates/
+msg.template_id = "your-dynamic-template-id"
+msg.dynamic_template_data = {  # Sendgrid v6+ only
+  "title": foo
+}
+msg.substitutions = {
+  "title": bar
+}
+
+# Unsubscribe groups
+# https://sendgrid.com/docs/ui/sending-email/unsubscribe-groups/
+msg.asm = {'group_id': 123, 'groups_to_display': ['group1', 'group2']}
+
+# Categories
+# https://sendgrid.com/docs/glossary/categories/
+msg.categories = ['category1', 'category2']
+
+# IP Pools
+# https://sendgrid.com/docs/ui/account-and-settings/ip-pools/
+msg.ip_pool_name = 'my-ip-pool'
 
 
-Quick Start
------------
+msg.send(fail_silently=False)
+```
 
-This assumes you are using [Vundle](https://github.com/gmarik/Vundle.vim). Adapt
-for your plugin manager of choice. Put this into your `.vimrc`.
+## Examples
 
-    " Track the engine.
-    Plugin 'SirVer/ultisnips'
-
-    " Snippets are separated from the engine. Add this if you want them:
-    Plugin 'honza/vim-snippets'
-
-    " Trigger configuration. You need to change this to something other than <tab> if you use one of the following:
-    " - https://github.com/Valloric/YouCompleteMe
-    " - https://github.com/nvim-lua/completion-nvim
-    let g:UltiSnipsExpandTrigger="<tab>"
-    let g:UltiSnipsJumpForwardTrigger="<c-b>"
-    let g:UltiSnipsJumpBackwardTrigger="<c-z>"
-
-    " If you want :UltiSnipsEdit to split your window.
-    let g:UltiSnipsEditSplit="vertical"
-
-UltiSnips comes with comprehensive
-[documentation](https://github.com/SirVer/ultisnips/blob/master/doc/UltiSnips.txt).
-As there are more options and tons of features I suggest you at least skim it.
-
-There are example uses for some power user features here:
-
-  * [Snippets Aliases](doc/examples/snippets-aliasing/README.md)
-  * [Dynamic Tabstops/Tabstop Generation](doc/examples/tabstop-generation/README.md)
-
-Screencasts
------------
-
-From a gentle introduction to really advanced in a few minutes: The blog posts
-of the screencasts contain more advanced examples of the things discussed in the
-videos.
-
-- [Episode 1: What are snippets and do I need them?](http://www.sirver.net/blog/2011/12/30/first-episode-of-ultisnips-screencast/)
-- [Episode 2: Creating Basic Snippets](http://www.sirver.net/blog/2012/01/08/second-episode-of-ultisnips-screencast/)
-- [Episode 3: What's new in version 2.0](http://www.sirver.net/blog/2012/02/05/third-episode-of-ultisnips-screencast/)
-- [Episode 4: Python Interpolation](http://www.sirver.net/blog/2012/03/31/fourth-episode-of-ultisnips-screencast/)
-
-Also the excellent [Vimcasts](http://vimcasts.org) dedicated three episodes to
-UltiSnips:
-
-- [Meet UltiSnips](http://vimcasts.org/episodes/meet-ultisnips/)
-- [Using Python interpolation in UltiSnips snippets](http://vimcasts.org/episodes/ultisnips-python-interpolation/)
-- [Using selected text in UltiSnips snippets](http://vimcasts.org/episodes/ultisnips-visual-placeholder/)
+- Marcelo Canina [(@marcanuy)](https://github.com/marcanuy) wrote a great article demonstrating how to integrate `django-sendgrid-v5` into your Django application on his site: [https://simpleit.rocks/python/django/adding-email-to-django-the-easiest-way/](https://simpleit.rocks/python/django/adding-email-to-django-the-easiest-way/)
