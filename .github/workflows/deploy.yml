@@ -43,7 +43,7 @@ jobs:
         run: |
           tlmgr install tabulary latexmk ulem environ trimspaces titlesec \
                       varwidth framed threeparttable wrapfig upquote capt-of \
-                      multirow eqparbox needspace fncychap letltxmacro
+                      multirow eqparbox needspace fncychap letltxmacro texlive-latex-extra
 
       - name: Build PDF documentaiton
         run: |
