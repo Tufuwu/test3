@@ -35,6 +35,7 @@ jobs:
         run: |
           tools/header.py "Dependency versions"
           chmod +x tools/build_versions.py
+          chmod +x tools/header.py
           tools/build_versions.py
           python setup.py build_ext --inplace
           pip install -e .
