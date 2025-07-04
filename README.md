@@ -1,91 +1,99 @@
-Python FHIR Parser
-==================
-A Python FHIR specification parser for model class generation.
-If you've come here because you want _Swift_ or _Python_ classes for FHIR data models, look at our client libraries instead:
+# Unity YAML Parser #
 
-- [Swift-FHIR][] and [Swift-SMART][]
-- Python [client-py][]
+This project aims to provide a python3 API to load and dump Unity YAML 
+files(configurations, prefabs, scenes, serialized data, etc) in the exact same 
+format the internal Unity YAML serializer does.
 
-The `main` branch is currently capable of parsing _R4_
-and has preliminary support for _R5_.
+Using this API you will be able to easily manipulate(as python objects) 
+Unity YAML files and save them just the same, keeping the YAML structure
+exactly as Unity does. This has the advantages of, first not having to
+configure PyYAML beforehand to deal with Unity YAMLs, and second as the
+modified file keeps the same structure and formatting that Unity does, 
+when the YAML file is loaded by Unity it won't make formatting changes 
+to it that will make any VCS report unexpected file changes.
 
-This work is licensed under the [APACHE license][license].
-FHIR® is the registered trademark of [HL7][] and is used with the permission of HL7.
+## Installing ##
 
+Install and update using [pip](https://pip.pypa.io/en/stable/quickstart/):
+````
+pip install -U unityparser
+````
+## A Simple Example ##
+````python
+from unityparser import UnityDocument
 
-Tech
-----
+# Loading and modifying a config file with a single YAML document
+project_settings_file = 'UnityProject/ProjectSettings/ProjectSettings.asset'
+doc = UnityDocument.load_yaml(project_settings_file)
+ProjectSettings = doc.entry
+ProjectSettings.scriptingDefineSymbols[1] += ';CUSTOM_DEFINE'
+ProjectSettings.scriptingDefineSymbols[7] = ProjectSettings.scriptingDefineSymbols[1]
+doc.dump_yaml()
 
-The _generate.py_ script downloads [FHIR specification][fhir] files, parses the profiles (using _fhirspec.py_) and represents them as `FHIRClass` instances with `FHIRClassProperty` properties (found in _fhirclass.py_).
-Additionally, `FHIRUnitTest` (in _fhirunittest.py_) instances get created that can generate unit tests from provided FHIR examples.
-These representations are then used by [Jinja][] templates to create classes in certain programming languages, mentioned below.
+# You can also load YAML files with multiple documents and filter for a single or multiple entries
+hero_prefab_file = 'UnityProject/Assets/Prefabs/Hero.prefab'
+doc = UnityDocument.load_yaml(hero_prefab_file)
+# accessing all entries
+doc.entries
+# [<UnityClass>, <UnityClass>, ...]
+# accessing first entry
+doc.entry
+# <UnityClass>
+# get single entry uniquely defined by filters
+entry = doc.get(class_name='MonoBehaviour', attributes=('m_MaxHealth',))
+entry.m_MaxHealth += 10
+# get multiple entries matching a filter
+entries = doc.filter(class_names=('MonoBehaviour',), attributes=('m_Enabled',))
+for entry in entries:
+    entry.m_Enabled = 1
+doc.dump_yaml()
+# calling entry method for a doc with multiple document will return the first one
+print(doc.entry.__class__.__name__)
+# 'Prefab'
+````
 
-This script does its job for the most part, but it doesn't yet handle all FHIR peculiarities and there's no guarantee the output is correct or complete.
-This repository **does not include the templates and base classes** needed for class generation, you must do this yourself in your project.
-You will typically add this repo as a submodule to your framework project, create a directory that contains the necessary base classes and templates, create _settings_ and _mappings_ files and run the script.
-Examples on what you would need to do for Python classes can be found in _Default/settings.py_, _Default/mappings.py_ and _Sample/templates*_.
+## Classes ##
 
+### unityparser.UnityDocument ###
 
-Use
----
+Main class to load and dump files.
 
-1. Add `fhir-parser` as a submodule/subdirectory to the project that will use it
-2. Create the file `mappings.py` in your project, to be copied to fhir-parser root.
-    First, import the default mappings using `from Default.mappings import *` (unless you will define all variables yourself anyway).
-    Then adjust your `mappings.py` to your liking by overriding the mappings you wish to change.
-3. Similarly, create the file `settings.py` in your project.
-    First, import the default settings using `from Default.settings import *` and override any settings you want to change.
-    Then, import the mappings you have just created with `from mappings import *`.
-    The default settings import the default mappings, so you may need to overwrite more keys from _mappings_ than you'd first think.
-    You most likely want to change the topmost settings found in the default file, which are determining where the templates can be found and generated classes will be copied to.
-4. Install the generator's requirements by running `pip3` (or `pip`):
-    ```bash
-    pip3 install -r requirements.txt
-    ```
+#### unityparser.UnityDocument.load_yaml(file_path) ####
 
-5. Create a script that copies your `mappings.py` and `settings.py` file to the root of `fhir-parser`, _cd_s into `fhir-parser` and then runs `generate.py`.
-    The _generate_ script by default wants to use Python _3_, issue `python generate.py` if you don't have Python 3 yet.
-    * Supply the `-f` flag to force a re-download of the spec.
-    * Supply the `--cache-only` (`-c`) flag to deny the re-download of the spec and only use cached resources (incompatible with `-f`).
+_**Classmethod**_: Load the given YAML file_path and return a UnityDocument file
 
-> NOTE that the script currently overwrites existing files without asking and without regret.
+#### unityparser.UnityDocument.dump_yaml(file_path=None) ####
 
+Dump the UnityDocument to the previously loaded file location(overwrite). 
+If *file_path* argument is provided, dump the document to the specified location instead.
 
-Languages
-=========
+This method **keeps line endings** of the original file when it dumps.
 
-This repo used to contain templates for Python and Swift classes, but these have been moved to the respective framework repositories.
-A very basic Python sample implementation is included in the `Sample` directory, complementing the default _mapping_ and _settings_ files in `Default`.
+#### unityparser.UnityDocument.entries ####
 
-To get a sense of how to use _fhir-parser_, take a look at these libraries:
+_**Property**_: Return the _list_ of documents found in the YAML. The objects in the _list_ are of _types_ Class named after the serialized Unity class(ie. MonoBehaviour, GameObject, Prefab, CustomName, etc).
 
-- [**Swift-FHIR**][swift-fhir]
-- [**fhirclient**][client-py]
+#### unityparser.UnityDocument.entry ####
 
+_**Property**_: Return the first document in the YAML, useful if there is only one. Equivalent of doing `UnityDocument.entries[0]`.
 
-Tech Details
-============
+#### unityparser.UnityDocument.get(class_name=None, attributes=None) ####
 
-This parser still applies some tricks, stemming from the evolving nature of FHIR's profile definitions.
-Some tricks may have become obsolete and should be cleaned up.
+_**Method**_: Return a single entry uniquely matching the given filters. Must exist exactly one.
 
-### How are property names determined?
+#### unityparser.UnityDocument.filter(class_names=None, attributes=None) ####
 
-Every “property” of a class, meaning every `element` in a profile snapshot, is represented as a `FHIRStructureDefinitionElement` instance.
-If an element itself defines a class, e.g. `Patient.animal`, calling the instance's `as_properties()` method returns a list of `FHIRClassProperty` instances – usually only one – that indicates a class was found in the profile.
-The class of this property is derived from `element.type`, which is expected to only contain one entry, in this matter:
+_**Method**_: Return a list of entries matching the given filters. Many or none can be matched.
 
-- If _type_ is `BackboneElement`, a class name is constructed from the parent element (in this case _Patient_) and the property name (in this case _animal_), camel-cased (in this case _PatientAnimal_).
-- Otherwise, the type is taken as-is (e.g. _CodeableConcept_) and mapped according to mappings' `classmap`, which is expected to be a valid FHIR class.
+### unityparser.loader.UnityLoader ###
 
-> TODO: should `http://hl7.org/fhir/StructureDefinition/structuredefinition-explicit-type-name` be respected?
+PyYAML's Loader class, can be used directly with PyYAML to customise loading. 
 
+### unityparser.dumper.UnityDumper ###
 
-[license]: ./LICENSE.txt
-[hl7]: http://hl7.org/
-[fhir]: http://www.hl7.org/implement/standards/fhir/
-[jinja]: http://jinja.pocoo.org/
-[swift]: https://developer.apple.com/swift/
-[swift-fhir]: https://github.com/smart-on-fhir/Swift-FHIR
-[swift-smart]: https://github.com/smart-on-fhir/Swift-SMART
-[client-py]: https://github.com/smart-on-fhir/client-py
+PyYAML's Dumper class, can be used directly with PyYAML to customise dumping. 
+
+## Considerations ##
+
+Text scalars which are single or double quoted that span multiple lines are not being dumped exactly as Unity does. There's a difference in the maximum length allowed per line and the logic to wrap them.
+
