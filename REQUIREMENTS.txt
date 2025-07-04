@@ -1,4 +1,0 @@
-wheel
-selenium
-websocket-client
-pytest
