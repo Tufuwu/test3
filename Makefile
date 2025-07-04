@@ -1,43 +1,63 @@
-test: clean-pyc
-	pytest
+# Note: This makefile include remake-style target comments.
+# These comments before the targets start with #:
+# remake --tasks to shows the targets and the comments
 
-coverage: clean-pyc
-	coverage run --source unityparser -m pytest
-	coverage report
+PHONY=all check clean dist distclean test clean_pyc lint install changelog release
+GIT2CL ?= git2cl
+PYTHON ?= python
+PYTHON3 ?= python3
+RM      ?= rm
+LINT    = flake8
 
-cov: coverage
+#: the default target - same as running "check"
+all: check
 
-clean-pyc:
-	find . -name '*.pyc' -exec rm -f {} +
-	find . -name '*.pyo' -exec rm -f {} +
-	find . -name '*~' -exec rm -f {} +
+#: Run all tests
+check:
+	$(PYTHON) ./setup.py test
+#	$(PYTHON3) ./setup.py test
 
-clean-dist:
-	find dist -name '*.tar.gz' -exec rm -f {} + || true
-	find dist -name '*.whl' -exec rm -f {} + || true
+#: Clean up temporary files and .pyc files
+clean: distclean clean_pyc
+	$(PYTHON) ./setup.py clean
+	$(RM) -rf dist/*
 
-checkout:
-	git checkout main
+#: Create source (tarball) and wheel distribution
+dist:
+	$(PYTHON) ./setup.py sdist bdist_wheel
 
-deploy-loc:
-	python setup.py build
-	python setup.py install
+#: Remove .pyc files
+clean_pyc:
+	$(RM) -f */*.pyc */*/*.pyc
 
+#: Style check. Set env var LINT to pyflakes, flake, or flake8
 lint:
-	git fetch
-	npx commitlint --from 'main'
+	$(LINT)
 
-check-gh-env:
-ifndef GH_TOKEN
-	$(error GH_TOKEN is undefined)
-endif
+# It is too much work to figure out how to add a new command to distutils
+# to do the following. I'm sure distutils will someday get there.
+DISTCLEAN_FILES = build dist *.egg-info *.pyc *.so py*.py
 
-check-pypi-env:
-ifndef REPOSITORY_PASSWORD
-	$(error REPOSITORY_PASSWORD, the API Token used to publish to Pypi, is undefined)
-endif
+#: Remove ALL derived files
+distclean: clean
+	-rm -fr $(DISTCLEAN_FILES) || true
 
-release: REPOSITORY_USER := __token__
-release: check-gh-env check-pypi-env clean-dist checkout lint
-	python setup.py sdist bdist_wheel
-	semantic-release publish
+#: Install package locally
+install:
+	$(PYTHON) ./setup.py install
+
+#: Same as 'check' target
+test: check
+
+#: Run a specific unit test, eg test-sample runs solvebio.test.test_sample
+test-%:
+	python -m unittest solvebio.test.$(subst test-,test_,$@)
+
+changelog:
+	github_changelog_generator --user solvebio --project solvebio-python
+
+release: clean dist
+	twine upload dist/*
+
+
+.PHONY: $(PHONY)

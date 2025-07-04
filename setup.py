@@ -1,51 +1,85 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import io
-import os
-import re
+from __future__ import absolute_import, print_function
+from setuptools import setup, find_packages
 
-from setuptools import setup
+import sys
+import warnings
 
-with open(os.path.join(os.path.dirname(__file__), 'README.md')) as f:
-    readme = f.read()
+VERSION = 'undefined'
+install_requires = ['six', 'pyprind']
+extra = {}
 
-with io.open('unityparser/__init__.py', 'rt', encoding='utf8') as f:
-    version = re.search(
-        r'^__version__\s*=\s*[\'"]([^\'"]*)[\'"]',
-        f.read(),
-        re.MULTILINE
-    ).group(1)
+with open('solvebio/version.py') as f:
+    for row in f.readlines():
+        if row.startswith('VERSION'):
+            exec(row)
 
-requirements = {'base': None, 'test': None, 'ci': None}
-for k in requirements:
-    with open("requirements/{}.txt".format(k)) as f:
-        requirements[k] = list(filter(lambda x: bool(x.strip()) and not x.strip().startswith('-r '), f.read().splitlines()))
+if sys.version_info < (2, 6):
+    warnings.warn(
+        'Python 2.5 is no longer officially supported by SolveBio. '
+        'If you have any questions, please file an issue on GitHub or '
+        'contact us at support@solvebio.com.',
+        DeprecationWarning)
+    install_requires.append('requests >= 0.8.8, < 0.10.1')
+    install_requires.append('ssl')
+elif sys.version_info < (2, 7):
+    install_requires.append('ordereddict')
+else:
+    install_requires.append('requests>=2.0.0')
 
-# allow setup.py to be run from any path
-os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
+
+# solvebio-recipes requires additional packages
+recipes_requires = [
+    'pyyaml==5.3.1',
+    'click==7.1.2',
+    'ruamel.yaml==0.16.12'
+]
+extras_requires = {
+    "recipes": recipes_requires
+}
+
+# Adjustments for Python 2 vs 3
+if sys.version_info < (3, 0):
+    # Get simplejson if we don't already have json
+    try:
+        import json  # noqa
+    except ImportError:
+        install_requires.append('simplejson')
+
+    # solvebio-recipes only available in python3
+    extras_requires = {}
+else:
+    extra['use_2to3'] = True
+
+with open('README.md') as f:
+    long_description = f.read()
 
 setup(
-    name='unityparser',
-    version=version,
-    description='A python library to parse and dump Unity YAML files',
-    long_description=readme,
+    name='solvebio',
+    version=VERSION,
+    description='The SolveBio Python client',
+    long_description=long_description,
     long_description_content_type='text/markdown',
-    author='Ricard Valverde',
-    author_email='ricard.valverde@socialpoint.es',
-    url='https://github.com/socialpoint-labs/unity-yaml-parser',
-    license='MIT License',
-    python_requires='>=3.6.0',
-    packages=['unityparser'],
-    keywords=['unity', 'yaml', 'parser', 'serializer'],
-    install_requires=requirements.pop('base'),
-    extras_require=requirements,
+    author='Solve, Inc.',
+    author_email='contact@solvebio.com',
+    url='https://github.com/solvebio/solvebio-python',
+    packages=find_packages(),
+    package_dir={'solvebio': 'solvebio', 'recipes': 'recipes'},
+    test_suite='nose.collector',
+    include_package_data=True,
+    install_requires=install_requires,
+    platforms='any',
+    extras_require=extras_requires,
+    entry_points={
+        'console_scripts': ['solvebio = solvebio.cli.main:main',
+                            'solvebio-recipes = recipes.sync_recipes:sync_recipes']
+    },
     classifiers=[
-        'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3 :: Only',
-        'License :: OSI Approved :: MIT License',
+        'Intended Audience :: Science/Research',
         'Operating System :: OS Independent',
-        'Development Status :: 3 - Alpha',
-        'Intended Audience :: Developers',
-        'Topic :: Software Development :: Libraries :: Python Modules'
-    ]
+        'Programming Language :: Python',
+        'Topic :: Software Development :: Libraries :: Python Modules',
+        'Topic :: Scientific/Engineering :: Bio-Informatics'
+    ],
+    **extra
 )
