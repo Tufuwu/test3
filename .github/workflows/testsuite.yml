@@ -31,7 +31,7 @@ jobs:
     - name: Run tests
       run: |
         cd tests
-        chmod +x tests/test.py
+        chmod +x ./test.py
         ./test.py
 
 
