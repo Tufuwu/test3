@@ -7,7 +7,7 @@ ARG VIM_VERSION
 COPY docker/install_packages.sh src/scripts/
 RUN chmod +x src/scripts/install_packages.sh && src/scripts/install_packages.sh
 COPY docker/download_vim.sh src/scripts/
-RUN src/scripts/download_vim.sh
+RUN chmod +x src/scripts/download_vim.sh &&src/scripts/download_vim.sh
 COPY docker/build_vim.sh src/scripts/
 RUN chmod +x src/scripts/download_vim.sh && src/scripts/download_vim.sh
 
