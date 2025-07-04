@@ -1,61 +1,121 @@
-#!/usr/bin/env python
-import ast
-import codecs
+#! /usr/bin/env python
+
+descr = """scikit-fuzzy (a.k.a. `skfuzzy`): Fuzzy logic toolbox for Python.
+
+This package implements many useful tools for projects involving fuzzy logic,
+also known as grey logic.
+"""
+
+DISTNAME            = 'scikit-fuzzy'
+DESCRIPTION         = 'Fuzzy logic toolkit for SciPy'
+LONG_DESCRIPTION    = descr
+MAINTAINER          = 'Joshua Warner'
+MAINTAINER_EMAIL    = 'joshua.dale.warner@gmail.com'
+LICENSE             = 'Modified BSD'
+URL                 = 'https://pypi.python.org/pypi/scikit-fuzzy'
+DOWNLOAD_URL        = 'https://github.com/scikit-fuzzy/scikit-fuzzy'
+
 import os
+import sys
 
-import re
-from setuptools import find_packages, setup
+import setuptools
+from distutils.command.build_py import build_py
 
-ROOT = os.path.realpath(os.path.join(os.path.dirname(__file__)))
-init = os.path.join(ROOT, 'src', 'adminactions', '__init__.py')
+if sys.version_info[0] < 3:
+    import __builtin__ as builtins
+else:
+    import builtins
+
+# This is a bit (!) hackish: we are setting a global variable so that the main
+# skimage __init__ can detect if it is being loaded by the setup routine, to
+# avoid attempting to load components that aren't built yet:
+# the numpy distutils extensions that are used by scikit-image to recursively
+# build the compiled extensions in sub-packages is based on the Python import
+# machinery.
+builtins.__SKIMAGE_SETUP__ = True
 
 
-def read(*parts):
-    with codecs.open(os.path.join(ROOT, 'src', 'requirements', *parts), 'r') as fp:
-        return fp.read()
+with open('skfuzzy/__init__.py') as fid:
+    for line in fid:
+        if line.startswith('__version__'):
+            VERSION = line.strip().split()[-1][1:-1]
+            break
+
+with open('DEPENDS.txt') as fid:
+    INSTALL_REQUIRES = []
+    for line in fid.readlines():
+        if line == '' or line[0] == '#' or line[0].isspace():
+            continue
+        INSTALL_REQUIRES.append(line.strip())
+
+# requirements for those browsing PyPI
+REQUIRES = [r.replace('>=', ' (>= ') + ')' for r in INSTALL_REQUIRES]
+REQUIRES = [r.replace('==', ' (== ') for r in REQUIRES]
+REQUIRES = [r.replace('[array]', '') for r in REQUIRES]
 
 
-_version_re = re.compile(r'__version__\s+=\s+(.*)')
+def configuration(parent_package='', top_path=None):
+    if os.path.exists('MANIFEST'):
+        os.remove('MANIFEST')
 
-with open(init, 'rb') as f:
-    version = str(ast.literal_eval(_version_re.search(
-        f.read().decode('utf-8')).group(1)))
+    from numpy.distutils.misc_util import Configuration
+    config = Configuration(None, parent_package, top_path)
 
-requirements = read("install.pip")
-tests_require = read('testing.pip')
-dev_require = read('develop.pip')
+    config.set_options(
+        ignore_setup_xxx_py=True,
+        assume_default_configuration=True,
+        delegate_options_to_subpackages=True,
+        quiet=True)
 
-setup(
-    name='django-adminactions',
-    version=version,
-    url='https://github.com/saxix/django-adminactions',
-    download_url='https://github.com/saxix/django-adminactions',
-    author='sax',
-    author_email='s.apostolico@gmail.com',
-    description="Collections of useful actions to use with django.contrib.admin.ModelAdmin",
-    license='MIT',
-    package_dir={'': 'src'},
-    packages=find_packages('src'),
-    include_package_data=True,
-    install_requires=requirements,
-    tests_require=tests_require,
-    extras_require={
-        'test': requirements + tests_require,
-        'dev': dev_require + tests_require,
-    },
-    zip_safe=False,
-    platforms=['any'],
-    classifiers=[
-        'Environment :: Web Environment',
-        'Framework :: Django',
-        'Operating System :: OS Independent',
-        'Framework :: Django :: 2.2',
-        'Framework :: Django :: 3.0',
-        'Framework :: Django :: 3.1',
-        'Programming Language :: Python :: 3.6',
-        'Programming Language :: Python :: 3.7',
-        'Programming Language :: Python :: 3.8',
-        'Programming Language :: Python :: 3.9',
-        'Intended Audience :: Developers'],
-    long_description=open('README.rst').read()
-)
+    config.add_subpackage('skfuzzy')
+
+    return config
+
+
+if __name__ == "__main__":
+    try:
+        from numpy.distutils.core import setup
+    except ImportError:
+        from setuptools import setup
+        extra = {}
+    else:
+        extra = {'configuration': configuration}
+
+    setup(
+        name=DISTNAME,
+        description=DESCRIPTION,
+        long_description=LONG_DESCRIPTION,
+        maintainer=MAINTAINER,
+        maintainer_email=MAINTAINER_EMAIL,
+        license=LICENSE,
+        url=URL,
+        download_url=DOWNLOAD_URL,
+        version=VERSION,
+        package_data={
+            # Include saved test image
+            '': ['*.npy', '*.md', '*.txt'],
+        },
+
+        classifiers=[
+            'Development Status :: 4 - Beta',
+            'Environment :: Console',
+            'Intended Audience :: Developers',
+            'Intended Audience :: Science/Research',
+            'License :: OSI Approved :: BSD License',
+            'Programming Language :: Python',
+            'Programming Language :: Python :: 3',
+            'Topic :: Scientific/Engineering',
+            'Operating System :: Microsoft :: Windows',
+            'Operating System :: POSIX',
+            'Operating System :: Unix',
+            'Operating System :: MacOS'],
+
+        install_requires=INSTALL_REQUIRES,
+        requires=REQUIRES,
+        packages=setuptools.find_packages(exclude=['docs']),
+        include_package_data=True,
+        zip_safe=False,
+
+        cmdclass={'build_py': build_py},
+        **extra
+    )
