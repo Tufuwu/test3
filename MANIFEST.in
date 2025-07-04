@@ -1,17 +1,8 @@
-include README.rst
-include LICENSE
-include MANIFEST.in
-include NEWS
-include scrapyd/VERSION
-include scrapyd/default_scrapyd.conf
-recursive-include scrapyd *.py
-recursive-include docs *
-recursive-include bin *
-prune docs/_build
-recursive-include extras *
-recursive-exclude debian *
-exclude .bumpversion.cfg
-exclude .coveragerc
-exclude *.buildbot
-recursive-include reqs *.txt
-recursive-include scrapyd *.egg
+include README.md
+include LICENSE.txt
+include CHANGELOG.md
+include requirements.txt
+include peekaboo.conf.sample
+include ruleset.conf.sample
+include systemd/peekaboo.service
+graft peekaboo/locale
