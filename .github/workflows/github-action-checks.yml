@@ -6,7 +6,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - run: scripts/link-format-chk.sh
+      - run: |
+          chmod +x scripts/link-format-chk.sh
+          scripts/link-format-chk.sh
   Build-Table-Checks:
     runs-on: ubuntu-latest
     steps:
@@ -16,4 +18,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - run: scripts/diffcheck.sh
+      - run: |
+          chmod +x scripts/diffcheck.sh
+          scripts/diffcheck.sh
