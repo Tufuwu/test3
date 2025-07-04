@@ -29,7 +29,7 @@ jobs:
     - name: Install Lua dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y lua5.3 liblua5.3-dev pkg-config
+        sudo apt-get install -y lua5.3 liblua5.3-dev pkg-config libluajit-5.1-dev
     - name: Run tests with tox
       run: tox -e py # Runs the version of Python tox is currently using
       continue-on-error: ${{ contains(matrix.python-version, 'pypy') }}
