@@ -17,11 +17,6 @@ jobs:
         os: [ubuntu-latest, macos-latest]
         python-version: ['3.9']
 
-    services:
-      docker:
-
-        image: docker:stable
-
     steps:
     - uses: actions/checkout@v2
 
