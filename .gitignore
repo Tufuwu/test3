@@ -1,23 +1,2 @@
-*.log
-*.pyc
-# eclipse stuff
-.project
-.pydevproject
-.settings/
-# PyCharm stuff
-.idea/
-# backup files from gedit etc.
-*~
-# runtime files
-*.pid
-*.sock
-*.db
-# config files
-*.conf
-# Sphinx output
-docs/build
-# build files
-*.egg-info/
-build/
-dist/
-.eggs/
+/*temp/
+deploy-key
