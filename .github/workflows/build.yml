@@ -19,7 +19,7 @@ jobs:
 
     services:
       docker:
-        if: matrix.os == 'ubuntu-latest'
+
         image: docker:stable
 
     steps:
