@@ -1,63 +1,40 @@
-# Note: This makefile include remake-style target comments.
-# These comments before the targets start with #:
-# remake --tasks to shows the targets and the comments
+#!/usr/bin/env make -f
 
-PHONY=all check clean dist distclean test clean_pyc lint install changelog release
-GIT2CL ?= git2cl
-PYTHON ?= python
-PYTHON3 ?= python3
-RM      ?= rm
-LINT    = flake8
+PYPY_DIR ?= pypy
+RPYTHON  ?= $(PYPY_DIR)/rpython/bin/rpython
 
-#: the default target - same as running "check"
-all: check
+.PHONY: compile som-interp som-jit som-ast-jit som-bc-jit som-bc-interp som-ast-interp
 
-#: Run all tests
-check:
-	$(PYTHON) ./setup.py test
-#	$(PYTHON3) ./setup.py test
+all: compile
 
-#: Clean up temporary files and .pyc files
-clean: distclean clean_pyc
-	$(PYTHON) ./setup.py clean
-	$(RM) -rf dist/*
+compile: som-ast-jit
 
-#: Create source (tarball) and wheel distribution
-dist:
-	$(PYTHON) ./setup.py sdist bdist_wheel
+som-ast-jit: core-lib/.git
+	SOM_INTERP=AST PYTHONPATH=$(PYTHONPATH):$(PYPY_DIR) $(RPYTHON) --batch -Ojit src/main-rpython.py
 
-#: Remove .pyc files
-clean_pyc:
-	$(RM) -f */*.pyc */*/*.pyc
+som-bc-jit:	core-lib/.git
+	SOM_INTERP=BC  PYTHONPATH=$(PYTHONPATH):$(PYPY_DIR) $(RPYTHON) --batch -Ojit src/main-rpython.py
 
-#: Style check. Set env var LINT to pyflakes, flake, or flake8
-lint:
-	$(LINT)
+som-ast-interp: core-lib/.git
+	SOM_INTERP=AST PYTHONPATH=$(PYTHONPATH):$(PYPY_DIR) $(RPYTHON) --batch src/main-rpython.py
 
-# It is too much work to figure out how to add a new command to distutils
-# to do the following. I'm sure distutils will someday get there.
-DISTCLEAN_FILES = build dist *.egg-info *.pyc *.so py*.py
+som-bc-interp: core-lib/.git
+	SOM_INTERP=BC  PYTHONPATH=$(PYTHONPATH):$(PYPY_DIR) $(RPYTHON) --batch src/main-rpython.py
 
-#: Remove ALL derived files
-distclean: clean
-	-rm -fr $(DISTCLEAN_FILES) || true
+som-interp: som-ast-interp som-bc-interp
+	
+som-jit: som-ast-jit som-bc-jit
 
-#: Install package locally
-install:
-	$(PYTHON) ./setup.py install
+test: compile
+	PYTHONPATH=$(PYTHONPATH):$(PYPY_DIR) nosetests
+	if [ -e ./som-ast-jit    ]; then ./som-ast-jit    -cp Smalltalk TestSuite/TestHarness.som; fi
+	if [ -e ./som-bc-jit     ]; then ./som-bc-jit     -cp Smalltalk TestSuite/TestHarness.som; fi
+	if [ -e ./som-ast-interp ]; then ./som-ast-interp -cp Smalltalk TestSuite/TestHarness.som; fi
+	if [ -e ./som-bc-interp  ]; then ./som-bc-interp  -cp Smalltalk TestSuite/TestHarness.som; fi
 
-#: Same as 'check' target
-test: check
+clean:
+	@-rm som-ast-jit som-ast-interp
+	@-rm som-bc-jit  som-bc-interp
 
-#: Run a specific unit test, eg test-sample runs solvebio.test.test_sample
-test-%:
-	python -m unittest solvebio.test.$(subst test-,test_,$@)
-
-changelog:
-	github_changelog_generator --user solvebio --project solvebio-python
-
-release: clean dist
-	twine upload dist/*
-
-
-.PHONY: $(PHONY)
+core-lib/.git:
+	git submodule update --init

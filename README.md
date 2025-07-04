@@ -1,81 +1,76 @@
-![SolveBio Python Package](https://github.com/solvebio/solvebio-python/workflows/SolveBio%20Python%20Package/badge.svg)
+PySOM - The Simple Object Machine Smalltalk
+===========================================
+
+Introduction
+------------
+
+SOM is a minimal Smalltalk dialect used to teach VM construction at the [Hasso
+Plattner Institute][SOM]. It was originally built at the University of Århus
+(Denmark) where it was used for teaching and as the foundation for [Resilient
+Smalltalk][RS].
+
+In addition to RPySOM, other implementations exist for Java (SOM, TruffleSOM),
+C (CSOM), C++ (SOM++), Python (PySOM), and Squeak/Pharo Smalltalk (AweSOM).
+
+A simple Hello World looks like:
+
+```Smalltalk
+Hello = (
+  run = (
+    'Hello World!' println.
+  )
+)
+```
+
+This repository contains a Python-base implementation of SOM, including
+SOM's standard library and a number of examples. Please see the [main project
+page][SOMst] for links to other VM implementations.
+
+The implementation use either an abstract-syntax-tree or a 
+bytecode-based interpreter. One can chose between them with the `SOM_INTERP` environment variable.
+
+ - AST-based interpreter: `SOM_INTERP=AST`
+ - bytecode-based interpreter: `SOM_INTERP=BC`
+
+To checkout the code:
+
+    git clone https://github.com/SOM-st/PySOM.git
+
+PySOM's tests can be executed with:
+
+    $ ./som.sh -cp Smalltalk TestSuite/TestHarness.som
+   
+A simple Hello World program is executed with:
+
+    $ ./som.sh -cp Smalltalk Examples/Hello/Hello.som
+
+To compile PySOM, a recent PyPy is recommended and the RPython source
+code is required. The source distribution of PyPy 7.3 can be used like this:
+
+    wget https://downloads.python.org/pypy/pypy2.7-v7.3.1-src.tar.bz2
+    tar xvf pypy2.7-v7.3.1-src.tar.bz2
+    export PYPY_DIR=`pwd`/pypy2.7-v7.3.1-src/
+
+Information on previous authors are included in the AUTHORS file. This code is
+distributed under the MIT License. Please see the LICENSE file for details.
 
 
-SolveBio Python Client
-======================
-
-This is the SolveBio Python package and command-line interface (CLI).
-This module is tested against Python 2.7, 3.6, 3.7, 3.8, PyPy and PyPy3.
-
-Developer documentation is available at [docs.solvebio.com](https://docs.solvebio.com). For more information about SolveBio visit [www.solvebio.com](https://www.solvebio.com).
-
-
-
-Installation & Setup
---------------------
-
-Install `solvebio` using `pip`:
-
-    pip install solvebio
-
-
-For interactive use, we recommend installing `IPython` and `gnureadline`:
-
-    pip install ipython
-    pip install gnureadline
-
-
-To log in, type:
-
-    solvebio login
-
-
-Enter your SolveBio credentials and you should be good to go!
-
-
-Install from Git
-----------------
-
-    pip install -e git+https://github.com/solvebio/solvebio-python.git#egg=solve
-
-
-Development
------------
-
-    git clone https://github.com/solvebio/solvebio-python.git
-    cd solve-python/
-    python setup.py develop
-
-To run tests use `nosetest`:
-
-    nosetests solvebio.test.test_dataset
-
-
-Or install `tox` and run:
-
-    pip install tox
-    tox
-
-
-Releasing
----------
-
-You will need to [configure Twine](https://twine.readthedocs.io/en/latest/#installation) in order to push to PyPI.
-
-Maintainers can release solvebio-python to PyPI with the following steps:
-
-    bumpversion <major|minor|patch>
-    git push --tags
-    make changelog
-    make release
-
-
-
-Support
+History
 -------
 
-Developer documentation is available at [docs.solvebio.com](https://docs.solvebio.com).
+In 2013, the implementations of PySOM, RPySOM, and RTruffleSOM where split
+over multiple repositories. Since end of 2020, they are reunited here and PySOM
+can be used with Python 2.7, Python 3.8, as well as compiled with RPython.
+Thus, https://github.com/SOM-st/PySOM is again the only and the canonical
+repository.
 
-If you experience problems with this package, please [create a GitHub Issue](https://github.com/solvebio/solvebio-python/issues).
 
-For all other requests, please [email SolveBio Support](mailto:support@solvebio.com).
+Build Status
+------------
+
+Thanks to Travis CI, all commits of this repository are tested.
+The current build status is: [![Build Status](https://travis-ci.com/SOM-st/PySOM.png?branch=master)](https://travis-ci.com/SOM-st/PySOM)
+
+ [SOM]: http://www.hpi.uni-potsdam.de/hirschfeld/projects/som/
+ [SOMst]: https://travis-ci.org/SOM-st/
+ [RS]:  http://dx.doi.org/10.1016/j.cl.2005.02.003
