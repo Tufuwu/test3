@@ -1,97 +1,63 @@
-name: Build
+name: CI
 
-on: [push, pull_request]
-# Alternatively, to publish when a (published) GitHub Release is created, use the following:
-# on:
-#   push:
-#   pull_request:
-#   release:
-#     types:
-#       - published
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
-  build_wheels:
-    name: Build wheels on ${{ matrix.os }}
+  build:
+
     runs-on: ${{ matrix.os }}
     strategy:
-      fail-fast: false
       matrix:
-        os: [ubuntu-22.04, macos-latest]
+        os: [ubuntu-latest, macos-latest]
+        python-version: ['3.9']
+
+    services:
+      docker:
+        if: matrix.os == 'ubuntu-latest'
+        image: docker:stable
 
     steps:
-      - uses: actions/checkout@v2
+    - uses: actions/checkout@v2
 
-      - uses: actions/setup-python@v2
-        name: Install Python
-        with:
-          python-version: '3.9'
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
 
-      - name: Install cibuildwheel and other dependencies
-        run: |
-          python -m pip install -U pip
-          python -m pip install -U "setuptools<60"
-          python -m pip install pytest-cov numpy
-          python -m pip install cibuildwheel==1.4.2
+    - name: Install dependencies
+      run: |
+        python3 -m pip install -U pip
+        python3 -m easy_install -U setuptools
+        python3 -m pip install pytest-cov
+        python3 -m pip install cibuildwheel==1.4.2
 
-      - name: Test and build wheels
-        run: |
-          chmod +x scripts/install_libsharp.sh
-          python setup.py build_ext -i
-          python -m pip install .
-          py.test --cov=pixell pixell/tests/ -s
-          find . -type f -iname '*.so' -print -delete
-          rm -rf _deps/
-          python -m cibuildwheel --output-dir wheelhouse
-          ls wheelhouse
-        env:
-          CIBW_BEFORE_BUILD: "python -m pip install numpy scipy cython"
-          CIBW_BUILD_VERBOSITY: 3
-          CIBW_BUILD: "cp3?-*x86_64"
-          CIBW_SKIP: "cp33-* cp34-* cp35-*"
-          PYTHON: "python"
-          PIP: "pip"
+    - name: Build and test
+      run: |
+        python3 setup.py build_ext -i
+        pip install .
+        py.test --cov=pixell pixell/tests/ -s
+        find . -type f -iname '*.so' -print -delete
+        rm -rf _deps/
+        python3 -m cibuildwheel --output-dir wheelhouse
+        ls wheelhouse
 
-      - uses: actions/upload-artifact@v4
-        with:
-          path: ./wheelhouse/*.whl
+    - name: Upload to PyPI
+      if: startsWith(github.ref, 'refs/tags/')
+      env:
+        TWINE_USERNAME: __token__
+        TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
+      run: |
+        python3 -m pip install twine
+        python3 -m pip install -U twine
+        python3 -m twine check wheelhouse/*
+        python3 -m twine upload --verbose --skip-existing wheelhouse/*.whl
 
-  build_sdist:
-    name: Build source distribution
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-
-      - uses: actions/setup-python@v2
-        name: Install Python
-        with:
-          python-version: '3.9'
-
-      - name: Build sdist
-        run: |
-          python -m pip install -U pip
-          python -m easy_install -U setuptools
-          python -m pip install numpy
-          python setup.py sdist
-
-      - uses: actions/upload-artifact@v2
-        with:
-          path: dist/*.tar.gz
-
-  upload_pypi:
-    needs: [build_wheels, build_sdist]
-    runs-on: ubuntu-latest
-    # upload to PyPI on every tag starting with 'v'
-    if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags/v')
-    # alternatively, to publish when a GitHub Release is created, use the following rule:
-    # if: github.event_name == 'release' && github.event.action == 'published'
-    steps:
-      - uses: actions/download-artifact@v2
-        with:
-          name: artifact
-          path: dist
-
-      - uses: pypa/gh-action-pypi-publish@master
-        with:
-          user: __token__
-          password: ${{ secrets.PYPI_TOKEN }}
-          # To test: repository_url: https://test.pypi.org/legacy/
+    - name: Install additional packages on Ubuntu
+      if: matrix.os == 'ubuntu-latest'
+      run: sudo apt-get install -y gfortran
