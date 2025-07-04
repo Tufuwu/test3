@@ -1,115 +1,126 @@
-"""
-Unit tests for config.py module
-"""
-import json
-import os
+"""Tests for Shaarli configuration utilities"""
+# pylint: disable=invalid-name,redefined-outer-name
+from argparse import Namespace
+from configparser import ConfigParser
 
 import pytest
 
-from sentinelhub import SHConfig
+from shaarli_client.config import InvalidConfiguration, get_credentials
+
+SHAARLI_URL = 'http://shaar.li'
+SHAARLI_SECRET = 's3kr37'
 
 
-@pytest.fixture(name='restore_config')
-def restore_config_fixture():
-    """ A fixture that makes sure original config is restored after a test is executed. It restores the config even if
-    a test has failed.
-    """
-    original_config = SHConfig()
-    yield
-    original_config.save()
+@pytest.fixture(scope='session')
+def shaarli_config(tmpdir_factory):
+    """Generate a client configuration file"""
+    config = ConfigParser()
+    config['shaarli'] = {
+        'url': SHAARLI_URL,
+        'secret': SHAARLI_SECRET
+    }
+    config['shaarli:shaaplin'] = {
+        'url': SHAARLI_URL,
+        'secret': SHAARLI_SECRET
+    }
+    config['shaarli:nourl'] = {
+        'secret': SHAARLI_SECRET
+    }
+    config['shaarli:nosecret'] = {
+        'url': SHAARLI_URL,
+    }
+
+    config_path = tmpdir_factory.mktemp('config').join('shaarli_client.ini')
+
+    with config_path.open('w') as f_config:
+        config.write(f_config)
+
+    return config_path
 
 
-def test_config_file():
-    config = SHConfig()
-
-    config_file = config.get_config_location()
-    assert os.path.isfile(config_file), f'Config file does not exist: {os.path.abspath(config_file)}'
-
-    with open(config_file, 'r') as fp:
-        config_dict = json.load(fp)
-
-    for param, value in config_dict.items():
-        if param in config._instance.CREDENTIALS:
-            continue
-
-        if isinstance(value, str):
-            value = value.rstrip('/')
-
-        assert config[param] == value
+def test_get_credentials_from_cli():
+    """Get authentication information as CLI parameters"""
+    url, secret = get_credentials(
+        Namespace(url=SHAARLI_URL, secret=SHAARLI_SECRET)
+    )
+    assert url == SHAARLI_URL
+    assert secret == SHAARLI_SECRET
 
 
-def test_reset():
-    config = SHConfig()
+@pytest.mark.parametrize('instance', [None, 'shaaplin'])
+def test_get_credentials_from_config(tmpdir, shaarli_config, instance):
+    """Read credentials from a standard location"""
+    with tmpdir.as_cwd():
+        shaarli_config.copy(tmpdir.join('shaarli_client.ini'))
 
-    old_value = config.instance_id
-    new_value = 'new'
-    config.instance_id = new_value
-    assert config.instance_id == new_value, 'New value was not set'
-    assert config['instance_id'] == new_value, 'New value was not set'
-    assert config._instance.instance_id == old_value, 'Private value has changed'
+        url, secret = get_credentials(
+            Namespace(
+                config=None,
+                instance=instance,
+                url=None,
+                secret=None
+            )
+        )
 
-    config.reset('sh_base_url')
-    config.reset(['aws_access_key_id', 'aws_secret_access_key'])
-    assert config.instance_id == new_value, 'Instance ID should not reset yet'
-
-    config.reset()
-    assert config.instance_id == config._instance.CONFIG_PARAMS['instance_id'], 'Instance ID should reset'
-
-
-def test_save(restore_config):
-    config = SHConfig()
-
-    config.download_timeout_seconds = 'abcd'
-    with pytest.raises(ValueError):
-        config.save()
-
-    new_value = 150.5
-    config.download_timeout_seconds = new_value
-    config.save()
-    config = SHConfig()
-    assert config.download_timeout_seconds == new_value, 'Saved value should have changed'
+    assert url == SHAARLI_URL
+    assert secret == SHAARLI_SECRET
 
 
-def test_raise_for_missing_instance_id():
-    config = SHConfig()
-
-    config.instance_id = 'xxx'
-    config.raise_for_missing_instance_id()
-
-    config.instance_id = ''
-    with pytest.raises(ValueError):
-        config.raise_for_missing_instance_id()
-
-
-@pytest.mark.parametrize('hide_credentials', [False, True])
-def test_config_repr(hide_credentials):
-    config = SHConfig(hide_credentials=hide_credentials)
-    config.instance_id = 'a' * 20
-    config_repr = repr(config)
-
-    assert config_repr.startswith(SHConfig.__name__)
-
-    if hide_credentials:
-        assert config.instance_id not in config_repr
-        assert '*' * 16 + 'a' * 4 in config_repr
-    else:
-        for param in config.get_params():
-            assert f'{param}={repr(config[param])}' in config_repr
+@pytest.mark.parametrize('instance', [None, 'shaaplin'])
+def test_get_credentials_from_userconfig(shaarli_config, instance):
+    """Read credentials from a user-provided configuration file"""
+    url, secret = get_credentials(
+        Namespace(
+            config=str(shaarli_config),
+            instance=instance,
+            url=None,
+            secret=None
+        )
+    )
+    assert url == SHAARLI_URL
+    assert secret == SHAARLI_SECRET
 
 
-@pytest.mark.parametrize('hide_credentials', [False, True])
-def test_get_config_dict(hide_credentials):
-    config = SHConfig(hide_credentials=hide_credentials)
-    config.sh_client_secret = 'x' * 15
-    config.aws_secret_access_key = 'y' * 10
+def test_get_credentials_no_config(monkeypatch):
+    """No configuration file found"""
+    monkeypatch.setattr(ConfigParser, 'read', lambda x, y: [])
 
-    config_dict = config.get_config_dict()
-    assert isinstance(config_dict, dict)
-    assert list(config_dict) == config.get_params()
+    with pytest.raises(InvalidConfiguration) as exc:
+        get_credentials(
+            Namespace(
+                config=None,
+                instance=None,
+                url=None,
+                secret=None
+            )
+        )
+    assert "No configuration file found" in str(exc.value)
 
-    if hide_credentials:
-        assert config_dict['sh_client_secret'] == '*' * 11 + 'x' * 4
-        assert config_dict['aws_secret_access_key'] == '*' * 10
-    else:
-        assert config_dict['sh_client_secret'] == config.sh_client_secret
-        assert config_dict['aws_secret_access_key'] == config.aws_secret_access_key
+
+def test_get_credentials_missing_section(shaarli_config):
+    """The specified instance has no configuration section"""
+    with pytest.raises(InvalidConfiguration) as exc:
+        get_credentials(
+            Namespace(
+                config=str(shaarli_config),
+                instance='nonexistent',
+                url=None,
+                secret=None
+            )
+        )
+    assert "Missing entry: 'shaarli:nonexistent'" in str(exc.value)
+
+
+@pytest.mark.parametrize('attribute', ['url', 'secret'])
+def test_get_credentials_missing_attribute(shaarli_config, attribute):
+    """The specified instance has no configuration section"""
+    with pytest.raises(InvalidConfiguration) as exc:
+        get_credentials(
+            Namespace(
+                config=str(shaarli_config),
+                instance='no{}'.format(attribute),
+                url=None,
+                secret=None
+            )
+        )
+    assert "Missing entry: '{}'".format(attribute) in str(exc.value)
