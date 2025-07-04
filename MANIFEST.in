@@ -1,21 +1,5 @@
-include README.rst
-
-include ez_setup.py
-include ah_bootstrap.py
-include setup.cfg
-
-recursive-include docs *
-exclude docs/generated
-recursive-include licenses *
-recursive-include cextern *
-recursive-include scripts *
-
-prune docs/_build
-prune build
-
-recursive-include astropy_helpers *
-exclude astropy_helpers/.git
-exclude astropy_helpers/.gitignore
-
-exclude *.pyc *.o
-prune docs/api
+include REQUIREMENTS.txt
+include starfish/REQUIREMENTS-STRICT.txt
+recursive-include starfish/spacetx_format/schema/ *.json
+recursive-include starfish/spacetx_format/examples/ *.json
+include versioneer.py
