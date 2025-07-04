@@ -1,8 +1,7 @@
-pytest>=3.0.0
-pytest-subtests
+pytest>=4.0.0
 pytest-cov
 codecov
-black[jupyter]>=22.3.0
-isort
-pylint
+pylint>=2.2.0
 twine
+requests-mock
+pillow<=8.3.1

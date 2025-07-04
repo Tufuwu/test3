@@ -106,4 +106,13 @@ ENV/
 # IDE config
 .idea/
 
+.pytest_cache
+
 Pipfile*
+
+# Files that Sphinx generates
+/docs/source/examples
+/docs/source/markdowns
+
+# A fail-safe preventing commits of user's credentials
+sentinelhub/config.json
