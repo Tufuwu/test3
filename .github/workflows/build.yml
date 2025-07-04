@@ -81,7 +81,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Install Python
-        run: choco install python --version=3.9.8
+        run: choco install python --version=3.9
       - name: Add Python to PATH
         run: echo "C:\Python37;C:\Python37\Scripts" >> $GITHUB_PATH
       - name: Install dependencies
