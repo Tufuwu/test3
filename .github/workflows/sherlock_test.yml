@@ -19,10 +19,6 @@ jobs:
           - python-version: 3.7
             name: "Sherlock Site Coverage Tests"
             run-coverage-tests: true
-    allow_failures:
-      - python-version: nightly
-      - name: "Sherlock Site Coverage Tests"
-
     steps:
     - uses: actions/checkout@v2
 
