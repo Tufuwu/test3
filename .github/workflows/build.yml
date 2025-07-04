@@ -1,109 +1,96 @@
-name: CI
+name: Build
 
-on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
-  release:
-    types: [created]
+on: [push, pull_request]
+# Alternatively, to publish when a (published) GitHub Release is created, use the following:
+# on:
+#   push:
+#   pull_request:
+#   release:
+#     types:
+#       - published
 
 jobs:
-  build-linux:
+  build_wheels:
+    name: Build wheels on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-22.04, macos-latest]
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/setup-python@v2
+        name: Install Python
+        with:
+          python-version: '3.9'
+
+      - name: Install cibuildwheel and other dependencies
+        run: |
+          python -m pip install -U pip
+          python -m easy_install -U setuptools
+          python -m pip install pytest-cov numpy
+          python -m pip install cibuildwheel==1.4.2
+
+      - name: Test and build wheels
+        run: |
+          python setup.py build_ext -i
+          python -m pip install .
+          py.test --cov=pixell pixell/tests/ -s
+          find . -type f -iname '*.so' -print -delete
+          rm -rf _deps/
+          python -m cibuildwheel --output-dir wheelhouse
+          ls wheelhouse
+        env:
+          CIBW_BEFORE_BUILD: "python -m pip install numpy scipy cython"
+          CIBW_BUILD_VERBOSITY: 3
+          CIBW_BUILD: "cp3?-*x86_64"
+          CIBW_SKIP: "cp33-* cp34-* cp35-*"
+          PYTHON: "python"
+          PIP: "pip"
+
+      - uses: actions/upload-artifact@v2
+        with:
+          path: ./wheelhouse/*.whl
+
+  build_sdist:
+    name: Build source distribution
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Set up Python 3.9
-        uses: actions/setup-python@v2
-        with:
-          python-version: 3.9
-      - name: Install dependencies
-        run: |
-          sudo apt-get install libdbus-1-dev libdbus-glib-1-dev --yes
-          pip install --upgrade pip
-          pip install -r requirements.txt
-      - name: Set PYTHONPATH
-        run: echo "PYTHONPATH=$PYTHONPATH:$GITHUB_WORKSPACE:$GITHUB_WORKSPACE/spotify_lyric" >> $GITHUB_ENV
-      - name: Run tests
-        run: |
-          cd tests/
-          python -m unittest discover . "*_test.py"
-          cd ..
-      - name: Build with PyInstaller
-        run: |
-          pip install pyinstaller
-          pyinstaller SpotifyLyrics.pyw -F -w -i icon.ico --add-data "icon.png:." --additional-hooks-dir=pyinstaller_hooks
-      - name: Upload Release Asset
-        if: github.event_name == 'release'
-        uses: actions/upload-release-asset@v1
-        with:
-          upload_url: ${{ github.event.release.upload_url }}
-          asset_path: dist/SpotifyLyrics
-          asset_name: SpotifyLyrics
-          asset_content_type: application/octet-stream
 
-  build-macos:
-    runs-on: macos-latest
+      - uses: actions/setup-python@v2
+        name: Install Python
+        with:
+          python-version: '3.9'
+
+      - name: Build sdist
+        run: |
+          python -m pip install -U pip
+          python -m easy_install -U setuptools
+          python -m pip install numpy
+          python setup.py sdist
+
+      - uses: actions/upload-artifact@v2
+        with:
+          path: dist/*.tar.gz
+
+  upload_pypi:
+    needs: [build_wheels, build_sdist]
+    runs-on: ubuntu-latest
+    # upload to PyPI on every tag starting with 'v'
+    if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags/v')
+    # alternatively, to publish when a GitHub Release is created, use the following rule:
+    # if: github.event_name == 'release' && github.event.action == 'published'
     steps:
-      - uses: actions/checkout@v2
-      - name: Install dependencies
-        run: |
-          python3 --version
-          pip3 install -r requirements.txt
-
-      - name: Set PYTHONPATH
-        run: echo "PYTHONPATH=$PYTHONPATH:$GITHUB_WORKSPACE:$GITHUB_WORKSPACE/spotify_lyric" >> $GITHUB_ENV
-      - name: Run tests
-        run: |
-          cd tests/
-          python3 -m unittest discover . "*_test.py"
-          cd ..
-      - name: Build with PyInstaller
-        run: |
-          pip3 install pyinstaller
-          pyinstaller SpotifyLyrics.pyw -F -w -i icon.icns --add-data "icon.png:." --additional-hooks-dir=pyinstaller_hooks
-          cd dist/
-          zip -r SpotifyLyrics.app.zip SpotifyLyrics.app
-          cd ..
-      - name: Upload Release Asset
-        if: github.event_name == 'release'
-        uses: actions/upload-release-asset@v1
+      - uses: actions/download-artifact@v2
         with:
-          upload_url: ${{ github.event.release.upload_url }}
-          asset_path: dist/SpotifyLyrics.app.zip
-          asset_name: SpotifyLyrics.app.zip
-          asset_content_type: application/zip
+          name: artifact
+          path: dist
 
-  build-windows:
-    runs-on: windows-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: Install Python
-        run: choco install python --version=3.9
-      - name: Add Python to PATH
-        run: echo "C:\Python37;C:\Python37\Scripts" >> $GITHUB_PATH
-      - name: Install dependencies
-        run: |
-          python -m pip install -r requirements.txt
-
-      - name: Set PYTHONPATH
-        run: echo "PYTHONPATH=$PYTHONPATH;C:\Users\runneradmin\work\spotifylyrics\spotifylyrics;C:\Users\runneradmin\work\spotifylyrics\spotifylyrics\spotify_lyric" >> $GITHUB_ENV
-      - name: Run tests
-        run: |
-          cd tests/
-          python -m unittest discover . "*_test.py"
-          cd ..
-      - name: Build with PyInstaller
-        run: |
-          python -m pip install pyinstaller
-          pyinstaller SpotifyLyrics.pyw -F -w -i icon.ico --add-data "icon.png;." --additional-hooks-dir=pyinstaller_hooks
-      - name: Upload Release Asset
-        if: github.event_name == 'release'
-        uses: actions/upload-release-asset@v1
+      - uses: pypa/gh-action-pypi-publish@master
         with:
-          upload_url: ${{ github.event.release.upload_url }}
-          asset_path: dist/SpotifyLyrics.exe
-          asset_name: SpotifyLyrics.exe
-          asset_content_type: application/octet-stream
+          user: __token__
+          password: ${{ secrets.PYPI_TOKEN }}
+          # To test: repository_url: https://test.pypi.org/legacy/
