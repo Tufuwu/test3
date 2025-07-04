@@ -35,6 +35,7 @@ jobs:
 
       - name: Test and build wheels
         run: |
+          chmod +x scripts/install_libsharp.sh
           python setup.py build_ext -i
           python -m pip install .
           py.test --cov=pixell pixell/tests/ -s
