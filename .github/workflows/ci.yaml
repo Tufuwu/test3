@@ -48,6 +48,7 @@ jobs:
           sed -i "s|'downloads'|'downloads-r5'|g" settings.py
           sed -i "s|\(^specification_url = \)'.*'|\1'http://hl7.org/fhir/R5'|g" settings.py
           rm -rf models
+          chmod +x ./generate.py
           ./generate.py
           grep 'Generated from FHIR 5.0.0' models/account.py # sanity check
 
