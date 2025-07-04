@@ -1,5 +1,17 @@
+include README.rst
+include LICENSE
 include MANIFEST.in
-include CHANGES.rst INSTALL.rst LICENSE.txt README.rst
-include logo/logo-220x200.png
-recursive-include lupa *.py *.pyx *.pxd *.pxi *.c
-recursive-include third-party *.c *.h
+include NEWS
+include scrapyd/VERSION
+include scrapyd/default_scrapyd.conf
+recursive-include scrapyd *.py
+recursive-include docs *
+recursive-include bin *
+prune docs/_build
+recursive-include extras *
+recursive-exclude debian *
+exclude .bumpversion.cfg
+exclude .coveragerc
+exclude *.buildbot
+recursive-include reqs *.txt
+recursive-include scrapyd *.egg
