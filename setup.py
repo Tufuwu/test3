@@ -1,78 +1,86 @@
 #!/usr/bin/env python
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
-# NOTE: The configuration for the package, including the name, version, and
-# other information are set in the setup.cfg file.
-
 import os
 import sys
 
-from setuptools import setup
+from setuptools import setup, find_packages
+from configparser import ConfigParser
 
 
-# First provide helpful messages if contributors try and run legacy commands
-# for tests or docs.
+if sys.version_info < (3, 6):
+    error = """
+    GWCS supports Python versions 3.6 and above.
 
-TEST_HELP = """
-Note: running tests is no longer done using 'python setup.py test'. Instead
-you will need to run:
+    """
+    sys.exit(error)
 
-    tox -e test
+conf = ConfigParser()
+conf.read(['setup.cfg'])
+metadata = dict(conf.items('metadata'))
 
-If you don't already have tox installed, you can install it with:
+PACKAGENAME = metadata.get('name', 'packagename')
+DESCRIPTION = metadata.get('description', 'Astropy affiliated package')
+AUTHOR = metadata.get('author', '')
+AUTHOR_EMAIL = metadata.get('author_email', '')
+LICENSE = metadata.get('license', 'unknown')
+URL = metadata.get('url', 'http://astropy.org')
 
-    pip install tox
 
-If you only want to run part of the test suite, you can also use pytest
-directly with::
+def get_package_data():
+    # Installs the schema files
+    schemas = []
+    root = os.path.join(PACKAGENAME, 'schemas')
+    for node, dirs, files in os.walk(root):
+        for fname in files:
+            if fname.endswith('.yaml'):
+                schemas.append(
+                    os.path.relpath(os.path.join(node, fname), root))
+    # In the package directory, install to the subdirectory 'schemas'
+    schemas = [os.path.join('schemas', s) for s in schemas]
+    return schemas
 
-    pip install -e .[test]
-    pytest
 
-For more information, see:
+schemas = get_package_data()
+PACKAGE_DATA ={'gwcs':schemas}
 
-  http://docs.astropy.org/en/latest/development/testguide.html#running-tests
-"""
+entry_points = {'asdf_extensions': 'gwcs = gwcs.extension:GWCSExtension',
+                'bandit.formatters': 'bson = bandit_bson:formatter'}
 
-if 'test' in sys.argv:
-    print(TEST_HELP)
-    sys.exit(1)
+DOCS_REQUIRE = [
+    'sphinx',
+    'sphinx-automodapi',
+    'sphinx-rtd-theme',
+    'stsci-rtd-theme',
+    'sphinx-astropy',
+    'sphinx-asdf',
+]
 
-DOCS_HELP = """
-Note: building the documentation is no longer done using
-'python setup.py build_docs'. Instead you will need to run:
+TESTS_REQUIRE = [
+    'pytest>=4.6,<6',
+    'pytest-doctestplus',
+    'scipy',
+]
 
-    tox -e build_docs
-
-If you don't already have tox installed, you can install it with:
-
-    pip install tox
-
-You can also build the documentation with Sphinx directly using::
-
-    pip install -e .[docs]
-    cd docs
-    make html
-
-For more information, see:
-
-  http://docs.astropy.org/en/latest/install.html#builddocs
-"""
-
-if 'build_docs' in sys.argv or 'build_sphinx' in sys.argv:
-    print(DOCS_HELP)
-    sys.exit(1)
-
-VERSION_TEMPLATE = """
-# Note that we need to fall back to the hard-coded version if either
-# setuptools_scm can't be imported or setuptools_scm can't determine the
-# version, so we catch the generic 'Exception'.
-try:
-    from setuptools_scm import get_version
-    version = get_version(root='..', relative_to=__file__)
-except Exception:
-    version = '{version}'
-""".lstrip()
-
-setup(use_scm_version={'write_to': os.path.join('astrocut', 'version.py'),
-                       'write_to_template': VERSION_TEMPLATE})
+setup(name=PACKAGENAME,
+      use_scm_version=True,
+      setup_requires=['setuptools_scm'],
+      description=DESCRIPTION,
+      install_requires=[
+          'astropy>=4.1',
+          'numpy',
+          'scipy',
+          'asdf'],
+      packages=find_packages(),
+      extras_require={
+        'test': TESTS_REQUIRE,
+        'docs': DOCS_REQUIRE,
+      },
+      tests_require=TESTS_REQUIRE,
+      author=AUTHOR,
+      author_email=AUTHOR_EMAIL,
+      license=LICENSE,
+      url=URL,
+      package_data=PACKAGE_DATA,
+      entry_points=entry_points,
+)

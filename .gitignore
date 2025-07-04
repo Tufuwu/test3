@@ -1,5 +1,5 @@
 # Compiled files
-*.py[cod]
+*.py[co]
 *.a
 *.o
 *.so
@@ -15,29 +15,23 @@ __pycache__
 htmlcov
 .coverage
 MANIFEST
-.ipynb_checkpoints
-pip-wheel-metadata/
+.pytest_cache
+.tox
 
 # Sphinx
 docs/api
 docs/_build
+docs/generated
 
 # Eclipse editor project files
 .project
 .pydevproject
 .settings
 
-# Pycharm editor project files
-.idea
-
-# Floobits project files
-.floo
-.flooignore
-
 # Packages/installer info
 *.egg
+*.eggs
 *.egg-info
-*.eggs/
 dist
 build
 eggs
@@ -50,14 +44,9 @@ develop-eggs
 distribute-*.tar.gz
 
 # Other
-.cache
-.tox
-.*.sw[op]
+.*.swp
 *~
-.project
-.pydevproject
-.settings
-.tmp/
 
 # Mac OSX
 .DS_Store
+.idea
