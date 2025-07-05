@@ -22,9 +22,9 @@ jobs:
           - curio
           - trio
           - uvloop
-      exclude:
-        - python-image: pypy:3.6
-          purerp-backend: uvloop
+        exclude:
+          - python-image: pypy:3.6
+            purerp-backend: uvloop
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
