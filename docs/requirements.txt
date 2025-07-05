@@ -1,3 +1,0 @@
-# Needs
-
--r ../config/requirements_docs.txt
