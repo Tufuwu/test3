@@ -1,148 +1,100 @@
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-#
-# setup.py
-#
-# Author:   Toke Høiland-Jørgensen (toke@toke.dk)
-# Date:      4 December 2012
-# Copyright (c) 2012-2016, Toke Høiland-Jørgensen
-#
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from __future__ import absolute_import, division, print_function
+"""A setuptools based setup module.
+See:
+https://packaging.python.org/en/latest/distributing.html
+https://github.com/pypa/sampleproject
+"""
 
-import os
-import sys
+# Always prefer setuptools over distutils
+from setuptools import setup, find_packages
 
-from setuptools import setup
-from setuptools.command.build_py import build_py as _build_py
-from setuptools.command.sdist import sdist as _sdist
+# To use a consistent encoding
+from codecs import open
+from os import path
+from efficient_apriori import __version__
 
-from flent.build_info import VERSION
-from glob import glob
+VERSION = __version__
 
-version_string = VERSION
-
-if sys.version_info[:3] < (3, 5, 0):
-    sys.stderr.write("Sorry, Flent requires v3.5 or later of Python.\n")
-    sys.exit(1)
+here = path.abspath(path.dirname(__file__))
 
 
-def rewrite_build_info(module_file):
-    with open(module_file, 'w') as module_fp:
-        module_fp.write('# -*- coding: UTF-8 -*-\n\n')
-        module_fp.write("import os\n")
-        module_fp.write("VERSION='%s'\n" % (version_string))
-        module_fp.write("DATA_DIR=os.path.dirname(__file__)\n")
+def read(fname):
+    return open(path.join(here, fname)).read()
 
 
-class build_py(_build_py):
-    """build_py command
-
-    This specific build_py command will modify module
-    'flent.build_config' so that it contains information on
-    installation prefixes afterwards.
-    """
-
-    def build_module(self, module, module_file, package):
-        orig_content = None
-        if module == 'build_info' and package == 'flent':
-            with open(module_file, 'rb') as module_fp:
-                orig_content = module_fp.read()
-
-            rewrite_build_info(module_file)
-
-        _build_py.build_module(self, module, module_file, package)
-
-        if orig_content is not None:
-            with open(module_file, 'wb') as module_fp:
-                module_fp.write(orig_content)
-
-
-class sdist(_sdist):
-
-    def make_release_tree(self, base_dir, files):
-        if 'flent/build_info.py' in files and not self.dry_run:
-            files = [f for f in files if f != 'flent/build_info.py']
-            _sdist.make_release_tree(self, base_dir, files)
-            rewrite_build_info(os.path.join(base_dir, 'flent/build_info.py'))
-        else:
-            _sdist.make_release_tree(self, base_dir, files)
-
-
-data_files = [('share/doc/flent',
-               ['BUGS',
-                'README.rst',
-                'CHANGES.md',
-                'flent-paper.batch'] + glob("*.example")),
-              ('share/man/man1',
-               ['man/flent.1']),
-              ('share/doc/flent/misc',
-               glob("misc/*")),
-              ('share/mime/packages',
-               ['flent-mime.xml']),
-              ('share/applications',
-               ['flent.desktop']),
-              ('share/metainfo',
-               ['flent.appdata.xml'])]
-
-classifiers = [
-    'Development Status :: 5 - Production/Stable',
-    'Environment :: Console',
-    'Environment :: MacOS X',
-    'Environment :: X11 Applications',
-    'Environment :: X11 Applications :: Qt',
-    'Intended Audience :: Developers',
-    'Intended Audience :: Education',
-    'Intended Audience :: Science/Research',
-    'Intended Audience :: System Administrators',
-    'Intended Audience :: Telecommunications Industry',
-    'License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)',
-    'Operating System :: MacOS :: MacOS X',
-    'Operating System :: POSIX',
-    'Programming Language :: Python',
-    'Programming Language :: Python :: 3',
-    'Programming Language :: Python :: 3.5',
-    'Programming Language :: Python :: 3.6',
-    'Programming Language :: Python :: 3.7',
-    'Programming Language :: Python :: 3 :: Only',
-    'Topic :: Internet',
-    'Topic :: System :: Benchmark',
-    'Topic :: System :: Networking',
-    'Topic :: Utilities',
-]
-
-with open("README.rst") as fp:
-    long_description = "\n" + fp.read()
-
-setup(name="flent",
-      version=version_string,
-      description="The FLExible Network Tester",
-      long_description=long_description,
-      include_package_data=True,
-      author="Toke Høiland-Jørgensen <toke@toke.dk>",
-      author_email="toke@toke.dk",
-      url="http://flent.org",
-      license="GNU GPLv3",
-      classifiers=classifiers,
-      packages=["flent"],
-      entry_points={'console_scripts': ['flent = flent:run_flent'],
-                    'gui_scripts': ['flent-gui = flent:run_flent_gui']},
-      zip_safe=False,
-      data_files=data_files,
-      cmdclass={'build_py': build_py, 'sdist': sdist},
-      extras_require={
-          'GUI': ['QtPy', 'PyQt5'],
-          'Plots': ['matplotlib>=1.5'],
-      },
-      )
+setup(
+    name="efficient_apriori",
+    # Versions should comply with PEP440.  For a discussion on single-sourcing
+    # the version across setup.py and the project code, see
+    # https://packaging.python.org/en/latest/single_source_version.html
+    version=VERSION,
+    description=" An efficient Python implementation of the Apriori \
+    algorithm.",
+    long_description=read("README.md"),
+    long_description_content_type="text/markdown",
+    # The project's main homepage.
+    url="https://github.com/tommyod/Efficient-Apriori",
+    # Author details
+    author="tommyod",
+    author_email="tommy.odland@gmail.com",
+    # Choose your license
+    license="MIT",
+    # See https://pypi.python.org/pypi?%3Aaction=list_classifiers
+    classifiers=[
+        # How mature is this project? Common values are
+        #   3 - Alpha
+        #   4 - Beta
+        #   5 - Production/Stable
+        "Development Status :: 5 - Production/Stable",
+        # Indicate who your project is intended for
+        # 'Intended Audience :: End Users/Desktop',
+        # 'Intended Audience :: Healthcare Industry',
+        # Pick your license as you wish (should match "license" above)
+        "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+        # Specify the Python versions you support here. In particular, ensure
+        # that you indicate whether you support Python 2, Python 3 or both.
+        "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
+    ],
+    # You can just specify the packages manually here if your project is
+    # simple. Or you can use find_packages().
+    packages=find_packages(".", exclude=["contrib", "docs", "tests"]),
+    package_dir={"efficient_apriori": "efficient_apriori"},
+    # Alternatively, if you want to distribute just a my_module.py, uncomment
+    # this:
+    #   py_modules=["my_module"],
+    # List run-time dependencies here.  These will be installed by pip when
+    # your project is installed. For an analysis of "install_requires" vs pip's
+    # requirements files see:
+    # https://packaging.python.org/en/latest/requirements.html
+    install_requires=[],
+    # List additional groups of dependencies here (e.g. development
+    # dependencies). You can install these using the following syntax,
+    # for example:
+    # $ pip install -e .[dev,test]
+    # extras_require={
+    #     'dev': ['check-manifest'],
+    #     'test': ['coverage'],
+    # },
+    # If there are data files included in your packages that need to be
+    # installed, specify them here.  If using Python 2.6 or less, then these
+    # have to be included in MANIFEST.in as well.
+    # include_package_data=True,
+    package_data={"": ["templates/*", "*.tex", "*.html"]},
+    # Although 'package_data' is the preferred approach, in some case you may
+    # need to place data files outside of your packages. See:
+    # http://docs.python.org/3.4/distutils/setupscript.html#installing-additional-files # noqa
+    # In this case, 'data_file' will be installed into '<sys.prefix>/my_data'
+    # data_files=[('my_data', ['data/data_file'])],
+    # To provide executable scripts, use entry points in preference to the
+    # "scripts" keyword. Entry points provide cross-platform support and allow
+    # pip to create the appropriate form of executable for the target platform.
+    # entry_points={
+    #    'console_scripts': [
+    #         'sample=sample:main',
+    #    ],
+    # }
+)
