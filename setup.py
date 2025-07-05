@@ -21,7 +21,7 @@ setup(
     name="curtsies",
     version=version(),
     description="Curses-like terminal wrapper, with colored strings!",
-    long_description=long_description(),
+    long_description="This is a MySensors integration package.",
     long_description_content_type="text/markdown",
     url="https://github.com/bpython/curtsies",
     author="Thomas Ballinger",
