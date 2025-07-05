@@ -1,360 +1,381 @@
-from distutils.command.sdist import sdist
-from distutils import log
+#!/usr/bin/env python
+
+# Build or install Shapely distributions
+#
+# This script has two different uses.
+#
+# 1) Installing from a source distribution, whether via
+#
+#      ``python setup.py install``
+#
+#    after downloading a source distribution, or
+#
+#      ``pip install shapely``
+#
+#    on a platform for which pip cannot find a wheel. This will most
+#    often be the case for Linux, since the project is not yet
+#    publishing Linux wheels. This will never be the case on Windows and
+#    rarely the case on OS X; both are wheels-first platforms.
+#
+# 2) Building distributions (source or wheel) from a repository. This
+#    includes using Cython to generate C source for the speedups and
+#    vectorize modules from Shapely's .pyx files.
+#
+# On import, Shapely loads a GEOS shared library. GEOS is a run time
+# requirement. Additionally, the speedups and vectorized C extension
+# modules need GEOS headers and libraries to be built. Shapely versions
+# >=1.3 require GEOS >= 3.3.
+#
+# For the first use case (see 1, above), we aim to treat GEOS as if it
+# were a Python requirement listed in ``install_requires``. That is, in
+# an environment with Shapely 1.2.x and GEOS 3.2, the command ``pip
+# install shapely >=1.3 --no-use-wheel`` (whether wheels are explicitly
+# opted against or are not published for the platform) should fail with
+# a warning and advice to upgrade GEOS to >=3.3.
+#
+# In case 1, the environment's GEOS version is determined by executing
+# the geos-config script. If the GEOS version returned by that script is
+# incompatible with the Shapely source distribution or no geos-config
+# script can be found, this setup script will fail.
+#
+# For the second use case (see 2, distribution building, above), we
+# allow the requirements to be loosened. If this script finds that the
+# environment variable NO_GEOS_CHECK is set, geos-config will not be
+# executed and no attempt will be made to enforce requirements as in the
+# second case.
+#
+# For both cases, a geos-config not in the environment's $PATH may be
+# used by setting the environment variable GEOS_CONFIG to the path to
+# a geos-config script.
+#
+# NB: within this setup scripts, software versions are evaluated according
+# to https://www.python.org/dev/peps/pep-0440/.
+
+import errno
+import glob
 import itertools as it
+import logging
 import os
+import platform
+import re
 import shutil
 import subprocess
 import sys
 from setuptools import setup
 from setuptools.extension import Extension
+from setuptools.command.build_ext import build_ext as distutils_build_ext
+from distutils.errors import CCompilerError, DistutilsExecError, \
+    DistutilsPlatformError
+
+from _vendor.packaging.version import Version
+
+# Get geos_version from GEOS dynamic library, which depends on
+# GEOS_LIBRARY_PATH and/or GEOS_CONFIG environment variables
+from shapely._buildcfg import geos_version_string, geos_version, \
+        geos_config, get_geos_config
+
+logging.basicConfig()
+log = logging.getLogger(__file__)
+
+# python -W all setup.py ...
+if 'all' in sys.warnoptions:
+    log.level = logging.DEBUG
 
 
-# Use Cython if available.
-try:
-    from Cython.Build import cythonize
-except ImportError:
-    cythonize = None
+class GEOSConfig(object):
+    """Interface to config options from the `geos-config` utility
+    """
 
+    def __init__(self, cmd):
+        self.cmd = cmd
 
-def check_output(cmd):
-    # since subprocess.check_output doesn't exist in 2.6
-    # we wrap it here.
-    try:
-        out = subprocess.check_output(cmd)
-        return out.decode('utf')
-    except AttributeError:
-        # For some reasone check_output doesn't exist
-        # So fall back on Popen
-        p = subprocess.Popen(cmd, stdout=subprocess.PIPE)
-        out, err = p.communicate()
-        return out
+    def get(self, option):
+        try:
+            stdout, stderr = subprocess.Popen(
+                [self.cmd, option],
+                stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
+        except OSError as ex:
+            # e.g., [Errno 2] No such file or directory
+            raise OSError("Could not find geos-config script")
+        if stderr and not stdout:
+            raise ValueError(stderr.strip())
+        result = stdout.decode('ascii').strip()
+        log.debug('%s %s: %r', self.cmd, option, result)
+        return result
 
+    def version(self):
+        match = re.match(r'(\d+)\.(\d+)\.(\d+)', self.get('--version').strip())
+        return tuple(map(int, match.groups()))
 
-def copy_data_tree(datadir, destdir):
-    try:
-        shutil.rmtree(destdir)
-    except OSError:
-        pass
-    shutil.copytree(datadir, destdir)
-
-
-# Parse the version from the fiona module.
-with open('fiona/__init__.py', 'r') as f:
-    for line in f:
-        if line.find("__version__") >= 0:
-            version = line.split("=")[1].strip()
-            version = version.strip('"')
-            version = version.strip("'")
+# Get the version from the shapely module.
+shapely_version = None
+with open('shapely/__init__.py', 'r') as fp:
+    for line in fp:
+        if line.startswith("__version__"):
+            shapely_version = Version(
+                line.split("=")[1].strip().strip("\"'"))
             break
 
-# Fiona's auxiliary files are UTF-8 encoded and we'll specify this when
-# reading with Python 3+
-open_kwds = {}
-if sys.version_info > (3,):
-    open_kwds['encoding'] = 'utf-8'
+if not shapely_version:
+    raise ValueError("Could not determine Shapely's version")
 
-with open('VERSION.txt', 'w', **open_kwds) as f:
-    f.write(version)
+# Allow GEOS_CONFIG to be bypassed in favor of CFLAGS and LDFLAGS
+# vars set by build environment.
+if os.environ.get('NO_GEOS_CONFIG'):
+    geos_config = None
+else:
+    geos_config = GEOSConfig(os.environ.get('GEOS_CONFIG', 'geos-config'))
 
-with open('README.rst', **open_kwds) as f:
-    readme = f.read()
-
-with open('CREDITS.txt', **open_kwds) as f:
-    credits = f.read()
-
-with open('CHANGES.txt', **open_kwds) as f:
-    changes = f.read()
-
-# Set a flag for builds where the source directory is a repo checkout.
-source_is_repo = os.path.exists("MANIFEST.in")
-
-
-# Extend distutil's sdist command to generate C extension sources from
-# the _shim extension modules for GDAL 1.x and 2.x.
-class sdist_multi_gdal(sdist):
-    def run(self):
-        sources = {
-            "_shim1": "_shim",
-            "_shim2": "_shim",
-            "_shim22": "_shim",
-            "_shim3": "_shim"
-        }
-        for src_a, src_b in sources.items():
-            shutil.copy('fiona/{}.pyx'.format(src_a), 'fiona/{}.pyx'.format(src_b))
-            _ = check_output(['cython', '-v', '-f', 'fiona/{}.pyx'.format(src_b),
-                              '-o', 'fiona/{}.c'.format(src_a)])
-            print(_)
-        sdist.run(self)
-
-# Building Fiona requires options that can be obtained from GDAL's gdal-config
-# program or can be specified using setup arguments. The latter override the
-# former.
-#
-# A GDAL API version is strictly required. Without this the setup script
-# cannot know whether to use the GDAL version 1 or 2 source files. The GDAL
-# API version can be specified in 2 ways.
-#
-# 1. By the gdal-config program, optionally pointed to by GDAL_CONFIG
-# 2. By a GDAL_VERSION environment variable. This overrides number 1.
-
-
-include_dirs = []
-library_dirs = []
-libraries = []
-extra_link_args = []
-gdal_output = [None for i in range(4)]
-gdalversion = None
-language = None
-
-if 'clean' not in sys.argv:
+# Fail installation if the GEOS shared library does not meet the minimum
+# version. We ship it with Shapely for Windows, so no need to check on
+# that platform.
+geos_version = None
+if geos_config and not os.environ.get('NO_GEOS_CHECK') or sys.platform == 'win32':
     try:
-        gdal_config = os.environ.get('GDAL_CONFIG', 'gdal-config')
-        for i, flag in enumerate(
-                ["--cflags", "--libs", "--datadir", "--version"]):
-            gdal_output[i] = check_output([gdal_config, flag]).strip()
-        for item in gdal_output[0].split():
-            if item.startswith("-I"):
-                include_dirs.extend(item[2:].split(":"))
-        for item in gdal_output[1].split():
-            if item.startswith("-L"):
-                library_dirs.extend(item[2:].split(":"))
-            elif item.startswith("-l"):
-                libraries.append(item[2:])
-            else:
-                # e.g. -framework GDAL
-                extra_link_args.append(item)
-        gdalversion = gdal_output[3]
-        if gdalversion:
-            log.info("GDAL API version obtained from gdal-config: %s",
-                     gdalversion)
+        log.info(
+            "Shapely >= 1.3 requires GEOS >= 3.3. "
+            "Checking for GEOS version...")
+        geos_version = geos_config.version()
+        log.info("Found GEOS version: %s", geos_version)
+        if (set(sys.argv).intersection(['install', 'build', 'build_ext']) and
+                shapely_version >= Version("1.3") and geos_version < (3, 3)):
+            log.critical(
+                "Shapely >= 1.3 requires GEOS >= 3.3. "
+                "Install GEOS 3.3+ and reinstall Shapely.")
+            sys.exit(1)
+    except OSError as exc:
+        log.warning(
+            "Failed to determine system's GEOS version: %s. "
+            "Installation continuing. GEOS version will be "
+            "checked on import of shapely.", exc)
 
-    except Exception as e:
-        if os.name == "nt":
-            log.info("Building on Windows requires extra options to setup.py "
-                     "to locate needed GDAL files.\nMore information is "
-                     "available in the README.")
-        else:
-            log.warn("Failed to get options via gdal-config: %s", str(e))
+with open('VERSION.txt', 'w') as fp:
+    fp.write(str(shapely_version))
 
-    # Get GDAL API version from environment variable.
-    if 'GDAL_VERSION' in os.environ:
-        gdalversion = os.environ['GDAL_VERSION']
-        log.info("GDAL API version obtained from environment: %s", gdalversion)
+with open('README.rst', 'r') as fp:
+    readme = fp.read()
 
-    # Get GDAL API version from the command line if specified there.
-    if '--gdalversion' in sys.argv:
-        index = sys.argv.index('--gdalversion')
-        sys.argv.pop(index)
-        gdalversion = sys.argv.pop(index)
-        log.info("GDAL API version obtained from command line option: %s",
-                 gdalversion)
+with open('CREDITS.txt', 'r', encoding='utf-8') as fp:
+    credits = fp.read()
 
-    if not gdalversion:
-        log.fatal("A GDAL API version must be specified. Provide a path "
-                  "to gdal-config using a GDAL_CONFIG environment variable "
-                  "or use a GDAL_VERSION environment variable.")
-        sys.exit(1)
+with open('CHANGES.txt', 'r') as fp:
+    changes = fp.read()
 
-    if os.environ.get('PACKAGE_DATA'):
-        destdir = 'fiona/gdal_data'
-        if gdal_output[2]:
-            log.info("Copying gdal data from %s" % gdal_output[2])
-            copy_data_tree(gdal_output[2], destdir)
-        else:
-            # check to see if GDAL_DATA is defined
-            gdal_data = os.environ.get('GDAL_DATA', None)
-            if gdal_data:
-                log.info("Copying gdal data from %s" % gdal_data)
-                copy_data_tree(gdal_data, destdir)
+long_description = readme + '\n\n' + credits + '\n\n' + changes
 
-        # Conditionally copy PROJ.4 data.
-        projdatadir = os.environ.get('PROJ_LIB', '/usr/local/share/proj')
-        if os.path.exists(projdatadir):
-            log.info("Copying proj data from %s" % projdatadir)
-            copy_data_tree(projdatadir, 'fiona/proj_data')
+extra_reqs = {
+    'test': ['pytest', 'pytest-cov'],
+    'vectorized': ['numpy']}
+extra_reqs['all'] = list(it.chain.from_iterable(extra_reqs.values()))
 
-    if "--cython-language" in sys.argv:
-        index = sys.argv.index("--cython-language")
-        sys.argv.pop(index)
-        language = sys.argv.pop(index).lower()
-
-    gdal_version_parts = gdalversion.split('.')
-    gdal_major_version = int(gdal_version_parts[0])
-    gdal_minor_version = int(gdal_version_parts[1])
-
-    log.info("GDAL version major=%r minor=%r", gdal_major_version, gdal_minor_version)
-
-ext_options = dict(
-    include_dirs=include_dirs,
-    library_dirs=library_dirs,
-    libraries=libraries,
-    extra_link_args=extra_link_args)
-
-# Enable coverage for cython pyx files.
-if os.environ.get('CYTHON_COVERAGE'):
-    from Cython.Compiler.Options import get_directive_defaults
-    directive_defaults = get_directive_defaults()
-    directive_defaults['linetrace'] = True
-    directive_defaults['binding'] = True
-
-    ext_options.update(dict(
-        define_macros=[("CYTHON_TRACE_NOGIL", "1")]))
-
-# GDAL 2.3+ requires C++11
-
-if language == "c++":
-    ext_options["language"] = "c++"
-    if sys.platform != "win32":
-        ext_options["extra_compile_args"] = ["-std=c++11"]
-
-ext_options_cpp = ext_options.copy()
-if sys.platform != "win32":
-    ext_options_cpp["extra_compile_args"] = ["-std=c++11"]
-
-
-# Define the extension modules.
-ext_modules = []
-
-if source_is_repo and "clean" not in sys.argv:
-    # When building from a repo, Cython is required.
-    log.info("MANIFEST.in found, presume a repo, cythonizing...")
-    if not cythonize:
-        log.fatal("Cython.Build.cythonize not found. "
-                  "Cython is required to build from a repo.")
-        sys.exit(1)
-
-    if gdalversion.startswith("1"):
-        shutil.copy('fiona/_shim1.pyx', 'fiona/_shim.pyx')
-        shutil.copy('fiona/_shim1.pxd', 'fiona/_shim.pxd')
-    elif gdal_major_version == 2:
-        if gdal_minor_version >= 2:
-            log.info("Building Fiona for gdal 2.2+: {0}".format(gdalversion))
-            shutil.copy('fiona/_shim22.pyx', 'fiona/_shim.pyx')
-            shutil.copy('fiona/_shim22.pxd', 'fiona/_shim.pxd')
-        else:
-            log.info("Building Fiona for gdal 2.0.x-2.1.x: {0}".format(gdalversion))
-            shutil.copy('fiona/_shim2.pyx', 'fiona/_shim.pyx')
-            shutil.copy('fiona/_shim2.pxd', 'fiona/_shim.pxd')
-    elif gdal_major_version == 3:
-        shutil.copy('fiona/_shim3.pyx', 'fiona/_shim.pyx')
-        shutil.copy('fiona/_shim3.pxd', 'fiona/_shim.pxd')
-
-    ext_modules = cythonize([
-        Extension('fiona._geometry', ['fiona/_geometry.pyx'], **ext_options),
-        Extension('fiona.schema', ['fiona/schema.pyx'], **ext_options),
-        Extension('fiona._transform', ['fiona/_transform.pyx'], **ext_options_cpp),
-        Extension('fiona._crs', ['fiona/_crs.pyx'], **ext_options),
-        Extension('fiona._env', ['fiona/_env.pyx'], **ext_options),
-        Extension('fiona._err', ['fiona/_err.pyx'], **ext_options),
-        Extension('fiona._shim', ['fiona/_shim.pyx'], **ext_options),
-        Extension('fiona.ogrext', ['fiona/ogrext.pyx'], **ext_options)
-        ],
-        compiler_directives={"language_level": "3"}
-    )
-
-# If there's no manifest template, as in an sdist, we just specify .c files.
-elif "clean" not in sys.argv:
-    ext_modules = [
-        Extension('fiona.schema', ['fiona/schema.c'], **ext_options),
-        Extension('fiona._transform', ['fiona/_transform.cpp'], **ext_options_cpp),
-        Extension('fiona._geometry', ['fiona/_geometry.c'], **ext_options),
-        Extension('fiona._crs', ['fiona/_crs.c'], **ext_options),
-        Extension('fiona._env', ['fiona/_env.c'], **ext_options),
-        Extension('fiona._err', ['fiona/_err.c'], **ext_options),
-        Extension('fiona.ogrext', ['fiona/ogrext.c'], **ext_options),
-    ]
-
-    if gdal_major_version == 1:
-        log.info("Building Fiona for gdal 1.x: {0}".format(gdalversion))
-        ext_modules.append(
-            Extension('fiona._shim', ['fiona/_shim1.c'], **ext_options))
-    elif gdal_major_version == 2:
-        if gdal_minor_version >= 2:
-            log.info("Building Fiona for gdal 2.2+: {0}".format(gdalversion))
-            ext_modules.append(
-                Extension('fiona._shim', ['fiona/_shim22.c'], **ext_options))
-        else:
-            log.info("Building Fiona for gdal 2.0.x-2.1.x: {0}".format(gdalversion))
-            ext_modules.append(
-                Extension('fiona._shim', ['fiona/_shim2.c'], **ext_options))
-    elif gdal_major_version == 3:
-        log.info("Building Fiona for gdal >= 3.0.x: {0}".format(gdalversion))
-        ext_modules.append(
-            Extension('fiona._shim', ['fiona/_shim3.c'], **ext_options))
-
-requirements = [
-    'attrs>=17',
-    'certifi',
-    'click>=4.0,<8',
-    'cligj>=0.5',
-    'click-plugins>=1.0',
-    'six>=1.7',
-    'munch',
-    'argparse; python_version < "2.7"',
-    'ordereddict; python_version < "2.7"',
-    'enum34; python_version < "3.4"'
-]
-
-extras_require = {
-    'calc': ['shapely'],
-    's3': ['boto3>=1.2.4'],
-    'test': ['pytest>=3', 'pytest-cov', 'boto3>=1.2.4', 'mock; python_version < "3.4"']
-}
-
-extras_require['all'] = list(set(it.chain(*extras_require.values())))
-
-
+# Make a dict of setup arguments. Some items will be updated as
+# the script progresses.
 setup_args = dict(
-    cmdclass={'sdist': sdist_multi_gdal},
-    metadata_version='1.2',
-    name='Fiona',
-    version=version,
-    requires_python='>=2.6',
-    requires_external='GDAL (>=1.8)',
-    description="Fiona reads and writes spatial data files",
-    license='BSD',
-    keywords='gis vector feature data',
-    author='Sean Gillies',
-    author_email='sean.gillies@gmail.com',
-    maintainer='Sean Gillies',
-    maintainer_email='sean.gillies@gmail.com',
-    url='http://github.com/Toblerity/Fiona',
-    long_description=readme + "\n" + changes + "\n" + credits,
-    package_dir={'': '.'},
-    packages=['fiona', 'fiona.fio'],
-    entry_points='''
-        [console_scripts]
-        fio=fiona.fio.main:main_group
-
-        [fiona.fio_commands]
-        bounds=fiona.fio.bounds:bounds
-        calc=fiona.fio.calc:calc
-        cat=fiona.fio.cat:cat
-        collect=fiona.fio.collect:collect
-        distrib=fiona.fio.distrib:distrib
-        dump=fiona.fio.dump:dump
-        env=fiona.fio.env:env
-        filter=fiona.fio.filter:filter
-        info=fiona.fio.info:info
-        insp=fiona.fio.insp:insp
-        load=fiona.fio.load:load
-        ls=fiona.fio.ls:ls
-        rm=fiona.fio.rm:rm
-        ''',
-    install_requires=requirements,
-    extras_require=extras_require,
-    ext_modules=ext_modules,
-    classifiers=[
+    name                = 'Shapely',
+    version             = str(shapely_version),
+    description         = 'Geometric objects, predicates, and operations',
+    license             = 'BSD',
+    keywords            = 'geometry topology gis',
+    author              = 'Sean Gillies',
+    author_email        = 'sean.gillies@gmail.com',
+    maintainer          = 'Sean Gillies',
+    maintainer_email    = 'sean.gillies@gmail.com',
+    url                 = 'https://github.com/Toblerity/Shapely',
+    long_description    = long_description,
+    packages            = [
+        'shapely',
+        'shapely.geometry',
+        'shapely.algorithms',
+        'shapely.examples',
+        'shapely.speedups',
+        'shapely.vectorized',
+    ],
+    classifiers         = [
         'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',
         'Intended Audience :: Science/Research',
         'License :: OSI Approved :: BSD License',
         'Operating System :: OS Independent',
-        'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 3',
-        'Topic :: Scientific/Engineering :: GIS'])
+        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
+        'Topic :: Scientific/Engineering :: GIS',
+    ],
+    cmdclass           = {},
+    python_requires    = '>=3.5',
+    extras_require     = extra_reqs,
+    package_data={
+        'shapely': ['shapely/_geos.pxi']},
+    include_package_data=True
+)
 
-if os.environ.get('PACKAGE_DATA'):
-    setup_args['package_data'] = {'fiona': ['gdal_data/*', 'proj_data/*', '.libs/*', '.libs/licenses/*']}
+# Add DLLs for Windows.
+if sys.platform == 'win32':
+    try:
+        os.mkdir('shapely/DLLs')
+    except OSError as ex:
+        if ex.errno != errno.EEXIST:
+            raise
+    if '(AMD64)' in sys.version:
+        for dll in glob.glob('DLLs_AMD64_VC9/*.dll'):
+            shutil.copy(dll, 'shapely/DLLs')
+    else:
+        for dll in glob.glob('DLLs_x86_VC9/*.dll'):
+            shutil.copy(dll, 'shapely/DLLs')
+    setup_args['package_data']['shapely'].append('shapely/DLLs/*.dll')
 
-setup(**setup_args)
+# Prepare build opts and args for the speedups extension module.
+include_dirs = []
+library_dirs = []
+libraries = []
+extra_link_args = []
+
+# If NO_GEOS_CONFIG is set in the environment, geos-config will not
+# be called and CFLAGS and LDFLAGS environment variables must be set
+# instead like
+#
+# CFLAGS="-I/usr/local/include" LDFLAGS="-L/usr/local/lib -lgeos_c"
+#
+# Or, equivalently:
+#
+# CFLAGS="$(geos-config --cflags)" LDFLAGS="$(geos-config --clibs)"
+
+if geos_version and geos_config:
+    # Collect other options from GEOS configuration.
+    for item in geos_config.get('--cflags').split():
+        if item.startswith("-I"):
+            include_dirs.extend(item[2:].split(":"))
+    for item in geos_config.get('--clibs').split():
+        if item.startswith("-L"):
+            library_dirs.extend(item[2:].split(":"))
+        elif item.startswith("-l"):
+            libraries.append(item[2:])
+        else:
+            # e.g. -framework GEOS
+            extra_link_args.append(item)
+
+
+# Optional compilation of speedups
+# setuptools stuff from Bob Ippolito's simplejson project
+if sys.platform == 'win32':
+    # distutils.msvc9compiler can raise an IOError when failing to
+    # find the compiler
+    ext_errors = (CCompilerError, DistutilsExecError, DistutilsPlatformError,
+                  IOError)
+else:
+    ext_errors = (CCompilerError, DistutilsExecError, DistutilsPlatformError)
+
+
+class BuildFailed(Exception):
+    pass
+
+
+def construct_build_ext(build_ext):
+    class WrappedBuildExt(build_ext):
+        # This class allows C extension building to fail.
+
+        def run(self):
+            try:
+                build_ext.run(self)
+            except DistutilsPlatformError as x:
+                raise BuildFailed(x)
+
+        def build_extension(self, ext):
+            try:
+                build_ext.build_extension(self, ext)
+            except ext_errors as x:
+                raise BuildFailed(x)
+
+    return WrappedBuildExt
+
+if (platform.python_implementation() == 'PyPy'):
+    ext_modules = []
+    libraries = []
+
+
+pyx_file = "shapely/speedups/_speedups.pyx"
+c_file = "shapely/speedups/_speedups.c"
+
+force_cython = False
+# Always regenerate for sdist or absent c file
+if 'sdist' in sys.argv or not os.path.exists(c_file):
+    force_cython = True
+# Also regenerate if pyx_file is outdated.
+elif os.path.exists(c_file):
+    if os.path.getmtime(pyx_file) > os.path.getmtime(c_file):
+        force_cython = True
+
+ext_modules = [
+    Extension("shapely.speedups._speedups", ["shapely/speedups/_speedups.c"],
+        include_dirs=include_dirs, library_dirs=library_dirs,
+        libraries=libraries, extra_link_args=extra_link_args)]
+
+cmd_classes = setup_args.setdefault('cmdclass', {})
+
+try:
+    import numpy
+    from Cython.Distutils import build_ext as cython_build_ext
+    from distutils.extension import Extension as DistutilsExtension
+
+    if 'build_ext' in setup_args['cmdclass']:
+        raise ValueError('We need to put the Cython build_ext in '
+                         'cmd_classes, but it is already defined.')
+    setup_args['cmdclass']['build_ext'] = cython_build_ext
+
+    include_dirs.append(numpy.get_include())
+    libraries.append(numpy.get_include())
+
+    ext_modules.append(DistutilsExtension(
+        "shapely.vectorized._vectorized",
+        sources=["shapely/vectorized/_vectorized.pyx"],
+        include_dirs=include_dirs,
+        library_dirs=library_dirs,
+        libraries=libraries,
+        extra_link_args=extra_link_args,))
+
+except ImportError:
+    log.info("Numpy or Cython not available, shapely.vectorized submodule "
+             "not being built.")
+    force_cython = False
+
+try:
+    if force_cython:
+        log.info("Updating C extension with Cython.")
+        subprocess.check_call(["cython", "shapely/speedups/_speedups.pyx"])
+except (subprocess.CalledProcessError, OSError):
+    log.warning("Could not (re)create C extension with Cython.")
+    if force_cython:
+        raise
+
+if not os.path.exists(c_file):
+    log.warning("speedup extension not found")
+
+try:
+    # try building with speedups
+    existing_build_ext = setup_args['cmdclass'].\
+        get('build_ext', distutils_build_ext)
+    setup_args['cmdclass']['build_ext'] = \
+        construct_build_ext(existing_build_ext)
+    setup(ext_modules=ext_modules, **setup_args)
+except BuildFailed as ex:
+    BUILD_EXT_WARNING = "The C extension could not be compiled, " \
+                        "speedups are not enabled."
+    log.warning(ex)
+    log.warning(BUILD_EXT_WARNING)
+    log.warning("Failure information, if any, is above.")
+    log.warning("I'm retrying the build without the C extension now.")
+
+    # Remove any previously defined build_ext command class.
+    if 'build_ext' in setup_args['cmdclass']:
+        del setup_args['cmdclass']['build_ext']
+
+    if 'build_ext' in cmd_classes:
+        del cmd_classes['build_ext']
+
+    setup(**setup_args)
+
+    log.warning(BUILD_EXT_WARNING)
+    log.info("Plain-Python installation succeeded.")

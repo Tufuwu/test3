@@ -1,12 +1,16 @@
-global-exclude .DS_Store
-global-exclude *.pyc
-recursive-exclude docs/data *
-recursive-exclude docs/_build *
+prune manual
+prune debian
+prune docs
+prune DLLs_AMD64
+prune DLLs_x86
+exclude *.txt
 exclude MANIFEST.in
-exclude *.txt *.py
-recursive-include docs *.rst *.txt
-recursive-include tests *.py
-recursive-include tests/data *
-include fiona/*.c fiona/*.cpp
-include CHANGES.txt CREDITS.txt LICENSE.txt VERSION.txt README.rst
-include benchmark.py setup.py requirements.txt
+include CHANGES.txt CREDITS.txt LICENSE.txt README.rst VERSION.txt
+recursive-include _vendor *.py
+recursive-include tests *.py *.txt
+recursive-include shapely/examples *.py
+recursive-include shapely/speedups *.pyx
+recursive-include shapely/vectorized *.pyx
+recursive-include shapely *.pxi
+recursive-include shapely/DLLs *.dll *.rst *.txt
+include docs/*.rst

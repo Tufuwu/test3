@@ -1,898 +1,727 @@
 Changes
 =======
 
-All issue numbers are relative to https://github.com/Toblerity/Fiona/issues.
+1.8.0 (TBD)
+-----------
 
-1.8.18 (2020-11-17)
--------------------
+New features:
 
-- The precision option of transform has been fixed for the case of
-  GeometryCollections (#971, #972).
-- Added missing --co (creation) option to fio-load (#390).
-- If the certifi package can be imported, its certificate store location will
-  be passed to GDAL during import of fiona._env unless CURL_CA_BUNDLE is
-  already set.
-- Warn when feature fields named "" are found (#955).
+- Load libraries relocated to shapely/.libs by auditwheel versions < 3.1 or
+  relocated to Shapely.libs by auditwheel versions >= 3.1.
+- shapely.ops.voronoi_diagram() computes the Voronoi Diagram of a geometry or
+  geometry collection (#833, #851).
+- shapely.validation.make_valid() fixes invalid geometries (#883)
 
-1.8.17 (2020-09-09)
--------------------
-
-- To fix issue #952 the fio-cat command no longer cuts feature geometries at
-  the anti-meridian by default. A --cut-at-antimeridian option has been added
-  to allow cutting of geometries in a geographic destination coordinate
-  reference system.
-
-1.8.16 (2020-09-04)
--------------------
-
-- More OGR errors and warnings arising in calls to GDAL C API functions are
-  surfaced (#946).
-- A circular import introduced in some cases in 1.8.15 has been fixed (#945).
-
-1.8.15 (2020-09-03)
--------------------
-
-- Change shim functions to not return tuples (#942) as a solution for the
-  packaging problem reported in #941.
-- Raise a Python exception when VSIFOpenL fails (#937).
-
-1.8.14 (2020-08-31)
--------------------
-
-- When creating a new Collection in a MemoryFile with a default (random) name
-  Fiona will attempt to use a format driver-supported file extension (#934).
-  When initializing a MemoryFile with bytes of data formatted for a vector
-  driver that requires a certain file name or extension, the user should
-  continue to pass an appropriate filename and/or extension.
-- Read support for FlatGeobuf has been enabled in the drvsupport module.
-- The MemoryFile implementation has been improved so that it can support multi-part
-  S3 downloads (#906). This is largely a port of code from rasterio.
-- Axis ordering for results of fiona.transform was wrong when CRS were passed
-  in the "EPSG:dddd" form (#919). This has been fixed by (#926).
-- Allow implicit access to the only dataset in a ZipMemoryFile. The path
-  argument of ZipMemoryFile.open() is now optional (#928).
-- Improve support for datetime types: support milliseconds (#744), timezones (#914)
-  and improve warnings if type is not supported by driver (#572).
-- Fix "Failed to commit transaction" TransactionError for FileGDB driver.
-- Load GDAL DLL dependencies on Python 3.8+ / Windows with add_dll_directory() (#851).
-- Do not require optional properties (#848).
-- Ensure that slice does not overflow available data (#884).
-- Resolve issue when "ERROR 4: Unable to open EPSG support file gcs.csv." is raised on
-  importing fiona (#897).
-- Resolve issue resulting in possible mixed up fields names (affecting only DXF, GPX,
-  GPSTrackMacker and DGN driver) (#916).
-- Ensure crs_wkt is passed when writing to MemoryFile (#907).
-
-
-1.8.13.post1 (2020-02-21)
--------------------------
-
-- This release is being made to improve binary wheel compatibility with shapely
-  1.7.0. There have been no changes to the fiona package code since 1.8.13.
-
-1.8.13 (2019-12-05)
--------------------
-
-- The Python version specs for argparse and ordereddict in 1.8.12 were wrong
-  and have been corrected (#843).
-
-1.8.12 (2019-12-04)
--------------------
-
-- Specify Python versions for argparse, enum34, and ordereddict requirements
-  (#842).
-
-1.8.11 (2019-11-07)
--------------------
-
-- Fix an access violation on Windows (#826).
-
-1.8.10 (2019-11-07)
--------------------
-
-Deprecations:
-
-- Use of vfs keyword argument with open or listlayers has been previously noted
-  as deprecated, but now triggers a deprecation warning.
-
-Bug fixes:
-
-- fiona.open() can now create new datasets using CRS URNs (#823).
-- listlayers() now accepts file and Path objects, like open() (#825).
-- Use new set_proj_search_path() function to set the PROJ data search path. For
-  GDAL versions before 3.0 this sets the PROJ_LIB environment variable. For
-  GDAL version 3.0 this calls OSRSetPROJSearchPaths(), which overrides
-  PROJ_LIB.
-- Remove old and unused _drivers extension module.
-- Check for header.dxf file instead of pcs.csv when looking for installed GDAL
-  data. The latter is gone with GDAL 3.0 but the former remains (#818).
-
-1.8.9.post2 (2019-10-22)
-------------------------
-
-- The 1.8.9.post1 release introduced a bug affecting builds of the package from
-  a source distribution using GDAL 2.x. This bug has been fixed in commit
-  960568d.
-
-1.8.9.post1 (2019-10-22)
-------------------------
-
-- A change has been made to the package setup script so that the shim module
-  for GDAL 3 is used when building the package from a source distribution.
-  There are no other changes to the package.
-
-1.8.9 (2019-10-21)
+1.7.1 (2020-08-20)
 ------------------
 
-- A shim module and support for GDAL 3.0 has been added. The package can now be
-  built and used with GDAL 3.0 and PROJ 6.1 or 6.2. Note that the 1.8.9 wheels
-  we will upload to PyPI will contain GDAL 2.4.2 and PROJ 4.9.3 as in the 1.8.8
-  wheels.
+- ``STRtree`` now safely implements the pickle protocol (#915).
+- Documentation has been added for ``minimum_clearance`` (#875, #874).
+- In ``STRtree.__del__()`` we guard against calling ``GEOSSTRtree_destroy``
+  when the lgeos module has already been torn down on exit (#897, #830).
+- Documentation for the ``overlaps()`` method has been corrected (#920).
+- Correct the test in ``shapely.geometry.base.BaseGeometry.empty()`` to
+  eliminate memory leaks like the one reported in #745.
+- Get free() not from libc but from the processes global symbols (#891),
+  fixing a bug that manifests on OS X 10.15 and 10.16.
+- Extracting substrings from complex lines has been made more correct (#848,
+  #849).
+- Splitting of complex geometries has been sped up by preparing the input
+  geometry (#871).
+- Fix bug in concatenation of function argtypes (#866).
+- Improved documentation of STRtree usage (#857).
+- Improved handling for empty list or list of lists in GeoJSON coordinates
+  (#852).
+- The polylabel algorithm now accounts for polygon holes (#851, #817).
 
-1.8.8 (2019-09-25)
+1.7.0 (2020-01-28)
 ------------------
 
-- The schema of geopackage files with a geometry type code of 3000 could not be
-  reported using Fiona 1.8.7. This bug is fixed.
+This is the final 1.7.0 release. There have been no changes since 1.7b1.
 
-1.8.7 (2019-09-24)
+1.7b1 (2020-01-13)
 ------------------
 
-Bug fixes:
+First beta release.
 
-- Regression in handling of polygons with M values noted under version 1.8.5
-  below was in fact not fixed then (see new report #789), but is fixed in
-  version 1.8.7.
-- Windows filenames containing "!" are now parsed correctly, fixing issue #742.
-
-Upcoming changes:
-
-- In version 1.9.0, the objects yielded when a Collection is iterated will be
-  mutable mappings but will no longer be instances of Python's dict. Version
-  1.9 is intended to be backwards compatible with 1.8 except where user code
-  tests `isinstance(feature, dict)`. In version 2.0 the new Feature, Geometry,
-  and Properties classes will become immutable mappings. See
-  https://github.com/Toblerity/fiona-rfc/blob/master/rfc/0001-fiona-2-0-changes.md
-  for more discussion of the upcoming changes for version 2.0.
-
-1.8.6 (2019-03-18)
-------------------
-
-- The advertisement for JSON driver enablement in 1.8.5 was false (#176), but
-  in this release they are ready for use.
-
-1.8.5 (2019-03-15)
-------------------
-
-- GDAL seems to work best if GDAL_DATA is set as early as possible. Ideally it
-  is set when building the library or in the environment before importing
-  Fiona, but for wheels we patch GDAL_DATA into os.environ when fiona.env
-  is imported. This resolves #731.
-- A combination of bugs which allowed .cpg files to be overlooked has been
-  fixed (#726).
-- On entering a collection context (Collection.__enter__) a new anonymous GDAL
-  environment is created if needed and entered. This makes `with
-  fiona.open(...) as collection:` roughly equivalent to `with fiona.open(...)
-  as collection, Env():`. This helps prevent bugs when Collections are created
-  and then used later or in different scopes.
-- Missing GDAL support for TopoJSON, GeoJSONSeq, and ESRIJSON has been enabled
-  (#721).
-- A regression in handling of polygons with M values (#724) has been fixed.
-- Per-feature debug logging calls in OGRFeatureBuilder methods have been
-  eliminated to improve feature writing performance (#718).
-- Native support for datasets in Google Cloud Storage identified by "gs"
-  resource names has been added (#709).
-- Support has been added for triangle, polyhedral surface, and TIN geometry
-  types (#679).
-- Notes about using the MemoryFile and ZipMemoryFile classes has been added to
-  the manual (#674).
-
-1.8.4 (2018-12-10)
-------------------
-
-- 3D geometries can now be transformed with a specified precision (#523).
-- A bug producing a spurious DriverSupportError for Shapefiles with a "time"
-  field (#692) has been fixed.
-- Patching of the GDAL_DATA environment variable was accidentally left in place
-  in 1.8.3 and now has been removed.
-
-1.8.3 (2018-11-30)
-------------------
-
-- The RASTERIO_ENV config environment marker this project picked up from
-  Rasterio has been renamed to FIONA_ENV (#665).
-- Options --gdal-data and --proj-data have been added to the fio-env command so
-  that users of Rasterio wheels can get paths to set GDAL_DATA and PROJ_LIB
-  environment variables.
-- The unsuccessful attempt to make GDAL and PROJ support file discovery and
-  configuration automatic within collection's crs and crs_wkt properties has
-  been reverted.  Users must execute such code inside a `with Env()` block or
-  set the GDAL_DATA and PROJ_LIB environment variables needed by GDAL.
-
-1.8.2 (2018-11-19)
-------------------
-
-Bug fixes:
-
-- Raise FionaValueError when an iterator's __next__ is called and the session
-  is found to be missing or inactive instead of passing a null pointer to
-  OGR_L_GetNextFeature (#687).
-
-1.8.1 (2018-11-15)
-------------------
-
-Bug fixes:
-
-- Add checks around OSRGetAuthorityName and OSRGetAuthorityCode calls that will
-  log problems with looking up these items.
-- Opened data sources are now released before we raise exceptions in
-  WritingSession.start (#676). This fixes an issue with locked files on
-  Windows.
-- We now ensure that an Env instance exists when getting the crs or crs_wkt
-  properties of a Collection (#673, #690). Otherwise, required GDAL and PROJ
-  data files included in Fiona wheels can not be found.
-- GDAL and PROJ data search has been refactored to improve testability (#678).
-- In the project's Cython code, void* pointers have been replaced with proper
-  GDAL types (#672).
-- Pervasive warning level log messages about ENCODING creation options (#668)
-  have been eliminated.
-
-1.8.0 (2018-10-31)
-------------------
-
-This is the final 1.8.0 release. Thanks, everyone!
-
-Bug fixes:
-
-- We cpdef Session.stop so that it has a C version that can be called safely
-  from __dealloc__, fixing a PyPy issue (#659, #553).
-
-1.8rc1 (2018-10-26)
--------------------
-
-There are no changes in 1.8rc1 other than more test standardization and the
-introduction of a temporary test_collection_legacy.py module to support the
-build of fully tested Python 2.7 macosx wheels on Travis-CI.
-
-1.8b2 (2018-10-23)
-------------------
-
-Bug fixes:
-
-- The ensure_env_with_credentials decorator will no longer clobber credentials
-  of the outer environment. This fixes a bug reported to the Rasterio project
-  and which also existed in Fiona.
-- An unused import of the packaging module and the dependency have been 
-  removed (#653).
-- The Env class logged to the 'rasterio' hierarchy instead of 'fiona'. This
-  mistake has been corrected (#646).
-- The Mapping abstract base class is imported from collections.abc when
-  possible (#647).
-
-Refactoring:
-
-- Standardization of the tests on pytest functions and fixtures continues and
-  is nearing completion (#648, #649, #650, #651, #652).
-
-1.8b1 (2018-10-15)
-------------------
-
-Deprecations:
-
-- Collection slicing has been deprecated and will be prohibited in a future
-  version.
-
-Bug fixes:
-
-- Rasterio CRS objects passed to transform module methods will be converted
-  to dicts as needed (#590).
-- Implicitly convert curve geometries to their linear approximations rather
-  than failing (#617).
-- Migrated unittest test cases in test_collection.py and test_layer.py to the
-  use of the standard data_dir and path_coutwildrnp_shp fixtures (#616).
-- Root logger configuration has been removed from all test scripts (#615).
-- An AWS session is created for the CLI context Env only if explicitly
-  requested, matching the behavior of Rasterio's CLI (#635).
-- Dependency on attrs is made explicit.
-- Other dependencies are pinned to known good versions in requirements files.
-- Unused arguments have been removed from the Env constructor (#637).
-
-Refactoring:
-
-- A with_context_env decorator has been added and used to set up the GDAL
-  environment for CLI commands. The command functions themselves are now
-  simplified.
-
-1.8a3 (2018-10-01)
-------------------
-
-Deprecations:
-
-- The ``fiona.drivers()`` context manager is officially deprecated. All
-  users should switch to ``fiona.Env()``, which registers format drivers and
-  manages GDAL configuration in a reversible manner.
-
-Bug fixes:
-
-- The Collection class now filters log messages about skipped fields to
-  a maximum of one warning message per field (#627).
-- The boto3 module is only imported when needed (#507, #629).
-- Compatibility with Click 7.0 is achieved (#633).
-- Use of %r instead of %s in a debug() call prevents UnicodeDecodeErrors
-  (#620).
-
-1.8a2 (2018-07-24)
+1.7a3 (2019-12-31)
 ------------------
 
 New features:
 
-- 64-bit integers are the now the default for int type fields (#562, #564).
-- 'http', 's3', 'zip+http', and 'zip+s3' URI schemes for datasets are now
-  supported (#425, #426).
-- We've added a ``MemoryFile`` class which supports formatted in-memory
-  feature collections (#501).
-- Added support for GDAL 2.x boolean field sub-type (#531).
-- A new ``fio rm`` command makes it possible to cleanly remove multi-file
-  datasets (#538).
-- The geometry type in a feature collection is more flexible. We can now
-  specify not only a single geometry type, but a sequence of permissible types,
-  or "Any" to permit any geometry type (#539).
-- Support for GDAL 2.2+ null fields has been added (#554).
-- The new ``gdal_open_vector()`` function of our internal API provides much
-  improved error handling (#557).
+- The buffer operation can now be single-sides (#806, #727).
 
 Bug fixes:
 
-- The bug involving OrderedDict import on Python 2.7 has been fixed (#533).
-- An ``AttributeError`` raised when the ``--bbox`` option of fio-cat is used
-  with more than one input file has been fixed (#543, #544).
-- Obsolete and derelict fiona.tool module has been removed.
-- Revert the change in 0a2bc7c that discards Z in geometry types when a
-  collection's schema is reported (#541).
-- Require six version 1.7 or higher (#550).
-- A regression related to "zip+s3" URIs has been fixed.
-- Debian's GDAL data locations are now searched by default (#583).
+- Add /usr/local/lib to the list of directories to be searched for the GEOS
+  shared library (#795).
+- ops.substring now returns a line with coords in end-to-front order when given
+  a start position that is greater than the end position (#628).
+- Implement ``__bool__()`` for geometry base classes so that ``bool(geom)``
+  returns the logical complement of ``geom.is_empty`` (#754).
+- Remove assertion on the number of version-like strings found in the GEOS
+  version string. It could be 2 or 3.
 
-1.8a1 (2017-11-06)
+1.7a2 (2019-06-21)
+------------------
+
+- Nearest neighbor search has been added to STRtree (#668).
+- Disallow sequences of MultiPolygons as arguments to the MultiPolygon
+  constructor, resolving #588.
+- Removed vendorized `functools` functions previously used to support
+  Python 2.5.
+
+Bug fixes:
+
+- Avoid reloading the GEOS shared library when using an installed binary wheel
+  on OS X (#735), resolving issue #553.
+- The shapely.ops.orient function can now orient multi polygons and geometry
+  collections as well as polygons (#733).
+- Polygons can now be constructed from sequences of point objects as well as
+  sequences of x, y sequences (#732).
+- The exterior of an empty polygon is now equal to an empty linear ring (#731).
+- The bounds property of an empty point object now returns an empty tuple,
+  consistent with other geometry types (#723).
+- Segmentation faults when non-string values are passed to the WKT loader are
+  avoided by #700.
+- Failure of ops.substring when the sub linestring coincides with the beginning
+  of the linestring has been fixed (#658).
+- Segmentation faults from interpolating on an empty linestring are prevented
+  by #655.
+- A missing special case for rectangular polygons has been added to the
+  polylabel algorithm (#644).
+- LinearRing can be created from a LineString (#638).
+- The prepared geoemtry validation condition has been tightened in #632 to fix
+  the bug reported in #631.
+- Attempting to interpolate an empty geometry no longer results in a
+  segmentation fault, raising `ValueError` instead (#653).
+
+1.7a1 (2018-07-29)
 ------------------
 
 New features:
 
-- Each call of ``writerecords()`` involves one or more transactions of up to
-  20,000 features each. This improves performance when writing GeoPackage files
-  as the previous transaction size was only 200 features (#476, #491).
+- A Python version check is made by the package setup script. Shapely 1.7
+  supports only Python versions 2.7 and 3.4+ (#610).
+- Added a new `EmptyGeometry` class to support GeoPandas (#514).
+- Added new `shapely.ops.substring` function (#459).
+- Added new `shapely.ops.clip_by_rect` function (#583).
+- Use DLLs indicated in sys._MEIPASS' to support PyInstaller frozen apps
+  (#523).
+- `shapely.wkb.dumps` now accepts an `srid` integer keyword argument to write
+  WKB data including a spatial reference ID in the output data (#593).
+
+Bug fixes:
+
+- `shapely.geometry.shape` can now marshal empty GeoJSON representations
+  (#573).
+- An exception is raised when an attempt is made to `prepare`
+  a `PreparedGeometry` (#577, #595).
+- Keyword arguments have been removed from a geometry object's `wkt` property
+  getter (#581, #594).
+
+1.6.4.post1 (2018-01-24)
+------------------------
+
+- Fix broken markup in this change log, which restores our nicely formatted
+  readme on PyPI.
+
+1.6.4 (2018-01-24)
+------------------
+
+- Handle a ``TypeError`` that can occur when geometries are torn down (#473,
+  #528).
+
+
+1.6.3 (2017-12-09)
+------------------
+
+- AttributeError is no longer raised when accessing __geo_interface__ of an
+  empty polygon (#450).
+- ``asShape`` now handles empty coordinates in mappings as ``shape`` does
+  (#542). Please note that ``asShape`` is likely to be deprecated in a future
+  version of Shapely.
+- Check for length of LineString coordinates in speed mode, preventing crashes
+  when using LineStrings with only one coordinate (#546).
+
+1.6.2 (2017-10-30)
+------------------
+
+- A 1.6.2.post1 release has been made to fix a problem with macosx wheels
+  uploaded to PyPI.
+
+1.6.2 (2017-10-26)
+------------------
+
+- Splitting a linestring by one of its end points will now succeed instead of
+  failing with a ``ValueError`` (#524, #533).
+- Missing documentation of a geometry's ``overlaps`` predicate has been added
+  (#522).
+
+1.6.1 (2017-09-01)
+------------------
+
+- Avoid ``STRTree`` crashes due to dangling references (#505) by maintaining
+  references to added geometries.
+- Reduce log level to debug when reporting on calls to ctypes ``CDLL()`` that
+  don't succeed and are retried (#515).
+- Clarification: applications like GeoPandas that need an empty geometry object
+  should use ``BaseGeometry()`` instead of ``Point()`` or ``Polygon()``. An
+  ``EmptyGeometry`` class has been added in the master development branch and
+  will be available in the next non-bugfix release.
+
+1.6.0 (2017-08-21)
+------------------
+
+Shapely 1.6.0 adds new attributes to existing geometry classes and new
+functions (``split()`` and ``polylabel()``) to the shapely.ops module.
+Exceptions are consolidated in a shapely.errors module and logging practices
+have been improved. Shapely's optional features depending on Numpy are now
+gathered into a requirements set named "vectorized" and these may be installed
+like ``pip install shapely[vectorized]``.
+
+Much of the work on 1.6.0 was aimed to improve the project's build and
+packaging scripts and to minimize run-time dependencies. Shapely now vendorizes
+packaging to use during builds only and never again invokes the geos-config
+utility at run-time.
+
+In addition to the changes listed under the alpha and beta pre-releases below,
+the following change has been made to the project:
+
+- Project documentation is now hosted at 
+  https://shapely.readthedocs.io/en/latest/.
+
+Thank you all for using, promoting, and contributing to the Shapely project.
+
+1.6b5 (2017-08-18)
+------------------
+
+Bug fixes:
+
+- Passing a single coordinate to ``LineString()`` with speedups disabled now
+  raises a ValueError as happens with speedups enabled. This resolves #509.
+
+1.6b4 (2017-02-15)
+------------------
+
+Bug fixes:
+
+- Isolate vendorized packaging in a _vendor directory, remove obsolete
+  dist-info, and remove packaging from project requirements (resolves #468).
+
+1.6b3 (2016-12-31)
+------------------
+
+Bug fixes:
+
+- Level for log messages originating from the GEOS notice handler reduced from
+  WARNING to INFO (#447).
+- Permit speedups to be imported again without Numpy (#444).
+
+1.6b2 (2016-12-12)
+------------------
+
+New features:
+
+- Add support for GeometryCollection to shape and asShape functions (#422).
+
+1.6b1 (2016-12-12)
+------------------
+
+Bug fixes:
+
+- Implemented __array_interface__ for empty Points and LineStrings (#403).
+
+1.6a3 (2016-12-01)
+------------------
+
+Bug fixes:
+
+- Remove accidental hard requirement of Numpy (#431).
 
 Packaging:
 
-- Fiona's Cython source files have been refactored so that there are no longer
-  separate extension modules for GDAL 1.x and GDAL 2.x. Instead there is a base
-  extension module based on GDAL 2.x and shim modules for installations that
-  use GDAL 1.x.
+- Put Numpy in an optional requirement set named "vectorized" (#431).
 
-1.7.11.post1 (2018-01-08)
--------------------------
-
-- This post-release adds missing expat (and thereby GPX format) support to
-  the included GDAL library (still version 2.2.2).
-
-1.7.11 (2017-12-14)
--------------------
-
-- The ``encoding`` keyword argument for ``fiona.open()``, which is intended
-  to allow a caller to override a data source's own and possibly erroneous
-  encoding, has not been working (#510, #512). The problem is that we weren't
-  always setting GDAL open or config options before opening the data sources.
-  This bug is resolved by a number of commits in the maint-1.7 branch and
-  the fix is demonstrated in tests/test_encoding.py.
-- An ``--encoding`` option has been added to fio-load to enable creation of
-  encoded shapefiles with an accompanying .cpg file (#499, #517).
-
-1.7.10.post1 (2017-10-30)
--------------------------
-
-- A post-release has been made to fix a problem with macosx wheels uploaded
-  to PyPI.
-
-1.7.10 (2017-10-26)
--------------------
-
-Bug fixes:
-
-- An extraneous printed line from the ``rio cat --layers`` validator has been
-  removed (#478).
-
-Packaging:
-
-- Official OS X and Manylinux1 wheels (on PyPI) for this release will be
-  compatible with Shapely 1.6.2 and Rasterio 1.0a10 wheels.
-
-1.7.9.post1 (2017-08-21)
-------------------------
-
-This release introduces no changes in the Fiona package. It upgrades GDAL
-from 2.2.0 to 2.2.1 in wheels that we publish to the Python Package Index.
-
-1.7.9 (2017-08-17)
+1.6a2 (2016-11-09)
 ------------------
 
 Bug fixes:
 
-- Acquire the GIL for GDAL error callback functions to prevent crashes when
-  GDAL errors occur when the GIL has been released by user code.
-- Sync and flush layers when closing even when the number of features is not
-  precisely known (#467).
-
-1.7.8 (2017-06-20)
-------------------
-
-Bug fixes:
-
-- Provide all arguments needed by CPLError based exceptions (#456).
-
-1.7.7 (2017-06-05)
-------------------
-
-Bug fixes:
-
-- Switch logger `warn()` (deprecated) calls to `warning()`.
-- Replace all relative imports and cimports in Cython modules with absolute
-  imports (#450).
-- Avoid setting `PROJ_LIB` to a non-existent directory (#439).
-
-1.7.6 (2017-04-26)
-------------------
-
-Bug fixes:
-
-- Fall back to `share/proj` for PROJ_LIB (#440).
-- Replace every call to `OSRDestroySpatialReference()` with `OSRRelease()`,
-  fixing the GPKG driver crasher reported in #441 (#443).
-- Add a `DriverIOError` derived from `IOError` to use for driver-specific
-  errors such as the GeoJSON driver's refusal to overwrite existing files.
-  Also we now ensure that when this error is raised by `fiona.open()` any
-  created read or write session is deleted, this eliminates spurious 
-  exceptions on teardown of broken `Collection` objects (#437, #444).
-
-1.7.5 (2017-03-20)
-------------------
-
-Bug fixes:
-
-- Opening a data file in read (the default) mode with `fiona.open()` using the
-  the `driver` or `drivers` keyword arguments (to specify certain format 
-  drivers) would sometimes cause a crash on Windows due to improperly
-  terminated lists of strings (#428). The fix: Fiona's buggy `string_list()`
-  has been replaced by GDAL's `CSLAddString()`.
-
-1.7.4 (2017-02-20)
-------------------
-
-Bug fixes:
-
-- OGR's EsriJSON detection fails when certain keys aren't found in the first
-  6000 bytes of data passed to `BytesCollection` (#422). A .json file extension
-  is now explicitly given to the in-memory file behind `BytesCollection` when
-  the `driver='GeoJSON'` keyword argument is given (#423). 
-
-1.7.3 (2017-02-14)
-------------------
-
-Roses are red.
-Tan is a pug.
-Software regression's
-the most embarrassing bug.
-
-Bug fixes:
-
-- Use __stdcall for GDAL error handling callback on Windows as in Rasterio.
-- Turn on latent support for zip:// URLs in rio-cat and rio-info (#421).
-- The 1.7.2 release broke support for zip files with absolute paths (#418).
-  This regression has been fixed with tests to confirm.
-
-1.7.2 (2017-01-27)
-------------------
-
-Future Deprecation:
-
-- `Collection.__next__()` is buggy in that it can lead to duplication of 
-  features when used in combination with `Collection.filter()` or
-  `Collection.__iter__()`. It will be removed in Fiona 2.0. Please check for
-  usage of this deprecated feature by running your tests or programs with
-  `PYTHONWARNINGS="always:::fiona"` or `-W"always:::fiona"` and switch from
-  `next(collection)` to `next(iter(collection))` (#301).
-
-Bug fix:
-
-- Zipped streams of bytes can be accessed by `BytesCollection` (#318).
-
-1.7.1.post1 (2016-12-23)
-------------------------
-- New binary wheels using version 1.2.0 of sgillies/frs-wheel-builds. See
-  https://github.com/sgillies/frs-wheel-builds/blob/master/CHANGES.txt.
-
-1.7.1 (2016-11-16)
-------------------
-
-Bug Fixes:
-
-- Prevent Fiona from stumbling over 'Z', 'M', and 'ZM' geometry types
-  introduced in GDAL 2.1 (#384). Fiona 1.7.1 doesn't add explicit support for
-  these types, they are coerced to geometry types 1-7 ('Point', 'LineString',
-  etc.)
-- Raise an `UnsupportedGeometryTypeError` when a bogus or unsupported 
-  geometry type is encountered in a new collection's schema or elsewhere
-  (#340).
-- Enable `--precision 0` for fio-cat (#370).
-- Prevent datetime exceptions from unnecessarily stopping collection iteration
-  by yielding `None` (#385)
-- Replace log.warn calls with log.warning calls (#379).
-- Print an error message if neither gdal-config or `--gdalversion` indicate
-  a GDAL C API version when running `setup.py` (#364).
-- Let dict-like subclasses through CRS type checks (#367).
-
-1.7.0post2 (2016-06-15)
------------------------
-
-Packaging: define extension modules for 'clean' and 'config' targets (#363).
-
-1.7.0post1 (2016-06-15)
------------------------
-
-Packaging: No files are copied for the 'clean' setup target (#361, #362).
-
-1.7.0 (2016-06-14)
-------------------
-
-The C extension modules in this library can now be built and used with either
-a 1.x or 2.x release of the GDAL library. Big thanks to René Buffat for
-leading this effort.
+- Shapely no longer configures logging in ``geos.py`` (#415).
 
 Refactoring:
 
-- The `ogrext1.pyx` and `ogrext2.pyx` files now use separate
-  C APIs defined in `ogrext1.pxd` and `ogrex2.pxd`. The other extension
-  modules have been refactored so that they do not depend on either of these
-  modules and use subsets of the GDAL/OGR API compatible with both GDAL 1.x and
-  2.x (#359).
+- Consolidation of exceptions in ``shapely.errors``.
+- ``UnsupportedGEOSVersionError`` is raised when GEOS < 3.3.0 (#407).
 
 Packaging:
 
-- Source distributions now contain two different sources for the
-  `ogrext` extension module. The `ogrext1.c` file will be used with GDAL 1.x
-  and the `ogrext2.c` file will be used with GDAL 2.x.
+- Added new library search paths to assist Anaconda (#413).
+- geos-config will now be bypassed when NO_GEOS_CONFIG env var is set. This
+  allows configuration of Shapely builds on Linux systems that for whatever
+  reasons do not include the geos-config program (#322).
 
-1.7b2 (2016-06-13)
+1.6a1 (2016-09-14)
 ------------------
 
-- New feature: enhancement of the `--layer` option for fio-cat and fio-dump
-  to allow separate layers of one or more multi-layer input files to be
-  selected (#349).
+New features:
 
-1.7b1 (2016-06-10)
-------------------
+- A new error derived from NotImplementedError, with a more useful message, is
+  raised when the GEOS backend doesn't support a called method (#216).
+- The ``project()`` method of LineString has been extended to LinearRing
+  geometries (#286).
+- A new ``minimum_rotated_rectangle`` attribute has been added to the base
+  geometry class (#354).
+- A new ``shapely.ops.polylabel()`` function has been added. It
+  computes a point suited for labeling concave polygons (#395).
+- A new ``shapely.ops.split()`` function has been added. It splits a
+  geometry by another geometry of lesser dimension: polygon by line, line by
+  point (#293, #371).
+- ``Polygon.from_bounds()`` constructs a Polygon from bounding coordinates
+  (#392).
+- Support for testing with Numpy 1.4.1 has been added (#301).
+- Support creating all kinds of empty geometries from empty lists of Python
+  objects (#397, #404).
 
-- New feature: support for GDAL version 2+ (#259).
-- New feature: a new fio-calc CLI command (#273).
-- New feature: `--layer` options for fio-info (#316) and fio-load (#299).
-- New feature: a `--no-parse` option for fio-collect that lets a careful user
-  avoid extra JSON serialization and deserialization (#306).
-- Bug fix: `+wktext` is now preserved when serializing CRS from WKT to PROJ.4
-  dicts (#352).
-- Bug fix: a small memory leak when opening a collection has been fixed (#337).
-- Bug fix: internal unicode errors now result in a log message and a 
-  `UnicodeError` exception, not a `TypeError` (#356).
+Refactoring:
 
-1.6.4 (2016-05-06)
-------------------
-- Raise ImportError if the active GDAL library version is >= 2.0 instead of
-  failing unpredictably (#338, #341). Support for GDAL>=2.0 is coming in
-  Fiona 1.7.
+- Switch from ``SingleSidedBuffer()`` to ``OffsetCurve()`` for GEOS >= 3.3
+  (#270).
+- Cython speedups are now enabled by default (#252).
 
-1.6.3.post1 (2016-03-27)
-------------------------
-- No changes to the library in this post-release version, but there is a
-  significant change to the distributions on PyPI: to help make Fiona more
-  compatible with Shapely on OS X, the GDAL shared library included in the
-  macosx (only) binary wheels now statically links the GEOS library. See
-  https://github.com/sgillies/frs-wheel-builds/issues/5.
+Packaging:
 
-1.6.3 (2015-12-22)
-------------------
-- Daytime has been decreasing in the Northern Hemisphere, but is now
-  increasing again as it should.
-- Non-UTF strings were being passed into OGR functions in some situations
-  and on Windows this would sometimes crash a Python process (#303). Fiona
-  now raises errors derived from UnicodeError when field names or field
-  values can't be encoded.
+- Packaging 16.7, a setup dependency, is vendorized (#314).
+- Infrastructure for building manylinux1 wheels has been added (#391).
+- The system's ``geos-config`` program is now only checked when ``setup.py``
+  is executed, never during normal use of the module (#244).
+- Added new library search paths to assist PyInstaller (#382) and Windows
+  (#343).
 
-1.6.2 (2015-09-22)
-------------------
-- Providing only PROJ4 representations in the dataset meta property resulted in
-  loss of CRS information when using the `fiona.open(..., **src.meta) as dst`
-  pattern (#265). This bug has been addressed by adding a crs_wkt item to the`
-  meta property and extending the `fiona.open()` and the collection constructor
-  to look for and prioritize this keyword argument.
-
-1.6.1 (2015-08-12)
-------------------
-- Bug fix: Fiona now deserializes JSON-encoded string properties provided by
-  the OGR GeoJSON driver (#244, #245, #246).
-- Bug fix: proj4 data was not copied properly into binary distributions due to
-  a typo (#254).
-
-Special thanks to WFMU DJ Liz Berg for the awesome playlist that's fueling my
-release sprint. Check it out at http://wfmu.org/playlists/shows/62083. You
-can't unhear Love Coffin.
-
-1.6.0 (2015-07-21)
-------------------
-- Upgrade Cython requirement to 0.22 (#214).
-- New BytesCollection class (#215).
-- Add GDAL's OpenFileGDB driver to registered drivers (#221).
-- Implement CLI commands as plugins (#228).
-- Raise click.abort instead of calling sys.exit, preventing suprising exits
-  (#236).
-
-1.5.1 (2015-03-19)
-------------------
-- Restore test data to sdists by fixing MANIFEST.in (#216).
-
-1.5.0 (2015-02-02)
-------------------
-- Finalize GeoJSON feature sequence options (#174).
-- Fix for reading of datasets that don't support feature counting (#190).
-- New test dataset (#188).
-- Fix for encoding error (#191).
-- Remove confusing warning (#195).
-- Add data files for binary wheels (#196).
-- Add control over drivers enabled when reading datasets (#203).
-- Use cligj for CLI options involving GeoJSON (#204).
-- Fix fio-info --bounds help (#206).
-
-1.4.8 (2014-11-02)
-------------------
-- Add missing crs_wkt property as in Rasterio (#182).
-
-1.4.7 (2014-10-28)
-------------------
-- Fix setting of CRS from EPSG codes (#149).
-
-1.4.6 (2014-10-21)
-------------------
-- Handle 3D coordinates in bounds() #178.
-
-1.4.5 (2014-10-18)
-------------------
-- Add --bbox option to fio-cat (#163).
-- Skip geopackage tests if run from an sdist (#167).
-- Add fio-bounds and fio-distrib.
-- Restore fio-dump to working order.
-
-1.4.4 (2014-10-13)
-------------------
-- Fix accidental requirement on GDAL 1.11 introduced in 1.4.3 (#164).
-
-1.4.3 (2014-10-10)
-------------------
-- Add support for geopackage format (#160).
-- Add -f and --format aliases for --driver in CLI (#162).
-- Add --version option and env command to CLI.
-
-1.4.2 (2014-10-03)
-------------------
-- --dst-crs and --src-crs options for fio cat and collect (#159).
-
-1.4.1 (2014-09-30)
-------------------
-- Fix encoding bug in collection's __getitem__ (#153).
-
-1.4.0 (2014-09-22)
-------------------
-- Add fio cat and fio collect commands (#150).
-- Return of Python 2.6 compatibility (#148).
-- Improved CRS support (#149).
-
-1.3.0 (2014-09-17)
-------------------
-- Add single metadata item accessors to fio inf (#142).
-- Move fio to setuptools entry point (#142).
-- Add fio dump and load commands (#143).
-- Remove fio translate command.
-
-1.2.0 (2014-09-02)
-------------------
-- Always show property width and precision in schema (#123).
-- Write datetime properties of features (#125).
-- Reset spatial filtering in filter() (#129).
-- Accept datetime.date objects as feature properties (#130).
-- Add slicing to collection iterators (#132).
-- Add geometry object masks to collection iterators (#136).
-- Change source layout to match Shapely and Rasterio (#138).
-
-1.1.6 (2014-07-23)
-------------------
-- Implement Collection __getitem__() (#112).
-- Leave GDAL finalization to the DLL's destructor (#113).
-- Add Collection keys(), values(), items(), __contains__() (#114).
-- CRS bug fix (#116).
-- Add fio CLI program.
-  
-1.1.5 (2014-05-21)
-------------------
-- Addition of cpl_errs context manager (#108).
-- Check for NULLs with '==' test instead of 'is' (#109).
-- Open auxiliary files with encoding='utf-8' in setup for Python 3 (#110).
-
-1.1.4 (2014-04-03)
-------------------
-- Convert 'long' in schemas to 'int' (#101).
-- Carefully map Python schema to the possibly munged internal schema (#105).
-- Allow writing of features with geometry: None (#71).
-
-1.1.3 (2014-03-23)
-------------------
-- Always register all GDAL and OGR drivers when entering the DriverManager
-  context (#80, #92).
-- Skip unsupported field types with a warning (#91).
-- Allow OGR config options to be passed to fiona.drivers() (#90, #93).
-- Add a bounds() function (#100).
-- Turn on GPX driver.
-
-1.1.2 (2014-02-14)
-------------------
-- Remove collection slice left in dumpgj (#88).
-
-1.1.1 (2014-02-02)
-------------------
-- Add an interactive file inspector like the one in rasterio.
-- CRS to_string bug fix (#83).
-
-1.1 (2014-01-22)
-----------------
-- Use a context manager to manage drivers (#78), a backwards compatible but
-  big change. Fiona is now compatible with rasterio and plays better with the
-  osgeo package.
-
-1.0.3 (2014-01-21)
-------------------
-- Fix serialization of +init projections (#69).
-
-1.0.2 (2013-09-09)
-------------------
-- Smarter, better test setup (#65, #66, #67).
-- Add type='Feature' to records read from a Collection (#68).
-- Skip geometry validation when using GeoJSON driver (#61).
-- Dumpgj file description reports record properties as a list (as in
-  dict.items()) instead of a dict.
-
-1.0.1 (2013-08-16)
-------------------
-- Allow ordering of written fields and preservation of field order when
-  reading (#57).
-
-1.0 (2013-07-30)
------------------
-- Add prop_type() function.
-- Allow UTF-8 encoded paths for Python 2 (#51). For Python 3, paths must
-  always be str, never bytes.
-- Remove encoding from collection.meta, it's a file creation option only.
-- Support for linking GDAL frameworks (#54).
-
-0.16.1 (2013-07-02)
+1.5.17 (2016-08-31)
 -------------------
-- Add listlayers, open, prop_width to __init__py:__all__.
-- Reset reading of OGR layer whenever we ask for a collection iterator (#49).
+- Bug fix: eliminate memory leak in geom_factory() (#408).
+- Bug fix: remove mention of negative distances in parallel_offset and note
+  that vertices of right hand offset lines are reversed (#284).
 
-0.16 (2013-06-24)
------------------
-- Add support for writing layers to multi-layer files.
-- Add tests to reach 100% Python code coverage.
-
-0.15 (2013-06-06)
------------------
-- Get and set numeric field widths (#42).
-- Add support for multi-layer data sources (#17).
-- Add support for zip and tar virtual filesystems (#45).
-- Add listlayers() function.
-- Add GeoJSON to list of supported formats (#47).
-- Allow selection of layers by index or name.
-
-0.14 (2013-05-04)
------------------
-- Add option to add JSON-LD in the dumpgj program.
-- Compare values to six.string_types in Collection constructor.
-- Add encoding to Collection.meta.
-- Document dumpgj in README.
-
-0.13 (2013-04-30)
------------------
-- Python 2/3 compatibility in a single package. Pythons 2.6, 2.7, 3.3 now supported.
-
-0.12.1 (2013-04-16)
+1.5.16 (2016-05-26)
 -------------------
-- Fix messed up linking of README in sdist (#39).
+- Bug fix: eliminate memory leak when unpickling geometry objects (#384, #385).
+- Bug fix: prevent crashes when attempting to pickle a prepared geometry,
+  raising ``PicklingError`` instead (#386).
+- Packaging: extension modules in the OS X wheels uploaded to PyPI link only
+  libgeos_c.dylib now (you can verify and compare to previous releases with
+  ``otool -L shapely/vectorized/_vectorized.so``).
 
-0.12 (2013-04-15)
------------------
-- Fix broken installation of extension modules (#35).
-- Log CPL errors at their matching Python log levels.
-- Use upper case for encoding names within OGR, lower case in Python.
+1.5.15 (2016-03-29)
+-------------------
+- Bug fix: use uintptr_t to store pointers instead of long in _geos.pxi,
+  preventing an overflow error (#372, #373). Note that this bug fix was
+  erroneously reported to have been made in 1.5.14, but was not.
 
-0.11 (2013-04-14)
------------------
-- Cythonize .pyx files (#34).
-- Work with or around OGR's internal recoding of record data (#35).
-- Fix bug in serialization of int/float PROJ.4 params.
+1.5.14 (2016-03-27)
+-------------------
+- Bug fix: use ``type()`` instead of ``isinstance()`` when evaluating geometry
+  equality, preventing instances of base and derived classes from 
+  being mistaken for equals (#317).
+- Bug fix: ensure that empty geometries are created when constructors have no
+  args (#332, #333).
+- Bug fix: support app "freezing" better on Windows by not relying on the
+  ``__file__`` attribute (#342, #377).
+- Bug fix: ensure that empty polygons evaluate to be ``==`` (#355).
+- Bug fix: filter out empty geometries that can cause segfaults when creating
+  and loading STRtrees (#345, #348).
+- Bug fix: no longer attempt to reuse GEOS DLLs already loaded by Rasterio
+  or Fiona on OS X (#374, #375).
 
-0.10 (2013-03-23)
------------------
-- Add function to get the width of str type properties.
-- Handle validation and schema representation of 3D geometry types (#29).
-- Return {'geometry': None} in the case of a NULL geometry (#31).
+1.5.13 (2015-10-09)
+-------------------
+- Restore setup and runtime discovery and loading of GEOS shared library to
+  state at version 1.5.9 (#326).
+- On OS X we try to reuse any GEOS shared library that may have been loaded
+  via import of Fiona or Rasterio in order to avoid a bug involving the
+  GEOS AbstractSTRtree (#324, #327).
 
-0.9.1 (2013-03-07)
+1.5.12 (2015-08-27)
+-------------------
+- Remove configuration of root logger from libgeos.py (#312).
+- Skip test_fallbacks on Windows (#308).
+- Call setlocale(locale.LC_ALL, "") instead of resetlocale() on Windows when
+  tearing down the locale test (#308).
+- Fix for Sphinx warnings (#309).
+- Addition of .cache, .idea, .pyd, .pdb to .gitignore (#310).
+
+1.5.11 (2015-08-23)
+-------------------
+- Remove packaging module requirement added in 1.5.10 (#305). Distutils can't 
+  parse versions using 'rc', but if we stick to 'a' and 'b' we will be fine.
+
+1.5.10 (2015-08-22)
+-------------------
+- Monkey patch affinity module by absolute reference (#299).
+- Raise TopologicalError in relate() instead of crashing (#294, #295, #303).
+
+1.5.9 (2015-05-27)
 ------------------
-- Silence the logger in ogrext.so (can be overridden).
-- Allow user specification of record field encoding (like 'Windows-1252' for
-  Natural Earth shapefiles) to help when OGR can't detect it.
+- Fix for 64 bit speedups compatibility (#274).
 
-0.9 (2013-03-06)
-----------------
-- Accessing file metadata (crs, schema, bounds) on never inspected closed files
-  returns None without exceptions.
-- Add a dict of supported_drivers and their supported modes.
-- Raise ValueError for unsupported drivers and modes.
-- Remove asserts from ogrext.pyx.
-- Add validate_record method to collections.
-- Add helpful coordinate system functions to fiona.crs.
-- Promote use of fiona.open over fiona.collection.
-- Handle Shapefile's mix of LineString/Polygon and multis (#18).
-- Allow users to specify width of shapefile text fields (#20).
-
-0.8 (2012-02-21)
-----------------
-- Replaced .opened attribute with .closed (product of collection() is always
-  opened). Also a __del__() which will close a Collection, but still not to be
-  depended upon.
-- Added writerecords method.
-- Added a record buffer and better counting of records in a collection.
-- Manage one iterator per collection/session.
-- Added a read-only bounds property.
-
-0.7 (2012-01-29)
-----------------
-- Initial timezone-naive support for date, time, and datetime fields. Don't use
-  these field types if you can avoid them. RFC 3339 datetimes in a string field
-  are much better.
-
-0.6.2 (2012-01-10)
+1.5.8 (2015-04-29)
 ------------------
-- Diagnose and set the driver property of collection in read mode.
-- Fail if collection paths are not to files. Multi-collection workspaces are
-  a (maybe) TODO.
+- Setup file encoding bug fix (#254).
+- Support for pyinstaller (#261).
+- Major prepared geometry operation fix for Windows (#268, #269).
+- Major fix for OS X binary wheel (#262).
 
-0.6.1 (2012-01-06)
+1.5.7 (2015-03-16)
 ------------------
-- Handle the case of undefined crs for disk collections.
+- Test and fix buggy error and notice handlers (#249).
 
-0.6 (2012-01-05)
-----------------
-- Support for collection coordinate reference systems based on Proj4.
-- Redirect OGR warnings and errors to the Fiona log.
-- Assert that pointers returned from the ograpi functions are not NULL before
-  using.
-
-0.5 (2011-12-19)
-----------------
-- Support for reading and writing collections of any geometry type.
-- Feature and Geometry classes replaced by mappings (dicts).
-- Removal of Workspace class.
-
-0.2 (2011-09-16)
-----------------
-- Rename WorldMill to Fiona.
-
-0.1.1 (2008-12-04)
+1.5.6 (2015-02-02)
 ------------------
-- Support for features with no geometry.
+- Fix setup regression (#232, #234).
+- SVG representation improvements (#233, #237).
 
+1.5.5 (2015-01-20)
+------------------
+- MANIFEST changes to restore _geox.pxi (#231).
+
+1.5.4 (2015-01-19)
+------------------
+- Fixed OS X binary wheel library load path (#224).
+
+1.5.3 (2015-01-12)
+------------------
+- Fixed ownership and potential memory leak in polygonize (#223).
+- Wider release of binary wheels for OS X.
+
+1.5.2 (2015-01-04)
+------------------
+- Fail installation if GEOS dependency is not met, preventing update breakage
+  (#218, #219).
+
+1.5.1 (2014-12-04)
+------------------
+- Restore geometry hashing (#209).
+
+1.5.0 (2014-12-02)
+------------------
+- Affine transformation speedups (#197).
+- New `==` rich comparison (#195).
+- Geometry collection constructor (#200).
+- ops.snap() backed by GEOSSnap (#201).
+- Clearer exceptions in cases of topological invalidity (#203).
+
+1.4.4 (2014-11-02)
+------------------
+- Proper conversion of numpy float32 vals to coords (#186).
+
+1.4.3 (2014-10-01)
+------------------
+- Fix for endianness bug in WKB writer (#174).
+
+1.4.2 (2014-09-29)
+------------------
+- Fix bungled 1.4.1 release (#176).
+
+1.4.1 (2014-09-23)
+------------------
+- Return of support for GEOS 3.2 (#176, #178).
+
+1.4.0 (2014-09-08)
+------------------
+- SVG representations for IPython's inline image protocol.
+- Efficient and fast vectorized contains().
+- Change mitre_limit default to 5.0; raise ValueError with 0.0 (#139).
+- Allow mix of tuples and Points in sped-up LineString ctor (#152).
+- New STRtree class (#73).
+- Add ops.nearest_points() (#147).
+- Faster creation of geometric objects from others (cloning) (#165).
+- Removal of tests from package.
+
+1.3.3 (2014-07-23)
+------------------
+- Allow single-part geometries as argument to ops.cacaded_union() (#135).
+- Support affine transformations of LinearRings (#112).
+
+1.3.2 (2014-05-13)
+------------------
+- Let LineString() take a sequence of Points (#130).
+
+1.3.1 (2014-04-22)
+------------------
+- More reliable proxy cleanup on exit (#106).
+- More robust DLL loading on all platforms (#114).
+
+1.3.0 (2013-12-31)
+------------------
+- Include support for Python 3.2 and 3.3 (#56), minimum version is now 2.6.
+- Switch to GEOS WKT/WKB Reader/Writer API, with defaults changed to enable 3D
+  output dimensions, and to 'trim' WKT output for GEOS >=3.3.0.
+- Use GEOS version instead of GEOS C API version to determine library
+  capabilities (#65).
+
+1.2.19 (2013-12-30)
+-------------------
+- Add buffering style options (#55).
+
+1.2.18 (2013-07-23)
+--------------------
+- Add shapely.ops.transform.
+- Permit empty sequences in collection constructors (#49, #50).
+- Individual polygons in MultiPolygon.__geo_interface__ are changed to tuples
+  to match Polygon.__geo_interface__ (#51).
+- Add shapely.ops.polygonize_full (#57).
+
+1.2.17 (2013-01-27)
+-------------------
+- Avoid circular import between wkt/wkb and geometry.base by moving calls
+  to GEOS serializers to the latter module.
+- Set _ndim when unpickling (issue #6).
+- Don't install DLLs to Python's DLL directory (#37).
+- Add affinity module of affine transformation (#31).
+- Fix NameError that blocked installation with PyPy (#40, #41).
+
+1.2.16 (2012-09-18)
+-------------------
+- Add ops.unary_union function.
+- Alias ops.cascaded_union to ops.unary_union when GEOS CAPI >= (1,7,0).
+- Add geos_version_string attribute to shapely.geos.
+- Ensure parent is set when child geometry is accessed.
+- Generate _speedups.c using Cython when building from repo when missing,
+  stale, or the build target is "sdist".
+- The is_simple predicate of invalid, self-intersecting linear rings now
+  returns ``False``.
+- Remove VERSION.txt from repo, it's now written by the distutils setup script
+  with value of shapely.__version__.
+
+1.2.15 (2012-06-27)
+-------------------
+- Eliminate numerical sensitivity in a method chaining test (Debian bug
+  #663210).
+- Account for cascaded union of random buffered test points being a polygon
+  or multipolygon (Debian bug #666655).
+- Use Cython to build speedups if it is installed.
+- Avoid stumbling over SVN revision numbers in GEOS C API version strings.
+
+1.2.14 (2012-01-23)
+-------------------
+- A geometry's coords property is now sliceable, yielding a list of coordinate
+  values.
+- Homogeneous collections are now sliceable, yielding a new collection of the
+  same type.
+
+1.2.13 (2011-09-16)
+-------------------
+- Fixed errors in speedups on 32bit systems when GEOS references memory above
+  2GB.
+- Add shapely.__version__ attribute.
+- Update the manual.
+
+1.2.12 (2011-08-15)
+-------------------
+- Build Windows distributions with VC7 or VC9 as appropriate.
+- More verbose report on failure to speed up.
+- Fix for prepared geometries broken in 1.2.11.
+- DO NOT INSTALL 1.2.11
+
+1.2.11 (2011-08-04)
+-------------------
+- Ignore AttributeError during exit.
+- PyPy 1.5 support.
+- Prevent operation on prepared geometry crasher (#12).
+- Optional Cython speedups for Windows.
+- Linux 3 platform support.
+
+1.2.10 (2011-05-09)
+-------------------
+- Add optional Cython speedups.
+- Add is_cww predicate to LinearRing.
+- Add function that forces orientation of Polygons.
+- Disable build of speedups on Windows pending packaging work.
+
+1.2.9 (2011-03-31)
+------------------
+- Remove extra glob import.
+- Move examples to shapely.examples.
+- Add box() constructor for rectangular polygons.
+- Fix extraneous imports.
+
+1.2.8 (2011-12-03)
+------------------
+- New parallel_offset method (#6).
+- Support for Python 2.4.
+
+1.2.7 (2010-11-05)
+------------------
+- Support for Windows eggs.
+
+1.2.6 (2010-10-21)
+------------------
+- The geoms property of an empty collection yields [] instead of a ValueError
+  (#3).
+- The coords and geometry type sproperties have the same behavior as above.
+- Ensure that z values carry through into products of operations (#4).
+
+1.2.5 (2010-09-19)
+------------------
+- Stop distributing docs/_build.
+- Include library fallbacks in test_dlls.py for linux platform.
+
+1.2.4 (2010-09-09)
+------------------
+- Raise AttributeError when there's no backend support for a method.
+- Raise OSError if libgeos_c.so (or variants) can't be found and loaded.
+- Add geos_c DLL loading support for linux platforms where find_library doesn't
+  work.
+
+1.2.3 (2010-08-17)
+------------------
+- Add mapping function.
+- Fix problem with GEOSisValidReason symbol for GEOS < 3.1.
+
+1.2.2 (2010-07-23)
+------------------
+- Add representative_point method.
+
+1.2.1 (2010-06-23)
+------------------
+- Fixed bounds of singular polygons.
+- Added shapely.validation.explain_validity function (#226).
+
+1.2 (2010-05-27)
+----------------
+- Final release.
+
+1.2rc2 (2010-05-26)
+-------------------
+- Add examples and tests to MANIFEST.in.
+- Release candidate 2.
+
+1.2rc1 (2010-05-25)
+-------------------
+- Release candidate.
+
+1.2b7 (2010-04-22)
+------------------
+- Memory leak associated with new empty geometry state fixed.
+
+1.2b6 (2010-04-13)
+------------------
+- Broken GeometryCollection fixed.
+
+1.2b5 (2010-04-09)
+------------------
+- Objects can be constructed from others of the same type, thereby making
+  copies. Collections can be constructed from sequences of objects, also making
+  copies.
+- Collections are now iterators over their component objects.
+- New code for manual figures, using the descartes package.
+
+1.2b4 (2010-03-19)
+------------------
+- Adds support for the "sunos5" platform.
+
+1.2b3 (2010-02-28)
+------------------
+- Only provide simplification implementations for GEOS C API >= 1.5.
+
+1.2b2 (2010-02-19)
+------------------
+- Fix cascaded_union bug introduced in 1.2b1 (#212).
+
+1.2b1 (2010-02-18)
+------------------
+- Update the README. Remove cruft from setup.py. Add some version 1.2 metadata
+  regarding required Python version (>=2.5,<3) and external dependency
+  (libgeos_c >= 3.1).
+
+1.2a6 (2010-02-09)
+------------------
+- Add accessor for separate arrays of X and Y values (#210).
+
+TODO: fill gap here
+
+1.2a1 (2010-01-20)
+------------------
+- Proper prototyping of WKB writer, and avoidance of errors on 64-bit systems
+  (#191).
+- Prototype libgeos_c functions in a way that lets py2exe apps import shapely
+  (#189).
+
+1.2 Branched (2009-09-19)
+
+1.0.12 (2009-04-09)
+-------------------
+- Fix for references held by topology and predicate descriptors.
+
+1.0.11 (2008-11-20)
+-------------------
+- Work around bug in GEOS 2.2.3, GEOSCoordSeq_getOrdinate not exported properly
+  (#178).
+
+1.0.10 (2008-11-17)
+-------------------
+- Fixed compatibility with GEOS 2.2.3 that was broken in 1.0.8 release (#176).
+
+1.0.9 (2008-11-16)
+------------------
+- Find and load MacPorts libgeos.
+
+1.0.8 (2008-11-01)
+------------------
+- Fill out GEOS function result and argument types to prevent faults on a
+  64-bit arch.
+
+1.0.7 (2008-08-22)
+------------------
+- Polygon rings now have the same dimensions as parent (#168).
+- Eliminated reference cycles in polygons (#169).
+
+1.0.6 (2008-07-10)
+------------------
+- Fixed adaptation of multi polygon data.
+- Raise exceptions earlier from binary predicates.
+- Beginning distributing new windows DLLs (#166).
+
+1.0.5 (2008-05-20)
+------------------
+- Added access to GEOS polygonizer function.
+- Raise exception when insufficient coordinate tuples are passed to LinearRing
+  constructor (#164).
+
+1.0.4 (2008-05-01)
+------------------
+- Disentangle Python and topological equality (#163).
+- Add shape(), a factory that copies coordinates from a geo interface provider.
+  To be used instead of asShape() unless you really need to store coordinates
+  outside shapely for efficient use in other code.
+- Cache GEOS geometries in adapters (#163).
+
+1.0.3 (2008-04-09)
+------------------
+- Do not release GIL when calling GEOS functions (#158).
+- Prevent faults when chaining multiple GEOS operators (#159).
+
+1.0.2 (2008-02-26)
+------------------
+- Fix loss of dimensionality in polygon rings (#155).
+
+1.0.1 (2008-02-08)
+------------------
+- Allow chaining expressions involving coordinate sequences and geometry parts
+  (#151).
+- Protect against abnormal use of coordinate accessors (#152).
+- Coordinate sequences now implement the numpy array protocol (#153).
+
+1.0 (2008-01-18)
+----------------
+- Final release.
+
+1.0 RC2 (2008-01-16)
+--------------------
+- Added temporary solution for #149.
+
+1.0 RC1 (2008-01-14)
+--------------------
+- First release candidate

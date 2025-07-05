@@ -1,84 +1,77 @@
-"""Tests of the transform submodule"""
-
-import math
-import pytest
-from fiona import transform
+from . import unittest
+from shapely import geometry
+from shapely.ops import transform
 
 
-@pytest.mark.parametrize(
-    "geom",
-    [
-        {"type": "Point", "coordinates": [0.0, 0.0, 1000.0]},
-        {
-            "type": "LineString",
-            "coordinates": [[0.0, 0.0, 1000.0], [0.1, 0.1, -1000.0]],
-        },
-        {
-            "type": "MultiPoint",
-            "coordinates": [[0.0, 0.0, 1000.0], [0.1, 0.1, -1000.0]],
-        },
-        {
-            "type": "Polygon",
-            "coordinates": [
-                [
-                    [0.0, 0.0, 1000.0],
-                    [0.1, 0.1, -1000.0],
-                    [0.1, -0.1, math.pi],
-                    [0.0, 0.0, 1000.0],
-                ]
-            ],
-        },
-        {
-            "type": "MultiPolygon",
-            "coordinates": [
-                [
-                    [
-                        [0.0, 0.0, 1000.0],
-                        [0.1, 0.1, -1000.0],
-                        [0.1, -0.1, math.pi],
-                        [0.0, 0.0, 1000.0],
-                    ]
-                ]
-            ],
-        },
-    ],
-)
-def test_transform_geom_with_z(geom):
-    """Transforming a geom with Z succeeds"""
-    g2 = transform.transform_geom("epsg:4326", "epsg:3857", geom, precision=3)
+class IdentityTestCase(unittest.TestCase):
+    """New geometry/coordseq method 'xy' makes numpy interop easier"""
+
+    def func(self, x, y, z=None):
+        return tuple([c for c in [x, y, z] if c])
+
+    def test_empty(self):
+        g = geometry.Point()
+        h = transform(self.func, g)
+        self.assertTrue(h.is_empty)
+
+    def test_point(self):
+        g = geometry.Point(0, 1)
+        h = transform(self.func, g)
+        self.assertEqual(h.geom_type, 'Point')
+        self.assertEqual(list(h.coords), [(0, 1)])
+
+    def test_line(self):
+        g = geometry.LineString(((0, 1), (2, 3)))
+        h = transform(self.func, g)
+        self.assertEqual(h.geom_type, 'LineString')
+        self.assertEqual(list(h.coords), [(0, 1), (2, 3)])
+
+    def test_linearring(self):
+        g = geometry.LinearRing(((0, 1), (2, 3), (2, 2), (0, 1)))
+        h = transform(self.func, g)
+        self.assertEqual(h.geom_type, 'LinearRing')
+        self.assertEqual(list(h.coords), [(0, 1), (2, 3), (2, 2), (0, 1)])
+
+    def test_polygon(self):
+        g = geometry.Point(0, 1).buffer(1.0)
+        h = transform(self.func, g)
+        self.assertEqual(h.geom_type, 'Polygon')
+        self.assertAlmostEqual(g.area, h.area)
+
+    def test_multipolygon(self):
+        g = geometry.MultiPoint([(0, 1), (0, 4)]).buffer(1.0)
+        h = transform(self.func, g)
+        self.assertEqual(h.geom_type, 'MultiPolygon')
+        self.assertAlmostEqual(g.area, h.area)
 
 
-@pytest.mark.parametrize("crs", ["epsg:4326",
-                                 "EPSG:4326",
-                                 "WGS84",
-                                 {'init': 'epsg:4326'},
-                                 {'proj': 'longlat', 'datum': 'WGS84', 'no_defs': True},
-                                 "OGC:CRS84"])
-def test_axis_ordering(crs):
-    """ Test if transform uses traditional_axis_mapping """
+class LambdaTestCase(unittest.TestCase):
+    """New geometry/coordseq method 'xy' makes numpy interop easier"""
 
-    expected = (-8427998.647958742, 4587905.27136252)
-    t1 = transform.transform(crs, "epsg:3857", [-75.71], [38.06])
-    assert (t1[0][0], t1[1][0]) == pytest.approx(expected)
-    geom = {"type": "Point", "coordinates": [-75.71, 38.06]}
-    g1 = transform.transform_geom(crs, "epsg:3857", geom, precision=3)
-    assert g1["coordinates"] == pytest.approx(expected)
+    def test_point(self):
+        g = geometry.Point(0, 1)
+        h = transform(lambda x, y, z=None: (x+1.0, y+1.0), g)
+        self.assertEqual(h.geom_type, 'Point')
+        self.assertEqual(list(h.coords), [(1.0, 2.0)])
 
-    rev_expected = (-75.71, 38.06)
-    t2 = transform.transform("epsg:3857", crs, [-8427998.647958742], [4587905.27136252])
-    assert (t2[0][0], t2[1][0]) == pytest.approx(rev_expected)
-    geom = {"type": "Point", "coordinates": [-8427998.647958742, 4587905.27136252]}
-    g2 = transform.transform_geom("epsg:3857", crs, geom, precision=3)
-    assert g2["coordinates"] == pytest.approx(rev_expected)
+    def test_line(self):
+        g = geometry.LineString(((0, 1), (2, 3)))
+        h = transform(lambda x, y, z=None: (x+1.0, y+1.0), g)
+        self.assertEqual(h.geom_type, 'LineString')
+        self.assertEqual(list(h.coords), [(1.0, 2.0), (3.0, 4.0)])
 
+    def test_polygon(self):
+        g = geometry.Point(0, 1).buffer(1.0)
+        h = transform(lambda x, y, z=None: (x+1.0, y+1.0), g)
+        self.assertEqual(h.geom_type, 'Polygon')
+        self.assertAlmostEqual(g.area, h.area)
+        self.assertAlmostEqual(h.centroid.x, 1.0)
+        self.assertAlmostEqual(h.centroid.y, 2.0)
 
-def test_transform_issue971():
-    """ See https://github.com/Toblerity/Fiona/issues/971 """
-    source_crs = "epsg:25832"
-    dest_src = "epsg:4326"
-    geom = {'type': 'GeometryCollection', 'geometries': [{'type': 'LineString',
-                                                          'coordinates': [(512381.8870945257, 5866313.311218272),
-                                                                          (512371.23869999964, 5866322.282500001),
-                                                                          (512364.6014999999, 5866328.260199999)]}]}
-    geom_transformed = transform.transform_geom(source_crs, dest_src, geom, precision=3)
-    assert geom_transformed['geometries'][0]['coordinates'][0] == pytest.approx((9.184, 52.946))
+    def test_multipolygon(self):
+        g = geometry.MultiPoint([(0, 1), (0, 4)]).buffer(1.0)
+        h = transform(lambda x, y, z=None: (x+1.0, y+1.0), g)
+        self.assertEqual(h.geom_type, 'MultiPolygon')
+        self.assertAlmostEqual(g.area, h.area)
+        self.assertAlmostEqual(h.centroid.x, 1.0)
+        self.assertAlmostEqual(h.centroid.y, 3.5)
