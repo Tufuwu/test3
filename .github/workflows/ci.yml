@@ -27,7 +27,9 @@ jobs:
         cp config/settings.sample.ini config/settings.ini
         sed -i 's/DEBUG\s*=\s*0/DEBUG = 1/' config/settings.ini
     - name: Run unit tests
-      run: ./runtests.py
+      run: |
+        chmod +x ./runtests.py
+        ./runtests.py
     - name: Submit coverage
       if: ${{ success() }}
       run: |
