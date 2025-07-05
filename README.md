@@ -1,106 +1,65 @@
-# Efficient-Apriori ![Build Status](https://github.com/tommyod/Efficient-Apriori/workflows/Python%20CI/badge.svg?branch=master) [![PyPI version](https://badge.fury.io/py/efficient-apriori.svg)](https://pypi.org/project/efficient-apriori/) [![Documentation Status](https://readthedocs.org/projects/efficient-apriori/badge/?version=latest)](https://efficient-apriori.readthedocs.io/en/latest/?badge=latest) [![Downloads](https://pepy.tech/badge/efficient-apriori)](https://pepy.tech/project/efficient-apriori) [![Black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/ambv/black)
+# [django-pattern-library](https://torchbox.github.io/django-pattern-library/)
 
-An efficient pure Python implementation of the Apriori algorithm. Works with Python 3.6+.
+[![PyPI](https://img.shields.io/pypi/v/django-pattern-library.svg)](https://pypi.org/project/django-pattern-library/) [![PyPI downloads](https://img.shields.io/pypi/dm/django-pattern-library.svg)](https://pypi.org/project/django-pattern-library/) [![Build status](https://github.com/torchbox/django-pattern-library/workflows/CI/badge.svg)](https://github.com/torchbox/django-pattern-library/actions) [![Total alerts](https://img.shields.io/lgtm/alerts/g/torchbox/django-pattern-library.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/torchbox/django-pattern-library/alerts/)
 
-The apriori algorithm uncovers hidden structures in categorical data.
-The classical example is a database containing purchases from a supermarket.
-Every purchase has a number of items associated with it.
-We would like to uncover association rules such as `{bread, eggs} -> {bacon}` from the data.
-This is the goal of [association rule learning](https://en.wikipedia.org/wiki/Association_rule_learning), and the [Apriori algorithm](https://en.wikipedia.org/wiki/Apriori_algorithm) is arguably the most famous algorithm for this problem.
-This repository contains an efficient, well-tested implementation of the apriori algorithm as described in the [original paper](https://www.macs.hw.ac.uk/~dwcorne/Teaching/agrawal94fast.pdf) by Agrawal et al, published in 1994.
+> UI pattern libraries for Django templates. Try our [online demo](https://torchbox.github.io/django-pattern-library/demo/pattern-library/).
 
-**The code is stable and in widespread use.** It's cited in the book "*Mastering Machine Learning Algorithms*" by Bonaccorso.
+![Screenshot of the pattern library UI, with navigation, pattern rendering, and configuration](https://raw.githubusercontent.com/torchbox/django-pattern-library/master/.github/pattern-library-screenshot.webp)
 
+## Features
 
-## Example
+This package automates the maintenance of UI pattern libraries or styleguides for Django projects, and allows developers to experiment with Django templates without having to create Django views and models.
 
-Here's a minimal working example.
-Notice that in every transaction with `eggs` present, `bacon` is present too.
-Therefore, the rule `{eggs} -> {bacon}` is returned with 100 % confidence.
+- Create reusable patterns by creating Django templates files as usual.
+- All patterns automatically show up in the pattern library’s interface.
+- Define data as YAML files for the templates to render with the relevant Django context.
+- Override Django templates tags as needed to mock the template’s dependencies.
+- Document your patterns with Markdown.
 
-```python
-from efficient_apriori import apriori
-transactions = [('eggs', 'bacon', 'soup'),
-                ('eggs', 'bacon', 'apple'),
-                ('soup', 'bacon', 'banana')]
-itemsets, rules = apriori(transactions, min_support=0.5, min_confidence=1)
-print(rules)  # [{eggs} -> {bacon}, {soup} -> {bacon}]
-```
-If your data is in a pandas DataFrame, you must [convert it to a list of tuples](https://github.com/tommyod/Efficient-Apriori/issues/12).
-Do you have **missing values**, or does the algorithm **run for a long time**? See [this comment](https://github.com/tommyod/Efficient-Apriori/issues/30#issuecomment-626129085).
-**More examples are included below.**
+## Why you need this
 
-## Installation
+Pattern libraries will change your workflow for the better:
 
-The software is available through GitHub, and through [PyPI](https://pypi.org/project/efficient-apriori/).
-You may install the software using `pip`.
+- They help separate concerns, both in code, and between members of a development team.
+- If needed, they make it possible for UI development to happen before models and views are created.
+- They encourage code reuse – defining independent UI components, that can be reused across apps, or ported to other projects.
+- It makes it much simpler to test UI components – no need to figure out where they’re used across a site or app.
 
-```bash
-pip install efficient-apriori
-```
+Learn more by watching our presentation – [Reusable UI components: A journey from React to Wagtail](https://www.youtube.com/watch?v=isrOufI7TKc).
+
+## Online demo
+
+The pattern library is dependent on Django for rendering – but also supports exporting as a static site if needed. Try out our online demo:
+
+- For a component, [accordion.html](https://torchbox.github.io/django-pattern-library/demo/pattern-library/pattern/patterns/molecules/accordion/accordion.html)
+- For a page-level template, [person_page.html](https://torchbox.github.io/django-pattern-library/demo/pattern-library/pattern/patterns/pages/people/person_page.html)
+
+## Documentation
+
+Documentation is available at [torchbox.github.io/django-pattern-library](https://torchbox.github.io/django-pattern-library/), with source files in the `docs` directory.
+
+- **[Getting started](https://torchbox.github.io/django-pattern-library/getting-started/)**
+- **Guides**
+  - [Defining template context](https://torchbox.github.io/django-pattern-library/guides/defining-template-context/)
+  - [Overriding template tags](https://torchbox.github.io/django-pattern-library/guides/overriding-template-tags/)
+  - [Customizing template rendering](https://torchbox.github.io/django-pattern-library/guides/customizing-template-rendering/)
+  - [Usage tips](https://torchbox.github.io/django-pattern-library/guides/usage-tips/)
+- **Reference**
+  - [API & settings](https://torchbox.github.io/django-pattern-library/reference/api/)
+  - [Known issues and limitations](https://torchbox.github.io/django-pattern-library/reference/known-issues/)
 
 ## Contributing
 
-You are very welcome to scrutinize the code and make pull requests if you have suggestions and improvements.
-Your submitted code must be PEP8 compliant, and all tests must pass.
-Contributors: [CRJFisher](https://github.com/CRJFisher)
+See anything you like in here? Anything missing? We welcome all support, whether on bug reports, feature requests, code, design, reviews, tests, documentation, and more. Please have a look at our [contribution guidelines](https://github.com/torchbox/django-pattern-library/blob/master/CONTRIBUTING.md).
 
-## More examples
+If you want to set up the project on your own computer, the contribution guidelines also contain all of the setup commands.
 
-### Filtering and sorting association rules
+### Nightly builds
 
-It's possible to filter and sort the returned list of association rules.
+To try out the latest features before a release, we also create builds from every commit to `master`. Note we make no guarantee as to the quality of those pre-releases, and the pre-releases are overwritten on every build so shouldn’t be relied on for reproducible builds. [Download the latest `django_pattern_library-0.0.0.dev0-py3-none-any.whl`](http://torchbox.github.io/django-pattern-library/dist/django_pattern_library-0.0.0.dev0-py3-none-any.whl).
 
-```python
-from efficient_apriori import apriori
-transactions = [('eggs', 'bacon', 'soup'),
-                ('eggs', 'bacon', 'apple'),
-                ('soup', 'bacon', 'banana')]
-itemsets, rules = apriori(transactions, min_support=0.2, min_confidence=1)
+## Credits
 
-# Print out every rule with 2 items on the left hand side,
-# 1 item on the right hand side, sorted by lift
-rules_rhs = filter(lambda rule: len(rule.lhs) == 2 and len(rule.rhs) == 1, rules)
-for rule in sorted(rules_rhs, key=lambda rule: rule.lift):
-  print(rule)  # Prints the rule and its confidence, support, lift, ...
-```
+View the full list of [contributors](https://github.com/torchbox/django-pattern-library/graphs/contributors). [BSD](https://github.com/torchbox/django-pattern-library/blob/master/LICENSE) licensed.
 
-### Working with large datasets
-
-If you have **data that is too large to fit in memory**, you may pass a function returning a generator instead of a list.
-The `min_support` will most likely have to be a large value, or the algorithm will take very long before it terminates.
-If you have massive amounts of data, this Python implementation is likely not fast enough, and you should consult more specialized implementations.
-
-```python
-def data_generator(filename):
-  """
-  Data generator, needs to return a generator to be called several times.
-  Use this approach if data is too large to fit in memory. If not use a list.
-  """
-  def data_gen():
-    with open(filename) as file:
-      for line in file:
-        yield tuple(k.strip() for k in line.split(','))      
-
-  return data_gen
-
-transactions = data_generator('dataset.csv')
-itemsets, rules = apriori(transactions, min_support=0.9, min_confidence=0.6)
-```
-
-### Transactions with IDs
-
-If you need to know which transactions occurred in the frequent itemsets, set the `output_transaction_ids` parameter to `True`.
-This changes the output to contain `ItemsetCount` objects for each itemset.
-The objects have a `members` property containing is the set of ids of frequent transactions as well as a `count` property. 
-The ids are the enumeration of the transactions in the order they appear.    
-
-```python
-from efficient_apriori import apriori
-transactions = [('eggs', 'bacon', 'soup'),
-                ('eggs', 'bacon', 'apple'),
-                ('soup', 'bacon', 'banana')]
-itemsets, rules = apriori(transactions, output_transaction_ids=True)
-print(itemsets)
-# {1: {('bacon',): ItemsetCount(itemset_count=3, members={0, 1, 2}), ...
-```
+Project logo from [FxEmoji](https://github.com/mozilla/fxemoji). Documentation website built with [MkDocs](https://www.mkdocs.org/), and hosted in [GitHub Pages](https://pages.github.com/).

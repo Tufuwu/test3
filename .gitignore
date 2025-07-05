@@ -1,13 +1,25 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# -------------------------------------------------
+# OS files
+# -------------------------------------------------
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 *$py.class
-
 # C extensions
 *.so
-
 # Distribution / packaging
 .Python
+env/
 build/
 develop-eggs/
 dist/
@@ -19,23 +31,22 @@ lib64/
 parts/
 sdist/
 var/
-wheels/
 *.egg-info/
 .installed.cfg
 *.egg
-MANIFEST
-
+poetry.lock
 # PyInstaller
 #  Usually these files are written by a python script from a template
 #  before PyInstaller builds the exe, so as to inject date/other infos into it.
 *.manifest
 *.spec
-
 # Installer logs
 pip-log.txt
 pip-delete-this-directory.txt
 
-# Unit test / coverage reports
+# -------------------------------------------------
+# Instrumentation and tooling
+# -------------------------------------------------
 htmlcov/
 .tox/
 .coverage
@@ -43,62 +54,58 @@ htmlcov/
 .cache
 nosetests.xml
 coverage.xml
-*.cover
+*,cover
 .hypothesis/
-.pytest_cache/
 
 # Translations
 *.mo
 *.pot
-
 # Django stuff:
 *.log
-local_settings.py
-db.sqlite3
-
-# Flask stuff:
+# Flask instance folder
 instance/
-.webassets-cache
-
 # Scrapy stuff:
 .scrapy
-
 # Sphinx documentation
 docs/_build/
-
+# mkdocs documentation
+site
 # PyBuilder
 target/
-
-# Jupyter Notebook
+# IPython Notebook
 .ipynb_checkpoints
-
 # pyenv
 .python-version
-
 # celery beat schedule file
 celerybeat-schedule
-
-# SageMath parsed files
-*.sage.py
-
-# Environments
-.env
-.venv
-env/
+# virtualenv
 venv/
 ENV/
-env.bak/
-venv.bak/
-
 # Spyder project settings
 .spyderproject
-.spyproject
-
 # Rope project settings
 .ropeproject
 
-# mkdocs documentation
-/site
+# Node modules
+node_modules*
 
-# mypy
-.mypy_cache/
+# -------------------------------------------------
+# Users Environment
+# -------------------------------------------------
+.lock-wscript
+.idea
+.installed.cfg
+.vagrant
+.anaconda
+Vagrantfile.local
+.env
+/local
+local.py
+*.sublime-project
+*.sublime-workspace
+.vscode
+
+# -------------------------------------------------
+# Your own project's ignores
+# -------------------------------------------------
+dpl-rendered-patterns
