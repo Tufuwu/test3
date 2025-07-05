@@ -1,12 +1,9 @@
-Markus Aichhorn
-Michel Ferrero
-Alexander Hampel
-Gernot Kraberger
-Olivier Parcollet
-Oleg Peil
-Leonid Poyurovskiy
-Hermann Schnait
-Malte Schueler
-Dylan Simon
-Nils Wentzell
-Manuel Zingl
+fcache is written and maintained by:
+
+- Thomas Roten <https://github.com/tsroten>
+
+With help from the following contributors:
+
+- David Triendl <https://github.com/soult>
+- Philip Worrall
+- Joel Dubowy <https://github.com/jdubowy>
