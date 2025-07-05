@@ -1,26 +1,46 @@
-*.pyc
-*.pyo
-*.c
-*.so
+*.py[co]
 
-VERSION.txt
-Shapely.egg-info/
-build/
-dist/
-docs/_build/
-docs/shapely.*.txt
-docs/shapely.txt
-docs/modules.txt
-.cache/
-.idea/
-*.pyd
-*.pdb
-*.whl
+# Packages
+*.egg
+*.egg-info
+dist
+build
+eggs
+parts
+var
+sdist
+develop-eggs
+.installed.cfg
 
-wheels/
+# Installer logs
+pip-log.txt
+
+# Unit test / coverage reports
 .coverage
-ignore/
+.tox
 
-venv/
-.ipynb_checkpoints
-.DS_Store
+#Translations
+*.mo
+
+#Mr Developer
+.mr.developer.cfg
+
+# rope
+.ropeproject
+
+# data files
+*.json.gz
+*.flent
+/*.flent.gz
+*.flent.bz2
+*.csv
+*.pdf
+/*.png
+*.svg
+data/
+
+# distutils gerated
+MANIFEST
+
+.dir-locals.el
+*.log
