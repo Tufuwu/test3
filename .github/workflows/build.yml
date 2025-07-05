@@ -13,8 +13,8 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - {os: ubuntu-20.04, cc: gcc-10, cxx: g++-10}
-          - {os: ubuntu-20.04, cc: clang-10, cxx: clang++-10}
+          - {os: ubuntu-22.04, cc: gcc-10, cxx: g++-10}
+          - {os: ubuntu-22.04, cc: clang-10, cxx: clang++-10}
           - {os: macos-10.15, cc: gcc-10, cxx: g++-10}
           - {os: macos-10.15, cc: /usr/local/opt/llvm/bin/clang, cxx: /usr/local/opt/llvm/bin/clang++}
 
