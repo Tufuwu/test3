@@ -30,6 +30,6 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-pip-
     - name: Install dependencies
-      run: pip install -U tox-travis
+      run: pip install -U tox-gh-actions
     - name: Run tests
       run: tox
