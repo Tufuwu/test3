@@ -20,7 +20,9 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements-tests.txt
     - name: Run unit tests
-      run: ./runtests.py --no-cov --no-vici
+      run: |
+        chmod +x ./runtests.py
+        ./runtests.py --no-cov --no-vici
 
   docker:
     runs-on: ubuntu-latest
