@@ -1,2 +1,17 @@
-_build
-*pyc
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+
+dist/
+*.egg-info/
+.installed.cfg
+*.egg
+.idea/
+.vscode/
+build
+env
+.coverage
+.cache/
+benchmark/pdf_cache/
+benchmark/output/
+htmlcov/

@@ -1,0 +1,14 @@
+black==21.5b2
+coverage==6.1.1
+docutils==0.18
+flake8==4.0.1
+isort==5.10.1
+pdfminer.six==20211012
+pycodestyle==2.8.0
+pyflakes==2.4.0
+Pygments==2.10.0
+pytest==6.2.5
+pytest-cov==3.0.0
+pytest-isort==2.0.0
+pytest-sugar==0.9.4
+pytest-timeout==1.4.2
