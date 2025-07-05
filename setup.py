@@ -25,7 +25,7 @@ setup(
     ],
     extras_require={
         'auto_mtf': ['ortools'],
-        'tensorflow': ['tensorflow>=1.15.0'],
+        'tensorflow': ['tensorflow==2.15.0'],
         'transformer': ['tensorflow-datasets'],
     },
     tests_require=[
