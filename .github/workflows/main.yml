@@ -1,69 +1,69 @@
+---
 name: CI
 
 on:
   push:
-    branches:
-      - main
+    branches: ["main"]
   pull_request:
-    branches:
-      - main
+    branches: ["master"]
+  workflow_dispatch:
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    services:
-      docker:
-        image: fedorapython/fedora-python-tox
-        options: --entrypoint ''
-    strategy: 
+  tests:
+    name: "Python ${{ matrix.python-version }}"
+    runs-on: "ubuntu-latest"
+    env:
+      USING_COVERAGE: "3.6,3.7,3.8,3.9"
+
+    strategy:
       fail-fast: false
       matrix:
-        toxenv:
-          - py36-pip90-toml
-          - py36-pip191-toml
-          - py36-pip192-toml
-          - py36-pip193-toml
-          - py36-pip200-toml
-          - py36-pip201-toml
-          - py36-piplatest-toml
-          - py36-pipgit-toml
-          - py37-pip90-toml
-          - py37-pip191-toml
-          - py37-pip192-toml
-          - py37-pip193-toml
-          - py37-pip200-toml
-          - py37-pip201-toml
-          - py37-piplatest-toml
-          - py37-pipgit-toml
-          - py38-pip90-toml
-          - py38-pip191-toml
-          - py38-pip192-toml
-          - py38-pip193-toml
-          - py38-pip200-toml
-          - py38-pip201-toml
-          - py38-piplatest-toml
-          - py38-pipgit-toml
-          - py39-pip90-toml
-          - py39-pip191-toml
-          - py39-pip192-toml
-          - py39-pip193-toml
-          - py39-pip200-toml
-          - py39-pip201-toml
-          - py39-piplatest-toml
-          - py39-pipgit-toml
-          - py36-pip90-pytoml
-          - py36-piplatest-pytoml
-          - py36-pipgit-pytoml
-          - py38-pip90-pytoml
-          - py38-piplatest-pytoml
-          - py38-pipgit-pytoml
-          - py39-pip90-pytoml
-          - py39-piplatest-pytoml
-          - py39-pipgit-pytoml
+        python-version: ["3.6", "3.7", "3.8", "3.9", "pypy-3.7"]
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+      - uses: "actions/checkout@v2"
+      - uses: "actions/setup-python@v2"
+        with:
+          python-version: "${{ matrix.python-version }}"
+      - name: "Install dependencies"
+        run: |
+          set -xe
+          python -VV
+          python -m site
+          python -m pip install --upgrade pip wheel poetry
+          python -m pip install --upgrade coverage[toml] virtualenv tox tox-gh-actions
+      - name: "Run tox targets for ${{ matrix.python-version }}"
+        run: "python -m tox"
 
-      - name: Run Tox
-        run: docker run --rm -v ${{ github.workspace }}:/src -w /src -e TOXENV=${{ matrix.toxenv }} fedorapython/fedora-python-tox
+      # We always use a modern Python version for combining coverage to prevent
+      # parsing errors in older versions for modern code.
+      - uses: "actions/setup-python@v2"
+        with:
+          python-version: "3.9"
+
+      - name: "Upload coverage to Codecov"
+        if: "contains(env.USING_COVERAGE, matrix.python-version)"
+        uses: "codecov/codecov-action@v1"
+        with:
+          fail_ci_if_error: true
+
+  package:
+    name: "Build & verify package"
+    runs-on: "ubuntu-latest"
+
+    steps:
+      - uses: "actions/checkout@v2"
+      - uses: "actions/setup-python@v2"
+        with:
+          python-version: "3.9"
+
+      - name: "Install poetry and twine"
+        run: "python -m pip install poetry twine check-wheel-contents"
+      - name: "Build package"
+        run: "poetry build"
+      - name: "List result"
+        run: "ls -l dist"
+      - name: "Check wheel contents"
+        run: "check-wheel-contents dist/*.whl"
+      - name: "Check long_description"
+        run: "python -m twine check dist/*"
