@@ -1,38 +1,40 @@
-name: CI
+name: Python application
 
 on:
   push:
     branches:
       - main
   pull_request:
-  schedule:
-    # run CI every day even if no PRs/merges occur
-    - cron:  '0 12 * * *'
+    branches:
+      - main
 
 jobs:
-  tests:
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        manticore: ["master", "pypi"]
+  build:
+    runs-on: ubuntu-22.04
+
     steps:
     - uses: actions/checkout@v2
+
     - name: Set up Python 3.6
       uses: actions/setup-python@v2
       with:
         python-version: 3.9
-    - name: Install Dependencies
-      env:
-        MANTICORE: ${{ matrix.manticore }}
+
+    - name: Install dependencies
       run: |
-        if [[ "$MANTICORE" == "pypi" ]]; then
-          pip install manticore[native]
-        else
-          pip install "git+https://github.com/trailofbits/manticore.git@${MANTICORE}#egg=manticore[native]"
-        fi
+        python -m pip install --upgrade pip
+        pip install manticore[native]
         pip install nose
-    - name: Run Tests
-      continue-on-error: ${{ matrix.manticore == 'master' }}
+
+    - name: Run tests
       run: |
         nosetests
+
+    - name: Slack Notification
+      if: failure()
+      uses: 8398a7/action-slack@v3
+      with:
+        status: ${{ job.status }}
+        fields: repo,message,commit,author,action,eventName,ref,workflow,job,took
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
