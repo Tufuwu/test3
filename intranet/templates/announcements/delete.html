@@ -1,0 +1,61 @@
+{% extends "page_with_nav.html" %}
+{% load static %}
+{% load dates %}
+{% load pipeline %}
+
+{% block title %}
+    {{ block.super }} - {{ action|title }} Announcement
+{% endblock %}
+
+{% block js %}
+    {{ block.super }}
+    <script src="{% static 'vendor/ckeditor/ckeditor.js' %}"></script>
+    <script>
+    $(function() {
+        $("#delete").click(function(event) {
+            event.preventDefault();
+            $("form#delete-form").append("<input type='hidden' name='full_delete' value=1>");
+            document.forms["delete-form"].submit();
+        })
+    })
+    </script>
+{% endblock %}
+
+{% block css %}
+    {{ block.super }}
+{% endblock %}
+
+{% block head %}
+    {% if dark_mode_enabled %}
+        {% stylesheet 'dark/base' %}
+        {% stylesheet 'dark/nav' %}
+    {% endif %}
+{% endblock %}
+
+{% block main %}
+<div class="announcements primary-content">
+    <h3>Are you sure you want to delete this announcement?</h3>
+    <p>Please <b>EXPIRE</b> this announcement instead of deleting it, unless the announcement was created by accident.</p>
+    <b>{{ announcement.title }}</b>
+    <br>
+    <br>
+    {{ announcement.content|safe }}
+    <br>
+    <br>
+    <form action="" method="post" name="delete-form" id="delete-form">
+        {% csrf_token %}
+        <input type="hidden" name="id" value="{{ announcement.id }}">
+        <a class="button" href="{% url 'index' %}">Cancel</a> &nbsp;
+        <input type="submit" value="Expire">
+        <br>
+        <br>
+        <a href="#" id="delete" class="button"><i class='fas fa-exclamation-triangle'></i> Full Delete</a> &nbsp;
+    </form>
+</div>
+<script>
+    // name of <textarea> is content
+    CKEDITOR.replace("content", {
+        width: "600px"
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,104 @@
+{% extends "dashboard/dashboard.html" %}
+{% load static %}
+{% load pipeline %}
+
+{% block title %}
+    Intranet - Welcome
+{% endblock %}
+
+{% block css %}
+    {{ block.super }}
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+    {% stylesheet 'welcome' %}
+{% endblock %}
+
+{% block js %}
+    {{ block.super }}
+    <script src="{% static 'js/welcome.js' %}"></script>
+    <script src="{% static 'js/mailforwarding.js' %}"></script>
+{% endblock %}
+
+{% block head %}
+    {{ block.super }}
+    {% if dark_mode_enabled %}
+        {% stylesheet 'dark/welcome' %}
+    {% endif %}
+{% endblock %}
+
+{% block body %}
+    {{ block.super }}
+    <div id="welcome-container">
+        <div id="welcome">
+            <div id="ion-welcome">
+                {% block welcome %}
+                    <br>
+                    <br>
+                    <h2>
+                        Welcome to <b>Ion</b>
+                    </h2>
+                    <div class="ion-welcome-logo"></div>
+                    <div class="ion-welcome-icons"></div>
+                    <button id="ion-welcome-continue" class="ion-welcome-continue">
+                        Continue <i class="fas fa-chevron-right"></i>
+                    </button>
+                {% endblock %}
+            </div>
+            <div id="step-1">
+                {% block step1 %}
+                    <h2>Welcome to the TJ Intranet</h2>
+                    <p>The TJ Intranet gives you access to eighth period activities, announcements, directory information, events, polls, files, and more. Before you can start using Intranet, spend a minute to jump through this one-time welcome process.</p>
+
+                    <p>Logged in as: {{ request.user.full_name }}{% if request.user.graduation_year %}, Class of {{ request.user.graduation_year }}{% endif %}</p>
+                    <p>Email addresses on file:</p>
+                    <ul>
+                        {% for email in request.user.emails.all %}
+                            <li>{{ email }}</li>
+                        {% empty %}
+                            <li>(No addresses on file)</li>
+                        {% endfor %}
+                    </ul>
+
+                    <br>
+
+                    {% if request.user.emails.exists %}
+                    <p>Please make sure that you check these accounts regularly. Go to Preferences, accessed by clicking on your user icon in the top right corner, to modify the email addresses shown on your profile.</p>
+                    {% else %}
+                    <p>You don't currently have any custom email addresses on file. Go to Preferences, accessed by clicking on your user icon in the top right corner, to add an email address to your profile.</p>
+                    {% endif %}
+
+                    {% if request.user.is_student %}
+                      <p>You can access your TJ email account ({{ request.user.tj_email }}) by going to <a href="https://webmail.tjhsst.edu" target="_blank">webmail.tjhsst.edu</a>. You can also use another mail client <a href="https://livedoc.tjhsst.edu/wiki/Accessing_your_TJ_Email" target="_blank">via IMAP</a>. Use your Intranet credentials.</p>
+                    {% endif %}
+
+                    <p>It is <b>strongly recommended</b> that you set up email forwarding, which will ensure that you see all of the messages sent to your account.</p>
+                {% endblock %}
+            </div>
+
+            <div id="mail-forwarding">
+                {% include "welcome/mail_forwarding.html" %}
+            </div>
+
+            <div id="eighth-policy">
+                {% include "welcome/eighth_policy.html" %}
+            </div>
+
+            <div id="step-2">
+                {% block step2 %}
+                {% endblock %}
+            </div>
+
+            <div id="step-3">
+                <h2>About Intranet</h2>
+                    <p>Development on Intranet version 3 began in early 2013 and, after more than two years of work, was first used during the 2015-2016 school year. While the application has been released, development is not finished; it is continually being improved with bug fixes and new features.</p>
+
+                <div class="ion-welcome-logo"></div>
+                <br><br><br>
+                <br><br><br>
+                <br>
+                {% include "credits.html" %}
+                {% block step3 %}
+                {% endblock %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

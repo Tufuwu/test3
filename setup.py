@@ -1,62 +1,36 @@
 #!/usr/bin/env python
-import sys
-from distutils.core import Command
-import subprocess
+# -*- coding: utf-8 -*-
+from setuptools import find_packages, setup
 
-from setuptools import setup
-
-import defusedxml
+with open("README.rst", "r") as f:
+    long_description = f.read()
 
 
-class PyTest(Command):
-    user_options = []
-
-    def initialize_options(self):
-        pass
-
-    def finalize_options(self):
-        pass
-
-    def run(self):
-        errno = subprocess.call([sys.executable, "tests.py"])
-        raise SystemExit(errno)
-
-
-long_description = []
-with open("README.txt") as f:
-    long_description.append(f.read())
-with open("CHANGES.txt") as f:
-    long_description.append(f.read())
+def get_requirements():
+    with open("requirements.txt") as req, open("docs/rtd-requirements.txt", "w") as rtd_file:
+        for dep in req:
+            print(dep.strip(), file=rtd_file)
+            yield dep.strip()
 
 
 setup(
-    name="defusedxml",
-    version=defusedxml.__version__,
-    cmdclass={"test": PyTest},
-    packages=["defusedxml"],
-    author="Christian Heimes",
-    author_email="christian@python.org",
-    maintainer="Christian Heimes",
-    maintainer_email="christian@python.org",
-    url="https://github.com/tiran/defusedxml",
-    download_url="https://pypi.python.org/pypi/defusedxml",
-    keywords="xml bomb DoS",
-    platforms="all",
-    license="PSFL",
-    description="XML bomb protection for Python stdlib modules",
-    long_description="\n".join(long_description),
+    name="Ion",
+    description="The next-generation Intranet platform for TJHSST",
+    long_description=long_description,
+    author="The TJHSST Computer Systems Lab",
+    author_email="intranet@tjhsst.edu",
+    url="https://github.com/tjcsl/ion",
+    version="1.0",
+    test_suite="intranet.test.test_suite.run_tests",
+    setup_requires=["pip>=6.0", "setuptools_git"],  # session param
+    install_requires=[str(dep) for dep in get_requirements()],
+    packages=find_packages(),
     classifiers=[
         "Development Status :: 5 - Production/Stable",
-        "Intended Audience :: Developers",
-        "License :: OSI Approved :: Python Software Foundation License",
-        "Natural Language :: English",
-        "Programming Language :: Python",
-        "Programming Language :: Python :: 3",
+        "License :: OSI Approved :: GNU General Public License v2 or later (GPLv2+)",
+        "Operating System :: POSIX :: Linux",
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
-        "Programming Language :: Python :: 3.8",
-        "Programming Language :: Python :: 3.9",
-        "Topic :: Text Processing :: Markup :: XML",
+        "Framework :: Django :: 1.11",
     ],
-    python_requires=">=3.6",
 )

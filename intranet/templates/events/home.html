@@ -1,0 +1,70 @@
+{% extends "page_with_nav.html" %}
+{% load static %}
+{% load pipeline %}
+
+{% block title %}
+    {{ block.super }} - Events
+{% endblock %}
+
+{% block css %}
+    {{ block.super }}
+    {% stylesheet 'dashboard' %}
+    {% stylesheet 'events' %}
+{% endblock %}
+
+{% block js %}
+    {{ block.super }}
+{% endblock %}
+
+{% block head %}
+    {% if dark_mode_enabled %}
+        {% stylesheet 'dark/base' %}
+        {% stylesheet 'dark/dashboard' %}
+        {% stylesheet 'dark/nav' %}
+        {% stylesheet 'dark/events' %}
+    {% endif %}
+{% endblock %}
+
+{% block main %}
+    <div class="primary-content events">
+        <h2>Events</h2>
+        <div class="button-container">
+            {% if is_events_admin %}
+                <a href="?show_all=1" class="button">
+                    Show All
+                </a>
+            {% endif %}
+
+            {% if is_events_admin %}
+                <a href="{% url 'add_event' %}" class="button">
+                    <i class="fas fa-bullhorn"></i>
+                    Add
+                </a>
+            {% else %}
+                <a href="{% url 'request_event' %}" class="button">
+                    <i class="fas fa-bullhorn"></i>
+                    Request
+                </a>
+            {% endif %}
+        </div>
+
+        <div class="events-container">
+            {% for category in events %}
+                {% if category.events %}
+                    <h2 class="category">{{ category.title }}:</h2>
+                {% endif %}
+
+                {% for event in category.events %}
+                    {% include "events/event.html" %}
+                {% endfor %}
+            {% endfor %}
+
+            {% if num_events == 0 %}
+                <div class="event">
+                    There are no events to display at this time.
+                </div>
+            {% endif %}
+    </div>
+
+    </div>
+{% endblock %}

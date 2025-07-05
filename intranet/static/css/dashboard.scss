@@ -1,0 +1,296 @@
+@import "colors";
+
+.announcements {
+    padding-right: 432px;
+    min-width: 290px;
+    /* for 320x480 screens */
+    max-width: 1000px;
+    margin-bottom: 100px;
+
+    &.no-widgets {
+        padding-right: 0;
+    }
+
+    h2 {
+        padding-left: 10px;
+        line-height: 38px;
+        float: left;
+    }
+}
+
+.announcements-header {
+    height: 38px;
+    margin-bottom: 4px;
+}
+
+.announcement {
+    background-color: white;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    border: 1px solid rgb(216, 216, 216);
+    padding: 6px 10px;
+    margin-bottom: 6px;
+    overflow-x: auto;
+    position: relative;
+    behavior: url("/static/js/vendor/PIE/PIE.htc");
+
+    h3 {
+        cursor: pointer;
+
+        > a.announcement-link {
+            cursor: pointer;
+            color: $grey !important;
+        }
+    }
+
+    &.announcement-meta h3 {
+        cursor: initial;
+    }
+
+    &.pinned h3 {
+        color: rgb(181, 0, 0);
+    }
+
+    .announcement-content {
+        b,
+        strong {
+            font-weight: bold;
+        }
+
+        i,
+        em {
+            font-style: italic;
+        }
+
+        u {
+            text-decoration: underline;
+        }
+
+        ol {
+            list-style-type: decimal;
+            list-style-position: inside;
+        }
+
+        p {
+            margin-bottom: 5px;
+        }
+    }
+
+    &.partially-hidden {
+        .announcement-toggle-content {
+            max-height: 200px;
+            overflow-y: hidden;
+
+            &::after {
+                content: "";
+                position: absolute;
+                z-index: 1;
+                bottom: 0;
+                left: 0;
+                pointer-events: none;
+                background-image: linear-gradient(
+                                to bottom,
+                                rgba(255, 255, 255, 0),
+                                white 80%
+                );
+                width: 100%;
+                height: 5em;
+            }
+        }
+    }
+}
+
+.announcements-icon-wrapper {
+    float: right;
+}
+
+.announcement-metadata {
+    color: rgb(144, 144, 144);
+    font-size: 12px;
+    line-height: 12px;
+    margin-bottom: 5px;
+}
+
+.announcement-icon-wrapper {
+    float: right;
+    display: none;
+
+    .announcement:hover & {
+        display: block;
+    }
+
+    > a {
+        color: $grey;
+        text-decoration: none !important;
+        padding-left: 2px;
+
+        &:hover {
+            color: rgb(32, 66, 224);
+        }
+    }
+}
+
+.announcement {
+    h3 {
+        &:hover .announcement-icon-wrapper .announcement-toggle,
+        .announcement-icon-wrapper .announcement-toggle:hover,
+        .announcement-icon-wrapper:hover .announcement-toggle:hover {
+            color: rgb(32, 66, 224);
+        }
+
+        .announcement-icon-wrapper:hover .announcement-toggle {
+            color: $grey;
+        }
+    }
+
+    &-icon {
+        cursor: pointer;
+    }
+
+    &.hidden .announcement-toggle-content {
+        display: none;
+    }
+}
+
+.event.hidden .event-toggle-content {
+    display: none;
+}
+
+.content-center {
+    width: 100%;
+    text-align: center;
+}
+
+@media (max-width: 800px) {
+    /*
+     * widgets that fall underneath nav shouldn't float
+     * all the way to the left in 800-500px tablet view.
+     * mainly affects student admins
+     */
+    ul.nav {
+        margin-bottom: 100%;
+    }
+}
+
+/*
+ * between 800px and 662px, show a two column widget view
+ * nonfunctional
+@media (max-width: 800px) and (min-width: 662px) {
+    .main div.widgets {
+        height: 500px;
+
+        .widget {
+            width: calc(50% - 50px);
+
+            // odd on left, regular
+            &:nth-child(1),
+            &:nth-child(3) {
+            }
+
+            // even on right
+            &:nth-child(2) {
+                position: absolute;
+                left: calc(50% + 54px);
+            }
+        }
+    }
+}
+*/
+
+@media print {
+    div.main div.announcements.primary-content {
+        position: absolute;
+        top: 0;
+        padding: 0;
+        min-width: initial;
+        max-width: initial;
+    }
+    div.announcements-header .announcements-icon-wrapper * {
+        visibility: hidden;
+    }
+    div.announcement {
+        &-icon-wrapper {
+            visibility: hidden !important;
+        }
+
+        &.announcement-meta {
+            display: none;
+        }
+    }
+}
+
+div[data-placeholder]:not(:focus):not([data-div-placeholder-content]):before {
+    content: attr(data-placeholder);
+    float: left;
+    margin-left: 5px;
+    color: $grey;
+}
+
+.dash-warning {
+    width: auto;
+    background-color: yellow;
+    border: 1px solid rgb(210, 208, 66);
+    padding: 10px;
+    border-radius: 4px;
+    text-align: center;
+    margin-bottom: 10px;
+    position: relative;
+    max-height: 100vh;
+    transition: max-height 0.2s ease-in-out;
+
+    &:hover {
+        cursor: pointer;
+    }
+
+    &.collapsed {
+        max-height: 50px;
+        overflow: hidden;
+
+        &::after {
+            content: "";
+            position: absolute;
+            z-index: 1;
+            bottom: 0;
+            left: 0;
+            pointer-events: none;
+            background-image: linear-gradient(
+                            to bottom,
+                            rgba(255, 255, 255, 0),
+                            yellow 90%
+            );
+            width: 100%;
+            height: 4em;
+        }
+    }
+
+    ul {
+        text-align: left;
+    }
+}
+
+.dashboard-item-icon {
+    float: left;
+    font-size: 30px;
+    opacity: 0.6;
+    margin: 0;
+    padding: 0 8px 10px 0;
+    width: 27px;
+    text-align: center;
+    cursor: pointer;
+
+    &:hover,
+    .announcement h3:hover &,
+    .event h3:hover & {
+        opacity: 1;
+    }
+}
+
+.main div.primary-content {
+    @media (min-width: 801px) {
+        padding-right: 316px;
+    }
+    @media (min-width: 961px) {
+        padding-right: 432px;
+    }
+}

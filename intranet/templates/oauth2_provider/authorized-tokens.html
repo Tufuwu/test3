@@ -1,0 +1,29 @@
+{% extends "oauth2_provider/base.html" %}
+
+{% load i18n %}
+{% block content %}
+    <div class="block-center">
+    <h1>{% trans "Tokens" %}</h1>
+        <ul>
+        {% for application, authorized_tokens in applications_tokens %}
+            <li>{{ application }}
+                <ul>
+                {% for authorized_token in authorized_tokens %}
+                    <li>
+                        Token #{{ authorized_token.id }}
+                        (<a href="{% url 'oauth2_provider:authorized-token-delete' authorized_token.pk %}">revoke</a>)
+                        <ul>
+                        {% for scope_name, scope_description in authorized_token.scopes.items %}
+                            <li>{{ scope_name }}: {{ scope_description }}</li>
+                        {% endfor %}
+                        </ul>
+                    </li>
+                {% endfor %}
+                </ul>
+            </li>
+        {% empty %}
+            <li>{% trans "There are no authorized tokens yet." %}</li>
+        {% endfor %}
+        </ul>
+    </div>
+{% endblock %}

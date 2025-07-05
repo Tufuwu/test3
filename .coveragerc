@@ -1,10 +1,13 @@
 [run]
 branch = True
-source =
-    defusedxml/
-    tests.py
+source = intranet
+omit =
+    */migrations/*
+    */apps.py
+    */urls.py
+    */wsgi.py
+    */middleware/profiler.py
+    */settings/ci_secret.py
 
-[paths]
-source =
-   defusedxml/
-   .tox/py*/lib/python*/site-packages/defusedxml/
+# Needed for the Coveralls reporter
+relative_files = True

@@ -1,0 +1,186 @@
+{% extends "page_with_nav.html" %}
+{% load static %}
+{% load dictionaries %}
+{% load pipeline %}
+
+{% block title %}
+    {{ block.super }} - Poll Results
+{% endblock %}
+
+{% block css %}
+    {{ block.super }}
+    {% stylesheet 'dashboard' %}
+    {% stylesheet 'polls' %}
+    <style>
+
+    .results-table, .results-table tr, .results-table tr > td, .results-table tr > th {
+        border: 1px solid black;
+        padding: 5px;
+        text-align: center;
+    }
+
+    tr > td.choice {
+        text-align: left;
+        width: 300px;
+    }
+
+    th.choice-header {
+        vertical-align: middle;
+    }
+
+    tr.total {
+        font-weight: bold;
+    }
+    </style>
+{% endblock %}
+
+{% block js %}
+    {{ block.super }}
+    <script>
+    $(function() {
+        $("#user-sels").click(function() {
+            $(".user-selections").toggle();
+        });
+    })
+    </script>
+{% endblock %}
+
+{% block head %}
+    {% if dark_mode_enabled %}
+        {% stylesheet 'dark/base' %}
+        {% stylesheet 'dark/nav' %}
+        {% stylesheet 'dark/polls' %}
+    {% endif %}
+{% endblock %}
+
+{% block main %}
+    <div class="primary-content polls">
+        <a href="{% url 'polls' %}" class="button print-hide">
+            <i class="fas fa-arrow-left"></i> Polls
+        </a> {% if show_answers %}
+            &nbsp; <a href="#" class="button small-button print-hide" id="user-sels">Show User Selections</a>
+        {% else %}
+            {% if not poll.is_secret %}
+                &nbsp; <a href="?show_answers=1" class="button small-button print-hide">Show answers</a>
+            {% endif %}
+        {% endif %}
+        {% if not poll.is_secret %}
+            &nbsp; <a href="{% url 'poll_csv_results' poll.id %}" class="button small-button print-hide">Download as CSV</a>
+        {% endif %}<br>
+        <h2>Results: {{ poll }}</h2>
+        <p>&nbsp; {{ poll.get_voted_string }}</p>
+
+        <ol class="questions">
+            {% for q in questions %}
+                <li id="question-{{ q.question.num }}"><b>{{ q.question.question|safe }}</b>
+                {% if q.question.is_choice %}(Choice)<br>
+                {% if q.question.type == "SAP" %}
+                    <b>Note: Because this is a split approval question, each user has one vote to split for up to {% with m=q.question.max_choices %}{{ m }} choice{{ m|pluralize }}{% endwith %}.</b><br>
+                {% endif %}
+                {% if q.question.type == "APP" %}
+                    <b>Note: Because this is an approval question, values will not sum to 100%. Each user can vote for {% with m=q.question.max_choices %}{{ m }} choice{{ m|pluralize }}{% endwith %}.</b><br>
+                {% endif %}
+                    <table class="results-table choice-table fancy-table">
+                    <thead>
+                        <tr>
+                            <th rowspan="2" class="choice-header">Choice</th>
+                            <th colspan="3">Total Votes</th>
+                            {% for i in grades %}
+                                <th colspan="3">{{ i }}</th>
+                            {% endfor %}
+                            <th colspan="3">Staff</th>
+                        </tr>
+                        <tr>
+                        {% for i in "012345" %}
+                            <th>T</th>
+                            <th>M</th>
+                            <th>F</th>
+                        {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for c in q.choices %}
+                        <tr {% if c.choice == "Total" %} class="total"{% endif %}>
+                            <td class="choice">
+                                {{ c.choice }}
+                                {% if c.choice == "Total" %}
+                                    {% if q.question.type == "SAP" %}
+                                        Votes: {{ c.votes.total.votes_all }}
+                                    {% else %}
+                                        Users: {{ c.votes.total.users_all }}
+                                    {% endif %}
+                                {% endif %}
+                                <ul class="user-selections">
+                                {% if show_answers %}{% for u in c.users %}
+                                    <li>
+                                        <a href="{% url 'user_profile' u.id %}">{{ u }}</a>
+                                        {% if q.user_scale %} - Scale: {{ q.user_scale|lookup:u.id|truncatechars:7 }}{% endif %}
+                                    </li>
+                                {% endfor %}{% endif %}
+                                </ul>
+                            </td>
+                            {% with t=c.votes.total %}
+                                <td>{{ t.all }} ({{ t.all_percent }}%)</td>
+                                <td>{{ t.is_male }}</td>
+                                <td>{{ t.is_female }}</td>
+                            {% endwith %}
+                            {% with t=c.votes.9 %}
+                                <td>{{ t.all }}</td>
+                                <td>{{ t.is_male }}</td>
+                                <td>{{ t.is_female }}</td>
+                            {% endwith %}
+                            {% with t=c.votes.10 %}
+                                <td>{{ t.all }}</td>
+                                <td>{{ t.is_male }}</td>
+                                <td>{{ t.is_female }}</td>
+                            {% endwith %}
+                            {% with t=c.votes.11 %}
+                                <td>{{ t.all }}</td>
+                                <td>{{ t.is_male }}</td>
+                                <td>{{ t.is_female }}</td>
+                            {% endwith %}
+                            {% with t=c.votes.12 %}
+                                <td>{{ t.all }}</td>
+                                <td>{{ t.is_male }}</td>
+                                <td>{{ t.is_female }}</td>
+                            {% endwith %}
+                            {% with t=c.votes.13 %}
+                                <td>{{ t.all }}</td>
+                                <td>{{ t.is_male }}</td>
+                                <td>{{ t.is_female }}</td>
+                            {% endwith %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% elif q.question.is_writing %}(Writing)<br>
+                    {% if show_answers %}
+                    <table class="results-table writing-table fancy-table">
+                    <thead>
+                        <tr>
+                            <th>Choice</th>
+                            <th>User</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for a in q.answers %}
+                            <tr>
+                                <td>{{ a.answer }}</td>
+                                <td>
+                                    <a href="{% url 'user_profile' a.user.id %}">{{ a.user }}</a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                    </table>
+                    {% else %}
+                    <p>Click <a href="?show_answers=1">here</a> to reveal free response answers. The information shown will include the user who submitted the response.</p>
+                    {% endif %}
+                {% endif %}
+                <br>
+                </li>
+            {% endfor %}
+        </ol>
+    </div>
+
+{% endblock %}
