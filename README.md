@@ -1,61 +1,137 @@
-# Orquesta
+# purerpc
 
-Orquesta is a graph based workflow engine designed specifically for
-[StackStorm](https://github.com/StackStorm/st2). As a building block, Orquesta does not include
-all the parts such as messaging, persistence, and locking required to run as a service.
+<!-- start-badges -->
+[![Build Status](https://img.shields.io/github/workflow/status/python-trio/purerpc/CI)](https://github.com/python-trio/purerpc/actions/workflows/ci.yml)
+[![PyPI version](https://img.shields.io/pypi/v/purerpc.svg?style=flat)](https://pypi.org/project/purerpc/)
+[![Supported Python versions](https://img.shields.io/pypi/pyversions/purerpc.svg)](https://pypi.org/project/purerpc)
+<!-- end-badges -->
 
-The engine consists of the workflow models that are decomposed from the language spec, the composer
-that composes the execution graph from the workflow models, and the conductor that directs the
-execution of the workflow using the graph.
+_purerpc_ is a native, async Python gRPC client and server implementation supporting
+[asyncio](https://docs.python.org/3/library/asyncio.html),
+[uvloop](https://github.com/MagicStack/uvloop), and
+[trio](https://github.com/python-trio/trio) (achieved with [anyio](https://github.com/agronholm/anyio) compatibility layer).
 
-A workflow definition is a structured YAML file that describes the intent of the workflow. A
-workflow is made up of one or more tasks. A task defines what action to execute, with what input.
-When a task completes, it can transition into other tasks based upon criteria. Tasks can also
-publish output for the next tasks. When there are no more tasks to execute, the workflow is
-complete.
+This project is in maintenance mode.  Updates will primarily be limited to fixing
+severe bugs, keeping the package usable for actively developed projects, and
+easing maintenance.
 
-Orquesta includes a native language spec for the workflow definition. The language spec is
-decomposed into various models and described with [JSON schema](http://json-schema.org/). A
-workflow composer that understands the models converts the workflow definition into a directed
-graph. The nodes represent the tasks and edges are the task transition. The criteria for task
-transition is an attribute of the edge. The graph is the underpinning for conducting the workflow
-execution. The workflow definition is just syntactic sugar.
+For use cases limited to asyncio, consider the Python package published by the
+main [grpc](https://github.com/grpc/grpc) project instead.
 
-Orquesta allows for one or more language specs to be defined. So as long as the workflow
-definition, however structured, is composed into the expected graph, the workflow conductor can
-handle it.
+## Requirements
 
-The workflow execution graph can be a directed graph or a directed cycle graph. It can have one or
-more root nodes which are the starting tasks for the workflow. The graph can have branches that run
-in parallel and then converge back to a single branch. A single branch in the graph can diverge into
-multiple branches. The graph model exposes operations to identify starting tasks, get inbound and
-outbound task transitions, get connected tasks, and check if cycle exists. The graph serves more
-like a map for the conductor. It is stateless and does not contain any runtime data such as task
-status and result.
+* CPython >= 3.7
+* PyPy >= 3.7
 
-The workflow conductor traverses the graph, directs the flow of the workflow execution, and
-tracks runtime state of the execution. The conductor does not actually execute the action that is
-specified for the task. The action execution is perform by another provider such as StackStorm. The
-conductor directs the provider on what action to execute. As each action execution completes, the
-provider relays the status and result back to the conductor. The conductor then takes the state
-change, keeps track of the sequence of task execution, manages change history of the runtime
-context, evaluate outbound task transitions, identifies any new tasks for execution, and determines
-the overall workflow state and result.
+## Installation
 
-## Copyright, License, and Contributors Agreement
+Latest PyPI version:
 
-Copyright 2019-2021 The StackStorm Authors.
-Copyright 2014-2018 StackStorm, Inc.
+```bash
+pip install purerpc[grpc]
+```
 
-Licensed under the Apache License, Version 2.0 (the "License"); you may not use this work except
-in compliance with the License. You may obtain a copy of the License in the [LICENSE](LICENSE)
-file or at [http://www.apache.org/licenses/LICENSE-2.0](http://www.apache.org/licenses/LICENSE-2.0).
+NOTE: for PyPy, replace "grpc" with "grpc-pypy".  Support is tentative, as
+  [grpc does not officially support PyPy](https://github.com/grpc/grpc/issues/4221).
 
-By contributing you agree that these contributions are your own (or approved by your employer) and
-you grant a full, complete, irrevocable copyright license to all users and developers of the
-project, present and future, pursuant to the license of the project.
+Latest development version:
 
-## Getting Help
+```bash
+pip install git+https://github.com/python-trio/purerpc.git[grpc]
+```
 
-If you need help or get stuck at any point during development, stop by on our
-[Slack Community](https://stackstorm.com/community-signup) and we will do our best to assist you.
+These invocations will include dependencies for the grpc runtime and
+generation of service stubs.
+
+To install extra dependencies for running tests or examples, using the
+`test_utils` module, etc., apply the `[dev]` suffix (e.g.
+`pip install purerpc[dev]`).
+
+## protoc plugin
+
+purerpc adds `protoc-gen-purerpc` plugin for `protoc` to your `PATH` environment variable
+so you can use it to generate service definition and stubs: 
+
+```bash
+protoc --purerpc_out=. --python_out=. -I. greeter.proto
+```
+
+or, if you installed the `grpcio-tools` Python package:
+
+```bash
+python -m grpc_tools.protoc --purerpc_out=. --python_out=. -I. greeter.proto
+```
+
+## Usage
+
+NOTE: `greeter_grpc` module is generated by purerpc's `protoc-gen-purerpc` plugin.
+
+### Server
+
+```python
+from purerpc import Server
+from greeter_pb2 import HelloRequest, HelloReply
+from greeter_grpc import GreeterServicer
+
+
+class Greeter(GreeterServicer):
+    async def SayHello(self, message):
+        return HelloReply(message="Hello, " + message.name)
+
+    async def SayHelloToMany(self, input_messages):
+        async for message in input_messages:
+            yield HelloReply(message=f"Hello, {message.name}")
+
+
+if __name__ == '__main__':
+    server = Server(50055)
+    server.add_service(Greeter().service)
+    # NOTE: if you already have an async loop running, use "await server.serve_async()"
+    import anyio
+    anyio.run(server.serve_async)  # or set explicit backend="asyncio" or "trio"
+```
+
+### Client
+
+```python
+import purerpc
+from greeter_pb2 import HelloRequest, HelloReply
+from greeter_grpc import GreeterStub
+
+
+async def gen():
+    for i in range(5):
+        yield HelloRequest(name=str(i))
+
+
+async def listen():
+    async with purerpc.insecure_channel("localhost", 50055) as channel:
+        stub = GreeterStub(channel)
+        reply = await stub.SayHello(HelloRequest(name="World"))
+        print(reply.message)
+
+        async for reply in stub.SayHelloToMany(gen()):
+            print(reply.message)
+
+
+if __name__ == '__main__':
+    # NOTE: if you already have an async loop running, use "await listen()"
+    import anyio
+    anyio.run(listen)  # or set explicit backend="asyncio" or "trio"
+```
+
+You can mix server and client code, for example make a server that requests something using purerpc from another gRPC server, etc.
+
+More examples in `misc/` folder
+
+# Project history
+
+purerpc was originally written by [Andrew Stepanov](https://github.com/standy66)
+and used the curio async event loop.  Later it
+was migrated to the [anyio](https://github.com/agronholm/anyio) API, supporting
+asyncio, curio, uvloop, and trio (though curio support has since been dropped
+from the API).
+
+After going a few years unmaintained, the project was adopted by the [python-trio
+organization](https://github.com/python-trio) with the intent of ensuring a
+continued gRPC solution for Trio users.
