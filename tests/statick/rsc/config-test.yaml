@@ -1,5 +1,0 @@
-levels:
-  default_value:
-    tool:
-      not_a_tool:
-        flags: ""

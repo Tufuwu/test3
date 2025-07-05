@@ -12,16 +12,16 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
-import os
-import sys
+# import os
+# import sys
+# sys.path.insert(0, os.path.abspath('.'))
 
-sys.path.insert(0, os.path.abspath('../../'))
 
 # -- Project information -----------------------------------------------------
 
-project = u'Statick'
-copyright = u'2018, SSC Pacific'
-author = u'SSC Pacific'
+project = u'StackStorm Orquesta'
+copyright = u'2018, StackStorm'
+author = u'StackStorm'
 
 # The short X.Y version
 version = u''
@@ -39,13 +39,8 @@ release = u''
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    'sphinx.ext.autodoc',
-    'sphinx.ext.doctest',
-    'sphinx.ext.todo',
-    'sphinx.ext.coverage',
-    'sphinx.ext.viewcode',
-    'sphinx.ext.githubpages',
-    'sphinx.ext.napoleon',
+    # Add theme as extension so sitemap.xml is generated
+    'sphinx_rtd_theme'
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -70,7 +65,7 @@ language = None
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path .
-exclude_patterns = [u'_build', 'Thumbs.db', '.DS_Store']
+exclude_patterns = []
 
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = 'sphinx'
@@ -81,7 +76,7 @@ pygments_style = 'sphinx'
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'alabaster'
+html_theme = 'sphinx_rtd_theme'
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
@@ -108,7 +103,7 @@ html_static_path = ['_static']
 # -- Options for HTMLHelp output ---------------------------------------------
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'Statick_doc'
+htmlhelp_basename = 'Orquestadoc'
 
 
 # -- Options for LaTeX output ------------------------------------------------
@@ -135,8 +130,8 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'Statick.tex', u'Statick Documentation',
-     u'SSC Pacific', 'manual'),
+    (master_doc, 'Orquesta.tex', u'Orquesta Documentation',
+     u'StackStorm', 'manual'),
 ]
 
 
@@ -145,7 +140,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'statick', u'Statick Documentation',
+    (master_doc, 'orquesta', u'Orquesta Documentation',
      [author], 1)
 ]
 
@@ -156,15 +151,7 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'Statick', u'Statick Documentation',
-     author, 'Statick', 'One line description of project.',
+    (master_doc, 'Orquesta', u'Orquesta Documentation',
+     author, 'Orquesta', 'One line description of project.',
      'Miscellaneous'),
 ]
-
-
-# -- Extension configuration -------------------------------------------------
-
-# -- Options for todo extension ----------------------------------------------
-
-# If true, `todo` and `todoList` produce output, else they produce nothing.
-todo_include_todos = True

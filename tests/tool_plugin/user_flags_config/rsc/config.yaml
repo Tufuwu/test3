@@ -1,5 +1,0 @@
-levels:
-  level:
-    tool:
-      test:
-        flags: "look a flag"

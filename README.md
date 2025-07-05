@@ -1,144 +1,61 @@
-# Statick
+# Orquesta
 
-| Service | Status |
-| ------- | ------ |
-| Build   | [![Travis-CI](https://api.travis-ci.org/sscpac/statick.svg?branch=master)](https://travis-ci.org/sscpac/statick/branches) |
-| PyPI    | [![PyPI version](https://badge.fury.io/py/statick.svg)](https://badge.fury.io/py/statick) |
-| Codecov | [![Codecov](https://codecov.io/gh/sscpac/statick/branch/master/graphs/badge.svg)](https://codecov.io/gh/sscpac/statick/) |
+Orquesta is a graph based workflow engine designed specifically for
+[StackStorm](https://github.com/StackStorm/st2). As a building block, Orquesta does not include
+all the parts such as messaging, persistence, and locking required to run as a service.
 
-![Python Versions](https://img.shields.io/pypi/pyversions/statick.svg)
-![License](https://img.shields.io/pypi/l/statick.svg)
-[![Doc](https://readthedocs.org/projects/statick/badge/?version=latest)](https://statick.readthedocs.io/en/latest/?badge=latest)
-[![Checked with mypy](http://www.mypy-lang.org/static/mypy_badge.svg)](http://mypy-lang.org/)
-![Daily Downloads](https://img.shields.io/pypi/dd/statick.svg)
-![Weekly Downloads](https://img.shields.io/pypi/dw/statick.svg)
-![Monthly Downloads](https://img.shields.io/pypi/dm/statick.svg)
+The engine consists of the workflow models that are decomposed from the language spec, the composer
+that composes the execution graph from the workflow models, and the conductor that directs the
+execution of the workflow using the graph.
 
-Statick is a set of tools to analyze software packages.
+A workflow definition is a structured YAML file that describes the intent of the workflow. A
+workflow is made up of one or more tasks. A task defines what action to execute, with what input.
+When a task completes, it can transition into other tasks based upon criteria. Tasks can also
+publish output for the next tasks. When there are no more tasks to execute, the workflow is
+complete.
 
-This README only covers basic usage of Statick.
-For more detailed information, see the [Statick User Guide](GUIDE.md).
-The User Guide is especially important for tips on creating and using your own testing levels and exceptions.
+Orquesta includes a native language spec for the workflow definition. The language spec is
+decomposed into various models and described with [JSON schema](http://json-schema.org/). A
+workflow composer that understands the models converts the workflow definition into a directed
+graph. The nodes represent the tasks and edges are the task transition. The criteria for task
+transition is an attribute of the edge. The graph is the underpinning for conducting the workflow
+execution. The workflow definition is just syntactic sugar.
 
-Statick uses a plugin system to load plugins from both a default resource location and also
-user-definable locations to run against software.
+Orquesta allows for one or more language specs to be defined. So as long as the workflow
+definition, however structured, is composed into the expected graph, the workflow conductor can
+handle it.
 
-The plugins for the statick scans are divided into three categories:
+The workflow execution graph can be a directed graph or a directed cycle graph. It can have one or
+more root nodes which are the starting tasks for the workflow. The graph can have branches that run
+in parallel and then converge back to a single branch. A single branch in the graph can diverge into
+multiple branches. The graph model exposes operations to identify starting tasks, get inbound and
+outbound task transitions, get connected tasks, and check if cycle exists. The graph serves more
+like a map for the conductor. It is stateless and does not contain any runtime data such as task
+status and result.
 
-* Discovery plugins that find files to scan inside of a code package.
-* Tool plugins to run analysis programs against the files discovered by the discovery plugins.
-* Reporting plugins to output the analysis results in various formats.
+The workflow conductor traverses the graph, directs the flow of the workflow execution, and
+tracks runtime state of the execution. The conductor does not actually execute the action that is
+specified for the task. The action execution is perform by another provider such as StackStorm. The
+conductor directs the provider on what action to execute. As each action execution completes, the
+provider relays the status and result back to the conductor. The conductor then takes the state
+change, keeps track of the sequence of task execution, manages change history of the runtime
+context, evaluate outbound task transitions, identifies any new tasks for execution, and determines
+the overall workflow state and result.
 
-## Install Required Tools
+## Copyright, License, and Contributors Agreement
 
-The below commands are for Ubuntu 16.04.
-The exact package names may vary for other systems.
+Copyright 2019-2021 The StackStorm Authors.
+Copyright 2014-2018 StackStorm, Inc.
 
-These packages are for the tools used by the default configuration of Statick.
-Depending on your usage and configuration, you may not need these packages.
+Licensed under the Apache License, Version 2.0 (the "License"); you may not use this work except
+in compliance with the License. You may obtain a copy of the License in the [LICENSE](LICENSE)
+file or at [http://www.apache.org/licenses/LICENSE-2.0](http://www.apache.org/licenses/LICENSE-2.0).
 
-    $ cat install.txt  | xargs sudo apt-get install -y
-    $ pip install -r requirements.txt
+By contributing you agree that these contributions are your own (or approved by your employer) and
+you grant a full, complete, irrevocable copyright license to all users and developers of the
+project, present and future, pursuant to the license of the project.
 
-To run against ROS packages there are a few more system packages to get.
-This command assumes you have setup the [ROS apt repository](http://wiki.ros.org/ROS/Installation) for your system.
+## Getting Help
 
-    $ cat ros-deps.txt  | xargs sudo apt-get install
-
-## Setup cppcheck
-
-cppcheck is a static analysis tool for C++.
-It is possible to set a required version of the tool to ensure consistency of output.
-The required version of the tool can be passed in as part of the tool flags in the `config.yaml` file.
-If a flag is not set for the version then any installed version of the tool will run.
-If a required version is set but not found then the tool will not run.
-An example of how to install a specific version of cppcheck is below.
-
-In some spot on your filesystem (for example `~/src`)
-
-    $ git clone --branch 1.81 https://github.com/danmar/cppcheck.git
-    $ cd cppcheck
-    $ make SRCDIR=build CFGDIR=/usr/share/cppcheck/ HAVE_RULES=yes
-    $ sudo make install SRCDIR=build CFGDIR=/usr/share/cppcheck/ HAVE_RULES=yes
-
-## Statick Installation (Optional)
-
-To install Statick on your system and make it part of your `$PATH`:
-
-    $ sudo python setup.py install
-
-## Running
-
-If you are running from an installed version, you will use the `statick` or `statick_ws` command.
-If you are running job from a local version in your workspace, you can run it like
-`~/src/my_ws/src/ssc/statick/statick` or `~/src/my_ws/src/ssc/statick/statick_ws`.
-
-For a description of all available arguments, pass the `--help` option to either program.
-
-### For single packages
-
-    $ statick <path of package> --output-directory <output path>
-
-"Path of package" is the path of the package to be scanned.
-
-"Output path" is optional and is the path where build and output files are stored.
-This should initially be an empty directory separate from your regular source and build directories.
-This directory must already exist before running the program.
-
-If you are using this with a ROS Ament/Catkin workspace, you must have your workspace `setup.bash` sourced before
-running the tool.
-
-### For a whole or partial ament/catkin workspace
-
-    $ statick_ws <path of src tree> --output-directory <output path>
-
-"path of src tree" is the src directory underneath your ament/catkin workspace root or any directory under that.
-
-"Output path" is optional and is the path where build and output files are stored.
-This should initially be an empty directory separate from your regular source and build directories.
-This directory must already exist before running the program.
-
-## Example Usage
-
-Here are some example use cases for the level of compliance we are enforcing for now.
-
-### For a single package
-
-    $ cd ~/src/my_ws
-    $ . devel/setup.bash
-    $ mkdir statick_output
-    $ statick src/my_org/my_pkg statick_output
-
-### For a part of a workspace
-
-    $ cd ~/src/my_ws
-    $ . devel/setup.bash
-    $ mkdir statick_output
-    $ statick_ws src/my_org statick_output
-
-### For a whole workspace
-
-    $ cd ~/src/my_ws
-    $ . devel/setup.bash
-    $ mkdir statick_output
-    $ statick_ws src statick_output
-
-## Troubleshooting
-
-### Make plugin
-
-If you are running statick against a ROS package and get an error that there is no rule to make target `clean`,
-and that the package is not CMake, it usually means that you did not specify a single package.
-Instead, this is what happens when you tell statick to analyze a ROS workspace and do not use `statick_ws`.
-
-    Running cmake discovery plugin...
-      Package is not cmake.
-    cmake discovery plugin done.
-    .
-    .
-    .
-    Running make tool plugin...
-    make: *** No rule to make target 'clean'.  Stop.
-    Make failed! Returncode = 2
-    Exception output:
-    make tool plugin failed
+If you need help or get stuck at any point during development, stop by on our
+[Slack Community](https://stackstorm.com/community-signup) and we will do our best to assist you.
