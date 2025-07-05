@@ -1,3 +1,0 @@
-def invalidate_obj(*args, **kwargs): ...  # FIXME: figure out args
-def invalidate_model(*args, **kwargs): ...  # FIXME: figure out args
-def invalidate_all(): ...

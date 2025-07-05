@@ -1,2 +1,0 @@
-{% autoescape off %}{% for name, value in metrics.items %}{{ name }} {{ value }}
-{% endfor %}{% endautoescape %}
