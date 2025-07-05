@@ -5,6 +5,8 @@ on: [push,pull_request]
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     strategy:
       fail-fast: false
       matrix:
@@ -17,39 +19,15 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies
       run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements-tests.txt
-        sudo apt-get install -y libssl-dev
-    - name: Run unit tests
-      run: |
-        chmod +x ./runtests.py
-        ./runtests.py --no-cov --no-vici
-
-  docker:
-    runs-on: ubuntu-latest
-    env:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    steps:
-    - uses: actions/checkout@v2
-    - name: Set up Python
-      uses: actions/setup-python@v2
-      with:
-        python-version: 3.x
-    - name: Install dependencies
-      run: |
         python -m pip install --upgrade pip coveralls
-        echo "PATH=$HOME/.local/bin:$PATH" >> $GITHUB_ENV
-    - name: Build Docker images and start containers
+        pip install -r requirements-tests.txt
+    - name: Prepare config
       run: |
-        docker-compose build
-        docker-compose up -d
-        sleep 5
-    - name: Run unit tests, collect coverage
-      run: docker-compose exec -T roadwarrior /bin/sh -c "cd /strongMan; ./runtests.py"
-    - name: Run integration tests
-      run: docker-compose exec -T roadwarrior /bin/sh -c "cd /strongMan; python manage.py test strongMan.tests.integration_tests --settings=strongMan.settings.local;"
+        cp config/settings.sample.ini config/settings.ini
+        sed -i 's/DEBUG\s*=\s*0/DEBUG = 1/' config/settings.ini
+    - name: Run unit tests
+      run: ./runtests.py
     - name: Submit coverage
       if: ${{ success() }}
       run: |
-        docker-compose exec -T roadwarrior cat /strongMan/.coverage > .coverage
         coveralls --service=github

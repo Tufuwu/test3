@@ -1,12 +1,10 @@
 [run]
-relative_files = True
-branch = True
 source =
-    strongMan/apps
-    strongMan/helper_apps
+    apps
 omit =
     */migrations/*
     */tests/*
+    */management/commands/*
 
 [report]
 # Regexes for lines to exclude from consideration
