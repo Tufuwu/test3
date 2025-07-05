@@ -27,8 +27,9 @@ jobs:
 
     strategy:
       matrix:
+        fail-fast: false
         python-version: [3.9]
-        toxenv: [py36, flake8, isort]
+        toxenv: [py39, flake8, isort]
 
     env:
       DATABASE_URL: postgres://postgres@localhost/postgres
