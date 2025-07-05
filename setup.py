@@ -1,67 +1,79 @@
-#!/usr/bin/env python
-# Copyright Jonathan Hartley 2013. BSD 3-Clause license, see LICENSE file.
+# -*- coding: utf-8 -*-
+u"""
+Copyright 2015 Telefónica Investigación y Desarrollo, S.A.U.
+This file is part of Toolium.
 
-from __future__ import with_statement
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
 
-from io import open
-import os
-import re
-try:
-    from setuptools import setup
-except ImportError:
-    from distutils.core import setup
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+"""
+
+from setuptools import setup
 
 
-NAME = 'colorama'
+def read_file(filepath):
+    with open(filepath) as f:
+        return f.read()
 
 
-def read_file(path, encoding='ascii'):
-    with open(os.path.join(os.path.dirname(__file__), path),
-              encoding=encoding) as fp:
-        return fp.read()
+def get_long_description():
+    """Get README content and update rst urls
 
-def _get_version_match(content):
-    # Search for lines of the form: # __version__ = 'ver'
-    regex = r"^__version__ = ['\"]([^'\"]*)['\"]"
-    version_match = re.search(regex, content, re.M)
-    if version_match:
-        return version_match.group(1)
-    raise RuntimeError("Unable to find version string.")
+    :returns: long description
+    """
+    # Get readme content
+    readme = read_file('README.rst')
 
-def get_version(path):
-    return _get_version_match(read_file(path))
+    # Change rst urls to ReadTheDocs html urls
+    docs_url = 'http://toolium.readthedocs.org/en/latest'
+    description = readme.replace('/CHANGELOG.rst', '{}/changelog.html'.format(docs_url))
+    for doc in ['driver_configuration', 'page_objects', 'bdd_integration', 'visual_testing', 'tests_result_analysis']:
+        description = description.replace('/docs/{}.rst'.format(doc), '{}/{}.html'.format(docs_url, doc))
+    return description
+
 
 setup(
-    name=NAME,
-    version=get_version(os.path.join('colorama', '__init__.py')),
-    description='Cross-platform colored terminal text.',
-    long_description=read_file('README.rst'),
-    keywords='color colour terminal text ansi windows crossplatform xplatform',
-    author='Jonathan Hartley',
-    author_email='tartley@tartley.com',
-    maintainer='Arnon Yaari',
-    url='https://github.com/tartley/colorama',
-    license='BSD',
-    packages=[NAME],
-    python_requires='>=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*',
-    # see classifiers https://pypi.org/pypi?%3Aaction=list_classifiers
+    name='toolium',
+    version=read_file('VERSION').strip(),
+    packages=['toolium', 'toolium.pageobjects', 'toolium.pageelements', 'toolium.lettuce', 'toolium.behave',
+              'toolium.utils'],
+    package_data={'': ['resources/VisualTestsTemplate.html', 'resources/VisualTests.js', 'resources/VisualTests.css']},
+    install_requires=read_file('requirements.txt').splitlines(),
+    setup_requires=['pytest-runner'],
+    tests_require=read_file('requirements_dev.txt').splitlines(),
+    test_suite='toolium.test',
+    author='Rubén González Alonso, Telefónica I+D',
+    author_email='ruben.gonzalezalonso@telefonica.com',
+    url='https://github.com/telefonica/toolium',
+    description='Wrapper tool of Selenium and Appium libraries to test web and mobile applications in a single project',
+    long_description=get_long_description(),
+    keywords='selenium appium webdriver web_automation mobile_automation page_object visual_testing bdd lettuce behave pytest',
     classifiers=[
-        'Development Status :: 5 - Production/Stable',
-        'Environment :: Console',
+        'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',
-        'License :: OSI Approved :: BSD License',
+        'Intended Audience :: Other Audience',
+        'License :: OSI Approved :: Apache Software License',
+        'Natural Language :: English',
         'Operating System :: OS Independent',
-        'Programming Language :: Python',
-        'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.3',
+        'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.9',
-        'Programming Language :: Python :: Implementation :: CPython',
-        'Programming Language :: Python :: Implementation :: PyPy',
-        'Topic :: Terminals',
-    ]
+        'Topic :: Software Development :: Libraries :: Python Modules',
+        'Topic :: Software Development :: Quality Assurance',
+        'Topic :: Software Development :: Testing',
+    ],
+    license='Apache 2.0',
 )

@@ -1,375 +1,96 @@
-.. image:: https://img.shields.io/pypi/v/colorama.svg
-    :target: https://pypi.org/project/colorama/
-    :alt: Latest Version
+Toolium
+=======
 
-.. image:: https://img.shields.io/pypi/pyversions/colorama.svg
-    :target: https://pypi.org/project/colorama/
-    :alt: Supported Python versions
+|Build Status| |Coverage Status| |Codacy| |Documentation Status|
 
-.. image:: https://github.com/tartley/colorama/actions/workflows/test.yml/badge.svg
-    :target: https://github.com/tartley/colorama/actions/workflows/test.yml
-    :alt: Build Status
+Toolium is a Python wrapper tool of Selenium and Appium libraries to test web and mobile applications in a single
+project. It provides a way of choosing and configuring the driver through a configuration file, implements a Page Object
+pattern and includes a simple visual testing solution.
 
-Colorama
-========
+.. |Build Status| image:: https://github.com/Telefonica/toolium/workflows/build/badge.svg
+   :target: https://github.com/Telefonica/toolium/actions
+.. |Documentation Status| image:: https://readthedocs.org/projects/toolium/badge/?version=latest
+   :target: http://toolium.readthedocs.org/en/latest
+.. |Coverage Status| image:: https://coveralls.io/repos/Telefonica/toolium/badge.svg?branch=master&service=github
+   :target: https://coveralls.io/github/Telefonica/toolium
+.. |Codacy| image:: https://api.codacy.com/project/badge/Grade/2c5121c96c6a4f7aa7fc4ce08a4a26c0
+   :target: https://www.codacy.com/app/rgonalo/toolium?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=Telefonica/toolium&amp;utm_campaign=Badge_Grade
 
-Makes ANSI escape character sequences (for producing colored terminal text and
-cursor positioning) work under MS Windows.
+Getting Started
+---------------
 
-.. |donate| image:: https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif
-  :target: https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=2MZ9D2GMLYCUJ&item_name=Colorama&currency_code=USD
-  :alt: Donate with Paypal
+The requirements to install Toolium are `Python 2.7 or 3.3+ <http://www.python.org>`_ and
+`pip <https://pypi.org/project/pip>`_. If you use Python 2.7.9+, you don't need to install pip separately.
 
-`PyPI for releases <https://pypi.org/project/colorama/>`_ |
-`Github for source <https://github.com/tartley/colorama>`_ |
-`Colorama for enterprise on Tidelift <https://github.com/tartley/colorama/blob/master/ENTERPRISE.md>`_
+Run ``pip install toolium`` to install the latest version from `PyPi <https://pypi.org/project/toolium>`_. It's
+highly recommendable to use a virtualenv.
 
-If you find Colorama useful, please |donate| to the authors. Thank you!
+The main dependencies are:
 
+- `Selenium <http://docs.seleniumhq.org/>`_: to test web applications in major browsers (Firefox, Chrome, Internet
+  Explorer, Edge, Safari, Opera)
+- `Appium-Python-Client <https://github.com/appium/python-client>`_: to test mobile applications (native, hybrid or web)
+  in Android or iOS devices/emulators.
+- `requests <http://docs.python-requests.org>`_: to test APIs
 
-Installation
+**Using toolium-template**
+
+The easiest way of getting started is to clone `toolium-template <https://github.com/Telefonica/toolium-template>`_
+project, run the example test and add your own tests and configuration.
+
+.. code:: console
+
+    $ git clone git@github.com:Telefonica/toolium-template.git
+    $ cd toolium-template
+    $ pip install -r requirements.txt
+
+Now, just follow `toolium-template instructions <https://github.com/Telefonica/toolium-template#running-tests>`_ to know
+how to start your testing project.
+
+**Running toolium-examples**
+
+You can also clone `toolium-examples <https://github.com/Telefonica/toolium-examples>`_ to get more examples about how
+to use the library to test web, Android or iOS applications, in different scenarios.
+
+.. code:: console
+
+    $ git clone git@github.com:Telefonica/toolium-examples.git
+    $ cd toolium-examples
+    $ pip install -r requirements.txt
+
+Now, just follow `toolium-examples instructions <https://github.com/Telefonica/toolium-examples#running-tests>`_ to run
+the examples of the tests.
+
+Contributing
 ------------
 
-Tested on CPython 2.7, 3.5, 3.6, 3.7, 3.8 and 3.9 and Pypy 2.7 and 3.6.
+If you want to collaborate in Toolium development, feel free of `forking it <https://github.com/Telefonica/toolium>`_
+and asking for a pull request.
 
-No requirements other than the standard library.
+Don't forget to run unit tests:
 
-.. code-block:: bash
+.. code:: console
 
-    pip install colorama
-    # or
-    conda install -c anaconda colorama
+    $ git clone git@github.com:<your_github_user>/toolium.git
+    $ cd toolium
+    $ python setup.py test
 
+Finally, before accepting your contribution, we need you to sign our
+`Contributor License Agreement <https://raw.githubusercontent.com/telefonicaid/Licensing/master/ContributionPolicy.txt>`_
+and send it to ruben.gonzalezalonso@telefonica.com.
 
-Description
------------
+Main Features
+-------------
 
-ANSI escape character sequences have long been used to produce colored terminal
-text and cursor positioning on Unix and Macs. Colorama makes this work on
-Windows, too, by wrapping ``stdout``, stripping ANSI sequences it finds (which
-would appear as gobbledygook in the output), and converting them into the
-appropriate win32 calls to modify the state of the terminal. On other platforms,
-Colorama does nothing.
+- `Choosing driver through a configuration file </docs/driver_configuration.rst>`_
+- `Page Object pattern </docs/page_objects.rst>`_
+- `BDD integration </docs/bdd_integration.rst>`_
+- `Visual testing solution </docs/visual_testing.rst>`_
+- `Tests result analysis </docs/tests_result_analysis.rst>`_
 
-This has the upshot of providing a simple cross-platform API for printing
-colored terminal text from Python, and has the happy side-effect that existing
-applications or libraries which use ANSI sequences to produce colored output on
-Linux or Macs can now also work on Windows, simply by calling
-``colorama.init()``.
+Documentation
+-------------
 
-An alternative approach is to install ``ansi.sys`` on Windows machines, which
-provides the same behaviour for all applications running in terminals. Colorama
-is intended for situations where that isn't easy (e.g., maybe your app doesn't
-have an installer.)
+Further information about features and fixes included in each release: `CHANGELOG </CHANGELOG.rst>`_.
 
-Demo scripts in the source code repository print some colored text using
-ANSI sequences. Compare their output under Gnome-terminal's built in ANSI
-handling, versus on Windows Command-Prompt using Colorama:
-
-.. image:: https://github.com/tartley/colorama/raw/master/screenshots/ubuntu-demo.png
-    :width: 661
-    :height: 357
-    :alt: ANSI sequences on Ubuntu under gnome-terminal.
-
-.. image:: https://github.com/tartley/colorama/raw/master/screenshots/windows-demo.png
-    :width: 668
-    :height: 325
-    :alt: Same ANSI sequences on Windows, using Colorama.
-
-These screenshots show that, on Windows, Colorama does not support ANSI 'dim
-text'; it looks the same as 'normal text'.
-
-Usage
------
-
-Initialisation
-..............
-
-Applications should initialise Colorama using:
-
-.. code-block:: python
-
-    from colorama import init
-    init()
-
-On Windows, calling ``init()`` will filter ANSI escape sequences out of any
-text sent to ``stdout`` or ``stderr``, and replace them with equivalent Win32
-calls.
-
-On other platforms, calling ``init()`` has no effect (unless you request other
-optional functionality, see "Init Keyword Args" below; or if output
-is redirected). By design, this permits applications to call ``init()``
-unconditionally on all platforms, after which ANSI output should just work.
-
-On all platforms, if output is redirected, ANSI escape sequences are completely
-stripped out.
-
-To stop using Colorama before your program exits, simply call ``deinit()``.
-This will restore ``stdout`` and ``stderr`` to their original values, so that
-Colorama is disabled. To resume using Colorama again, call ``reinit()``; it is
-cheaper than calling ``init()`` again (but does the same thing).
-
-
-Colored Output
-..............
-
-Cross-platform printing of colored text can then be done using Colorama's
-constant shorthand for ANSI escape sequences. These are deliberately
-rudimentary, see below.
-
-.. code-block:: python
-
-    from colorama import Fore, Back, Style
-    print(Fore.RED + 'some red text')
-    print(Back.GREEN + 'and with a green background')
-    print(Style.DIM + 'and in dim text')
-    print(Style.RESET_ALL)
-    print('back to normal now')
-
-...or simply by manually printing ANSI sequences from your own code:
-
-.. code-block:: python
-
-    print('\033[31m' + 'some red text')
-    print('\033[39m') # and reset to default color
-
-...or, Colorama can be used in conjunction with existing ANSI libraries
-such as the venerable `Termcolor <https://pypi.org/project/termcolor/>`_
-the fabulous `Blessings <https://pypi.org/project/blessings/>`_,
-or the incredible `_Rich <https://pypi.org/project/rich/>`_.
-
-If you wish Colorama's Fore, Back and Style constants were more capable,
-then consider using one of the above highly capable libraries to generate
-colors, etc, and use Colorama just for its primary purpose: to convert
-those ANSI sequences to also work on Windows:
-
-.. code-block:: python
-
-    from colorama import init
-    from termcolor import colored
-
-    # use Colorama to make Termcolor work on Windows too
-    init()
-
-    # then use Termcolor for all colored text output
-    print(colored('Hello, World!', 'green', 'on_red'))
-
-Available formatting constants are::
-
-    Fore: BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE, RESET.
-    Back: BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE, RESET.
-    Style: DIM, NORMAL, BRIGHT, RESET_ALL
-
-``Style.RESET_ALL`` resets foreground, background, and brightness. Colorama will
-perform this reset automatically on program exit.
-
-
-Cursor Positioning
-..................
-
-ANSI codes to reposition the cursor are supported. See ``demos/demo06.py`` for
-an example of how to generate them.
-
-
-Init Keyword Args
-.................
-
-``init()`` accepts some ``**kwargs`` to override default behaviour.
-
-init(autoreset=False):
-    If you find yourself repeatedly sending reset sequences to turn off color
-    changes at the end of every print, then ``init(autoreset=True)`` will
-    automate that:
-
-    .. code-block:: python
-
-        from colorama import init
-        init(autoreset=True)
-        print(Fore.RED + 'some red text')
-        print('automatically back to default color again')
-
-init(strip=None):
-    Pass ``True`` or ``False`` to override whether ANSI codes should be
-    stripped from the output. The default behaviour is to strip if on Windows
-    or if output is redirected (not a tty).
-
-init(convert=None):
-    Pass ``True`` or ``False`` to override whether to convert ANSI codes in the
-    output into win32 calls. The default behaviour is to convert if on Windows
-    and output is to a tty (terminal).
-
-init(wrap=True):
-    On Windows, Colorama works by replacing ``sys.stdout`` and ``sys.stderr``
-    with proxy objects, which override the ``.write()`` method to do their work.
-    If this wrapping causes you problems, then this can be disabled by passing
-    ``init(wrap=False)``. The default behaviour is to wrap if ``autoreset`` or
-    ``strip`` or ``convert`` are True.
-
-    When wrapping is disabled, colored printing on non-Windows platforms will
-    continue to work as normal. To do cross-platform colored output, you can
-    use Colorama's ``AnsiToWin32`` proxy directly:
-
-    .. code-block:: python
-
-        import sys
-        from colorama import init, AnsiToWin32
-        init(wrap=False)
-        stream = AnsiToWin32(sys.stderr).stream
-
-        # Python 2
-        print >>stream, Fore.BLUE + 'blue text on stderr'
-
-        # Python 3
-        print(Fore.BLUE + 'blue text on stderr', file=stream)
-
-
-Recognised ANSI Sequences
-.........................
-
-ANSI sequences generally take the form::
-
-    ESC [ <param> ; <param> ... <command>
-
-Where ``<param>`` is an integer, and ``<command>`` is a single letter. Zero or
-more params are passed to a ``<command>``. If no params are passed, it is
-generally synonymous with passing a single zero. No spaces exist in the
-sequence; they have been inserted here simply to read more easily.
-
-The only ANSI sequences that Colorama converts into win32 calls are::
-
-    ESC [ 0 m       # reset all (colors and brightness)
-    ESC [ 1 m       # bright
-    ESC [ 2 m       # dim (looks same as normal brightness)
-    ESC [ 22 m      # normal brightness
-
-    # FOREGROUND:
-    ESC [ 30 m      # black
-    ESC [ 31 m      # red
-    ESC [ 32 m      # green
-    ESC [ 33 m      # yellow
-    ESC [ 34 m      # blue
-    ESC [ 35 m      # magenta
-    ESC [ 36 m      # cyan
-    ESC [ 37 m      # white
-    ESC [ 39 m      # reset
-
-    # BACKGROUND
-    ESC [ 40 m      # black
-    ESC [ 41 m      # red
-    ESC [ 42 m      # green
-    ESC [ 43 m      # yellow
-    ESC [ 44 m      # blue
-    ESC [ 45 m      # magenta
-    ESC [ 46 m      # cyan
-    ESC [ 47 m      # white
-    ESC [ 49 m      # reset
-
-    # cursor positioning
-    ESC [ y;x H     # position cursor at x across, y down
-    ESC [ y;x f     # position cursor at x across, y down
-    ESC [ n A       # move cursor n lines up
-    ESC [ n B       # move cursor n lines down
-    ESC [ n C       # move cursor n characters forward
-    ESC [ n D       # move cursor n characters backward
-
-    # clear the screen
-    ESC [ mode J    # clear the screen
-
-    # clear the line
-    ESC [ mode K    # clear the line
-
-Multiple numeric params to the ``'m'`` command can be combined into a single
-sequence::
-
-    ESC [ 36 ; 45 ; 1 m     # bright cyan text on magenta background
-
-All other ANSI sequences of the form ``ESC [ <param> ; <param> ... <command>``
-are silently stripped from the output on Windows.
-
-Any other form of ANSI sequence, such as single-character codes or alternative
-initial characters, are not recognised or stripped. It would be cool to add
-them though. Let me know if it would be useful for you, via the Issues on
-GitHub.
-
-
-Status & Known Problems
------------------------
-
-I've personally only tested it on Windows XP (CMD, Console2), Ubuntu
-(gnome-terminal, xterm), and OS X.
-
-Some presumably valid ANSI sequences aren't recognised (see details below),
-but to my knowledge nobody has yet complained about this. Puzzling.
-
-See outstanding issues and wish-list:
-https://github.com/tartley/colorama/issues
-
-If anything doesn't work for you, or doesn't do what you expected or hoped for,
-I'd love to hear about it on that issues list, would be delighted by patches,
-and would be happy to grant commit access to anyone who submits a working patch
-or two.
-
-If you're hacking on the code, see `README-hacking.md`_.
-
-.. _README-hacking.md: README-hacking.md
-
-
-License
--------
-
-Copyright Jonathan Hartley & Arnon Yaari, 2013-2020. BSD 3-Clause license; see
-LICENSE file.
-
-
-Professional support
---------------------
-
-.. |tideliftlogo| image:: https://cdn2.hubspot.net/hubfs/4008838/website/logos/logos_for_download/Tidelift_primary-shorthand-logo.png
-   :alt: Tidelift
-   :target: https://tidelift.com/subscription/pkg/pypi-colorama?utm_source=pypi-colorama&utm_medium=referral&utm_campaign=readme
-
-.. list-table::
-   :widths: 10 100
-
-   * - |tideliftlogo|
-     - Professional support for colorama is available as part of the
-       `Tidelift Subscription`_.
-       Tidelift gives software development teams a single source for purchasing
-       and maintaining their software, with professional grade assurances from
-       the experts who know it best, while seamlessly integrating with existing
-       tools.
-
-.. _Tidelift Subscription: https://tidelift.com/subscription/pkg/pypi-colorama?utm_source=pypi-colorama&utm_medium=referral&utm_campaign=readme
-
-
-Thanks
-------
-
-* Marc Schlaich (schlamar) for a ``setup.py`` fix for Python2.5.
-* Marc Abramowitz, reported & fixed a crash on exit with closed ``stdout``,
-  providing a solution to issue #7's setuptools/distutils debate,
-  and other fixes.
-* User 'eryksun', for guidance on correctly instantiating ``ctypes.windll``.
-* Matthew McCormick for politely pointing out a longstanding crash on non-Win.
-* Ben Hoyt, for a magnificent fix under 64-bit Windows.
-* Jesse at Empty Square for submitting a fix for examples in the README.
-* User 'jamessp', an observant documentation fix for cursor positioning.
-* User 'vaal1239', Dave Mckee & Lackner Kristof for a tiny but much-needed Win7
-  fix.
-* Julien Stuyck, for wisely suggesting Python3 compatible updates to README.
-* Daniel Griffith for multiple fabulous patches.
-* Oscar Lesta for a valuable fix to stop ANSI chars being sent to non-tty
-  output.
-* Roger Binns, for many suggestions, valuable feedback, & bug reports.
-* Tim Golden for thought and much appreciated feedback on the initial idea.
-* User 'Zearin' for updates to the README file.
-* John Szakmeister for adding support for light colors
-* Charles Merriam for adding documentation to demos
-* Jurko for a fix on 64-bit Windows CPython2.5 w/o ctypes
-* Florian Bruhin for a fix when stdout or stderr are None
-* Thomas Weininger for fixing ValueError on Windows
-* Remi Rampin for better Github integration and fixes to the README file
-* Simeon Visser for closing a file handle using 'with' and updating classifiers
-  to include Python 3.3 and 3.4
-* Andy Neff for fixing RESET of LIGHT_EX colors.
-* Jonathan Hartley for the initial idea and implementation.
+Complete library reference and documentation available at `ReadTheDocs <http://toolium.readthedocs.org>`_.
