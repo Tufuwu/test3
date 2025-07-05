@@ -1,79 +1,68 @@
-# -*- coding: utf-8 -*-
-u"""
-Copyright 2015 Telefónica Investigación y Desarrollo, S.A.U.
-This file is part of Toolium.
+# To increment version
+# Check you have ~/.pypirc filled in
+# git tag x.y.z
+# git push && git push --tags
+# rm -rf dist; python setup.py sdist bdist_wheel
+# TEST: twine upload --repository-url https://test.pypi.org/legacy/ dist/*
+# twine upload dist/*
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+from codecs import open
+import re
 
-    http://www.apache.org/licenses/LICENSE-2.0
+from setuptools import setup, find_packages
+import sys
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-"""
+author = "Danny Price, Ellert van der Velden and contributors"
 
-from setuptools import setup
+with open("README.md", "r") as fh:
+    long_description = fh.read()
 
+with open("requirements.txt", 'r') as fh:
+    requirements = fh.read().splitlines()
 
-def read_file(filepath):
-    with open(filepath) as f:
-        return f.read()
+with open("requirements_test.txt", 'r') as fh:
+    test_requirements = fh.read().splitlines()
 
+# Read the __version__.py file
+with open('hickle/__version__.py', 'r') as f:
+    vf = f.read()
 
-def get_long_description():
-    """Get README content and update rst urls
+# Obtain version from read-in __version__.py file
+version = re.search(r"^_*version_* = ['\"]([^'\"]*)['\"]", vf, re.M).group(1)
 
-    :returns: long description
-    """
-    # Get readme content
-    readme = read_file('README.rst')
-
-    # Change rst urls to ReadTheDocs html urls
-    docs_url = 'http://toolium.readthedocs.org/en/latest'
-    description = readme.replace('/CHANGELOG.rst', '{}/changelog.html'.format(docs_url))
-    for doc in ['driver_configuration', 'page_objects', 'bdd_integration', 'visual_testing', 'tests_result_analysis']:
-        description = description.replace('/docs/{}.rst'.format(doc), '{}/{}.html'.format(docs_url, doc))
-    return description
-
-
-setup(
-    name='toolium',
-    version=read_file('VERSION').strip(),
-    packages=['toolium', 'toolium.pageobjects', 'toolium.pageelements', 'toolium.lettuce', 'toolium.behave',
-              'toolium.utils'],
-    package_data={'': ['resources/VisualTestsTemplate.html', 'resources/VisualTests.js', 'resources/VisualTests.css']},
-    install_requires=read_file('requirements.txt').splitlines(),
-    setup_requires=['pytest-runner'],
-    tests_require=read_file('requirements_dev.txt').splitlines(),
-    test_suite='toolium.test',
-    author='Rubén González Alonso, Telefónica I+D',
-    author_email='ruben.gonzalezalonso@telefonica.com',
-    url='https://github.com/telefonica/toolium',
-    description='Wrapper tool of Selenium and Appium libraries to test web and mobile applications in a single project',
-    long_description=get_long_description(),
-    keywords='selenium appium webdriver web_automation mobile_automation page_object visual_testing bdd lettuce behave pytest',
-    classifiers=[
-        'Development Status :: 4 - Beta',
-        'Intended Audience :: Developers',
-        'Intended Audience :: Other Audience',
-        'License :: OSI Approved :: Apache Software License',
-        'Natural Language :: English',
-        'Operating System :: OS Independent',
-        'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3.3',
-        'Programming Language :: Python :: 3.4',
-        'Programming Language :: Python :: 3.5',
-        'Programming Language :: Python :: 3.6',
-        'Programming Language :: Python :: 3.7',
-        'Programming Language :: Python :: 3.8',
-        'Programming Language :: Python :: 3.9',
-        'Topic :: Software Development :: Libraries :: Python Modules',
-        'Topic :: Software Development :: Quality Assurance',
-        'Topic :: Software Development :: Testing',
-    ],
-    license='Apache 2.0',
+setup(name='hickle',
+      version=version,
+      description='Hickle - an HDF5 based version of pickle',
+      long_description=long_description,
+      long_description_content_type='text/markdown',
+      author=author,
+      author_email='dan@thetelegraphic.com',
+      url='http://github.com/telegraphic/hickle',
+      download_url=('https://github.com/telegraphic/hickle/archive/v%s.zip'
+                    % (version)),
+      platforms='Cross platform (Linux, Mac OSX, Windows)',
+      classifiers=[
+          'Development Status :: 5 - Production/Stable',
+          'Intended Audience :: Developers',
+          'Intended Audience :: Science/Research',
+          'License :: OSI Approved',
+          'Natural Language :: English',
+          'Operating System :: MacOS',
+          'Operating System :: Microsoft :: Windows',
+          'Operating System :: Unix',
+          'Programming Language :: Python',
+          'Programming Language :: Python :: 3',
+          'Programming Language :: Python :: 3.5',
+          'Programming Language :: Python :: 3.6',
+          'Programming Language :: Python :: 3.7',
+          'Programming Language :: Python :: 3.8',
+          'Topic :: Software Development :: Libraries :: Python Modules',
+          'Topic :: Utilities',
+          ],
+      keywords=['pickle', 'hdf5', 'data storage', 'data export'],
+      install_requires=requirements,
+      tests_require=test_requirements,
+      python_requires='>=3.5',
+      packages=find_packages(),
+      zip_safe=False,
 )
