@@ -1,79 +1,106 @@
-checkfiles = tortoise/ examples/ tests/ conftest.py
-black_opts = -l 100 -t py37
-py_warn = PYTHONDEVMODE=1
+# IMPORTANT: for compatibility with `python setup.py make [alias]`, ensure:
+# 1. Every alias is preceded by @[+]make (eg: @make alias)
+# 2. A maximum of one @make alias or command per line
+# see: https://github.com/tqdm/py-make/issues/1
+
+.PHONY:
+	alltests
+	all
+	flake8
+	test
+	pytest
+	testsetup
+	testcoverage
+	testtimer
+	distclean
+	coverclean
+	prebuildclean
+	clean
+	toxclean
+	install_dev
+	install
+	build
+	buildupload
+	pypi
+	help
+	none
+	run
 
 help:
-	@echo  "Tortoise ORM development makefile"
-	@echo
-	@echo  "usage: make <target>"
-	@echo  "Targets:"
-	@echo  "    up      Updates dev/test dependencies"
-	@echo  "    deps    Ensure dev/test dependencies are installed"
-	@echo  "    check	Checks that build is sane"
-	@echo  "    lint	Reports all linter violations"
-	@echo  "    test	Runs all tests"
-	@echo  "    docs 	Builds the documentation"
-	@echo  "    style   Auto-formats the code"
+	@python setup.py make -p
 
-up:
-	@poetry update
+alltests:
+	@+make testcoverage
+	@+make flake8
+	@+make testsetup
 
-deps:
-	@poetry install -E asyncpg -E aiomysql -E docs
+all:
+	@+make alltests
+	@+make build
 
-check: deps build
-ifneq ($(shell which black),)
-	black --check $(black_opts) $(checkfiles) || (echo "Please run 'make style' to auto-fix style issues" && false)
-endif
-	flake8 $(checkfiles)
-	mypy $(checkfiles)
-	pylint -d C,W,R $(checkfiles)
-	bandit -r $(checkfiles)
-	twine check dist/*
+flake8:
+	@+flake8 -j 8 --count --statistics --exit-zero .
 
-lint: deps build
-ifneq ($(shell which black),)
-	black --check $(black_opts) $(checkfiles) || (echo "Please run 'make style' to auto-fix style issues" && false)
-endif
-	flake8 $(checkfiles)
-	mypy $(checkfiles)
-	pylint $(checkfiles)
-	bandit -r $(checkfiles)
-	twine check dist/*
+test:
+	tox --skip-missing-interpreters
 
-test: deps
-	$(py_warn) TORTOISE_TEST_DB=sqlite://:memory: pytest
+pytest:
+	pytest
 
-test_sqlite:
-	$(py_warn) TORTOISE_TEST_DB=sqlite://:memory: pytest --cov-report=
+testsetup:
+	@make help
 
-test_postgres:
-	python -V | grep PyPy || $(py_warn) TORTOISE_TEST_DB="postgres://postgres:$(TORTOISE_POSTGRES_PASS)@127.0.0.1:5432/test_\{\}" pytest --cov-append --cov-report=
+testcoverage:
+	@make coverclean
+	pytest --cov=pymake --cov-report=xml --cov-report=term --cov-fail-under=80
 
-test_mysql_myisam:
-	$(py_warn) TORTOISE_TEST_DB="mysql://root:$(TORTOISE_MYSQL_PASS)@127.0.0.1:3306/test_\{\}?storage_engine=MYISAM" pytest --cov-append --cov-report=
+testtimer:
+	pytest
 
-test_mysql:
-	$(py_warn) TORTOISE_TEST_DB="mysql://root:$(TORTOISE_MYSQL_PASS)@127.0.0.1:3306/test_\{\}" pytest --cov-append --cov-report=
+distclean:
+	@+make coverclean
+	@+make prebuildclean
+	@+make clean
+prebuildclean:
+	@+python -c "import shutil; shutil.rmtree('build', True)"
+	@+python -c "import shutil; shutil.rmtree('dist', True)"
+	@+python -c "import shutil; shutil.rmtree('pymake.egg-info', True)"
+	@+python -c "import shutil; shutil.rmtree('.eggs', True)"
+coverclean:
+	@+python -c "import os; os.remove('.coverage') if os.path.exists('.coverage') else None"
+	@+python -c "import os, glob; [os.remove(i) for i in glob.glob('.coverage.*')]"
+	@+python -c "import shutil; shutil.rmtree('tests/__pycache__', True)"
+	@+python -c "import shutil; shutil.rmtree('pymake/__pycache__', True)"
+	@+python -c "import shutil; shutil.rmtree('examples/__pycache__', True)"
+clean:
+	@+python -c "import os, glob; [os.remove(i) for i in glob.glob('*.py[co]')]"
+	@+python -c "import os, glob; [os.remove(i) for i in glob.glob('tests/*.py[co]')]"
+	@+python -c "import os, glob; [os.remove(i) for i in glob.glob('pymake/*.py[co]')]"
+	@+python -c "import os, glob; [os.remove(i) for i in glob.glob('examples/*.py[co]')]"
+toxclean:
+	@+python -c "import shutil; shutil.rmtree('.tox', True)"
 
-_testall: test_sqlite test_postgres test_mysql_myisam test_mysql
 
-testall: deps _testall
-	coverage report
+install:
+	python -m pip install .
+install_dev:
+	python -m pip install -e .
 
-ci: check testall
+build:
+	@make prebuildclean
+	@make testsetup
+	python -m build
+	python -m twine check dist/*
 
-docs: deps
-	rm -fR ./build
-	sphinx-build -M html docs build
+pypi:
+	python -m twine upload dist/*
 
-style: deps
-	isort -src $(checkfiles)
-	black $(black_opts) $(checkfiles)
+buildupload:
+	@make build
+	@make pypi
 
-build: deps
-	rm -fR dist/
-	poetry build
+none:
+	# used for unit testing
 
-publish: deps build
-	twine upload dist/*
+run:
+	python -Om pymake

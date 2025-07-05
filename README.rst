@@ -1,217 +1,191 @@
-============
-Tortoise ORM
-============
+py-make
+=======
 
-.. image:: https://badges.gitter.im/tortoise/community.png
-   :target: https://gitter.im/tortoise/community
-.. image:: https://img.shields.io/pypi/v/tortoise-orm.svg?style=flat
-   :target: https://pypi.python.org/pypi/tortoise-orm
-.. image:: https://readthedocs.org/projects/tortoise-orm/badge/?version=latest
-   :target: http://tortoise-orm.readthedocs.io/en/latest/
-.. image:: https://pepy.tech/badge/tortoise-orm/month
-   :target: https://pepy.tech/project/tortoise-orm/month
-.. image:: https://github.com/tortoise/tortoise-orm/workflows/ci/badge.svg
-   :target: https://github.com/tortoise/tortoise-orm/actions?query=workflow:ci
-.. image:: https://coveralls.io/repos/github/tortoise/tortoise-orm/badge.svg
-   :target: https://coveralls.io/github/tortoise/tortoise-orm
-.. image:: https://api.codacy.com/project/badge/Grade/b5b77021ba284e4a9e0c033a4611b046
-   :target: https://app.codacy.com/app/Tortoise/tortoise-orm
+|PyPI-Status| |PyPI-Versions|
 
-Introduction
-============
+|Build-Status| |Coverage-Status| |Branch-Coverage-Status| |Codacy-Grade| |Libraries-Rank|
 
-Tortoise ORM is an easy-to-use ``asyncio`` ORM *(Object Relational Mapper)* inspired by Django.
+|DOI-URI| |LICENCE| |OpenHub-Status|
 
-Tortoise ORM was build with relations in mind and admiration for the excellent and popular Django ORM.
-It's engraved in it's design that you are working not with just tables, you work with relational data.
 
-You can find docs at `ReadTheDocs <http://tortoise-orm.readthedocs.io/en/latest/>`_
+Bring basic ``Makefile`` support to any system with Python.
 
-.. note::
-   Tortoise ORM is young project and breaking changes are to be expected.
-   We keep a `Changelog <http://tortoise-orm.readthedocs.io/en/latest/CHANGELOG.html>`_ and it will have possible breakage clearly documented.
+Inspired by work in `tqdm <https://github.com/tqdm/tqdm>`__.
 
-Tortoise ORM is supported on CPython >= 3.7 for SQLite, MySQL and PostgreSQL.
+Simply install then execute ``pymake`` in a directory containing a ``Makefile``.
 
-Why was Tortoise ORM built?
----------------------------
+``pymake`` works on any platform (Linux, Windows, Mac, FreeBSD, Solaris/SunOS).
 
-Python has many existing and mature ORMs, unfortunately they are designed with an opposing paradigm of how I/O gets processed.
-``asyncio`` is relatively new technology that has a very different concurrency model, and the largest change is regarding how I/O is handled.
+``pymake`` does not require any library to run, just a vanilla Python
+interpreter will do.
 
-However, Tortoise ORM is not first attempt of building ``asyncio`` ORM, there are many cases of developers attempting to map synchronous python ORMs to the async world, initial attempts did not have a clean API.
+------------------------------------------
 
-Hence we started Tortoise ORM.
+.. contents:: Table of contents
+   :backlinks: top
+   :local:
 
-Tortoise ORM is designed to be functional, yet familiar, to ease the migration of developers wishing to switch to ``asyncio``.
-
-It also performs well when compared to other Python ORMs, trading places with Pony ORM:
-
-.. image:: https://raw.githubusercontent.com/tortoise/tortoise-orm/develop/docs/ORM_Perf.png
-    :target: https://github.com/tortoise/orm-benchmarks
-
-How is an ORM useful?
----------------------
-
-When you build an application or service that uses a relational database, there is a point when you can't just get away with just using parameterized queries or even query builder, you just keep repeating yourself, writing slightly different code for each entity.
-Code has no idea about relations between data, so you end up concatenating your data almost manually.
-It is also easy to make a mistake in how you access your database, making it easy for SQL-injection attacks to occur.
-Your data rules are also distributed, increasing the complexity of managing your data, and even worse, is applied inconsistently.
-
-An ORM (Object Relational Mapper) is designed to address these issues, by centralising your data model and data rules, ensuring that your data is managed safely (providing immunity to SQL-injection) and keeps track of relationships so you don't have to.
-
-Getting Started
-===============
 
 Installation
 ------------
-First you have to install tortoise like this:
 
-.. code-block:: bash
+Latest PyPI stable release
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    pip install tortoise-orm
+|PyPI-Status| |PyPI-Downloads| |Libraries-Dependents|
 
-You can also install with your db driver (`aiosqlite` is builtin):
+.. code:: sh
 
-.. code-block:: bash
+    pip install py-make
 
-    pip install tortoise-orm[asyncpg]
+Latest development release on GitHub
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+|GitHub-Status| |GitHub-Stars| |GitHub-Commits| |GitHub-Forks| |GitHub-Updated|
 
-Or MySQL:
+Pull and install in the current directory:
 
-.. code-block:: bash
+.. code:: sh
 
-    pip install tortoise-orm[aiomysql]
-
-
-Quick Tutorial
---------------
-
-Primary entity of tortoise is ``tortoise.models.Model``.
-You can start writing models like this:
+    pip install -e git+https://github.com/tqdm/py-make.git@master#egg=py-make
 
 
-.. code-block:: python3
+Changelog
+---------
 
-    from tortoise.models import Model
-    from tortoise import fields
-    
-    class Tournament(Model):
-        id = fields.IntField(pk=True)
-        name = fields.TextField()
-    
-        def __str__(self):
-            return self.name
+The list of all changes is available either on GitHub's Releases:
+|GitHub-Status| or on crawlers such as
+`allmychanges.com <https://allmychanges.com/p/python/py-make/>`_.
 
 
-    class Event(Model):
-        id = fields.IntField(pk=True)
-        name = fields.TextField()
-        tournament = fields.ForeignKeyField('models.Tournament', related_name='events')
-        participants = fields.ManyToManyField('models.Team', related_name='events', through='event_team')
-    
-        def __str__(self):
-            return self.name
+Usage
+-----
+
+Simply install then execute ``pymake -p`` to list commands and ``pymake <command>`` to use a command, in a directory containing a ``Makefile``.
 
 
-    class Team(Model):
-        id = fields.IntField(pk=True)
-        name = fields.TextField()
-    
-        def __str__(self):
-            return self.name
+Known Issues
+------------
+
+For compatibility, ensure:
+
+1. Every alias is preceded by @[+]make (eg: @make alias)
+2. A maximum of one @make alias or command per line
+
+A full list of what is and is not supported is on the
+`issue tracker <https://github.com/tqdm/py-make/issues/1>`__.
+
+Sample makefile compatible with ``pymake``:
+
+.. code:: sh
+
+    PY=python -m py_compile
+    .PHONY:
+    	all
+    	test
+        install
+        compile
+    all:
+    	@+make test
+    	@make install
+    test:
+    	pytest
+    install:
+    	python setup.py\
+        install
+    compile:
+    	$(PY) test.py
+    circle:
+    	# of life
+    	circle
+    empty:
+    	# this is a comment
+
+If you get a "Permission Denied" error, please check if maybe your antivirus may be preventing the launch of compiled python scripts, if the Scripts subdirectory is in the PATH, or `other issues with the Python install <https://stackoverflow.com/questions/56974927/permission-denied-trying-to-run-python-on-windows-10>`__.
+
+Documentation
+-------------
+
+|PyPI-Versions| |README-Hits| (Since 28 Oct 2016)
+
+.. code:: sh
+
+    pymake --help
 
 
-After you defined all your models, tortoise needs you to init them, in order to create backward relations between models and match your db client with appropriate models.
+Contributions
+-------------
 
-You can do it like this:
+|GitHub-Commits| |GitHub-Issues| |GitHub-PRs| |OpenHub-Status|
 
-.. code-block:: python3
+All source code is hosted on `GitHub <https://github.com/tqdm/py-make>`__.
+Contributions are welcome.
 
-    from tortoise import Tortoise
-
-    async def init():
-        # Here we connect to a SQLite DB file.
-        # also specify the app name of "models"
-        # which contain models from "app.models"
-        await Tortoise.init(
-            db_url='sqlite://db.sqlite3',
-            modules={'models': ['app.models']}
-        )
-        # Generate the schema
-        await Tortoise.generate_schemas()
+See the
+`CONTRIBUTING.md <https://raw.githubusercontent.com/tqdm/py-make/master/CONTRIBUTING.md>`__
+file for more information.
 
 
-Here we create connection to SQLite database in the local directory called ``db.sqlite3``, and then we discover & initialise models.
+LICENCE
+-------
 
-Tortoise ORM currently supports the following databases:
+Open Source (OSI approved): |LICENCE|
 
-* SQLite (requires ``aiosqlite``)
-* PostgreSQL (requires ``asyncpg``)
-* MySQL (requires ``aiomysql``)
-
-``generate_schema`` generates the schema on an empty database. Tortoise generates schemas in safe mode by default which
-includes the ``IF NOT EXISTS`` clause, so you may include it in your main code.
+Citation information: |DOI-URI|
 
 
-After that you can start using your models:
+Authors
+-------
 
-.. code-block:: python3
+The main developers, ranked by surviving lines of code
+(`git fame -wMC <https://github.com/casperdcl/git-fame>`__), are:
 
-    # Create instance by save
-    tournament = Tournament(name='New Tournament')
-    await tournament.save()
-    
-    # Or by .create()
-    await Event.create(name='Without participants', tournament=tournament)
-    event = await Event.create(name='Test', tournament=tournament)
-    participants = []
-    for i in range(2):
-        team = await Team.create(name='Team {}'.format(i + 1))
-        participants.append(team)
-    
-    # M2M Relationship management is quite straightforward
-    # (also look for methods .remove(...) and .clear())
-    await event.participants.add(*participants)
-    
-    # You can query related entity just with async for
-    async for team in event.participants:
-        pass
-    
-    # After making related query you can iterate with regular for,
-    # which can be extremely convenient for using with other packages,
-    # for example some kind of serializers with nested support
-    for team in event.participants:
-        pass
+- Stephen Larroque (`lrq3000 <https://github.com/lrq3000>`__, core logic)
+- Casper da Costa-Luis (`casperdcl <https://github.com/casperdcl>`__, modularization & maintenance)
 
+We are grateful for all |GitHub-Contributions|.
 
-    # Or you can make preemptive call to fetch related objects
-    selected_events = await Event.filter(
-        participants=participants[0].id
-    ).prefetch_related('participants', 'tournament')
-    
-    # Tortoise supports variable depth of prefetching related entities
-    # This will fetch all events for team and in those events tournaments will be prefetched
-    await Team.all().prefetch_related('events__tournament')
-    
-    # You can filter and order by related models too
-    await Tournament.filter(
-        events__name__in=['Test', 'Prod']
-    ).order_by('-events__participants__name').distinct()
+|README-Hits| (Since 28 Oct 2016)
 
-Migration
-=========
-
-Tortoise ORM use `Aerich <https://github.com/tortoise/aerich>`_ as database migrations tool, see more detail at it's `docs <https://tortoise-orm.readthedocs.io/en/latest/migration.html>`_.
-
-Contributing
-============
-
-Please have a look at the `Contribution Guide <docs/CONTRIBUTING.rst>`_
-
-
-License
-=======
-
-This project is licensed under the Apache License - see the `LICENSE.txt <LICENSE.txt>`_ file for details
+.. |Build-Status| image:: https://img.shields.io/github/actions/workflow/status/tqdm/py-make/test.yml?branch=master&label=py-make&logo=GitHub
+   :target: https://github.com/tqdm/py-make/actions/workflows/test.yml
+.. |Coverage-Status| image:: https://coveralls.io/repos/tqdm/py-make/badge.svg?branch=master
+   :target: https://coveralls.io/github/tqdm/py-make
+.. |Branch-Coverage-Status| image:: https://codecov.io/gh/tqdm/py-make/branch/master/graph/badge.svg
+   :target: https://codecov.io/gh/tqdm/py-make
+.. |Codacy-Grade| image:: https://api.codacy.com/project/badge/Grade/1f1dab515f294a05af8fc45e200660e5
+   :target: https://www.codacy.com/app/tqdm/py-make/dashboard
+.. |GitHub-Status| image:: https://img.shields.io/github/tag/tqdm/py-make.svg?maxAge=86400&logo=github&logoColor=white
+   :target: https://github.com/tqdm/py-make/releases
+.. |GitHub-Forks| image:: https://img.shields.io/github/forks/tqdm/py-make.svg?logo=github&logoColor=white
+   :target: https://github.com/tqdm/py-make/network
+.. |GitHub-Stars| image:: https://img.shields.io/github/stars/tqdm/py-make.svg?logo=github&logoColor=white
+   :target: https://github.com/tqdm/py-make/stargazers
+.. |GitHub-Commits| image:: https://img.shields.io/github/commit-activity/y/tqdm/py-make.svg?logo=git&logoColor=white
+   :target: https://github.com/tqdm/py-make/graphs/commit-activity
+.. |GitHub-Issues| image:: https://img.shields.io/github/issues-closed/tqdm/py-make.svg?logo=github&logoColor=white
+   :target: https://github.com/tqdm/py-make/issues
+.. |GitHub-PRs| image:: https://img.shields.io/github/issues-pr-closed/tqdm/py-make.svg?logo=github&logoColor=white
+   :target: https://github.com/tqdm/py-make/pulls
+.. |GitHub-Contributions| image:: https://img.shields.io/github/contributors/tqdm/py-make.svg?logo=github&logoColor=white
+   :target: https://github.com/tqdm/py-make/graphs/contributors
+.. |GitHub-Updated| image:: https://img.shields.io/github/last-commit/tqdm/py-make/master.svg?logo=github&logoColor=white&label=pushed
+   :target: https://github.com/tqdm/py-make/pulse
+.. |PyPI-Status| image:: https://img.shields.io/pypi/v/py-make.svg
+   :target: https://pypi.org/project/py-make
+.. |PyPI-Downloads| image:: https://img.shields.io/pypi/dm/py-make.svg?label=pypi%20downloads&logo=python&logoColor=white
+   :target: https://pypi.org/project/py-make
+.. |PyPI-Versions| image:: https://img.shields.io/pypi/pyversions/py-make.svg?logo=python&logoColor=white
+   :target: https://pypi.org/project/py-make
+.. |Libraries-Rank| image:: https://img.shields.io/librariesio/sourcerank/pypi/py-make.svg?logo=koding&logoColor=white
+   :target: https://libraries.io/pypi/py-make
+.. |Libraries-Dependents| image:: https://img.shields.io/librariesio/dependent-repos/pypi/py-make.svg?logo=koding&logoColor=white
+    :target: https://github.com/tqdm/py-make/network/dependents
+.. |OpenHub-Status| image:: https://www.openhub.net/p/tqdm_py-make/widgets/project_thin_badge?format=gif
+   :target: https://www.openhub.net/p/tqdm_py-make?ref=Thin+badge
+.. |LICENCE| image:: https://img.shields.io/pypi/l/py-make.svg
+   :target: https://raw.githubusercontent.com/tqdm/py-make/master/LICENCE
+.. |DOI-URI| image:: https://img.shields.io/badge/DOI-10.5281/zenodo.2546871-blue.svg
+   :target: https://doi.org/10.5281/zenodo.2546871
+.. |README-Hits| image:: https://caspersci.uk.to/cgi-bin/hits.cgi?q=py-make&style=social&r=https://github.com/tqdm/py-make
+   :target: https://caspersci.uk.to/cgi-bin/hits.cgi?q=py-make&a=plot&r=https://github.com/tqdm/py-make&style=social
