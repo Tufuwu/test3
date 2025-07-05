@@ -145,7 +145,7 @@ jobs:
           cat $GITHUB_WORKSPACE/apt_list
 
       - name: Cache GDAL binaries
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         with:
           path: gdalinstall
           key: ${{ runner.os }}-gdal-${{ matrix.GDALVERSION }}-proj-${{ matrix.PROJVERSION }}-${{ hashFiles('**/apt_list') }}
