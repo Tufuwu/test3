@@ -1,229 +1,256 @@
-Themix GUI theme designer
-=====
+# pymysensors [![Build Status][build-badge]][build]
 
-[![Build Status](https://travis-ci.com/themix-project/oomox.svg?branch=master)](https://travis-ci.org/themix-project/oomox)
+Python API for talking to a [MySensors gateway](http://www.mysensors.org/). Currently supports serial protocol v1.4, v1.5, v2.0 - v2.2. Not all features of v2.x are implemented yet.
 
-Graphical application for generating different color variations of Oomox (Numix-based) and Materia (ex-Flat-Plat) themes (GTK2, GTK3, Cinnamon, GNOME, Openbox, Xfwm), Archdroid, Gnome-Color, Numix, Papirus and Suru++ icon themes. Have a hack for HiDPI in gtk2.
+- Supports smartsleep with serial API v2.x.
+- Supports the MQTT client gateway with serial API v2.x.
+- Supports OTA updates, for both [DualOptiboot](https://github.com/mysensors/DualOptiboot) and [MYSBootloader](https://github.com/mysensors/MySensorsBootloaderRF24) bootloaders.
+- All gateway instances, serial, tcp (ethernet) or mqtt will run in separate threads.
+- As an alternative to running the gateway in its own thread, there are experimental implementations of all gateways using asyncio.
 
-<a href="https://aur.archlinux.org/packages/themix-full-git"><img src="https://raw.githubusercontent.com/themix-project/oomox/master/packaging/download_aur.png" height="54"></a>
-<a href="#debian-ubuntu-linux-mint"><img src="https://raw.githubusercontent.com/themix-project/oomox/master/packaging/download_deb.png" height="54"></a>
-<a href="https://slackbuilds.org/repository/14.2/desktop/oomox/"><img src="https://raw.githubusercontent.com/themix-project/oomox/master/packaging/download_slackware.png" height="54"></a>
-<a href="https://flathub.org/apps/details/com.github.themix_project.Oomox"><img src="https://flathub.org/assets/badges/flathub-badge-en.png" height="54"></a>
+## Requirements
 
-
-Table of contents:
-  * [Installing with package manager](#installation "")
-  * [Installing manually](#other-distributions "")
-  * [Using with tiling WMs](#using-with-tiling-wms "")
-  * [Extra GTK3 CSS hacks](#extra-gtk3-css-hacks "")
-  * [Spotify](#spotify "")
-  * [Review videos/Usage instructions](#review-articles-and-videos "")
-
-![Screenshot image import](https://raw.githubusercontent.com/themix-project/oomox/master/screenshots/pokedex_dawn.png "Screenshot image import")
-
-![Screenshot GUI](https://raw.githubusercontent.com/themix-project/oomox/master/screenshots/screenshot_gui.png "Screenshot GUI")
-
-[Big screenshot with number of generated themes 🔗](http://orig15.deviantart.net/e1ee/f/2016/320/1/9/oomox_1_0_rc1_by_actionless-daomhmd.jpg)
-
-[Latest Oomox GTK theme screenshots 🔗](https://github.com/themix-project/oomox-gtk-theme/tree/master/screenshots)
-
-
+pymysensors requires Python 3.5.3+.
 
 ## Installation
 
+You can easily install it from PyPI:
 
+```pip3 install pymysensors```
 
-### Arch Linux
+## Usage
 
-#### Install
+Currently the API is best used by implementing a callback handler
 
+```py
+import mysensors.mysensors as mysensors
+
+def event(message):
+    """Callback for mysensors updates."""
+    print('sensor_update ' + str(message.node_id))
+
+GATEWAY = mysensors.SerialGateway('/dev/ttyACM0', event)
+GATEWAY.start()
 ```
-pikaur -S themix-full-git
+
+In the above example pymysensors will call "event" whenever a node in the Mysensors network has been updated. The message passed to the callback handler has the following data:
+
+```txt
+Message
+    gateway - the gateway instance
+    node_id - the sensor node identifier
+    child_id - the child sensor id
+    type - the message type, for example "set" or "presentation" (int)
+    ack - True is message was an ACK, false otherwise (0 or 1)
+    sub_type - the message sub_type (int)
+    payload - the payload of the message (string)
 ```
 
-AUR helpers are [not officially supported](https://wiki.archlinux.org/index.php/AUR_helpers), so you can also [install it manually](https://wiki.archlinux.org/index.php/Arch_User_Repository#Installing_packages) from either [rolling-release](https://aur.archlinux.org/packages/themix-full-git/) or [stable](https://aur.archlinux.org/packages/oomox/) PKGBUILD.
+_Note: The content of the sub_type differs according to the context. In presentation messages, the sub_type denotes S_TYPE data (such as S_INFO). In 'set' and 'req' messages the sub_type denotes V_TYPE data (such as V_TEXT)._
 
-#### Open the GUI
+Symbolic names for the Message types and sub_types are defined in the protocol version-specific const_X.py files.
 
+The data structure of a gateway and it's network is described below.
+
+```txt
+SerialGateway/TCPGateway/MQTTGateway
+    sensors - a dict containing all nodes for the gateway; node is of type Sensor
+
+Sensor - a sensor node
+    children - a dict containing all child sensors for the node
+    sensor_id - node id on the MySensors network
+    type - 17 for node or 18 for repeater
+    sketch_name
+    sketch_version
+    battery_level
+    protocol_version - the mysensors protocol version used by the node
+
+ChildSensor - a child sensor
+    id - child id on the parent node
+    type - data type, S_HUM, S_TEMP etc.
+    description - the child description sent when presenting the child
+    values - a dictionary of values (V_HUM, V_TEMP, etc.)
 ```
-oomox-gui
+
+Getting the type and values of node 23, child sensor 4 would be performed as follows:
+
+```py
+s_type = GATEWAY.sensors[23].children[4].type
+values = GATEWAY.sensors[23].children[4].values
 ```
 
+Similarly, printing all the sketch names of the found nodes could look like this:
 
+```py
+for node in GATEWAY.sensors.values():
+    print(node.sketch_name)
+```
 
-### Debian, Ubuntu, Linux Mint
+Getting a child object inside the event function could be:
 
-For Debian 9+, Ubuntu 17.04+ or Linux Mint 19+ you can download `oomox.deb` package here:
-https://github.com/themix-project/oomox/releases
-Make sure what `universe` repository is enabled.
+```py
+    if GATEWAY.is_sensor(message.node_id, message.child_id):
+        child = GATEWAY.sensors[message.node_id].children[message.child_id]
+    else:
+        print("Child not available yet.")
+```
+
+To update a node child sensor value and send it to the node, use the set_child_value method in the Gateway class:
+
+```py
+# To set sensor 1 (int), child 1 (int), sub-type V_LIGHT (= 2) (int), with value 1.
+GATEWAY.set_child_value(1, 1, 2, 1)
+```
+
+### Persistence
+
+With persistence mode on, you can restart the gateway without
+having to restart each individual node in your sensor network. To enable persistence mode, the keyword argument `persistence`
+in the constructor should be True. A path to the config file
+can be specified as the keyword argument `persistence_file`. The file type (.pickle or .json) will set which persistence protocol to use, pickle or json. JSON files can be read using a normal text editor. Saving to the persistence file will be done on a schedule every 10 seconds if an update has been done since the last save. Make sure you start the persistence saving before starting the gateway.
+
+```py
+GATEWAY.start_persistence()
+```
+
+### Protocol version
+
+Set the keyword argument `protocol_version` to set which version of the MySensors serial API to use. The default value is `'1.4'`. Set the `protocol_version` to the version you're using.
+
+### Serial gateway
+
+The serial gateway also supports setting the baudrate, read timeout and reconnect timeout.
+
+```py
+import mysensors.mysensors as mysensors
+
+def event(message):
+    """Callback for mysensors updates."""
+    print("sensor_update " + str(message.node_id))
+
+GATEWAY = mysensors.SerialGateway(
+  '/dev/ttyACM0', baud=115200, timeout=1.0, reconnect_timeout=10.0,
+  event_callback=event, persistence=True,
+  persistence_file='somefolder/mysensors.pickle', protocol_version='2.2')
+GATEWAY.start_persistence() # optional, remove this line if you don't need persistence.
+GATEWAY.start()
+```
+
+There are two other gateway types supported besides the serial gateway: the tcp-ethernet gateway and the MQTT gateway.
+
+### TCP ethernet gateway
+
+The ethernet gateway is initialized similar to the serial gateway. The ethernet gateway supports setting the tcp host port, receive timeout and reconnect timeout, besides the common settings and the host ip address.
+
+```py
+GATEWAY = mysensors.TCPGateway(
+  '127.0.0.1', port=5003, timeout=1.0, reconnect_timeout=10.0,
+  event_callback=event, persistence=True,
+  persistence_file='somefolder/mysensors.pickle', protocol_version='1.4')
+```
+
+### MQTT gateway
+
+The MQTT gateway requires MySensors serial API v2.0 or greater and the MQTT client gateway example sketch loaded in the gateway device. The gateway also requires an MQTT broker and a python MQTT client interface to the broker. See [mqtt.py](https://github.com/theolind/pymysensors/blob/master/mqtt.py) for an example of how to implement this and initialize the MQTT gateway.
+
+### Over the air (OTA) firmware updates
+
+Call `Gateway` method `update_fw` to set one or more nodes for OTA
+firmware update. The method takes three positional arguments and one
+keyword arguement. The first argument should be the node id of the node to
+update. This can also be a list of many node ids. The next two arguments should
+be integers representing the firwmare type and version. The keyword argument is
+optional and should be a path to a hex file with the new firmware.
+
+```py
+GATEWAY.update_fw([1, 2], 1, 2, fw_path='/path/to/firmware.hex')
+```
+
+After the `update_fw` method has been called the node(s) will be requested
+to restart when pymysensors Gateway receives the next set message. After
+restart and during the MySensors `begin` method, the node will send a firmware
+config request. The pymysensors library will respond to the config request. If
+the node receives a proper firmware config response it will send a firmware
+request for a block of firmware. The pymysensors library will handle this and
+send a firmware response message. The latter request-response conversation will
+continue until all blocks of firmware are sent. If the CRC of the transmitted
+firmware match the CRC of the firmware config response, the node will restart
+and load the new firmware.
+
+### Gateway id
+
+The gateway method `get_gateway_id` will try to return a unique id for the
+gateway. This will be the serial number of the usb device for serial gateways,
+the mac address of the connected gateway for tcp gateways or the publish topic
+prefix (in_prefix) for mqtt gateways.
+
+### Connection callbacks
+
+It's possible to register two optional callbacks on the gateway that are called
+when the connection is made and when the connection is lost to the gateway
+device. Both callbacks should accept a gateway parameter, which is the gateway
+instance. The connection lost callback should also accept a second parameter
+for possible connection error exception argument. If connection was lost
+without error, eg when disconnecting, the error argument will be `None`.
+
+**NOTE:**
+The MQTT gateway doesn't support these callbacks since the connection to the
+MQTT broker is handled outside of pymysensors.
+
+```py
+def conn_made(gateway):
+  """React when the connection is made to the gateway device."""
+  pass
+
+GATEWAY.on_conn_made = conn_made
+
+def conn_lost(gateway, error):
+  """React when the connection is lost to the gateway device."""
+  pass
+
+GATEWAY.on_conn_lost = conn_lost
+```
+
+### Async gateway
+
+The serial, TCP and MQTT gateways now also have versions that support asyncio. Use the
+`AsyncSerialGateway` class, `AsyncTCPGateway` class or `AsyncMQTTGateway` class to make a gateway that
+uses asyncio. The following public methods are coroutines in the async gateway:
+
+- get_gateway_id
+- start_persistence
+- start
+- stop
+- update_fw
+
+See [async_main.py](https://github.com/theolind/pymysensors/blob/master/async_main.py) for an example of how to use this gateway.
+
+## Development
+
+Install the packages needed for development.
 
 ```sh
-sudo apt install ./oomox_VERSION_17.04+.deb  # or ./oomox_VERSION_18.10+.deb for Ubuntu 18.10+
+pip install -r requirements_dev.txt
 ```
 
-Or, if you don't want to install third-party binary package you can build it on your own:
+Use the Makefile to run common development tasks.
 
 ```sh
-# with docker:
-sudo systemctl start docker
-sudo ./packaging/ubuntu/docker_ubuntu_package.sh  # sudo is not needed if your user is in docker group
-
-# or directly from ubuntu host if you don't like docker:
-./packaging/ubuntu/create_ubuntu_package.sh control
-# or ./packaging/ubuntu/create_ubuntu_package.sh control_1810
+make
 ```
 
+### Code formatting
 
-For older releases install the dependencies manually and next follow general installation instructions [below](#installation-1 "").
- - [List of dependencies](https://github.com/themix-project/oomox/blob/master/packaging/ubuntu/control#L5)
- - [How to install `sassc>=3.4`](https://askubuntu.com/questions/849057/how-to-install-libsass-on-ubuntu-16-04)
-
-
-
-### Other distributions
-
-
-#### Prerequisites
-
-For GUI app itself:
- - `python3-gobject`
- - `gtk3>=3.18`
- - `gdk-pixbuf2`
-
-##### For plugins:
-
-Oomox theme:
- - `sassc>=3.4`
- - `rsvg-convert` from `librsvg`
- - `glib-compile-schemas` from `glib2`
- - `gdk-pixbuf2`
- - `bc`
- - `sed`
- - `find`
- - `grep`
-
-Materia theme:
- - `sassc>=3.4`
- - `glib-compile-schemas` from `glib2`
- - `gdk-pixbuf2`
- - `sed`
- - `find`
- - `grep`
- - `optipng`
- - `gtk2-engine-murrine`
- - `resvg` or `inkscape`
- - `parallel`
- - `meson`
-
-Gnome-Colors icons:
- - `bc`
- - `sed`
- - `find`
- - `grep`
- - `rsvg-convert` from `librsvg`
- - `imagemagick`
- - `breeze-icons` - optional, to provide more fallbacks
-
-Archdroid, Papirus and Suru++ icons:
- - `sed`
- - `find`
- - `breeze-icons` - optional for Archdroid, to provide more fallbacks
-
-Spotify theme:
- - `polkit` or `gksu`
- - `zip`
- - `bc`
- - `grep`
-
-Import colors from images:
- - `python3 PIL or Pillow`
-
-Base16 format support:
- - `python3 pystache`
- - `python3 yaml`
-
-Xresources import:
- - `xorg-xrdb` - optional, for xresources themes
-
-
-#### Installation
+We use black code formatter to automatically format the code.
+This requires Python 3.6 for development.
 
 ```sh
-git clone https://github.com/themix-project/oomox.git --recursive
-cd oomox
-# if you need to generate locales:
-make -f po.mk install
+black ./
 ```
 
-#### Running
+### Release
 
-```sh
-./gui.sh
-```
+See the [release instructions](RELEASE.md).
 
-After exporting a theme select the generated theme (oomox-YOUR-THEME-NAME) in your appearance config tool (for example, _lxappearance_ or _gnome-tweak-tool_).
-
-
-### CLI
-
-If your prefer CLI interface, refer to `change_color.sh` scripts inside `./plugins/`. For `xresources` and `random` themes in CLI use palettes from `/opt/oomox/scripted_colors/` directory. Using scripted palettes enables you to use bash to write simple generators for dynamic themes (as alternative to plugins in oomox-gui). GUI is not attempting to execute any scripted palettes with bash because downloading such scripted themes from random places could lead to unexpected result so you can use them only with CLI, when you really know what you're doing.
-
-
-
-#### Spotify:
-
-Spotify theme can be also exported from GUI, but if you prefer commandline interface:
-
-```sh
-./plugins/oomoxify/oomoxify.sh ./colors/gnome-colors/shiki-noble
-```
-
-Also you can normalize font weight with `-w` argument, see `-h` for usage.
-
-Spotify theme settings are backed up to `~/.config/oomox/spotify_backup`. To undo the changes made by oomoxify, these files can be copied back to their original location `/usr/share/spotify/Apps`. Spotify can also be reinstalled, which will reset these files as well.
-
-Users running Spotify under Flatpak should set their "Spotify path" in oomox to `/var/lib/flatpak/app/com.spotify.Client/current/active/files/extra/share/spotify/Apps` in order to apply the theme.
-
-
-### Using with tiling WMs
-
-Create/append to `~/.config/gtk-3.0/gtk.css`:
-
-```css
-/* remove window title from Client-Side Decorations */
-.solid-csd headerbar .title {
-    font-size: 0;
-}
-
-/* hide extra window decorations/double border */
-window decoration {
-    margin: 0;
-    border: none;
-    padding: 0;
-}
-```
-
-
-### Extra GTK3 CSS hacks
-
-Create/append to `~/.config/gtk-3.0/gtk.css`:
-
-```css
-* {
-  text-shadow: none;
-}
-```
-
-
-### Review articles and videos
-
-To learn more about using the application you can check these sources:
-
-  * 2019, [Customizing icon themes animated tutorial](https://github.com/themix-project/oomox/wiki/Customizing-icon-themes)
-  * 2019, [How to contribute your theme from Github website](https://github.com/themix-project/oomox/wiki/How-to-contribute-your-theme-from-Github-website)
-  * 2019, [How to import and export Base16 themes in Themix/Oomox](https://github.com/themix-project/oomox/wiki/How-to-import-and-export-Base16-themes-in-Themix-Oomox)
-  * 2018, https://www.youtube.com/watch?v=XO9QA1njIOM by AddictiveTips
-  * https://delightlylinux.wordpress.com/2016/08/22/customize-theme-colors-with-oomox/
-  * 2016, https://www.youtube.com/watch?v=Dh5TuIYQ6jo by Spatry
-  * http://www.webupd8.org/2016/05/easily-create-your-own-numix-based-gtk.html
-  * http://www.webupd8.org/2016/06/tool-to-customize-numix-theme-colors.html
+[build-badge]: https://github.com/theolind/pymysensors/workflows/Test/badge.svg
+[build]: https://github.com/theolind/pymysensors/actions

@@ -1,28 +1,64 @@
-# Ignore Backup Copies from Text Editor
-*~
-*.swp
+#PyCharm
+.idea/
 
-# Ignore SASS files
-.sass-cache
-gtk.gresource
-dist
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
 
-# python stuff
-__pycache__
-.mypy_cache/
+# C extensions
+*.so
 
-# pkgbuild
-oomox/
-pkg/
-*.tar.xz
-oomox_*.deb
+# Distribution / packaging
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
 
-# gettext stuff
-locale/
-po/oomox.pot
-po/*.mo
+# PyInstaller
+#  Usually these files are written by a python script from a template
+#  before PyInstaller builds the exe, so as to inject date/other infos into it.
+*.manifest
+*.spec
 
-# temporary/dev files
-dumpster/
-colors/randomized/
-colors/test/
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.coverage
+.cache
+.pytest_cache/
+nosetests.xml
+coverage.xml
+
+# Translations
+*.mo
+*.pot
+
+# Django stuff:
+*.log
+
+# Sphinx documentation
+docs/_build/
+
+# PyBuilder
+target/
+
+# pickle files (serialized python object)
+*.pickle
+
+# json files (persistence)
+*.json
