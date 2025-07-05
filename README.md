@@ -1,65 +1,156 @@
-# [django-pattern-library](https://torchbox.github.io/django-pattern-library/)
+## wagtail-markdown: Markdown fields and blocks for Wagtail
 
-[![PyPI](https://img.shields.io/pypi/v/django-pattern-library.svg)](https://pypi.org/project/django-pattern-library/) [![PyPI downloads](https://img.shields.io/pypi/dm/django-pattern-library.svg)](https://pypi.org/project/django-pattern-library/) [![Build status](https://github.com/torchbox/django-pattern-library/workflows/CI/badge.svg)](https://github.com/torchbox/django-pattern-library/actions) [![Total alerts](https://img.shields.io/lgtm/alerts/g/torchbox/django-pattern-library.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/torchbox/django-pattern-library/alerts/)
+[![Build status](https://img.shields.io/github/workflow/status/torchbox/wagtail-markdown/CI/main?style=for-the-badge)](https://github.com/torchbox/wagtail-markdown/actions)
+[![PyPI](https://img.shields.io/pypi/v/wagtail-markdown.svg?style=for-the-badge)](https://pypi.org/project/wagtail-markdown/)
+[![black](https://img.shields.io/badge/code%20style-black-000000.svg?style=for-the-badge)](https://github.com/psf/black)
+[![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white&style=for-the-badge)](https://github.com/pre-commit/pre-commit)
 
-> UI pattern libraries for Django templates. Try our [online demo](https://torchbox.github.io/django-pattern-library/demo/pattern-library/).
 
-![Screenshot of the pattern library UI, with navigation, pattern rendering, and configuration](https://raw.githubusercontent.com/torchbox/django-pattern-library/master/.github/pattern-library-screenshot.webp)
+Tired of annoying rich text editors getting in the way of your content
+input?  Wish Wagtail worked more like a wiki?  Well, now it can.
 
-## Features
+`wagtail-markdown` provides Markdown field support for [Wagtail](https://github.com/torchbox/wagtail/).
+Specifically, it provides:
 
-This package automates the maintenance of UI pattern libraries or styleguides for Django projects, and allows developers to experiment with Django templates without having to create Django views and models.
+* A `wagtailmarkdown.blocks.MarkdownBlock` for use in streamfields.
+* A `wagtailmarkdown.fields.MarkdownField` for use in page models.
+* A `wagtailmarkdown.edit_handlers.MarkdownPanel` for use in the editor interface.
+* A `markdown` template tag.
 
-- Create reusable patterns by creating Django templates files as usual.
-- All patterns automatically show up in the pattern library’s interface.
-- Define data as YAML files for the templates to render with the relevant Django context.
-- Override Django templates tags as needed to mock the template’s dependencies.
-- Document your patterns with Markdown.
+The markdown rendered is based on `python-markdown`, but with several
+extensions to make it actually useful in Wagtail:
 
-## Why you need this
+* Tables.
+* [Code highlighting](#syntax-highlighting).
+* Inline links to pages (`<:My page name|link title>`) and documents
+  (`<:doc:My fancy document.pdf>`), and inline images
+  (`<:image:My pretty image.jpeg>`).
+* Inline Markdown preview using [EasyMDE](https://github.com/Ionaru/easy-markdown-editor)
 
-Pattern libraries will change your workflow for the better:
+These are implemented using the `python-markdown` extension interface.
 
-- They help separate concerns, both in code, and between members of a development team.
-- If needed, they make it possible for UI development to happen before models and views are created.
-- They encourage code reuse – defining independent UI components, that can be reused across apps, or ported to other projects.
-- It makes it much simpler to test UI components – no need to figure out where they’re used across a site or app.
+You can configure wagtail-markdown to use additional Markdown extensions using the `WAGTAILMARKDOWN_EXTENSIONS` setting.
 
-Learn more by watching our presentation – [Reusable UI components: A journey from React to Wagtail](https://www.youtube.com/watch?v=isrOufI7TKc).
+For example, to enable the [Table of
+Contents](https://python-markdown.github.io/extensions/toc/) and [Sane
+Lists](https://python-markdown.github.io/extensions/sane_lists/) extensions:
+```python
+WAGTAILMARKDOWN_EXTENSIONS = ["toc", "sane_lists"]
+```
 
-## Online demo
+Extensions can be configured too:
 
-The pattern library is dependent on Django for rendering – but also supports exporting as a static site if needed. Try out our online demo:
+```python
+WAGTAILMARKDOWN_EXTENSIONs_CONFIG = {'pymdownx.arithmatex': {'generic': True}}
+```
 
-- For a component, [accordion.html](https://torchbox.github.io/django-pattern-library/demo/pattern-library/pattern/patterns/molecules/accordion/accordion.html)
-- For a page-level template, [person_page.html](https://torchbox.github.io/django-pattern-library/demo/pattern-library/pattern/patterns/pages/people/person_page.html)
+### Installation
+Available on PyPi - https://pypi.org/project/wagtail-markdown/ - installable via `pip install wagtail-markdown`.
 
-## Documentation
+The EasyMDE editor is compatible with [FontAwesome 5](https://fontawesome.com/how-to-use/graphql-api/intro/getting-started).
+By default EasyMDE will get version 4.7.0 from a CDN. To specify your own version, set
+`WAGTAILMARKDOWN_AUTODOWNLOAD_FONTAWESOME = False` in your settings.
 
-Documentation is available at [torchbox.github.io/django-pattern-library](https://torchbox.github.io/django-pattern-library/), with source files in the `docs` directory.
+Then get the desired FontAwesome version. For the latest version you can use:
 
-- **[Getting started](https://torchbox.github.io/django-pattern-library/getting-started/)**
-- **Guides**
-  - [Defining template context](https://torchbox.github.io/django-pattern-library/guides/defining-template-context/)
-  - [Overriding template tags](https://torchbox.github.io/django-pattern-library/guides/overriding-template-tags/)
-  - [Customizing template rendering](https://torchbox.github.io/django-pattern-library/guides/customizing-template-rendering/)
-  - [Usage tips](https://torchbox.github.io/django-pattern-library/guides/usage-tips/)
-- **Reference**
-  - [API & settings](https://torchbox.github.io/django-pattern-library/reference/api/)
-  - [Known issues and limitations](https://torchbox.github.io/django-pattern-library/reference/known-issues/)
+```sh
+curl -H "Content-Type: application/json" \
+-d '{ "query": "query { release(version: \"latest\") { version } }" }' \
+https://api.fontawesome.com
+```
 
-## Contributing
+then add the following to a `wagtail_hooks` module in a registered app in your application:
 
-See anything you like in here? Anything missing? We welcome all support, whether on bug reports, feature requests, code, design, reviews, tests, documentation, and more. Please have a look at our [contribution guidelines](https://github.com/torchbox/django-pattern-library/blob/master/CONTRIBUTING.md).
+```python
+# Content of app_name/wagtail_hooks.py
+from wagtail.core import hooks
+from django.conf import settings
+from django.utils.html import format_html
 
-If you want to set up the project on your own computer, the contribution guidelines also contain all of the setup commands.
+@hooks.register('insert_global_admin_css')
+def import_fontawesome_stylesheet():
+    elem = '<link rel="stylesheet" href="{}path/to/font-awesome.min.css">'.format(
+        settings.STATIC_URL
+    )
+    return format_html(elem)
+```
 
-### Nightly builds
+Note that due to the way EasyMDE defines the toolbar icons it is not compatible with [Wagtail FontAwesome](https://gitlab.com/alexgleason/wagtailfontawesome)
 
-To try out the latest features before a release, we also create builds from every commit to `master`. Note we make no guarantee as to the quality of those pre-releases, and the pre-releases are overwritten on every build so shouldn’t be relied on for reproducible builds. [Download the latest `django_pattern_library-0.0.0.dev0-py3-none-any.whl`](http://torchbox.github.io/django-pattern-library/dist/django_pattern_library-0.0.0.dev0-py3-none-any.whl).
+#### Syntax highlighting
 
-## Credits
+Syntax highlighting using codehilite is an optional feature, which works by
+adding CSS classes to the generated HTML. To use these classes, you will need
+to install Pygments (`pip install Pygments`), and to generate an appropriate
+stylesheet. You can generate one as per the [Pygments documentation](http://pygments.org/docs/quickstart/), with:
 
-View the full list of [contributors](https://github.com/torchbox/django-pattern-library/graphs/contributors). [BSD](https://github.com/torchbox/django-pattern-library/blob/master/LICENSE) licensed.
+```python
+>>> from pygments.formatters import HtmlFormatter
+>>> print HtmlFormatter().get_style_defs('.codehilite')
+```
 
-Project logo from [FxEmoji](https://github.com/mozilla/fxemoji). Documentation website built with [MkDocs](https://www.mkdocs.org/), and hosted in [GitHub Pages](https://pages.github.com/).
+Save the output to a file and reference it somewhere that will be
+picked up on pages rendering the relevant output, e.g. your base template:
+
+```html+django
+<link rel="stylesheet" type="text/css" href="{% static 'path/to/pygments.css' %}">
+```
+
+
+### Using it
+
+Add it to `INSTALLED_APPS`:
+
+```python
+INSTALLED_APPS += [
+    'wagtailmarkdown',
+]
+```
+
+Use it as a `StreamField` block:
+
+```python
+from wagtailmarkdown.blocks import MarkdownBlock
+
+class MyStreamBlock(StreamBlock):
+    markdown = MarkdownBlock(icon="code")
+```
+
+<img src="https://i.imgur.com/4NFcfHd.png" width="728px" alt="">
+
+Or use as a page field:
+
+```python
+from wagtailmarkdown.edit_handlers import MarkdownPanel
+from wagtailmarkdown.fields import MarkdownField
+
+class MyPage(Page):
+    body = MarkdownField()
+
+    content_panels = [
+        FieldPanel("title", classname="full title"),
+        MarkdownPanel("body"),
+    ]
+```
+
+And render the content in a template:
+
+```html+django
+{% load wagtailmarkdown %}
+<article>
+{{ self.body|markdown }}
+</article>
+```
+
+<img src="https://i.imgur.com/Sj1f4Jh.png" width="728px" alt="">
+
+To enable syntax highlighting please use the Pygments (`pip install Pygments`) library.
+
+NB: The current version was written in about an hour and is probably completely
+unsuitable for production use.  Testing, comments and feedback are welcome:
+<kevin.howbrook@torchbox.com> (or open a Github issue).
+
+
+### Roadmap for 0.5
+
+* Set up tests: https://github.com/torchbox/wagtail-markdown/issues/28

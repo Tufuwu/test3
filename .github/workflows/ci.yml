@@ -1,107 +1,99 @@
 name: CI
+
 on:
   push:
-    branches:
-      - main
+    branches: [main]
+    tags: v[0-9]+.[0-9]+.[0-9]+
   pull_request:
+    branches: [main]
+
 jobs:
-  test:
+  lint:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
         with:
-          python-version: "3.9"
-      - uses: Gr1n/setup-poetry@v4
+          fetch-depth: 0
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v2
         with:
-          poetry-version: '1.1.4'
-      - run: pip install tox
-      - run: tox -e lint,py39-dj32
-  test_compatibility:
-    needs: test
+          python-version: "3.8"
+      - uses: pre-commit/action@v2.0.2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+#  test:
+#    runs-on: ubuntu-latest
+#    needs: lint
+#    continue-on-error: ${{ matrix.experimental }}
+#    strategy:
+#      matrix:
+#        include:
+#          - python: "3.6"
+#            django: "Django>=2.2,<2.3"
+#            wagtail: "wagtail>=2.10,<2.11"
+#            experimental: false
+#          - python: "3.7"
+#            django: "Django>=3.0,<3.1"
+#            wagtail: "wagtail>=2.11,<2.14"
+#            experimental: false
+#          - python: "3.8"
+#            django: "Django>=3.1,<3.2"
+#            wagtail: "wagtail>=2.11,<2.14"
+#            experimental: false
+#          - python: "3.9"
+#            django: "Django>=3.1,<3.2"
+#            wagtail: "wagtail>=2.11,<2.14"
+#            experimental: false
+#          - python: "3.9"
+#            django: "Django>=3.1,<3.3"
+#            wagtail: "git+https://github.com/wagtail/wagtail.git@main#egg=wagtail"
+#            experimental: true
+#    services:
+#      postgres:
+#        image: postgres:13
+#        ports:
+#          - 5432:5432
+#        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+#    steps:
+#      - uses: actions/checkout@v2
+#      - name: Set up Python ${{ matrix.python }}
+#        uses: actions/setup-python@v2
+#        with:
+#          python-version: ${{ matrix.python }}
+#      - name: Install dependencies
+#        run: |
+#          python -m pip install --upgrade pip
+#          pip install "psycopg2>=2.6"
+#          pip install "${{ matrix.django }}"
+#          pip install "${{ matrix.wagtail }}"
+#          pip install -e .[testing]
+#      - name: Test
+#        run: python runtests.py
+#        env:
+#          DATABASE_ENGINE: django.db.backends.postgresql
+#          DATABASE_HOST: localhost
+#          DATABASE_USER: postgres
+#          DATABASE_PASS: postgres
+
+  build_and_publish:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [lint]
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        include:
-          - python: "3.6"
-            toxenv: py36-dj22,py36-dj30,py36-dj31,py36-dj32
-          - python: "3.7"
-            toxenv: py37-dj22,py37-dj30,py37-dj31,py37-dj32
-          - python: "3.8"
-            toxenv: py38-dj22,py38-dj30,py38-dj31,py38-dj32,py38-djmain
-          - python: "3.9"
-            toxenv: py39-dj22,py39-dj30,py39-dj31,py39-dj32,py39-djmain
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
         with:
-          python-version: ${{ matrix.python }}
-      - uses: Gr1n/setup-poetry@v4
+          fetch-depth: 0
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v2
         with:
-          poetry-version: '1.1.4'
-      - run: pip install tox
-      - run: tox -q
-        env:
-          TOXENV: ${{ matrix.toxenv }}
-  build_site:
-    needs: test
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - id: nvm
-        run: echo "##[set-output name=NVMRC;]$(cat .nvmrc)"
-      - uses: actions/setup-node@v2-beta
+          python-version: "3.8"
+      - name: Install dependencies
+        run: pip install wheel
+      - name: Build
+        run: python setup.py sdist bdist_wheel
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
         with:
-          node-version: "${{ steps.nvm.outputs.NVMRC }}"
-      - uses: actions/cache@v2
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
-      - run: npm install --no-optional --no-audit --no-fund --progress=false
-      - run: npm run build
-      - uses: actions/setup-python@v2
-        with:
-          python-version: "3.9"
-      - uses: Gr1n/setup-poetry@v4
-        with:
-          poetry-version: '1.1.4'
-      - uses: actions/cache@v4
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-python-${{ hashFiles('**/poetry.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-python-
-      - run: |
-          poetry config virtualenvs.create false &&
-          poetry install
-      - run: poetry run django-admin runserver --settings=tests.settings.production --pythonpath=. &
-      # Docs website build.
-      - run: poetry run mkdocs build --strict
-      # Demo website build.
-      - run: wget --mirror --page-requisites --no-parent --no-verbose http://localhost:8000/django-pattern-library/demo/pattern-library/
-      - run: mv localhost:8000/django-pattern-library/demo site
-      # Demo render_patterns.
-      - run: poetry run django-admin render_patterns --settings=tests.settings.production --pythonpath=. --wrap-fragments --output=site/dpl-rendered-patterns
-      # Package build, incl. publishing an experimental pre-release via GitHub Pages for builds on `master`.
-      - run: cat pyproject.toml| awk '{sub(/^version = .+/,"version = \"0.0.0.dev\"")}1' > pyproject.toml.tmp && mv pyproject.toml.tmp pyproject.toml
-      - run: poetry build
-      - run: mv dist site
-      - uses: actions/upload-artifact@v2
-        with:
-          name: site
-          path: site
-          retention-days: 1
-  deploy_site:
-    runs-on: ubuntu-latest
-    needs: build_site
-    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions/download-artifact@v2
-      - uses: JamesIves/github-pages-deploy-action@4.1.3
-        with:
-          branch: gh-pages
-          folder: site
-          clean: true
+          user: __token__
+          password: ${{ secrets.PYPI_API_TOKEN }}
