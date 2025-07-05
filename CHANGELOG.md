@@ -1,193 +1,157 @@
-## 0.14.1 (9 Dec 2020)
-* Fixed filter query issue for server version below 2020.1 (#745)
-* Fixed large workbook/datasource publish issue (#757)
+# CHANGELOG
 
-## 0.14.0 (6 Nov 2020)
-* Added django-style filtering and sorting (#615)
-* Added encoding tag-name before deleting (#687)
-* Added 'Execute' Capability to permissions (#700)
-* Added support for publishing workbook using file objects (#704)
-* Added new fields to datasource_item (#705)
-* Added all fields for users.get to get email and fullname (#713)
-* Added support publishing datasource using file objects (#714)
-* Improved request options by removing manual query param generation (#686)
-* Improved publish_workbook sample to take in site (#694)
-* Improved schedules.update() by removing constraint that required an interval (#711)
-* Fixed site update/create not checking booleans properly (#723)
+### Summary
 
-## 0.13 (1 Sept 2020)
-* Added notes field to JobItem (#571)
-* Added webpage_url field to WorkbookItem (#661)
-* Added support for switching between sites (#655)
-* Added support for querying favorites for a user (#656)
-* Added support for Python 3.8 (#659)
-* Added support for Data Alerts (#667)
-* Added support for basic Extract operations - Create, Delete, en/re/decrypt for site (#672)
-* Added support for creating and querying Active Directory groups (#674)
-* Added support for asynchronously updating a group (#674)
-* Improved handling of invalid dates (#529)
-* Improved consistency of update_permission endpoints (#668)
-* Documentation updates (#658, #669, #670, #673, #683)
+* [**Unreleased changes**](#unreleased-changes)
+  * Deprecated: Internal data member, *go2parents* will be deprecated, renamed to *go2ancestors*
+  * Changes for [**Issue 142**](https://github.com/tanghaibao/goatools/issues/142)    
+* [**Release 2019-09-29 0.9.7**](#release-2019-09-29-097)
+  * Deprecated: *read_ncbi_gene2go*
+  * Deprecated: *get_b2aset* and *GoDagTimed* in their old location. They have been moved.
+  * Removed empty sets from Descendant and Ancestor dicts in *gosubdag.rcntobj*
+  * *TermCount* improvements (used in semantic similarity calculations)    
+  * GO DAG Plotting:
+    * User can now add a title to GO DAG plots
+    * User can now add custom text to edges in GO DAG plots
+* [**Release 2019-07-26 0.9.7**](#release-2019-07-26-097)
+  * Support user-specified optional relationships in GOEA propagate counts
+* [**Release 2019-05-08 0.9.5**](#release-2019-05-08-095)
+  * Support user-specified evidence codes in GOEAs    
+  * Separate GOEAs into BP, MF, and CC    
 
-## 0.12.1 (22 July 2020)
+Unreleased changes
+--------------
 
-* Fixed login.py sample to properly handle sitename (#652)
+* **Deprecated**
+  * Renamed internal data variable:
+    * NOW: *gosubdag.rcntobj.go2ancestors*    
+    * WAS: *gosubdag.rcntobj.go2parents*    
+* **Changed**
+  * [**Issue 142**](https://github.com/tanghaibao/goatools/issues/142)
+    * Write GO hierachy to a file now writes a file when using Python3
+    * Gaf reader defaults to gaf file version of 2.1 if no version line if found
 
-## 0.12 (10 July 2020)
+Release 2019-09-29 0.9.9
+-------------------------
 
-* Added hidden_views parameter to workbook publish method (#614)
-* Added simple paging endpoint for GraphQL/Metadata API (#623)
-* Added endpoints to Metadata API for retrieving backfill/eventing status (#626)
-* Added maxage parameter to CSV and PDF export options (#635)
-* Added support for querying, adding, and deleting favorites (#638)
-* Added a sample for publishing datasources (#644)
+* **Deprecated**
+  * *read_ncbi_gene2go* is deprecated and will be removed in the future.
+  * *get_b2aset* is moved:
+    * NOW: goatools.utils
+    * WAS: goatools.associations
+  * *GoDagTimed* and *prt_hms* is moved:
+    * NOW: goatools.godag.prttime
+    * WAS: goatools.test_data.godag_timed
+* **Removed**
+  * All dict entries whose values were an empty set in:
+    * *gosubdag.rcntobj.go2parents*    
+    * *gosubdag.rcntobj.go2descendants*    
+* **Added**`
+  * Method to annotation object, *IdToGosReader*, which writes namedtuples into an ASCII file
+* **Changed**
+  * *TermCounts*:
+    * Added support for optional relationships, like *part_of*.    
+      This is useful for computing termwise and genewise semantic similarities.
+    * Faster initialization of *TermCounts* object, used in semantic similarity calculations
+  * *Plotting*:
+    * Users can now provide a title to be printed in a GO DAG plot
+    * Users can now provide an *edge2txt* dict to print text on edges between GO Terms    
+* **Fixed**
+  * Aspect counts (BP, MF, CC totals) in *TermCounts* object
 
-## 0.11 (1 May 2020)
+Release 2019-07-26 0.9.7
+-------------------------
 
-* Added more fields to Data Acceleration config (#588)
-* Added OpenID as an auth setting enum (#610)
-* Added support for Data Acceleration Reports (#596)
-* Added support for view permissions (#526)
-* Materialized views changed to Data Acceleration (#576)
-* Improved consistency across workbook/datasource endpoints (#570)
-* Fixed print error in update_connection.py (#602)
-* Fixed log error in add user endpoint (#608)
+### Summary
+* **Added**    
+  * Support traversing optional relationships when propagating counts for GOEAs
 
-## 0.10 (21 Feb 2020)
+### Details
 
-* Added a way to handle non-xml errors (#515)
-* Added Webhooks endpoints for create, delete, get, list, and test (#523, #532)
-* Added delete method in the tasks endpoint (#524)
-* Added description attribute to WorkbookItem (#533)
-* Added support for materializeViews as schedule and task types (#542)
-* Added warnings to schedules (#550, #551)
-* Added ability to update parent_id attribute of projects (#560, #567)
-* Improved filename behavior for download endpoints (#517)
-* Improved logging (#508)
-* Fixed runtime error in permissions endpoint (#513)
-* Fixed move_workbook_sites sample (#503)
-* Fixed project permissions endpoints (#527)
-* Fixed login.py sample to accept site name (#549)
+- Support traversing optional relationships,
+  like *part_of* and *regulates*, when doing propagating counts
+  using these two new arguments in scripts/find_enrichment.py:
+```
+        -r, --relationship    Propagate counts up all relationships (default: False)
+       --relationships        [RELATIONSHIPS [RELATIONSHIPS ...]]
+                               Propagate counts up user-specified relationships
+                               (default: None)
+```
+https://github.com/tanghaibao/goatools/issues/117#issuecomment-515484624    
 
-## 0.9 (4 Oct 2019)
+- Find all ancesters of a GO term using a user-specified list of relationships    
+  https://github.com/tanghaibao/goatools/issues/126#issuecomment-511985524    
 
-* Added Metadata API endpoints (#431)
-* Added site settings for Data Catalog and Prep Conductor (#434)
-* Added new fields to ViewItem (#331)
-* Added support and samples for Tableau Server Personal Access Tokens (#465)
-* Added Permissions endpoints (#429)
-* Added tags to ViewItem (#470)
-* Added Databases and Tables endpoints (#445)
-* Added Flow endpoints (#494)
-* Added ability to filter projects by topLevelProject attribute (#497)
-* Improved server_info endpoint error handling (#439)
-* Improved Pager to take in keyword arguments (#451)
-* Fixed UUID serialization error while publishing workbook (#449)
-* Fixed materalized views in request body for update_workbook (#461)
 
-## 0.8.1 (17 July 2019)
+Release 2019-05-08 0.9.5
+-------------------------
 
-* Fixed update_workbook endpoint (#454)
+### Summary
+* **Added**    
+  * [**Issue 119: Added support for specifying specific evidence codes**](#added-support-for-specifying-specific-evidence-codes)    
+  * [**Issue 127: Added splitting GOEA into BP, MF, and CC**](#added-splitting-goea-into-bp-mf-and-cc)    
+* **Fixed**    
+  * [**Issue 120 and 121: Lin similarity is positive**](https://github.com/tanghaibao/goatools/issues/120)
 
-## 0.8 (8 Apr 2019)
+### Details
+#### Added support for specifying specific evidence codes:
+- Specify evidence codes, like EXP (Inferred from Experiment), to exclude or include in a GOEA.
+- Specify evidence classes, like Experimental (EXP IDA IPI IMP IGI IEP), which include many evidence codes.
+- Get evidence code help:
+```
+  $ python3 scripts/find_enrichment.py --ev_help
+  $ python3 scripts/find_enrichment.py --ev_help_short
+```
+https://github.com/tanghaibao/goatools/issues/119#issuecomment-488508518    
+https://github.com/tanghaibao/goatools/issues/119#issuecomment-489816413    
 
-* Added Max Age to download view image request (#360)
-* Added Materialized Views (#378, #394, #396)
-* Added PDF export of Workbook (#376)
-* Added Support User Role (#392)
-* Added Flows (#403)
-* Updated Pager to handle un-paged results (#322)
-* Fixed checked upload (#309, #319, #326, #329)
-* Fixed embed_password field on publish (#416)
+#### Added splitting GOEA into BP, MF, and CC
+Split GOEA into three separate analyses by default:
+  * BP (biological process)
+  * MF (molecular function)
+  * CC cellular component)    
 
-## 0.7 (2 Jul 2018)
+https://github.com/tanghaibao/goatools/issues/127#issuecomment-489776548    
 
-* Added cancel job (#299)
-* Added Get background jobs (#298)
-* Added Multi-credential support (#276)
-* Added Update Groups (#279)
-* Adding project_id to view (#285)
-* Added ability to rename workbook using `update workbook` (#284)
-* Added Sample for exporting full pdf using pdf page combining (#267)
-* Added Sample for exporting data, images, and single view pdfs (#263)
-* Added view filters to the populate request options (#260)
-* Add Async publishing for workbook and datasource endpoints (#311)
-* Fixed ability to update datasource server connection port (#283)
-* Fixed next project handling (#267)
-* Cleanup debugging output to strip out non-xml response
-* Improved refresh sample for readability (#288)
 
-## 0.6.1 (26 Jan 2018)
+Release 2018-11-27 0.8.12
+-------------------------
 
-* Fixed #257 where refreshing extracts does not work due to a missing "self"
+Release 2018-11-21 0.8.11
+-------------------------
 
-## 0.6 (17 Jan 2018)
+Release 2018-09-09 0.8.9
+-------------------------
 
-* Added support for add a datasource/workbook refresh to a schedule (#244)
-* Added support for updating datasource connections (#253) 
-* Added Refresh Now for datasource and workbooks (#250)
-* Fixed Typos in the docs (#251)
+Release 2018-04-28 0.8.4
+-------------------------
 
-## 0.5.1 (21 Sept 2017)
+Release 2018-02-22 0.8.2
+-------------------------
 
-* Fix a critical issue caused by #224 that was the result of lack of test coverage (#226)
+Release 2018-02-19 0.7.11
+-------------------------
 
-## 0.5 (20 Sept 2017)
+Release 2018-01-07 0.7.11
+-------------------------
 
-* Added revision settings to update site (#187)
-* Added support for certified data sources (#189)
-* Added support for include/exclude extract (#203)
-* Added auto-paging for group users (#204)
-* Added ability to add workbooks to a schedule (#206)
-* Added the ability to create nested projects (#208)
-* Fixed sort order when using pager (#192)
-* Docs Updates and new samples (#196, #199, #200, #201)
+Release 2017-10-14 0.7.11
+-------------------------
 
-## 0.4.1 (18 April 2017)
+Release 2017-10-07 0.7.10
+-------------------------
 
-* Fix #177 to remove left in debugging print
+Release 2015-02-05
+-------------------------
 
-## 0.4 (18 April 2017)
- 
-Yikes, it's been too long.
+Release 2014-08-10
+-------------------------
 
-* Added API version annotations to endpoints (#125)
-* Added New High Res Image Api Endpoint
-* Added Tags to Datasources, Views
-* Added Ability to run an Extract Refresh task (#159)
-* Auto versioning enabled (#169)
-* Download twbx/tdsx without the extract payload (#143, #144)
-* New Sample to initialize a server (#95)
-* Added ability to update connection information (#149)
-* Added Ability to get a site by name (#153)
-* Dates are now DateTime Objects (#102)
-* Bugfixes (#162, #166)
+Release 2010-04-12
+-------------------------
 
-## 0.3 (11 January 2017)
+Release 2010-02-23
+-------------------------
 
-* Return DateTime objects instead of strings (#102)
-* UserItem now is compatible with Pager (#107, #109)
-* Deprecated site in favor of site_id (#97)
-* Improved handling of large downloads (#105, #111)
-* Added support for oAuth when publishing (#117)
-* Added Testing against Py36 (#122, #123)
-* Added Version Checking to use highest supported REST api version (#100)
-* Added Infrastructure for throwing error if trying to do something that is not supported by REST api version (#124)
-* Various Code Cleanup
-* Added Documentation (#98)
-* Improved Test Infrastructure (#91)
 
-## 0.2 (02 November 2016)
-
-* Added Initial Schedules Support (#48)
-* Added Initial Create Group endpoint (#69)
-* Added Connection Credentials for publishing datasources/workbooks (#80)
-* Added Pager object for handling pagination results and sample (#72, #90)
-* Added ServerInfo endpoint (#84)
-* Deprecated `site` as a parameter to `TableauAuth` in favor of `site_id`
-* Code Cleanup
-* Bugfixes
-
-## 0.1 (12 September 2016)
-
-* Initial Release to the world
+git log --since=2019-05-08 --before=2019-07-26
