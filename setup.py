@@ -1,74 +1,78 @@
 #!/usr/bin/env python
 
-import os
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import ast
 import re
-import sys
-
-from setuptools import find_packages, setup
-from setuptools.command.test import test as TestCommand
+from setuptools import setup
+import textwrap
 
 
-def read(fname):
-    with open(os.path.join(os.path.dirname(__file__), fname)) as fp:
-        return fp.read()
+_version_re = re.compile(r"__version__\s+=\s+(.*)")
 
 
-m = re.search(
-    r"^__version__ *= *\"([^\"]*)\" *$", read("tdclient/version.py"), re.MULTILINE
-)
-
-if m is None:
-    raise (RuntimeError("could not read tdclient/version.py"))
-else:
-    version = m.group(1)
+with open("presto/__init__.py", "rb") as f:
+    version = str(
+        ast.literal_eval(_version_re.search(f.read().decode("utf-8")).group(1))
+    )
 
 
-class PyTest(TestCommand):
-    user_options = [("pytest-args=", "a", "Arguments to pass to py.test")]
+kerberos_require = ["requests_kerberos"]
 
-    def initialize_options(self):
-        TestCommand.initialize_options(self)
-        self.pytest_args = []
+all_require = [kerberos_require]
 
-    def run_tests(self):
-        import pytest
+tests_require = all_require + ["httpretty", "pytest", "pytest-runner"]
 
-        errno = pytest.main(self.pytest_args)
-        sys.exit(errno)
-
+py27_require = ["ipaddress", "typing"]
 
 setup(
-    name="td-client",
+    name="presto-client",
+    author="Presto Team",
+    author_email="python-client@prestosql.io",
     version=version,
-    description="Treasure Data API library for Python",
-    long_description=read("README.rst"),
-    long_description_content_type="text/x-rst; charset=UTF-8;",
-    author="Treasure Data, Inc.",
-    author_email="support@treasure-data.com",
-    url="http://treasuredata.com/",
-    python_requires=">=3.5",
-    install_requires=["msgpack>=0.6.2", "python-dateutil", "urllib3"],
-    tests_require=["coveralls", "mock", "pytest", "pytest-cov", "tox"],
-    extras_require={
-        "dev": ["black==19.3b0", "isort", "flake8"],
-        "docs": ["sphinx", "sphinx_rtd_theme"],
-    },
-    packages=find_packages(),
-    cmdclass={"test": PyTest},
-    license="Apache Software License",
-    platforms="Posix; MacOS X; Windows",
+    url="https://github.com/prestosql/presto-python-client",
+    packages=["presto"],
+    package_data={"": ["LICENSE", "README.md"]},
+    description="Client for the Presto distributed SQL Engine",
+    long_description=textwrap.dedent(
+        """
+    Client for Presto (https://prestosql.io), a distributed SQL engine for
+    interactive and batch big data processing. Provides a low-level client and
+    a DBAPI 2.0 implementation.
+    """
+    ),
+    license="Apache 2.0",
     classifiers=[
         "Development Status :: 4 - Beta",
-        "Environment :: Web Environment",
         "Intended Audience :: Developers",
         "License :: OSI Approved :: Apache Software License",
-        "Operating System :: OS Independent",
-        "Topic :: Internet",
+        "Operating System :: MacOS :: MacOS X",
+        "Operating System :: POSIX",
+        "Operating System :: Microsoft :: Windows",
+        "Programming Language :: Python",
+        "Programming Language :: Python :: 2.7",
+        "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.5",
         "Programming Language :: Python :: 3.6",
-        "Programming Language :: Python :: 3.7",
-        "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: Implementation :: CPython",
         "Programming Language :: Python :: Implementation :: PyPy",
+        "Topic :: Database :: Front-Ends",
     ],
+    install_requires=["click", "requests", "six"],
+    extras_require={
+        "all": all_require,
+        "kerberos": kerberos_require,
+        "tests": tests_require,
+        ':python_version=="2.7"': py27_require,
+    },
 )
