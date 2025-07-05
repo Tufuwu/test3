@@ -1,6 +1,3 @@
 [flake8]
-# Ignore black styles.
-ignore = E501, W503, E203
-# Imports
-import-order-style = google
-application-import-names = nox,tests
+builtins=_
+max-line-length = 120

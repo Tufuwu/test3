@@ -1,0 +1,210 @@
+{
+    "app-id": "com.github.themix_project.Oomox",
+    "runtime": "org.gnome.Sdk",
+    "runtime-version": "3.38",
+    "sdk": "org.gnome.Sdk",
+    "sdk-extensions": ["org.freedesktop.Sdk.Extension.rust-stable"],
+    "command": "oomox-gui",
+    "finish-args": [
+        "--share=ipc",
+        "--filesystem=~/.themes:create",
+        "--filesystem=~/.icons:create",
+        "--socket=x11"
+    ],
+    "modules": [
+        {
+            "name": "optipng",
+            "buildsystem": "simple",
+            "build-commands": [
+                "./configure --prefix=/ --mandir=/share/man --with-system-libs",
+                "make",
+                "make prefix=${FLATPAK_DEST} mandir=${FLATPAK_DEST}/share/man install"
+            ],
+            "sources": [
+                {
+                    "type": "archive",
+                    "url": "http://downloads.sourceforge.net/sourceforge/optipng/optipng-0.7.7.tar.gz",
+                    "sha256": "4f32f233cef870b3f95d3ad6428bfe4224ef34908f1b42b0badf858216654452"
+                }
+            ]
+        },
+        {
+            "name": "resvg",
+            "buildsystem": "simple",
+            "build-options": {
+                "append-path": "/usr/lib/sdk/rust-stable/bin"
+            },
+            "build-commands": [
+                "export CARGO_HOME=$(pwd)/cargo_home ; for dir in capi tools/{render,u}svg; do ( cd $dir ; if grep -q cairo-backend Cargo.toml; then cargo build --release --features='cairo-backend' ; else cargo build --release ; fi ) done",
+                "install -Dm755 target/release/rendersvg /app/bin/rendersvg",
+                "install -Dm755 target/release/libresvg.so /app/lib/libresvg.so",
+                "install -Dm644 capi/include/resvg.h /app/include/resvg.h"
+            ],
+            "sources": [
+                {
+                    "type": "archive",
+                    "url": "https://github.com/RazrFalcon/resvg/archive/v0.5.0.tar.gz",
+                    "sha256": "f9d0dc31de9b6f516c0c5350f22142ab8af6a2d957a729494bb403cff32ba611"
+                },
+                {
+                    "type": "archive",
+                    "url": "https://github.com/actionless/_flatpak_helpers/releases/download/0.5.0/cargo_home.tar.bz2",
+                    "sha256": "0548150c212dc65ba9f88b8071192cf2e113bfd2ea807e8ac482effcdc8072ce",
+                    "dest": "./cargo_home/"
+                }
+            ]
+        },
+        {
+            "name": "python3-pillow",
+            "buildsystem": "simple",
+            "build-options": {
+                "arch": {
+                    "i386": {
+                        "env": {
+                            "MAX_CONCURRENCY": "1"
+                        }
+                    }
+                }
+            },
+            "build-commands": [
+                "install -d ${FLATPAK_DEST}/lib/python3.5/site-packages/",
+                "python3 setup.py install --prefix=${FLATPAK_DEST}"
+            ],
+            "sources": [
+                {
+                    "type": "archive",
+                    "url": "https://files.pythonhosted.org/packages/d3/c4/b45b9c0d549f482dd072055e2d3ced88f3b977f7b87c7a990228b20e7da1/Pillow-5.2.0.tar.gz",
+                    "sha256": "f8b3d413c5a8f84b12cd4c5df1d8e211777c9852c6be3ee9c094b626644d3eab"
+                }
+            ]
+        },
+        {
+            "name": "python3-colorthief",
+            "buildsystem": "simple",
+            "build-options": {
+                "arch": {
+                    "i386": {
+                        "env": {
+                            "MAX_CONCURRENCY": "1"
+                        }
+                    }
+                }
+            },
+            "build-commands": [
+                "install -d ${FLATPAK_DEST}/lib/python3.5/site-packages/",
+                "python3 setup.py install --root=${FLATPAK_DEST} --optimize=1"
+            ],
+            "sources": [
+                {
+                    "type": "archive",
+                    "url": "https://github.com/fengsp/color-thief-py/archive/0.2.1.tar.gz",
+                    "sha256": "f2c47cad43809048adb9be1e4e63519d32e3b68532e8f0ab7bf46a58ddf7d099"
+                }
+            ]
+        },
+        {
+            "name": "python3-haishoku",
+            "buildsystem": "simple",
+            "build-options": {
+                "arch": {
+                    "i386": {
+                        "env": {
+                            "MAX_CONCURRENCY": "1"
+                        }
+                    }
+                }
+            },
+            "build-commands": [
+                "install -d ${FLATPAK_DEST}/lib/python3.5/site-packages/",
+                "python3 setup.py install --root=${FLATPAK_DEST}"
+            ],
+            "sources": [
+                {
+                    "type": "archive",
+                    "url": "https://github.com/LanceGin/haishoku/archive/v1.1.7.tar.gz",
+                    "sha256": "4f34043f5509e18b60411050b40596f9510193ae8dca5146f7e82cc0730536b8"
+                }
+            ]
+        },
+        {
+            "name": "sassc",
+            "buildsystem": "simple",
+            "build-commands": [
+                "cd ./deps/libsass ; autoreconf -i ; ./configure --prefix=/app ; make ; make DESTDIR=/ install",
+                "cd ./deps/sassc ; autoreconf -i ; ./configure --prefix=/app ; make ; make DESTDIR=/ install"
+            ],
+            "sources": [
+                {
+                    "type": "archive",
+                    "url": "https://github.com/sass/libsass/archive/3.4.7.tar.gz",
+                    "sha256": "855c40528b897d06ae4d24606c2db3cd09bb38de5b46b28e835f9d4fd4d7ab95",
+                    "dest": "./deps/libsass/"
+                },
+                {
+                    "type": "archive",
+                    "url": "https://github.com/sass/sassc/archive/3.4.2.tar.gz",
+                    "sha256": "ad805f2d404d17cf2980c8079a7413cd58d2f2085120167997b85420a722e079",
+                    "dest": "./deps/sassc/"
+                }
+            ]
+        },
+        {
+            "name": "imagemagick",
+            "config-opts": [
+                "--enable-static=no",
+                "--disable-docs",
+                "--disable-deprecated",
+                "--without-autotrace",
+                "--without-bzlib",
+                "--without-djvu",
+                "--without-dps",
+                "--without-fftw",
+                "--without-fontconfig",
+                "--without-fpx",
+                "--without-freetype",
+                "--without-gvc",
+                "--without-jbig",
+                "--without-jpeg",
+                "--without-lcms",
+                "--without-lzma",
+                "--without-magick-plus-plus",
+                "--without-openexr",
+                "--without-openjp2",
+                "--without-pango",
+                "--without-raqm",
+                "--without-tiff",
+                "--without-webp",
+                "--without-wmf",
+                "--without-x",
+                "--without-xml",
+                "--without-zlib"
+            ],
+            "sources": [
+                {
+                    "type": "archive",
+                    "url": "https://www.imagemagick.org/download/releases/ImageMagick-7.0.8-68.tar.xz",
+                    "sha256": "3639baa6ceb5db38b1b48a4b917f90fe007ca7edca1f7894d5555a0bc746305a"
+                }
+            ]
+        },
+        {
+            "name": "oomox",
+            "buildsystem": "simple",
+            "build-commands": [
+                "make DESTDIR=/ PREFIX=/app APPDIR=/app/opt/oomox install_gui install_theme_arc install_theme_oomox install_theme_materia install_import_images install_plugin_base16 install_icons_archdroid install_icons_gnomecolors install_icons_numix install_icons_papirus install_icons_suruplus install_icons_suruplus_aspromauros",
+                "python3 -O -m compileall /app/opt/oomox/oomox_gui",
+                "mkdir -p /app/usr/share/",
+                "ln -s /app/share/applications /app/usr/share/applications",
+                "ln -s /app/share/appdata /app/usr/share/appdata",
+                "ln -s /app/share/icons /app/usr/share/icons"
+            ],
+            "sources": [
+                {
+                    "type": "git",
+                    "url": "https://github.com/themix-project/oomox.git",
+                    "tag": "1.13.3"
+                }
+            ]
+        }
+    ]
+}

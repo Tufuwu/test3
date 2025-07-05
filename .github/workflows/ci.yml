@@ -1,70 +1,55 @@
-name: CI
-on: [push, pull_request]
+name: Code Style
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ master ]
+
 jobs:
   build:
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
+    name: ${{ matrix.PYVER }}
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-22.04, windows-2019]
-        python-version: [3.6, 3.7, 3.8, 3.9]
+        include:
+          - PYVER: current_arch
+            SKIP_SHELLCHECK: 0
+            SKIP_MYPY: 0
+            SKIP_VULTURE: 0
+
+          - PYVER: python36_ubuntu_1804
+            SKIP_SHELLCHECK: 1
+            SKIP_MYPY: 1
+            SKIP_VULTURE: 1
+
+          - PYVER: python38_ubuntu_2004
+            SKIP_SHELLCHECK: 1
+            SKIP_MYPY: 1
+            SKIP_VULTURE: 1
+    env:
+      PYVER: ${{ matrix.PYVER }}
+      SKIP_SHELLCHECK: ${{ matrix.SKIP_SHELLCHECK }}
+      SKIP_MYPY: ${{ matrix.SKIP_MYPY }}
+      SKIP_VULTURE: ${{ matrix.SKIP_VULTURE }}
+
     steps:
-      - uses: actions/checkout@v2
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v2
-        with:
-          python-version: ${{ matrix.python-version }}
-      - name: Set up Miniconda
-        uses: conda-incubator/setup-miniconda@v2
-        with:
-          auto-update-conda: true
-          python-version: ${{ matrix.python-version }}
-      - name: Install Nox-under-test
-        run: |
-          python -m pip install --disable-pip-version-check .
-      - name: Run tests on ${{ matrix.os }}
-        run: nox --non-interactive --session "tests-${{ matrix.python-version }}" -- --full-trace
-  lint:
-    runs-on: ubuntu-20.04
-    steps:
-      - uses: actions/checkout@v2
-      - name: Set up Python 3.8
-        uses: actions/setup-python@v2
-        with:
-          python-version: 3.8
-      - name: Install Nox-under-test
-        run: |
-          python -m pip install --disable-pip-version-check .
-      - name: Lint
-        run: nox --non-interactive --session "lint"
-  docs:
-    runs-on: ubuntu-20.04
-    steps:
-      - uses: actions/checkout@v2
-      - name: Set up Python 3.8
-        uses: actions/setup-python@v2
-        with:
-          python-version: 3.8
-      - name: Install Nox-under-test
-        run: |
-          python -m pip install --disable-pip-version-check .
-      - name: Docs
-        run: nox --non-interactive --session "docs"
-  deploy:
-    needs: build
-    runs-on: ubuntu-20.04
-    if: github.event_name == 'push' && contains(github.ref, 'refs/tags/')
-    steps:
-      - uses: actions/checkout@v2
-      - name: Set up Python 3.9
-        uses: actions/setup-python@v2
-        with:
-          python-version: 3.9
-      - name: Install setuptools and wheel
-        run: python -m pip install --upgrade --user setuptools wheel
-      - name: Build sdist and wheel
-        run: python setup.py sdist bdist_wheel
-      - name: Publish distribution PyPI
-        uses: pypa/gh-action-pypi-publish@master
-        with:
-          password: ${{ secrets.PYPI_API_TOKEN }}
+    - uses: actions/checkout@v2
+
+    - name: move dockerfiles into build context
+      run: mv ./dockerfiles/* ./
+
+    - name: switch base docker image
+      run: sed -i -e 's|FROM archlinux/base|FROM actionless/pikaur|' Dockerfile_${PYVER}
+
+    - name: build docker image
+      run: docker build . -f Dockerfile_${PYVER} -t oomox
+
+    - name: run ci in docker
+      run: docker run
+        -e SKIP_SHELLCHECK=${SKIP_SHELLCHECK}
+        -e SKIP_MYPY=${SKIP_MYPY}
+        -e SKIP_VULTURE=${SKIP_VULTURE}
+        oomox:latest
+        ./maintenance_scripts/run_ci.sh
