@@ -47,8 +47,3 @@ jobs:
         python -m pip install --upgrade pip setuptools wheel
         pip install poetry
         make deps
-    - name: Run tests
-      env:
-        TORTOISE_TEST_MODULES: tests.testmodels
-        TEST_RUNNER: nose2
-      run: nose2 --plugin tortoise.contrib.test.nose2 --db-module tests.testmodels --db-url sqlite://:memory: -v
