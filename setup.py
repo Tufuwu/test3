@@ -1,49 +1,52 @@
+"""Setup file for micropipenv python package."""
 from setuptools import setup
-import ast
 import os
-import io
+
+_HERE = os.path.dirname(os.path.abspath(__file__))
 
 
-def version():
-    """Return version string."""
-    with open(os.path.join("curtsies", "__init__.py")) as input_file:
-        for line in input_file:
-            if line.startswith("__version__"):
-                return ast.parse(line).body[0].value.s
+def get_version():
+    """Get version of micropipenv.py."""
+    with open(os.path.join(_HERE, "micropipenv.py")) as f:
+        content = f.readlines()
 
+    for line in content:
+        if line.startswith("__version__ ="):
+            # dirty, remove trailing and leading chars
+            return line.split(" = ")[1][1:-2]
 
-def long_description():
-    with open("readme.md", encoding="utf-8") as f:
-        return f.read()
+    raise ValueError("No version identifier found")
 
 
 setup(
-    name="curtsies",
-    version=version(),
-    description="Curses-like terminal wrapper, with colored strings!",
-    long_description="This is a MySensors integration package.",
-    long_description_content_type="text/markdown",
-    url="https://github.com/bpython/curtsies",
-    author="Thomas Ballinger",
-    author_email="thomasballinger@gmail.com",
-    license="MIT",
-    packages=["curtsies"],
-    install_requires=[
-        "blessings>=1.5",
-        "wcwidth>=0.1.4",
-    ],
-    tests_require=[
-        "pyte",
-        "pytest",
-    ],
+    name="micropipenv",
+    version=get_version(),
+    description="A simple wrapper around pip to support requirements.txt, Pipenv and Poetry files for containerized applications",
+    keywords=["packaging", "pipenv", "poetry", "pip", "dependencies", "dependency-management", "utilities"],
+    url="https://github.com/thoth-station/micropipenv",
+    download_url="https://pypi.org/project/micropipenv",
+    long_description=open(os.path.join(_HERE, "README.rst")).read(),
+    long_description_content_type="text/x-rst",
+    author="Fridolin Pokorny",
+    author_email="fridex.devel@gmail.com",
+    maintainer="Fridolin Pokorny",
+    maintainer_email="fridex.devel@gmail.com",
+    license="LGPLv3+",
+    py_modules=["micropipenv"],
+    install_requires=["pip>=9"],
+    entry_points={"console_scripts": ["micropipenv=micropipenv:main"]},
     classifiers=[
-        "Development Status :: 3 - Alpha",
-        "Environment :: Console",
+        "Development Status :: 4 - Beta",
         "Intended Audience :: Developers",
-        "License :: OSI Approved :: MIT License",
-        "Operating System :: POSIX",
+        "License :: OSI Approved :: GNU Lesser General Public License v3 or later (LGPLv3+)",
         "Programming Language :: Python",
-        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: Implementation :: CPython",
     ],
-    zip_safe=False,
+    extras_require={
+        "toml": ["toml"],
+    },
 )
