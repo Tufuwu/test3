@@ -1,1 +1,4 @@
-include random_word/config.yml
+include AUTHORS.rst
+include HISTORY.rst
+include LICENSE
+include README.rst

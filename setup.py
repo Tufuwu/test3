@@ -1,40 +1,51 @@
-import random_word
-import setuptools
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
-with open("README.md", "r") as fh:
-    long_description = fh.read()
+import os
+import sys
 
-setuptools.setup(
-    name=random_word.__name__,
-    version=random_word.__version__,
-    author=random_word.__author__,
-    author_email="hi@vaibhavsingh97.com",
-    description="This is a simple python package to generate random english words",
-    long_description=long_description,
-    long_description_content_type="text/markdown",
-    license="MIT",
-    keywords="package random words word of the day random word generator",
-    url="https://github.com/vaibhavsingh97/random-word",
-    packages=setuptools.find_packages(),
-    classifiers=(
-        "Programming Language :: Python",
+
+try:
+    from setuptools import setup
+except ImportError:
+    from distutils.core import setup
+
+if sys.argv[-1] == "publish":
+    os.system("python setup.py sdist upload")
+    sys.exit()
+
+readme = open("README.rst").read()
+history = open("HISTORY.rst").read().replace(".. :changelog:", "")
+import djangorestframework_camel_case
+
+setup(
+    name="djangorestframework-camel-case",
+    version=djangorestframework_camel_case.__version__,
+    description="Camel case JSON support for Django REST framework.",
+    long_description=readme + "\n\n" + history,
+    long_description_content_type="text/x-rst",
+    author="Vitaly Babiy",
+    author_email="vbabiy86@gmail.com",
+    url="https://github.com/vbabiy/djangorestframework-camel-case",
+    packages=["djangorestframework_camel_case"],
+    package_dir={"djangorestframework_camel_case": "djangorestframework_camel_case"},
+    include_package_data=True,
+    python_requires=">=3.5",
+    install_requires=[],
+    license="BSD",
+    zip_safe=False,
+    keywords="djangorestframework_camel_case",
+    classifiers=[
+        "Development Status :: 2 - Pre-Alpha",
+        "Intended Audience :: Developers",
+        "License :: OSI Approved :: BSD License",
+        "Natural Language :: English",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.1",
-        "Programming Language :: Python :: 3.10",
-        "Programming Language :: Python :: 3.2",
-        "Programming Language :: Python :: 3.3",
-        "Programming Language :: Python :: 3.4",
-        "Programming Language :: Python :: 3.5",
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
-        "License :: OSI Approved :: MIT License",
-        "Operating System :: OS Independent",
-    ),
-    test_suite="nose.collector",
-    tests_require=["nose"],
-    install_requires=["requests", "nose"],
-    include_package_data=True,
-    zip_safe=False,
+        "Programming Language :: Python :: 3.10",
+    ],
+    test_suite="tests",
 )

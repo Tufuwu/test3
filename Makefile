@@ -1,39 +1,45 @@
+.PHONY: clean-pyc clean-build docs
+
 help:
-	@echo '    init'
-	@echo '        install pipenv and all project dependencies'
-	@echo '    test'
-	@echo '        run all tests'
+	@echo "clean-build - remove build artifacts"
+	@echo "clean-pyc - remove Python file artifacts"
+	@echo "lint - check style with flake8"
+	@echo "test - run tests quickly with the default Python"
+	@echo "testall - run tests on every Python version with tox"
+	@echo "coverage - check code coverage quickly with the default Python"
+	@echo "release - package and upload a release"
+	@echo "sdist - package"
 
-init:
-	@echo 'Install python dependencies'
-	pip install pipenv
-	pip install autopep8
-	pipenv install
-	pipenv shell
-	python setup.py install
+clean: clean-build clean-pyc
 
-test:
-	@echo 'Run all tests'
-	nosetests
+clean-build:
+	rm -fr build/
+	rm -fr dist/
+	rm -fr *.egg-info
 
-build:
-	python setup.py sdist bdist_wheel
-
-test_upload:
-	python -m twine upload -r testpypi dist/*
-
-upload:
-	python -m twine upload dist/*
-
-clean:
+clean-pyc:
 	find . -name '*.pyc' -exec rm -f {} +
 	find . -name '*.pyo' -exec rm -f {} +
-	find . -type d -name __pycache__ -exec rm -r {} \+
-	rm -rf build/
-	rm -rf dist/
-	rm -rf *.egg-info
-	rm -rf .tox
-	rm -rf .pytest_cache .coverage
+	find . -name '*~' -exec rm -f {} +
 
 lint:
-	autopep8 random_word --recursive --in-place --pep8-passes 2000 --verbose
+	flake8 djangorestframework_camel_case tests
+
+test:
+	python setup.py test
+
+test-all:
+	tox
+
+coverage:
+	coverage run --source djangorestframework_camel_case setup.py test
+	coverage report -m
+	coverage html
+	open htmlcov/index.html
+
+release: clean
+	python setup.py sdist upload
+
+sdist: clean
+	python setup.py sdist
+	ls -l dist
