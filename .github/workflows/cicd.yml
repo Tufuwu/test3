@@ -3,7 +3,7 @@ name: Wikipedia Library - test and deploy
 
 on:
   push:
-    branches: ["master", "staging"]
+    branches: ["main", "staging"]
   pull_request:
     branches: ["master"]
 
