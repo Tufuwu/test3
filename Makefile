@@ -1,76 +1,42 @@
-.PHONY: clean-pyc clean-build docs clean install uninstall
+SHELL=bash
 
-help:
-	@echo "clean - remove all build, test, coverage and Python artifacts"
-	@echo "clean-build - remove build artifacts"
-	@echo "clean-pyc - remove Python file artifacts"
-	@echo "clean-sites - remove deploy directory from starter site"
-	@echo "clean-test - remove test and coverage artifacts"
-	@echo "lint - check style with flake8"
-	@echo "test - run tests quickly with the default Python"
-	@echo "test-all - run tests on every Python version with tox"
-	@echo "coverage - check code coverage quickly with the default Python"
-	@echo "docs - generate Sphinx HTML documentation, including API docs"
-	@echo "docs-release - generate and upload docs to PyPI"
-	@echo "release - package and upload a release"
-	@echo "dist - package"
-
-clean: clean-build clean-pyc clean-sites clean-test
-
-clean-build:
-	rm -fr build/
-	rm -fr dist/
-	rm -fr .eggs/
-	rm -fr *.egg-info
-
-clean-pyc:
-	find . -name '*.pyc' -exec rm -f {} +
-	find . -name '*.pyo' -exec rm -f {} +
-	find . -name '*~' -exec rm -f {} +
-	find . -name '__pycache__' -exec rm -fr {} +
-
-clean-sites:
-	find logya/sites/ -type d -name deploy -exec rm -rf {} +
-
-clean-test:
-	rm -fr t/
-	rm -fr .tox/
-	rm -f .coverage
-	rm -fr htmlcov/
-
-install: clean
-	python setup.py install
-
-uninstall:
-	pip uninstall -y logya
-
-reinstall: uninstall install
-
-lint:
-	flake8 logya tests
-
+.PHONY: test
 test:
-	python setup.py test
+	tox
 
-coverage:
-	coverage run --source logya setup.py test
-	coverage report -m
+.PHONY: builddeb
+builddeb:
+	mkdir -p dist
+	debuild -us -uc -b
+	mv ../aactivator_*.deb dist/
 
-docs:
-	rm -f docs/logya.rst
-	rm -f docs/modules.rst
-	sphinx-apidoc -o docs/ logya
-	$(MAKE) -C docs clean
-	$(MAKE) -C docs html
-	firefox docs/_build/html/index.html
 
-dist: clean
-	python setup.py sdist
-	python setup.py bdist_wheel
-	ls -l dist
+# itest / docker build
+DOCKER_BUILDER := aactivator-builder-$(USER)
 
-# Call example: make release version=4.7.1
-release: dist
-	git tag -a $(version) -m 'Create version $(version)'
-	git push --tags
-	twine upload dist/*
+# XXX: We must put /tmp on a volume (and then chmod it), or the filesystem
+# reports a different device ("filesystem ID") for files than directories,
+# which breaks our path safety checks. Probably due to AUFS layering?
+DOCKER_RUN_TEST := docker run -e DEBIAN_FRONTEND=noninteractive -v /tmp -v $(PWD):/mnt:ro
+
+.PHONY: docker-builder-image
+docker-builder-image:
+	docker build -t $(DOCKER_BUILDER) .
+
+.PHONY: builddeb-docker
+builddeb-docker: docker-builder-image
+	mkdir -p dist
+	docker run -v $(PWD):/mnt $(DOCKER_BUILDER)
+
+ITEST_TARGETS = itest_xenial itest_bionic itest_stretch itest_buster
+
+.PHONY: itest $(ITEST_TARGETS)
+itest: $(ITEST_TARGETS)
+
+itest_xenial: _itest-ubuntu-xenial
+itest_bionic: _itest-ubuntu-bionic
+itest_stretch: _itest-debian-stretch
+itest_buster: _itest-debian-buster
+
+_itest-%: builddeb-docker
+	$(DOCKER_RUN_TEST) $(shell sed 's/-/:/' <<< "$*") /mnt/ci/docker
