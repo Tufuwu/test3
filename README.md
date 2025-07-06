@@ -1,268 +1,153 @@
-# amitools - various AmigaOS tools for other platforms
+# Py.test plugin for validating Jupyter notebooks
 
-- written by Christian Vogelgsang <chris@vogelgsang.org>
-- under the GNU Public License V2
+[![Build Status](https://travis-ci.org/computationalmodelling/nbval.svg)](https://travis-ci.org/computationalmodelling/nbval)
+[![PyPI Version](https://badge.fury.io/py/nbval.svg)](https://pypi.python.org/pypi/nbval)
+[![Documentation Status](https://readthedocs.org/projects/nbval/badge/)](https://nbval.readthedocs.io/)
 
-## Introduction
+The plugin adds functionality to py.test to recognise and collect Jupyter
+notebooks. The intended purpose of the tests is to determine whether execution
+of the stored inputs match the stored outputs of the `.ipynb` file. Whilst also
+ensuring that the notebooks are running without errors.
 
-`amitools` is a collection of Python 3 tools that I've written to work with
-*Amiga OS* binaries and files on macOS and all other *nix-like platforms
-supporting Python. Windows might work as
-well, but is heavily untested. However, patches are welcome.
+The tests were designed to ensure that Jupyter notebooks (especially those for
+reference and documentation), are executing consistently.
 
-I focus with my tools on classic Amiga setups, i.e. a 680x0 based system with
-Amiga OS 1.x - 3.x running on it. However, this is an open project, so you can
-provide other Amiga support, too.
+Each cell is taken as a test, a cell that doesn't reproduce the expected
+output will fail.
 
-The tools are mostly developer-oriented, so a background in Amiga programming
-will be very helpful.
-
-## Prerequisites
-
-- Python >= ```3.6```
-- pip
-
-### Optional Packages
-
-- [lhafile - FS Edition][1]: required to use ```.lha``` file scanner
-- [cython][7]: (version >= **0.25**) required to rebuild the native module
-
-### Install pip
-
-First make sure to have the Python 3 package installer ```pip3```:
-
-#### macOS
-
-On macOS you have multiple ways of installing ```pip3```:
-
-#### System Python
-
-```bash
-sudo easy_install pip
-```
-
-#### Homebrew Package Manager
-
-With the [Homebrew][3] package manager (```pip3``` is included in the ```python3``` package):
-
-```bash
-brew install python3
-```
-
-#### Linux/Ubuntu
-
-On Linux Ubuntu use the provided packages ```python3-pip```
-
-```bash
-sudo apt-get install python3-pip
-```
-
-#### Centos
-
-To get pip run:
-
-```bash
-curl "https://bootstrap.pypa.io/get-pip.py" -o "get-pip.py"
-python3 get-pip.py
-```
-
-#### Windows with Visual Studio
-
-- Install the latest native Windows Python >= 3.6 from [python.org][6]
-- There is a special Edition for Visual Studio available that allows
-  to compile Python 3.x modules: Install [VCpython3][5]
-- Open the Command Shell of the Compiler and run
-
-```bash
-cd C:\Python3x\Scripts
-pip install amitools
-```
-
-#### Windows with MSYS2
-
-- (I use the mingw gcc compiler here to build the extension)
-- On Windows with [MSYS2][4] (use x86_64 version if possible):
-  - Install with exe installer
-  - Initial update is done with: (Open shell first)
-
-```bash
-pacman -Sy
-pacman --needed -S bash pacman msys2-runtime
-```
-
-- Now close shell and re-open a new dev shell (```MinGW-w64 Win64 Shell```)
-
-```bash
-pacman -Su
-pacman -S mingw-w64-x86_64-python2-pip mingw-w64-x86_64-gcc git make
-```
-
-[1]: https://github.com/FrodeSolheim/python-lhafile
-[2]: https://www.macports.org
-[3]: https://brew.sh
-[4]: https://github.com/msys2/msys2/wiki
-[5]: https://www.microsoft.com/en-gb/download/details.aspx?id=44266
-[6]: https://www.python.org
-[7]: https://cython.org
+See [`docs/source/index.ipynb`](http://nbviewer.jupyter.org/github/computationalmodelling/nbval/blob/master/docs/source/index.ipynb) for the full documentation.
 
 ## Installation
+Available on PyPi:
 
-### The Easy Way for Users
+    pip install nbval
 
-#### Release Version
+or install the latest version from cloning the repository and running:
 
-```bash
-pip3 install amitools
+    pip install .
+
+from the main directory. To uninstall:
+
+    pip uninstall nbval
+
+
+## How it works
+The extension looks through every cell that contains code in an IPython notebook
+and then the `py.test` system compares the outputs stored in the notebook
+with the outputs of the cells when they are executed. Thus, the notebook itself is
+used as a testing function.
+The output lines when executing the notebook can be sanitized passing an
+extra option and file, when calling the `py.test` command. This file
+is a usual configuration file for the `ConfigParser` library.
+
+Regarding the execution, roughly, the script initiates an
+IPython Kernel with a `shell` and
+an `iopub` sockets. The `shell` is needed to execute the cells in
+the notebook (it sends requests to the Kernel) and the `iopub` provides
+an interface to get the messages from the outputs. The contents
+of the messages obtained from the Kernel are organised in dictionaries
+with different information, such as time stamps of executions,
+cell data types, cell types, the status of the Kernel, username, etc.
+
+In general, the functionality of the IPython notebook system is
+quite complex, but a detailed explanation of the messages
+and how the system works, can be found here
+
+https://jupyter-client.readthedocs.io/en/latest/messaging.html#messaging
+
+## Execution
+To execute this plugin, you need to execute `py.test` with the `nbval` flag
+to differentiate the testing from the usual python files:
+
+    py.test --nbval
+
+You can also specify `--nbval-lax`, which runs notebooks and checks for
+errors, but only compares the outputs of cells with a `#NBVAL_CHECK_OUTPUT`
+marker comment.
+
+    py.test --nbval-lax
+
+The commands above will execute all the `.ipynb` files and 'pytest' tests in the current folder.
+Specify `-p no:python` if you would like to execute notebooks only. Alternatively, you can execute a specific notebook:
+
+    py.test --nbval my_notebook.ipynb
+
+By default, each `.ipynb` file will be executed using the kernel
+specified in its metadata. You can override this behavior by passing
+either `--nbval-kernel-name mykernel` to run all the notebooks using
+`mykernel`, or `--current-env` to use a kernel in the same environment
+in which pytest itself was launched.
+
+If the output lines are going to be sanitized, an extra flag, `--nbval-sanitize-with`
+together with the path to a confguration file with regex expressions, must be passed,
+i.e.
+
+    py.test --nbval my_notebook.ipynb --nbval-sanitize-with path/to/my_sanitize_file
+
+where `my_sanitize_file` has the following structure.
+
+```
+[Section1]
+regex: [a-z]*
+replace: abcd
+
+regex: [1-9]*
+replace: 0000
+
+[Section2]
+regex: foo
+replace: bar
 ```
 
-Note:
+The `regex` option contains the expression that is going to be matched in the outputs, and
+`replace` is the string that will replace the `regex` match. Currently, the section
+names do not have any meaning or influence in the testing system, it will take
+all the sections and replace the corresponding options.
 
-- on Linux/macOS may use ``sudo`` to install for all users
-- requires a host C compiler to compile the extension.
 
-#### Current Version from GitHub
+### Coverage
 
-```bash
-pip3 install -U  git+https://github.com/cnvogelg/amitools.git
-```
+To use notebooks to generate coverage for imported code, use the pytest-cov plugin.
+nbval should automatically detect the relevant options and configure itself with it.
 
-This will install the latest version found in the github repository.
-You find the latest features but it may also be unstable from time to time.
 
-### Developers
+### Parallel execution
 
-- Follow this route if you want to hack around with the amitools codebase
-- Clone the Git repo: [amitools@git](https://github.com/cnvogelg/amitools)
-- Ensure to have Cython (version >= **0.25**) installed:
+nbval is compatible with the pytest-xdist plugin for parallel running of tests. It does
+however require the use of the `--dist loadscope` flag to ensure that all cells of one
+notebook are run on the same kernel.
 
-```bash
-sudo pip3 install cython
-```
 
-You have multiple variants to install the tools with Python's `setuptools`:
+## Help
+The `py.test` system help can be obtained with `py.test -h`, which will
+show all the flags that can be passed to the command, such as the
+verbose `-v` option. Nbval's options can be found under the
+`Jupyter Notebook validation` section.
 
-- **Global Install** is available for all users of your system and needs root privileges
 
-```bash
-sudo python3 setup.py install
-```
+## Acknowledgements
+This plugin was inspired by Andrea Zonca's py.test plugin for collecting unit
+tests in the IPython notebooks (https://github.com/zonca/pytest-ipynb).
 
-- **User Install** is available for your user only but does not require special privileges
+The original prototype was based on the template in
+https://gist.github.com/timo/2621679 and the code of a testing system
+for notebooks https://gist.github.com/minrk/2620735 which we
+integrated and mixed with the `py.test` system.
 
-```bash
-python3 setup.py install --user
-```
+We acknowledge financial support from
 
-- **Developer Setup** only links this code into your installation and allows
-   you to change/develop the code and test it immediately. (I prefer user install here)
+- OpenDreamKit Horizon 2020 European Research Infrastructures project (#676541), http://opendreamkit.org
 
-```bash
-python3 setup.py develop --user
-```
+- EPSRC’s Centre for Doctoral Training in Next Generation
+  Computational Modelling, http://ngcm.soton.ac.uk (#EP/L015382/1) and
+  EPSRC’s Doctoral Training Centre in Complex System Simulation
+  ((EP/G03690X/1),
 
-- **Run In Place** allows you to run the binaries directly from the `bin` directory
-   without any installation. You need `make` only to build the native library
-   of vamos:
+- The Gordon and Betty Moore Foundation through Grant GBMF #4856,by the
+  Alfred P. Sloan Foundation and by the Helmsley Trust.
 
-```bash
-python3 setup.py build_ext -i
-```
 
-or if you have installed `GNU make` simply use:
+## Authors
 
-```bash
-make init       # global or virtualenv setup
-make init_user  # user setup
-```
-
-For more help on the `make` targets run:
-
-```bash
-make help
-```
-
-## Contents
-
-The new Documentation of `amitools` is hosted on [readthedocs][8]
-
-### Tools
-
-- [vamos](docs/vamos.md) **V)irtual AM)iga OS**
-
-  vamos allows you to run command line (CLI) Amiga programs on your host
-  Mac or PC. vamos is an API level Amiga OS Emulator that replaces exec
-  and dos calls with its own implementation and maps all file access to
-  your local file system.
-
-- [xdftool][9]
-
-  Create and modify ADF or HDF disk image files.
-
-- [xdfscan][10]
-
-  Scan directory trees for ADF or HDF disk image files and verify the contents.
-
-- [rdbtool][11]
-
-  Create or modify disk images with Rigid Disk Block (RDB)
-
-- [romtool][12]
-
-  A tool to inspect, dissect, and build Amiga Kickstart ROM images to be
-  used with emulators, run with soft kickers or burned into flash ROMs.
-
-- hunktool
-
-  The hunktool uses amitools' hunk library to load a hunk-based amiga
-  binary. Currently, its main purpose is to display the contents of the
-  files in various formats.
-
-  You can load hunk-based binaries, libraries, and object files. Even
-  overlayed binary files are supporte.
-
-- typetool
-
-  This little tool is a companion for vamos. It allows you to dump and get
-  further information on the API C structure of AmigaOS used in vamos.
-
-- fdtool
-
-  This tool reads the fd (function description) files Commodore supplied for
-  all of their libraries and dumps their contents in different formats
-  including a code structure used in vamos.
-
-  You can query functions and find their jump table offset.
-
-[8]: https://amitools.readthedocs.io/
-[9]: https://amitools.readthedocs.io/en/latest/tools/xdftool.html
-[10]: https://amitools.readthedocs.io/en/latest/tools/xdfscan.html
-[11]: https://amitools.readthedocs.io/en/latest/tools/rdbtool.html
-[12]: https://amitools.readthedocs.io/en/latest/tools/romtool.html
-
-### Python Libraries
-
-- Hunk library ```amitools.binfmt.hunk```
-
-  This library allows to read Amiga OS loadSeg()able binaries and represent
-  them in a python structure. You could query all items found there,
-  retrieve the code, data, and bss segments and even relocate them to target
-  addresses
-
-- ELF library ```amitools.binfmt.elf```
-
-  This library allows to read a subset of the ELF format mainly used in
-  AROS m68k.
-
-- .fd File Parser ```amitools.fd```
-
-  Parse function descriptions shipped by Commodore to describe the Amiga APIs
-
-- OFS and FFS File System Tools ```amitools.fs```
-
-  Create or modify Amiga's OFS and FFS file system structures
-
-- File Scanners ```amitools.scan```
-
-  I've written some scanners that walk through file trees and retrieve the
-  file data for further processing. I support file trees on the file system,
-  in lha archives or in adf/hdf disk images
+2014 - 2017 David Cortes-Ortuno, Oliver Laslett, T. Kluyver, Vidar
+Fauske, Maximilian Albert, MinRK, Ondrej Hovorka, Hans Fangohr
