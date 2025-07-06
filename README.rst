@@ -1,179 +1,320 @@
-osmcha-django
-==============
+=====================================
+fgivenx: Functional Posterior Plotter  
+=====================================
+:fgivenx:  Functional Posterior Plotter 
+:Author: Will Handley
+:Version: 2.2.2
+:Homepage: https://github.com/williamjameshandley/fgivenx
+:Documentation: http://fgivenx.readthedocs.io/
 
-.. image:: https://travis-ci.org/willemarcel/osmcha-django.svg
-    :target: https://travis-ci.org/willemarcel/osmcha-django
+.. image:: https://github.com/williamjameshandley/fgivenx/workflows/CI/badge.svg?branch=master
+   :target: https://github.com/williamjameshandley/fgivenx/actions?query=workflow%3ACI+branch%3Amaster
+   :alt: Build Status
+.. image:: https://codecov.io/gh/williamjameshandley/fgivenx/branch/master/graph/badge.svg
+   :target: https://codecov.io/gh/williamjameshandley/fgivenx
+   :alt: Test Coverage Status
+.. image:: https://badge.fury.io/py/fgivenx.svg
+   :target: https://badge.fury.io/py/fgivenx
+   :alt: PyPi location
+.. image:: https://readthedocs.org/projects/fgivenx/badge/?version=latest
+   :target: https://fgivenx.readthedocs.io/en/latest/?badge=latest
+   :alt: Documentation Status
+.. image:: http://joss.theoj.org/papers/cf6f8ac309d6a18b6d6cf08b64aa3f62/status.svg
+   :target: http://joss.theoj.org/papers/cf6f8ac309d6a18b6d6cf08b64aa3f62
+   :alt: Review Status
+.. image:: https://zenodo.org/badge/100947684.svg
+   :target: https://zenodo.org/badge/latestdoi/100947684
+   :alt: Permanent DOI
+.. image:: https://img.shields.io/badge/arXiv-1908.01711-b31b1b.svg
+   :target: https://arxiv.org/abs/1908.01711
+   :alt: Open-access paper
 
-.. image:: https://coveralls.io/repos/github/willemarcel/osmcha-django/badge.svg?branch=master
-    :target: https://coveralls.io/github/willemarcel/osmcha-django?branch=master
+Description
+===========
 
+``fgivenx`` is a python package for plotting posteriors of functions. It is
+currently used in astronomy, but will be of use to any scientists performing
+Bayesian analyses which have predictive posteriors that are functions.
 
-The aim of OSMCHA is to help identify and fix harmful edits in the OpenStreetMap.
-It relies on `OSMCHA <https://github.com/willemarcel/osmcha>`_ to analyse the changesets.
+This package allows one to plot a predictive posterior of a function,
+dependent on sampled parameters. We assume one has a Bayesian posterior
+``Post(theta|D,M)`` described by a set of posterior samples ``{theta_i}~Post``.
+If there is a function parameterised by theta ``y=f(x;theta)``, then this script
+will produce a contour plot of the conditional posterior ``P(y|x,D,M)`` in the
+``(x,y)`` plane.
 
-This project provides a Django application that get the changesets from the
-OpenStreetMap API, analyses and store it in a database and finally provides a
-REST API to interact with the changeset data.
+The driving routines are ``fgivenx.plot_contours``, ``fgivenx.plot_lines`` and
+``fgivenx.plot_dkl``. The code is compatible with getdist, and has a loading function
+provided by ``fgivenx.samples_from_getdist_chains``.
 
-This repository contains the backend code. You can report errors or request new features in the
-`osmcha-frontend repository <https://github.com/mapbox/osmcha-frontend>`_.
+|image0|
 
-License: BSD 2-Clause
+Getting Started
+===============
 
-Settings
-------------
+Users can install using pip:
 
-osmcha-django relies extensively on environment settings which **will not work with
-Apache/mod_wsgi setups**. It has been deployed successfully with both Gunicorn/Nginx
-and uWSGI/Nginx.
+.. code:: bash
 
-For configuration purposes, the following table maps the 'osmcha-django' environment
-variables to their Django setting:
+   pip install fgivenx
 
+from source:
 
-======================================= ================================= ========================================= ===========================================
-Environment Variable                    Django Setting                    Development Default                       Production Default
-======================================= ================================= ========================================= ===========================================
-DJANGO_CACHES                           CACHES (default)                  locmem                                    redis
-DJANGO_DEBUG                            DEBUG                             True                                      False
-DJANGO_SECRET_KEY                       SECRET_KEY                        CHANGEME!!!                               raises error
-DJANGO_SECURE_BROWSER_XSS_FILTER        SECURE_BROWSER_XSS_FILTER         n/a                                       True
-DJANGO_SECURE_SSL_REDIRECT              SECURE_SSL_REDIRECT               n/a                                       True
-DJANGO_SECURE_CONTENT_TYPE_NOSNIFF      SECURE_CONTENT_TYPE_NOSNIFF       n/a                                       True
-DJANGO_SECURE_FRAME_DENY                SECURE_FRAME_DENY                 n/a                                       True
-DJANGO_SECURE_HSTS_INCLUDE_SUBDOMAINS   HSTS_INCLUDE_SUBDOMAINS           n/a                                       True
-DJANGO_SESSION_COOKIE_HTTPONLY          SESSION_COOKIE_HTTPONLY           n/a                                       True
-DJANGO_SESSION_COOKIE_SECURE            SESSION_COOKIE_SECURE             n/a                                       False
-DJANGO_DEFAULT_FROM_EMAIL               DEFAULT_FROM_EMAIL                n/a                                       "osmcha-django <noreply@example.com>"
-DJANGO_SERVER_EMAIL                     SERVER_EMAIL                      n/a                                       "osmcha-django <noreply@example.com>"
-DJANGO_EMAIL_SUBJECT_PREFIX             EMAIL_SUBJECT_PREFIX              n/a                                       "[osmcha-django] "
-DJANGO_CHANGESETS_FILTER                CHANGESETS_FILTER                 None                                      None
-POSTGRES_USER                           POSTGRES_USER                     None                                      None
-POSTGRES_PASSWORD                       POSTGRES_PASSWORD                 None                                      None
-PGHOST                                  PGHOST                            localhost                                 localhost
-OAUTH_OSM_KEY                           SOCIAL_AUTH_OPENSTREETMAP_KEY     None                                      None
-OAUTH_OSM_SECRET                        SOCIAL_AUTH_OPENSTREETMAP_SECRET  None                                      None
-OSM_VIZ_TOOL_LINK                       VIZ_TOOL_LINK                     https://osmlab.github.io/changeset-map/#  https://osmlab.github.io/changeset-map/#
-DJANGO_ANON_USER_THROTTLE_RATE          ANON_USER_THROTTLE_RATE           None                                      30/min
-DJANGO_COMMON_USER_THROTTLE_RATE        COMMON_USER_THROTTLE_RATE         None                                      180/min
-DJANGO_NON_STAFF_USER_THROTTLE_RATE     NON_STAFF_USER_THROTTLE_RATE      3/min                                     3/min
-OAUTH_REDIRECT_URI                      OAUTH_REDIRECT_URI                http://localhost:8000/oauth-landing.html  http://localhost:8000/oauth-landing.html
-OSMCHA_FRONTEND_VERSION                 OSMCHA_FRONTEND_VERSION           oh-pages                                  oh-pages
-DJANGO_ENABLE_CHANGESET_COMMENTS        ENABLE_POST_CHANGESET_COMMENTS    False                                     False
-DJANGO_OSM_COMMENTS_API_KEY             OSM_COMMENTS_API_KEY              ''                                        ''
-======================================= ================================= ========================================= ===========================================
+.. code:: bash
 
-You can set each of these variables with:
+   git clone https://github.com/williamjameshandley/fgivenx
+   cd fgivenx
+   python setup.py install --user
 
-    $ export VAR=VALUE
+or for those on `Arch linux <https://www.archlinux.org/>`__ it is
+available on the
+`AUR <https://aur.archlinux.org/packages/python-fgivenx/>`__
 
-During the development, you can define the values inside your virtualenv ``bin/activate`` file.
+You can check that things are working by running the test suite (You may
+encounter warnings if the optional dependency ``joblib`` is not installed):
 
+.. code:: bash
 
-Filtering Changesets
----------------------
+   pip install pytest pytest-runner pytest-mpl
+   export MPLBACKEND=Agg
+   pytest <fgivenx-install-location>
 
-You can filter the changesets that will be imported by defining the variable CHANGESETS_FILTER
-with the path to a GeoJSON file containing a polygon with the geographical area you want to filter.
+   # or, equivalently
+   git clone https://github.com/williamjameshandley/fgivenx
+   cd fgivenx
+   python setup.py test
 
+Check the dependencies listed in the next section are installed. You can then use the
+``fgivenx`` module from your scripts.
 
-Getting up and running
-----------------------
+Some users of OSX or `Anaconda <https://en.wikipedia.org/wiki/Anaconda_(Python_distribution)>`__ may find ``QueueManagerThread`` errors if `Pillow <https://pypi.org/project/Pillow/>`__ is not installed (run ``pip install pillow``).
 
-Basics
-^^^^^^
+If you want to use parallelisation, have progress bars or getdist compatibility
+you should install the additional optional dependencies:
 
-The steps below will get you up and running with a local development environment.
-We assume you have the following installed:
+.. code:: bash
 
-* pip
-* virtualenv
-* PostgreSQL
+   pip install joblib tqdm getdist
+   # or, equivalently
+   pip install -r  requirements.txt
 
-Before to install the python libraries, we need to install some packages in the
-operational system::
+You may encounter warnings if you don't have the optional dependency ``joblib``
+installed.
 
-    $ sudo ./install_os_dependencies.sh install
+Dependencies
+=============
+Basic requirements:
 
-For the next step, make sure to create and activate a virtualenv_, then open a terminal at the project root and install the
-requirements for local development::
+* Python 2.7+ or 3.4+
+* `matplotlib <https://pypi.org/project/matplotlib/>`__
+* `numpy <https://pypi.org/project/numpy/>`__
+* `scipy <https://pypi.org/project/scipy/>`__
 
-    $ pip install -r requirements/local.txt
+Documentation:
 
-.. _virtualenv: http://docs.python-guide.org/en/latest/dev/virtualenvs/
+* `sphinx <https://pypi.org/project/Sphinx/>`__
+* `numpydoc <https://pypi.org/project/numpydoc/>`__
 
-Create a local PostgreSQL database::
+Tests:
 
-    $ createdb osmcha
+* `pytest <https://pypi.org/project/pytest/>`__
+* `pytest-mpl <https://pypi.org/project/pytest-mpl/>`__
 
-Run ``migrate`` on your new database::
+Optional extras:
 
-    $ python manage.py migrate
-
-You can now run the ``runserver_plus`` command::
-
-    $ python manage.py runserver_plus
-
-Open up your browser to http://127.0.0.1:8000/ to see the site running locally.
-
-Setting Up Your Users
-^^^^^^^^^^^^^^^^^^^^^
-
-To create a **normal user account**, just go to Sign Up and fill out the form. Once you submit it, you'll see a "Verify Your E-mail Address" page. Go to your console to see a simulated email verification message. Copy the link into your browser. Now the user's email should be verified and ready to go.
-
-To create an **superuser account**, use this command::
-
-    $ python manage.py createsuperuser
-
-For convenience, you can keep your normal user logged in on Chrome and your superuser logged in on Firefox (or similar), so that you can see how the site behaves for both kinds of users.
-
-How to login using the OAuth api
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-* Make a POST request to ``<your_base_url>/api/v1/social-auth/`` to receive the ``oauth_token``, ``oauth_token_secret`` keys.
-* Take the ``oauth_token`` and redirect the user to ``https://www.openstreetmap.org/oauth/authorize?oauth_token=<oauth_token>``.
-* You'll be redirected to the URL that you configured in your OSM OAuth key settings. That redirect url will contain the ``oauth_verifier`` param.
-* Make another POST request to ``<your_base_url>/api/v1/social-auth/`` and send the ``oauth_token``, ``oauth_token_secret`` and ``oauth_verifier`` as the data. You'll receive a token that you can use to make authenticated requests.
-* The token key should be included in the Authorization HTTP header. The key should be prefixed by the string literal "Token", with whitespace separating the two strings. For example: ``Authorization: Token 9944b09199c62bcf9418ad846dd0e4bbdfc6ee4b``.
-
-Frontend
-^^^^^^^^
-
-`osmcha-frontend <https://github.com/mapbox/osmcha-frontend>`_ is a web interface
-that you can use to interact with the API. We have a django management command
-to get the last version of osmcha-frontend and serve it with the API.
-
-    $ python manage.py update_frontend
-
-After that, if you have set all the environment variables properly, you can start
-the server and have the frontend in your root url.
-
-Feature creation endpoint
-^^^^^^^^^^^^^^^^^^^^^^^^^
-
-The feature creation endpoint allows only admin users to create features. You can
-use the admin site to create a token to a user.
-
-Instances
----------
-
-We have some instances running ``osmcha-django``:
-
-The main instance is https://osmcha.org/. You can check the API
-documentation at https://osmcha.org/api-docs/.
-
-Furthermore, we have a test instance running at http://osmcha-org-staging.osmcha.org/.
-
-Deployment
-------------
-
-Check the `Deploy <DEPLOY.rst>`_ file for instructions on how to deploy with Heroku and Dokku.
+* `joblib <https://pypi.org/project/joblib/>`__ (parallelisation) [`+ pillow <https://pypi.org/project/Pillow/>`__ on some systems]
+* `tqdm <https://pypi.org/project/tqdm/>`__ (progress bars)
+* `getdist <https://pypi.org/project/GetDist/>`__ (reading of getdist compatible files)
 
 
-Get in contact
----------------
+Documentation
+=============
 
-If you use, deploy or are interested in help to develop OSMCha, subscribe to our
-`mailing list <https://lists.openstreetmap.org/listinfo/osmcha-dev>`_. You can
-report errors or request new features in the
-`osmcha-frontend repository <https://github.com/mapbox/osmcha-frontend>`_.
+Full Documentation is hosted at
+`ReadTheDocs <http://fgivenx.readthedocs.io/>`__.
+To build your own local copy of the documentation you'll need to install
+`sphinx <https://pypi.org/project/Sphinx/>`__. You can then run:
+
+.. code:: bash
+
+   cd docs
+   make html
+
+Citation
+========
+
+If you use ``fgivenx`` to generate plots for a publication, please cite
+as: ::
+
+   Handley, (2018). fgivenx: A Python package for functional posterior
+   plotting . Journal of Open Source Software, 3(28), 849,
+   https://doi.org/10.21105/joss.00849
+
+or using the BibTeX:
+
+.. code:: bibtex
+
+   @article{fgivenx,
+       doi = {10.21105/joss.00849},
+       url = {http://dx.doi.org/10.21105/joss.00849},
+       year  = {2018},
+       month = {Aug},
+       publisher = {The Open Journal},
+       volume = {3},
+       number = {28},
+       author = {Will Handley},
+       title = {fgivenx: Functional Posterior Plotter},
+       journal = {The Journal of Open Source Software}
+   }
+
+Example Usage
+=============
+
+
+
+Plot user-generated samples
+---------------------------
+
+.. code:: python
+
+    import numpy
+    import matplotlib.pyplot as plt
+    from fgivenx import plot_contours, plot_lines, plot_dkl
+
+
+    # Model definitions
+    # =================
+    # Define a simple straight line function, parameters theta=(m,c)
+    def f(x, theta):
+        m, c = theta
+        return m * x + c
+
+
+    numpy.random.seed(1)
+
+    # Posterior samples
+    nsamples = 1000
+    ms = numpy.random.normal(loc=-5, scale=1, size=nsamples)
+    cs = numpy.random.normal(loc=2, scale=1, size=nsamples)
+    samples = numpy.array([(m, c) for m, c in zip(ms, cs)]).copy()
+
+    # Prior samples
+    ms = numpy.random.normal(loc=0, scale=5, size=nsamples)
+    cs = numpy.random.normal(loc=0, scale=5, size=nsamples)
+    prior_samples = numpy.array([(m, c) for m, c in zip(ms, cs)]).copy()
+
+    # Set the x range to plot on
+    xmin, xmax = -2, 2
+    nx = 100
+    x = numpy.linspace(xmin, xmax, nx)
+
+    # Set the cache
+    cache = 'cache/test'
+    prior_cache = cache + '_prior'
+
+    # Plotting
+    # ========
+    fig, axes = plt.subplots(2, 2)
+
+    # Sample plot
+    # -----------
+    ax_samples = axes[0, 0]
+    ax_samples.set_ylabel(r'$c$')
+    ax_samples.set_xlabel(r'$m$')
+    ax_samples.plot(prior_samples.T[0], prior_samples.T[1], 'b.')
+    ax_samples.plot(samples.T[0], samples.T[1], 'r.')
+
+    # Line plot
+    # ---------
+    ax_lines = axes[0, 1]
+    ax_lines.set_ylabel(r'$y = m x + c$')
+    ax_lines.set_xlabel(r'$x$')
+    plot_lines(f, x, prior_samples, ax_lines, color='b', cache=prior_cache)
+    plot_lines(f, x, samples, ax_lines, color='r', cache=cache)
+
+    # Predictive posterior plot
+    # -------------------------
+    ax_fgivenx = axes[1, 1]
+    ax_fgivenx.set_ylabel(r'$P(y|x)$')
+    ax_fgivenx.set_xlabel(r'$x$')
+    cbar = plot_contours(f, x, prior_samples, ax_fgivenx,
+                         colors=plt.cm.Blues_r, lines=False,
+                         cache=prior_cache)
+    cbar = plot_contours(f, x, samples, ax_fgivenx, cache=cache)
+
+    # DKL plot
+    # --------
+    ax_dkl = axes[1, 0]
+    ax_dkl.set_ylabel(r'$D_\mathrm{KL}$')
+    ax_dkl.set_xlabel(r'$x$')
+    ax_dkl.set_ylim(bottom=0, top=2.0)
+    plot_dkl(f, x, samples, prior_samples, ax_dkl,
+             cache=cache, prior_cache=prior_cache)
+
+    ax_lines.get_shared_x_axes().join(ax_lines, ax_fgivenx, ax_samples)
+
+    fig.tight_layout()
+    fig.savefig('plot.png')
+
+|image0|
+
+Plot GetDist chains
+-------------------
+
+.. code:: python
+
+    import numpy
+    import matplotlib.pyplot as plt
+    from fgivenx import plot_contours, samples_from_getdist_chains
+
+    file_root = './plik_HM_TT_lowl/base_plikHM_TT_lowl'
+    samples, weights = samples_from_getdist_chains(['logA', 'ns'], file_root)
+
+    def PPS(k, theta):
+        logA, ns = theta
+        return logA + (ns - 1) * numpy.log(k)
+        
+    k = numpy.logspace(-4,1,100)
+    cbar = plot_contours(PPS, k, samples, weights=weights)
+    cbar = plt.colorbar(cbar,ticks=[0,1,2,3])
+    cbar.set_ticklabels(['',r'$1\sigma$',r'$2\sigma$',r'$3\sigma$'])
+    
+    plt.xscale('log')
+    plt.ylim(2,4)
+    plt.ylabel(r'$\ln\left(10^{10}\mathcal{P}_\mathcal{R}\right)$')
+    plt.xlabel(r'$k / {\rm Mpc}^{-1}$')
+    plt.tight_layout()
+    plt.savefig('planck.png')
+
+|image1|
+
+Contributing
+============
+Want to contribute to ``fgivenx``? Awesome!
+There are many ways you can contribute via the 
+[GitHub repository](https://github.com/williamjameshandley/fgivenx), 
+see below.
+
+Opening issues
+--------------
+Open an issue to report bugs or to propose new features.
+
+Proposing pull requests
+-----------------------
+Pull requests are very welcome. Note that if you are going to propose drastic
+changes, be sure to open an issue for discussion first, to make sure that your
+PR will be accepted before you spend effort coding it.
+
+.. |image0| image:: https://raw.githubusercontent.com/williamjameshandley/fgivenx/master/plot.png
+.. |image1| image:: https://raw.githubusercontent.com/williamjameshandley/fgivenx/master/planck.png 
+
+Changelog
+=========
+:v2.2.0:  Paper accepted
+:v2.1.17: 100% coverage
+:v2.1.16: Tests fixes
+:v2.1.15: Additional plot tests
+:v2.1.13: Further bug fix in test suite for image comparison
+:v2.1.12: Bug fix in test suite for image comparison
+:v2.1.11: Documentation upgrades
+:v2.1.10: Added changelog
