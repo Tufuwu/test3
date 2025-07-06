@@ -1,0 +1,12 @@
+process: ../example_process.py
+zoom_levels: 5
+pyramid:
+    grid: geodetic
+input:
+    file1: dummy2.tif
+    file2: zoom.mapchete
+output:
+    dtype: float32
+    bands: 1
+    path: tmp/mapchete_input
+    format: GTiff

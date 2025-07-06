@@ -1,0 +1,13 @@
+process: ../example_process.py
+zoom_levels:
+    min: 7
+    max: 10
+pyramid:
+    grid: geodetic
+bounds: [-180, -90, 180, 90]
+input:
+    file1: dummy1.tif
+output:
+    bands: 1
+    path: tmp/minmax_zoom
+    format: PNG
