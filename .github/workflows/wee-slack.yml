@@ -43,9 +43,3 @@ jobs:
 
     - name: Test with pytest
       run: pytest
-
-  notifications:
-    irc:
-      channels: "chat.freenode.net#wee-slack-dev"
-    email:
-      if: failure()
