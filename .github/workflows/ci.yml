@@ -43,6 +43,7 @@ jobs:
       - name: Install result
         run: |
           pip install -e .
+          pip install "flake8==5.0.4"
 
       # Tests
       - name: Run tests
