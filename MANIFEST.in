@@ -1,9 +1,5 @@
-include MANIFEST.in
-include README.md
 include LICENSE
-
-recursive-include docs *
-
-recursive-include pybufrkit/definitions *.json
-recursive-include pybufrkit/tables *
-recursive-include tests *
+include *.json
+include *.py
+include tox.ini
+recursive-include deps *.in *.md *.txt
