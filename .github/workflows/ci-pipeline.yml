@@ -18,6 +18,7 @@ jobs:
   django:
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         django: ["2.0", "2.1", "2.2", "3.0", "3.1"]
     steps:
