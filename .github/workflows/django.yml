@@ -1,60 +1,63 @@
-name: Django CI
+name: Python application
 
 on:
-  [pull_request_target,push]
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:9.5
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: osmcha
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
     strategy:
       fail-fast: false
-      max-parallel: 4
       matrix:
-        python-version: [3.6, 3.7, 3.8]
+        python-version: [3.8, 3.7, 3.6, 3.5]
 
     steps:
     - uses: actions/checkout@v2
-    - name: Setup PostgreSQL with Postgis
-      uses: huaxk/postgis-action@v1.0.0
-      with:
-        postgresql version: latest
-        postgresql db: osmcha
-        postgresql user: ${{ secrets.POSTGRES_USER }}
-        postgresql password: ${{ secrets.POSTGRES_PASSWORD }}
+
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python-version }}
-    - name: Install Dependencies
+
+    - name: Install dependencies
       run: |
-        sudo apt-get install -y binutils libproj-dev python3-gdal libgeos-dev libyaml-dev
-        python -m pip install --upgrade pip
-        pip install --upgrade coveralls
+        sudo apt-get update
+        sudo apt-get install -y postgresql-9.5-postgis-2.4 binutils libproj-dev python3-gdal libgeos-dev libyaml-dev libgnutls28-dev
+        pip install coveralls
         pip install -r requirements/test.txt
-    - name: Run Tests
+
+    - name: Set up Postgres
+      run: |
+        psql -c 'CREATE EXTENSION postgis;' -U postgres -d osmcha
+        psql -c 'CREATE EXTENSION postgis_topology;' -U postgres -d osmcha
+
+    - name: Run tests
+      env:
+        DATABASE_URL: postgresql://postgres:postgres@localhost/osmcha
       run: |
         coverage run manage.py test --settings=config.settings.tests
-      env:
-        OAUTH_OSM_KEY: ${{ secrets.OAUTH_OSM_KEY }}
-        OAUTH_OSM_SECRET: ${{ secrets.OAUTH_OSM_SECRET }}
-        POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
-        POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-    - name: Upload Coverage
-      run: coveralls
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        COVERALLS_FLAG_NAME: ${{ matrix.test-name }}
-        COVERALLS_PARALLEL: true
 
-  coveralls:
-    name: Finish Coveralls
-    needs: build
-    runs-on: ubuntu-latest
-    container: python:3-slim
-    steps:
-    - name: Finished
-      run: |
-        pip install --upgrade coveralls
-        coveralls --finish
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Coveralls
+      if: success()
+      run: coveralls
