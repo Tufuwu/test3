@@ -1,10 +1,5 @@
 include LICENSE
-include documentation.ipynb
-include README.md
-include Makefile
-graft tests
-graft docs
-prune docs/build
+include README.rst
 
-global-exclude .ipynb_checkpoints
-global-exclude *.pyc
+recursive-exclude * __pycache__
+recursive-exclude * *.py[co]
