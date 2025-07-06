@@ -50,6 +50,7 @@ jobs:
         run: |
           source .venv/bin/activate
           pip install tox
+          pip install "pyramid<2.0"
       - name: Cleanup boto
         run: |
           rm -fr /etc/boto.cfg
