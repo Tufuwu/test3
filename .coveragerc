@@ -1,16 +1,12 @@
-[run]
-source = zds
-branch = True
-
 [report]
-
 omit =
-    manage.py
-    zds/settings/*
-    */tests/*
-    */tests.py
-    */factories.py
-    */wsgi.py
-    */migrations/*
-    setup.py
-    *settings_test*
+    /Library/*
+    *buildout/eggs/*
+    /usr/*
+    /var/lib/hudson/.buildout/*
+    /var/lib/jenkins/.buildout/*
+    eggs/*
+    local_checkouts/*
+    parts/*
+
+ignore_errors = true
