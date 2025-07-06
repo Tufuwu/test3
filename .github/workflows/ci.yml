@@ -1,55 +1,39 @@
-name: CI
+name: Python package
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
   pull_request:
-    branches: [ master ]
+    branches:
+      - main
 
 jobs:
-  checks:
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-    steps:
-    - name: Checkout working copy
-      uses: actions/checkout@v3
-    - name: Set up Python
-      uses: actions/setup-python@v3
-      with:
-        python-version: "3.10"
-    - name: Install checkers
-      run: |
-        python -mpip install --upgrade pip
-        python -mpip install black flake8
-    - name: flake
-      run: flake8 .
-    - name: black
-      run: black --check --diff --color --quiet .
-
-  test:
+  build:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["2.7", "3.6", "3.7", "3.8", "3.9", "3.10", "3.11.0-alpha.7", "pypy-3.8"]
-
+        python-version: [2.7, 3.6, 3.7, 3.8]
+        tox-env:
+          - py27
+          - py27-flake8
+          - docs
+          - py36
+          - py36-flake8
+          - py36-black
+          - py37
+          - py38
     steps:
-    - name: Checkout working copy
-      uses: actions/checkout@v3
+    - uses: actions/checkout@v2
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v3
+      uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python-version }}
-    - name: Install test dependencies
+    - name: Install dependencies
       run: |
-        python -mpip install --upgrade pip
-        python -mpip install -r requirements_dev.txt
-    - name: install package in environment
-      run: python setup.py develop
-    - name: run tests
-      run: pytest
-    - name: run doctests
-      # pprint formatting was changed a lot in 3.5
-      if: ${{ matrix.python-version != '2.7' }}
-      run: python -mdoctest README.rst
+        python -m pip install --upgrade pip
+        pip install -r requirements_dev.txt
+        pip install tox
+    - name: Run Tox
+      run: tox -e ${{ matrix.tox-env }}
