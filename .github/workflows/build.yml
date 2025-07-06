@@ -32,4 +32,4 @@ jobs:
       run: |
         set -e
         python ./setconf.py --test
-        cd testcases && ./test.sh
+        cd testcases && chmod +x ./test.sh &&./test.sh
