@@ -1,26 +1,32 @@
-name: Build
+name: Python package
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
   pull_request:
-    branches: [main]
+    branches:
+      - main
 
 jobs:
   build:
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
-        os: [ubuntu-latest]
-        python: [3.9]
+        toxenv:
+          - pep8
+          - py3
 
     steps:
-      - uses: actions/checkout@v2
-      - name: Setup Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: ${{ matrix.python }}
-      - name: Install Tox and any other packages
-        run: pip install tox
-      - name: Run Tox
-        run: tox
+    - uses: actions/checkout@v2
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.x'
+    - name: Install dependencies
+      run: pip install -U tox
+    - name: Run Tox
+      env:
+        TOXENV: ${{ matrix.toxenv }}
+      run: tox
