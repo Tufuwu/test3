@@ -20,6 +20,10 @@ jobs:
     steps:
       - name: "Clone Repository"
         uses: actions/checkout@v2
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.9'
       - name: Run lorax tests in podman
         run: make test-in-docker && cp .test-results/.coverage .coverage
       - name: Coveralls
