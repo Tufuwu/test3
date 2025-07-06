@@ -34,7 +34,7 @@ jobs:
       run: |
         pip install --upgrade pipenv
 
-    - uses: actions/cache@v2
+    - uses: actions/cache@v4
       env:
         cache-name: lint-pipenv
       with:
