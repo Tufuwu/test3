@@ -13,10 +13,6 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
-      matrix:
-        toxenv:
-          - pep8
-          - py3
 
     steps:
     - uses: actions/checkout@v2
