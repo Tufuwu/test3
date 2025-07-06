@@ -31,6 +31,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
+          sudo apt-get install -y libssl-dev
           sudo apt-get install libboost-all-dev python3-setuptools
           git clone https://github.com/named-data/ndn-cxx.git && cd ndn-cxx
           git checkout ndn-cxx-0.7.0
