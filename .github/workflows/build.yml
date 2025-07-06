@@ -1,57 +1,41 @@
-name: Build
+name: Python application
 
 on:
-  schedule:
-    - cron: "0 12 * * SUN"
-  pull_request:
-    branches:
-     -  '*'
   push:
     branches:
-      - "*"
-
+      - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
   build:
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        python-version: ['3.6', '3.7', '3.8', '3.9']
-        os: [ubuntu-latest, macos-latest]
+        python-version: ['3.6', '3.7', '3.8', '3.9-dev']
+
     steps:
-      - uses: actions/checkout@v2
-      - name: Decrypt large secret
-        run: |
-          chmod +x ./.github/scripts/decrypt_secrets.sh
-          ./.github/scripts/decrypt_secrets.sh
-        env:
-          SECRET_PASSPHRASE: ${{ secrets.SECRET_PASSPHRASE }}
+    - uses: actions/checkout@v2
 
-      - name: Copying Config.yml to random_word folder
-        run: cp $HOME/secrets/config.yml random_word/
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
 
-      - name: Print Directory Structure of random_word
-        run: ls -la random_word
+    - name: Install dependencies
+      run: make init
 
-      - name: Setup Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: ${{ matrix.python-version }}
-          architecture: x64
+    - name: Decrypt config file
+      env:
+        ENCRYPTED_KEY: ${{ secrets.ENCRYPTED_8AB1E779B1D5_KEY }}
+        ENCRYPTED_IV: ${{ secrets.ENCRYPTED_8AB1E779B1D5_IV }}
+      run: |
+        openssl aes-256-cbc -K $ENCRYPTED_KEY -iv $ENCRYPTED_IV -in config.yml.enc -out random_word/config.yml -d
 
-      - name: Install packages
-        run: |
-            pip install pipenv
-            pip install autopep8
-            pip install nose
-            pipenv install
-            pipenv run python setup.py install
-      
-      - name: Python Lint
-        run: |
-          make lint
+    - name: List files in random_word
+      run: ls random_word
 
-      - name: Run tests
-        run: |
-          pipenv run nosetests
+    - name: Run tests
+      run: python random_word/tests/test_word.py
