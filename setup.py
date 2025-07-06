@@ -1,48 +1,48 @@
-# (c) Copyright [2018-2020] Micro Focus or one of its affiliates.
-# Licensed under the Apache License, Version 2.0 (the "License");
-# You may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+from setuptools import setup
+from tools.configuration import Configuration
 
-#!/usr/bin/env python
-import collections
-from setuptools import setup, find_packages
+with open("README.md", "r") as fh:
+    long_description = fh.read()
 
+with open('requirements.txt', "r") as req_file:
+    requirements = req_file.read().splitlines()
 
-ReqOpts = collections.namedtuple('ReqOpts', ['skip_requirements_regex', 'default_vcs'])
-
-opts = ReqOpts(None, 'git')
-setup(
-    name='VerticaPy',
-    version='0.4.0',
-    description='A Python library that exposes sci-kit like functionality to conduct data science projects on data stored in Vertica.',
-    author='Badr Ouali',
-    author_email='badr.ouali@vertica.com',
-    url='https://github.com/vertica/VerticaPy',
-    keywords="machine-learning database vertica",
-    packages=find_packages(),
-    license="Apache License 2.0",
-    install_requires=[
-    ],
-    classifiers=[
-        "Development Status :: 2 - Beta",
-        "Intended Audience :: Developers",
-        "License :: OSI Approved :: Apache Software License",
-        "Programming Language :: Python",
-        "Programming Language :: Python :: 3.6",
-        "Programming Language :: Python :: 3.7",
-        "Programming Language :: Python :: 3.8",
-        "Topic :: Data Science",
-        "Topic :: Machine Learning",
-        "Topic :: Database",
-        "Topic :: Database :: Database Engines/Servers",
-        "Operating System :: OS Independent"
-    ]
-)
+# such name for package is used here because 'repostat' is already occupied by https://pypi.org/project/repostat/
+setup(name='repostat-app',
+      version=Configuration.get_release_data_info()['develop_version'],
+      description='Desktop git repository analyser and report creator.',
+      keywords='git analysis statistics vcs python visualization',
+      url='https://github.com/vifactor/repostat',
+      author='Viktor Kopp',
+      author_email='vifactor@gmail.com',
+      license='GPLv3',
+      long_description=long_description,
+      long_description_content_type="text/markdown",
+      classifiers=[
+          "Development Status :: 5 - Production/Stable",
+          "Environment :: Console",
+          "Intended Audience :: Developers",
+          "Intended Audience :: Science/Research",
+          "Intended Audience :: Education",
+          "Programming Language :: Python :: 3.6",
+          "Programming Language :: Python :: 3.7",
+          "License :: OSI Approved :: GNU General Public License v2 or later (GPLv2+)",
+          "Topic :: Software Development :: Version Control",
+          "Topic :: Utilities",
+          "Operating System :: OS Independent",
+          "Operating System :: POSIX",
+          "Operating System :: MacOS :: MacOS X",
+          "Operating System :: Microsoft :: Windows",
+      ],
+      python_requires='>3.5',
+      packages=['analysis', 'tools', 'report'],
+      package_data={'report': ['templates/*.html',
+                               'templates/*.js',
+                               'assets/images/*.gif',
+                               'assets/*.js',
+                               'assets/*.css'],
+                    'tools': ['release_data.json']},
+      install_requires=requirements,
+      entry_points={"console_scripts": ["repostat = analysis.repostat:main"]},
+      include_package_data=True,
+      zip_safe=False)

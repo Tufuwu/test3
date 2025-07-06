@@ -1,0 +1,66 @@
+# This workflow will install Python dependencies, run tests and lint with a single version of Python
+# For more information see: https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
+
+name: Repostat for Mac OS
+
+on:
+  pull_request:
+    branches:
+      - master
+      - v2.0.x
+  schedule:
+    # run every 5 days at 00:01
+    - cron: '1 0 */5 * *'
+
+jobs:
+  osx_build:
+
+    env:
+      python_venv_path: venv/bin/activate
+      libgit2_install_path: ${HOME}/libgit2
+
+    runs-on: [macos-latest]
+
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+
+    - name: Set up Python 3.7
+      uses: actions/setup-python@v1
+      with:
+        python-version: 3.7
+
+    - name: Download and build libgit2
+      run: |
+        wget https://github.com/libgit2/libgit2/archive/v${libgit2_version}.tar.gz
+        tar xzf v${libgit2_version}.tar.gz
+        export LIBGIT2=$HOME
+        cd libgit2-${libgit2_version}/
+        cmake . -DCMAKE_INSTALL_PREFIX=$LIBGIT2
+        make && make install
+      env:
+        libgit2_version: 0.28.5
+
+    - name: Upgrade pip and install virtualenv
+      run: |
+        python3 -m pip install --upgrade pip
+        pip3 install virtualenv
+
+    - name: Install repostat into virtual environment
+      run: |
+        virtualenv -p python3 venv
+        source ${python_venv_path}
+        export LIBGIT2=$HOME
+        export LDFLAGS="-Wl,-rpath,'$LIBGIT2/lib' $LDFLAGS"
+        # the pygit2 version is fixed to comply with libgit2 version build from source
+        pip3 install pygit2==1.0.3
+        pip3 install .
+
+    - name: Run repostat
+      run: |
+        source ${python_venv_path}
+        repostat . ${repostat_output_path} --no-browser --contribution
+        ls -l ${repostat_output_path}
+      env:
+        repostat_output_path: ${TMPDIR}/repostat
