@@ -24,6 +24,7 @@ jobs:
         chmod +x ./setup.py
         ./setup.py develop
         pip install -e '.[tests]'
+        pip install "urllib3<2.0"
     - run: |
         pylama
         py.test
