@@ -1,25 +1,57 @@
-from setuptools import setup
+#!/usr/bin/env python
+"""
+Standard build script.
+"""
 
-with open('README.md') as f:
-    long_description = f.read()
+__docformat__ = 'restructuredtext'
 
+
+try:
+    from setuptools import setup, find_packages
+except ImportError:
+    print('You must have setuptools installed to use setup.py. Exiting...')
+    raise SystemExit(1)
+
+
+install_dependencies = (
+    'requests',
+    'six'
+)
+test_requirements = (
+    'mock',
+    'pyhamcrest',
+    'pylama',
+    'pytest',
+    'requests_mock'
+)
 setup(
-    name='Flask-pyoidc',
-    version='3.9.0',
-    packages=['flask_pyoidc'],
-    package_dir={'': 'src'},
-    url='https://github.com/zamzterz/flask-pyoidc',
-    license='Apache 2.0',
-    author='Samuel Gulliksson',
-    author_email='samuel.gulliksson@gmail.com',
-    description='Flask extension for OpenID Connect authentication.',
-    install_requires=[
-        'oic>=1.2.1',
-        'Flask',
-        'requests',
-        'importlib_resources'
+    name="python-owasp-zap-v2.4",
+    version="0.0.19",
+    description="OWASP ZAP 2.10 API client",
+    long_description="OWASP Zed Attack Proxy 2.10 API Python client (the 2.4 package name has been kept to make it easier to upgrade)",
+    author="ZAP development team",
+    author_email='',
+    url="https://www.zaproxy.org/",
+    download_url="https://github.com/zaproxy/zap-api-python/releases/tag/0.0.19",
+    platforms=['any'],
+    license="ASL2.0",
+    package_dir={
+        '': 'src',
+    },
+    packages=find_packages('src'),
+    classifiers=[
+        'License :: OSI Approved :: Apache Software License',
+        'Development Status :: 5 - Production/Stable',
+        'Topic :: Security',
+        'Topic :: Software Development :: Libraries :: Python Modules',
+        'Intended Audience :: Developers',
+        'Intended Audience :: Information Technology',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
     ],
-    package_data={'flask_pyoidc': ['parse_fragment.html']},
-    long_description=long_description,
-    long_description_content_type='text/markdown',
+    install_requires=install_dependencies,
+    tests_require=test_requirements,
+    extras_require={'tests': test_requirements}
 )
