@@ -1,0 +1,49 @@
+{% extends 'inventory/machine_list.html' %}
+{% load inventory_extras %}
+
+{% block objectextras %}
+<p>
+{% for tag in object.tags %}
+{% inventory_tag tag %}
+{% endfor %}
+{% if object.api_enrollment_enabled %}
+<span class="label label-success">Available for API Enrollment</span>
+{% endif %}
+</p>
+
+<table class="table">
+  {% for bu in object.get_current_business_units %}
+  <tr>
+    <td>{{ bu.source.name }}</td>
+    <td>{{ bu.name }}</td>
+    <td>
+      {% for link in bu.links.all %}
+      <a href="{{ link.url }}" class="btn btn-default">
+        {{ bu.source.name }} - {{ link.anchor_text }}
+      </a>
+      {% endfor %}
+    </td>
+    <td>
+      {% if bu.can_be_detached %}
+      <a href="{% url 'inventory:detach_bu' object.id bu.id %}" class="btn btn-default">
+        Detach
+      </a>
+      {% endif %}
+    </td>
+  </tr>
+  {% endfor %}
+</table>
+
+<p>
+  <a href="{% url 'inventory:update_mbu' object.id %}" class="btn btn-default">Update</a>
+  <a href="{% url 'inventory:mbu_tags' object.id %}" class="btn btn-default">Manage tags</a>
+  {% if not object.api_enrollment_enabled %}
+  <a href="{% url 'inventory:mbu_api_enrollment' object.id %}" class="btn btn-default">Enable API enrollment</a>
+  {% endif %}
+  {% if object.can_be_deleted %}
+  <a href="{% url 'inventory:delete_mbu' object.id %}" class="btn btn-danger">
+    <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+  </a>
+  {% endif %}
+</p>
+{% endblock %}

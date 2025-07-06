@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<ol class="breadcrumb">
+  <li><a href="/">Home</a></li>
+  <li class="active">Monolith catalogs</li>
+</ol>
+
+<h2>Catalogs</h2>
+
+<p><a class="btn btn-default" href="{% url 'monolith:create_catalog' %}">Create</a></p>
+
+<table class="table">
+  <thead>
+    <th>Name</th>
+    <th>Priority</th>
+    <th>Created at</th>
+    <th>Archived at</th>
+  </thead>
+  <tbody>
+    {% for catalog in object_list %}
+    <tr>
+      <td>
+        <a href="{% url 'monolith:catalog' catalog.id %}">{{ catalog.name }}</a>
+      </td>
+      <td>{{ catalog.priority }}</td>
+      <td>{{ catalog.created_at }}</td>
+      <td>{{ catalog.archived_at|default:"-" }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

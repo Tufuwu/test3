@@ -1,0 +1,11 @@
+**/.*
+**/*.pyc
+**/*.swp
+conf
+docs
+docker-compose*
+venv
+tox.ini
+Dockerfile
+LICENSE
+README.md

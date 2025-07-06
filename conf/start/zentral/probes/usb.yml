@@ -1,0 +1,8 @@
+name: usb
+osquery:
+  schedule:
+    - query: select vendor, vendor_id, model from usb_devices where vendor like '%C-Media%' or vendor like '%Realtek%' or model like '%C-Media%' or model like '%Realtek%';
+      interval: 30
+actions:
+  debug:
+    sub_dir: usb
