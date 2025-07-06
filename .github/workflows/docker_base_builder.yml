@@ -1,0 +1,95 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+  release:
+    types: [created]
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    services:
+      docker:
+        image: docker:stable
+        options: --privileged
+
+    env:
+      PIPENV_VENV_IN_PROJECT: 1
+      PIPENV_IGNORE_VIRTUALENVS: 1
+      PYTHON_PKG_PATH: python_transport
+      PYTHON_PKG_NAME: wirepas_gateway
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.8
+
+    - name: Add execute permissions to scripts
+      run: |
+        chmod +x ./.ci/*.sh
+        chmod +x ./.ci/requirements.sh
+        chmod +x ./.ci/style-check.sh
+        chmod +x ./.ci/build-images.sh
+        chmod +x ./.ci/service-tests.sh
+        chmod +x ./.ci/fetch-artifacts.sh
+
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y docker-ce
+        ./.ci/requirements.sh
+        ./.ci/style-check.sh
+        ./.ci/build-images.sh
+        ./.ci/service-tests.sh
+        ./.ci/fetch-artifacts.sh
+
+    - name: Install package
+      run: pip3 install ./dist/${{ env.PYTHON_PKG_NAME }}*linux_x86_64.whl
+
+    - name: Run tests
+      run: pytest -s python_transport/tests
+
+    - name: Run release script
+      run: |
+        chmod +x ./.ci/releases.sh
+        ./.ci/releases.sh
+        source releases.env
+
+  deploy:
+    runs-on: ubuntu-22.04
+    needs: build
+    if: github.event_name == 'release' || github.ref == 'refs/heads/master'
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Deploy to GitHub Releases
+      if: github.event_name == 'release'
+      uses: softprops/action-gh-release@v1
+      with:
+        files: |
+          dist/*
+          ${{ env.PYTHON_PKG_PATH }}/CHANGELOG.md
+      env:
+        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+
+    - name: Deploy to PyPI
+      if: github.event_name == 'release' || github.ref == 'refs/heads/master'
+      run: |
+        chmod +x ./.ci/deploy-pypi.sh
+        bash .ci/deploy-pypi.sh dist/${{ env.PYTHON_PKG_NAME }}*
+
+    - name: Deploy Docker
+      if: github.event_name == 'release' || github.ref == 'refs/heads/master'
+      run: |
+        chmod +x ./.ci/deploy-docker.sh
+        bash .ci/deploy-docker.sh
