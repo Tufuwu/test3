@@ -15,8 +15,7 @@ jobs:
       fail-fast: false
       matrix:
         python-version: [3.9, 3.8]
-        env:
-          TOXENV: [py36, py37, pre-commit]
+        TOXENV: [py36, py37, pre-commit]
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python ${{ matrix.python-version }}
