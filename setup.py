@@ -1,75 +1,154 @@
-import os.path
-import re
+##############################################################################
+#
+# Copyright (c) 2004-2007 Zope Foundation and Contributors.
+# All Rights Reserved.
+#
+# This software is subject to the provisions of the Zope Public License,
+# Version 2.1 (ZPL).  A copy of the ZPL should accompany this distribution.
+# THIS SOFTWARE IS PROVIDED "AS IS" AND ANY AND ALL EXPRESS OR IMPLIED
+# WARRANTIES ARE DISCLAIMED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+# WARRANTIES OF TITLE, MERCHANTABILITY, AGAINST INFRINGEMENT, AND FITNESS
+# FOR A PARTICULAR PURPOSE.
+#
+##############################################################################
+# This package is developed by the Zope Toolkit project, documented here:
+# http://docs.zope.org/zopetoolkit
+# When developing and releasing this package, please follow the documented
+# Zope Toolkit policies as described by this documentation.
+##############################################################################
+"""Setup for zope.interface package
+"""
+
+import os
 import sys
+
+from distutils.errors import CCompilerError
+from distutils.errors import DistutilsExecError
+from distutils.errors import DistutilsPlatformError
+
 from setuptools import setup, Extension
-from distutils.command.install import INSTALL_SCHEMES
-
-for scheme in INSTALL_SCHEMES.values():
-    scheme['data'] = scheme['purelib']
+from setuptools.command.build_ext import build_ext
+from setuptools import find_packages
 
 
-setsc = Extension("guppy.sets.setsc", [
-                      "src/sets/sets.c",
-                      "src/sets/bitset.c",
-                      "src/sets/nodeset.c"
-                  ])
+class optional_build_ext(build_ext):
+    """This class subclasses build_ext and allows
+       the building of C extensions to fail.
+    """
+    def run(self):
+        try:
+            build_ext.run(self)
+        except DistutilsPlatformError as e:
+            self._unavailable(e)
 
-heapyc = Extension("guppy.heapy.heapyc", [
-                       'src/heapy/heapyc.c',
-                       'src/heapy/stdtypes.c'
-                   ])
+    def build_extension(self, ext):
+        try:
+            build_ext.build_extension(self, ext)
+        except (CCompilerError, DistutilsExecError, OSError) as e:
+            self._unavailable(e)
 
+    def _unavailable(self, e):
+        print('*' * 80)
+        print("""WARNING:
 
-def doit():
-    if sys.version_info.major < 3:
-        print('''\
-setup.py: Error: This guppy package only supports Python 3.
-You can find the original Python 2 version, Guppy-PE, here:
-http://guppy-pe.sourceforge.net/''', file=sys.stderr)
-        sys.exit(1)
-    if sys.implementation.name != 'cpython':
-        print('''\
-setup.py: Warning: This guppy package only supports CPython.
-Compilation failure expected, but continuting anyways...''', file=sys.stderr)
+        An optional code optimization (C extension) could not be compiled.
 
-    with open(os.path.join(os.path.dirname(__file__), 'README.md')) as f:
-        long_description = f.read()
-
-    with open('guppy/_version.py', 'r') as versionfile:
-        version = re.search(r'^__version__ = [\'"]([^\'"]*)[\'"]$',
-                            versionfile.read(), re.M)
-        version = version.group(1)
-
-    setup(name="guppy3",
-          version=version,
-          description="Guppy 3 -- Guppy-PE ported to Python 3",
-          long_description=long_description,
-          long_description_content_type='text/markdown',
-          author="YiFei Zhu",
-          author_email="zhuyifei1999@gmail.com",
-          url="https://github.com/zhuyifei1999/guppy3/",
-          license='MIT',
-          packages=[
-              "guppy",
-              "guppy.etc",
-              "guppy.gsl",
-              "guppy.heapy",
-              "guppy.heapy.test",
-              "guppy.sets",
-          ],
-          ext_modules=[setsc, heapyc],
-          python_requires='>=3.6',
-          classifiers=[
-              "Programming Language :: Python :: 3",
-              "Programming Language :: Python :: Implementation :: CPython",
-              "Programming Language :: C",
-              "License :: OSI Approved :: MIT License",
-              "Operating System :: OS Independent",
-              "Development Status :: 4 - Beta",
-              "Topic :: Software Development :: Debuggers",
-              "Environment :: Console",
-              "Intended Audience :: Developers",
-          ])
+        Optimizations for this package will not be available!""")
+        print("")
+        print(e)
+        print('*' * 80)
 
 
-doit()
+codeoptimization_c = os.path.join('src', 'zope', 'interface',
+                                  '_zope_interface_coptimizations.c')
+codeoptimization = [
+    Extension(
+        "zope.interface._zope_interface_coptimizations",
+        [os.path.normcase(codeoptimization_c)]
+    ),
+]
+
+is_jython = 'java' in sys.platform
+is_pypy = hasattr(sys, 'pypy_version_info')
+
+# Jython cannot build the C optimizations. Nor, as of 7.3, can PyPy (
+# it doesn't have PySuper_Type) Everywhere else, defer the decision to
+# runtime.
+if is_jython or is_pypy:
+    ext_modules = []
+else:
+    ext_modules = codeoptimization
+tests_require = [
+    # The test dependencies should NOT have direct or transitive
+    # dependencies on zope.interface.
+    'coverage >= 5.0.3',
+    'zope.event',
+    'zope.testing',
+]
+testing_extras = tests_require
+
+
+def read(*rnames):
+    with open(os.path.join(os.path.dirname(__file__), *rnames)) as f:
+        return f.read()
+
+
+long_description = (
+        read('README.rst')
+        + '\n' +
+        read('CHANGES.rst')
+        )
+
+setup(name='zope.interface',
+      version='5.2.1.dev0',
+      url='https://github.com/zopefoundation/zope.interface',
+      license='ZPL 2.1',
+      description='Interfaces for Python',
+      author='Zope Foundation and Contributors',
+      author_email='zope-dev@zope.org',
+      long_description=long_description,
+      classifiers=[
+          "Development Status :: 5 - Production/Stable",
+          "Intended Audience :: Developers",
+          "License :: OSI Approved :: Zope Public License",
+          "Operating System :: OS Independent",
+          "Programming Language :: Python",
+          "Programming Language :: Python :: 2",
+          "Programming Language :: Python :: 2.7",
+          "Programming Language :: Python :: 3",
+          "Programming Language :: Python :: 3.5",
+          "Programming Language :: Python :: 3.6",
+          "Programming Language :: Python :: 3.7",
+          "Programming Language :: Python :: 3.8",
+          "Programming Language :: Python :: Implementation :: CPython",
+          "Programming Language :: Python :: Implementation :: PyPy",
+          "Framework :: Zope :: 3",
+          "Topic :: Software Development :: Libraries :: Python Modules",
+      ],
+      packages=find_packages('src'),
+      package_dir={'': 'src'},
+      namespace_packages=["zope"],
+      cmdclass={
+          'build_ext': optional_build_ext,
+      },
+      test_suite='zope.interface.tests',
+      include_package_data=True,
+      zip_safe=False,
+      tests_require=tests_require,
+      install_requires=['setuptools'],
+      python_requires=', '.join([
+          '>=2.7',
+          '!=3.0.*',
+          '!=3.1.*',
+          '!=3.2.*',
+          '!=3.3.*',
+          '!=3.4.*',
+      ]),
+      extras_require={
+          'docs': ['Sphinx', 'repoze.sphinx.autointerface'],
+          'test': tests_require,
+          'testing': testing_extras,
+      },
+      ext_modules=ext_modules,
+      keywords=['interface', 'components', 'plugins'],
+)
