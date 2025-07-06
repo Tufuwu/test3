@@ -1,194 +1,130 @@
-### Firefox Decrypt
+# random-word
 
-![GitHub Actions status](https://github.com/unode/firefox_decrypt/actions/workflows/main.yml/badge.svg)
+![Build](https://github.com/vaibhavsingh97/random-word/workflows/Build/badge.svg)
+[![PyPI version](https://badge.fury.io/py/Random-Word.svg)](https://badge.fury.io/py/Random-Word)
+[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/Django.svg)](https://pypi.org/project/random-word/)
+[![PyPI - Status](https://img.shields.io/pypi/status/Django.svg)](https://pypi.org/project/random-word/)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/d6ff0d51be474f1bb8b031c2c418b541)](https://www.codacy.com/app/vaibhavsingh97/random-word?utm_source=github.com&utm_medium=referral&utm_content=vaibhavsingh97/random-word&utm_campaign=Badge_Grade)
+[![Downloads](http://pepy.tech/badge/random-word)](http://pepy.tech/project/random-word)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://vaibhavsingh97.mit-license.org/)
 
-As of 1.0.0-rc1 Python 3.9+ is required. Python 2 is no longer supported.
-If you encounter a problem, try the latest [release](https://github.com/unode/firefox_decrypt/releases) or check open issues for ongoing work.
+This is a simple python package to generate random english words.
+If you need help after reading the below, please find me at [@vaibhavsingh97](https://twitter.com/vaibhavsingh97) on Twitter.
 
-If you definitely need to use Python 2, [Firefox Decrypt 0.7.0](https://github.com/unode/firefox_decrypt/releases/tag/0.7.0) is your best bet, although no longer supported.
+If you love the package, please :star2: the repo.
 
-#### About
+## Installation
 
-**Firefox Decrypt** is a tool to extract passwords from profiles of Mozilla (Fire/Water)fox™, Thunderbird®, SeaMonkey® and derivates.
+You should be able to install using `easy_install` or `pip` in the usual ways:
 
-It can be used to recover passwords from a profile protected by a Master Password as long as the latter is known.
-If a profile is not protected by a Master Password, passwords are displayed without prompt.
-
-This tool does not try to crack or brute-force the Master Password in any way.
-If the Master Password is not known it will simply fail to recover any data.
-
-It requires access to libnss3, included with most Mozilla products.
-The script is usually able to find a compatible library but may in some cases
-load an incorrect/incompatible version. If you encounter this situation please file a bug report.
-
-Alternatively, you can install libnss3 (Debian/Ubuntu) or nss (Arch/Gentoo/…).
-libnss3 is part of https://developer.mozilla.org/docs/Mozilla/Projects/NSS
-
-If you need to decode passwords from Firefox 3 or older, although not officially supported,
-there is a patch in [this pull request](https://github.com/unode/firefox_decrypt/pull/36).
-
-
-#### Usage
-
-Run:
-
-```
-python firefox_decrypt.py
+```sh
+$ easy_install random-word
+$ pip install random-word
 ```
 
-The tool will present a numbered list of profiles. Enter the relevant number. 
+Or just clone this repository and run:
 
-Then, a prompt to enter the *master password* for the profile: 
-
-- if no password was set, no master password will be asked.
-- if a password was set and is known, enter it and hit key <kbd>Return</kbd> or <kbd>Enter</kbd>
-- if a password was set and is no longer known, you can not proceed
-
-#### Advanced usage
-
-If your profiles are at an unusual path, you can call the script with:
-
-```
-python firefox_decrypt.py /folder/containing/profiles.ini/
+```sh
+$ python3 setup.py install
 ```
 
-If you don't want to display all passwords on the screen you can use:
+Or place the `random-word` folder that you downloaded somewhere where it can be accessed by your scripts.
 
-```
-python firefox_decrypt.py | grep -C2 keyword
-```
-where `keyword` is part of the expected output (URL, username, email, password …)
+## Basic Usage
 
-You can also choose from one of the supported formats with `--format`:
+```python
+from random_word import RandomWords
+r = RandomWords()
 
-* `human` - a format displaying one record for every 3 lines
-* `csv` - a spreadsheet-like format. See also `--csv-*` options for additional control.
-* `tabular` - similar to csv but producing a tab-delimited (`tsv`) file instead.
-* `json` - a machine compatible format - see [JSON](https://en.wikipedia.org/wiki/JSON)
-* `pass` - a special output format that directly calls to the [passwordstore.org](https://www.passwordstore.org) command to export passwords (*). See also `--pass-*` options.
-
-(*) `pass` can produce unintended consequences. Make sure to backup your password store before using this.
-
-##### Format CSV
-
-Passwords may be exported in CSV format using the `--format` flag.
-
-```
-python firefox_decrypt.py --format csv
+# Return a single random word
+r.get_random_word()
+# Return list of Random words
+r.get_random_words()
+# Return Word of the day
+r.word_of_the_day()
 ```
 
-Additionally, `--csv-delimiter` and `--csv-quotechar` flags can specify which characters to use as delimiters and quote characters in the CSV output.
+## Advance Usage
 
-##### Format Pass - Passwordstore
+1.  To generate single random word we can use these optional parameters
 
-Stored passwords can be exported to [`pass`](http://passwordstore.org) (from passwordstore.org) using:
+    - `hasDictionaryDef (string)` - Only return words with dictionary definitions (optional)
+    - `includePartOfSpeech (string)` - CSV part-of-speech values to include (optional)
+    - `excludePartOfSpeech (string)` - CSV part-of-speech values to exclude (optional)
+    - `minCorpusCount (integer)` - Minimum corpus frequency for terms (optional)
+    - `maxCorpusCount (integer)` - Maximum corpus frequency for terms (optional)
+    - `minDictionaryCount (integer)` - Minimum dictionary count (optional)
+    - `maxDictionaryCount (integer)` - Maximum dictionary count (optional)
+    - `minLength (integer)` - Minimum word length (optional)
+    - `maxLength (integer)` - Maximum word length (optional)
 
-```
-python firefox_decrypt.py --format pass
-```
+    ```python
+    r.get_random_word(hasDictionaryDef="true", includePartOfSpeech="noun,verb", minCorpusCount=1, maxCorpusCount=10, minDictionaryCount=1, maxDictionaryCount=10, minLength=5, maxLength=10)
 
-**All** existing passwords will be exported after the pattern `web/<address>[:<port>]`.
-If multiple credentials exist for the same website `/<login>` is appended.
-By `pass` convention, the password will be on the first and the username on the second line.
+    # Output: pediophobia
+    ```
 
-To prefix the username with `login: ` for compatibility with the [browserpass](https://github.com/dannyvankooten/browserpass) extension, you can use:
-```
-python firefox_decrypt.py --format pass --pass-username-prefix 'login: '
-```
+2.  To generate list of random word we can use these optional parameters
 
-There is currently no way to selectively export passwords.
+    - `hasDictionaryDef (string)` - Only return words with dictionary definitions (optional)
+    - `includePartOfSpeech (string)` - CSV part-of-speech values to include (optional)
+    - `excludePartOfSpeech (string)` - CSV part-of-speech values to exclude (optional)
+    - `minCorpusCount (integer)` - Minimum corpus frequency for terms (optional)
+    - `maxCorpusCount (integer)` - Maximum corpus frequency for terms (optional)
+    - `minDictionaryCount (integer)` - Minimum dictionary count (optional)
+    - `maxDictionaryCount (integer)` - Maximum dictionary count (optional)
+    - `minLength (integer)` - Minimum word length (optional)
+    - `maxLength (integer)` - Maximum word length (optional)
+    - `sortBy (string)` - Attribute to sort by `alpha` or `count` (optional)
+    - `sortOrder (string)` - Sort direction by `asc` or `desc` (optional)
+    - `limit (integer)` - Maximum number of results to return (optional)
 
-Exporting will overwrite existing passwords without warning. Ensure you have a backup or are using the `pass git` functionality.
+    ```python
+    r.get_random_words(hasDictionaryDef="true", includePartOfSpeech="noun,verb", minCorpusCount=1, maxCorpusCount=10, minDictionaryCount=1, maxDictionaryCount=10, minLength=5, maxLength=10, sortBy="alpha", sortOrder="asc", limit=15)
 
-#### Non-interactive mode
+    # Output: ['ambivert', 'calcspar', 'deaness', 'entrete', 'gades', 'monkeydom', 'outclimbed', 'outdared', 'pistoleers', 'redbugs', 'snake-line', 'subrules', 'subtrends', 'torenia', 'unhides']
+    ```
 
-A non-interactive mode which bypasses all prompts, including profile choice and master password, can be enabled with `-n/--no-interactive`.
-If you have multiple Mozilla profiles, make sure to also indicate your profile choice by passing `-c/--choice N` where N is the number of the profile you wish to decrypt (starting from **1**).
+3.  To get word of the day we can use these optional parameters
 
-You can list all available profiles with `-l/--list` (to stdout).
+    - `date (string)` - Fetches by date in yyyy-MM-dd (optional)
 
-Your master password is read from stdin.
+    ```python
+    r.word_of_the_day(date="2018-01-01")
 
-    $ python firefox_decrypt.py --list
-    1 -> l1u1xh65.default
-    2 -> vuhdnx5b.YouTube
-    3 -> 1d8vcool.newdefault
-    4 -> ekof2ces.SEdu
-    5 -> 8a52xmtt.Fresh
+    # Output: {"word": "qualtagh", "definations": [{"text": "The first person one encounters, either after leaving one\'s home or (sometimes) outside one\'s home, especially on New Year\'s Day.", "source": "wiktionary", "partOfSpeech": "noun"}, {"text": "A Christmas or New Year\'s ceremony, in the Isle of Man; one who takes part in the ceremony. See the first extract.", "source": "century", "partOfSpeech": "noun"}]}
+    ```
 
-    $ read -sp "Master Password: " PASSWORD
-    Master Password:
+## Development
 
-    $ echo $PASSWORD | python firefox_decrypt.py --no-interactive --choice 4
-    Website:   https://login.example.com
-    Username: 'john.doe'
-    Password: '1n53cur3'
+Assuming that you have [`Python`](https://www.python.org/) and [`pipenv`](https://docs.pipenv.org) installed, set up your environment and install the required dependencies like this instead of the `pip install random-word` defined above:
 
-    Website:   https://example.org
-    Username: 'max.mustermann'
-    Password: 'Passwort1234'
-
-    Website:   https://github.com
-    Username: 'octocat'
-    Password: 'qJZo6FduRcHw'
-
-    [...snip...]
-
-    $ echo $PASSWORD | python firefox_decrypt.py -nc 1
-    Website:   https://git-scm.com
-    Username: 'foo'
-    Password: 'bar'
-
-    Website:   https://gitlab.com
-    Username: 'whatdoesthefoxsay'
-    Password: 'w00fw00f'
-
-    [...snip...]
-
-    $ # Unset Password
-    $ PASSWORD=
-
-#### Troubleshooting
-
-If a problem occurs, please try `firefox_decrypt` in high verbosity mode by calling it with:
-
-```
-python firefox_decrypt.py -vvv
+```sh
+$ git clone https://github.com/vaibhavsingh97/random-word.git
+$ cd random-word
+$ pipenv install
+...
+$ pipenv shell
 ```
 
-If the output does not help you to identify the cause and a solution to the problem, file a bug report including the verbose output. **Beware**:  
+Add API Key in `random_word` directory defining API Key in `config.py`. If you don't have an API key than request your API key [here](https://developer.wordnik.com)
 
-- your profile password, as well as other passwords, may be visible in the output – so **please remove any sensitive data** before sharing the output.
+```sh
+API_KEY = "<API KEY>"
+```
 
+After that, install your package locally
 
-##### Windows
+```sh
+$ pip install -e .
+```
 
-Both Python and Firefox must be either 32-bit or 64-bit.  
+## Issues
 
-If you mix architectures the code will fail. More information on issue [#8](https://github.com/unode/firefox_decrypt/issues/8).
+You can report the bugs at the [issue tracker](https://github.com/vaibhavsingh97/random-word/issues)
 
-##### Darwin/macOS
+## License
 
-If you get the error described in [#14](https://github.com/unode/firefox_decrypt/issues/14) when loading `libnss3`, consider installing `nss` using brew or an alternative package manager.
+Built with ♥ by Vaibhav Singh([@vaibhavsingh97](https://github.com/vaibhavsingh97)) under [MIT License](https://vaibhavsingh97.mit-license.org/)
 
-#### Testing
-
-If you wish to run the test suite locally, chdir into `tests/` and run `./run_all`
-
-If any test fails on your system, please ensure `libnss` is installed.
-
-If tests continue to fail, re-run with `./run_all -v` then please file a bug report including: 
-
-- the output
-- information about your system (e.g. Linux distribution, version of libnss/firefox …). 
-
-It is much appreciated.
-
-### Spin-off, derived and related works
-
-* [firepwned](https://github.com/christophetd/firepwned#how-it-works) - check if your passwords have been involved in a known data leak
-* [FF Password Exporter](https://github.com/kspearrin/ff-password-exporter) - Firefox AddOn for exporting passwords. 
-
-----
-
-Firefox is a trademark of the Mozilla Foundation in the U.S. and other countries.
+You can find a copy of the License at <https://vaibhavsingh97.mit-license.org/>
