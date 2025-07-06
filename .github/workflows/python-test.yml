@@ -1,45 +1,51 @@
-# This workflow will install Python dependencies, run tests and lint with a single version of Python
-# For more information see: https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
-
-name: PHOTONAI tests
+name: CI
 
 on:
   push:
-    branches: [ main, develop ]
+    branches:
+      - main
   pull_request:
-    branches: [ master, develop ]
+    branches:
+      - main
 
 jobs:
-  pytest:
-
+  build:
     runs-on: ubuntu-22.04
-    
+
     services:
-      mongodb:
+      mongo:
         image: mongo:latest
         ports:
           - 27017:27017
+        options: --name mongodb
 
     steps:
     - uses: actions/checkout@v2
-    - name: Set up Python 3.7
+
+    - name: Set up Python
       uses: actions/setup-python@v2
       with:
         python-version: 3.7
-#    - name: Install os dependencies
-#      run: | 
-#        sudo apt-get update
-#        sudo apt-get -y install gfortran swig
+
     - name: Install dependencies
       run: |
-        pip install wheel flake8 
+        sudo apt-get update
+        sudo apt-get -y install gfortran swig
         python setup.py egg_info
-        pip install tensorflow pytest pytest-cov coveralls -r photonai.egg-info/requires.txt -r photonai/optimization/smac/requirements.txt -r photonai/optimization/nevergrad/requirements.txt
-    - name: Test with pytest
-      run: |
-        PYTHONPATH=./ pytest ./test --cov=./photonai
+        pip install -r photonai.egg-info/requires.txt
+        pip install -r photonai/optimization/smac/requirements.txt
+        pip install -r photonai/optimization/nevergrad/requirements.txt
+        pip install tensorflow
+        pip install pytest
+        pip install pytest-cov
+        pip install coveralls
+
+    - name: Run tests
+      env:
+        PYTHONPATH: ./
+      run: pytest ./test --cov=./photonai
+
     - name: Coveralls
-      run: coveralls
-      env: 
-        COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      uses: coverallsapp/github-action@v2
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
