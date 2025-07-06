@@ -1,6 +1,4 @@
-name: Github Actions
 
-on:
 name: Python application
 
 on:
