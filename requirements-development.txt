@@ -11,5 +11,5 @@ ipdb
 ipdbplugin
 coveralls
 mypy
-black==23.3.0
+black==22.3.0
 types-pytz
