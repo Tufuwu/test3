@@ -1,64 +1,55 @@
-import os
-
-from setuptools import find_packages
-from setuptools import setup
+import logging
+from setuptools import setup, find_packages, Extension
 
 
-def local_file(path):
-    return os.path.relpath(
-        os.path.join(
-            os.path.dirname(__file__),
-            path,
-        ),
-    )
+logger = logging.getLogger()
+if not logger.handlers:
+    logger.addHandler(logging.StreamHandler())
+logger.setLevel(logging.INFO)
 
+setup_kwargs = {}
 
-# We can't import fuzz_lightyear.version, since it pulls in all other
-# fuzz_lightyear modules. Therefore, we need to execute the file
-# directly.
-VERSION = None      # needed for flake8
-with open(local_file('fuzz_lightyear/version.py')) as f:
-    exec(f.read())
+try:
+    from Cython.Distutils import build_ext
+    setup_kwargs.update(dict(
+        ext_modules=[
+            Extension(
+                'olo.utils',
+                sources=['olo/utils.py'],
+                extra_compile_args=['-O3'],
+                language='c++'
+            ),
+            Extension(
+                'olo._speedups',
+                sources=['olo/_speedups.py'],
+                extra_compile_args=['-O3'],
+                language='c++'
+            ),
+        ],
+        cmdclass={'build_ext': build_ext},
+    ))
+except ImportError:
+    logger.warn('No cython for optimize!!!')
 
+install_requires = []
+for line in open('requirements.txt', 'r'):
+    install_requires.append(line.strip())
 
 setup(
-    name='fuzz_lightyear',
-    packages=find_packages(exclude=(['test*', 'tmp*'])),
-    version=VERSION,
-    description='Vulnerability Discovery through Stateful Swagger Fuzzing',
-    license='Copyright Yelp, Inc. 2019',
-    author=', '.join([
-        'Aaron Loo <aaronloo@yelp.com>',
-        'Joey Lee <joeylee@yelp.com>',
-        'Victor Zhou <vzhou@yelp.com>',
-    ]),
-    keywords=[
-        'fuzzer',
-        'security',
-        'swagger',
-    ],
-    # Remember to update requirements-minimal.txt when making changes
-    # to this list.
-    install_requires=[
-        'bravado',
-        'cached-property',
-        'hypothesis>=4.56.1',
-        'pyyaml',
-    ],
-    entry_points={
-        'console_scripts': [
-            'fuzz-lightyear = fuzz_lightyear.main:main',
-        ],
-    },
-    classifiers=[
-        'Programming Language :: Python :: 3',
-        'Intended Audience :: Developers',
-        'Topic :: Security',
-        'Topic :: Software Development',
-        'Topic :: Software Development :: Testing :: Acceptance',
-        'Topic :: Utilities',
-        'Environment :: Console',
-        'Operating System :: OS Independent',
-        'Development Status :: 4 - Beta',
-    ],
+    name='olo',
+    version='0.4.0',
+    keywords=('ORM', 'olo', 'cache', 'sqlstore'),
+    description='ORM with intelligent and elegant cache manager',
+    url='https://github.com/yetone/olo',
+    license='MIT License',
+    author='yetone',
+    author_email='guanxipeng@douban.com',
+    packages=find_packages(exclude=['test.*', 'test', 'benchmarks']),
+    setup_requires=['Cython >= 0.20'],
+    install_requires=install_requires,
+    platforms='any',
+    tests_require=(
+        'pytest',
+    ),
+    **setup_kwargs
 )
