@@ -1,476 +1,163 @@
-wee-slack
-=========
+![PyPI](https://img.shields.io/pypi/v/auto-pi-lot)
+[![PyPI pyversions](https://img.shields.io/pypi/pyversions/auto-pi-lot)](https://pypi.org/project/auto-pi-lot/)
+![PyPI - Status](https://img.shields.io/pypi/status/auto-pi-lot)
+[![License: MPL 2.0](https://img.shields.io/badge/License-MPL%202.0-brightgreen.svg)](https://opensource.org/licenses/MPL-2.0)
+[![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-v2.0%20adopted-ff69b4.svg)](code_of_conduct.md) 
+[![Twitter Follow](https://img.shields.io/twitter/follow/auto_pi_lot?style=social)](https://twitter.com/auto_pi_lot)
 
-A WeeChat native client for Slack.com. Provides supplemental features only available in the web/mobile clients such as: synchronizing read markers, typing notification, threads (and more)! Connects via the Slack API, and maintains a persistent websocket for notification of events.
 
-![animated screenshot](https://github.com/wee-slack/wee-slack/raw/master/docs/slack.gif)
+Status:
 
-Table of Contents
------------------
-  * [Features](#features)
-  * [Contributing](#contributing)
-  * [Dependencies](#dependencies)
-  * [Setup](#setup)
-     * [1. Install dependencies](#1-install-dependencies)
-     * [2. Download wee_slack.py to ~/.weechat/python](#2-download-wee_slackpy-to-weechatpython)
-     * [3. Start WeeChat](#3-start-weechat)
-     * [4. Add your Slack API token(s)](#4-add-your-slack-api-tokens)
-        * [Get a token with OAuth](#get-a-token-with-oauth)
-        * [Get a session token](#get-a-session-token)
-        * [Optional: Connecting to multiple teams](#optional-connecting-to-multiple-teams)
-        * [Optional: Secure the tokens](#optional-secure-the-tokens)
-  * [Commands and options](#commands-and-options)
-     * [Threads](#threads)
-     * [Emoji characters and tab completions of emoji names](#emoji-characters-and-tab-completions-of-emoji-names)
-     * [User group tab completions](#user-group-tab-completions)
-     * [Cursor and mouse mode](#cursor-and-mouse-mode)
-  * [Removing a team](#removing-a-team)
-  * [Optional settings](#optional-settings)
-  * [FAQ](#faq)
-     * [How do I keep the buffers sorted alphabetically or with a custom order?](#how-do-i-keep-the-buffers-sorted-alphabetically-or-with-a-custom-order)
-     * [How do I group the buffers by team in the buffer list?](#how-do-i-group-the-buffers-by-team-in-the-buffer-list)
-     * [How can I get system wide notifications for messages?](#how-can-i-get-system-wide-notifications-for-messages)
-        * [Local notifications on Linux](#local-notifications-on-linux)
-        * [Local notifications on macOS](#local-notifications-on-macos)
-        * [Remote notifications](#remote-notifications)
-     * [How do I send messages with multiple lines?](#how-do-i-send-messages-with-multiple-lines)
-  * [Known issues](#known-issues)
-  * [Development](#development)
-  * [Support](#support)
+[![Documentation Status](https://readthedocs.org/projects/auto-pi-lot/badge/?version=latest)](https://docs.auto-pi-lot.com/en/latest/?badge=latest)
+[![Travis (.com) branch](https://img.shields.io/travis/com/auto-pi-lot/autopilot/main)](https://app.travis-ci.com/github/auto-pi-lot/autopilot/branches)
+[![Coverage Status](https://coveralls.io/repos/github/auto-pi-lot/autopilot/badge.svg?branch=main)](https://coveralls.io/github/auto-pi-lot/autopilot?branch=main)
+![Jonny Status](https://img.shields.io/badge/jonny-dissertating-critical)
 
-Features
---------
-  * [Threads](#threads) support
-  * Slack status support
-  * Slash commands (including custom ones)
-  * Upload to slack capabilities
-  * Emoji reactions
-  * Edited messages work just like the official clients, where the original message changes and has (edited) appended.
-  * Unfurled urls dont generate a new message, but replace the original with more info as it is received.
-  * Regex message editing (s/oldtext/newtext/)
-  * Smarter redraw of dynamic buffer info (much lower CPU %)
-  * Multiple Teams supported. Just add multiple api tokens separated by commas
-  * Replays history automatically during startup. (and sets read marker to the correct position in history)
-  * Open channels synchronized with Slack. When you open/close a channel on another client it is reflected in wee-slack
-  * Colorized nicks in chat
-  * Supports bidirectional slack read notifications for all channels. (never reread the same messages on the web client or other devices).
-  * Typing notification, so you can see when others are typing, and they can see when you type. Appears globally for direct messages
-  * Away/back status handling
-  * Expands/shows metadata for things like tweets/links
-  * *Super fun* debug mode. See what the websocket is saying
+# Maintenance Mode
 
-Contributing
-------------
+*2024-01-22* 
 
-See [docs/contributing.md](./docs/contributing.md).
+Autopilot is in *maintenance-only mode* - development has been paused as we take the long way around towards
+building a new kind of p2p networking module to support a reworked autopilot 2.0. We will write a more
+detailed blogpost about lessons learned from autopilot soon. 
 
-Dependencies
-------------
-  * WeeChat 1.3+ http://weechat.org/
-  * websocket-client https://pypi.python.org/pypi/websocket-client/
-    * Since WeeChat 2.6, Python 3 modules are required, see https://weechat.org/blog/post/2019/07/02/Python-3-by-default
-  * Some distributions package weechat's plugin functionalities in separate packages.
-    Be sure that your weechat supports python plugins. Under Debian, install `weechat-python`
+Autopilot is not dead, it is merely resting <3
 
-Setup
------
+-jonny
 
-### 1. Install dependencies
+# Autopilot
 
-**Arch Linux**: `pacman -S python-websocket-client`
+![Autopilot Banner Logo](docs/_images/autopilot_logo_banner.png)
 
-**Debian/Ubuntu**: `apt install weechat-python python-websocket`. If using weechat 2.6 or newer, run `apt install weechat-python python3-websocket` instead.
+| [Docs](https://docs.auto-pi-lot.com) | [Paper](https://www.biorxiv.org/content/10.1101/807693v1) | [Forum](https://github.com/auto-pi-lot/autopilot/discussions) | [Wiki](https://wiki.auto-pi-lot.com) |
+| :-: | :-: | :-: | :-: |
+| [![Read the Docs](docs/_images/docs_link.png)](https://docs.auto-pi-lot.com) | [![Paper](docs/_images/paper_link.png)](https://www.biorxiv.org/content/10.1101/807693v1)  | [![Forum](docs/_images/discussion_link.png)](https://github.com/auto-pi-lot/autopilot/discussions) | [![Wiki](docs/_images/hardware_link.png)](https://wiki.auto-pi-lot.com)
 
-**Fedora**: `dnf install python3-websocket-client`
+Autopilot is a Python framework for performing complex, hardware-intensive behavioral experiments with swarms of networked Raspberry Pis. 
+As a tool, it provides researchers with a toolkit of flexible modules to design experiments without rigid programming & API limitations. 
+As a vision, it dreams of bridging the chaotic hacky creativity of scientific programmers with a standardized, 
+communally developed library of reproducible experiment prototypes.
 
-**FreeBSD**: `pkg install py36-websocket-client`
+Autopilot was developed with three primary design principles:
 
-**OpenBSD**: `pkg_add weechat-python py3-websocket-client`
+* **Flexibility** - Autopilot was designed for any hardware and any experiment -- 
+  its hardware API is designed to give a structured wrapper around the code you already use, and its task design is
+  entirely non-prescriptive. It attempts to eliminate the need for researchers to use a patchwork of mutually incompatible tools to perform complex
+  experiments. Autopilot is a hacker's plaything -- rather than a uniform, simplified experience,
+  its modular design and complete API-level documentation is meant to encourage users to make and break core Autopilot modules.
+* **Efficiency** - Autopilot uses Python as a glue around high-performance, low-level libraries,
+  and is fully concurrent across multiple threads, processes, and computers. Its distributed
+  design eliminates the hard limits faced by by single-computer
+  systems, letting researchers use arbitrary numbers and combinations of hardware components
+  to perform complex, hardware-intensive experiments at scale.
+* **Reproducibility** - Autopilot obsessively documents data provenance,
+  logging the entire history of an Animal's training, including any version and local
+  code changes. Any part of an experiment that isn't documented is considered a bug. By integrating experiments and producing data that is
+  clean at the time of acquisition, Autopilot makes it easy to do good science -- its goal is to allow
+  exact experimental replication from a single file. 
+  
 
-**Other**: `pip3 install websocket-client`
+# Distributed Behavior
 
-Note for **macOS**: If you installed weechat with Homebrew, you will have to locate the python runtime environment used.
-If `--with-python@2` was used, you should use: `sudo /usr/local/opt/python@2/bin/pip2 install websocket_client`
+Autopilot's premise is simple: to scale experiments, *just use more computers*.
 
-### 2. Download wee\_slack.py to ~/.weechat/python
+Autopilot systems consist of multiple "Agents" -- computers with specialized roles in the swarm.
+One user-facing "Terminal" agent allows a researcher to control many "Pilots," or computers that perform experiments (typically the beloved Raspberry Pi).
+Each Pilot can coordinate one or many "Children" to offload subsets of an experiment's computational or hardware requirements.
+Users can use and misuse Autopilot's flexible modules to make whatever agent topology they need <3. 
 
-If you don't want wee\_slack to start automatically when weechat starts, you can skip the last command.
+![Autopilot System Diagram](docs/_images/whole_system_black.png)
 
-```
-mkdir -p ~/.weechat/python/autoload
-cd ~/.weechat/python
-curl -O https://raw.githubusercontent.com/wee-slack/wee-slack/master/wee_slack.py
-ln -s ../wee_slack.py autoload
+# Module Overview
+
+Autopilot divides the logical structure of experiments into independent<sup>1</sup> modules:
+
+| | Module |
+| :-: | --- |
+| ![Hardware](docs/_images/icon_agent.png) | **Agents - [Pilot](https://docs.auto-pi-lot.com/en/latest/autopilot.core.pilot.html) & [Terminal](https://docs.auto-pi-lot.com/en/latest/autopilot.core.terminal.html)** Runtime classes that encapsulate a computer/Pi's role in the swarm. Terminals provide the user interface and coordinate subjects and tasks, Pilots do the experiments. Formalizing the Agent API to allow additional agents like Compute or Surveillance agents is a major short-term development goal! |
+| ![Hardware](docs/_images/icon_hardware.png) | **[Hardware](https://docs.auto-pi-lot.com/en/latest/autopilot.hardware.html)** - Control your tools! Extensible classes to control whatever hardware you've got. |
+| ![Hardware](docs/_images/icon_stim.png) | **[Stimuli](https://docs.auto-pi-lot.com/en/latest/autopilot.stim.html)** - Stimulus management and presentation. Parametric sound generation with a realtime audio server built on Jackd. Stubs are present for future development of visual stimuli using Psychopy. |
+| ![Hardware](docs/_images/icon_task.png) | **[Tasks](https://docs.auto-pi-lot.com/en/latest/autopilot.tasks.html)** - Build experiments! Write some basic metadata to describe data, plots, and hardware and the rest is up to you :)  |
+| ![Hardware](docs/_images/icon_data.png) | **[Subject](https://docs.auto-pi-lot.com/en/latest/autopilot.core.subject.html)** - Data management with hdf5 and pyTables. Abstraction layer for keeping obsessive records of subject history and system configuration |
+| ![Hardware](docs/_images/icon_transform.png) | **[Transforms](https://docs.auto-pi-lot.com/en/latest/autopilot.transform.html)** - Composable data transformations. Need to control the pitch of a sound with a video? build a transformation pipeline to connect your objects |
+| ![Hardware](docs/_images/icon_gui.png) | **[UI](https://docs.auto-pi-lot.com/en/latest/autopilot.core.gui.html)** - UI for controlling swarms of Pilots using Qt5/PySide2 |
+| ![Hardware](docs/_images/icon_viz.png) | **[Visualization](https://docs.auto-pi-lot.com/en/latest/autopilot.viz.html)** - (Mostly Prototypes) to do common visualizations |
+
+
+
+<sup>1</sup> a continual work in progress!
+# Getting Started
+
+[**All documentation is hosted at https://docs.auto-pi-lot.com**](https://docs.auto-pi-lot.com)
+
+Installation is simple, just install with pip and use Autopilot's guided setup to configure your environment and preferences.
+The initial setup routine uses a CLI interface that is SSH friendly :)
+
+```bash
+pip3 install auto-pi-lot
+python3 -m autopilot.setup.setup
 ```
 
-### 3. Start WeeChat
-```
-weechat
-```
+![Autopilot Setup Console](docs/_images/installer.png)
 
-**NOTE:** If weechat is already running, the script can be loaded using `/python load wee_slack.py`.
+All of Autopilot is quite new, so bugs, incomplete documentation, missing features are very much expected! Don't be shy about
+[raising issues](https://github.com/auto-pi-lot/autopilot/issues) or [asking questions in the forum](https://github.com/auto-pi-lot/autopilot/discussions).
 
-### 4. Add your Slack API token(s)
 
-There are two types of tokens that can be used, OAuth tokens and session
-tokens. The official way to get a token is to use OAuth. However, this has
-several drawbacks, so an alternative way is to pull a session token out of the
-web client.
+# Development Status
 
-Drawbacks of OAuth tokens:
-- If the team is restricting app installations, wee-slack has to be approved by
-  an admin.
-- For free teams, wee-slack will use one of the ten app slots.
-- The subscribe and unsubscribe commands won't work.
-- Threads can only be marked as read locally, it won't sync to Slack. This
-  means they will be unread again after reloading the script.
+Jonny is trying to graduate! Autopilot will be slow and maybe a little chaotic until then!
 
-Drawbacks of session tokens:
-- These tokens can't be revoked, so be careful not to loose them.
-- They are not officially supported, and may stop working at any time.
+## Branch Map
 
-#### Get a token with OAuth
+We're working on a formal contribution system, pardon the mess! Until we get that and our CI coverage up, `main` will lag a bit behind the development branches:
 
-Log in to Slack:
-
-```
-/slack register
-```
-
-This command prints a link you should open in your browser to authorize WeeChat
-with Slack. If the page shows a different team than the one you want to add,
-you can change the team in the top right corner of the page.
-
-Once you've accomplished this, the page will show a command which you should
-run in WeeChat. The command is of the form:
-
-```
-/slack register <code>
-```
-
-Your Slack team is now added, and you can complete the setup by reloading the
-wee-slack script.
-
-```
-/python reload slack
-```
-
-Note that by default GitHub Pages will see a temporary code used to create your
-token (but not the token itself). If you're worried about this, you can use the
-`-nothirdparty` option, though the process will be a bit less user friendly.
-
-#### Get a session token
-
-1. Open and sign into the [Slack customization page](https://my.slack.com/customize). Check that you end up on the correct team.
-2. Open the developer console (`Ctrl+Shift+J`/`Cmd+Opt+J` in Chrome and `Ctrl+Shift+K`/`Cmd+Opt+K` in Firefox).
-3. Paste and run this code: `window.prompt("Session token:", TS.boot_data.api_token)`
-4. A prompt with the token will appear. Copy the token, return to WeeChat and run `/slack register <token>`.
-5. Reload the script with `/python reload slack`.
-
-#### Optional: Connecting to multiple teams
-
-You can run the register command multiple times to connect to multiple teams.
-If you set the token option yourself, you should separate the tokens with
-commas.
-
-```
-/set plugins.var.python.slack.slack_api_token <token1>,<token2>,<token3>
-```
-
-#### Optional: Secure the tokens
-
-The tokens you add will be stored as plain text in the option
-`plugins.var.python.slack.slack_api_token`. If you don't want to store your API
-token in plain text you can use the secure features of WeeChat:
-
-```
-/secure passphrase this is a super secret password
-/secure set slack_token <YOUR_SLACK_TOKEN>
-/set plugins.var.python.slack.slack_api_token ${sec.data.slack_token}
-```
-
-Note that you will have to move your tokens manually from
-`plugins.var.python.slack.slack_api_token` to the secure variable after each
-time you run `/slack register <code>`.
-
-Commands and options
---------------------
-
-For the available options see [docs/Options.md](docs/Options.md) or run this command:
-```
-/set slack
-```
-
-Most options require that you reload the script with `/python reload slack`
-after changing it to take effect.
-
-For the available commands see [docs/Commands.md](docs/Commands.md) or run this command:
-```
-/slack help
-```
-
-In addition to the commands listed with `/slack help`, most normal IRC
-commands, like `/join`, `/part`, `/query`, `/msg`, `/me`, `/topic`, `/away` and
-`/whois` work normally. See [WeeChat's
-documentation](https://weechat.org/files/doc/stable/weechat_user.en.html) or
-`/help <cmd>` if you are unfamiliar with these.
-
-There are also some special messages you can send:
-
-Modify previous message using regex:
-```
-s/old text/new text/
-```
-
-Modify 3rd previous message using regex:
-```
-3s/old text/new text/
-```
-
-The regex also supports the flags `g` for replacing all instances, `i` for
-ignoring case, `m` for making `^` and `$` match the start/end of each line and
-`s` for making `.` match a newline too. Use them by appending one or more of
-them to the regex:
-```
-s/old text/new text/gi
-```
-
-Delete previous message:
-```
-s///
-```
-
-Add a reaction to the nth last message. The number can be omitted and defaults to the last message. The `+` can be replaced with a `-` to remove a reaction instead.
-```
-3+:smile:
-```
-
-To send a command as a normal message instead of performing the action, prefix it with a slash or a space, like so:
-```
-//slack
- s/a/b/
-```
-
-### Threads
-
-Start a new thread on the most recent message The number indicates which message in the buffer to reply to, in reverse time order:
-```
-/reply 1 here is a threaded reply to the most recent message!
-```
-
-Open an existing thread as a channel. The argument is the thread identifier, which is printed in square brackets with every threaded message in a channel:
-```
-/thread af8
-```
-
-To access the last thread in a channel a shorthand is available:
-```
-/thread
-```
-
-Label a thread with a memorable name. The above command will open a channel called af8, but perhaps you want to call it "meetingnotes". To do so, select that buffer and type:
-```
-/label meetingnotes
-```
-_Note: labels do not persist once a thread buffer is closed_
-
-### Emoji characters and tab completions of emoji names
+* [`dev`](https://github.com/auto-pi-lot/autopilot/tree/dev) - main development branch that collects hotfixes, PRs, etc. Unstable but usually has lots of extra goodies
+* [`hotfix`](https://github.com/auto-pi-lot/autopilot/tree/hotfix) - branches from `dev` for building and testing hotfixes, PRs back to `dev`.
+* [`lab`](https://github.com/auto-pi-lot/autopilot/tree/lab) - branches from `dev` but doesn't necessarily PR back, the local branch used in the maintaining ([Wehr](http://uoneuro.uoregon.edu/wehr/)) lab
+* [`parallax`](https://github.com/auto-pi-lot/autopilot/tree/parallax) - experimental departure from `dev` to implement a particular experiment and rebuild a lot of components along the way, will eventually return to `dev` <3
 
-To enable rendering of emoji characters and tab completion of emoji names, copy
-or symlink the
-[`weemoji.json`](https://github.com/wee-slack/wee-slack/blob/master/weemoji.json)
-file to your weechat config directory (e.g. `~/.weechat`). If doing this after
-starting wee-slack, you will have to reload it by running `/python reload
-slack`. Then append `|%(emoji)` to the `weechat.completion.default_template`
-config option, e.g. like this:
+## Short-Term
 
-```
-/set weechat.completion.default_template "%(nicks)|%(irc_channels)|%(emoji)"
-```
+See the short-term development goals in our version milestones:
 
-Emoji names can be completed by typing colon and the start of the emoji name
-and pressing tab.
+* [`v0.4.0`](https://github.com/auto-pi-lot/autopilot/milestone/1) - Implement registries to separate user code extensions like tasks and local hardware devices in a user directory, preserve source code in produced data so local development isn't lost. 
+* [`v0.5.0`](https://github.com/auto-pi-lot/autopilot/milestone/2) - Make a unitary inheritance structure from a root Autopilot object such that a) common operations like logging and networking are implemented only once, b) the plugin system for `v0.4.0` can not only add new objects, but replace core objects while maintaining provenance (ie. no monkey patching needed), c) object behavior that requires coordination across multiple instances gets much easier, making some magical things like self-healing self-discovering networking possible. This will also include a major refactoring of the code structure, finally breaking up some of the truly monstrous thousand-line modules in `core` into an actually modular system we can build from <3
 
-### User group tab completions
+## Long-Term
 
-To enable tab completions for usergroups append `|%(usergroups)` to the
-`weechat.completion.default_template` config option, e.g. like this:
+Autopilot's extended development goals, in their full extravagance, can be found at the [Autopilot Development Todo](https://docs.auto-pi-lot.com/en/latest/todo.html)
 
-```
-/set weechat.completion.default_template "%(nicks)|%(irc_channels)|%(usergroups)"
-```
+# What's new?
 
-If you already added `%(emoji)` to this config option, like described in the
-last section, make sure not to overwrite that. The usergroup will appear in the
-same format as nicks, like the following: `@marketing`, where marketing is the
-usergroup handle.
+**[v0.3.0](https://docs.auto-pi-lot.com/en/latest/changelog/v0.3.0.html#changelog-v030)**
 
-### Cursor and mouse mode
+After much ado, we're releasing Autopilot's first major upgrade. Cameras, Continuous data, DeepLabCut, and a lot more!
 
-The cursor mode and mouse mode can be used to interact with older messages, for editing, deleting, reacting and replying to a message. Mouse mode can be toggled by pressing `Alt`+`m` and cursor mode can be entered by running `/cursor` (see `/help cursor`).
+- Autopilot has moved to Python 3!! (Tested on 3.6-3.8)
+- Capturing video with OpenCV and the Spinnaker SDK is now supported (See autopilot.hardware.cameras)
+- An I2C_9DOF motion sensor and the MLX90640 temperature sensor are now supported.
+- Timestamps from GPIO events are now microsecond-precise thanks to some modifications to the pigpio library
+- GPIO output timing is also microsecond-precise thanks to the use of pigpio scripts, so you can deliver exactly the reward volumes you intend <3
+- Hardware modules have been refactored into their own module, and have been almost wholly rebuilt to have sensible inheritance structure.
+- Networking modules are more efficient and automatically compress arrays (like video frames!) on transmission. Streaming is also easier now, check out Net_Node.get_stream() !
+- We now have a detailed development roadmap , so you can see the magnificent future we have planned.
+- We have created the autopilot-users discussion board for troubleshooting & coordinating community development :)
 
-If mouse mode is enabled, the default behavior when right-clicking on a message is to paste its id in the input. It can be used in `/reply`, `s/` substitution/deletion and in `+:emoji:` commands instead of a message number.
-It can also be used as an argument to the `/slack linkarchive` command.
 
-In cursor mode, the `M` key achieves the same result (memo: the default for weechat is to paste the message with `m`, `M` simply copies the id).
-In addition, `R` will prepare a `/reply id` and `D` will delete the message (provided it's yours).
-`T` will open the thread associated to a message, equivalent to `/thread id`
-`L` will call the `/slack linkarchive` command behind the hood and paste it to the current input.
+# Supported Systems
 
-Please see weechat's documentation about [how to use the cursor mode](https://weechat.org/files/doc/stable/weechat_user.en.html#key_bindings_cursor_context) or [adapt the bindings](https://weechat.org/files/doc/stable/weechat_user.en.html#command_weechat_key) to your preference.
+**OS**
 
-Default key bindings:
-```
-/key bindctxt mouse @chat(python.*):button2 hsignal:slack_mouse
-/key bindctxt cursor @chat(python.*):D hsignal:slack_cursor_delete
-/key bindctxt cursor @chat(python.*):L hsignal:slack_cursor_linkarchive
-/key bindctxt cursor @chat(python.*):M hsignal:slack_cursor_message
-/key bindctxt cursor @chat(python.*):R hsignal:slack_cursor_reply
-/key bindctxt cursor @chat(python.*):T hsignal:slack_cursor_thread
-```
+- Ubuntu >=16.04
+- raspiOS >=Buster
 
-Note that if these keys are already defined, they will not be overwritten by wee-slack. In that case, you will have to define your own key bindings by running the above commands modified to your liking.
+**Python Versions**
 
-hsignals `slack_mouse` and `slack_cursor_message` currently have the same meaning but may be subject to evolutions.
+- 3.7
+- 3.8
+- 3.9
 
-Removing a team
----------------
+**Raspberry Pi Versions**
 
-You may remove a team by removing its token from the dedicated comma-separated list:
-```
-/set plugins.var.python.slack.slack_api_token "xoxp-XXXXXXXX,xoxp-XXXXXXXX"
-```
-
-You can use tab completion after the key to complete the current value. To see
-which token belongs to which team, run `/slack teams`.
-
-After removing the token, you have to reload wee-slack with `/python reload slack`.
-
-Optional settings
------------------
-
-Show typing notification in main bar (slack_typing_notice):
-```
-/set weechat.bar.status.items [buffer_count],[buffer_plugin],buffer_number+:+buffer_name+{buffer_nicklist_count}+buffer_filter,[hotlist],completion,scroll,slack_typing_notice
-```
-
-Show channel name in hotlist after activity
-```
-/set weechat.look.hotlist_names_level 14
-```
-
-FAQ
----
-
-### How do I keep the buffers sorted alphabetically or with a custom order?
-
-Install the script
-[autosort.py](https://weechat.org/scripts/source/autosort.py.html/) by running
-`/script install autosort.py`. This will keep your buffer list sorted
-alphabetically by default. If you want to customize it, run `/help autosort`.
-
-### How do I group the buffers by team in the buffer list?
-
-Run `/set irc.look.server_buffer independent` and install the
-[autosort.py](https://weechat.org/scripts/source/autosort.py.html/) script
-mentioned in the previous question.
-
-### How can I get system wide notifications for messages?
-
-#### Local notifications on Linux
-
-Use [this trigger](https://github.com/weechat/weechat/wiki/Triggers#show-a-libnotify-desktop-notification-via-notify-send).
-You need the `notify-send` command, or alternatively replace it with another
-command in the trigger.
-
-#### Local notifications on macOS
-
-Use [the notification_center.py script](https://weechat.org/scripts/source/notification_center.py.html/). You can install it with `/script install notification_center.py`.
-
-#### Remote notifications
-
-There are many scripts in the [scripts repo](https://weechat.org/scripts/tag/notify/)
-for various use cases. Note that not all may work with wee-slack, so you will
-have to test them.
-
-### How do I send messages with multiple lines?
-
-You have to install a script to be able to send multiple lines, e.g. the
-`multiline.pl` script with: `/script install multiline.pl`
-
-By default it will wait for one second after you press enter, and if you type
-another character in that period, it will insert the character on a newline,
-and if you don't type anything it will send the message. If you rather want to
-use a separate key to insert a newline, and have the enter key send the message
-immediately, you can run these commands:
-
-```
-/set plugins.var.perl.multiline.magic_paste_only on
-/key bind meta-ctrl-M /input insert \n
-```
-
-This will bind meta-enter (which is usually alt-enter) to insert the newline.
-Replace `meta-ctrl-M` with something else if you want to use a different key
-combination.
-
-The `multiline.pl` script will also let you edit pasted text which incudes
-newlines before you send the message. If this is not working, you may try to
-run the commands below. At least in the `kitty` terminal, it won't work by
-default, but should work after running these commands:
-
-```
-/set plugins.var.perl.multiline.weechat_paste_fix "off"
-/key bind ctrl-J /input magic_enter
-```
-
-You may also want to disable weechats paste prompt, since that is not necessary
-when using `multiline.pl`:
-
-```
-/set weechat.look.paste_max_lines -1
-```
-
-Known issues
-------------
-
-Not all issues are listed here (see
-[issues](https://github.com/wee-slack/wee-slack/issues) for all), but these are
-some noteworthy:
-
-- If you set `background_load_all_history` to `false`:
-  - Channels will not be shown as unread when wee-slack loads, even if there
-    are unread messages. Messages which arrive after wee-slack has loaded
-    however will mark the channel as unread.
-  - If messages arrive while the connection to Slack is lost (e.g. during
-    suspend), they will not appear in the hotlist.
-- If you use an OAuth token or a legacy token instead of a session token:
-  - Threads can only be marked as read locally, it won't sync to Slack. This
-    means they will be unread again after reloading the script.
-
-Debugging
----------
-
-To help debugging you can enable debugging output about what wee-slack is doing
-by enabling debug mode and changing debug level (between 0 and 5, default is 3,
-decrease to increase logging and vice versa). Enabling this will open a new
-buffer `slack-debug` where the messages are printed. Enable it and change level
-by running:
-
-```
-/set plugins.var.python.slack.debug_mode on
-/set plugins.var.python.slack.debug_level 0
-```
-
-You can also dump all the JSON responses received from the API in
-`/tmp/weeslack-debug/`. This requires a script reload after enabling. Enable it
-with:
-
-```
-/set plugins.var.python.slack.record_events true
-/python reload slack
-```
-
-Support
--------
-
-wee-slack is provided without any warranty whatsoever, but you are welcome to ask questions in #wee-slack on freenode.
+- Raspi>=3b (Raspi 4 strongly recommended!)
