@@ -16,6 +16,6 @@ jobs:
       with:
         python-version: 3.x
     - run: pip install --upgrade pip
-    - run: pip install pytest ruff .
+    - run: pip install --upgrade pytest ruff .
     - run: ruff --format=github --ignore=E501 --target-version=py37 .
     - run: pytest
