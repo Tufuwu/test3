@@ -1,0 +1,156 @@
+{% extends "mp/base.html" %}
+{% load emarkdown %}
+{% load captureas %}
+{% load set %}
+{% load crispy_forms_tags %}
+{% load i18n %}
+
+
+
+{% block title %}
+    {{ topic.title }}
+{% endblock %}
+
+
+
+{% block breadcrumb %}
+    <li>{{ topic.title }}</li>
+{% endblock %}
+
+
+
+{% block headline %}
+    {{ topic.title }}
+{% endblock %}
+
+
+
+{% block headline_sub %}
+    {{ topic.subtitle }}
+{% endblock %}
+
+
+
+{% block content %}
+    <div class="members">
+        <span class="authors-label">{% trans "Participant" %}{{ topic.participants.all|length|add:"1"|pluralize }} : </span>
+        <ul>
+            <li>
+                {% include 'misc/member_item.part.html' with member=topic.author avatar=True %}
+            </li>
+            {% for member in topic.participants.all %}
+                <li>
+                    {% include 'misc/member_item.part.html' with avatar=True %}
+                </li>
+            {% endfor %}
+            {% if user == topic.author %}
+                <li>
+                    <a href="#add-participant" class="btn btn-add open-modal ico-after more blue">
+                        {% trans "Ajouter un membre" %}
+                    </a>
+                </li>
+            {% endif %}
+        </ul>
+    </div>
+
+    {% include "misc/paginator.html" with position="top" %}
+
+
+    <div>
+        {% for message in posts %}
+            {% if not topic.one_participant_remaining %}
+                {% captureas edit_link %}
+                    {% url "mp:post-edit" message.pk %}
+                {% endcaptureas %}
+
+                {% captureas cite_link %}
+                    {% url "mp:answer" topic.pk topic.slug %}?cite={{ message.pk }}
+                {% endcaptureas %}
+            {% endif %}
+
+            {% captureas karma_link %}
+                {% url "api:mp:mp-reaction-karma" topic.pk message.pk %}
+            {% endcaptureas %}
+
+            {% captureas unread_link %}
+                {% url "mp:mark-post-unread" message.pk %}
+            {% endcaptureas %}
+
+            {% if forloop.first and page_obj.number > 1 %}
+                {% set True as is_repeated_message %}
+            {% else %}
+                {% set False as is_repeated_message %}
+            {% endif %}
+
+            {% if topic.last_message.pk == message.pk %}
+                {% set True as can_edit %}
+            {% else %}
+                {% set False as can_edit %}
+            {% endif %}
+
+            {% include "misc/message.part.html" with can_hide=False is_mp=True can_unread=True %}
+        {% endfor %}
+    </div>
+
+
+    {% include "misc/paginator.html" with position="bottom" %}
+
+
+
+    {% captureas form_action %}
+        {% url "mp:answer" topic.pk topic.slug %}
+    {% endcaptureas %}
+
+    {% include "misc/message_form.html" with member=user %}
+{% endblock %}
+
+
+
+{% block sidebar_actions %}
+    <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Actions">
+        <h3>{% trans "Actions" %}</h3>
+        <ul>
+            {% if topic.author == user %}
+                <li>
+                    <a href="#add-participant" class="open-modal ico-after more blue">
+                        {% trans "Ajouter un membre" %}
+                    </a>
+                    <form action="{% url "mp:edit-participant" topic.pk topic.slug %}" method="post" id="add-participant" class="modal modal-flex">
+                        <p>
+                            {% trans "Vous allez rajouter un nouveau membre dans la conversation privée." %}
+                        </p>
+
+                        <input type="text"
+                               class="input"
+                               name="username"
+                               placeholder="Pseudo du membre"
+                               data-autocomplete="{'type':'single'}">
+
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-submit">{% trans "Ajouter" %}</button>
+                    </form>
+                </li>
+
+                <li>
+                    <a href="{% url "mp:edit" topic.pk topic.slug %}" class="ico-after edit blue">
+                        {% trans "Éditer la conversation" %}
+                    </a>
+                </li>
+            {% endif %}
+
+            <li>
+                <a href="#leave-conversation" class="open-modal ico-after cross blue">
+                    {% trans "Quitter la conversation" %}
+                </a>
+                <form action="{% url "mp:leave" topic.pk topic.slug %}" method="post" id="leave-conversation" class="modal modal-flex">
+                    <p>
+                        {% trans "Attention, vous vous apprêtez à quitter définitivement cette conversation." %}
+                    </p>
+
+                    {% csrf_token %}
+                    <button type="submit" name="leave" class="btn btn-submit">{% trans "Confirmer" %}</button>
+                </form>
+            </li>
+        </ul>
+    </div>
+{% endblock %}

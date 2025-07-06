@@ -1,0 +1,153 @@
+.zform-toolbar {
+    margin: 0;
+    padding: $length-2;
+    list-style-position: initial;
+    list-style-type: none;
+    border-bottom: none;
+
+    a,
+    button {
+        display: block;
+        float: left;
+        cursor: pointer;
+        border-bottom: $length-1 solid transparent;
+        text-decoration: none;
+        color: $grey-400;
+        height: $length-32;
+        line-height: 1;
+        padding: 0 $length-10;
+        margin-left: $length-1;
+        text-indent: -9999px;
+        width: 0;
+
+        .zform-popup {
+            text-indent: 0;
+            line-height: 1.6;
+        }
+
+        &.ico-after {
+            padding-left: $length-32;
+        }
+
+        &:after {
+            top: $length-8;
+            left: $length-12;
+        }
+
+        &:hover,
+        &:focus {
+            border-bottom-color: $primary-500;
+            background-color: $primary-000;
+
+            outline: none;
+        }
+    }
+
+    button {
+        padding: 0 $length-16;
+        height: $length-32;
+
+        border-top: none;
+        border-right: none;
+        border-left: none;
+
+        &[type=submit] {
+            background: $primary-600;
+            border-bottom-color: $primary-600;
+            color: $white;
+
+            &:hover,
+            &:focus {
+                color: $true-white;
+                background: $primary-400;
+                border-bottom-color: $primary-400;
+            }
+        }
+    }
+}
+
+.zform-button {
+    background-repeat: no-repeat;
+    background-position: center center;
+}
+
+/* Icons */
+
+.zform-button-bold:after { @include sprite-position($zform-bold); }
+.zform-button-italic:after { @include sprite-position($zform-italic); }
+.zform-button-strike:after { @include sprite-position($zform-strike); }
+.zform-button-abbr:after { @include sprite-position($zform-abbr); }
+.zform-button-key:after { @include sprite-position($zform-key); }
+.zform-button-sup:after { @include sprite-position($zform-sup); }
+.zform-button-sub:after { @include sprite-position($zform-sub); }
+.zform-button-center:after { @include sprite-position($zform-center); }
+.zform-button-right:after { @include sprite-position($zform-right); }
+.zform-button-ul:after { @include sprite-position($zform-ul); }
+.zform-button-ol:after { @include sprite-position($zform-ol); }
+.zform-button-quote:after { @include sprite-position($zform-quote); }
+.zform-button-link:after { @include sprite-position($zform-link); }
+.zform-button-image:after { @include sprite-position($zform-image); }
+.zform-button-attention:after { @include sprite-position($zform-attention); }
+.zform-button-error:after { @include sprite-position($zform-error); }
+.zform-button-question:after { @include sprite-position($zform-question); }
+.zform-button-neutre:after { @include sprite-position($zform-neutre); }
+.zform-button-information:after, .zform-button-infoblocks:after { @include sprite-position($zform-information); }
+.zform-button-secret:after { @include sprite-position($zform-secret); }
+.zform-button-blockcode:after, .zform-button-monospace:after { @include sprite-position($zform-blockcode); }
+.zform-button-titles:after { @include sprite-position($zform-titles); }
+.zform-button-title1:after { @include sprite-position($zform-title1); }
+.zform-button-title2:after { @include sprite-position($zform-title2); }
+.zform-button-title3:after { @include sprite-position($zform-title3); }
+.zform-button-title4:after { @include sprite-position($zform-title4); }
+.zform-button-table:after { @include sprite-position($zform-table); }
+.zform-button-math:after { @include sprite-position($zform-math); }
+.zform-button-footnote:after { @include sprite-position($zform-footnote); }
+.zform-button-chars:after { @include sprite-position($zform-chars); }
+.zform-button-smilies:after { @include sprite-position($zform-smilies); }
+
+
+/* Simple dropdown */
+div.zform-popup {
+    top: $length-32;
+    z-index: 100;
+    background: transparent;
+    background-color: $white;
+    background-image: linear-gradient(center to top, $grey-100 8%, $white 75%);
+    border: 1px solid $grey-200;
+    border-radius: $radius-1;
+    padding: $length-2;
+}
+
+.zform-button-smilies .zform-code-col > span {
+    text-align: center;
+}
+
+.md-editor.selected {
+    box-shadow: 0 0 4px $primary-400;
+    outline: 1px solid $primary-400;
+}
+
+
+/* 3 cols select code dropdown */
+.zform-code-col {
+    display: inline-block;
+    vertical-align: top;
+    margin: 2px;
+    min-width: 100px;
+
+    & > span {
+        display: block;
+        color: $color-link;
+
+        cursor: pointer;
+
+        &[data-zform-selected='true'] {
+            font-weight: bold;
+        }
+
+        &:hover,
+        &:focus {
+            color: $color-link-hover;
+        }
+    }
+}

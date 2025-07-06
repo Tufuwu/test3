@@ -1,0 +1,18 @@
+.more-link {
+    display: block;
+
+    margin: $length-16 0;
+
+    height: $length-48;
+
+    border: solid $length-1 $grey-200;
+    border-bottom-width: $length-2;
+
+    background: $true-white;
+
+    font-size: $font-size-8;
+    text-align: center;
+    text-decoration: none;
+
+    line-height: 2.6;
+}

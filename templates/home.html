@@ -1,0 +1,187 @@
+{% extends "base.html" %}
+
+{% load static %}
+{% load emarkdown %}
+{% load date %}
+{% load interventions %}
+{% load topbar %}
+{% load thumbnail %}
+{% load i18n %}
+{% load captureas %}
+{% load crispy_forms_tags %}
+{% load pluralize_fr %}
+
+
+{% block body_class %}flexpage home{% endblock %}
+
+{% block searchbox_id %}search-home{% endblock %}
+
+
+{# Don't show the subheader on the home page #}
+{% block subheader %}{% endblock %}
+
+
+
+{% block content_out %}
+    {% url 'opinion:list' as url_opinions %}
+    {% url "forum:cats-forums-list" as url_forums %}
+    {% url 'publication:list' as url_publications %}
+
+    {% url 'pages-association' as url_association %}
+
+    <section class="flexpage-header">
+        <div class="flexpage-wrapper">
+            {% if user.is_authenticated %}
+                <section class="home-description connected">
+                    <blockquote><span>{{ quote }}</span></blockquote>
+
+                    {% if featured_message %}
+                        {% include "featured/includes/featured_message.part.html" %}
+                    {% endif %}
+                </section>
+            {% else %}
+                <section class="home-description short" id="description">
+                    <blockquote><span>{% trans "Zeste de Savoir, la connaissance" %}</span> <span>{% trans "pour tous et sans pépins" %}</span></blockquote>
+                    <a class="home-description-button" href="#description">
+                        {% trans "En savoir plus" %}
+                    </a>
+                    <a href="#" class="home-description-button close-description">
+                        {% trans "Fermer" %}
+                    </a>
+                </section>
+                <section class="home-description">
+                    <div class="column">
+                        <h1>{% trans "La connaissance pour tous" %}</h1>
+                        {% blocktrans with site_name=app.site.literal_name %}
+                            <p>
+                                {{ site_name }} : un site de <strong>partage de connaissances</strong> où vous trouverez,
+                                <strong>gratuitement</strong> et <strong>sans publicité</strong> :
+                            </p>
+                            <ul>
+                                <li>une <a href="{{ url_publications }}">bibliothèque</a>, comprenant des <a href="{{ url_publications }}?type=tutorial">tutoriels</a> et <a href="{{ url_publications }}?type=article">articles</a> de tous niveaux ;</li>
+                                <li>une <a href="{{ url_opinions }}">tribune</a>, où se trouvent les billets écrits par les membres ;</li>
+                                <li>et des <a href="{{ url_forums }}">forums d'entraide</a>.</li>
+                            </ul>
+                            <p>Tout est animé par la communauté, tous les sujets sont abordés !</p>
+                        {% endblocktrans %}
+                    </div>
+                    <div class="column">
+                        <h1>{% trans "Partagez vos savoirs…" %}</h1>
+                        {% blocktrans %}
+                            <p><strong>Tous les membres</strong> peuvent écrire et <strong>publier des contenus</strong>.</p>
+                            <p>Pour assurer la qualité, l’équipe du site valide chaque tutoriel et article.</p>
+                        {% endblocktrans %}
+                        <h1>{% trans "… sur une plate-forme libre" %}</h1>
+                        {% blocktrans %}
+                            <p>Le site est géré et financé par une <a href="{{ url_association }}">association</a> à but non lucratif.</p>
+                        {% endblocktrans %}
+                        {% if app.site.contribute_link %}
+                            {% blocktrans with contribute_link=app.site.contribute_link %}
+                                <p>Chacun peut <a href="{{contribute_link}}">contribuer au code source</a> de la plate-forme, qui est ouvert.</p>
+                            {% endblocktrans %}
+                        {% endif %}
+                    </div>
+                </section>
+            {% endif %}
+            {% if app.display_search_bar %}
+                <section class="search-box">
+                    {% crispy search_form %}
+                </section>
+            {% endif %}
+        </div>
+    </section>
+
+    <div class="flexpage-wrapper">
+        <section class="home-pinned-content">
+            <h1 class="home-heading heading-white ico-after ico-news" itemprop="name">
+                <span>{% trans "À la une" %}</span>
+
+                {% if perms.featured.change_featuredresource %}
+                    <a href="{% url "featured:resource-list" %}" class="btn btn-grey">{% trans "Gérer les unes" %}</a>
+                {% endif %}
+            </h1>
+
+            <div class="featured-resource-row">
+                {% for featured_resource in last_featured_resources %}
+                    {% include "featured/includes/featured_resource_item.part.html" %}
+                {% empty %}
+                    <p class="no-featured-resource">{% trans "Aucun élément &quot;À la une&quot; disponible" %}</p>
+                {% endfor %}
+            </div>
+        </section>
+        <div class="home-row">
+            <section itemscope itemtype="http://schema.org/ItemList">
+                <h2 class="ico-after ico-tutorials home-heading" itemprop="name">
+                    <span>{% trans "Derniers tutoriels" %}</span>
+                    <a href="{% url 'publication:list' %}?type=tutorial" class="btn btn-grey">{% trans "Tous les tutoriels" %}</a>
+                </h2>
+
+                <meta itemprop="itemListOrder" content="Descending">
+
+                {% include "tutorialv2/list_page_elements/list_of_online_contents.html" with public_contents=last_tutorials col_number=1 ignore_categories=True %}
+            </section>
+
+            <section itemscope itemtype="http://schema.org/ItemList">
+                <h2 class="ico-after ico-articles home-heading" itemprop="name">
+                    <span>{% trans "Derniers articles" %}</span>
+                    <a href="{% url 'publication:list' %}?type=article" class="btn btn-grey">{% trans "Tous les articles" %}</a>
+                </h2>
+
+                <meta itemprop="itemListOrder" content="Descending">
+
+                {% include "tutorialv2/list_page_elements/list_of_online_contents.html" with public_contents=last_articles col_number=1 ignore_categories=True %}
+
+                <div class="content-item-list">
+
+                    <div class="content-item write-tutorial">
+                        <div class="write-tutorial-text">
+                            <p>
+                                {% blocktrans with plural=contents_count|pluralize_fr %}
+                                    Il y a {{ contents_count }} publication{{ plural }} sur Zeste de Savoir.
+                                {% endblocktrans %}
+                            </p>
+                            <p class="lead">{% trans "Pourquoi pas la vôtre ?" %}</p>
+                        </div>
+                        <a href="{% url "content:create-content" created_content_type='TUTORIAL' %}" class="btn btn-write-tutorial">{% trans "Commencer à rédiger" %}</a>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <div class="home-row">
+            <section itemscope itemtype="http://schema.org/ItemList">
+                <h2 class="ico-after ico-opinions home-heading" itemprop="name">
+                    <span>{% trans "Derniers billets choisis" %}</span>
+                    <a href="{% url "opinion:list" %}" class="btn btn-grey">{% trans "Tous les billets" %}</a>
+                </h2>
+
+                <meta itemprop="itemListOrder" content="Descending">
+
+                <div class="content-item-list">
+                    {% for opinion in last_opinions %}
+                        {% include 'tutorialv2/includes/content_item.part.html' with public_content=opinion show_description=True item_class=forloop.first|yesno:", mini" show_reactions=True ignore_categories=True %}
+                    {% empty %}
+                        <p>{% trans "Aucun billet disponible." %}</p>
+                    {% endfor %}
+                </div>
+            </section>
+
+            <section itemscope itemtype="http://schema.org/ItemList">
+                <h2 class="home-heading ico-after ico-forum" itemprop="name">
+                    <span>{% trans "Derniers sujets" %}</span>
+                    <a href="{% url "forum:last-subjects" %}" class="btn btn-grey">{% trans "En voir plus" %}</a>
+                </h2>
+
+                <meta itemprop="itemListOrder" content="Descending">
+
+                <div class="content-item-list">
+                    {% for topic in last_topics %}
+                        {% include 'forum/includes/topic_item.part.html' %}
+                    {% empty %}
+                        <p>{% trans "Aucun sujet disponible." %}</p>
+                    {% endfor %}
+                </div>
+            </section>
+        </div>
+    </div>
+{% endblock %}

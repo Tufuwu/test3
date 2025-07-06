@@ -1,0 +1,16 @@
+{% load i18n %}
+{% load pluralize_fr %}
+
+{% if own_profile %}
+    {% blocktrans with plural=subscriber_count|pluralize_fr %}
+        Vous avez {{ subscriber_count }} abonné{{ plural }}
+    {% endblocktrans %}
+{% elif own_profile == False %}
+    {% blocktrans with plural=subscriber_count|pluralize_fr %}
+        {{ subscriber_count }} abonné{{ plural }}
+    {% endblocktrans %}
+{% else %}
+    {% blocktrans with plural=subscriber_count|pluralize_fr %}
+        (<span id="subscriber_count">{{ subscriber_count }}</span> abonné<span id="subscriber_plural">{{ plural }}</span>)
+    {% endblocktrans %}
+{% endif %}

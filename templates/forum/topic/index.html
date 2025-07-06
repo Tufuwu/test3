@@ -1,0 +1,392 @@
+{% extends "forum/base.html" %}
+{% load emarkdown %}
+{% load captureas %}
+{% load set %}
+{% load profile %}
+{% load crispy_forms_tags %}
+{% load i18n %}
+{% load interventions %}
+{% load cache %}
+
+{% block title %}
+    {% if topic.is_solved %}[{% trans "Résolu" %}]{% endif %} {{ topic.title }}
+{% endblock %}
+
+{% block breadcrumb %}
+    <li itemscope itemtype="http://data-vocabulary.org/Breadcrumb">
+        <a href="{{ topic.forum.category.get_absolute_url }}" itemprop="url">
+            <span itemprop="title">{{ topic.forum.category.title }}</span>
+        </a>
+    </li>
+    <li itemscope itemtype="http://data-vocabulary.org/Breadcrumb">
+        <a href="{{ topic.forum.get_absolute_url }}" itemprop="url">
+            <span itemprop="title">{{ topic.forum.title }}</span>
+        </a>
+    </li>
+    <li>
+        {{ topic.title }}
+    </li>
+{% endblock %}
+
+{% block description %}
+    {% cache 180 "topic-description" topic.pk %}
+        {{ topic.meta_description }}
+    {% endcache %}
+{% endblock %}
+
+{% block schema %}
+    itemscope itemtype="http://schema.org/Question"
+{% endblock %}
+
+
+
+{% block headline %}
+    {{ topic.title }}
+{% endblock %}
+
+
+
+{% block headline_sub %}
+    {{ topic.subtitle }}
+{% endblock %}
+
+
+
+{% block content %}
+    {% if topic.tags.all %}
+        <ul class="taglist" itemprop="keywords">
+            {% for tag in topic.tags.all %}
+                {% if tag.slug %}
+                <li>
+                    <a href="{% url "forum:topic-tag-find" tag.slug %}" rel="tag">
+                        {{ tag.title }}
+                    </a>
+                </li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+    {% include "misc/paginator.html" with position="top" %}
+
+    <div
+        class="alert-box success ico-after tick light {% if not topic.is_solved %}empty{% endif %}"
+        data-ajax-output="solve-topic"
+    >
+        {% if topic.solved_by == topic.author %}
+            {% trans "Le problème exposé dans ce sujet a été résolu." %}
+        {% else %}
+            {% url "member-detail" topic.solved_by.username as url_member_detail %}
+            {% blocktrans with username=topic.solved_by.username %}
+                <a href="{{ url_member_detail }}">{{ username }}</a> a marqué ce sujet comme résolu.
+            {% endblocktrans %}
+        {% endif %}
+    </div>
+
+
+    {% for message in posts %}
+        {% captureas edit_link %}
+            {% if message.pk == topic.first_post.pk %}
+                {% url "forum:topic-edit" %}?topic={{ topic.pk }}
+            {% else %}
+                {% url "forum:post-edit" %}?message={{ message.pk }}
+            {% endif %}
+        {% endcaptureas %}
+
+        {% captureas post_action_link %}
+            {% url "forum:post-edit" %}?message={{ message.pk }}
+        {% endcaptureas %}
+
+        {% captureas hide_link %}{{ post_action_link }}{% endcaptureas %}
+        {% captureas show_link %}{{ post_action_link }}{% endcaptureas %}
+        {% captureas alert_link %}{% url "forum:post-create-alert" %}?message={{ message.pk }}{% endcaptureas %}
+
+        {% captureas cite_link %}
+            {% url "forum:post-new" %}?sujet={{ topic.pk }}&amp;cite={{ message.pk }}
+        {% endcaptureas %}
+
+        {% captureas helpful_link %}
+            {% url "forum:post-useful" %}?message={{ message.pk }}
+        {% endcaptureas %}
+
+        {% captureas karma_link %}
+            {% url 'api:forum:post-karma' message.pk %}
+        {% endcaptureas %}
+
+        {% captureas alerts_solve_link %}
+            {% url "forum:solve-alert" %}
+        {% endcaptureas %}
+
+        {% captureas unread_link %}
+            {% url "forum:post-unread" %}?message={{ message.pk }}
+        {% endcaptureas %}
+
+        {% if forloop.first and page_obj.number > 1 %}
+            {% set True as is_repeated_message %}
+        {% else %}
+            {% set False as is_repeated_message %}
+        {% endif %}
+
+        {% if forloop.first and page_obj.number == 1 %}
+            {% set False as answer_schema %}
+        {% else %}
+            {% set True as answer_schema %}
+        {% endif %}
+
+        {% if user == message.author or is_staff %}
+            {% set True as can_view_history %}
+        {% else %}
+            {% set False as can_view_history %}
+        {% endif %}
+
+        {% include "misc/message.part.html" with answer_schema=answer_schema can_unread=True unread_link=unread_link perms_change=is_staff %}
+    {% endfor %}
+
+    {% include "misc/paginator.html" with position="bottom" %}
+
+    {# Anwser form #}
+    {% captureas form_action %}
+        {% url "forum:post-new" %}?sujet={{ topic.pk }}
+    {% endcaptureas %}
+
+    {% include "misc/message_form.html" with member=user %}
+{% endblock %}
+
+
+
+{% block return_btn %}
+    <a href="{{ topic.forum.get_absolute_url }}" class="new-btn ico-after arrow-left blue">
+        {% trans "Retour" %} <span class="wide">{% trans "à la liste des sujets" %}</span>
+    </a>
+{% endblock %}
+
+
+{% block new_btn %}
+  {% if user.profile.can_write_now %}
+      <a href="{% url "forum:topic-new" %}?forum={{ topic.forum.pk }}" class="new-btn ico-after more blue">
+          {% trans "Nouveau sujet" %}
+      </a>
+
+      {% if topic.author.pk == user.pk and topic.first_post.is_visible or is_staff %}
+          <a href="{% url "forum:topic-edit" %}?topic={{ topic.pk }}" class="new-btn ico-after edit blue">
+              {% trans "Éditer le sujet" %}
+          </a>
+      {% endif %}
+  {% endif %}
+{% endblock %}
+
+
+{% block sidebar_actions %}
+    {% if topic.author.pk == user.pk %}
+        <li>
+            {% include "forum/includes/topic_solve_form.part.html" %}
+        </li>
+    {% endif %}
+
+    <li>
+        {% url "forum:topic-edit" as link_follow_without_parameter %}
+
+        {% with topic_is_followed=topic|is_followed %}
+        {% with topic_id=topic.pk|stringformat:"s" %}
+        {% with link_follow=link_follow_without_parameter|add:'?topic='|add:topic_id %}
+            {% if topic_is_followed %}
+                {% trans "Suivre ce sujet" as data_onclick %}
+                {% trans "Ne plus suivre ce sujet" as button_text %}
+            {% else %}
+                {% trans "Suivre ce sujet" as button_text %}
+                {% trans "Ne plus suivre ce sujet" as data_onclick %}
+            {% endif %}
+            {% include 'notification/follow_template.html' with link=link_follow is_followed=topic_is_followed data_onclick=data_onclick button_text=button_text subscriber_count=subscriber_count %}
+        {% endwith %}
+        {% endwith %}
+        {% endwith %}
+    </li>
+
+    <li>
+        {% url "forum:topic-edit" as link_follow_without_parameter %}
+
+        {% with topic_is_email_followed=topic|is_email_followed %}
+        {% with topic_id=topic.pk|stringformat:"s" %}
+        {% with link_follow=link_follow_without_parameter|add:'?topic='|add:topic_id %}
+            {% if topic_is_email_followed %}
+                {% trans "Être notifié par courriel" as data_onclick %}
+                {% trans "Ne plus être notifié par courriel" as button_text %}
+            {% else %}
+                {% trans "Être notifié par courriel" as button_text %}
+                {% trans "Ne plus être notifié par courriel" as data_onclick %}
+            {% endif %}
+            {% include 'notification/follow_by_email_template.html' with link=link_follow is_followed=topic_is_email_followed data_onclick=data_onclick button_text=button_text %}
+        {% endwith %}
+        {% endwith %}
+        {% endwith %}
+    </li>
+
+    <li>
+        {% url "forum:topic-edit" as link_request_without_parameter %}
+
+        {% with topic_id=topic.pk|stringformat:"s" %}
+        {% with link_request=link_request_without_parameter|add:'?topic='|add:topic_id %}
+            {% if is_requesting %}
+                {% trans "Proposer la mise en une" as data_onclick %}
+                {% trans "Ne plus proposer la mise en une" as button_text %}
+            {% else %}
+                {% trans "Proposer la mise en une" as button_text %}
+                {% trans "Ne plus proposer la mise en une" as data_onclick %}
+            {% endif %}
+            {% include 'featured/includes/featured_request.part.html' with link=link_request is_requesting=is_requesting data_onclick=data_onclick button_text=button_text featured_request_count=featured_request_count %}
+        {% endwith %}
+        {% endwith %}
+    </li>
+{% endblock %}
+
+
+
+{% block sidebar_blocks %}
+    {% if is_dev or topic.github_issue %}
+        <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Développement">
+            <h3>{% trans "Développement" %}</h3>
+            <ul>
+                {% if topic.github_issue %}
+                    <li>
+                        <a href="{{ topic|get_github_issue_url }}" class="ico-after github blue">{% trans 'Ticket associé' %}</a>
+                    </li>
+
+                    {% if is_dev %}
+                        <li>
+                            <a href="#unlink-issue" class="open-modal ico-after cross red">{% trans 'Dissocier le ticket' %}</a>
+                        </li>
+                        <form action="{% url "forum:manage-issue" topic.pk %}" method="post" id="unlink-issue" class="modal modal-flex">
+                            {% csrf_token %}
+                            <p>
+                                {% trans 'Voulez-vous vraiment dissocier ce sujet de son ticket GitHub ?' %}
+                            </p>
+                            <button type="submit" name="unlink" class="btn btn-submit">{% trans 'Confirmer' %}</button>
+                        </form>
+                    {% endif %}
+                {% else %}
+                    <li>
+                        <a href="#create-issue" class="open-modal ico-after github blue">{% trans 'Créer un ticket' %}</a>
+                        <form action="{% url "forum:manage-issue" topic.pk %}" method="post" id="create-issue" class="modal modal-flex">
+                            {% if has_token %}
+                                {% csrf_token %}
+                                <select name="repository">
+                                    {% for repo in repositories %}
+                                        <option value="{{ repo }}">{{ repo }}</option>
+                                    {% endfor %}
+                                </select>
+                                <p>
+                                    {% trans 'Si vous voulez modifier ce qui sera envoyé sur GitHub, éditez ce formulaire.' %}
+                                </p>
+                                <input type="text" name="title" value="{{ topic.title }}" required>
+                                <textarea name="body" class="textarea" cols="40" required>{{ topic.first_post.text }}</textarea>
+                                <button type="submit" name="create" class="btn btn-submit">{% trans 'Envoyer' %}</button>
+                            {% else %}
+                                <p>{% trans "Il semblerait que vous n’ayez pas spécifié de token d’identification GitHub, vous ne pouvez donc pas créer de ticket pour ce sujet." %}</p>
+                                {% url 'update-github' as update_github %}
+                                <p>
+                                    {% blocktrans %}
+                                        Pour y parvenir, pensez simplement à générer un
+                                        <a href="https://github.com/settings/tokens">token sur GitHub</a> et à le renseigner dans
+                                        <a href="{{ update_github }}">votre profil</a>.
+                                    {% endblocktrans %}
+                                </p>
+                            {% endif %}
+                        </form>
+                    </li>
+
+                    <li>
+                        <a href="#link-issue" class="open-modal ico-after arrow-right blue">{% trans 'Associer un ticket' %}</a>
+                        <form action="{% url "forum:manage-issue" topic.pk %}" method="post" id="link-issue" class="modal modal-flex">
+                            {% csrf_token %}
+                            <p>
+                                {% trans "Quel est le dépôt et le numéro du ticket GitHub que vous souhaitez associer ?" %}
+                            </p>
+                            <select name="repository">
+                                {% for repo in repositories %}
+                                    <option value="{{ repo }}">{{ repo }}</option>
+                                {% endfor %}
+                            </select>
+                            <input type="number" name="issue" min="1" placeholder="{% trans "Numéro du ticket (sans #)" %}" required>
+                            <button type="submit" name="link" class="btn btn-submit">{% trans 'Associer' %}</button>
+                        </form>
+                    </li>
+                {% endif %}
+            </ul>
+        </div>
+    {% endif %}
+
+    {% if is_staff %}
+        <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Modération">
+            <h3>{% trans "Modération" %}</h3>
+            <ul>
+                {% if topic.author.pk != user.pk %}
+                    <li>
+                        {% include "forum/includes/topic_solve_form.part.html" %}
+                    </li>
+                {% endif %}
+                <li>
+                    <a href="#lock-open-topic-{{ topic.pk }}" class="open-modal ico-after lock {% if not topic.is_locked %}blue{% endif %}">
+                        {% if topic.is_locked %}
+                            {% trans "Ouvrir le sujet" %}
+                        {% else %}
+                            {% trans "Fermer le sujet" %}
+                        {% endif %}
+                    </a>
+                    <form action="{% url "forum:topic-edit" %}" method="post" id="lock-open-topic-{{ topic.pk }}" class="modal modal-flex">
+                        <input type="hidden" name="topic" value="{{ topic.pk }}">
+                        <input type="hidden" name="nb" value="{{ nb }}">
+                        <input type="hidden" name="page" value="{{ nb }}">
+                        <input type="hidden" name="lock" value="{% if topic.is_locked %}false{% else %}true{% endif %}">
+                        {% csrf_token %}
+
+                        <p>
+                            {% trans "Voulez-vous confirmer" %}
+                            <em>
+                                {% if topic.is_locked %}
+                                    {% trans "la réouverture" %}
+                                {% else %}
+                                    {% trans "la fermeture" %}
+                                {% endif %}
+                            </em>
+                            {% trans "du sujet ?" %}
+                        </p>
+
+                        <button type="submit" name="lock-open-topic-{{ topic.pk }}" class="btn btn-submit">
+                            {% trans "Confirmer" %}
+                        </button>
+                    </form>
+                </li>
+
+                <li>
+                    <form action="{% url "forum:topic-edit" %}" method="post">
+                        <input type="hidden" name="topic" value="{{ topic.pk }}">
+                        <input type="hidden" name="nb" value="{{ nb }}">
+                        <input type="hidden" name="page" value="{{ nb }}">
+                        <input type="hidden" name="sticky" value="{% if topic.is_sticky %}false{% else %}true{% endif %}">
+                        {% csrf_token %}
+
+                        <button class="ico-after pin {% if not topic.is_sticky %}blue{% endif %}" type="submit">
+                            {% if topic.is_sticky %}
+                                {% trans "Enlever du post-it" %}
+                            {% else %}
+                                {% trans "Marquer en post-it" %}
+                            {% endif %}
+                        </button>
+                    </form>
+                </li>
+
+                <li>
+                    <a href="#move-topic" class="ico-after arrow-right blue open-modal">{% trans "Déplacer le sujet" %}</a>
+                    {% crispy form_move %}
+                </li>
+                {% if perms.featured.change_featuredresource %}
+                    <li>
+                        <a href="{% url "featured:resource-create" %}?content_type=topic&amp;content_id={{ topic.pk }}" class="ico-after star blue">
+                            {% trans "Ajouter en une" %}
+                        </a>
+                    </li>
+                {% endif %}
+            </ul>
+        </div>
+    {% endif %}
+{% endblock %}

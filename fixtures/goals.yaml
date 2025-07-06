@@ -1,0 +1,35 @@
+-   model: tutorialv2.Goal
+    pk: 1
+    fields:
+        name: Comprendre
+        description: Publications pour comprendre quelque chose à quelque chose d'autre.
+        position: 0
+        slug: comprendre
+-   model: tutorialv2.Goal
+    pk: 2
+    fields:
+        name: Découvrir
+        description: Découvrir des trucs.
+        position: 1
+        slug: decouvrir
+-   model: tutorialv2.Goal
+    pk: 3
+    fields:
+        name: Apprendre à faire
+        description: Qui n'apprend rien n'a rien.
+        position: 2
+        slug: apprendre
+-   model: tutorialv2.Goal
+    pk: 4
+    fields:
+        name: Exprimer une opinion
+        description: Ayez un avis sur tout.
+        position: 3
+        slug: exprimer-opinion
+-   model: tutorialv2.Goal
+    pk: 5
+    fields:
+        name: Nouvelles de la communauté
+        description: Nous sommes des communards, après tout.
+        position: 4
+        slug: nouvelles-communaute

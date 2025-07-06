@@ -1,0 +1,84 @@
+{% load captureas %}
+{% load append_query_params %}
+{% load i18n %}
+
+
+{% if pages|length > 1 %}
+    {% captureas full_anchor %}
+        {% if anchor %}
+            #{{ anchor }}
+        {% endif %}
+    {% endcaptureas %}
+
+    <ul class="pagination pagination-{{ position }}">
+        {% if nb != 1 %}
+            <li class="prev">
+                {% with prev=nb|add:-1 %}
+                    <a href="{% append_query_params page=prev %}{{ full_anchor }}" class="ico-after arrow-left blue" rel="prev">
+                        <span>
+                            {% trans "Précédente" %}
+                        </span>
+                    </a>
+                {% endwith %}
+            </li>
+        {% endif %}
+
+
+        {% for page in pages %}
+            {% if page %}
+                <li>
+                    <a
+                        {% if page != nb %}
+                            href="{% append_query_params page=page %}{{ full_anchor }}"
+                        {% else %}
+                            class="current"
+                        {% endif %}
+                        {% if page|add:-1 == nb %}
+                            rel="next"
+                        {% elif page|add:1 == nb %}
+                            rel="prev"
+                        {% elif page == 1 %}
+                            rel="first"
+                        {% elif page_nb == pages|length %}
+                            rel="last"
+                        {% endif %}
+                    >
+                        {{ page }}
+                    </a>
+                </li>
+            {% else %}
+                <li>
+                    <a href="#pagination-{{ position }}" class="open-modal">...</a>
+                    <form action="." method="get" class="modal modal-flex" id="pagination-{{ position }}" data-modal-title='{% trans "Aller à la page…" %}'>
+                        {% for key,val in request.GET.iterlists %}
+                            {% if key != "page" %}
+                                {% for v in val %}
+                                    <input type="hidden" name="{{ key }}" value="{{ v }}">
+                                {% endfor %}
+                            {% endif %}
+                        {% endfor %}
+                        <p>
+                            {% trans "Indiquez la page à laquelle vous souhaitez vous rendre." %}
+                        </p>
+                        <input type="number" name="page" min="1" max="{{ pages|last }}">
+                        <button type="submit" class="btn btn-submit">
+                            {% trans "Aller à la page" %}
+                        </button>
+                    </form>
+                </li>
+            {% endif %}
+        {% endfor %}
+
+        {% if pages|last > 0 and pages|last != nb %}
+            <li class="next">
+                {% with next=nb|add:1 %}
+                    <a href="{% append_query_params page=next %}{{ full_anchor }}" class="ico-after arrow-right blue" rel="next">
+                        <span>
+                            {% trans "Suivante" %}
+                        </span>
+                    </a>
+                {% endwith %}
+            </li>
+        {% endif %}
+    </ul>
+{% endif %}

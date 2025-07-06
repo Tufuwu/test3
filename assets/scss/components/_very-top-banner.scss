@@ -1,0 +1,40 @@
+#very-top-banner {
+    position: sticky;
+    top: 0;
+
+    display: flex;
+    align-items: center;
+
+    padding: 0 $length-10;
+
+    box-sizing: border-box;
+    min-height: $length-24;
+    width: 100%;
+
+    border-bottom: $length-2 solid $grey-900;
+    text-align: center;
+    font-weight: bold;
+
+    /* Variables from `templates/very_top_banner.html` */
+    background-color: var(--very-top-banner-background-color);
+    border-color: var(--very-top-banner-border-color);
+    color: var(--very-top-banner-color);
+
+    z-index: 21; /* needs to be below .editor-toolbar (_editor-new.scss) */
+
+    span {
+        flex: 12;
+    }
+
+    button {
+        background: transparent;
+        border: none;
+
+        font-size: $font-size-6;
+
+        color: inherit;
+        font-weight: normal;
+
+        cursor: pointer;
+    }
+}

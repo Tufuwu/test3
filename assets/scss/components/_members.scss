@@ -1,0 +1,165 @@
+.deletable {
+  display: flex;
+  align-items: center;
+  border: $length-1 solid $grey-100;
+  margin-bottom: $length-4;
+}
+
+.delete-button {
+  display: block;
+  position: relative;
+
+  margin: 0;
+
+  width: $length-24;
+  height: $length-32  + $length-4;
+
+  transition: background-color .1s ease-in-out;
+
+  &:hover {
+    background-color: $grey-100;
+
+    &:after {
+      @include sprite-position($cross);
+    }
+  }
+
+  &::after {
+    content: " ";
+    display: block;
+
+    position: absolute;
+
+    top: 50%;
+    left: 50%;
+    margin-top: calc(-1 * $length-16 / 2);
+    margin-left: calc(-1 * $length-16 / 2);
+
+    width: $length-16;
+    height: $length-16;
+
+    background-repeat: no-repeat;
+
+    @include sprite;
+    @include sprite-position($cross-blue);
+  }
+}
+
+.member-item {
+    display: inline-flex;
+    align-items: center;
+
+    margin: 0;
+    padding: 0;
+
+    height: $length-32 + $length-4;
+
+    text-decoration: none;
+
+    &:hover, &:focus {
+        background-color: $grey-100;
+    }
+
+    .avatar {
+        box-sizing: border-box;
+
+        width: $length-32;
+        height: $length-32;
+
+        border: $length-1 solid $grey-200;
+    }
+
+    span {
+        padding: 0 $length-4;
+
+        &:only-child {
+            padding-left: 0;
+        }
+    }
+
+    .info {
+        padding-left: $length-6;
+        color: $grey-700;
+    }
+
+    &.is-inline {
+        margin: 0;
+        padding: 0 $length-2;
+
+        height: $length-24;
+        vertical-align: middle;
+
+        .avatar {
+            width: $length-20;
+            height: $length-20;
+        }
+
+        span {
+            padding: 0 $length-2;
+        }
+    }
+
+    &.is-link {
+        display: inline;
+        padding: 0;
+
+        vertical-align: unset;
+
+        &:hover, &:active {
+            background-color: transparent;
+            text-decoration: underline;
+        }
+    }
+}
+
+.members {
+    display: flex;
+
+    .authors-label {
+        display: inline-block;
+        margin: $length-8 $length-8 0 0;
+        flex-shrink: 0;
+    }
+
+    ul {
+        display: flex;
+        flex-wrap: wrap;
+
+        list-style: none;
+
+        margin: 0;
+        padding: 0;
+
+        li {
+            margin: 0 $length-10 $length-4 0;
+
+            .member-item {
+                padding-left: $length-4;
+            }
+        }
+    }
+
+    &.is-fullwidth {
+        li {
+            width: 100%;
+
+            .member-item {
+                display: flex;
+                width: 100%;
+
+                span[itemprop="name"] {
+                    flex: 2;
+                }
+            }
+        }
+    }
+
+    .btn-add {
+        color: $grey-600;
+
+        &:hover {
+            background-color: $grey-100;
+            color: $grey-700;
+        }
+    }
+}

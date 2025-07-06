@@ -1,0 +1,28 @@
+{% extends "gallery/base.html" %}
+{% load crispy_forms_tags %}
+{% load i18n %}
+
+
+
+{% block title %}
+    {% trans "Nouvelle image" %}
+{% endblock %}
+
+
+
+{% block breadcrumb %}
+    <li><a href="{{ gallery.get_absolute_url }}">{{ gallery.title }}</a></li>
+    <li>{% trans "Nouvelle image" %}</li>
+{% endblock %}
+
+
+
+{% block headline %}
+    {% trans "Nouvelle image" %}
+{% endblock %}
+
+
+
+{% block content %}
+    {% crispy form %}
+{% endblock %}

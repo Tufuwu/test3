@@ -1,6 +1,0 @@
-name: Inventory group change
-metadata_filters:
-  - type: inventory_group_update
-actions:
-  debug:
-    sub_dir: group_change

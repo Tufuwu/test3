@@ -1,0 +1,107 @@
+{% extends "forum/base.html" %}
+{% load profile %}
+{% load emarkdown %}
+{% load i18n %}
+{% load interventions %}
+
+
+{% block title %}
+    {% trans "Tag :" %} {{ tag.title }}
+{% endblock %}
+
+
+
+{% block breadcrumb %}
+    <li>{% trans "Tag :" %} {{ tag.title }}</li>
+{% endblock %}
+
+
+
+{% block headline %}
+    {% trans "Tag :" %} {{ tag.title }}
+{% endblock %}
+
+{% block feeds_rss %}
+    {% include "forum/includes/feed.part.html" with param="?tag=" value=tag.pk %}
+{% endblock %}
+
+{% block content %}
+    {% include "misc/paginator.html" with position="top" %}
+
+    <div class="topic-list">
+        {% for topic in topics %}
+            {% include "forum/includes/topic_row.part.html" %}
+        {% endfor %}
+    </div>
+
+    {% include "misc/paginator.html" with position="bottom" %}
+{% endblock %}
+
+
+{% block sidebar_actions %}
+    <li>
+        {% with tag_is_followed=tag|is_followed_for_new_topic %}
+            {% url "forum:topic-tag-find" tag.slug as link_follow %}
+            {% if tag_is_followed %}
+                {% trans "Suivre ce tag" as data_onclick %}
+                {% trans "Ne plus suivre ce tag" as button_text %}
+            {% else %}
+                {% trans "Suivre ce tag" as button_text %}
+                {% trans "Ne plus suivre ce tag" as data_onclick %}
+            {% endif %}
+            {% include 'notification/follow_template.html' with link=link_follow is_followed=tag_is_followed data_onclick=data_onclick button_text=button_text subscriber_count=subscriber_count %}
+        {% endwith %}
+    </li>
+    <li>
+        {% with tag_is_email_followed=tag|is_email_followed_for_new_topic %}
+            {% url "forum:topic-tag-find" tag.slug as link_follow %}
+            {% if tag_is_email_followed %}
+                {% trans "Être notifié par courriel" as data_onclick %}
+                {% trans "Ne plus être notifié par courriel" as button_text %}
+            {% else %}
+                {% trans "Être notifié par courriel" as button_text %}
+                {% trans "Ne plus être notifié par courriel" as data_onclick %}
+            {% endif %}
+            {% include 'notification/follow_by_email_template.html' with link=link_follow is_followed=tag_is_email_followed data_onclick=data_onclick button_text=button_text %}
+        {% endwith %}
+    </li>
+{% endblock %}
+
+
+{% block sidebar_blocks %}
+    <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Filtres">
+        <h3>{% trans "Filtres" %}</h3>
+        <ul>
+            <li>
+                <a href="{% url "forum:topic-tag-find" tag.slug %}?filter=solve"
+                   class="ico-after tick green {% if request.GET.filter == "solve" %}selected{% endif %}"
+                >
+                    {% trans "Sujets résolus" %}
+                </a>
+            </li>
+            <li>
+                <a href="{% url "forum:topic-tag-find" tag.slug %}?filter=unsolve"
+                   class="ico-after tick blue {% if request.GET.filter == "unsolve" %}selected{% endif %}"
+                >
+                    {% trans "Sujets non résolus" %}
+                </a>
+            </li>
+            <li>
+                <a href="{% url "forum:topic-tag-find" tag.slug %}?filter=noanswer"
+                   class="ico-after view {% if request.GET.filter == "noanswer" %}selected{% endif %}"
+                >
+                    {% trans "Sujets sans réponse" %}
+                </a>
+            </li>
+            {% if request.GET.filter %}
+                <li>
+                    <a href="{% url "forum:topic-tag-find" tag.slug %}"
+                       class="ico-after cross blue"
+                    >
+                        {% trans "Annuler le filtre" %}
+                    </a>
+                </li>
+            {% endif %}
+        </ul>
+    </div>
+{% endblock %}

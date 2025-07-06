@@ -1,0 +1,531 @@
+.main .sidebar {
+    margin: 0 0 0 -2.7%;
+    padding: 0 0 $length-10;
+
+    width: 105%;
+
+    background: $color-sidebar-background;
+    color: $grey-800;
+
+    @include desktop {
+        width: 22.5%;
+        border-bottom: none;
+    }
+
+    @include until-desktop {
+        width: 102.5%;
+    }
+
+    .new-btn {
+        position: relative;
+
+        display: block;
+        height: $length-38;
+
+        padding-left: 11.5%;
+
+        font-size: $font-size-9;
+        line-height: 2.2;
+
+        text-decoration: none;
+        text-indent: $length-24;
+        color: $color-link;
+
+        transition: background-color $transition-duration ease;
+
+        &:first-child {
+            margin-top: $length-32;
+        }
+
+        &:hover,
+        &:focus {
+            background-color: $color-sidebar-hover;
+        }
+
+        &:after {
+            top: $length-10;
+            left: 11.5%;
+        }
+    }
+
+    h3,
+    h4 {
+        margin: 0;
+        padding: 0;
+
+        font-weight: normal;
+
+        @include desktop {
+            padding-left: 11.5%;
+        }
+
+        @include until-desktop {
+            padding-left: 5.5%;
+
+            a {
+                white-space: normal;
+            }
+        }
+    }
+
+    h3 {
+        margin-top: $length-32;
+
+        border-bottom: $length-1 solid $color-secondary;
+
+        font-size: $font-size-8;
+        color: $color-primary;
+
+        &:first-child {
+            @include desktop {
+                margin-top: $length-32;
+            }
+        }
+    }
+
+    h4 {
+        padding-top: $length-16;
+        padding-bottom: $length-4;
+        font-size: $font-size-8;
+
+        a {
+            text-decoration: none;
+            color: $grey-800;
+        }
+    }
+
+    &.accordeon h4,
+    &.summary h4 {
+        cursor: pointer;
+        border-bottom: $length-1 solid $grey-100;
+
+        &:hover, &:focus {
+            background: $color-sidebar-hover;
+        }
+    }
+
+    h4[data-num] {
+        position: relative;
+        padding-left: calc(5% + #{$length-24});
+
+        &:before {
+            content: attr(data-num);
+
+            position: absolute;
+            left: 5%;
+
+            width: $length-48;
+            margin-left: -$length-32;
+
+            text-align: right;
+        }
+
+        @include desktop {
+            padding-left: calc(11% + #{$length-24});
+
+            &:before {
+                left: 11%;
+            }
+        }
+    }
+
+    h3 + ul,
+    h3 + ol {
+        margin: $length-8 0;
+    }
+
+    ul,
+    ol {
+        margin: 0;
+        padding: 0;
+
+        list-style: none;
+
+        li {
+            position: relative;
+            padding: 0;
+
+            transition: background $transition-duration ease;
+
+            &:not(.inactive):hover,
+            a:focus,
+            button:focus {
+                background: $color-sidebar-hover;
+                outline: none;
+
+                .ico-after.action-hover {
+                    display: block;
+                    background: $color-sidebar-hover;
+                }
+            }
+
+            a,
+            button,
+            &.inactive > span,
+            &.inactive > em {
+                display: block;
+
+                height: $length-32;
+
+                padding-left: calc(2.5% + #{$length-24});
+                padding-right: $length-10;
+
+                @include desktop {
+                    padding-left: calc(11.5% + #{$length-24});
+                }
+
+                @include until-desktop {
+                    padding-left: calc(5.5% + #{$length-24});
+                }
+
+                border: 0;
+
+                background-color: $color-sidebar-background;
+
+                &:hover, &:focus {
+                    background: $color-sidebar-hover;
+                    outline: none;
+                }
+
+                color: $color-link;
+                text-decoration: none;
+                text-align: left;
+
+                font-size: $font-size-10;
+                line-height: 2;
+
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+
+                cursor: pointer;
+
+                transition: background $transition-duration ease;
+
+                &[data-num] {
+                    position: relative;
+
+                    &:after {
+                        content: attr(data-num) ".";
+
+                        position: absolute;
+                        left: 2.5%;
+
+                        @include desktop {
+                            left: 11.5%;
+                        }
+
+                        @include until-desktop {
+                            left: 5.5%;
+                        }
+
+                        width: $length-18;
+
+                        color: $grey-600;
+                        text-align: right;
+                    }
+                }
+
+                // Sidebar link variations / icons
+                &.selected {
+                    font-weight: bold;
+                }
+
+                img {
+                    border-right: $length-8 solid transparent;
+                }
+
+                img,
+                span:not(.wide) {
+                    vertical-align: middle;
+                }
+
+                // FIXME I was unable to find anything using that… — Amaury.
+                .icon {
+                    border-right: $length-8 solid transparent;
+                    display: inline-block;
+                    width: $length-16;
+                    height: $length-16;
+                    margin: $length-8 $length-6;
+                }
+
+                &.ico-after {
+                    &:after {
+                        top: $length-6;
+                        left: 2.5%;
+
+                        @include desktop {
+                            left: 11.5%;
+                        }
+
+                        @include until-desktop {
+                            left: 5.5%;
+                        }
+
+                        opacity: .7;
+                    }
+
+                    &.disabled:after {
+                        opacity: .4 !important;
+                    }
+
+                    &:hover,
+                    &:focus {
+                        &:after {
+                            opacity: 1;
+                        }
+                    }
+
+                    &.action-hover {
+                        position: absolute;
+                        top: 0;
+                        left: 10%;
+                        right: -$length-32;
+
+                        display: none;
+
+                        padding: 0;
+
+                        width: $length-24;
+                        height: $length-24;
+
+                        background: $color-sidebar-background;
+
+                        text-indent: -9999px;
+                        overflow: visible;
+
+                        z-index: 1;
+
+                        transition: background $transition-duration ease;
+
+                        &[data-title]:hover:before {
+                            content: attr(data-title);
+
+                            position: absolute;
+                            top: -$length-24;
+                            left: 0;
+
+                            display: block;
+                            height: $length-24;
+
+                            padding: 0 $length-16;
+
+                            background: $grey-000;
+
+                            color: $grey-600;
+                            line-height: 1.7;
+                            text-indent: 0;
+
+                            border: $length-1 solid $grey-100;
+
+                            @include shadow-1;
+                        }
+
+                        &:after {
+                            left: $length-4;
+                        }
+                    }
+                }
+            }
+
+            &.inactive > span,
+            &.inactive > em {
+                color: $grey-600;
+                cursor: not-allowed;
+            }
+
+            .count {
+                position: absolute;
+                top: $length-6;
+                right: $length-20;
+
+                display: block;
+                padding: $length-1 $length-10;
+
+                height: $length-16;
+
+                background: $grey-300;
+
+                color: $white;
+                font-style: normal;
+
+                line-height: $length-16;
+            }
+
+            .last-answer {
+                position: absolute;
+                top: -$length-14;
+                left: 102%;
+                z-index: 3;
+
+                display: flex;
+                align-items: center;
+
+                visibility: hidden;
+
+                width: $length-256;
+                height: $length-38;
+
+                padding: $length-8 $length-10;
+                border: $length-1 solid $grey-100;
+
+                background: $true-white;
+
+                @include shadow-1;
+
+                opacity: 0;
+
+                transition: visibility linear $transition-duration,
+                            opacity $transition-duration,
+                            left $transition-duration;
+
+                .avatar {
+                    width: $length-38;
+                    height: $length-38;
+
+                    border: $length-1 solid $grey-000;
+                }
+
+                .topic-last-answer {
+                    display: block;
+
+                    margin-left: $length-8;
+                    padding: $length-4 0;
+
+                    color: $grey-800;
+                }
+
+                .topic-no-last-answer {
+                    display: block;
+                    width: 100%;
+
+                    color: $grey-500;
+                    text-align: center;
+                }
+            }
+
+            a {
+                &:hover,
+                &:focus {
+                    & + .last-answer {
+                        left: calc(100% + #{$length-1}); // Fix #5020 : prevents tooltip flickering
+
+                        visibility: visible;
+                        opacity: 1;
+
+                        transition: visibility 0s linear 0, opacity $transition-duration, left $transition-duration;
+                    }
+                }
+
+                &.unread {
+                    font-weight: bold;
+                }
+            }
+
+            button {
+                width: 100%;
+
+                &.follow span,
+                &.requesting span {
+                    vertical-align: inherit;
+                }
+            }
+
+
+            li {
+                padding: 0;
+
+                a {
+                    position: relative;
+                    color: $color-primary;
+                    transition-property: color, background, margin;
+                    transition-timing-function: ease;
+                    transition-duration: $transition-duration;
+
+                    &:hover,
+                    &:focus {
+                        color: $color-link;
+                        background: $color-sidebar-hover;
+                        margin-left: -$length-12;
+
+                        &:before {
+                            content: "> ";
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    &.summary {
+        h4 {
+            padding-bottom: $length-6;
+            padding-right: $length-16;
+
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+
+            & + ul,
+            & + ol {
+                & > li:first-child {
+                    margin-top: $length-6;
+                }
+            }
+
+            &.not-ready {
+                background: $grey-200;
+            }
+        }
+
+        li {
+            &.not-ready {
+                background: $grey-200;
+            }
+        }
+
+        ol li.current {
+            padding-top: $length-8;
+            background-color: $true-white;
+
+            > a {
+                font-weight: bold;
+                background: none;
+            }
+
+            ol {
+                margin-top: $length-6;
+                margin-left: -$length-38;
+
+                padding: $length-6 0 $length-6 calc(2.5% + #{$length-20});
+
+                @include until-desktop {
+                    padding-left: calc(5.5% + #{$length-20});
+                }
+
+                background: linear-gradient(to bottom, rgba($black, .07), $white $length-4);
+
+                a {
+                    padding-left: $length-48;
+                    background-color: transparent;
+                }
+            }
+        }
+
+        ul li.current {
+            @include desktop {
+                ul,
+                ol {
+                    margin-left: calc(-11% - #{$length-10});
+
+                    width: calc(111% + #{$length-10});
+                    background: linear-gradient(to bottom, rgba($black, .07), transparent $length-4);
+
+                    a {
+                        padding-left: calc(11% + #{$length-32});
+                    }
+                }
+            }
+        }
+    }
+}

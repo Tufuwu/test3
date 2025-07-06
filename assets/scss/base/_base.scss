@@ -1,0 +1,181 @@
+html {
+    font-size: 62.5%;
+}
+
+body {
+    background: $color-body-background;
+    font-size: $font-size-10;
+    line-height: 1.5;
+    width: 100%;
+    min-height: 100%;
+}
+
+@mixin normal-selection {
+    color: $white;
+    background: $color-primary;
+}
+
+@mixin negative-selection {
+    color: $color-primary;
+    background: $white;
+}
+
+*::selection {
+    @include normal-selection;
+}
+
+// Elements with a dark background
+.flexpage-header, .write-tutorial, .page-footer, .header-menu, .header-right, .modal-title, .taglist, .hat, .linkbox-item.primary {
+    &::selection, *::selection {
+        @include negative-selection;
+    }
+
+    input::selection {
+        // We don't care about buttons and others, there aren't selectable
+        @include normal-selection;
+    }
+}
+
+.page-container {
+    display: flex;
+    flex-direction: column;
+
+    min-height: 100vh;
+
+    .has-top-banner & {
+        // Remove banner height from minimal page height
+        // Banner height formula :
+        // font-size (defined in #very-top-banner button) * line-height (inherited from button)
+        //  + border-bottom-width (defined in #very-top-banner)
+        min-height: calc(100vh - ($font-size-6 * 1.15 + $length-2) - .2rem);
+    }
+
+    .main-container {
+        display: flex;
+
+        flex-grow: 1;
+        flex-shrink: 0;
+        flex-basis: auto;
+
+        background: $white;
+    }
+
+    .header-container, .page-footer,  #accessibility {
+        flex-grow: 0;
+        flex-shrink: 0;
+        flex-basis: auto;
+    }
+}
+
+.content-container {
+    margin-bottom: $length-48;
+}
+
+img {
+    vertical-align: middle;
+}
+
+fieldset {
+    border: 0;
+    margin: 0;
+    padding: 0;
+}
+
+textarea {
+    resize: vertical;
+}
+
+.old-browser-warning {
+    position: fixed;
+
+    margin: 0;
+    padding: $length-2 0;
+
+    width: 100%;
+
+    background: $grey-200;
+    color: $black;
+
+    text-align: center;
+
+    z-index: 9999;
+}
+
+.a11y {
+    display: block;
+
+    width: 0;
+    height: 0;
+
+    text-indent: -9999px;
+}
+
+nav {
+    ul,
+    ol {
+        list-style: none;
+    }
+}
+
+.help-question-mark {
+    position: relative;
+    top: -1px;
+
+    display: inline-block;
+
+    width: $length-18;
+    height: $length-18;
+
+    background-color: $primary-500;
+    border-radius: $radius-round;
+
+    font-weight: bold;
+    font-size: $font-size-11;
+    line-height: 1.5;
+
+    color: $white;
+    text-decoration: none;
+
+    text-align: center;
+
+    user-select: none;
+
+    &:hover {
+        color: $white;
+        background-color: $primary-700;
+    }
+}
+
+.align-center {
+    text-align: center;
+}
+
+@include desktop {
+    body {
+        min-height: 100%;
+    }
+
+    .wrapper {
+        width: 95%;
+        margin: 0 2.5%;
+    }
+}
+
+@include until-desktop {
+    body {
+        background: $black;
+
+        &:not(.swipping) {
+            .page-container,
+            .mobile-menu {
+                transition-property: transform;
+                transition-duration: $transition-duration * 2;
+                transition-timing-function: ease;
+            }
+        }
+        &.swipping * {
+            user-select: none;
+            pointer-events: none;
+        }
+    }
+}

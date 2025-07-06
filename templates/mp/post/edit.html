@@ -1,0 +1,79 @@
+{% extends "mp/base.html" %}
+{% load crispy_forms_tags %}
+{% load captureas %}
+{% load i18n %}
+
+
+{% block title %}
+    {% trans "Éditer un message" %}
+{% endblock %}
+
+
+
+{% block breadcrumb %}
+    <li><a href="{{ post.privatetopic.get_absolute_url }}">{{ post.privatetopic.title }}</a></li>
+    <li>{% trans "Éditer un message" %}</li>
+{% endblock %}
+
+
+
+{% block headline %}
+    {% trans "Éditer un message" %} : {{ topic.title }}
+{% endblock %}
+
+
+
+{% block headline_sub %}
+    {{ topic.subtitle }}
+{% endblock %}
+
+
+
+{% block content %}
+    {% crispy form %}
+
+    {% if form.text.value %}
+        {% include "misc/preview.part.html" with text=form.text.value %}
+    {% endif %}
+{% endblock %}
+
+
+
+{% block sidebar_actions %}
+    {% if topic.author == user %}
+        <div class="mobile-menu-bloc mobile-all-links" data-title="Actions">
+            <h3>{% trans "Actions" %}</h3>
+            <ul>
+                <li>
+                    <a href="#add-participant" class="open-modal">{% trans "Ajouter un membre" %}</a>
+                    <form action="{% url "mp:edit-participant" topic.pk topic.slug %}" method="post" id="add-participant" class="modal modal-flex">
+                        <p>
+                            {% trans "Vous allez rajouter un nouveau membre dans la conversation privée" %}.
+                        </p>
+                        <input type="text" class="input" name="username" placeholder="Pseudo du membre">
+
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-submit">{% trans "Ajouter" %}</button>
+                    </form>
+                </li>
+            </ul>
+        </div>
+    {% endif %}
+    <div class="mobile-menu-bloc mobile-all-links" data-title="Participants">
+        <h3>{% trans "Participants" %}</h3>
+        <ul>
+            <li>
+                <a href="{{ topic.author.get_absolute_url }}">
+                    {{ topic.author.username }}
+                </a>
+            </li>
+            {% for member in topic.participants.all %}
+                <li>
+                    <a href="{{ member.get_absolute_url }}">
+                        {{ member.username }}
+                    </a>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+{% endblock %}
