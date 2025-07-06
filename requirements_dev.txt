@@ -1,3 +1,0 @@
-pytest
-pyyaml~=5.4.0
-tox==3.9.0
