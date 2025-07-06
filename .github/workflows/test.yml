@@ -1,7 +1,7 @@
 on:
   push:
     branches:
-      - master
+      - main
   pull_request:
     branches:
       - master
@@ -12,6 +12,7 @@ jobs:
     name: Unit Tests
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         toxenv: [py36, py37, py38, py39, flake8]
         include:
