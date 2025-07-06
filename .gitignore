@@ -1,15 +1,46 @@
-*.egg-info
+# Python bytecode:
 *.py[co]
-__pycache__
-MANIFEST
-./dist/
-docs/_build/
-build/
+
+# Packaging files:
+*.egg*
+
+# Sphinx docs:
+build
+
+# SQLite3 database files:
+*.db
+
+# Logs:
+*.log
+
+# Eclipse
+.project
+.pydevproject
+.settings
+
+# Linux Editors
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+.elc
+auto-save-list
+tramp
+.\#*
+*.swp
+*.swo
+*.nja
+
+# Mac
+.DS_Store
+._*
+
+# Windows
+Thumbs.db
+Desktop.ini
+
+#tests
 .coverage
-.tox
-.hypothesis
-*.sqlite3
+
+#js
 node_modules/
-npm-debug.log
-.cache/
-.pytest_cache/
