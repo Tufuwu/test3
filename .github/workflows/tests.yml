@@ -1,32 +1,58 @@
-name: Tests and Coverage
-# Make sure only one action triggers the job, otherwise pushing to a
-# pull-request will run it twice.
+name: CI
+
 on:
-  pull_request:
-    branches:
-      - "*"
   push:
     branches:
       - main
-      - rhel8-branch
-      - rhel7-branch
-      - f31-branch
-      - f32-branch
-      - f33-branch
+  pull_request:
+    branches:
+      - main
 
 jobs:
-  unit-tests:
+  build:
+    runs-on: ubuntu-latest
+    services:
+      docker:
+        image: docker:latest
+        options: --privileged
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.9'
+
+    - name: Install dependencies
+      run: pip install coverage coveralls
+
+    - name: Run tests in Docker
+      run: make test-in-docker
+
+    - name: Copy coverage results
+      run: cp .test-results/.coverage ./.coverage.docker
+
+    - name: Combine coverage
+      run: coverage combine
+
+    - name: Upload coverage to Coveralls
+      env:
+        COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
+      run: coveralls
+
+  notification:
+    if: failure()
     runs-on: ubuntu-latest
     steps:
-      - name: "Clone Repository"
-        uses: actions/checkout@v2
-      - name: Set up Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: '3.9'
-      - name: Run lorax tests in podman
-        run: make test-in-docker && cp .test-results/.coverage .coverage
-      - name: Coveralls
-        uses: AndreMiras/coveralls-python-action@develop
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+    - name: Send email notification
+      uses: dawidd6/action-send-mail@v3
+      with:
+        server_address: smtp.example.com
+        server_port: 587
+        username: ${{ secrets.SMTP_USERNAME }}
+        password: ${{ secrets.SMTP_PASSWORD }}
+        subject: GitHub Actions Failure Notification
+        to: your-email@example.com
+        from: github-actions@example.com
+        body: Build or tests failed in GitHub Actions.
