@@ -38,6 +38,8 @@ jobs:
         python -m pip install --upgrade pip
         pip install pipenv
         pipenv sync
+        pip install "setuptools<58"
+        pipenv install
 
     - name: Run tests
       env:
