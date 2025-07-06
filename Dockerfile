@@ -1,34 +1,71 @@
-# ========================================
-# =               Warning!               =
-# ========================================
-# This is Github Action docker-based image.
-# It is not intended for local development!
-#
-# You can find docs about how to setup your own Github Action here:
-# https://dotenv-linter.readthedocs.io/en/latest/pages/integrations/github-actions.html
-#
-# It can still be used as a raw image for your own containers.
-# See `action.yml` in case you want to learn more about Github Actions.
-# See it live:
-# https://github.com/wemake-services/dotenv-linter/actions
-#
-# This image is also available on Dockerhub:
-# https://hub.docker.com/r/wemakeservices/dotenv-linter
+FROM quay.io/wikipedialibrary/python:3.7-slim-buster-updated as twlight_base
+# Base dependencies.
+RUN apt update ; \
+    apt install -y --no-install-recommends \
+    libmariadbclient-dev ; \
+    ln -s /usr/bin/mariadb_config /usr/bin/mysql_config ; \
+    rm -rf /var/lib/apt/lists/*; \
+    pip3 install virtualenv
 
-FROM python:3.7-alpine
+FROM twlight_base as twlight_build
+# Copy pip requirements.
+ARG REQUIREMENTS_FILE=wmf.txt
+ENV REQUIREMENTS_FILE=${REQUIREMENTS_FILE}
+COPY requirements /requirements
 
-LABEL maintainer="sobolevn@wemake.services"
-LABEL vendor="wemake.services"
+# Build dependencies.
+RUN apt update ; \
+    apt install -y --no-install-recommends \
+    gcc \
+    python3-dev ; \
+    rm -rf /var/lib/apt/lists/*; \
+    virtualenv /venv ; \
+    . /venv/bin/activate ; \
+    pip3 install -r /requirements/${REQUIREMENTS_FILE}
 
-ENV DOTENV_LINTER_VERSION='0.1.5'
-ENV REVIEWDOG_VERSION='v0.9.14'
+FROM twlight_base
+COPY --from=twlight_build /venv /venv
+COPY --from=quay.io/wikipedialibrary/debian_perl:latest /opt/perl /opt/perl
+ENV PATH="/opt/perl/bin:${PATH}" TWLIGHT_HOME=/app PYTHONUNBUFFERED=1 PYTHONPATH="/app:/venv"
 
-RUN apk add --no-cache bash git wget
-RUN pip install "dotenv-linter==$DOTENV_LINTER_VERSION" \
-  # Installing reviewdog to optionally comment on pull requests:
-  && wget -O - -q 'https://raw.githubusercontent.com/reviewdog/reviewdog/master/install.sh' \
-  | sh -s -- -b /usr/local/bin/ "$REVIEWDOG_VERSION"
+# Runtime dependencies.
+# Refactoring shell code could remove bash dependency
+# mariadb-client Not needed by the running app, but by the backup/restore shell scripts.
+# Node stuff for rtl support. This and subsequent node things
+# should all be moved out of the running container
+# since we just use it to generate a css file.
+# CSS Janus is the thing actually used to generate the rtl css.
+RUN apt update ; \
+    apt install -y --no-install-recommends \
+    bash \
+    gettext \
+    git \
+    mariadb-client \
+    nodejs \
+    npm \
+    tar \
+    wget ; \
+    rm -rf /var/lib/apt/lists/*; \
+    /usr/bin/npm install cssjanus
 
-COPY ./scripts/entrypoint.sh /
-RUN chmod +x /entrypoint.sh
-ENTRYPOINT ["/entrypoint.sh"]
+# Utility scripts that run in the virtual environment.
+COPY bin /app/bin/
+
+# Bash config
+COPY conf/bashrc /root/.bashrc
+
+# i18n.
+COPY locale /app/locale
+
+COPY TWLight /app/TWLight
+
+WORKDIR $TWLIGHT_HOME
+
+COPY manage.py /app/manage.py
+
+# Configure static assets.
+RUN SECRET_KEY=twlight /app/bin/twlight_static.sh
+
+EXPOSE 80
+
+ENTRYPOINT ["/app/bin/twlight_docker_entrypoint.sh"]
