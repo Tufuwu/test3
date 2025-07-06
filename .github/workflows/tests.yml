@@ -1,44 +1,56 @@
-name: Tests
+name: CI
 
 on:
-  pull_request:
-    branches:
-      - v5
-      - v6
   push:
-    branches:
-      - '*'
-  create:
     tags:
       - '*'
 
 jobs:
-  tests:
-    # Can only go as old as ubuntu-20.04 / py3.8:
-    # https://github.blog/changelog/2022-08-09-github-actions-the-ubuntu-18-04-actions-runner-image-is-being-deprecated-and-will-be-removed-by-12-1-22/
-    runs-on: ubuntu-22.04
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version: [3.8, 3.11]
-    name: Tests
+  build:
+    runs-on: ubuntu-latest
+    services:
+      docker:
+        image: docker:latest
+        options: --privileged
     steps:
-    - name: Install system dependencies
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Decrypt secrets
+      if: env.encrypted_103700d0e85f_key != ''
       run: |
-        echo 'debconf debconf/frontend select Noninteractive' | sudo debconf-set-selections
-        sudo apt update &&
-        sudo apt install -y -q xvfb libgirepository1.0-dev libcairo2-dev gir1.2-glib-2.0 gir1.2-gtk-3.0 gir1.2-keybinder-3.0 gir1.2-webkit2-4.0 gir1.2-wnck-3.0
-    - uses: actions/checkout@v3
-    - uses: actions/setup-python@v4
+        openssl aes-256-cbc -K ${{ secrets.encrypted_103700d0e85f_key }} -iv ${{ secrets.encrypted_103700d0e85f_iv }} -in scripts/launchpad-secret.key.enc -out scripts/launchpad-secret.key -d
+        openssl aes-256-cbc -K ${{ secrets.encrypted_103700d0e85f_key }} -iv ${{ secrets.encrypted_103700d0e85f_iv }} -in scripts/launchpad-public.key.enc -out scripts/launchpad-public.key -d
+        openssl aes-256-cbc -K ${{ secrets.encrypted_103700d0e85f_key }} -iv ${{ secrets.encrypted_103700d0e85f_iv }} -in scripts/launchpad.ssh.tar.enc -out scripts/launchpad.ssh.tar -d
+        openssl aes-256-cbc -K ${{ secrets.encrypted_103700d0e85f_key }} -iv ${{ secrets.encrypted_103700d0e85f_iv }} -in scripts/aur_key.enc -out scripts/aur_key -d
+
+    - name: Source common script
+      run: source ./scripts/common.sh
+
+    - name: Pull Docker image
+      run: docker pull $BUILD_IMAGE
+
+    - name: Build release
+      run: ./ul build-release ${{ github.ref_name }}
+
+    - name: Upload release assets
+      uses: actions/upload-artifact@v3
       with:
-        python-version: ${{ matrix.python-version }}
-        cache: 'pip'
-    # In pip 22.1 and newer you can ignore the sudo warning by adding --root-user-action=ignore
-    - run: pip install --upgrade pip
-    - run: pip install -r requirements.txt
-    - run: pip install PyGObject
-    - run: black --diff --check .
-    - run: flake8 .
-    - run: mypy .
-    - run: pylint ulauncher
-    - run: DISPLAY=:1 xvfb-run pytest tests
+        name: ulauncher_${{ github.ref_name }}
+        path: |
+          ulauncher_${{ github.ref_name }}.tar.gz
+          ulauncher_${{ github.ref_name }}_all.deb
+
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: |
+          ulauncher_${{ github.ref_name }}.tar.gz
+          ulauncher_${{ github.ref_name }}_all.deb
+        draft: true
+        overwrite: true
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Upload release
+      run: ./ul upload-release ${{ github.ref_name }}
