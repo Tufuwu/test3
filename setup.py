@@ -9,7 +9,7 @@ test_requires = [
     'pytest<5.2',
     'coverage<5',
     'pytest-cov',
-    'black==23.3.0',
+    'black==22.3.0',
     'isort[pipfile]',
     'flake8',
     'mypy',
