@@ -2,11 +2,9 @@ name: Python application
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
   pull_request:
-    branches:
-      - main
+    branches: [main]
 
 jobs:
   build:
@@ -25,17 +23,54 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
 
-    - name: Install dependencies
+    - name: Cache pip dependencies
+      uses: actions/cache@v2
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+
+    - name: Install system dependencies
       run: |
-        sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys A2F683C52980AECF
-        echo "deb http://dl.bintray.com/siegfried/debian wheezy main" | sudo tee -a /etc/apt/sources.list
-        sudo apt-get update && sudo apt-get install -y siegfried
-        sudo apt-get install -y clamav && sudo freshclam
-        sudo apt-get install -y tree
-        git clone git://github.com/sleuthkit/sleuthkit.git
-        cd sleuthkit && ./bootstrap && ./configure && make && sudo make install && sudo ldconfig
+        sudo apt-get update
+        sudo apt-get install -y clamav tree build-essential autoconf libtool pkg-config git wget
+
+        # Stop any running freshclam instances
+        sudo pkill -f freshclam || true
+
+        # Fix clamav log dir permission
+        sudo mkdir -p /var/log/clamav
+        sudo chown clamav:clamav /var/log/clamav
+
+        # Update virus definitions manually
+        sudo freshclam
+
+        # Install siegfried (latest binary)
+        wget https://github.com/richardlehane/siegfried/releases/latest/download/sf-linux-amd64.tar.gz
+        tar -xzf sf-linux-amd64.tar.gz
+        sudo mv sf /usr/local/bin/
+
+        # Install SleuthKit
+        git clone https://github.com/sleuthkit/sleuthkit.git
+        cd sleuthkit
+        ./bootstrap
+        ./configure
+        make -j$(nproc)
+        sudo make install
+        sudo ldconfig
         cd ..
-        pip install -r requirements.txt
+
+    - name: Install Python dependencies
+      run: pip install --upgrade pip && pip install -r requirements.txt
 
     - name: Run tests
-      run: python test.py
+      run: |
+        if [ -f test.py ]; then
+          python test.py
+        elif [ -d tests ]; then
+          pip install pytest
+          pytest
+        else
+          echo "No tests found."
+        fi
