@@ -1,27 +1,70 @@
-.. ndn-python-repo documentation master file, created by
-   sphinx-quickstart on Tue May 12 16:51:55 2020.
+.. Ulauncher documentation master file, created by
+   sphinx-quickstart on Sat Apr 22 13:15:04 2017.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to ndn-python-repo's documentation!
-===========================================
+`Ulauncher <https://ulauncher.io>`_ |version| (Extension API v3.0)
+====================================================================
+
+.. NOTE::
+  To find out how to migrate your extension from API v1 to v2 navigate to :doc:`extensions/migration`
+
+
+Custom Color Themes
+===================
 
 .. toctree::
-   :maxdepth: 2
-   :caption: Contents:
+   :caption: Custom Color Themes
+   :hidden:
 
-   src/readme.rst
-   src/install.rst
-   src/configuration.rst
-   src/specification/specification.rst
-   src/misc_pkgs/misc_pkgs.rst
-   src/examples.rst
-   src/authors.rst
-   src/future.rst
+   themes/themes
+
+:doc:`themes/themes`
+    Create your own color themes
 
 
+Extension Development Guide
+===========================
 
-Indices and tables
+.. toctree::
+   :caption: Extension Development Guide
+   :hidden:
+
+   extensions/intro
+   extensions/tutorial
+   extensions/events
+   extensions/actions
+   extensions/libs
+   extensions/examples
+   extensions/debugging
+   extensions/migration
+
+:doc:`extensions/intro`
+    Understand what Ulauncher extensions are and how they work.
+
+:doc:`extensions/tutorial`
+    Create your first extension in under 5 minutes.
+
+:doc:`extensions/events`
+    Events that your extensions can subscribe to and handle.
+
+:doc:`extensions/actions`
+    Actions that your extensions perform in response to events.
+
+:doc:`extensions/libs`
+    List of libraries that you can use in your extensions.
+
+:doc:`extensions/examples`
+    Learn from other Ulauncher extensions.
+
+:doc:`extensions/debugging`
+    Debugging tips.
+
+:doc:`extensions/migration`
+    How to migrate from one version of Extension API to a new one.
+
+
+Indexes and tables
 ==================
 
 * :ref:`genindex`
