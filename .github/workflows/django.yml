@@ -28,7 +28,7 @@ jobs:
     - name: Install Dependencies
       run: |
         sudo apt-get install -y binutils libproj-dev python3-gdal libgeos-dev libyaml-dev
-        pip install "pip<24.1"
+        python -m pip install --upgrade pip
         pip install --upgrade coveralls
         pip install -r requirements/test.txt
     - name: Run Tests
