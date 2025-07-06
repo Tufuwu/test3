@@ -1,109 +1,58 @@
-import os
-import re
-from codecs import open
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+import io
 
-from setuptools import setup, find_packages
+try:
+    from setuptools import setup
+except ImportError:
+    from distutils.core import setup
 
-here = os.path.abspath(os.path.dirname(__file__))
+from logya import __version__
 
+# Use io.open to be able to set encoding to utf-8.
+with io.open('README.rst', encoding='utf-8') as f:
+    readme = f.read()
 
-with open(os.path.join(here, 'README.rst'), encoding='utf-8') as f:
-    long_description = f.read()
-
-
-def read_version():
-    regexp = re.compile(r'^VERSION\W*=\W*\(([^\(\)]*)\)')
-    init_py = os.path.join(here, 'clickhouse_sqlalchemy', '__init__.py')
-    with open(init_py, encoding='utf-8') as f:
-        for line in f:
-            match = regexp.match(line)
-            if match is not None:
-                return match.group(1).replace(', ', '.')
-        else:
-            raise RuntimeError(
-                'Cannot find version in clickhouse_sqlalchemy/__init__.py'
-            )
-
-
-dialects = [
-    'clickhouse{}=clickhouse_sqlalchemy.drivers.{}'.format(driver, d_path)
-
-    for driver, d_path in [
-        ('', 'http.base:ClickHouseDialect_http'),
-        ('.http', 'http.base:ClickHouseDialect_http'),
-        ('.native', 'native.base:ClickHouseDialect_native')
-    ]
-]
+with io.open('requirements.txt', encoding='utf-8') as f:
+    requirements = f.read().splitlines()
 
 setup(
-    name='clickhouse-sqlalchemy',
-    version=read_version(),
-
-    description='Simple ClickHouse SQLAlchemy Dialect',
-    long_description=long_description,
-
-    url='https://github.com/xzkostyan/clickhouse-sqlalchemy',
-
-    author='Konstantin Lebedev',
-    author_email='kostyan.lebedev@gmail.com',
-
+    name='logya',
+    version=__version__,
+    description='Logya: easy to use and flexible static Web site generator.',
+    long_description=readme,
+    url='https://ramiro.org/logya/',
+    author='Ramiro Gómez',
+    author_email='code@ramiro.org',
+    maintainer='Ramiro Gómez',
+    maintainer_email='code@ramiro.org',
+    keywords=['Website Generator'],
     license='MIT',
-
+    packages=['logya'],
+    package_data={'': ['LICENSE']},
+    include_package_data=True,
+    exclude_package_data={'': ['*.pyc']},
+    install_requires=requirements,
     classifiers=[
-        'Development Status :: 4 - Beta',
-
-
+        'Development Status :: 5 - Production/Stable',
         'Environment :: Console',
-
-
         'Intended Audience :: Developers',
-        'Intended Audience :: Information Technology',
-
-
         'License :: OSI Approved :: MIT License',
-
-
-        'Operating System :: OS Independent',
-
-
-        'Programming Language :: SQL',
+        'Operating System :: POSIX :: Linux',
+        'Programming Language :: Python',
         'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
-        'Programming Language :: Python :: 3.8',
-
-        'Topic :: Database',
-        'Topic :: Software Development',
-        'Topic :: Software Development :: Libraries',
-        'Topic :: Software Development :: Libraries :: Application Frameworks',
-        'Topic :: Software Development :: Libraries :: Python Modules',
-        'Topic :: Scientific/Engineering :: Information Analysis'
+        'Topic :: Internet :: WWW/HTTP :: Dynamic Content :: News/Diary',
+        'Topic :: Internet :: WWW/HTTP :: Site Management',
+        'Topic :: Text Processing :: Markup :: HTML'
     ],
-
-    keywords='ClickHouse db database cloud analytics',
-
-    packages=find_packages('.', exclude=["tests*"]),
-    python_requires='>=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*, <4',
-    install_requires=[
-        'sqlalchemy>=1.3,<1.4',
-        'requests',
-        'clickhouse-driver>=0.1.2',
-        'ipaddress; python_version<"3.4"',
-    ],
-    # Registering `clickhouse` as dialect.
     entry_points={
-        'sqlalchemy.dialects': dialects
+        'console_scripts': [
+            'logya = logya.main:main'
+        ]
     },
-    test_suite='nose.collector',
-    tests_require=[
-        'nose',
-        'sqlalchemy>=1.3,<1.4',
-        'mock',
-        'requests',
-        'responses',
-        'enum34; python_version<"3.4"',
-        'parameterized'
-    ],
+    test_suite='tests',
+    tests_require=['tox'],
 )
