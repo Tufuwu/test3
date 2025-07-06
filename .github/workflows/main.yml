@@ -50,4 +50,5 @@ jobs:
       - name: Run tests
         run: |
           cd tests
+          chmod -R +x tests/
           python run_all -v
