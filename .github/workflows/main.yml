@@ -24,6 +24,7 @@ jobs:
           firefox-version: ${{ matrix.firefox }}
       - name: Run tests
         run: |
+          chmod -R +x tests/
           cd tests
           python run_all -v
 
@@ -51,5 +52,4 @@ jobs:
         run: |
           chmod -R +x tests/
           cd tests
-
           python run_all -v
