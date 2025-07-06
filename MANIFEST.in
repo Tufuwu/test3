@@ -1,5 +1,1 @@
-include LICENSE *.rst *.txt *.md
-recursive-include wagtail_review *
-global-exclude __pycache__
-global-exclude *.py[co]
-global-exclude .DS_Store
+include LICENSE NOTICE README.rst CHANGELIST.rst

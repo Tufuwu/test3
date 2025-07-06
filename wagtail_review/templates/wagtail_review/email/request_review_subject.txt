@@ -1,3 +1,0 @@
-{% load i18n %}
-
-{% blocktrans with page_title=page.title|safe %}Review request: {{ page_title }}{% endblocktrans %}
