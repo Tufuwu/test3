@@ -1,191 +1,149 @@
-# A toolbox for processing and analysing air traffic data
+![Setconf Logo](web/icon_128x128.png)
 
-[![Documentation Status](https://github.com/xoolive/traffic/workflows/docs/badge.svg)](https://traffic-viz.github.io/)
-[![Build Status](https://travis-ci.org/xoolive/traffic.svg?branch=master)](https://travis-ci.org/xoolive/traffic)
-[![Code Coverage](https://img.shields.io/codecov/c/github/xoolive/traffic.svg)](https://codecov.io/gh/xoolive/traffic)
-[![Codacy Badge](https://img.shields.io/codacy/grade/eea673ed15304f1b93490726295d6de0)](https://www.codacy.com/manual/xoolive/traffic)\
-[![Checked with mypy](https://img.shields.io/badge/mypy-checked-blue.svg)](https://mypy.readthedocs.io/)
-[![Code style: black](https://img.shields.io/badge/code%20style-black-black.svg)](https://github.com/psf/black)
-![License](https://img.shields.io/pypi/l/traffic.svg)
-[![Join the chat at https://gitter.im/xoolive/traffic](https://badges.gitter.im/xoolive/traffic.svg)](https://gitter.im/xoolive/traffic?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)\
-[![JOSS paper](http://joss.theoj.org/papers/10.21105/joss.01518/status.svg)](https://doi.org/10.21105/joss.01518)
-![PyPI version](https://img.shields.io/pypi/v/traffic)
-[![PyPI downloads](https://img.shields.io/pypi/dm/traffic)](https://pypi.org/project/traffic)
-[![Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/traffic-viz/traffic_static/blob/master/notebooks/quickstart.ipynb)
+![Build](https://github.com/xyproto/setconf/workflows/Build/badge.svg) [![License](https://img.shields.io/badge/license-GPL2-green.svg?style=flat)](https://raw.githubusercontent.com/xyproto/setconf/main/COPYING)
 
-The traffic library helps working with common sources of air traffic data.
+Setconf is a small utility for changing settings in configuration textfiles.
 
-Its main purpose is to offer basic cumbersome data analysis methods commonly
-applied to trajectories and ATC sectors. When a specific function is not
-provided, the access to the underlying structure is direct, through an attribute
-pointing to a pandas dataframe.
+It has no dependencies except the built-in Python modules.
 
-The library also offers facilities to parse and/or access traffic data from open
-sources of ADS-B traffic like the [OpenSky Network](https://opensky-network.org/)
-or Eurocontrol DDR files. It is designed to be easily extendable to other
-sources of data.
+Pull requests are welcome.
 
-Static visualisation (images) exports are accessible via Matplotlib/Cartopy.
-More dynamic visualisation frameworks are easily accessible in Jupyter
-environments with [ipyleaflet](http://ipyleaflet.readthedocs.io/) and
-[altair](http://altair-viz.github.io/); or through exports to other formats,
-including CesiumJS or Google Earth.
+[![Packaging status](https://repology.org/badge/vertical-allrepos/setconf.svg)](https://repology.org/project/setconf/versions)
 
-## Installation
+Compile time features
+---------------------
 
-Latest release:
+* It can be compiled to native with <a href="http://nuitka.net/">nuitka</a>. Try these parameters: `--exe --lto --python-version=2.7`
 
-```sh
-pip install --upgrade traffic
-```
 
-Development version:
+TODO
+----
 
-```sh
-pip install git+https://github.com/xoolive/traffic
-```
+* A flag for changing the n'th occurence.
+* A cleaner way to handle arguments, without adding an external dependency.
+* A flag for commenting out keys (adding "# ")
+* A flag for removing a value instead of using `''`.
+* A flag for removing both the key and the value.
+* Rewrite in a different language?
+* Optimize the code that is used for adding options with `-a`.
+* A way to add an option with `-a` after a given string occurs.
+* Test and fix the combination of `-a` and multiline markers.
+* Fix the behavior when `"` is the multiline marker and `:` the delimiter (the [yml](https://fdik.org/yml/) format).
+* Document which assignment symbols and comment markers are supported.
+* Refactor.
+* Support both `#define` and `%define` (ref asmttpd).
+* When changing settings in JSON files, a line may look like this: `"go.formatTool": "gofmt",`. Add a flag for being able to set the key and value without having to specify the quotes and the final comma.
 
-**Warning:** `cartes` and `shapely` have strong dependencies to dynamic
-libraries which may not be available on your system by default.
 
-Before reporting an issue, please try to use an Anaconda environment. Other
-installations (You may check them in the `.travis.yml` configuration file.)
-should work but the Anaconda way proved to work smoothly.
+Changes from 0.7.6 to 0.7.7
+---------------------------
 
-```sh
-conda install cartopy shapely
-```
+* Apply fix for trailing newlines by @zappolowski (issue #16).
+* Also test with Python 3.8.
 
-For troubleshootings, refer to the appropriate
-[documentation section](https://traffic-viz.github.io/installation.html#troubleshooting).
+Changes from 0.7.5 to 0.7.6
+---------------------------
 
-## Credits
+* Add test cases.
+* Allow uncommenting keys without providing a value.
+* Update documentation.
 
-[![JOSS badge](http://joss.theoj.org/papers/10.21105/joss.01518/status.svg)](https://doi.org/10.21105/joss.01518)
+Changes from 0.7.4 to 0.7.5
+---------------------------
 
-If you find this project useful for your research and use it in an academic
-work, you may cite it as:
+* Can now uncomment configuration options with the `-u` flag.
+* Uncommenting and setting values also works on Linux kernel configuration (`#CONFIG_KERNEL_XY is not set` to `CONFIG_KERNEL_XY=y`).
 
-```bibtex
-@article{olive2019traffic,
-    author={Xavier {Olive}},
-    journal={Journal of Open Source Software},
-    title={traffic, a toolbox for processing and analysing air traffic data},
-    year={2019},
-    volume={4},
-    pages={1518},
-    doi={10.21105/joss.01518},
-    issn={2475-9066},
-}
-```
+Changes from 0.7.3 to 0.7.4
+---------------------------
 
-Additionally, you may consider adding a star to the repository. This token of appreciation is often interpreted as a positive feedback and improves the visibility of the library.
+* Correctly formatted help text.
 
-## Documentation
+Changes from 0.7.2 to 0.7.3
+---------------------------
 
-[![Documentation Status](https://github.com/xoolive/traffic/workflows/docs/badge.svg)](https://traffic-viz.github.io/)
-[![Join the chat at https://gitter.im/xoolive/traffic](https://badges.gitter.im/xoolive/traffic.svg)](https://gitter.im/xoolive/traffic?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+* Can change single-line `#define` values by using the `-d` flag.
 
-Documentation available at [https://traffic-viz.github.io/](https://traffic-viz.github.io/)\
-Join the Gitter chat: https://gitter.im/xoolive/traffic
+Changes from 0.7.1 to 0.7.2
+---------------------------
+* Fixed an issue that only happened on Python 3.2.
+* Several minor changes.
 
-## Tests and code quality
+Changes from 0.7 to 0.7.1
+-------------------------
+* Removed a dependency on chardet
 
-[![Build Status](https://travis-ci.org/xoolive/traffic.svg?branch=master)](https://travis-ci.org/xoolive/traffic)
-[![Code Coverage](https://img.shields.io/codecov/c/github/xoolive/traffic.svg)](https://codecov.io/gh/xoolive/traffic)
-[![Codacy Badge](https://img.shields.io/codacy/grade/eea673ed15304f1b93490726295d6de0)](https://www.codacy.com/manual/xoolive/traffic)
-[![Checked with mypy](https://img.shields.io/badge/mypy-checked-blue.svg)](https://mypy.readthedocs.io/)
+Changes from 0.6.8 to 0.7
+-------------------------
+* Fix issue #6, a failing testcase for `+=`.
 
-Unit and non-regression tests are written in the `tests/` directory. You may run
-`pytest` or `tox` from the root directory. Tests are currently performed with
-Python 3.6 and 3.7.
+Changes from 0.6.7 to 0.6.8
+---------------------------
+* Deal mainly with bytes instead of strings.
+* Handle ISO-8859-1 (Latin1) better, for Python 3.
 
-Tests are checked on [travis continuous integration](https://travis-ci.org/xoolive/traffic)
-platform upon each commit. Latest status and coverage are displayed with standard
-badges hereabove.
+Changes from 0.6.6 to 0.6.7
+---------------------------
+* Can use floating point numbers together with `+=` and `-=`
 
-In addition, code is checked against static typing with [mypy](https://mypy.readthedocs.io/)
-([pre-commit](https://pre-commit.com/) hooks are available in the repository) and
-extra quality checks performed by [Codacy](https://www.codacy.com/manual/xoolive/traffic).
+Changes from 0.6.5 to 0.6.6
+---------------------------
+* Fixed a problem with files without newline endings
 
-## Command line tool
+Changes from 0.6.4 to 0.6.5
+---------------------------
+* Can now use += or -= for increasing or decreasing integer values
 
-The `traffic` tool scripts around the library for common usecases.
+Changes from 0.6.3 to 0.6.4
+---------------------------
+* Better error messages when write permissions are denied
 
-The most basic use case revolves around exploring the embedded data. You may check
-the help with `traffic data -h`.
+Changes from 0.6.2 to 0.6.3
+---------------------------
+* Fixed a problem with -a that occurred when a key existed but was commented out
+* Added regression test
 
-```
-traffic data -p Tokyo
-     altitude country iata  icao   latitude   longitude                                name
-3820       21   Japan  HND  RJTT  35.552250  139.779602  Tokyo Haneda International Airport
-3821      135   Japan  NRT  RJAA  35.764721  140.386307  Tokyo Narita International Airport
-```
+Changes from 0.6.1 to 0.6.2
+---------------------------
+* Now runs on Python 2 and Python 3 (tested with 2.4, 2.5, 2.6, 2.7 and 3.3)
 
-More details in the [documentation](https://traffic-viz.github.io/).
+Changes from 0.6 to 0.6.1
+-------------------------
+* Fixed a problem with the -a option
+* Creates the file when -a or --add is given, if needed
 
-## Graphical user interface
+Changes from 0.5.3 to 0.6
+-------------------------
+* Made -a add options only when not already present
 
-A Qt application is provided for exploring and recording data.  
-More details in the [GUI section of the documentation](https://traffic-viz.github.io/gui.html).
+Changes from 0.5.2 to 0.5.3
+---------------------------
+* Made it compile with the latest version of shedskin
+* Added an option -a for adding keys/values to a file
 
-![GUI screenshot](https://raw.githubusercontent.com/xoolive/traffic/master/docs/_static/gui_start.png)
+Changes from 0.5.1 to 0.5.2
+---------------------------
+* Fixed a problem with ascii/utf-8 encoding
 
-## Feedback and contribution
+Changes from 0.5 to 0.5.1
+-------------------------
+* Fixed a problem with => assignments
+* Changed the way files are opened with open()
+* Added more tests relating to ascii/utf-8
 
-Any input, feedback, bug report or contribution is welcome.
+Changes from 0.4 to 0.5
+-----------------------
+* Add support for => as well
+* Fixed a bug where comments were not ignored for multiline values
+* New logo
 
-Should you encounter any issue, you may want to file it in the [issue](https://github.com/xoolive/traffic/issues/new) section of this repository. Please first activate the `DEBUG` messages recorded using Python logging mechanism with the following snippet:
+Changes from 0.3.2 to 0.4 (released)
+------------------------------------
+* Ignored configuration options that are commented out
 
-```python
-from traffic.core import loglevel
-loglevel('DEBUG')
-```
 
-Bug fixes and improvements in the library are also helpful.
+General information
+-------------------
 
-If you share a fix together with the issue, I can include it in the code for
-you. But since you did the job, pull requests (PR) let you keep the authorship
-on your additions. For details on creating a PR see GitHub documentation
-[Creating a pull
-request](https://help.github.com/en/articles/creating-a-pull-request). You can
-add more details about your example in the PR such as motivation for the example
-or why you thought it would be a good addition. You will get feed back in the PR
-discussion if anything needs to be changed. To make changes continue to push
-commits made in your local example branch to origin and they will be
-automatically shown in the PR.
-
-You may find the process troublesome but please keep in mind it is actually
-easier that way to keep track of corrections and to remember why things are the
-way they are.
-
-## Frequently asked questions
-
-[![Join the chat at https://gitter.im/xoolive/traffic](https://badges.gitter.im/xoolive/traffic.svg)](https://gitter.im/xoolive/traffic?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-
-- I want to know more about Eurocontrol NM files
-
-We download these files from Eurocontrol [Network Manager Demand Data
-Repository (DDR)](https://www.eurocontrol.int/ddr) under Dataset Files >
-Airspace Environment Datasets. [Access
-conditions](https://www.eurocontrol.int/ddr#access-conditions) are managed by
-EUROCONTROL.
-
-Should you have no such access, basic FIRs are provided in `eurofirs` from
-`traffic.data`.
-
-- I want to know more about Eurocontrol AIXM files
-
-When you import `aixm_airspaces` from `traffic.data`, you need to set a path
-to a directory containing AIRAC files. These are XML files following the
-[AIXM](http://aixm.aero/) standard and produced by Eurocontrol. We download
-these files from Eurocontrol [Network Manager B2B web
-services](https://eurocontrol.int/service/network-manager-business-business-b2b-web-services).
-You have to own a B2B certificate granted by EUROCONTROL to get access to
-this data.
-
-- What does AIRAC mean?
-
-Aeronautical Information Publications are updated every 28 days according to
-fixed calendar. This cycle is known as AIRAC (Aeronautical Information
-Regulation And Control) cycle.
+* License: GPL2
+* Author: Alexander F. Rødseth

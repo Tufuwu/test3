@@ -1,3 +1,0 @@
-Navigational events
-===================
-
