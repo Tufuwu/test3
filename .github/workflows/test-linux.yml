@@ -63,6 +63,7 @@ jobs:
           ${{ runner.os }}-geos-
 
     - name: Install GEOS
+      shell: bash
       run: |
         
         chmod +x ./ci/install_geos.sh
