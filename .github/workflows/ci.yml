@@ -18,9 +18,9 @@ jobs:
         django-version: ['2.2', '3.0', 'master']
         include:
           - python-version: '3.7'
-            env: TOXENV=docs
+            env: docs
           - python-version: '3.7'
-            env: TOXENV=quality
+            env: quality
 
 
     steps:
