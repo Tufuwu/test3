@@ -1,61 +1,43 @@
+name: CI
+
 on:
   push:
     branches:
       - main
   pull_request:
-
-name: CI
+    branches:
+      - main
 
 jobs:
-
-  test:
+  build:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        python:
-          - '3.5'
-          - '3.6'
-          - '3.7'
-          - '3.8'
-    name: Python ${{ matrix.python }}
+        python-version: ['3.5', '3.6', '3.7', '3.8', 'nightly']
+        django-version: ['2.2', '3.0', 'master']
+        include:
+          - python-version: '3.7'
+            env: TOXENV=docs
+          - python-version: '3.7'
+            env: TOXENV=quality
+
+
     steps:
-      # Python
-      - name: Setup python ${{ matrix.python }}
-        uses: actions/setup-python@v2
-        with:
-          python-version: ${{ matrix.python }}
+    - uses: actions/checkout@v2
 
-      # Check out code
-      - uses: actions/checkout@v2
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
 
-      # Cached dependencies
-      - uses: actions/cache@v4
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-py${{ matrix.python }}-${{ hashFiles('**/requirements-dev.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-py${{ matrix.python }}-
-      - name: Install dev dependencies
-        run: pip install -r requirements-dev.txt
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install tox
 
-      # Install library
-      - name: Install result
-        run: |
-          pip install -e .
-          pip install "flake8==5.0.4"
-
-      # Tests
-      - name: Run tests
-        run: pytest --cov-report term --cov-report xml:coverage.xml
-      - name: Run mypy on result.py
-        run: mypy result/result.py
-      - name: Run typetests
-        run: mypy result/typetests.py
-
-      # Coverage
-      - name: Upload coverage to codecov.io
-        uses: codecov/codecov-action@v1
-        if: matrix.python == '3.8'
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
+    - name: Run tests
+      env:
+        DJANGO: ${{ matrix.django-version }}
+        TOXENV: ${{ matrix.env }}
+      run: tox
