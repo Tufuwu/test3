@@ -68,9 +68,9 @@ jobs:
           pip install --disable-pip-version-check --upgrade pip
           pip install --upgrade wheel
           if [ "$GEOS_VERSION" = "master" ]; then
-            pip install --upgrade --pre Cython numpy pytest;
+            pip install --upgrade --pre Cython==0.29.33 numpy pytest;
           else
-            pip install --upgrade Cython numpy==${{ matrix.numpy }} pytest;
+            pip install --upgrade Cython==0.29.33 numpy==${{ matrix.numpy }} pytest;
           fi
           pip list
 
