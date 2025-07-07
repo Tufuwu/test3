@@ -15,24 +15,30 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - python-version: "3.5"
-            geos-version: "3.5.2"
-            numpy-version: "1.10.4"
-          - python-version: "3.6"
-            geos-version: "3.6.4"
-            numpy-version: "1.13.3"
-          - python-version: "3.7"
-            geos-version: "3.7.3"
-            numpy-version: "1.15.4"
-          - python-version: "3.8"
-            geos-version: "3.8.1"
-            numpy-version: "1.17.5"
-          - python-version: "3.9"
-            geos-version: "3.8.1"
-            numpy-version: "1.19.4"
-          - python-version: "3.9-dev"
-            geos-version: "master"
-            numpy-version: ""
+          # 2015
+          - python: 3.5
+            geos-version: 3.5.2
+            numpy: 1.10.4
+          # 2017
+          - python: 3.6
+            geos-version: 3.6.4
+            numpy: 1.13.3
+          # 2018
+          - python: 3.7
+            geos-version: 3.7.3
+            numpy: 1.15.4
+          # 2019
+          - python: 3.8
+            geos-version: 3.8.1
+            numpy: 1.17.5
+          # 2020
+          - python: 3.9
+            geos-version: 3.8.1
+            numpy: 1.19.4
+          # dev
+          - python: 3.9
+            geos-version: master
+
 
     env:
       GEOS_VERSION: ${{ matrix.geos-version }}
