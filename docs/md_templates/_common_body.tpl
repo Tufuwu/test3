@@ -1,12 +1,3 @@
-<a href="http://deon.drivendata.org/"><img src="https://s3.amazonaws.com/drivendata-public-assets/deon.png" width=200/></a>
-
-[![tests](https://github.com/drivendataorg/deon/workflows/tests/badge.svg?branch=master)](https://github.com/drivendataorg/deon/actions?query=workflow%3A%22tests%22+branch%3Amaster) [![PyPI](https://img.shields.io/pypi/v/deon.svg)](https://pypi.org/project/deon/) [![Conda Version](https://img.shields.io/conda/vn/conda-forge/deon.svg)](https://anaconda.org/conda-forge/deon)
-
- > [Read more about `deon` on the project homepage](http://deon.drivendata.org/)
-
-------
-
-
 <h1><b>An ethics checklist for data scientists</b></h1>
 
 
@@ -105,86 +96,20 @@ You can add a Deon badge to your project documentation, such as the README, to e
 
 Here are the currently supported file types. We will accept pull requests with new file types if there is a strong case for widespread use of that filetype.
 
-
-- `.txt`: ascii
-- `.html`: html
-- `.ipynb`: jupyter
-- `.md`: markdown
-- `.rmd`: rmarkdown
-- `.rst`: rst
+{% for f, n in supported_formats.items() %}
+- `{{ f }}`: {{ n }}{% endfor %}
 
 # Command line options
 
 ```
-Usage: deon [OPTIONS]
-
-  Easily create an ethics checklist for your data science project.
-
-  The checklist will be printed to standard output by default. Use the
-  --output option to write to a file instead.
-
-Options:
-  -l, --checklist PATH  Override default checklist file with a path to a custom
-                        checklist.yml file.
-
-  -f, --format TEXT     Output format. Default is "markdown". Can be one of
-                        [ascii, html, jupyter, markdown, rmarkdown, rst].
-                        Ignored and file extension used if --output is passed.
-
-  -o, --output PATH     Output file path. Extension can be one of [.txt, .html,
-                        .ipynb, .md, .rmd, .rst]. The checklist is appended if
-                        the file exists.
-
-  -w, --overwrite       Overwrite output file if it exists. Default is False,
-                        which will append to existing file.
-
-  -m, --multicell       For use with Jupyter format only. Write checklist with
-                        multiple cells, one item per cell. Default is False,
-                        which will write the checklist in a single cell.
-
-  --help                Show this message and exit.
-
+{{ cli_options }}
 ```
 
 # Default checklist
 
 <hr class="checklist-buffer"/>
 
-# Data Science Ethics Checklist
-
-[![Deon badge](https://img.shields.io/badge/ethics%20checklist-deon-brightgreen.svg?style=popout-square)](http://deon.drivendata.org/)
-
-## A. Data Collection
- - [ ] **A.1 Informed consent**: If there are human subjects, have they given informed consent, where subjects affirmatively opt-in and have a clear understanding of the data uses to which they consent?
- - [ ] **A.2 Collection bias**: Have we considered sources of bias that could be introduced during data collection and survey design and taken steps to mitigate those?
- - [ ] **A.3 Limit PII exposure**: Have we considered ways to minimize exposure of personally identifiable information (PII) for example through anonymization or not collecting information that isn't relevant for analysis?
-
-## B. Data Storage
- - [ ] **B.1 Data security**: Do we have a plan to protect and secure data (e.g., encryption at rest and in transit, access controls on internal users and third parties, access logs, and up-to-date software)?
- - [ ] **B.2 Right to be forgotten**: Do we have a mechanism through which an individual can request their personal information be removed?
- - [ ] **B.3 Data retention plan**: Is there a schedule or plan to delete the data after it is no longer needed?
-
-## C. Analysis
- - [ ] **C.1 Missing perspectives**: Have we sought to address blindspots in the analysis through engagement with relevant stakeholders (e.g., checking assumptions and discussing implications with affected communities and subject matter experts)?
- - [ ] **C.2 Dataset bias**: Have we examined the data for possible sources of bias and taken steps to mitigate or address these biases (e.g., stereotype perpetuation, confirmation bias, imbalanced classes, or omitted confounding variables)?
- - [ ] **C.3 Honest representation**: Are our visualizations, summary statistics, and reports designed to honestly represent the underlying data?
- - [ ] **C.4 Privacy in analysis**: Have we ensured that data with PII are not used or displayed unless necessary for the analysis?
- - [ ] **C.5 Auditability**: Is the process of generating the analysis well documented and reproducible if we discover issues in the future?
-
-## D. Modeling
- - [ ] **D.1 Proxy discrimination**: Have we ensured that the model does not rely on variables or proxies for variables that are unfairly discriminatory?
- - [ ] **D.2 Fairness across groups**: Have we tested model results for fairness with respect to different affected groups (e.g., tested for disparate error rates)?
- - [ ] **D.3 Metric selection**: Have we considered the effects of optimizing for our defined metrics and considered additional metrics?
- - [ ] **D.4 Explainability**: Can we explain in understandable terms a decision the model made in cases where a justification is needed?
- - [ ] **D.5 Communicate bias**: Have we communicated the shortcomings, limitations, and biases of the model to relevant stakeholders in ways that can be generally understood?
-
-## E. Deployment
- - [ ] **E.1 Redress**: Have we discussed with our organization a plan for response if users are harmed by the results (e.g., how does the data science team evaluate these cases and update analysis and models to prevent future harm)?
- - [ ] **E.2 Roll back**: Is there a way to turn off or roll back the model in production if necessary?
- - [ ] **E.3 Concept drift**: Do we test and monitor for concept drift to ensure the model remains fair over time?
- - [ ] **E.4 Unintended use**: Have we taken steps to identify and prevent unintended uses and abuse of the model and do we have a plan to monitor these once the model is deployed?
-
-*Data Science Ethics Checklist generated with [deon](http://deon.drivendata.org).*
+{{ default_checklist }}
 
 <hr class="checklist-buffer"/>
 
@@ -261,8 +186,3 @@ There are other groups working on data ethics and thinking about how tools can h
 - [Ethical OS Toolkit](https://ethicalos.org/)
 - [Ethics & Algorithms Toolkit: A risk management framework for governments](http://ethicstoolkit.ai/)
 - Ethics and Data Science ([free ebook](https://www.amazon.com/dp/B07GTC8ZN7/ref=cm_sw_r_cp_ep_dp_klAOBb4Z72B4G)) and ([write-up](https://medium.com/@sjgadler/care-about-ai-ethics-what-you-can-do-starting-today-882a0e63d828))
-
-
--------
-
-`deon` was created and is maintained by the team at [DrivenData](https://www.drivendata.org/). Our mission is to bring the power of data science to social impact organizations.

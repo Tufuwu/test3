@@ -1,11 +1,4 @@
-<a href="http://deon.drivendata.org/"><img src="https://s3.amazonaws.com/drivendata-public-assets/deon.png" width=200/></a>
-
-[![tests](https://github.com/drivendataorg/deon/workflows/tests/badge.svg?branch=master)](https://github.com/drivendataorg/deon/actions?query=workflow%3A%22tests%22+branch%3Amaster) [![PyPI](https://img.shields.io/pypi/v/deon.svg)](https://pypi.org/project/deon/) [![Conda Version](https://img.shields.io/conda/vn/conda-forge/deon.svg)](https://anaconda.org/conda-forge/deon)
-
- > [Read more about `deon` on the project homepage](http://deon.drivendata.org/)
-
-------
-
+<div style="display: inline-block; line-height: 2.25em">&nbsp;</div>
 
 <h1><b>An ethics checklist for data scientists</b></h1>
 
@@ -261,8 +254,3 @@ There are other groups working on data ethics and thinking about how tools can h
 - [Ethical OS Toolkit](https://ethicalos.org/)
 - [Ethics & Algorithms Toolkit: A risk management framework for governments](http://ethicstoolkit.ai/)
 - Ethics and Data Science ([free ebook](https://www.amazon.com/dp/B07GTC8ZN7/ref=cm_sw_r_cp_ep_dp_klAOBb4Z72B4G)) and ([write-up](https://medium.com/@sjgadler/care-about-ai-ethics-what-you-can-do-starting-today-882a0e63d828))
-
-
--------
-
-`deon` was created and is maintained by the team at [DrivenData](https://www.drivendata.org/). Our mission is to bring the power of data science to social impact organizations.
