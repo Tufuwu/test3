@@ -25,4 +25,5 @@ jobs:
       - name: Test
         run: |
           chmod +x ./test/install_from_local_and_run_code_checks.sh
+          chmod +x ./test/install_from_local.sh  
           ./test/install_from_local_and_run_code_checks.sh
