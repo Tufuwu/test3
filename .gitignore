@@ -15,6 +15,7 @@ dist/
 downloads/
 eggs/
 .eggs/
+lib/
 lib64/
 parts/
 sdist/
@@ -22,8 +23,6 @@ var/
 *.egg-info/
 .installed.cfg
 *.egg
-*.log
-*.whl
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
@@ -46,26 +45,45 @@ coverage.xml
 *,cover
 .hypothesis/
 
-# pyenv python configuration file
+# Translations
+*.mo
+*.pot
+
+# Django stuff:
+*.log
+local_settings.py
+
+# Flask stuff:
+instance/
+.webassets-cache
+
+# Scrapy stuff:
+.scrapy
+
+# Sphinx documentation
+docs/_build/
+
+# PyBuilder
+target/
+
+# IPython Notebook
+.ipynb_checkpoints
+
+# pyenv
 .python-version
 
-# PyCharm
-.idea
+# celery beat schedule file
+celerybeat-schedule
 
-# VS Code
-.vscode
+# dotenv
+.env
 
-# Pipenv
-.venv
-Pipfile
-Pipfile.lock
+# virtualenv
+venv/
+ENV/
 
+# Spyder project settings
+.spyderproject
 
-# Documentation
-docs/_build
-
-# Benchmarks
-.asv
-
-# Cython C files
-pygeos/*.c
+# Rope project settings
+.ropeproject
