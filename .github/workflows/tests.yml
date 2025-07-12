@@ -1,14 +1,22 @@
-name: Tests CI
+name: CI
+
 on: [push, pull_request]
 
 jobs:
-  tests:
-    runs-on: ubuntu-latest
+  build:
+    runs-on: ubuntu-22.04
+
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
         with:
           python-version: '3.9'
 
-      - run: make install-deps
-      - run: make
+      - name: Install dependencies
+        run: make install-deps
+
+      - name: Run build
+        run: make
