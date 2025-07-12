@@ -1,4 +1,3 @@
-# install everything among install_requires specified in setup.py 
-# and needed for testing
--e .[tests]
-
+pbr>=2.0
+cliff>=2.11.0
+requests>=2.18.4
