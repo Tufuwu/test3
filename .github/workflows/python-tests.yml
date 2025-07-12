@@ -64,3 +64,21 @@ jobs:
         python -m pip install -r requirements-test.txt
         python setup.py -q install
 
+    - name: Set up PostgreSQL
+      run: |
+        sudo sed -i 's/port = 5433/port = 5432/' /etc/postgresql/11/main/postgresql.conf
+        sudo cp /etc/postgresql/{10,11}/main/pg_hba.conf
+        sudo systemctl stop postgresql
+        sudo systemctl start postgresql@11-main
+        psql -c 'CREATE ROLE test;' -U postgres
+        psql -c 'ALTER ROLE test WITH SUPERUSER;' -U postgres
+        psql -c 'ALTER ROLE test WITH LOGIN;' -U postgres
+        psql -c "ALTER ROLE test PASSWORD 'test';" -U postgres
+        psql -c 'CREATE DATABASE test OWNER test;' -U postgres
+        psql -c 'CREATE DATABASE test2 OWNER test;' -U postgres
+
+    - name: Run tests
+      run: |
+        python -m pip install -q Django==$DJANGO.*
+        python setup.py -q install
+        python runtests.py
