@@ -22,7 +22,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install pyflakes pytest pytest-doctestplus
+          pip install pyflakes pytest pytest-doctestplus six
 
 
       - name: Compile Python files
