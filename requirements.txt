@@ -1,7 +1,4 @@
-Django (>=1.7)
-pytz
-six
-typing; python_version < "3.5"
-infi.clickhouse-orm
-celery
-statsd
+google-api-python-client>=1.7.11
+google-auth
+google-auth-httplib2>=0.0.3
+requests
