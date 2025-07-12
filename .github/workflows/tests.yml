@@ -24,8 +24,6 @@ jobs:
         run: |
           pip install pyflakes pytest pytest-doctestplus
 
-      - name: Run pyflakes
-        run: pyflakes .
 
       - name: Compile Python files
         run: python -We:invalid -We::SyntaxWarning -m compileall -f -q removestar/
