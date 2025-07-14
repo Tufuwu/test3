@@ -42,3 +42,5 @@ jobs:
         run: |
           cd etip/
           python manage.py test
+        env:
+          DJANGO_SETTINGS_MODULE: etip.settings.dev
