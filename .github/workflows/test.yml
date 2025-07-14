@@ -41,6 +41,6 @@ jobs:
 
     - name: Code style checks
       run: |
-        pip install pycodestyle pyflakes
+        pip install pycodestyle==2.2.0 pyflakes==2.6.0
         pyflakes .
         pycodestyle --statistics --count .
