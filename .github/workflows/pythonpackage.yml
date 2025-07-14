@@ -2,11 +2,9 @@ name: CI
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
   pull_request:
-    branches:
-      - main
+    branches: [main]
 
 jobs:
   build:
@@ -25,23 +23,34 @@ jobs:
       uses: conda-incubator/setup-miniconda@v2
       with:
         python-version: ${{ matrix.python-version }}
-        environment-name: test-environment
+        activate-environment: test-env
         auto-activate-base: false
-        activate-environment: test-environment
         channels: conda-forge
-        miniforge-variant: Mambaforge   # Use Mambaforge for faster solves
-        use-mamba: true      
+        use-mamba: false
 
-    - name: Install dependencies
+    - name: Create and configure conda environment
+      shell: bash -l {0}
       run: |
-        conda install cython pybind11 pytest-cov codecov quadprog jaxlib jax
+        conda create -n test-env python=${{ matrix.python-version }} -y
+        conda activate test-env
+        conda install cython pybind11 pytest-cov codecov jaxlib jax -y
+        pip install quadprog
 
     - name: Install package
-      run: python setup.py develop
+      shell: bash -l {0}
+      run: |
+        conda activate test-env
+        python setup.py develop
 
     - name: Run tests
-      run: pytest
+      shell: bash -l {0}
+      run: |
+        conda activate test-env
+        pytest
 
     - name: Upload coverage to Codecov
       if: success()
-      run: codecov
+      shell: bash -l {0}
+      run: |
+        conda activate test-env
+        codecov
