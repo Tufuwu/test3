@@ -1,4 +1,0 @@
-[run]
-source = fluent_blogs/
-omit =
-    */migrations/*
