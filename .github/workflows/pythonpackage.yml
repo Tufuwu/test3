@@ -1,56 +1,60 @@
 name: CI
 
-on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
+on: [push, pull_request]
 
 jobs:
   build:
+    runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest]
-        python-version: [3.9]
-
-    runs-on: ${{ matrix.os }}
+        os: [ubuntu-22.04, macos-latest]
+        conda: [3.9]
 
     steps:
-    - uses: actions/checkout@v2
+    - name: Checkout code
+      uses: actions/checkout@v2
 
     - name: Set up Miniconda
-      uses: conda-incubator/setup-miniconda@v2
-      with:
-        python-version: ${{ matrix.python-version }}
-        activate-environment: test-env
-        auto-activate-base: false
-        channels: conda-forge
-        use-mamba: false
-
-    - name: Create and configure conda environment
-      shell: bash -l {0}
       run: |
-        conda create -n test-env python=${{ matrix.python-version }} -y
-        conda activate test-env
-        conda install cython pybind11 pytest-cov codecov jaxlib jax -y
+        if [[ "${{ matrix.os }}" == "ubuntu-20.04" ]]; then
+          export CXX=g++-4.8 CC=gcc-4.8
+          OS=Linux-x86_64
+        else
+          OS=MacOSX-x86_64
+        fi
+        wget -O miniconda.sh https://repo.continuum.io/miniconda/Miniconda${{ matrix.conda:0:1 }}-latest-$OS.sh
+        bash miniconda.sh -b -p $HOME/miniconda
+        echo "$HOME/miniconda/bin" >> $GITHUB_PATH
+        conda config --set always_yes yes --set changeps1 no
+        conda config --add channels conda-forge
+        conda update -q conda
+        conda install -q conda-build
+        conda create -q -n test-environment python=${{ matrix.conda }}
+        source activate test-environment
+
+    - name: Install dependencies
+      run: |
+        source activate test-environment
+        pip install Cython
+        python -m pip install 'pybind11>=2.4'
+        pip install pytest-cov
+        pip install codecov --ignore-installed certifi
         pip install quadprog
+        pip install jaxlib
+        pip install jax
 
     - name: Install package
-      shell: bash -l {0}
       run: |
-        conda activate test-env
+        source activate test-environment
         python setup.py develop
 
     - name: Run tests
-      shell: bash -l {0}
       run: |
-        conda activate test-env
+        source activate test-environment
         pytest
 
     - name: Upload coverage to Codecov
-      if: success()
-      shell: bash -l {0}
       run: |
-        conda activate test-env
+        source activate test-environment
         codecov
