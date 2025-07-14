@@ -26,11 +26,3 @@ jobs:
 
       - name: Run tests
         run: python test_manage.py test
-        if: !(matrix.django-version == '2.0' && matrix.python-version == '2.7') && 
-            !(matrix.django-version == '2.2' && matrix.python-version == '2.7') && 
-            !(matrix.django-version == '3.1' && matrix.python-version == '2.7') && 
-            !(matrix.django-version == '3.2' && matrix.python-version == '2.7') && 
-            !(matrix.django-version == '1.9' && matrix.python-version == '3.8') && 
-            !(matrix.django-version == '1.10' && matrix.python-version == '3.8') && 
-            !(matrix.django-version == '1.9' && matrix.python-version == '3.9') && 
-            !(matrix.django-version == '1.10' && matrix.python-version == '3.9')
