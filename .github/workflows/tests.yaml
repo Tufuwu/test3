@@ -43,12 +43,3 @@ jobs:
       - name: Upload coverage to Codecov
         run: codecov
 
-      - name: Notify IRC
-        if: failure()
-        run: |
-          curl -X POST -H 'Content-type: application/json' --data '{"text": "Build failed!"}' https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK
-
-      - name: Notify Email
-        if: failure()
-        run: |
-          echo "Build failed!" | mail -s "Build Failure" travis@edoburu.nl
