@@ -1,4 +1,4 @@
-coveralls==1.1
+coveralls
 httmock==1.2.6
 pytest==4.6.3
 pytest-cov==2.5.0
