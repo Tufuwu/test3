@@ -33,7 +33,7 @@ jobs:
         pip install coveralls
         coveralls
       env: 
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Coverage report
       run: |
