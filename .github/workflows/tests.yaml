@@ -1,19 +1,29 @@
-name: Tests
-on: [push]
+name: Python CI
+
+on: [push, pull_request]
+
 jobs:
-  tests:
-    name: ${{ matrix.python-version }}
-    runs-on: ubuntu-latest
+  build:
+    runs-on: ubuntu-22.04
+
     strategy:
       fail-fast: false
       matrix:
-        python-version: [3.6, 3.8, 3.9]
+        python-version: [3.9, 3.8, 3.4, 2.7]
+
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
-      - name: pip deps
-        run: pip install django bs4
-      - name: runtests
-        run: python runtests.py
+
+      - name: Install dependencies
+        run: |
+          pip install django bs4
+
+      - name: Run tests
+        run: |
+          env PYTHONPATH=`pwd` python setup.py test
