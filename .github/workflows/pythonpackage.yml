@@ -29,6 +29,8 @@ jobs:
         auto-activate-base: false
         activate-environment: test-environment
         channels: conda-forge
+        miniforge-variant: Mambaforge   # Use Mambaforge for faster solves
+        use-mamba: true      
 
     - name: Install dependencies
       run: |
