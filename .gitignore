@@ -1,6 +1,12 @@
-venv
-.vscode
-__pycache__
+.DS_Store
+*.pyc
+.cache/
+temp_files/
+.vscode/
+test.zip
+tests/data/test_download.jpg
+.coverage
+.idea
+.venv
 
-apks
-config.py
+docs/build/*
