@@ -22,7 +22,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install simplejson minimock coverage
+          pip install simplejson minimock coverage pytest
 
       - name: Run tests
         run: make test
