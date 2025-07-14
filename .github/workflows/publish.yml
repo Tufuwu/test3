@@ -9,7 +9,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [2.6, 2.7, 3.3, 3.4, 3.5, 3.6, nightly]
+        python-version: [2.6, 2.7, 3.3, 3.4, 3.8, 3.9, nightly]
 
     steps:
       - name: Checkout code
