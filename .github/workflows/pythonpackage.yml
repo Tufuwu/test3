@@ -21,38 +21,18 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
+    - name: Set up Miniconda
+      uses: conda-incubator/setup-miniconda@v2
       with:
         python-version: ${{ matrix.python-version }}
-
-    - name: Install Miniconda
-      shell: bash
-      run: |
-        if [ "${{ runner.os }}" = "Linux" ]; then OS=Linux-x86_64; else OS=MacOSX-x86_64; fi
-        wget -O miniconda.sh https://repo.continuum.io/miniconda/Miniconda3-latest-$OS.sh
-        bash miniconda.sh -b -p $HOME/miniconda
-        echo "$HOME/miniconda/bin" >> $GITHUB_PATH
-
-    - name: Set up conda
-      shell: bash
-      run: |
-        conda config --set always_yes yes --set changeps1 no
-        conda config --add channels conda-forge
-        conda update -q conda
-        conda install -q conda-build
-        conda create -q -n test-environment python=${{ matrix.python-version }}
-        echo "source activate test-environment" >> $GITHUB_ENV
+        environment-name: test-environment
+        auto-activate-base: false
+        activate-environment: test-environment
+        channels: conda-forge
 
     - name: Install dependencies
       run: |
-        pip install Cython
-        python -m pip install 'pybind11>=2.4'
-        pip install pytest-cov
-        pip install codecov --ignore-installed certifi
-        pip install quadprog
-        pip install jaxlib
-        pip install jax
+        conda install cython pybind11 pytest-cov codecov quadprog jaxlib jax
 
     - name: Install package
       run: python setup.py develop
