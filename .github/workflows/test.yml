@@ -1,28 +1,19 @@
-name: Test
+name: CI
 
-on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ master ]
+on: [push, pull_request]
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      max-parallel: 5
+    strategy: 
       matrix:
-        python-version: ['3.6', '3.7', '3.8', '3.9']
-        django-version: ['2.2.0', '3.0.0', '3.1.0', '3.2.0', '4.0.0']
-        exclude:
-        - python-version: '3.6'
-          django-version: '4.0.0'
-        - python-version: '3.7'
-          django-version: '4.0.0'
+        python-version: [3.5, 3.6, 3.7, 3.8, 3.9]
+        django-version: ["Django==1.11.*", "Django==2.0.*", "Django==2.1.*", "Django==2.2.*", "Django==3.0.*", "Django==3.1.*", "Django==3.2.*"]
+      fail-fast: false
 
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout code
+        uses: actions/checkout@v2
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v2
@@ -31,9 +22,13 @@ jobs:
 
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
-          python -m pip install --upgrade django~=${{ matrix.django-version }}
-          python -m pip install --upgrade requests
+          if [[ "${{ matrix.python-version }}" == "3.5" && ("${{ matrix.django-version }}" == "Django==3.0.*" || "${{ matrix.django-version }}" == "Django==3.1.*" || "${{ matrix.django-version }}" == "Django==3.2.*") ]]; then
+            echo "Skipping Django versions incompatible with Python 3.5"
+          else
+            pip install ${{ matrix.django-version }}
+            pip install requests
+            pip install -e .
+          fi
 
       - name: Run tests
         run: python runtests.py
