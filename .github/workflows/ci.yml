@@ -1,38 +1,33 @@
-name: CI
-on:
-    push:
-        branches:
-            - main
-    pull_request:
-        branches:
-            - master
+name: Python CI
+
+on: [push, pull_request]
 
 jobs:
-    build:
-        runs-on: ubuntu-latest
-        strategy:
-            max-parallel: 2
-            fail-fast: false
-            matrix:
-                python-version: [3.7, 3.9]
-        steps:
-            - uses: actions/checkout@v2
-            - name: Set up Python ${{ matrix.python-version }}
-              uses: actions/setup-python@v2
-              with:
-                  python-version: ${{ matrix.python-version }}
-            - name: Install dependencies
-              run: |
-                  python -m pip install --upgrade pip
-                  pip install codecov coverage mock nose
-                  pip install -r requirements.txt
-            - name: Run tests
-              run: |
-                  nosetests --verbose --with-coverage --cover-erase --cover-xml --cover-package=catkin_lint
-            - name: Upload code coverage
-              if: github.event_name == 'push'
-              env:
-                  CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-              run: |
-                  codecov || true
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: [3.9, 3.8]
 
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install dependencies
+      run: |
+        pip install -r requirements.txt
+        pip install codecov coverage
+
+    - name: Run tests
+      run: |
+        nosetests --verbose --with-coverage --cover-erase --cover-package=catkin_lint test
+
+    - name: Upload coverage to Codecov
+      if: success()
+      run: bash <(curl -s https://codecov.io/bash)
