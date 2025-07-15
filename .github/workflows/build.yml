@@ -27,8 +27,9 @@ jobs:
     - name: Install dependencies
       run: pip install tox
 
-    - name: Run tests
+    - name: Run tox
       run: |
-        TOXENV=$(tox --listenvs | grep "py${{ matrix.python-version | replace('.', '') }}-" | tr '\n' ',')
+        TOX_PYVER=$(echo "${{ matrix.python-version }}" | tr -d .)
+        TOXENV=$(tox --listenvs | grep "py${TOX_PYVER}-" | tr '\n' ',')
         export TOXENV
         tox
