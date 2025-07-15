@@ -43,7 +43,4 @@ jobs:
       - name: Upload coverage to Codecov
         run: bash <(curl -s https://codecov.io/bash)
 
-      - name: Notify on Gitter
-        if: success() || failure()
-        run: |
-          curl -X POST -H "Content-Type: application/json" -d '{"text": "Build status: ${{ job.status }}"}' https://webhooks.gitter.im/e/55cf16b611593edcb09d
+    
