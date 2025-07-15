@@ -9,7 +9,7 @@ jobs:
     strategy:
       matrix:
         python-version: [ 3.7, nightly]
-
+    continue-on-error: ${{ matrix.python-version == 'nightly' }}
 
     steps:
       - name: Checkout code
@@ -28,4 +28,4 @@ jobs:
       - name: Run tests
         run: |
           py.test -vv
-        continue-on-error: ${{ matrix.python-version == 'nightly' }}
+        
