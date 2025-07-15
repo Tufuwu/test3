@@ -1,65 +1,37 @@
-name: CI
+name: Test
 
-on:
-  push:
-    branches:
-      - main
-  pull_request:
+on: [push, pull_request, workflow_dispatch]
+
+env:
+  FORCE_COLOR: 1
 
 jobs:
-  build:
+  test:
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        python-version: [3.5, 3.6, 3.7, 3.8, 3.9]
-        coverage: [false, true]
-        os: [ubuntu-latest, macos-latest]
-    
-    defaults:
-      runs-on: ubuntu-latest
+        python-version: ["pypy3.8", "3.7", "3.8", "3.9", "3.10", "3.11", "3.12-dev"]
+        os: [windows-latest, macos-latest, ubuntu-latest]
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
+          cache: pip
+          cache-dependency-path: docs/requirements.txt
 
-      - name: Upgrade pip and setuptools
+      - name: Install dependencies
         run: |
-          pip install --upgrade pip setuptools
-          pip install -e .[all]
-          pip install pytest-xdist pycodestyle
+          python -m pip install -U pip
+          python -m pip install -U wheel
+          python -m pip install -r docs/requirements.txt
+          python -m pip install -U pytest
+          python -m pip install -e .
 
-      - name: Lint code
-        run: flake8 metomi/isodatetime
-
-      - name: Run tests
+      - name: Test
         run: |
-          PYTEST_ARGS=('-n' '2')
-          if [ "${{ matrix.coverage }}" = "true" ]; then
-            PYTEST_ARGS+=('--cov=metomi/isodatetime')
-          fi
-
-          pytest "${PYTEST_ARGS[@]}" &
-          TEST_PID="$!"
-          minutes=0
-          limit=50
-          while ps -p "${TEST_PID}" >/dev/null 2>&1; do
-            echo -n -e " \b"
-            if ((minutes == limit)); then
-              exit 1
-            fi
-            minutes=$((minutes + 1))
-            sleep 60
-          done
-          wait "${TEST_PID}"
-
-      - name: Upload coverage
-        if: ${{ matrix.coverage == 'true' }}
-        run: |
-          coverage xml --ignore-errors
-          bash <(curl -s https://codecov.io/bash)
+          pytest
