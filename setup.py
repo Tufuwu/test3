@@ -1,35 +1,47 @@
+#!/usr/bin/env python
+
 from setuptools import setup
 
-
 setup(
-    name='bashlex',
-    version='0.16',
-    url='https://github.com/idank/bashlex.git',
-    license='GPLv3+',
-    author='Idan Kamara',
-    author_email='idankk86@gmail.com',
-    description='Python parser for bash',
-    long_description='''bashlex is a Python port of the parser used internally by GNU bash.
+    name='topy',
+    version='1.1.0',
 
-For the most part it's transliterated from C, the major differences are:
-
-1. it does not execute anything
-2. it is reentrant
-3. it generates a complete AST
-
-See https://github.com/idank/bashlex/blob/master/README.md for more info.''',
+    # PyPI metadata
+    author='Marti Raudsepp',
+    author_email='marti@juffo.org',
+    url='https://github.com/intgr/topy',
+    download_url='https://pypi.python.org/pypi/topy/',
+    license='MIT, CC-BY-SA',
+    description='Fixes typos in text using regular expressions, based on RegExTypoFix from Wikipedia',
+    long_description=open('README.rst').read(),
+    platforms='any',
+    keywords='typo spelling grammar text',
     classifiers=[
-        'Development Status :: 4 - Beta',
+        # https://pypi.python.org/pypi?%3Aaction=list_classifiers
+        'Development Status :: 5 - Production/Stable',
         'Environment :: Console',
         'Intended Audience :: Developers',
-        'License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)',
-        'Operating System :: OS Independent',
-        'Programming Language :: Python',
-        'Topic :: Software Development :: Libraries :: Python Modules',
-        'Topic :: System :: System Shells',
-        'Topic :: Text Processing',
+        'License :: OSI Approved :: MIT License',
+        # Until we have a test suite we're conservative about Python version compatibility claims
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
+        'Programming Language :: Python :: 3.10',
+        'Programming Language :: Python :: 3.11',
+        'Topic :: Documentation',
+        'Topic :: Software Development :: Quality Assurance',
+        'Topic :: Text Processing :: Filters',
     ],
-    python_requires=">=2.7, !=3.0, !=3.1, !=3.2, !=3.3, !=3.4",
-    install_requires=['enum34; python_version < "3.4"'],
-    packages=['bashlex'],
+
+    # Installation settings
+    packages=['topy'],
+    entry_points={'console_scripts': ['topy = topy.topy:main']},
+    package_data={
+        '': ['*.txt']
+    },
+    install_requires=[
+        'regex>=2016.07.14',
+        'beautifulsoup4',
+    ],
+    test_suite='tests',
 )
