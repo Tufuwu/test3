@@ -34,3 +34,5 @@ jobs:
     - name: Upload coverage to Coveralls
       if: success() && matrix.python-version != '3.6'
       run: coveralls
+      env: 
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
