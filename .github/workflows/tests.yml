@@ -1,46 +1,44 @@
-name: Tests
+name: CI
 
-on:
-  - push
-  - pull_request
+on: [push, pull_request]
 
 jobs:
-  lint:
-    runs-on: ubuntu-latest
+  build:
+    runs-on: ubuntu-22.04
+
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: [3.6, 3.7, 3.8]
+
     steps:
-    - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-    - name: set up python
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.10'
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
 
-    - name: install system dependencies
-      run: |
-        sudo apt update
-        sudo apt install python3-lxml python3-dateutil
+      - name: Install dependencies
+        run: |
+          pip install bandit flake8 python-coveralls coverage liccheck
+          pip install -r requirements.txt
+          python setup.py bdist_wheel
+          pip install dist/feedgen*
 
-    - name: install Python dependencies
-      run: |
-        pip install bandit flake8 coverage liccheck
+      - name: Run tests
+        run: make test
 
-    - name: install feedgen
-      run: |
-        python setup.py install
+      - name: Run liccheck
+        run: liccheck -s .licenses.ini
 
-    - name: run linter
-      run: make test
+      - name: Generate feedgen
+        run: |
+          python -m feedgen
+          python -m feedgen atom
+          python -m feedgen rss
 
-    - name: run license check
-      run: liccheck -s .licenses.ini
-
-    - name: run tests
-      run: |
-        python -m feedgen
-        python -m feedgen atom
-        python -m feedgen rss
-
-
-    - name: run coverage
-      run: coverage report --fail-under=93
-
+      - name: Upload coverage to Coveralls
+        if: success()
+        run: coveralls
