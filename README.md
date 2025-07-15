@@ -1,128 +1,76 @@
-[![Build Status](https://travis-ci.org/moira-alert/python-moira-client.svg?branch=master)](https://travis-ci.org/moira-alert/python-moira-client)
+JARVIS
+======
 
-# Moira Client
+![Build Status](https://github.com/mpolden/jarvis2/workflows/ci/badge.svg)
 
-If you're new here, better check out our main [README](https://github.com/moira-alert/moira/blob/master/README.md).
+JARVIS is a dashboard framework designed to run on the Raspberry Pi.
 
-Python client for Moira.
+It features live-updating widgets using
+[server-sent events](https://en.wikipedia.org/wiki/Server-sent_events) and can be
+easily extended to fit your needs.
 
-# Installation
+Screenshots
+-----------
+![Screenshot 1](docs/jarvis2.png)
+![Screenshot 2](docs/jarvis2_1.png)
 
-```
-pip install moira-client
-```
+Dependencies
+------------
+JARVIS requires Python 3.6+ to run.
 
-# Getting started
+Install requirements:
 
-Initialize Moira client:
-```
-from moira_client import Moira
+    pip install -r requirements.txt
 
-moira = Moira('http://localhost:8888/api/')
-```
+For development it's recommended to use [virtualenv](https://virtualenv.pypa.io).
 
-## Triggers
+Configuration
+-------------
+All configuration of widgets is done in a single Python source file. The
+configuration is specified by setting the `JARVIS_SETTINGS` environment
+variable.
 
-### Create new trigger
-```
-from moira_client.models.trigger import STATE_ERROR
+A sample config (`jarvis/config.py.sample`) is provided. This file can be used as a
+starting point for your own configuration.
 
-trigger = moira.trigger.create(
-    id='service_trigger_name',
-    name='Trigger name',
-    tags=['service'],
-    targets=['prefix.service.*.postfix'],
-    warn_value=300,
-    error_value=600,
-    desc='my trigger',
-    ttl_state=STATE_ERROR
-)
+Copy `jarvis/config.py.sample` to `jarvis/config.py` and edit it to suit your needs.
 
-trigger.disable_day('Tue')
-trigger.save()
-print(trigger.id)
-```
+Usage
+-----
+After installing dependencies and creating a config file, the app can be started
+by running:
 
-> **Note:** id parameter is not required but highly recommended for large production solutions <br>
-> (e.q. fetch_by_id will work faster than is_exist).
-> If parameter is not specified, random trigger guid will be generated.
+    JARVIS_SETTINGS=config.py make run
 
-### Update triggers
-Turn off all triggers for Monday.
-```
-triggers = moira.trigger.fetch_all()
-for trigger in triggers:
-    trigger.disable_day('Mon')
-    trigger.update()
-```
+To start the app in debug mode, use:
 
-### Delete trigger
-```
-trigger = moira.trigger.fetch_by_id('bb1a8514-128b-406e-bec3-25e94153ab30')
-moira.trigger.delete(trigger.id)
-```
+    JARVIS_SETTINGS=config.py make debug
 
-### Check whether trigger exists or not (manually)
-```
-trigger = moira.trigger.create(
-    name='service',
-    targets=['service.rps'],
-    tags=['ops']
-)
+Run a job standalone and pretty-print output (useful for debugging):
 
-if not moira.trigger.is_exist(trigger):
-    trigger.save()
-```
+    JARVIS_SETTINGS=config.py make run-job
 
-### Get non existent triggers
-```
-trigger1 = moira.trigger.create(
-    name='service',
-    targets=['service.rps'],
-    tags=['ops']
-)
+Create Google API credentials (required for calendar and gmail widget):
 
-trigger2 = moira.trigger.create(
-    name='site',
-    targets=['site.rps'],
-    tags=['ops']
-)
+    JARVIS_SETTINGS=config.py make google-api-auth
 
-triggers = [trigger1, trigger2]
+Create a new widget:
 
-non_existent_triggers = moira.trigger.get_non_existent(triggers)
-```
+    make widget
 
-## Subscription
+Create a new dashboard:
 
-### Create subscription
-```
-subscription = moira.subscription.create(
-    contacts=['79ac9de2-a3b3-4f94-b3ea-74f6f4094fd2'],
-    tags=['tag']
-)
-subscription.save()
-```
+    make dashboard
 
-### Delete subscription
-Delete all subscriptions
-```
-subscriptions = moira.subscription.fetch_all()
-for subscription in subscriptions:
-    moira.subscription.delete(subscription.id)
-```
+Widgets
+-------
+See [WIDGETS.md](docs/WIDGETS.md) for documentation on available widgets.
 
-## Contact
+Deployment
+----------
+See [INSTALL.md](docs/INSTALL.md) for a basic deployment guide.
 
-### Get all contacts
-```
-contacts = moira.contact.fetch_all()
-for contact in contacts:
-    print(contact.id)
-```
-
-### Get contact id by type and value
-```
-contact_id = moira.contact.get_id(type='slack', value='#err')
-print(contact_id)
-```
+License
+-------
+Licensed under the MIT license. See the [LICENSE](LICENSE) file if you've never
+seen it before.
