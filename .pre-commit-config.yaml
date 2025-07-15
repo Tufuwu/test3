@@ -7,10 +7,10 @@ repos:
     -   id: black
         language_version: python3.7
 
--   repo: https://gitlab.com/pycqa/flake8
-    rev: 3.7.3
-    hooks:
-    -   id: flake8
+- repo: https://github.com/pycqa/flake8
+  rev: 6.1.0  # 确保使用的是有效的版本号
+  hooks:
+    - id: flake8
 
 -   repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v2.5.0
