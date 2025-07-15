@@ -34,7 +34,7 @@ jobs:
         tox -e $TOX_ENV
         pytest --dead-fixtures
     - name: Cache pip
-      uses: actions/cache@v2
+      uses: actions/cache@v4
       with:
         path: ~/.cache/pip
         key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements-dev.txt') }}
