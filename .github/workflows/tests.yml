@@ -27,8 +27,10 @@ jobs:
           python setup.py bdist_wheel
           pip install dist/feedgen*
 
-      - name: Run tests
-        run: make test
+      - name: Run tests with coverage
+        run: |
+          coverage run -m unittest discover
+          coverage report
 
       - name: Run liccheck
         run: liccheck -s .licenses.ini
