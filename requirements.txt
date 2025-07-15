@@ -1,5 +1,6 @@
 beautifulsoup4==4.9.3
 gevent==20.9.0
+greenlet==0.4.17
 GitPython==3.1.11
 mkmsdk==0.5.4
 pandas==1.1.4
