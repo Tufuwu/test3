@@ -1,7 +1,8 @@
-include *.txt
-recursive-include pyroma/testdata *.py *.txt *.cfg *.html
-prune pyroma/testdata/complete/*.egg
-graft pyroma/testdata/distributions
-include tox.ini
-include DEVELOPMENT.rst
-include Makefile
+include .version
+include LICENSE.txt
+include MANIFEST.in
+include README.rst
+include doc/examples/*.py
+include tests/conftest.py
+include tests/pytest.ini
+include tests/test_*.py
