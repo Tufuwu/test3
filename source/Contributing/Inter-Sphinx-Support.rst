@@ -52,7 +52,7 @@ Class :class:`vcstools.VcsClient` implements the :meth:`vcstools.VcsClient.check
 ------------
 
 
-------------
+
 
 Links to other pages in this documentation:
 
