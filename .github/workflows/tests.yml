@@ -21,7 +21,7 @@ jobs:
 
       - name: Upgrade pip, setuptools, and wheel
         run: |
-          pip install -U pip setuptools wheel tox tox-gh-axtions
+          pip install -U pip setuptools wheel tox 
 
       - name: Install dependencies
         run: pip install --requirement requirements_test.txt
