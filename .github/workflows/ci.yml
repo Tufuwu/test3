@@ -1,32 +1,40 @@
-name: CI
-on:
-  push:
-    branches:
-      - "*"
-  pull_request:
-    branches:
-      - master
+name: Python CI
+
+on: [push, pull_request]
+
 jobs:
-  test:
+  build:
+    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.6", "3.7", "3.8", "3.9", "3.10", "pypy3"]
-        os: [ubuntu-latest]
-    runs-on: ${{ matrix.os }}
-    name: "${{ matrix.os }} Python: ${{ matrix.python-version }}"
+        python-version: [2.7, pypy, 3.4, 3.5, 3.6, 3.7]
+    
     steps:
-    - uses: actions/checkout@v2
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
-      with:
-        python-version: ${{ matrix.python-version }}
-    - name: Install dependencies
-      run: |
-        python setup.py install
-        pip install --quiet coverage coveralls
-    - name: Run tests
-      run: make coverage
-    # - name: Upload Coverage
-    #   run: coveralls
+      - name: Checkout code
+        uses: actions/checkout@v2
 
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: python setup.py --quiet install
+
+      - name: Run tests
+        run: |
+          python test_docformatter.py
+          docformatter setup.py
+
+      - name: Coverage
+        if: success()
+        run: |
+          pip install --quiet coverage
+          make coverage
+
+      - name: Coveralls
+        if: success()
+        run: |
+          pip install --quiet coveralls
+          coveralls
