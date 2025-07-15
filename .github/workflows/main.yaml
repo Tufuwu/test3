@@ -23,6 +23,8 @@ jobs:
       - name: Install dependencies
         run: |
           pip install coverage codecov
+          pip install --upgrade pip setuptools wheel
+          pip install setuptools-scm
 
       - name: Run tests with coverage
         run: |
