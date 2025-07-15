@@ -24,7 +24,7 @@ jobs:
           pip install -U pip setuptools wheel tox tox-gh-axtions
 
       - name: Install dependencies
-        run: pip install -r requirements_test.txt
+        run: pip install --requirement requirements_test.txt
 
       - name: Run tests with Tox
         run: tox
