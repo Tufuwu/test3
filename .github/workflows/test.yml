@@ -8,8 +8,8 @@ jobs:
 
     strategy:
       matrix:
-        python-version: [2.7, 3.5, 3.6, 3.7, nightly]
-      fail-fast: false
+        python-version: [ 3.7, nightly]
+
 
     steps:
       - name: Checkout code
