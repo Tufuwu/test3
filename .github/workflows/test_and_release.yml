@@ -3,7 +3,7 @@ name: Python Package
 on:
   push:
     branches:
-      - master
+      - main
     tags: true
 
 jobs:
