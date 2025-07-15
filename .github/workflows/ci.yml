@@ -23,10 +23,13 @@ jobs:
           python-version: ${{ matrix.python-version }}
 
       - name: Install pipenv
-        run: pip install pipenv six
+        run: pip install pipenv
 
       - name: Install dependencies
-        run: pipenv install --dev
+        run: |
+          pipenv install --dev
+          pipenv run pip show urllib3
+
 
       - name: Test
         run: pipenv run test
