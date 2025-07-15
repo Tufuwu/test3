@@ -21,7 +21,7 @@ jobs:
         run: flake8 .
 
       - name: Run tests
-        run: xvfb-run pytest nfoview
+        run: xvfb-run python3 -m pytest nfoview
 
       - name: Install package
         run: |
