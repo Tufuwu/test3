@@ -1,28 +1,31 @@
-name: Python
+name: CI
 
-on:
-  push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "master" ]
+on: [push, pull_request]
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: [2.7, 3.4, 3.8]
 
     steps:
-    - uses: actions/checkout@v3
-    - name: Install radare2 5.8.0
-      run: |
-        wget https://github.com/radareorg/radare2/releases/download/5.8.0/radare2_5.8.0_amd64.deb
-        sudo dpkg -i radare2_5.8.0_amd64.deb
-        r2 -v
-    - name: Install python dependencies
-      run: pip3 install -r python/requirements_ci.txt
-    - name: Build python module
-      run: make -C python build
-    - name: Install r2papi.py
-      run: sudo make -C python install || true
-    - name: Test the r2api
-      run: rarun2 timeout=10 system="make -C python test"
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install radare2
+        run: ./scripts/install_radare2.sh
+
+      - name: Install dependencies
+        run: |
+          pip install -r python/requirements_ci.txt
+          cd python && ./setup.py install
+
+      - name: Run tests
+        run: cd test && make tests
