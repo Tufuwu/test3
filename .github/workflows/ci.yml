@@ -46,11 +46,3 @@ jobs:
         sonar-scanner \
           -Dsonar.organization=jonlabelle-github \
           -Dsonar.projectKey=your_project_key
-
-  cache:
-    paths:
-      - ~/.sonar/cache
-
-notifications:
-  email:
-    if: failure()
