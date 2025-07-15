@@ -1,39 +1,32 @@
-name: "Continuous Integration"
-on:
-  - pull_request
-  - push
+name: Python CI
+
+on: [push, pull_request]
 
 jobs:
-  run:
-    name: "Test"
-    runs-on: ${{ matrix.operating-system }}
+  build:
+    runs-on: ubuntu-latest
     strategy:
-      fail-fast: false
       matrix:
-        operating-system: ['ubuntu-latest']
-        python-version: ['3.6', '3.7', '3.8', '3.9', '3.10']
+        python-version: [3.6, 3.7, 3.8, 3.9, 'nightly']
+      fail-fast: false
 
     steps:
-      - name: Checkout
+      - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Install Python
+      - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Install pipenv
-        run: pip install pipenv 
-
       - name: Install dependencies
         run: |
+          pip install pipenv
           pipenv install --dev
 
-      - name: Fix urllib3 dependency manually
-        run: pipenv install six==1.15.0
-
-      - name: Test
-        run: pipenv run test
-
-      - name: Lint
+      - name: Run lint
         run: pipenv run lint
+
+      - name: Run tests
+        run: pipenv run test
+        if: matrix.python-version != 'nightly'
