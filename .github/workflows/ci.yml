@@ -1,39 +1,35 @@
-name: Code Quality Check
+name: CI
 
 on:
-  - push
-  - pull_request
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
-  python-ci:
-    runs-on: ubuntu-latest
-    name: Flake8 Lint
+  build:
+    runs-on: ubuntu-22.04
+
+    strategy:
+      matrix:
+        python-version: ['3.9']
+
     steps:
-      - name: Check out source repository
-        uses: actions/checkout@v2
-      - name: Set up Python environment
-        uses: actions/setup-python@v2
-        with:
-          python-version: "3.8"
-      - uses: BSFishy/pip-action@v1
-        with:
-          requirements: requirements.txt
-      - name: flake8 Lint
-        uses: py-actions/flake8@v1
-        with:
-          ignore: E123,E125
-          exclude: .venv,.git,.tox,dist,doc,*lib/python*,*egg,build
-          max-line-length: 110
-  package-install-ci:
-    runs-on: ubuntu-latest
-    name: Install cerberus
-    steps:
-      - name: Check out source repository
-        uses: actions/checkout@v2
-      - name: Set up Python environment
-        uses: actions/setup-python@v2
-        with:
-          python-version: "3.8"
-      - name: Run install script
-        run: |
-          python setup.py develop
+    - uses: actions/checkout@v2
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt install python3-pip
+        pip install -r test-requirements.txt
+        pip install tox
+
+    - name: Run tests
+      run: tox .
