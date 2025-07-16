@@ -26,6 +26,7 @@ jobs:
       - name: Install dependencies
         run: |
           pip install -r constraints.txt
+          pip install tox-travis codecov
 
       - name: Run tests
         run: |
