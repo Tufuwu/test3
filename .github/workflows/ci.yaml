@@ -2,8 +2,6 @@ name: Python Package
 
 on:
   push:
-    tags:
-      - '*'
 
 jobs:
   build:
