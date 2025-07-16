@@ -1,140 +1,104 @@
-🐜🐜🐜 Marabunta 🐜🐜🐜
-=======================
+.. image:: https://github.com/cdent/gabbi/workflows/tests/badge.svg
+    :target: https://github.com/cdent/gabbi/actions
+.. image:: https://readthedocs.org/projects/gabbi/badge/?version=latest
+    :target: https://gabbi.readthedocs.io/en/latest/
+    :alt: Documentation Status
 
-.. image:: https://travis-ci.org/camptocamp/marabunta.svg?branch=master
-    :target: https://travis-ci.org/camptocamp/marabunta
-
-*Marabunta is a name given to the migration of the legionary ants or to the ants
-themselves. Restless, they eat and digest everything in their way.*
-
-Marabunta is used to provide an easy way to create Updates for Odoo fast and run easily. It also allows to differentiate between different environment to provide for instance demodata.
-
-
-Usage
+Gabbi
 =====
-After installing marabunta, it will be available as a console command. To run properly it requires a migration file (which defines what has to updated/executed) and odoos connection parameters (view options in the options section.
 
-At each run marabunta verifies the versions from the migration file and and processes new ones.
-It is very much recommended to configure it, so that marabunta is ran automatically if odoo is started.
-For instance adding it to your docker entrypoint.
+`Release Notes`_
 
-Features
-========
+Gabbi is a tool for running HTTP tests where requests and responses
+are represented in a declarative YAML-based form. The simplest test
+looks like this::
 
-* backup: Marabunta allows for a backup command to be executed before the migration.
-* addon upgrades: Marabunta is able to install or upgrade odoo addons.
-* operations: Allows to execute commands before or after upgrading modules.
-* modes: Modes allow the user to execute commands only on a certain environment. e.g. creation of demodata on a dev system.
-* maintenance page: publish an html page during the migration.
+    tests:
+    - name: A test
+      GET: /api/resources/id
 
-Versioning systems
-------------------
-Currently Marabunta allows for two different Versioning systems:
-The classic Major.Minor.Bugfix and the Five digits long versions for OdooMajor.OdooMinor.Major.Minor.Bugfix.
-Although the first marabunta version must be **setup** for the initial setup of your instance. (Find out more about the rationale here <https://github.com/camptocamp/marabunta/commit/9b96acaff8e7eecbf82ff592b7bb927b4cd82f02>)
+See the docs_ for more details on the many features and formats for
+setting request headers and bodies and evaluating responses.
 
+Gabbi is tested with Python 3.6, 3.7, 3.8, 3.9 and pypy3.
 
-Options
-=======
-    +-------------------+----------+---------------------------+-------------------------------------------------------------------+
-    | option            | shortcut | envvar                    | purpose                                                           |
-    +===================+==========+===========================+===================================================================+
-    | --migration-file  | -f       | MARABUNTA_MIGRATION_FILE  | Definition file for the migration.                                |
-    +-------------------+----------+---------------------------+-------------------------------------------------------------------+
-    | --database        | -d       | MARABUNTA_DATABASE        | Database we want to run the migration on.                         |
-    +-------------------+----------+---------------------------+-------------------------------------------------------------------+
-    | --db-user         | -u       | MARABUNTA_DB_USER         | Database user.                                                    |
-    +-------------------+----------+---------------------------+-------------------------------------------------------------------+
-    | --db-password     | -w       | MARABUNTA_DB_PASSWORD     | Database password.                                                |
-    +-------------------+----------+---------------------------+-------------------------------------------------------------------+
-    | --db-port         | -p       | MARABUNTA_DB_PORT         | Database port (defaults to 5432).                                 |
-    +-------------------+----------+---------------------------+-------------------------------------------------------------------+
-    | --db-host         | -H       | MARABUNTA_DB_HOST         | Database port (defaults to localhost).                            |
-    +-------------------+----------+---------------------------+-------------------------------------------------------------------+
-    | --mode            |          | MARABUNTA_MODE            | Mode marabunta runs in for different envs.                        |
-    +-------------------+----------+---------------------------+-------------------------------------------------------------------+
-    | --allow-serie     |          | MARABUNTA_ALLOW_SERIE     | Allow multiple versions to be upgraded at once.                   |
-    +-------------------+----------+---------------------------+-------------------------------------------------------------------+
-    | --force-version   |          | MARABUNTA_FORCE_VERSION   | Force the upgrade to a version no matter what.                    |
-    +-------------------+----------+---------------------------+-------------------------------------------------------------------+
-    | --web-host        |          | MARABUNTA_WEB_HOST        | Interface to bind for the maintenance page. (defaults to 0.0.0.0).|
-    +-------------------+----------+---------------------------+-------------------------------------------------------------------+
-    | --web-port        |          | MARABUNTA_WEB_PORT        | Port for the maintenance page. (defaults to 8069).                |
-    +-------------------+----------+---------------------------+-------------------------------------------------------------------+
-    | --web-custom-html |          | MARABUNTA_WEB_CUSTOM_HTML | Path to custom maintenance html page to serve.                    |
-    +-------------------+----------+---------------------------+-------------------------------------------------------------------+
-                                                          
-YAML layout & Example
-=====================
-Here is an Example migration file::
+Tests can be run using `unittest`_ style test runners, `pytest`_
+or from the command line with a `gabbi-run`_ script.
 
-    migration:
-      options:
-        # This includes general options which are used everytime marabunta is called.
-        # --workers=0 --stop-after-init are automatically added
-        install_command: odoo #Command which starts odoo
-        install_args: --log-level=debug # additional Arguments
-        backup: # Defines how the backup should be done before the migration.
-          command: echo "backup command on ${DB_NAME}"
-          stop_on_failure: true
-          ignore_if: test "${RUNNING_ENV}" != "prod"
-      versions:
-        - version: setup # Setup is always the initia. version<
-          operations:
-            pre:  # executed before 'addons'
-              - echo 'pre-operation'
-            post:  # executed after 'addons'
-              - anthem songs::install
-          addons:
-            upgrade:  # executed as odoo --stop-after-init -i/-u ...
-              - base
-              - document
-          modes:
-            prod:
-              operations:
-                pre:
-                  - echo 'pre-operation executed only when the mode is prod'
-                post:
-                  - anthem songs::load_production_data
-            demo:
-              operations:
-                post:
-                  - anthem songs::load_demo_data
-              addons:
-                upgrade:
-                  - demo_addon
+There is a `gabbi-demo`_ repository which provides a tutorial via
+its commit history. The demo builds a simple API using gabbi to
+facilitate test driven development.
 
-        - version: 0.0.2
-          backup: false
-          # nothing to do this can be used to keep marabunta and gittag in sync
+.. _Release Notes: https://gabbi.readthedocs.io/en/latest/release.html
+.. _docs: https://gabbi.readthedocs.io/
+.. _gabbi-demo: https://github.com/cdent/gabbi-demo
+.. _unittest: https://gabbi.readthedocs.io/en/latest/example.html#loader
+.. _pytest: http://pytest.org/
+.. _loader docs: https://gabbi.readthedocs.io/en/latest/example.html#pytest
+.. _gabbi-run: https://gabbi.readthedocs.io/en/latest/runner.html
 
-        - version: 0.0.3
-          operations:
-            pre: # we also can execute os commands
-              - echo 'foobar'
-              - ls
-              - bin/script_test.sh
-            post:
-              - echo 'post-op'
+Purpose
+-------
 
-        - version: 0.0.4
-          backup: false
-          addons:
-            upgrade:
-              - popeye
+Gabbi works to bridge the gap between human readable YAML files that
+represent HTTP requests and expected responses and the obscured realm of
+Python-based, object-oriented unit tests in the style of the unittest
+module and its derivatives.
 
+Each YAML file represents an ordered list of HTTP requests along with
+the expected responses. This allows a single file to represent a
+process in the API being tested. For example:
 
-Run the tests
--------------
+* Create a resource.
+* Retrieve a resource.
+* Delete a resource.
+* Retrieve a resource again to confirm it is gone.
 
-To run ``marabunta`` tests, it is a good idea to do an *editable*
-install of it in a virtualenv, and then intall and run ``pytest`` as
-follows::
+At the same time it is still possible to ask gabbi to run just one
+request. If it is in a sequence of tests, those tests prior to it in
+the YAML file will be run (in order). In any single process any test
+will only be run once. Concurrency is handled such that one file
+runs in one process.
 
-  $ git clone https://github.com/camptocamp/marabunta.git
-  Cloning into 'marabunta'...
-  $ cd marabunta
-  $ virtualenv -p YOUR_PYTHON env
-  $ source env/bin/activate
-  $ pip install '.[test]'
-  $ py.test tests
+These features mean that it is possible to create tests that are
+useful for both humans (as tools for improving and developing APIs)
+and automated CI systems.
+
+Testing and Developing Gabbi
+----------------------------
+
+To get started, after cloning the `repository`_, you should install the
+development dependencies::
+
+    $ pip install -r requirements-dev.txt
+
+If you prefer to keep things isolated you can create a virtual
+environment::
+
+    $ virtualenv gabbi-venv
+    $ . gabbi-venv/bin/activate
+    $ pip install -r requirements-dev.txt
+
+Gabbi is set up to be developed and tested using `tox`_ (installed via
+``requirements-dev.txt``). To run the built-in tests (the YAML files
+are in the directories ``gabbi/tests/gabbits_*`` and loaded by the file
+``gabbi/test_*.py``), you call ``tox``::
+
+    tox -epep8,py37
+
+If you have the dependencies installed (or a warmed up
+virtualenv) you can run the tests by hand and exit on the first
+failure::
+
+    python -m subunit.run discover -f gabbi | subunit2pyunit
+
+Testing can be limited to individual modules by specifying them
+after the tox invocation::
+
+    tox -epep8,py37 -- test_driver test_handlers
+
+If you wish to avoid running tests that connect to internet hosts,
+set ``GABBI_SKIP_NETWORK`` to ``True``.
+
+.. _tox: https://tox.readthedocs.io/
+.. _repository: https://github.com/cdent/gabbi
