@@ -2,8 +2,7 @@ name: Python Package
 
 on:
   push:
-    tags:
-      - '*'
+
   pull_request:
 
 jobs:
