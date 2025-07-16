@@ -1,27 +1,51 @@
 name: Python package
 
-on: [push]
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
+
     strategy:
       fail-fast: false
       matrix:
-        python-version: [3.6, 3.7, 3.8, 3.9, pypy3]
+        python-version: [2.7, 3.5, 3.6, 3.7, 3.8, 3.9, pypy-2.7, pypy-3.7]
 
     steps:
     - uses: actions/checkout@v2
+
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python-version }}
+
+    - name: Cache Hypothesis directory
+      uses: actions/cache@v4
+      with:
+        path: ~/.hypothesis
+        key: ${{ runner.os }}-hypothesis-${{ matrix.python-version }}
+        restore-keys: |
+          ${{ runner.os }}-hypothesis-
+
     - name: Install dependencies
       run: |
-        python -m pip install --upgrade pip wheel
-        pip install --upgrade --upgrade-strategy only-if-needed pytest
+        python -m pip install --upgrade pip
+        pip install --upgrade --upgrade-strategy only-if-needed pytest pytest-catchlog
         pip install .
-    - name: Test with pytest
+
+    - name: Run tests
+      env:
+        HYPOTHESIS_STORAGE_DIRECTORY: ~/.hypothesis
       run: |
         pytest
+
+  notifications:
+    email:
+      on_success: change
+      on_failure: always
