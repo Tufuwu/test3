@@ -28,8 +28,9 @@ jobs:
       uses: conda-incubator/setup-miniconda@v2
       with:
         miniforge-variant: Mambaforge
-        python-version: 3.8
-
+        python-version: 3.9
+        auto-update-conda: true
+        use-mamba: true
 
     - name: Install dependencies
       run: pip install -e .
