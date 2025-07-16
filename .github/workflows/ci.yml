@@ -1,37 +1,31 @@
-name: Python package
+name: Python CI
 
-on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
+on: [push, pull_request]
 
 jobs:
   build:
     runs-on: ubuntu-22.04
     strategy:
-      fail-fast: false
       matrix:
-        python-version: [3.7, 3.8, 3.9, 3.10, pypy-3.7-v7.3.5]
+        python-version: [3.7, 3.8, 3.9, 3.10, pypy3]
 
     steps:
-    - uses: actions/checkout@v2
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
-      with:
-        python-version: ${{ matrix.python-version }}
-        pypy-version: 'pypy-3.7-v7.3.5' # Only used when matrix.python-version is pypy-3.7-v7.3.5
-    - name: Install dependencies
-      run: |
-        if [ "${{ matrix.python-version }}" == "pypy-3.7-v7.3.5" ]; then
-          pip install --extra-index-url https://antocuni.github.io/pypy-wheels/manylinux2010 cryptography==3.3.1
-        fi
-        pip install .
-        pip install -r requirements-dev.txt
-        rm -rf build/
-    - name: Run tests
-      run: |
-        chmod +x ./script/test
-        ./script/test -vv
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: |
+          if [[ "${{ matrix.python-version }}" == "pypy3" ]]; then
+            pip install --extra-index-url https://antocuni.github.io/pypy-wheels/manylinux2010 cryptography==3.3.1
+          fi
+          pip install .
+          pip install -r requirements-dev.txt
+          rm -rf build/
+
+      - name: Run tests
+        run: ./script/test -vv
