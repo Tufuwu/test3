@@ -27,7 +27,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install tox-travis
+          pip install tox tox-gh-actions poetry
           pip install codecov
 
       - name: Run Tox
