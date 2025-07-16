@@ -28,6 +28,7 @@ jobs:
     - name: Install dependencies
       run: |
         pip install --editable .[dev]
+        pip install pytest
         if [ "${{ matrix.python-version }}" == "3.8" ]; then
           pip install black mypy
         fi
