@@ -1,79 +1,56 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+"""
+Publish a new version:
 
-import sys
+$ git tag X.Y.Z -m "Release X.Y.Z"
+$ git push --tags
 
-import setuptools
+$ pip install --upgrade twine wheel
+$ python setup.py sdist bdist_wheel --universal
+$ twine upload dist/*
+"""
+import codecs
 from setuptools import setup
-from setuptools.command.test import test as TestCommand
-import versioneer
 
 
-class PyTest(TestCommand):
-    description = "Run test suite with pytest"
-
-    def finalize_options(self):
-        TestCommand.finalize_options(self)
-        self.test_args = []
-        self.test_suite = True
-
-    def run_tests(self):
-        import pytest
-        sys.exit(pytest.main(self.test_args))
+SCHEDULE_VERSION = '0.6.0'
+SCHEDULE_DOWNLOAD_URL = (
+    'https://github.com/dbader/schedule/tarball/' + SCHEDULE_VERSION
+)
 
 
-with open("README.rst") as readme_file:
-    readme = readme_file.read()
-
-with open("HISTORY.rst") as history_file:
-    history = history_file.read()
-
-requirements = [
-    "dask[array] >=0.16.1",
-    "numpy==1.23.5",
-    "scipy >=0.19.1",
-    "pims >=0.4.1",
-]
-
-test_requirements = [
-    "flake8 <6",
-    "pytest==6.2.5",
-    "pytest-flake8 ==1.1.1",
-    "pytest-timeout ==1.4.2",
-    "tifffile >=2018.10.18",
-]
-
-cmdclasses = {
-    "test": PyTest,
-}
-cmdclasses.update(versioneer.get_cmdclass())
+def read_file(filename):
+    """
+    Read a utf8 encoded text file and return its contents.
+    """
+    with codecs.open(filename, 'r', 'utf8') as f:
+        return f.read()
 
 
 setup(
-    name="dask-image",
-    version=versioneer.get_version(),
-    description="Distributed image processing",
-    long_description=readme + "\n\n" + history,
-    author="dask-image contributors",
-    url="https://github.com/dask/dask-image",
-    cmdclass=cmdclasses,
-    packages=setuptools.find_packages(exclude=["tests*"]),
-    include_package_data=True,
-    python_requires='>=3.5',
-    install_requires=requirements,
-    license="BSD 3-Clause",
-    zip_safe=False,
-    keywords="dask-image",
-    classifiers=[
-        "Development Status :: 2 - Pre-Alpha",
-        "Intended Audience :: Developers",
-        "License :: OSI Approved :: BSD License",
-        "Natural Language :: English",
-        "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.5",
-        "Programming Language :: Python :: 3.6",
-        "Programming Language :: Python :: 3.7",
-        "Programming Language :: Python :: 3.8",
+    name='schedule',
+    packages=['schedule'],
+    version=SCHEDULE_VERSION,
+    description='Job scheduling for humans.',
+    long_description=read_file('README.rst'),
+    license='MIT',
+    author='Daniel Bader',
+    author_email='mail@dbader.org',
+    url='https://github.com/dbader/schedule',
+    download_url=SCHEDULE_DOWNLOAD_URL,
+    keywords=[
+        'schedule', 'periodic', 'jobs', 'scheduling', 'clockwork',
+        'cron', 'scheduler', 'job scheduling'
     ],
-    tests_require=test_requirements
+    classifiers=[
+        'Intended Audience :: Developers',
+        'License :: OSI Approved :: MIT License',
+        'Programming Language :: Python',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
+        'Natural Language :: English',
+    ],
+    python_requires='>=2.7,!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*',
 )
