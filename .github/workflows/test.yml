@@ -34,8 +34,9 @@ jobs:
         auto-activate-base: false
 
     - name: Install dependencies
-      run: pip install -e .
-
+      run: |
+        pip install -e .
+        pip install coverage
     - name: Run tests
       run: |
         coverage erase
