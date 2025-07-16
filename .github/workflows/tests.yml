@@ -1,82 +1,83 @@
-name: Tests
+name: CI
 
 on:
   push:
+    branches:
+      - main
   pull_request:
-    paths:
-      - ".github/workflows/tests.yml"
-      - "setup.cfg"
-      - "mss/**"
+    branches:
+      - main
 
 jobs:
-  lint:
-    name: Code quality checks
+  code_quality_checks:
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          ref: ${{ github.event.inputs.branch }}
-      - uses: actions/setup-python@v4
-        with:
-          python-version: "3.11"
-      - name: Install test dependencies
-        run: python -m pip install -U pip wheel tox
-      - name: Tests
-        run: python -m tox -e lint
-
-  types:
-    name: Types checks
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          ref: ${{ github.event.inputs.branch }}
-      - uses: actions/setup-python@v4
-        with:
-          python-version: "3.11"
-      - name: Install test dependencies
-        run: python -m pip install -U pip wheel tox
-      - name: Tests
-        run: python -m tox -e types
-
-  documentation:
-    name: Documentation build
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          ref: ${{ github.event.inputs.branch }}
-      - uses: actions/setup-python@v4
-        with:
-          python-version: "3.11"
-      - name: Install test dependencies
-        run: python -m pip install -U pip wheel tox
-      - name: Tests
-        run: python -m tox -e docs
-
-  tests:
-    name: "${{ matrix.os }} for ${{ matrix.python }}"
-    runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
-        python: ["3.6", " 3.7", " 3.8", "3.9", "3.10", "3.11"]
+        os: [ubuntu-latest, macos-latest]
+        python-version: [3.5, 3.6, 3.7, 3.8, 3.9, 3.10]
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v2
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
         with:
-          ref: ${{ github.event.inputs.branch }}
-      - uses: actions/setup-python@v4
-        with:
-          python-version: ${{ matrix.python }}
-      - name: Install test dependencies
-        run: python -m pip install -U pip wheel tox
-      - name: Tests
-        if: matrix.os == 'ubuntu-latest'
+          python-version: ${{ matrix.python-version }}
+      - name: Install dependencies
         run: |
-          export DISPLAY=:99
-          sudo Xvfb -ac :99 -screen 0 1280x1024x24 > /dev/null 2>&1 &
-          python -m tox -e py
-      - name: Tests
-        if: matrix.os != 'ubuntu-latest'
-        run: python -m tox -e py
+          python -m pip install --upgrade pip tox
+      - name: Run Tox
+        env:
+          TOXENV: py${{ matrix.python-version }}
+        run: |
+          python -m tox
+
+  types_checking:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip tox
+      - name: Run Tox
+        env:
+          TOXENV: types
+        run: |
+          python -m tox
+
+  documentation_build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip tox
+      - name: Run Tox
+        env:
+          TOXENV: docs
+        run: |
+          python -m tox
+
+  pypy3_on_linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up PyPy3
+        uses: actions/setup-python@v2
+        with:
+          python-version: pypy3
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip tox
+      - name: Run Tox
+        env:
+          TOXENV: pypy3
+        run: |
+          python -m tox
