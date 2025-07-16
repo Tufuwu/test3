@@ -6,7 +6,7 @@ jobs:
   test:
     runs-on: ubuntu-22.04
     strategy:
-      fail-fst: false
+      fail-fast: false
       matrix:
         python-version: [3.5, 3.6, 3.7, 3.8, 'pypy3']
         toxenv: [pep8, placement, py35, py36, py37, py38, py35-pytest, py36-pytest, py37-pytest, py37-failskip, py37-limit, py37-prefix]
