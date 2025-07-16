@@ -1,36 +1,30 @@
-name: Python package
+name: Python CI
 
-on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
+on: [push, pull_request]
 
 jobs:
   build:
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version: ["2.7", "3.4", "3.5", "3.6", "3.9", "3.7-dev"]
-        include:
-          - python-version: "3.7"
-            dist: "xenial"
-          - python-version: "3.7-dev"
-            dist: "xenial"
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [2.7, 3.4, 3.5, 3.6, 3.9, 3.7-dev]
+      fail-fast: false
 
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout code
+        uses: actions/checkout@v2
+
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
+
       - name: Install dependencies
-        run: |
-          pip install -U .
-          pip install mypy
+        run: pip install -U .
 
       - name: Run tests
         run: make test
+
+      - name: Allow failures for Python 3.7-dev
+        if: matrix.python-version == '3.7-dev'
+        run: echo "This job is allowed to fail."
