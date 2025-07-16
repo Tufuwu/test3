@@ -1,41 +1,29 @@
-name: Build and run ROS tests
+name: CI
+
 on: [push, pull_request]
+
 jobs:
   build:
-    strategy:
-      matrix:
-        rosdistro: [noetic]
     runs-on: ubuntu-latest
-    container:
-      image: ros:${{ matrix.rosdistro }}-ros-core
+    strategy:
+      fail-fast: false
+      matrix:
+        ros_distro: [kinetic, melodic, noetic]
+        python: [python, python3]
+
+    services:
+      docker:
+        image: docker:latest
+        options: --privileged
+
     steps:
-    - name: Install apt dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y build-essential clang-format-10 file git python3-catkin-lint python3-pip python3-rosdep
-    - name: Install pip dependencies
-      run: pip install pre-commit
-    - name: Checkout repository
-      uses: actions/checkout@v3
-      with:
-        path: src/rospy_message_converter
-    - name: Use rosdep to install remaining dependencies
-      run: |
-        sudo rosdep init
-        rosdep update
-        rosdep install --from-paths src -i -y --rosdistro ${{ matrix.rosdistro }}
-    - name: Build
-      run: |
-        . /opt/ros/${{ matrix.rosdistro }}/setup.sh
-        catkin_make install
-    - name: Run tests
-      run: |
-        . devel/setup.sh
-        CTEST_OUTPUT_ON_FAILURE=1 catkin_make test
-        cd src/rospy_message_converter
-        python3 src/rospy_message_converter/json_message_converter.py
-        python3 src/rospy_message_converter/message_converter.py
-    - name: Run pre-commit hooks
-      run: |
-        cd src/rospy_message_converter
-        pre-commit run -a
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Build Docker image
+        run: |
+          docker build -t rospy_message_converter_${{ matrix.ros_distro }} -f Dockerfile-${{ matrix.ros_distro }} .
+
+      - name: Run tests
+        run: |
+          docker run rospy_message_converter_${{ matrix.ros_distro }} /bin/bash -c "source devel/setup.bash && CTEST_OUTPUT_ON_FAILURE=1 catkin_make test && roscd rospy_message_converter && ${{ matrix.python }} src/rospy_message_converter/json_message_converter.py && ${{ matrix.python }} src/rospy_message_converter/message_converter.py"
