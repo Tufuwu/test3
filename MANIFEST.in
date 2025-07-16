@@ -1,6 +1,1 @@
-include *.md
-include MANIFEST.in
-include LICENSE
-include setup.py
-include docs/*
-include tests/*
+include AUTHORS CHANGELOG.md LICENSE README.md
