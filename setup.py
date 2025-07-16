@@ -37,7 +37,7 @@ requirements = [
 
 test_requirements = [
     "flake8 <6",
-    "pytest >=3.0.5",
+    "pytest==6.2.5",
     "pytest-flake8 >=0.8.1",
     "pytest-timeout >=1.0.0",
     "tifffile >=2018.10.18",
