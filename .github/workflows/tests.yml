@@ -7,7 +7,7 @@ jobs:
     runs-on: ubuntu-22.04
 
     strategy:
-      fail-fast: false
+      fail-fast:
       matrix:
         python-version: [3.6, 3.7, 3.8]
 
@@ -31,7 +31,7 @@ jobs:
           conda update -q conda
           conda create -q -n test python=${{ matrix.python-version }}
           source activate test
-          conda install altair matplotlib numba numpy pandas pyteomics pytest -c defaults -c bioconda -c conda-forge
+          conda install altair matplotlib numba numpy>=1.18,<1.26 pandas pyteomics pytest -c defaults -c bioconda -c conda-forge
 
       - name: Install package
         run: |
