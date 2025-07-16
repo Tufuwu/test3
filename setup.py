@@ -1,80 +1,79 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from __future__ import print_function
-from setuptools import setup
-import re
-import os
 import sys
 
-
-name = "django-zen-queries"
-package = "zen_queries"
-description = "Explicit control over query execution in Django applications."
-url = "https://github.com/dabapps/django-zen-queries"
-author = "DabApps"
-author_email = "hello@dabapps.com"
-license = "BSD"
-
-long_description = description + "\n\nFor full details, see https://github.com/dabapps/django-zen-queries"
+import setuptools
+from setuptools import setup
+from setuptools.command.test import test as TestCommand
+import versioneer
 
 
-def get_version(package):
-    """
-    Return package version as listed in `__version__` in `init.py`.
-    """
-    init_py = open(os.path.join(package, "__init__.py")).read()
-    return re.search("^__version__ = ['\"]([^'\"]+)['\"]", init_py, re.MULTILINE).group(
-        1
-    )
+class PyTest(TestCommand):
+    description = "Run test suite with pytest"
+
+    def finalize_options(self):
+        TestCommand.finalize_options(self)
+        self.test_args = []
+        self.test_suite = True
+
+    def run_tests(self):
+        import pytest
+        sys.exit(pytest.main(self.test_args))
 
 
-def get_packages(package):
-    """
-    Return root package and all sub-packages.
-    """
-    return [
-        dirpath
-        for dirpath, dirnames, filenames in os.walk(package)
-        if os.path.exists(os.path.join(dirpath, "__init__.py"))
-    ]
+with open("README.rst") as readme_file:
+    readme = readme_file.read()
 
+with open("HISTORY.rst") as history_file:
+    history = history_file.read()
 
-def get_package_data(package):
-    """
-    Return all files under the root package, that are not in a
-    package themselves.
-    """
-    walk = [
-        (dirpath.replace(package + os.sep, "", 1), filenames)
-        for dirpath, dirnames, filenames in os.walk(package)
-        if not os.path.exists(os.path.join(dirpath, "__init__.py"))
-    ]
+requirements = [
+    "dask[array] >=0.16.1",
+    "numpy >=1.11.3",
+    "scipy >=0.19.1",
+    "pims >=0.4.1",
+]
 
-    filepaths = []
-    for base, filenames in walk:
-        filepaths.extend([os.path.join(base, filename) for filename in filenames])
-    return {package: filepaths}
+test_requirements = [
+    "flake8 >=3.4.1",
+    "pytest >=3.0.5",
+    "pytest-flake8 >=0.8.1",
+    "pytest-timeout >=1.0.0",
+    "tifffile >=2018.10.18",
+]
 
-
-if sys.argv[-1] == "publish":
-    os.system("python setup.py sdist upload")
-    args = {"version": get_version(package)}
-    print("You probably want to also tag the version now:")
-    print("  git tag -a %(version)s -m 'version %(version)s'" % args)
-    print("  git push --tags")
-    sys.exit()
+cmdclasses = {
+    "test": PyTest,
+}
+cmdclasses.update(versioneer.get_cmdclass())
 
 
 setup(
-    name=name,
-    version=get_version(package),
-    url=url,
-    license=license,
-    description=description,
-    long_description=long_description,
-    author=author,
-    author_email=author_email,
-    packages=get_packages(package),
-    package_data=get_package_data(package),
+    name="dask-image",
+    version=versioneer.get_version(),
+    description="Distributed image processing",
+    long_description=readme + "\n\n" + history,
+    author="dask-image contributors",
+    url="https://github.com/dask/dask-image",
+    cmdclass=cmdclasses,
+    packages=setuptools.find_packages(exclude=["tests*"]),
+    include_package_data=True,
+    python_requires='>=3.5',
+    install_requires=requirements,
+    license="BSD 3-Clause",
+    zip_safe=False,
+    keywords="dask-image",
+    classifiers=[
+        "Development Status :: 2 - Pre-Alpha",
+        "Intended Audience :: Developers",
+        "License :: OSI Approved :: BSD License",
+        "Natural Language :: English",
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.5",
+        "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
+    ],
+    tests_require=test_requirements
 )
