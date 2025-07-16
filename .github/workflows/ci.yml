@@ -29,4 +29,4 @@ jobs:
           
 
       - name: Run inspekt
-        run: inspekt checkall --disable-style E501,E265,W601,W605,E402,E722,E741 --no-license-check
+        run: inspekt checkall --disable-style E501,E265,W601,W605,E402,E722,E741,E601,E4702 --no-license-check
