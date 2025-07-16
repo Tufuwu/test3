@@ -34,7 +34,7 @@ jobs:
 
     - name: Install dependencies
       run: |
-        conda install altair matplotlib numba numpy>=1.18,<1.26 pandas pyteomics pytest -c defaults -c bioconda -c conda-forge
+        conda install altair matplotlib numba "numpy>=1.18,<1.26" pandas pyteomics pytest -c defaults -c bioconda -c conda-forge
         python setup.py install
 
     - name: Test with pytest
