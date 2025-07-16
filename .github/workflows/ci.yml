@@ -1,41 +1,46 @@
-name: drf-tus
+name: Python CI
 
-on:
-  push:
-  pull_request:
-    branches:
-    - 'master'
-    paths-ignore:
-    - 'docs/*'
-    - 'example/*'
-    - 'README.rst'
-    - 'CONTRIBUTING.rst'
-    - 'HISTORY.rst'
-    - '.coverage'
-    - '.editorconfig'
-    - '.gitignore'
-    - '.pre-commit-config.yaml'
-    - 'LICENSE'
-    - 'Makefile'
-    - 'MANIFEST.in'
+on: [push, pull_request]
 
 jobs:
   build:
     runs-on: ubuntu-latest
+
     strategy:
       fail-fast: false
       matrix:
-        python-version: ['3.9', '3.10', '3.11']
+        toxenv:
+          - py27-django-18
+          - py34-django-18
+          - py35-django-18
+          - py36-django-18
+          - py27-django-19
+          - py34-django-19
+          - py35-django-19
+          - py36-django-19
+          - py27-django-110
+          - py34-django-110
+          - py35-django-110
+          - py36-django-110
+          - py27-django-111
+          - py34-django-111
+          - py35-django-111
+          - py36-django-111
 
     steps:
-    - uses: actions/checkout@v3
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v4
-      with:
-        python-version: ${{ matrix.python-version }}
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        python -m pip install tox tox-gh-actions
-    - name: Test with tox
-      run: tox
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.toxenv }} # Adjust this if you need specific Python versions
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y python3.5 python3.6
+          pip install tox
+
+      - name: Run tests
+        run: tox -e ${{ matrix.toxenv }}
