@@ -42,7 +42,3 @@ jobs:
 
       - name: Upload coverage to Coveralls
         run: coveralls
-
-      - name: Notify on success or failure
-        if: success() || failure()
-        run: echo "Build completed with status: ${{ job.status }}"
