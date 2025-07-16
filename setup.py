@@ -36,7 +36,7 @@ requirements = [
 ]
 
 test_requirements = [
-    "flake8 >=3.4.1",
+    "flake8 <6",
     "pytest >=3.0.5",
     "pytest-flake8 >=0.8.1",
     "pytest-timeout >=1.0.0",
