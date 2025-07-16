@@ -36,4 +36,4 @@ jobs:
         run: tox
         env:
           DJANGO: ${{ matrix.django-version }}
-        if: !(matrix.python-version == '3.5' && (matrix.django-version == '3.0' || matrix.django-version == '3.1' || matrix.django-version == 'master'))
+        
