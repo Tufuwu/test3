@@ -41,55 +41,55 @@ jobs:
           - django31-py37-none
           - django31-py37-amazon_ses
           - django22-py37-all-old_urllib3
-      exclude:
-        - python-version: 3.5
-          toxenv: lint,docs
-        - python-version: 3.6
-          toxenv: lint,docs
-        - python-version: 3.7
-          toxenv: lint,docs
-        - python-version: 3.8
-          toxenv: django20-py35-all
-        - python-version: 3.8
-          toxenv: django20-py36-all
-        - python-version: 3.8
-          toxenv: django20-pypy3-all
-        - python-version: 3.8
-          toxenv: django21-py35-all
-        - python-version: 3.8
-          toxenv: django21-py36-all
-        - python-version: 3.8
-          toxenv: django21-py37-all
-        - python-version: 3.8
-          toxenv: django21-pypy3-all
-        - python-version: 3.8
-          toxenv: django22-py35-all
-        - python-version: 3.8
-          toxenv: django22-py36-all
-        - python-version: 3.8
-          toxenv: django22-py37-all
-        - python-version: 3.8
-          toxenv: django22-pypy3-all
-        - python-version: 3.8
-          toxenv: django30-py36-all
-        - python-version: 3.8
-          toxenv: django30-py37-all
-        - python-version: 3.8
-          toxenv: django30-pypy3-all
-        - python-version: 3.8
-          toxenv: django31-py36-all
-        - python-version: 3.8
-          toxenv: django31-py37-all
-        - python-version: 3.8
-          toxenv: django31-pypy3-all
-        - python-version: 3.8
-          toxenv: djangoDev-py37-all
-        - python-version: 3.8
-          toxenv: django31-py37-none
-        - python-version: 3.8
-          toxenv: django31-py37-amazon_ses
-        - python-version: 3.8
-          toxenv: django22-py37-all-old_urllib3
+        exclude:
+          - python-version: 3.5
+            toxenv: lint,docs
+          - python-version: 3.6
+            toxenv: lint,docs
+          - python-version: 3.7
+            toxenv: lint,docs
+          - python-version: 3.8
+            toxenv: django20-py35-all
+          - python-version: 3.8
+            toxenv: django20-py36-all
+          - python-version: 3.8
+            toxenv: django20-pypy3-all
+          - python-version: 3.8
+            toxenv: django21-py35-all
+          - python-version: 3.8
+            toxenv: django21-py36-all
+          - python-version: 3.8
+            toxenv: django21-py37-all
+          - python-version: 3.8
+            toxenv: django21-pypy3-all
+          - python-version: 3.8
+            toxenv: django22-py35-all
+          - python-version: 3.8
+            toxenv: django22-py36-all
+          - python-version: 3.8
+            toxenv: django22-py37-all
+          - python-version: 3.8
+            toxenv: django22-pypy3-all
+          - python-version: 3.8
+            toxenv: django30-py36-all
+          - python-version: 3.8
+            toxenv: django30-py37-all
+          - python-version: 3.8
+            toxenv: django30-pypy3-all
+          - python-version: 3.8
+            toxenv: django31-py36-all
+          - python-version: 3.8
+            toxenv: django31-py37-all
+          - python-version: 3.8
+            toxenv: django31-pypy3-all
+          - python-version: 3.8
+            toxenv: djangoDev-py37-all
+          - python-version: 3.8
+            toxenv: django31-py37-none
+          - python-version: 3.8
+            toxenv: django31-py37-amazon_ses
+          - python-version: 3.8
+            toxenv: django22-py37-all-old_urllib3
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python ${{ matrix.python-version }}
