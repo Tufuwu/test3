@@ -1,16 +1,11 @@
-name: Python package
+name: CI
 
-on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
+on: [push, pull_request]
 
 jobs:
   build:
     runs-on: ubuntu-22.04
+
     strategy:
       fail-fast: false
       matrix:
@@ -19,28 +14,30 @@ jobs:
     services:
       postgres:
         image: postgres:13
+        ports:
+          - 5432:5432
+        env:
+          POSTGRES_DB: testdb
+          POSTGRES_USER: user
+          POSTGRES_PASSWORD: password
         options: >-
-          --health-cmd pg_isready
+          --health-cmd "pg_isready -U user"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: postgres
-        ports:
-          - 5432:5432
 
     steps:
-    - uses: actions/checkout@v2
+    - name: Checkout code
+      uses: actions/checkout@v2
 
-    - name: Set up Python ${{ matrix.python-version }}
+    - name: Set up Python
       uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python-version }}
 
     - name: Install dependencies
-      run: pip install .
+      run: |
+        pip install .
 
     - name: Generate SSH key
       run: |
@@ -50,18 +47,8 @@ jobs:
 
     - name: Run tests
       run: |
-        pip install pytest
-        py.test tests
+        pytest tests
 
-  notify:
-    if: always()
-    runs-on: ubuntu-latest
-    steps:
     - name: Notify IRC
-      uses: peter-evans/irc-notify@v1
-      with:
-        server: "irc.freenode.org"
-        channel: "#bundlewrap"
-        message: "Build ${{ github.run_number }} of ${{ github.repository }} is ${{ job.status }}."
-        use-notice: true
-        skip-join: true
+      run: |
+        echo "Notifications to IRC are not directly supported in GitHub Actions."
