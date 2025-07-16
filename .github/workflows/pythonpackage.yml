@@ -25,7 +25,9 @@ jobs:
         python-version: ${{ matrix.python-version }}
 
     - name: Install dependencies
-      run: make setup
+      run: |
+        pip install poetry
+        make setup
 
     - name: Check build
       run: make
