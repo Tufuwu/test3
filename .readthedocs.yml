@@ -1,9 +1,5 @@
-version: 2
+# http://read-the-docs.readthedocs.io/en/latest/yaml-config.html
 
+# Use that Python version to build the documentation
 python:
-   version: 3.9
-   install:
-      - method: pip
-        path: .
-        extra_requirements:
-           - docs
+   version: 3
