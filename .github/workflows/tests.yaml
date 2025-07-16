@@ -26,5 +26,3 @@ jobs:
       - name: Run tests
         run: tox -e ${{ matrix.toxenv }}
 
-notifications:
-  irc: "chat.freenode.net#gabbi"
