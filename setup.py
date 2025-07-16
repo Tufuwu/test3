@@ -1,60 +1,50 @@
-from os import path
-from setuptools import setup, find_packages
+#!/usr/bin/env python3
 
-this_directory = path.abspath(path.dirname(__file__))
-
-with open(path.join(this_directory, 'README.md')) as f:
-    long_description = f.read()
+from setuptools import setup
 
 
-DISTNAME = 'lexpy'
-
-AUTHOR = 'Abhishek Singh'
-MAINTAINER = 'Abhishek Singh'
-MAINTAINER_EMAIL = 'abhishek.singh20141@gmail.com'
-DESCRIPTION = 'Python package for lexicon.'
-LICENSE = 'GNU GPLv3'
-URL = 'https://github.com/aosingh/lexpy'
-VERSION = '1.0.0'
-
-PACKAGES = ['lexpy']
-
-
-classifiers = [
-    'Development Status :: 5 - Production/Stable',
-    'Intended Audience :: Education',
-    'Intended Audience :: Developers',
-    'Intended Audience :: Science/Research',
-    'Topic :: Text Processing :: Linguistic',
-    'Topic :: Text Processing :: Indexing',
-    'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
-    'Programming Language :: Python :: 3.7',
-    'Programming Language :: Python :: 3.8',
-    'Programming Language :: Python :: 3.9',
-    'Programming Language :: Python :: 3.10',
-    'Operating System :: POSIX :: Linux',
-    'Operating System :: Unix',
-    'Operating System :: Microsoft :: Windows',
-    'Operating System :: MacOS'
+INSTALL_REQUIRES = [
+    'celery>=5.0,<5.3',
+    'mail-parser',
+    'pytz',
 ]
-keywords = 'trie suffix-trees lexicon directed-acyclic-word-graph dawg'
+
+
+with open('README.rst') as docs_index:
+    long_description = docs_index.read()
 
 
 setup(
-    name=DISTNAME,
+    name='django-yubin',
+    version='2.0.0',
+    description=("A reusable Django app for composing and queueing emails "
+                 "django-mailviews + Celery + others"),
     long_description=long_description,
-    long_description_content_type='text/markdown',
-    author=AUTHOR,
-    author_email=MAINTAINER_EMAIL,
-    maintainer=MAINTAINER,
-    maintainer_email=MAINTAINER_EMAIL,
-    description=DESCRIPTION,
-    license=LICENSE,
-    url=URL,
-    version=VERSION,
-    packages=find_packages(exclude=("tests",)),
-    package_dir={'lexpy': 'lexpy'},
+    author='Antoni Aloy',
+    author_email='aaloy@apsl.net',
+    maintainer='APSL',
+    maintainer_email='info@apsl.net',
+    url='http://github.com/APSL/django-yubin',
+    install_requires=INSTALL_REQUIRES,
+    packages=[
+        'django_yubin',
+        'django_yubin.management',
+        'django_yubin.management.commands',
+        'django_yubin.migrations',
+    ],
     include_package_data=True,
-    classifiers=classifiers,
-    keywords=keywords.split(),
+    classifiers=[
+        'Development Status :: 5 - Production/Stable',
+        'Environment :: Web Environment',
+        'Intended Audience :: Developers',
+        'License :: OSI Approved :: Apache Software License',
+        'Operating System :: OS Independent',
+        'Programming Language :: Python',
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
+        'Programming Language :: Python :: 3.10',
+        'Framework :: Django',
+        'Framework :: Django :: 3.2',
+    ]
 )
