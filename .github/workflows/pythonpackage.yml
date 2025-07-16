@@ -26,7 +26,7 @@ jobs:
 
     - name: Install dependencies
       run: |
-        pip install poetry
+        pip install poetry==1.5.1
         make setup
 
     - name: Check build
