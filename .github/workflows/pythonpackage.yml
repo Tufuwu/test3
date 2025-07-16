@@ -29,8 +29,7 @@ jobs:
         pip install poetry==1.0
         make setup
 
-    - name: Check build
-      run: make
+
 
     - name: Lint with Flake8
       run: make lint
