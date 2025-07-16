@@ -30,7 +30,7 @@ with open("HISTORY.rst") as history_file:
 
 requirements = [
     "dask[array] >=0.16.1",
-    "numpy <1.2",
+    "numpy==1.23.5",
     "scipy >=0.19.1",
     "pims >=0.4.1",
 ]
