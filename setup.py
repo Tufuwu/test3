@@ -1,56 +1,41 @@
-"""
-Publish a new version:
-
-$ git tag X.Y.Z -m "Release X.Y.Z"
-$ git push --tags
-
-$ pip install --upgrade twine wheel
-$ python setup.py sdist bdist_wheel --universal
-$ twine upload dist/*
-"""
-import codecs
 from setuptools import setup
 
+with open("README.md") as f:
+    readme = f.read()
 
-SCHEDULE_VERSION = '0.6.0'
-SCHEDULE_DOWNLOAD_URL = (
-    'https://github.com/dbader/schedule/tarball/' + SCHEDULE_VERSION
-)
-
-
-def read_file(filename):
-    """
-    Read a utf8 encoded text file and return its contents.
-    """
-    with codecs.open(filename, 'r', 'utf8') as f:
-        return f.read()
-
+with open("diff_match_patch/__init__.py") as f:
+    for line in f:
+        if line.startswith("__version__"):
+            version = line.split('"')[1]
 
 setup(
-    name='schedule',
-    packages=['schedule'],
-    version=SCHEDULE_VERSION,
-    description='Job scheduling for humans.',
-    long_description=read_file('README.rst'),
-    license='MIT',
-    author='Daniel Bader',
-    author_email='mail@dbader.org',
-    url='https://github.com/dbader/schedule',
-    download_url=SCHEDULE_DOWNLOAD_URL,
-    keywords=[
-        'schedule', 'periodic', 'jobs', 'scheduling', 'clockwork',
-        'cron', 'scheduler', 'job scheduling'
-    ],
+    name="diff-match-patch",
+    description="Repackaging of Google's Diff Match and Patch libraries. Offers robust algorithms to perform the operations required for synchronizing plain text.",
+    long_description=readme,
+    long_description_content_type="text/markdown",
+    version=version,
+    author="Neil Fraser",
+    author_email="fraser@google.com",
+    maintainer="John Reese",
+    maintainer_email="john@noswap.com",
+    url="https://github.com/diff-match-patch-python/diff-match-patch",
     classifiers=[
-        'Intended Audience :: Developers',
-        'License :: OSI Approved :: MIT License',
-        'Programming Language :: Python',
-        'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3.5',
-        'Programming Language :: Python :: 3.6',
-        'Programming Language :: Python :: 3.7',
-        'Natural Language :: English',
+        "Development Status :: 6 - Mature",
+        "Intended Audience :: Developers",
+        "License :: OSI Approved :: Apache Software License",
+        "Programming Language :: Python :: 2",
+        "Programming Language :: Python :: 2.7",
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.4",
+        "Programming Language :: Python :: 3.5",
+        "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
+        "Topic :: Software Development :: Libraries",
+        "Topic :: Text Processing",
     ],
-    python_requires='>=2.7,!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*',
+    license="Apache",
+    packages=["diff_match_patch", "diff_match_patch.tests"],
+    python_requires=">=2.7",
+    setup_requires=["setuptools>=38.6.0"],
+    install_requires=[],
 )
