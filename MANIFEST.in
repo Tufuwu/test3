@@ -1,5 +1,11 @@
+include CONTRIBUTING.rst
+include CHANGELOG.rst
 include LICENSE
 include README.rst
-include django_yubin/management/commands/sample.pdf
-recursive-include docs *
-recursive-include django_yubin/templates *
+
+global-exclude *.pyc
+recursive-include nvd3 *
+recursive-exclude * __pycache__
+recursive-exclude * *.py[co]
+
+recursive-include docs *.rst conf.py Makefile make.bat
