@@ -1,12 +1,5 @@
-recursive-include man *
+include *.md
+include *.rst
+include *.txt
+include LICENSE
 recursive-include tests *
-
-include LICENSE README.rst CHANGES.rst
-
-prune docs
-prune fabfile
-prune examples
-prune setup.cfg
-
-global-exclude __pycache__
-global-exclude *.py[co]
