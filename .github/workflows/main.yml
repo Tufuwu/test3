@@ -42,7 +42,7 @@ jobs:
           pip install -U pip
           pip install -U setuptools
           sudo apt update
-          sudo apt install -y build-essential libpq-dev python-dev
+          sudo apt install -y build-essential libpq-dev python3-dev
       - name: Install tox
         run: pip install tox
       - name: Run tox
