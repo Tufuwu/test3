@@ -1,78 +1,119 @@
-==============
-Django Sekizai
-==============
+===============
+django-guardian
+===============
 
-|pypi| |build| |coverage|
+.. image:: https://github.com/django-guardian/django-guardian/workflows/Tests/badge.svg?branch=devel
+  :target: https://github.com/django-guardian/django-guardian/actions/workflows/tests.yml
 
-Sekizai means "blocks" in Japanese, and that's what this app provides. A fresh
-look at blocks. With django-sekizai you can define placeholders where your
-blocks get rendered and at different places in your templates append to those
-blocks. This is especially useful for css and javascript. Your sub-templates can
-now define css and Javascript files to be included, and the css will be nicely
-put at the top and the Javascript to the bottom, just like you should. Also
-sekizai will ignore any duplicate content in a single block.
+.. image:: https://img.shields.io/pypi/v/django-guardian.svg
+    :target: https://pypi.python.org/pypi/django-guardian
 
-There are some issue/restrictions with this implementation due to how the
-django template language works, but if used properly it can be very useful and
-it is the media handling framework for the django CMS (since version 2.2).
+.. image:: https://img.shields.io/pypi/pyversions/django-guardian.svg
+    :target: https://pypi.python.org/pypi/django-guardian
 
-.. note:: 
-        
-        This project is endorsed by the `django CMS Association <https://www.django-cms.org/en/about-us/>`_.
-        That means that it is officially accepted by the dCA as being in line with our roadmap vision and development/plugin policy. 
-        Join us on `Slack <https://www.django-cms.org/slack/>`_.
-
-
-*******************************************
-Contribute to this project and win rewards
-*******************************************
-
-Because this is a an open-source project, we welcome everyone to
-`get involved in the project <https://www.django-cms.org/en/contribute/>`_ and
-`receive a reward <https://www.django-cms.org/en/bounty-program/>`_ for their contribution. 
-Become part of a fantastic community and help us make django CMS the best CMS in the world.   
-
-We'll be delighted to receive your
-feedback in the form of issues and pull requests. Before submitting your
-pull request, please review our `contribution guidelines
-<http://docs.django-cms.org/en/latest/contributing/index.html>`_.
-
-We're grateful to all contributors who have helped create and maintain this package.
-Contributors are listed at the `contributors <https://github.com/django-cms/django-sekizai/graphs/contributors>`_
-section.
-
+``django-guardian`` is an implementation of per object permissions [1]_ on top
+of Django's authorization backend
 
 Documentation
-=============
-
-See ``REQUIREMENTS`` in the `setup.py <https://github.com/divio/django-sekizai/blob/master/setup.py>`_
-file for additional dependencies:
-
-|python| |django|
-
-Please refer to the documentation in the docs/ directory for more information or visit our
-`online documentation <https://django-sekizai.readthedocs.io/en/latest/>`_.
-
-
-Running Tests
 -------------
 
-You can run tests by executing::
+Online documentation is available at https://django-guardian.readthedocs.io/.
 
-    virtualenv env
-    source env/bin/activate
-    pip install -r tests/requirements.txt
-    python setup.py test
+Requirements
+------------
+
+* Python 3.5+
+* A supported version of Django (currently 2.2+)
+
+GitHub Actions run tests against Django versions 2.2, 3.0, 3.1, 3.2, and main.
+
+Installation
+------------
+
+To install ``django-guardian`` simply run::
+
+    pip install django-guardian
+
+Configuration
+-------------
+
+We need to hook ``django-guardian`` into our project.
+
+1. Put ``guardian`` into your ``INSTALLED_APPS`` at settings module:
+
+.. code:: python
+
+    INSTALLED_APPS = (
+     ...
+     'guardian',
+    )
+
+2. Add extra authorization backend to your ``settings.py``:
+
+.. code:: python
+
+    AUTHENTICATION_BACKENDS = (
+        'django.contrib.auth.backends.ModelBackend', # default
+        'guardian.backends.ObjectPermissionBackend',
+    )
+
+3. Create ``guardian`` database tables by running::
+
+     python manage.py migrate
+
+Usage
+-----
+
+After installation and project hooks we can finally use object permissions
+with Django_.
+
+Lets start really quickly:
+
+.. code:: python
+
+      >>> from django.contrib.auth.models import User, Group
+      >>> jack = User.objects.create_user('jack', 'jack@example.com', 'topsecretagentjack')
+      >>> admins = Group.objects.create(name='admins')
+      >>> jack.has_perm('change_group', admins)
+      False
+      >>> from guardian.models import UserObjectPermission
+      >>> UserObjectPermission.objects.assign_perm('change_group', jack, obj=admins)
+      <UserObjectPermission: admins | jack | change_group>
+      >>> jack.has_perm('change_group', admins)
+      True
+
+Of course our agent jack here would not be able to *change_group* globally:
+
+.. code:: python
+
+    >>> jack.has_perm('change_group')
+    False
+
+Admin integration
+-----------------
+
+Replace ``admin.ModelAdmin`` with ``GuardedModelAdmin`` for those models
+which should have object permissions support within admin panel.
+
+For example:
+
+.. code:: python
+
+    from django.contrib import admin
+    from myapp.models import Author
+    from guardian.admin import GuardedModelAdmin
+
+    # Old way:
+    #class AuthorAdmin(admin.ModelAdmin):
+    #    pass
+
+    # With object permissions support
+    class AuthorAdmin(GuardedModelAdmin):
+        pass
+
+    admin.site.register(Author, AuthorAdmin)
 
 
-.. |pypi| image:: https://badge.fury.io/py/django-sekizai.svg
-    :target: http://badge.fury.io/py/django-sekizai
-.. |build| image:: https://travis-ci.org/divio/django-sekizai.svg?branch=master
-    :target: https://travis-ci.org/divio/django-sekizai
-.. |coverage| image:: https://codecov.io/gh/divio/django-sekizai/branch/master/graph/badge.svg
-    :target: https://codecov.io/gh/divio/django-sekizai
+.. [1] Great paper about this feature is available at `djangoadvent articles <https://github.com/djangoadvent/djangoadvent-articles/blob/master/1.2/06_object-permissions.rst>`_.
 
-.. |python| image:: https://img.shields.io/badge/python-3.5+-blue.svg
-    :target: https://pypi.org/project/django-sekizai/
-.. |django| image:: https://img.shields.io/badge/django-2.2,%203.0,%203.1-blue.svg
-    :target: https://www.djangoproject.com/
+.. _Django: http://www.djangoproject.com/
