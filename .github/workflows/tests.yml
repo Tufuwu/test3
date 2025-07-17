@@ -155,4 +155,3 @@ jobs:
       run: ./contrib/travis/test.sh
     - name: Allow failures for Django master
       if: matrix.django-version == 'master'
-      continue-on-error: true
