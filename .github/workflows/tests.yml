@@ -147,9 +147,12 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
+        chmod +x ./contrib/travis/install.sh
         ./contrib/travis/install.sh
     - name: Run tests
       env:
         DJANGO_VERSION: ${{ matrix.django-version }}
         DATABASE_URL: ${{ matrix.database == 'postgres' && 'postgres://postgres@localhost/django_guardian' || matrix.database == 'mysql' && 'mysql://root:@localhost/django_guardian' || 'sqlite://'}}
-      run: ./contrib/travis/test.sh
+      run: |
+        chmod +x ./contrib/travis/test.sh
+        ./contrib/travis/test.sh
