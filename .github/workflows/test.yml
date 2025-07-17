@@ -1,12 +1,6 @@
 name: CI
 
-on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
+on: [push, pull_request]
 
 jobs:
   test:
@@ -15,32 +9,43 @@ jobs:
       fail-fast: false
       matrix:
         python-version: [3.5, 3.6, 3.7, 3.8]
-        env:
-          - TOX_ENV=flake8
-          - TOX_ENV=isort
-          - DJANGO=dj22
-          - DJANGO=dj30
-          - DJANGO=dj31
-          - DJANGO=dj32
-    env:
-      TOX_ENV: ${{ matrix.env.TOX_ENV }}
-      DJANGO: ${{ matrix.env.DJANGO }}
+        django-version: [dj22, dj30, dj31, dj32]
+        include:
+          - python-version: 3.5
+            env: TOX_ENV='flake8'
+          - python-version: 3.5
+            env: TOX_ENV='isort'
+          - python-version: 3.5
+            env: DJANGO='dj22'
+          - python-version: 3.6
+            env: DJANGO='dj22'
+          - python-version: 3.7
+            env: DJANGO='dj22'
+          - python-version: 3.8
+            env: DJANGO='dj22'
+          - python-version: 3.6
+            env: DJANGO='dj30'
+          - python-version: 3.6
+            env: DJANGO='dj31'
+          - python-version: 3.6
+            env: DJANGO='dj32'
+
     steps:
-    - uses: actions/checkout@v2
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
-      with:
-        python-version: ${{ matrix.python-version }}
-    - name: Install dependencies
-      run: |
-        pip install coverage isort tox
-        if [ "${{ matrix.python-version }}" == "3.5" ]; then echo "PY_VER=py35" >> $GITHUB_ENV; fi
-        if [ "${{ matrix.python-version }}" == "3.6" ]; then echo "PY_VER=py36" >> $GITHUB_ENV; fi
-        if [ "${{ matrix.python-version }}" == "3.7" ]; then echo "PY_VER=py37" >> $GITHUB_ENV; fi
-        if [ "${{ matrix.python-version }}" == "3.8" ]; then echo "PY_VER=py38" >> $GITHUB_ENV; fi
-        if [ "${{ env.DJANGO }}" != "" ]; then echo "TOX_ENV=${{ env.PY_VER }}" >> $GITHUB_ENV; fi
-    - name: Run tests
-      run: tox -e ${{ env.TOX_ENV }}
-    - name: Upload coverage to Codecov
-      if: success()
-      run: bash <(curl -s https://codecov.io/bash)
+      - uses: actions/checkout@v2
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install dependencies
+        run: |
+          pip install coverage isort tox
+          if [[ "${{ matrix.python-version }}" == "3.5" ]]; then export PY_VER=py35; fi
+          if [[ "${{ matrix.python-version }}" == "3.6" ]]; then export PY_VER=py36; fi
+          if [[ "${{ matrix.python-version }}" == "3.7" ]]; then export PY_VER=py37; fi
+          if [[ "${{ matrix.python-version }}" == "3.8" ]]; then export PY_VER=py38; fi
+          if [[ "${{ env.DJANGO }}" != "" ]]; then export TOX_ENV=$PY_VER; fi
+      - name: Run tests
+        run: tox -e $TOX_ENV
+      - name: Upload coverage to Codecov
+        if: success()
+        run: bash <(curl -s https://codecov.io/bash)
