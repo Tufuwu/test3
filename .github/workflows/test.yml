@@ -8,44 +8,49 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [3.5, 3.6, 3.7, 3.8]
-        django-version: [dj22, dj30, dj31, dj32]
         include:
+          # Linting
           - python-version: 3.5
-            env: TOX_ENV='flake8'
+            tox-env: flake8
           - python-version: 3.5
-            env: TOX_ENV='isort'
+            tox-env: isort
+
+          # Django 2.2
           - python-version: 3.5
-            env: DJANGO='dj22'
+            tox-env: py35-dj22
           - python-version: 3.6
-            env: DJANGO='dj22'
+            tox-env: py36-dj22
           - python-version: 3.7
-            env: DJANGO='dj22'
+            tox-env: py37-dj22
           - python-version: 3.8
-            env: DJANGO='dj22'
+            tox-env: py38-dj22
+
+          # Django 3.0
           - python-version: 3.6
-            env: DJANGO='dj30'
+            tox-env: py36-dj30
+
+          # Django 3.1
           - python-version: 3.6
-            env: DJANGO='dj31'
+            tox-env: py36-dj31
+
+          # Django 3.2
           - python-version: 3.6
-            env: DJANGO='dj32'
+            tox-env: py36-dj32
 
     steps:
       - uses: actions/checkout@v2
+
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
+
       - name: Install dependencies
-        run: |
-          pip install coverage isort tox
-          if [[ "${{ matrix.python-version }}" == "3.5" ]]; then export PY_VER=py35; fi
-          if [[ "${{ matrix.python-version }}" == "3.6" ]]; then export PY_VER=py36; fi
-          if [[ "${{ matrix.python-version }}" == "3.7" ]]; then export PY_VER=py37; fi
-          if [[ "${{ matrix.python-version }}" == "3.8" ]]; then export PY_VER=py38; fi
-          if [[ "${{ env.DJANGO }}" != "" ]]; then export TOX_ENV=$PY_VER; fi
+        run: pip install coverage isort tox
+
       - name: Run tests
-        run: tox -e $TOX_ENV
+        run: tox -e ${{ matrix.tox-env }}
+
       - name: Upload coverage to Codecov
         if: success()
         run: bash <(curl -s https://codecov.io/bash)
