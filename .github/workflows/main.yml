@@ -21,9 +21,10 @@ jobs:
 
       - name: Install dependencies
         run: |
-          sudo apt-get install -y coinor-cbc
-          pip install "click<8.1"
-          python setup.py -q install
+          sudo apt-get install coinor-cbc
+          python -m pip install --upgrade pip
+          pip install flake8==3.8.3 black==19.10b0 pytest==5.4.3 "click<8.1"
+          pip install -e .
 
       - name: Lint with flake8
         run: flake8
