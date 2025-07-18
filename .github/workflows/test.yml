@@ -1,12 +1,6 @@
-name: Python package
+name: Python CI
 
-on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
+on: [push, pull_request]
 
 jobs:
   build:
@@ -14,17 +8,22 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["2.7", "3.3", "3.4", "3.5", "3.6", "3.9", "pypy3", "pypy-2.7"]
+        python-version: [2.7, 3.3, 3.4, 3.9, 3.8, 'nightly', 'pypy3', 'pypy']
+    
     steps:
-    - uses: actions/checkout@v2
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
-      with:
-        python-version: ${{ matrix.python-version }}
-    - name: Install dependencies
-      run: |
-        pip install -r requirements-test.txt
-    - name: Run tests
-      run: |
-        python -m unittest discover -s tests
-        coverage run run_tests.py && coverage report -m
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements-test.txt
+
+      - name: Run tests
+        run: |
+          python -m unittest discover -s tests
+          coverage run run_tests.py && coverage report -m
