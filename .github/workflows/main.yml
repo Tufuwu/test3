@@ -22,7 +22,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get install -y coinor-cbc
-          pip install -r requirements.txt "click<8.1"
+          pip install "click<8.1"
           python setup.py -q install
 
       - name: Lint with flake8
