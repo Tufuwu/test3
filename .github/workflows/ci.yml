@@ -1,4 +1,4 @@
-name: Python CI
+name: CI
 
 on:
   push:
@@ -6,30 +6,27 @@ on:
       - main
   pull_request:
     branches:
-      - '**'
+      - master
 
 jobs:
-  run_tests:
-    name: Tests
-    runs-on: ${{ matrix.os }}
+  build:
+    runs-on: ubuntu-latest
+
     strategy:
       matrix:
-        os:
-          - ubuntu-22.04
-        python-version:
-          - 3.8
+        python-version: [3.8]
 
     steps:
     - uses: actions/checkout@v2
-    - name: setup python
+    - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python-version }}
-
-    - name: Install requirements and Run Tests
+    - name: Install dependencies
+      run: make travis.requirements
+    - name: Run tests
       run: make test
-
-    - name: Run Coverage
-      uses: codecov/codecov-action@v2
-      with:
-        fail_ci_if_error: true
+    - name: Upload coverage to Coveralls
+      env:
+        COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
+      run: coveralls
