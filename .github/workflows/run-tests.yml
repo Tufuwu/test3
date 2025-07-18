@@ -15,10 +15,10 @@ jobs:
       fail-fast: false
       matrix:
         python-version: [3.6, 3.7, 3.8, 3.9, 3.10]
-        os: [ubuntu-20.04]
+        os: [ubuntu-22.04]
         arch: [amd64, ppc64le]
-        env:
-          WITHOUT_EXTENSION: [0, 1]
+    
+        WITHOUT_EXTENSION: [0, 1]
 
     steps:
     - name: Set up Python ${{ matrix.python-version }}
