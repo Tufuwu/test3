@@ -22,7 +22,7 @@ jobs:
         run: make prefix="build" install
 
       - name: Upload Artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: git-cola-run${{github.run_number}}-${{runner.os}}
           path: build/
@@ -117,7 +117,7 @@ jobs:
           mv git-cola*.exe git-cola-run${{github.run_number}}.exe
 
       - name: Upload Artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: git-cola-run${{github.run_number}}-${{runner.os}}
           path: build\nsis\git-cola*.exe
