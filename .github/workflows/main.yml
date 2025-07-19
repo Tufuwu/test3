@@ -41,7 +41,7 @@ jobs:
       run: make all
 
     - name: Install tox
-      run: pip install tox tox-venv
+      run: pip install tox <4 tox-venv
 
     - name: Run tests
       run: |
