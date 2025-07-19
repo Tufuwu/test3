@@ -39,7 +39,7 @@ jobs:
 
     - name: Build
       run: |
-        cd pyinstaller && ./bundle.sh
+        cd pyinstaller && chmod +x ./bundle.sh && ./bundle.sh
 
   deploy:
     runs-on: ubuntu-latest
