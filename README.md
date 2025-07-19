@@ -1,20 +1,62 @@
-### Overview
-[![Build Status](https://travis-ci.org/glinscott/fishtest.svg?branch=master)](https://travis-ci.org/glinscott/fishtest)
+[![Build Status](https://travis-ci.org/grigorig/stcgal.svg)](https://travis-ci.org/grigorig/stcgal)
+[![Coverage Status](https://coveralls.io/repos/github/grigorig/stcgal/badge.svg?branch=coveralls)](https://coveralls.io/github/grigorig/stcgal?branch=coveralls)
+[![PyPI version](https://badge.fury.io/py/stcgal.svg)](https://badge.fury.io/py/stcgal)
 
-Fishtest is a distributed task queue for testing chess engines. The main instance
-for testing the chess engine [Stockfish](https://github.com/official-stockfish/Stockfish) is at this web page https://tests.stockfishchess.org
+stcgal - STC MCU ISP flash tool
+===============================
 
-Developers submit patches with new ideas and improvements, CPU contributors install a fishtest worker on their computers to play some chess games in the background to help the developers testing the patches.
+stcgal is a command line flash programming tool for [STC MCU Ltd](http://stcmcu.com/).
+8051 compatible microcontrollers.
 
-The fishtest worker:
-- automatically connects to the server to download a chess opening book, the [cutechess-cli](https://github.com/cutechess/cutechess) chess game manager and the chess engine sources (both for the current Stockfish and for the patch with the new idea). The sources will be compiled according to the type of the worker platform.
-- starts a batch of games using cutechess-cli.
-- uploads the games results on the server.
+STC microcontrollers have an UART/USB based boot strap loader (BSL). It
+utilizes a packet-based protocol to flash the code memory and IAP
+memory over a serial link. This is referred to as in-system programming
+(ISP).  The BSL is also used to configure various (fuse-like) device
+options. Unfortunately, this protocol is not publicly documented and
+STC only provide a (crude) Windows GUI application for programming.
 
-The fishtest server:
-- manages the queue of the tests with customizable priorities.
-- computes several probabilistic values from the game results sent by the workers.
-- updates and publishes the results of ongoing tests.
-- knows how to stop tests when they are statistically significant and publishes the final tests results.
+stcgal is a full-featured Open Source replacement for STC's Windows
+software; it supports a wide range of MCUs, it is very portable and
+suitable for automation.
 
-To get more information, such as the worker/server install and configuration instructions, visit the [Fishtest Wiki](https://github.com/glinscott/fishtest/wiki).
+Features
+--------
+
+* Support for STC 89/90/10/11/12/15/8 series
+* UART and USB BSL support
+* Display part info
+* Determine operating frequency
+* Program flash memory
+* Program IAP/EEPROM
+* Set device options
+* Read unique device ID (STC 10/11/12/15/8)
+* Trim RC oscillator frequency (STC 15/8)
+* Automatic power-cycling with DTR toggle or a custom shell command
+* Automatic UART protocol detection
+
+Quickstart
+----------
+
+Install stcgal (might need root/administrator privileges):
+    
+    pip3 install stcgal
+
+Call stcgal and show usage:
+
+    stcgal -h
+
+Further information
+-------------------
+
+[Installation](doc/INSTALL.md)
+
+[How to use stcgal](doc/USAGE.md)
+
+[Frequently Asked Questions](doc/FAQ.md)
+
+[List of tested MCU models](doc/MODELS.md)
+
+License
+-------
+
+stcgal is published under the MIT license.
