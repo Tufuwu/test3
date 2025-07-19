@@ -16,7 +16,7 @@ jobs:
             h5py-version: "==3.1"
           - python-version: 3.9
             h5py-version: "==2.10"
-            arch: ppc64le
+
 
     steps:
       - name: Checkout code
