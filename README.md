@@ -1,73 +1,63 @@
-# python-georss-ingv-centro-nazionale-terremoti-client
+Stregsystemet [![Django CI Actions Status](https://github.com/f-klubben/stregsystemet/workflows/Django%20CI/badge.svg)](https://github.com/f-klubben/stregsystemet/actions)  [![codecov](https://codecov.io/gh/f-klubben/stregsystemet/branch/next/graph/badge.svg)](https://codecov.io/gh/f-klubben/stregsystemet) 
+========
 
-[![Build Status](https://github.com/exxamalte/python-georss-ingv-centro-nazionale-terremoti-client/workflows/CI/badge.svg?branch=master)](https://github.com/exxamalte/python-georss-ingv-centro-nazionale-terremoti-client/actions?workflow=CI)
-[![codecov](https://codecov.io/gh/exxamalte/python-georss-ingv-centro-nazionale-terremoti-client/branch/master/graph/badge.svg?token=PHASSFXFVU)](https://codecov.io/gh/exxamalte/python-georss-ingv-centro-nazionale-terremoti-client)
-[![PyPi](https://img.shields.io/pypi/v/georss-ingv-centro-nazionale-terremoti-client.svg)](https://pypi.python.org/pypi/georss-ingv-centro-nazionale-terremoti-client)
-[![Version](https://img.shields.io/pypi/pyversions/georss-ingv-centro-nazionale-terremoti-client.svg)](https://pypi.python.org/pypi/georss-ingv-centro-nazionale-terremoti-client)
+This is the current stregsystem in the F-Klub.
 
-This library provides convenient access to the [INGV Centro Nazionale Terremoti (Earthquakes) Feed](http://cnt.rm.ingv.it/).
+Branches
+-------
+ - `master`: The running code on the live system.
+ - `next`: The set of changes which will be included in the next release.
 
-## Installation
-`pip install georss-ingv-centro-nazionale-terremoti-client`
+Python Environment
+-------
+For windows using Anaconda and virtual environments:
+1. Download and install Anaconda
+2. In a shell:
+  - `conda create -n stregsystem python=3.6`
+  - `activate stregsystem`
+  - `pip install -r requirements.txt`
+3. ???
+4. Profit
 
-## Usage
-See below for an example of how this library can be used. After instantiating 
-the feed class and supplying the required parameters, you can call `update` to 
-retrieve the feed data. The return value will be a tuple of a status code and 
-the actual data in the form of a list of specific feed entries.
+For Ubuntu with virtual envs:
+1. Install python3 with pip
+ - `sudo apt install python3 python3-pip`
+2. Create virtual environment
+ - `python3 -m venv venv`
+3. Activate virtualenv
+ - `source venv/bin/activate`
+4. Install packages
+ - `pip3 install -r requirements.txt`
+5. ???
+6. Profit
 
-**Status Codes**
-* _UPDATE_OK_: Update went fine and data was retrieved. The library may still return empty data, for example because no entries fulfilled the filter criteria.
-* _UPDATE_OK_NO_DATA_: Update went fine but no data was retrieved, for example because the server indicated that there was not update since the last request.
-* _UPDATE_ERROR_: Something went wrong during the update
+Using Testdata
+--------
+In order to simplify development for all, we have included a test fixture.
+Using `testserver` will delete the data after running.
+To use it do the following:
+1. `python manage.py migrate`
+2. `python manage.py testserver stregsystem/fixtures/testdata.json`
+3. ???
+4. Profit
 
-**Supported Filters**
+Admin panel: <http://127.0.0.1:8000/admin/>  
+Login: `tester:treotreo`
 
-| Filter            |                            | Description |
-|-------------------|----------------------------|-------------|
-| Radius            | `filter_radius`            | Radius in kilometers around the home coordinates in which events from feed are included. |
-| Minimum Magnitude | `filter_minimum_magnitude` | Minimum magnitude as float value. Only events with a magnitude equal or above this value are included. |
+Stregsystem: <http://127.0.0.1:8000/1/>  
+User: `tester`
 
-**Example**
-```python
-from georss_ingv_centro_nazionale_terremoti_client import \
-    IngvCentroNazionaleTerremotiFeed
-# Home Coordinates: Latitude: 40.84, Longitude: 14.25
-# Filter radius: 200 km
-# Filter minimum magnitude: 4.0
-feed = IngvCentroNazionaleTerremotiFeed((40.84, 14.25), 
-                                        filter_radius=200, 
-                                        filter_minimum_magnitude=4.0)
-status, entries = feed.update()
-```
+Persistent Testdata
+-------
+Using `runserver` will automatically reload django on code change, and persist data in the database configured in `local.cfg` (can be whatever backend you want to use).
+First time:
+1. `python manage.py migrate`
+2. `python manage.py loaddata stregsystem/fixtures/testdata.json`
+3. `python manage.py runserver`
+4. ???
+5. Profit
 
-## Feed Manager
-
-The Feed Manager helps managing feed updates over time, by notifying the 
-consumer of the feed about new feed entries, updates and removed entries 
-compared to the last feed update.
-
-* If the current feed update is the first one, then all feed entries will be 
-  reported as new. The feed manager will keep track of all feed entries' 
-  external IDs that it has successfully processed.
-* If the current feed update is not the first one, then the feed manager will 
-  produce three sets:
-  * Feed entries that were not in the previous feed update but are in the 
-    current feed update will be reported as new.
-  * Feed entries that were in the previous feed update and are still in the 
-    current feed update will be reported as to be updated.
-  * Feed entries that were in the previous feed update but are not in the 
-    current feed update will be reported to be removed.
-* If the current update fails, then all feed entries processed in the previous
-  feed update will be reported to be removed.
-
-After a successful update from the feed, the feed manager will provide two
-different dates:
-
-* `last_update` will be the timestamp of the last successful update from the
-  feed. This date may be useful if the consumer of this library wants to
-  treat intermittent errors from feed updates differently.
-* `last_timestamp` will be the latest timestamp extracted from the feed data. 
-  This requires that the underlying feed data actually contains a suitable 
-  date. This date may be useful if the consumer of this library wants to 
-  process feed entries differently if they haven't actually been updated.
+From then on
+1. `python manage.py runserver`
+2. ???
+3. Profit
