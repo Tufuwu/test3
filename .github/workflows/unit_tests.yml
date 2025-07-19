@@ -22,12 +22,12 @@ jobs:
             h5py-version: "==3.0"
           - python-version: 3.5
             h5py-version: "==3.1"
-          - os: ubuntu-20.04
+          - os: ubuntu-22.04
             python-version: 3.9
             h5py-version: "==2.10"
             arch: ppc64le
         include:
-          - os: ubuntu-20.04
+          - os: ubuntu-22.04
             python-version: 3.9
             h5py-version: "==2.10"
             arch: ppc64le
