@@ -1,1 +1,2 @@
-sphinx>=2.1
+in-toto==1.2.0
+securesystemslib==0.26.0
