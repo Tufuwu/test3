@@ -1,3 +1,4 @@
-# Include the data files
-include Readme.md
-include ansibleplaybookgrapher/data/*
+include requirements.txt
+include requirements-test.txt
+include puncover/static/**/*
+include puncover/templates/**

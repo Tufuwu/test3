@@ -1,9 +1,0 @@
----
-- name: Debug 1
-  debug: msg="Fake role"
-
-- name: Debug 2
-  debug: msg="Fake role 2"
-
-- name: Debug 3 with double quote "here" in the name
-  debug: msg="Fake role 3 with double quotes"

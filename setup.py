@@ -1,65 +1,72 @@
-import sys
+#!/usr/bin/env python
+import os
+from pathlib import Path
 
-from setuptools import setup, find_packages
+from setuptools import setup, find_packages, Command
 
-from ansibleplaybookgrapher import __version__, __prog__
+ROOTDIR = Path(__file__).parent
 
-
-def read_requirements(path):
-    """
-    Read requirements file
-    :param path:
-    :type path:
-    :return:
-    :rtype:
-    """
-    requirements = []
-    with open(path) as f_r:
-        for l in f_r:
-            requirements.append(l.strip())
-    return requirements
+__version__ = None  # Overwritten by executing version.py.
+with open(ROOTDIR / "puncover/version.py") as f:
+    exec(f.read())
 
 
-install_requires = read_requirements('requirements.txt')
-test_require = read_requirements('tests/requirements_tests.txt')[1:]
+with open(ROOTDIR / "requirements-test.txt") as f:
+    tests_require = list(filter(lambda x: not x.strip().startswith('-r'), f.readlines()))
 
-with open('README.md') as f:
-    long_description = f.read()
+with open(ROOTDIR / "requirements.txt") as f:
+    requires = f.readlines()
 
-# add `pytest-runner` distutils plugin for test;
-# see https://pypi.python.org/pypi/pytest-runner
-setup_requires = []
-if {'pytest', 'test', 'ptr'}.intersection(sys.argv[1:]):
-    setup_requires.append('pytest-runner')
 
-setup(name=__prog__,
-      version=__version__,
-      description="A command line tool to create a graph representing your Ansible playbook tasks and roles",
-      long_description=long_description,
-      long_description_content_type='text/markdown',
-      url="https://github.com/haidaraM/ansible-playbook-grapher",
-      author="HAIDARA Mohamed El Mouctar",
-      author_email="elmhaidara@gmail.com",
-      license="MIT",
-      install_requires=install_requires,
-      tests_require=test_require,
-      setup_requires=setup_requires,
-      packages=find_packages(exclude=['tests']),
-      package_data={"ansible-playbook-grapher": ['data/*']},
-      include_package_data=True,
-      download_url="https://github.com/haidaraM/ansible-playbook-grapher/archive/v" + __version__ + ".tar.gz",
-      classifiers=[
-          'Development Status :: 5 - Production/Stable',
-          'Intended Audience :: Developers',
-          'Intended Audience :: System Administrators',
-          'License :: OSI Approved :: MIT License',
-          'Environment :: Console',
-          'Topic :: Utilities',
-          'Programming Language :: Python :: 3.5',
-          'Programming Language :: Python :: 2.7',
-      ],
-      entry_points={
-          'console_scripts': [
-              '%s = ansibleplaybookgrapher.cli:main' % __prog__
-          ]
-      })
+class CleanCommand(Command):
+    """Custom clean command to tidy up the project root."""
+
+    # http://stackoverflow.com/a/3780822/196350
+    user_options = []
+
+    def initialize_options(self):
+        pass
+
+    def finalize_options(self):
+        pass
+
+    def run(self):
+        os.system("rm -vrf ./build ./dist ./*.pyc ./*.tgz ./*.egg-info")
+
+
+setup(
+    name="puncover",
+    version=__version__,
+    description="Analyses C/C++ build output for code size, static variables, and stack usage.",
+    long_description=open("README.rst").read(),
+    long_description_content_type="text/x-rst",
+    url="https://github.com/hbehrens/puncover",
+    download_url="https://github.com/hbehrens/puncover/tarball/%s" % __version__,
+    author="Heiko Behrens",
+    license="MIT",
+    classifiers=[
+        "Development Status :: 5 - Production/Stable",
+        "Intended Audience :: Developers",
+        "Natural Language :: English",
+        "License :: OSI Approved :: MIT License",
+        "Programming Language :: Python",
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
+    ],
+    packages=find_packages(exclude=["tests", "tests.*"]),
+    include_package_data=True,
+    zip_safe=False,
+    entry_points={"console_scripts": ["puncover = puncover.puncover:main"]},
+    install_requires=requires,
+    tests_require=tests_require,
+    cmdclass={
+        "clean": CleanCommand,
+    },
+    # TODO: https://github.com/HBehrens/puncover/issues/36
+    #  Fix Python 3.5
+    python_requires=">=3.6",
+)

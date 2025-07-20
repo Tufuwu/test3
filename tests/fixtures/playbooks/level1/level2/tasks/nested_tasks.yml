@@ -1,7 +1,0 @@
----
-- name: Included tasks one
-  debug:
-    msg: /bin/true
-- name: Included tasks two
-  debug:
-    msg: /bin/bar

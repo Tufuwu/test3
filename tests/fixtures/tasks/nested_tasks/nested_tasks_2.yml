@@ -1,3 +1,0 @@
----
-- name: Nested Debug 2
-  debug: msg="Nested Debug 2"
