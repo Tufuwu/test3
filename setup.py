@@ -1,30 +1,45 @@
-from platform import python_version
+#!/usr/bin/env python
+
+import os
+import sys
+
 from setuptools import setup
 
+from lora import VERSION
 
-def readme():
-    with open('README.md') as readme_file:
-        return readme_file.read()
+package_name = "python-lora"
+
+if sys.argv[-1] == "publish":
+    os.system("python setup.py sdist")
+    os.system("twine upload -r pypi dist/%s-%s.tar.gz" % (package_name, VERSION))
+    sys.exit()
+
+if sys.argv[-1] == "tag":
+    os.system("git tag -a v{} -m 'tagging v{}'".format(VERSION, VERSION))
+    os.system("git push && git push --tags")
+    sys.exit()
 
 
 setup(
-    name='comment_parser',
-    version='1.2.5',
-    description='Parse comments from various source files.',
+    name="python-lora",
+    version=VERSION,
+    description="Decrypt LoRa payloads",
+    url="https://github.com/jieter/python-lora",
+    author="Jan Pieter Waagmeester",
+    author_email="jieter@jieter.nl",
+    license="MIT",
     classifiers=[
-        'Development Status :: 5 - Production/Stable',
-        'Programming Language :: Python :: 3',
-        'Topic :: Software Development :: Documentation',
-        'License :: OSI Approved :: MIT License'
+        "Intended Audience :: Developers",
+        "License :: OSI Approved :: MIT License",
+        "Programming Language :: Python :: 2",
+        "Programming Language :: Python :: 2.7",
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.4",
+        "Programming Language :: Python :: 3.5",
+        "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
     ],
-    url='http://github.com/jeanralphaviles/comment_parser',
-    author='Jean-Ralph Aviles',
-    author_email='jeanralph.aviles+pypi@gmail.com',
-    license='MIT',
-    long_description=readme(),
-    long_description_content_type='text/markdown',
-    packages=['comment_parser', 'comment_parser.parsers'],
-    install_requires=['python-magic>=0.4.27'],
-    zip_safe=False,
-    python_requires='>=3.13',
+    keywords="LoRa decrypt",
+    packages=["lora"],
+    install_requires=["cryptography==3.2"],
 )
