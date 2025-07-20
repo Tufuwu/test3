@@ -1,9 +1,32 @@
-.mypy_cache
+# HNN-core build
+dpl.txt
+hnn_core/mod/x86_64/
+
+# Distribution / packaging
+.Python
+dist/
+*.egg*
+build
+coverage
+*.xml
+.venv
+
+# Sphinx documentation
+doc/_build/**
+pip-log.txt
 .coverage
-/build
-/dist
+tags
+cover
+
+# Pycharm
+.idea/
+
+*.pyc
+
+.cache
 .pytest_cache
-/*.egg-info
-julia_pkg
+.ipynb_checkpoints
+.DS_Store
+.vscode/
+
 __pycache__
-/*.log
