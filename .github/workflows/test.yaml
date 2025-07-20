@@ -52,7 +52,7 @@ jobs:
         run: |
           pip install --upgrade pip
           pip install .
-          pip install pytest notebook
+          pip install pytest "notebook<7"
           pip freeze 
       - name: Run tests
         run: |
