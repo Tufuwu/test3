@@ -35,6 +35,3 @@ jobs:
       - name: Upload coverage to Codecov
         run: bash <(curl -s https://codecov.io/bash)
 
-      - name: Notify via email
-        if: success()
-        run: echo "Build succeeded" | mail -s "Build Notification" jealous@163.com
