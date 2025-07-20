@@ -10,7 +10,7 @@ jobs:
       fail-fast: false
       matrix:
         python-version: [3.5, 3.6, 3.7, 3.8, 3.9]
-        toxenv: [flake8, integration, py35-django22, py36-django22, py37-django22, py38-django22, py39-django22, py36-django30, py37-django30, py38-django30, py39-django30, py36-django31, py37-django31, py38-django31, py39-django31, py36-djangomain, py37-djangomain, py38-djangomain, py39-djangomain]
+        toxenv: [flake8, integration, py35-django22, py36-django22, py37-django22, py38-django22, py39-django22, py36-django30, py37-django3.0, py38-django3.0, py39-django3.0, py36-django3.1, py37-django3.1, py38-django31, py39-django31, py36-djangomain, py37-djangomain, py38-djangomain, py39-djangomain]
         
 
 
