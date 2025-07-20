@@ -1,108 +1,125 @@
-.. image:: https://raw.githubusercontent.com/jschneier/django-storages/master/docs/logos/horizontal.png
-    :alt: Django-Storages
-    :width: 100%
+====================
+Jupyter Server Proxy
+====================
 
-.. image:: https://img.shields.io/pypi/v/django-storages.svg
-    :target: https://pypi.org/project/django-storages/
-    :alt: PyPI Version
+|ReadTheDocs badge| |Travis badge| |PyPI badge| |Conda badge| |NPM badge|
 
-.. image:: https://travis-ci.org/jschneier/django-storages.svg?branch=master
-    :target: https://travis-ci.org/jschneier/django-storages
-    :alt: Build Status
+.. |ReadTheDocs badge| image:: https://img.shields.io/readthedocs/jupyter-server-proxy?logo=read-the-docs
+   :target: https://jupyter-server-proxy.readthedocs.io/
 
-Installation
-============
-Installing from PyPI is as easy as doing:
+.. |Travis badge| image:: https://img.shields.io/travis/com/jupyterhub/jupyter-server-proxy?logo=travis
+   :target: https://travis-ci.com/jupyterhub/jupyter-server-proxy
 
-.. code-block:: bash
+.. |PyPI badge| image:: https://img.shields.io/pypi/v/jupyter-server-proxy.svg?logo=pypi
+   :target: https://pypi.python.org/pypi/jupyter-server-proxy
 
-  pip install django-storages
+.. |Conda badge| image:: https://img.shields.io/conda/vn/conda-forge/jupyter-server-proxy?logo=conda-forge
+   :target: https://anaconda.org/conda-forge/jupyter-server-proxy
 
-If you'd prefer to install from source (maybe there is a bugfix in master that
-hasn't been released yet) then the magic incantation you are looking for is:
+.. |NPM badge| image:: https://img.shields.io/npm/v/@jupyterlab/server-proxy.svg?logo=npm
+   :target: https://www.npmjs.com/package/@jupyterlab/server-proxy
 
-.. code-block:: bash
+Jupyter Server Proxy lets you run arbitrary external processes (such
+as RStudio, Shiny Server, Syncthing, PostgreSQL, Code Server, etc)
+alongside your notebook server and provide authenticated web access to
+them using a path like ``/rstudio`` next to others like ``/lab``.
+Alongside the python package that provides the main functionality, the
+JupyterLab extension (``@jupyterlab/server-proxy``) provides buttons
+in the JupyterLab launcher window to get to RStudio for example.
 
-  pip install -e 'git+https://github.com/jschneier/django-storages.git#egg=django-storages'
+**Note:** This project used to be called **nbserverproxy**. As
+nbserverproxy is an older version of jupyter-server-proxy, uninstall
+nbserverproxy before installing jupyter-server-proxy to avoid
+conflicts.
 
-Once that is done set ``DEFAULT_FILE_STORAGE`` to the backend of your choice.
-If, for example, you want to use the boto3 backend you would set:
+The primary use cases are:
 
-.. code-block:: python
+#. Use with JupyterHub / Binder to allow launching users into web
+   interfaces that have nothing to do with Jupyter - such as RStudio,
+   Shiny, or OpenRefine.
+#. Allow access from frontend javascript (in classic notebook or
+   JupyterLab extensions) to access web APIs of other processes
+   running locally in a safe manner. This is used by the `JupyterLab
+   extension <https://github.com/dask/dask-labextension>`_ for 
+   `dask <https://dask.org/>`_.
 
-  DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 
+`The documentation <https://jupyter-server-proxy.readthedocs.io/>`_
+contains information on installation & usage.
 
-If you are using the ``FileSystemStorage`` as your storage management class in your models ``FileField`` fields, remove them
-and don't specify any storage parameter. That way, the ``DEFAULT_FILE_STORAGE`` class will be used by default in your field.
-For example, if you have a `photo` field defined as:
-
-.. code-block:: python
-
-    photo = models.FileField(
-        storage=FileSystemStorage(location=settings.MEDIA_ROOT),
-        upload_to='photos',
-    )
-
-Set it to just:
-
-.. code-block:: python
-
-    photo = models.FileField(
-        upload_to='photos',
-    )
-
-There are also a number of settings available to control how each storage backend functions,
-please consult the documentation for a comprehensive list.
-
-About
-=====
-django-storages is a project to provide a variety of storage backends in a single library.
-
-This library is usually compatible with the currently supported versions of
-Django. Check the Trove classifiers in setup.py to be sure.
-
-django-storages is backed in part by `Tidelift`_. Check them out for all of your enterprise open source
-software commerical support needs.
-
-.. _Tidelift: https://tidelift.com/subscription/pkg/pypi-django-storages?utm_source=pypi-django-storages&utm_medium=referral&utm_campaign=enterprise&utm_term=repo
-
-Security
-========
-
-To report a security vulnerability, please use the `Tidelift security contact`_. Tidelift will coordinate the
-fix and disclosure. Please **do not** post a public issue on the tracker.
-
-.. _Tidelift security contact: https://tidelift.com/security
-
-History
+Install
 =======
-This repo began as a fork of the original library under the package name of django-storages-redux and
-became the official successor (releasing under django-storages on PyPI) in February of 2016.
 
-Found a Bug? Something Unsupported?
-===================================
-I suspect that a few of the storage engines in backends/ have been unsupported
-for quite a long time. I personally only really need the S3Storage backend but
-welcome bug reports (and especially) patches and tests for some of the other
-backends.
+Python package
+--------------
 
-Issues are tracked via GitHub issues at the `project issue page
-<https://github.com/jschneier/django-storages/issues>`_.
+pip
+^^^
 
-Documentation
-=============
-Documentation for django-storages is located at https://django-storages.readthedocs.io/.
+.. code-block::
+
+   pip install jupyter-server-proxy
+
+conda
+^^^^^
+
+.. code-block::
+
+   conda install jupyter-server-proxy -c conda-forge
+
+JupyterLab extension
+--------------------
+
+Note that as the JupyterLab extension only is a graphical interface to
+launch registered applications in the python package, the extension
+requires the python package to be installed.
+
+.. code-block::
+
+   jupyter labextension install @jupyterlab/server-proxy
 
 Contributing
 ============
 
-#. `Check for open issues
-   <https://github.com/jschneier/django-storages/issues>`_ at the project
-   issue page or open a new issue to start a discussion about a feature or bug.
-#. Fork the `django-storages repository on GitHub
-   <https://github.com/jschneier/django-storages>`_ to start making changes.
-#. Add a test case to show that the bug is fixed or the feature is implemented
-   correctly.
-#. Bug me until I can merge your pull request. Also, don't forget to add
-   yourself to ``AUTHORS``.
+Python package
+--------------
+
+.. code-block::
+
+   pip install -e .
+
+   # explicit install needed with editable mode (-e) jupyter
+   jupyter serverextension enable --sys-prefix jupyter_server_proxy
+
+
+JupyterLab extension
+--------------------
+
+The ``jlpm`` command is JupyterLab's pinned version of ``yarn`` that
+is installed with JupyterLab. You may use ``yarn`` or ``npm`` instead
+of ``jlpm`` below.
+
+.. code-block::
+
+   cd jupyterlab-server-proxy
+   # Install dependencies
+   jlpm
+   # Build Typescript source
+   jlpm build
+   # Link your development version of the extension with JupyterLab
+   jupyter labextension link .
+   # Rebuild Typescript source after making changes
+   jlpm build
+   # Rebuild JupyterLab after making any changes
+   jupyter lab build
+
+You can watch the source directory and run JupyterLab in watch mode to
+watch for changes in the extension's source and automatically rebuild
+the extension and application.
+
+.. code-block::
+
+   # Watch the source directory in another terminal tab
+   jlpm watch
+   # Run jupyterlab in watch mode in one terminal tab
+   jupyter lab --watch
