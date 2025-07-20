@@ -24,9 +24,9 @@ jobs:
       - name: Install dependencies
         run: |         
           pip install astroid>=2.0
-          pip install pylint>=2.0
+          pip install pylint~=2.5.3
           pip install -e .
-          
+
       - name: Run pylint
         run: pylint --rcfile=.pylintrc infinisdk setup.py
 
