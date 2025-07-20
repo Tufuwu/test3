@@ -50,7 +50,7 @@ jobs:
         fi
         pip install flake8 pytest pytest-cov
         pip install mne psutil joblib
-        pip install neuron
+        pip install NEURON neuron
 
     - name: Install package
       shell: bash
