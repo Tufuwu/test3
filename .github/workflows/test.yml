@@ -35,4 +35,4 @@ jobs:
         run: pytype
 
       - name: Run yapf
-        run: python -m yapf -drp comment_parser
+        run: yapf -drp --style=yapf .
