@@ -20,7 +20,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install pyusb coverage coveralls pyserial ”PyYAML==5.3“ tqdm
+          pip install pyusb coverage coveralls pyserial "PyYAML==5.3" tqdm
 
       - name: Build
         run: python setup.py build
