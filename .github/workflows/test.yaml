@@ -52,9 +52,8 @@ jobs:
         run: |
           pip install --upgrade pip
           pip install .
-          pip install pytest
-          pip freeze notebook
-
+          pip install pytest notebook
+          pip freeze 
       - name: Run tests
         run: |
           JUPYTER_TOKEN=secret jupyter-notebook --config=./tests/resources/jupyter_server_config.py &
