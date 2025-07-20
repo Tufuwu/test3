@@ -1,21 +1,23 @@
-*.egg
-*.egg-info/
-*.eggs
+# Binaries
 *.pyc
-.coverage
-.idea
 .tox/
-.venv/
-/.project
-/.pydevproject
-/.ve
+.env/
+venv/
+.cache/
+~/
 build/
 dist/
-docs/_build
+*.egg-info/
+.eggs/
+docs/_build/doctrees/
+
+# IDE related
+.idea/
+
+# tests
+junit-result.xml
 htmlcov/
-MANIFEST
-test_files/
-venv/
-.DS_Store
-env
-.vscode
+.coverage
+__pycache__/
+.pytest_cache/
+README.html
