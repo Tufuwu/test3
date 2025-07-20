@@ -35,15 +35,6 @@ jobs:
           - py37-djangomain
           - py38-djangomain
           - py39-djangomain
-      allow_failures:
-        - matrix:
-            toxenv: py36-djangomain
-        - matrix:
-            toxenv: py37-djangomain
-        - matrix:
-            toxenv: py38-djangomain
-        - matrix:
-            toxenv: py39-djangomain
 
     steps:
     - uses: actions/checkout@v2
