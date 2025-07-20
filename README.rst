@@ -1,115 +1,108 @@
-hnn-core
-========
+.. image:: https://raw.githubusercontent.com/jschneier/django-storages/master/docs/logos/horizontal.png
+    :alt: Django-Storages
+    :width: 100%
 
-.. image:: https://badges.gitter.im/hnn-core/hnn-core.svg
-   :target: https://gitter.im/hnn-core/hnn-core?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
-   :alt: Gitter
+.. image:: https://img.shields.io/pypi/v/django-storages.svg
+    :target: https://pypi.org/project/django-storages/
+    :alt: PyPI Version
 
-.. image:: https://circleci.com/gh/jonescompneurolab/hnn-core.svg?style=svg
-   :target: https://circleci.com/gh/jonescompneurolab/hnn-core
-   :alt: CircleCi
-
-.. image:: https://api.travis-ci.org/jonescompneurolab/hnn-core.svg?branch=master
-    :target: https://travis-ci.org/jonescompneurolab/hnn-core
+.. image:: https://travis-ci.org/jschneier/django-storages.svg?branch=master
+    :target: https://travis-ci.org/jschneier/django-storages
     :alt: Build Status
-
-.. image:: https://codecov.io/gh/jonescompneurolab/hnn-core/branch/master/graph/badge.svg
-	:target: https://codecov.io/gh/jonescompneurolab/hnn-core
-	:alt: Test coverage
-
-This is a leaner and cleaner version of the code based off the `HNN repository <https://github.com/jonescompneurolab/hnn>`_. However, a Graphical User Interface is not supported at the moment in this repository.
-
-It is early Work in Progress. Contributors are very welcome.
-
-Dependencies
-------------
-
-* numpy
-* scipy
-* matplotlib
-* Neuron (>=7.7)
-
-Optional dependencies
----------------------
-
-* joblib (for simulating trials simultaneously)
-* mpi4py (for simulating the cells in parallel for a single trial). Also depends on:
-
-  * openmpi or other mpi platform installed on system
-  * psutil
 
 Installation
 ============
+Installing from PyPI is as easy as doing:
 
-We recommend the `Anaconda Python distribution <https://www.anaconda.com/products/individual>`_.
-To install ``hnn-core``, simply do::
+.. code-block:: bash
 
-   $ pip install hnn_core
+  pip install django-storages
 
-and it will install ``hnn-core`` along with the dependencies which are not already installed.
+If you'd prefer to install from source (maybe there is a bugfix in master that
+hasn't been released yet) then the magic incantation you are looking for is:
 
-Note that if you installed Neuron using the traditional installer package, it is recommended
-to remove it first and unset ``PYTHONPATH`` and ``PYTHONHOME`` if they were set. This is
-because the pip installer works better with virtual environments such as the ones provided by ``conda``.
+.. code-block:: bash
 
-If you want to track the latest developments of ``hnn-core``, you can install the current version of the code (nightly) with::
+  pip install -e 'git+https://github.com/jschneier/django-storages.git#egg=django-storages'
 
-	$ pip install --upgrade https://api.github.com/repos/jonescompneurolab/hnn-core/zipball/master
+Once that is done set ``DEFAULT_FILE_STORAGE`` to the backend of your choice.
+If, for example, you want to use the boto3 backend you would set:
 
-To check if everything worked fine, you can do::
+.. code-block:: python
 
-	$ python -c 'import hnn_core'
+  DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 
-and it should not give any error messages.
 
-**Parallel backends**
+If you are using the ``FileSystemStorage`` as your storage management class in your models ``FileField`` fields, remove them
+and don't specify any storage parameter. That way, the ``DEFAULT_FILE_STORAGE`` class will be used by default in your field.
+For example, if you have a `photo` field defined as:
 
-For further instructions on installation and usage of parallel backends for using more
-than one CPU core, refer to `parallel_backends`_
+.. code-block:: python
 
-**Note for Windows users**
+    photo = models.FileField(
+        storage=FileSystemStorage(location=settings.MEDIA_ROOT),
+        upload_to='photos',
+    )
 
-The pip installer for Neuron does not yet work for Windows. In this case, it is better to
-install ``hnn_core`` without the dependencies::
+Set it to just:
 
-   $ pip install hnn_core --no-deps
+.. code-block:: python
 
-and then install the dependencies separately::
+    photo = models.FileField(
+        upload_to='photos',
+    )
 
-   $ pip install scipy numpy matplotlib
+There are also a number of settings available to control how each storage backend functions,
+please consult the documentation for a comprehensive list.
 
-and install Neuron using the traditional package installer available here
-`https://neuron.yale.edu/neuron/ <https://neuron.yale.edu/neuron/>`_.
+About
+=====
+django-storages is a project to provide a variety of storage backends in a single library.
 
-Documentation and examples
-==========================
+This library is usually compatible with the currently supported versions of
+Django. Check the Trove classifiers in setup.py to be sure.
 
-Once you have tested that ``hnn_core`` and its dependencies were installed,
-we recommend downloading and executing the
-`example scripts <https://jonescompneurolab.github.io/hnn-core/stable/auto_examples/index.html>`_
-provided on the `documentation pages <https://jonescompneurolab.github.io/hnn-core/>`_
-(as well as in the `GitHub repository <https://github.com/jonescompneurolab/hnn-core>`_).
+django-storages is backed in part by `Tidelift`_. Check them out for all of your enterprise open source
+software commerical support needs.
 
-Note that ``python`` plots are by default non-interactive (blocking): each plot must thus be closed before the code execution continues. We recommend using and 'interactive' python interpreter such as ``ipython``::
+.. _Tidelift: https://tidelift.com/subscription/pkg/pypi-django-storages?utm_source=pypi-django-storages&utm_medium=referral&utm_campaign=enterprise&utm_term=repo
 
-   $ ipython --matplotlib
+Security
+========
 
-and executing the scripts using the ``%run``-magic::
+To report a security vulnerability, please use the `Tidelift security contact`_. Tidelift will coordinate the
+fix and disclosure. Please **do not** post a public issue on the tracker.
 
-   %run plot_simulate_evoked.py
+.. _Tidelift security contact: https://tidelift.com/security
 
-When executed in this manner, the scripts will execute entirely, after which all plots will be shown. For an even more interactive experience, in which you execute code and interrogate plots in sequential blocks, we recommend editors such as `VS Code <https://code.visualstudio.com>`_ and `Spyder <https://docs.spyder-ide.org/current/index.html>`_.
+History
+=======
+This repo began as a fork of the original library under the package name of django-storages-redux and
+became the official successor (releasing under django-storages on PyPI) in February of 2016.
 
-Bug reports
-===========
+Found a Bug? Something Unsupported?
+===================================
+I suspect that a few of the storage engines in backends/ have been unsupported
+for quite a long time. I personally only really need the S3Storage backend but
+welcome bug reports (and especially) patches and tests for some of the other
+backends.
 
-Use the `github issue tracker <https://github.com/jonescompneurolab/hnn-core/issues>`_ to
-report bugs. For user questions and scientific discussions, please join the
-`HNN Google group <https://groups.google.com/g/hnnsolver>`_.
+Issues are tracked via GitHub issues at the `project issue page
+<https://github.com/jschneier/django-storages/issues>`_.
 
-Interested in Contributing?
-===========================
+Documentation
+=============
+Documentation for django-storages is located at https://django-storages.readthedocs.io/.
 
-Read our `contributing guide <https://github.com/jonescompneurolab/hnn-core/blob/master/CONTRIBUTING.rst>`_.
+Contributing
+============
 
-.. _parallel_backends: https://jonescompneurolab.github.io/hnn-core/stable/parallel.html
+#. `Check for open issues
+   <https://github.com/jschneier/django-storages/issues>`_ at the project
+   issue page or open a new issue to start a discussion about a feature or bug.
+#. Fork the `django-storages repository on GitHub
+   <https://github.com/jschneier/django-storages>`_ to start making changes.
+#. Add a test case to show that the bug is fixed or the feature is implemented
+   correctly.
+#. Bug me until I can merge your pull request. Also, don't forget to add
+   yourself to ``AUTHORS``.
