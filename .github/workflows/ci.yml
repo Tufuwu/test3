@@ -30,6 +30,3 @@ jobs:
       - name: Run tests
         run: tox -e ${{ matrix.toxenv }}
 
-      - name: Allow failures
-        if: startsWith(matrix.toxenv, 'py') && endsWith(matrix.toxenv, 'djangomain')
-        run: echo "This job is allowed to fail."
