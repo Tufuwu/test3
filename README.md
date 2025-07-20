@@ -1,62 +1,111 @@
-[![Build Status](https://travis-ci.org/grigorig/stcgal.svg)](https://travis-ci.org/grigorig/stcgal)
-[![Coverage Status](https://coveralls.io/repos/github/grigorig/stcgal/badge.svg?branch=coveralls)](https://coveralls.io/github/grigorig/stcgal?branch=coveralls)
-[![PyPI version](https://badge.fury.io/py/stcgal.svg)](https://badge.fury.io/py/stcgal)
+# Ansible Playbook Grapher
 
-stcgal - STC MCU ISP flash tool
-===============================
+![Testing](https://github.com/haidaraM/ansible-playbook-grapher/workflows/Testing/badge.svg)
+[![PyPI version](https://badge.fury.io/py/ansible-playbook-grapher.svg)](https://badge.fury.io/py/ansible-playbook-grapher)
+[![Coverage Status](https://coveralls.io/repos/github/haidaraM/ansible-playbook-grapher/badge.svg?branch=master)](https://coveralls.io/github/haidaraM/ansible-playbook-grapher?branch=master)
 
-stcgal is a command line flash programming tool for [STC MCU Ltd](http://stcmcu.com/).
-8051 compatible microcontrollers.
+[ansible-playbook-grapher](https://github.com/haidaraM/ansible-playbook-grapher) is a command line tool to create a graph representing your Ansible playbook tasks and roles. The aim of
+this project is to quickly have an overview of your playbook.
 
-STC microcontrollers have an UART/USB based boot strap loader (BSL). It
-utilizes a packet-based protocol to flash the code memory and IAP
-memory over a serial link. This is referred to as in-system programming
-(ISP).  The BSL is also used to configure various (fuse-like) device
-options. Unfortunately, this protocol is not publicly documented and
-STC only provide a (crude) Windows GUI application for programming.
+Inspired by [Ansible Inventory Grapher](https://github.com/willthames/ansible-inventory-grapher).
 
-stcgal is a full-featured Open Source replacement for STC's Windows
-software; it supports a wide range of MCUs, it is very portable and
-suitable for automation.
+## Prerequisites
+ * **Ansible** >= 2.8: The script has not been tested with an earlier version of Ansible, some features may not work. 
+ If you still use an older version of Ansible, create an virtual environment and install ansible-playbook-grapher. **`pip install` will install a version of Ansible >= 2.8** 
 
-Features
---------
+ * **graphviz**: The tool used to generate the graph in SVG. 
+ ```shell script
+ $ sudo apt-get install graphviz # or yum install or brew install
+ ```
+ 
+## Installation
+```shell script
+$ pip install ansible-playbook-grapher
+```
 
-* Support for STC 89/90/10/11/12/15/8 series
-* UART and USB BSL support
-* Display part info
-* Determine operating frequency
-* Program flash memory
-* Program IAP/EEPROM
-* Set device options
-* Read unique device ID (STC 10/11/12/15/8)
-* Trim RC oscillator frequency (STC 15/8)
-* Automatic power-cycling with DTR toggle or a custom shell command
-* Automatic UART protocol detection
+## Usage
 
-Quickstart
-----------
+```shell
+$ ansible-playbook-grapher tests/fixtures/example.yml
+```
 
-Install stcgal (might need root/administrator privileges):
-    
-    pip3 install stcgal
+![Example](https://raw.githubusercontent.com/haidaraM/ansible-playbook-grapher/master/img/example.png)
 
-Call stcgal and show usage:
 
-    stcgal -h
+```bash
+$ ansible-playbook-grapher --include-role-tasks  tests/fixtures/with_roles.yml
+```
 
-Further information
--------------------
+![Example](https://raw.githubusercontent.com/haidaraM/ansible-playbook-grapher/master/img/with_roles.png)
 
-[Installation](doc/INSTALL.md)
+Some options are available:
 
-[How to use stcgal](doc/USAGE.md)
+```
+$ ansible-playbook-grapher --help
+usage: ansible-playbook-grapher [-h] [-v] [-i INVENTORY]
+                                [--include-role-tasks] [-s]
+                                [-o OUTPUT_FILENAME] [--version] [-t TAGS]
+                                [--skip-tags SKIP_TAGS] [--vault-id VAULT_IDS]
+                                [--ask-vault-pass | --vault-password-file VAULT_PASSWORD_FILES]
+                                [-e EXTRA_VARS]
+                                playbook
 
-[Frequently Asked Questions](doc/FAQ.md)
+Make graphs from your Ansible Playbooks.
 
-[List of tested MCU models](doc/MODELS.md)
+positional arguments:
+  playbook              Playbook to graph
 
-License
--------
+optional arguments:
+  --ask-vault-pass      ask for vault password
+  --include-role-tasks  Include the tasks of the role in the graph.
+  --skip-tags SKIP_TAGS
+                        only run plays and tasks whose tags do not match these
+                        values
+  --vault-id VAULT_IDS  the vault identity to use
+  --vault-password-file VAULT_PASSWORD_FILES
+                        vault password file
+  --version             show program's version number and exit
+  -e EXTRA_VARS, --extra-vars EXTRA_VARS
+                        set additional variables as key=value or YAML/JSON, if
+                        filename prepend with @
+  -h, --help            show this help message and exit
+  -i INVENTORY, --inventory INVENTORY
+                        specify inventory host path or comma separated host
+                        list.
+  -o OUTPUT_FILENAME, --ouput-file-name OUTPUT_FILENAME
+                        Output filename without the '.svg' extension. Default:
+                        <playbook>.svg
+  -s, --save-dot-file   Save the dot file used to generate the graph.
+  -t TAGS, --tags TAGS  only run plays and tasks tagged with these values
+  -v, --verbose         verbose mode (-vvv for more, -vvvv to enable
+                        connection debugging)
 
-stcgal is published under the MIT license.
+```
+
+## Configuration: ansible.cfg
+The content of `ansible.cfg` is loaded automatically when running the grapher according to Ansible's behavior. The 
+corresponding environment variables are also loaded. 
+ 
+The values in the config file (and their corresponding environment variables) may affect the behavior of the grapher. 
+For example `TAGS_RUN` and `TAGS_SKIP` or vault configuration.
+
+More information [here](https://docs.ansible.com/ansible/latest/reference_appendices/config.html).
+
+## Contribution
+Contributions are welcome. Feel free to contribute by creating an issue or submitting a PR :smiley: 
+
+### Dev environment
+To setup a new development environment :
+ - Install graphviz `sudo apt-get install graphviz # or yum install or brew install graphviz`
+ - (cd tests && pip install -r requirements_tests.txt)
+
+Run the tests with:
+```shell script
+$ make test # run all tests
+```
+
+The graphs are generated in the folder `tests/generated_svg`.
+
+## TODO
+ - Graphviz : properly rank the edge of the graph to represent the order of the execution of the tasks and roles
+ - Graphviz : find a way to avoid or reduce edges overlapping
