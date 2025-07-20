@@ -22,12 +22,11 @@ jobs:
           python-version: ${{ matrix.python-version }}
 
       - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -e .
+        run: |         
           pip install astroid>=2.0
           pip install pylint>=2.0
-
+          pip install -e .
+          
       - name: Run pylint
         run: pylint --rcfile=.pylintrc infinisdk setup.py
 
