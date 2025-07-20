@@ -16,14 +16,14 @@ jobs:
       matrix:
         python-version: [2.7, 3.4, 3.5, 3.6, 3.7]
         env:
-          - TOXENV=py27
-          - TOXENV=py34
-          - TOXENV=py35
-          - TOXENV=py36
-          - TOXENV=py37
-          - TOXENV=flake8
-          - TOXENV=isort
-          - TOXENV=black
+          - py27
+          - py34
+          - py35
+          - py36
+          - py37
+          - flake8
+          - isort
+          - black
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python ${{ matrix.python-version }}
