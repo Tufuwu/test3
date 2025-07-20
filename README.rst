@@ -1,125 +1,82 @@
-====================
-Jupyter Server Proxy
-====================
+.. image:: http://www.repostatus.org/badges/latest/active.svg
+    :target: http://www.repostatus.org/#active
+    :alt: Project Status: Active — The project has reached a stable, usable
+          state and is being actively developed.
 
-|ReadTheDocs badge| |Travis badge| |PyPI badge| |Conda badge| |NPM badge|
+.. image:: https://github.com/jwodder/apachelogs/workflows/Test/badge.svg?branch=master
+    :target: https://github.com/jwodder/apachelogs/actions?workflow=Test
+    :alt: CI Status
 
-.. |ReadTheDocs badge| image:: https://img.shields.io/readthedocs/jupyter-server-proxy?logo=read-the-docs
-   :target: https://jupyter-server-proxy.readthedocs.io/
+.. image:: https://codecov.io/gh/jwodder/apachelogs/branch/master/graph/badge.svg
+    :target: https://codecov.io/gh/jwodder/apachelogs
 
-.. |Travis badge| image:: https://img.shields.io/travis/com/jupyterhub/jupyter-server-proxy?logo=travis
-   :target: https://travis-ci.com/jupyterhub/jupyter-server-proxy
+.. image:: https://img.shields.io/pypi/pyversions/apachelogs.svg
+    :target: https://pypi.org/project/apachelogs/
 
-.. |PyPI badge| image:: https://img.shields.io/pypi/v/jupyter-server-proxy.svg?logo=pypi
-   :target: https://pypi.python.org/pypi/jupyter-server-proxy
+.. image:: https://img.shields.io/github/license/jwodder/apachelogs.svg
+    :target: https://opensource.org/licenses/MIT
+    :alt: MIT License
 
-.. |Conda badge| image:: https://img.shields.io/conda/vn/conda-forge/jupyter-server-proxy?logo=conda-forge
-   :target: https://anaconda.org/conda-forge/jupyter-server-proxy
+`GitHub <https://github.com/jwodder/apachelogs>`_
+| `PyPI <https://pypi.org/project/apachelogs/>`_
+| `Documentation <https://apachelogs.readthedocs.io>`_
+| `Issues <https://github.com/jwodder/apachelogs/issues>`_
+| `Changelog <https://github.com/jwodder/apachelogs/blob/master/CHANGELOG.md>`_
 
-.. |NPM badge| image:: https://img.shields.io/npm/v/@jupyterlab/server-proxy.svg?logo=npm
-   :target: https://www.npmjs.com/package/@jupyterlab/server-proxy
-
-Jupyter Server Proxy lets you run arbitrary external processes (such
-as RStudio, Shiny Server, Syncthing, PostgreSQL, Code Server, etc)
-alongside your notebook server and provide authenticated web access to
-them using a path like ``/rstudio`` next to others like ``/lab``.
-Alongside the python package that provides the main functionality, the
-JupyterLab extension (``@jupyterlab/server-proxy``) provides buttons
-in the JupyterLab launcher window to get to RStudio for example.
-
-**Note:** This project used to be called **nbserverproxy**. As
-nbserverproxy is an older version of jupyter-server-proxy, uninstall
-nbserverproxy before installing jupyter-server-proxy to avoid
-conflicts.
-
-The primary use cases are:
-
-#. Use with JupyterHub / Binder to allow launching users into web
-   interfaces that have nothing to do with Jupyter - such as RStudio,
-   Shiny, or OpenRefine.
-#. Allow access from frontend javascript (in classic notebook or
-   JupyterLab extensions) to access web APIs of other processes
-   running locally in a safe manner. This is used by the `JupyterLab
-   extension <https://github.com/dask/dask-labextension>`_ for 
-   `dask <https://dask.org/>`_.
+``apachelogs`` parses Apache access log files.  Pass it a `log format string
+<http://httpd.apache.org/docs/current/mod/mod_log_config.html>`_ and get back a
+parser for logfile entries in that format.  ``apachelogs`` even takes care of
+decoding escape sequences and converting things like timestamps, integers, and
+bare hyphens to ``datetime`` values, ``int``\s, and ``None``\s.
 
 
-`The documentation <https://jupyter-server-proxy.readthedocs.io/>`_
-contains information on installation & usage.
-
-Install
-=======
-
-Python package
---------------
-
-pip
-^^^
-
-.. code-block::
-
-   pip install jupyter-server-proxy
-
-conda
-^^^^^
-
-.. code-block::
-
-   conda install jupyter-server-proxy -c conda-forge
-
-JupyterLab extension
---------------------
-
-Note that as the JupyterLab extension only is a graphical interface to
-launch registered applications in the python package, the extension
-requires the python package to be installed.
-
-.. code-block::
-
-   jupyter labextension install @jupyterlab/server-proxy
-
-Contributing
+Installation
 ============
+``apachelogs`` requires Python 3.6 or higher.  Just use `pip
+<https://pip.pypa.io>`_ for Python 3 (You have pip, right?) to install
+``apachelogs`` and its dependencies::
 
-Python package
---------------
-
-.. code-block::
-
-   pip install -e .
-
-   # explicit install needed with editable mode (-e) jupyter
-   jupyter serverextension enable --sys-prefix jupyter_server_proxy
+    python3 -m pip install apachelogs
 
 
-JupyterLab extension
---------------------
+Examples
+========
 
-The ``jlpm`` command is JupyterLab's pinned version of ``yarn`` that
-is installed with JupyterLab. You may use ``yarn`` or ``npm`` instead
-of ``jlpm`` below.
+Parse a single log entry:
 
-.. code-block::
+>>> from apachelogs import LogParser
+>>> parser = LogParser("%h %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-Agent}i\"")
+>>> # The above log format is also available as the constant `apachelogs.COMBINED`.
+>>> entry = parser.parse('209.126.136.4 - - [01/Nov/2017:07:28:29 +0000] "GET / HTTP/1.1" 301 521 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.133 Safari/537.36"\n')
+>>> entry.remote_host
+'209.126.136.4'
+>>> entry.request_time
+datetime.datetime(2017, 11, 1, 7, 28, 29, tzinfo=datetime.timezone.utc)
+>>> entry.request_line
+'GET / HTTP/1.1'
+>>> entry.final_status
+301
+>>> entry.bytes_sent
+521
+>>> entry.headers_in["Referer"] is None
+True
+>>> entry.headers_in["User-Agent"]
+'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.133 Safari/537.36'
+>>> # Log entry components can also be looked up by directive:
+>>> entry.directives["%r"]
+'GET / HTTP/1.1'
+>>> entry.directives["%>s"]
+301
+>>> entry.directives["%t"]
+datetime.datetime(2017, 11, 1, 7, 28, 29, tzinfo=datetime.timezone.utc)
 
-   cd jupyterlab-server-proxy
-   # Install dependencies
-   jlpm
-   # Build Typescript source
-   jlpm build
-   # Link your development version of the extension with JupyterLab
-   jupyter labextension link .
-   # Rebuild Typescript source after making changes
-   jlpm build
-   # Rebuild JupyterLab after making any changes
-   jupyter lab build
+Parse a file full of log entries:
 
-You can watch the source directory and run JupyterLab in watch mode to
-watch for changes in the extension's source and automatically rebuild
-the extension and application.
-
-.. code-block::
-
-   # Watch the source directory in another terminal tab
-   jlpm watch
-   # Run jupyterlab in watch mode in one terminal tab
-   jupyter lab --watch
+>>> with open('/var/log/apache2/access.log') as fp:  # doctest: +SKIP
+...     for entry in parser.parse_lines(fp):
+...         print(str(entry.request_time), entry.request_line)
+...
+2019-01-01 12:34:56-05:00 GET / HTTP/1.1
+2019-01-01 12:34:57-05:00 GET /favicon.ico HTTP/1.1
+2019-01-01 12:34:57-05:00 GET /styles.css HTTP/1.1
+# etc.
