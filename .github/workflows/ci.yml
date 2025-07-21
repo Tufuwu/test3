@@ -28,9 +28,8 @@ jobs:
         pip install -r test_requirements.txt
         pip install .
         
-        pip install codeclimate-test-reporter
-        pip install pytest-cov
-        pip install 'coverage>=4.0,<4.4'
+        pip install .[test]
+        pip install 'coverage>=4.0,<4.4' codeclimate-test-reporter
     - name: Run tests
       run: |
         py.test --cov=pycec tests/
