@@ -30,6 +30,6 @@ jobs:
       - name: Install dependencies
         run: |
           if [[ "${{ matrix.python-version }}" == "3.7" ]]; then pip install -U importlib_metadata; fi
-          pip install tox tox-venv tox-travis
+          pip install tox tox-venv tox-gh-actions
       - name: Run tests
         run: tox
