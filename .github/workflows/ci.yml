@@ -23,7 +23,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - name: Install dependencies
-        run: pip install tox-gh-action tox tox-venv
+        run: pip install tox-gh-actions tox tox-venv
       - name: Run tests
         run: tox
 
@@ -36,7 +36,7 @@ jobs:
         with:
           python-version: 3.9
       - name: Install dependencies
-        run: pip install tox-travis tox tox-venv
+        run: pip install tox-gh-actions tox tox-venv
       - name: Run lint
         run: TOXENV=lint tox
 
@@ -49,6 +49,6 @@ jobs:
         with:
           python-version: 3.9
       - name: Install dependencies
-        run: pip install tox-travis tox tox-venv
+        run: pip install tox-gh-actions tox tox-venv
       - name: Check docs
         run: TOXENV=check-docs tox
