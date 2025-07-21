@@ -10,6 +10,7 @@ __pycache__/
 .Python
 env/
 build/
+prog/
 develop-eggs/
 dist/
 downloads/
@@ -51,6 +52,14 @@ coverage.xml
 
 # Django stuff:
 *.log
+local_settings.py
+
+# Flask stuff:
+instance/
+.webassets-cache
+
+# Scrapy stuff:
+.scrapy
 
 # Sphinx documentation
 docs/_build/
@@ -58,15 +67,24 @@ docs/_build/
 # PyBuilder
 target/
 
-#Ipython Notebook
+# IPython Notebook
 .ipynb_checkpoints
 
-# IDE
-.idea
+# pyenv
+.python-version
 
-# db
-tests/db.sqlite3
+# celery beat schedule file
+celerybeat-schedule
 
-# node
-node_modules/
-package-lock.json
+# dotenv
+.env
+
+# virtualenv
+venv/
+ENV/
+
+# Spyder project settings
+.spyderproject
+
+# Rope project settings
+.ropeproject
