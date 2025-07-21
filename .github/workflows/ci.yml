@@ -27,7 +27,7 @@ jobs:
       run: |
         pip install -r test_requirements.txt
         pip install .
-        pip install coveralls
+        pip install 'coverage>=4.0,<4.4'
         pip install codeclimate-test-reporter
         pip install pytest-cov
     - name: Run tests
