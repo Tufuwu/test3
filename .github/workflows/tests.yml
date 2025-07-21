@@ -34,7 +34,7 @@ jobs:
 
     - name: Start services
       run: |
-        docker-compose -f tests/config/docker-compose.yml up -d
+        docker compose -f tests/config/docker-compose.yml up -d
         sleep 120
         ./tests/config/bootstrap
 
@@ -43,7 +43,7 @@ jobs:
 
     - name: Stop services
       if: always()
-      run: docker-compose -f tests/config/docker-compose.yml down
+      run: docker compose -f tests/config/docker-compose.yml down
 
     - name: Coveralls
       if: success()
