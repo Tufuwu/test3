@@ -1,12 +1,6 @@
-name: Python CI
+name: CI
 
-on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
+on: [push, pull_request]
 
 jobs:
   test:
@@ -14,36 +8,37 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [2.7, 3.5, 3.6, 3.7, 3.8, 3.9, "3.10"]
-        django-version: ["1.11", "2.0", "2.1", "2.2", "3.0", "3.1", "3.2", "40", "master"]
-        exclude:
-          - python-version: 2.7
-            django-version: ["2.0", "2.1", "2.2", "3.0", "3.1", "3.2", "4.0", "master"]
-          - python-version: 3.5
-            django-version: ["3.0", "3.1", "3.2", "4.0", "master"]
-          - python-version: 3.6
-            django-version: ["4.0", "master"]
-          - python-version: 3.7
-            django-version: ["4.0", "master"]
-          - python-version: 3.8
-            django-version: ["1.11", "2.0", "2.1"]
-          - python-version: 3.9
-            django-version: ["1.11", "2.0", "2.1"]
-          - python-version: 3.10
-            django-version: ["1.11", "2.0", "2.1", "2.2", "3.0", "3.1"]
+        python-version: [
+          "2.7", "3.5", "3.6", "3.7", 
+          "3.5", "3.6", "3.7", "3.5", 
+          "3.6", "3.7", "3.5", "3.6", 
+          "3.7", "3.8", "3.6", "3.7", 
+          "3.8", "3.9", "3.6", "3.7", 
+          "3.8", "3.9", "3.6", "3.7", 
+          "3.8", "3.9", "3.10", "3.8", 
+          "3.9", "3.10", "3.8", "3.9", 
+          "3.10"
+        ]
+        django-version: [
+          "1.11", "1.11", "1.11", "1.11", 
+          "2.0", "2.0", "2.0", "2.1", 
+          "2.1", "2.1", "2.2", "2.2", 
+          "2.2", "2.2", "3.0", "3.0", 
+          "3.0", "3.0", "3.1", "3.1", 
+          "3.1", "3.1", "3.2", "3.2", 
+          "3.2", "3.2", "3.10", "4.0", 
+          "4.0", "4.0", "master", "master", 
+          "master"
+        ]
     steps:
-    - uses: actions/checkout@v2
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
-      with:
-        python-version: ${{ matrix.python-version }}
-    - name: Install dependencies
-      run: |
-        if [ "${{ matrix.python-version }}" == "3.7" ]; then
-          pip install -U importlib_metadata
-        fi
-        pip install tox 
-    - name: Run tests
-      env:
-        TOXENV: py${{ matrix.python-version }}-django${{ matrix.django-version }}
-      run: tox
+      - uses: actions/checkout@v2
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install dependencies
+        run: |
+          if [[ "${{ matrix.python-version }}" == "3.7" ]]; then pip install -U importlib_metadata; fi
+          pip install tox tox-venv tox-travis
+      - name: Run tests
+        run: tox
