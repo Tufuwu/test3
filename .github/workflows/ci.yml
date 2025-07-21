@@ -1,53 +1,77 @@
-name: CI
+name: Python package
+
 on:
   push:
-    branches: [main]
+    branches:
+      - main
   pull_request:
+    branches:
+      - main
 
 jobs:
-  test:
-    name: Python ${{ matrix.python-version }} - ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
+  build:
+    runs-on: ubuntu-latest
     strategy:
-      matrix:
-        os: ["ubuntu-latest", "macos-latest"]
-        python-version: [2.7, 3.6, 3.7, 3.8]
       fail-fast: false
+      matrix:
+        python-version: [2.7, 3.6, 3.7, 3.8]
+
     steps:
-      - uses: actions/checkout@v2
-        with:
-          fetch-depth: 2
-      - name: Cache conda packages
-        uses: actions/cache@v4
-        env:
-          # Increase this value to reset cache if environment.yml has not changed
-          CACHE_NUMBER: 0
-        with:
-          path: ~/conda_pkgs_dir
-          key: Python${{ matrix.python-version }}-${{ matrix.os }}-${{ hashFiles('environment.yml') }}
-      - name: Set-up conda and install dependencies
-        uses: conda-incubator/setup-miniconda@v2
-        with:
-          python-version: ${{ matrix.python-version }}
-          auto-update-conda: true
-          environment-file: environment.yml
-          activate-environment: test_env
-          use-only-tar-bz2: true # IMPORTANT: This needs to be set for caching to work properly!
-      - name: Install futures
-        shell: bash -l {0}
-        run: conda install -c conda-forge futures
-        if: ${{ startsWith(matrix.python-version, 2) }}
-      - name: Build package
-        shell: bash -l {0}
-        run: |
-            python setup.py build_ext --inplace
-            python setup.py install
-      - name: Run tests
-        shell: bash -l {0}
-        run: |
-            conda install -c conda-forge pytest pytest-cov mock
-            pytest --cov=e3fp --cov-report=xml e3fp/test
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v1
-        with:
-          fail_ci_if_error: false
+    - uses: actions/checkout@v2
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install Miniconda
+      shell: bash
+      run: |
+        if [ "${{ matrix.python-version }}" == "2.7" ]; then
+          wget https://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh -O miniconda.sh;
+        else
+          wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
+        fi
+        bash miniconda.sh -b -p $HOME/miniconda
+        source "$HOME/miniconda/etc/profile.d/conda.sh"
+        export PATH="$HOME/miniconda/bin:$PATH"
+        hash -r
+        conda config --set always_yes yes --set changeps1 no
+        conda update conda
+        conda info -a
+
+    - name: Update environment.yml
+      run: sed -i -e "s/python=3/python=${{ matrix.python-version }}/" environment.yml
+
+    - name: Create conda environment
+      run: |
+        source "$HOME/miniconda/etc/profile.d/conda.sh"
+        conda env create -n test_env -f environment.yml
+        conda activate test_env
+
+    - name: Install dependencies
+      run: |
+        source "$HOME/miniconda/etc/profile.d/conda.sh"
+        conda activate test_env
+        python setup.py build_ext --inplace
+        python setup.py install
+        if [ "${{ matrix.python-version }}" == "2.7" ]; then
+          conda install futures;
+        fi
+        conda install mpi4py h5py
+        pip install standardiser
+        conda install nose mock
+        pip install coveralls
+
+    - name: Run tests
+      run: |
+        source "$HOME/miniconda/etc/profile.d/conda.sh"
+        conda activate test_env
+        nosetests --with-coverage --with-doctest --doctest-options=+ELLIPSIS e3fp
+
+    - name: Coveralls
+      if: success()
+      run: |
+        source "$HOME/miniconda/etc/profile.d/conda.sh"
+        conda activate test_env
+        coveralls
