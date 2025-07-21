@@ -1,0 +1,4 @@
+codecov==2.1.13
+coverage==6.1.2
+numpy==1.21.4
+pytest-cov==3.0.0
