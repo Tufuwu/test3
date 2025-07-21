@@ -1,46 +1,23 @@
-|Build Status| |PyPi Version| |Issue Count| |Coverage Status|
+afancontrol
+===========
 
-``pyCEC``
-=========
+.. image:: https://img.shields.io/pypi/v/afancontrol.svg?style=flat-square
+    :target: https://pypi.python.org/pypi/afancontrol/
+    :alt: Latest Version
 
-Purpose of this project is to provide object API to libcec for
-home-assistant hdmi\_cec module as `primary
-goal <https://github.com/konikvranik/pyCEC/projects/1>`__ and to make
-TCP <=> HDMI bridge to control HDMI devices over TCP network as a
-`secondary goal <https://github.com/konikvranik/pyCEC/projects/2>`__.
+.. image:: https://img.shields.io/github/workflow/status/KostyaEsmukov/afancontrol/CI?style=flat-square
+    :target: https://github.com/KostyaEsmukov/afancontrol/actions
+    :alt: Build Status
 
-``libcec`` dependency [1]_
---------------------------
+.. image:: https://img.shields.io/github/license/KostyaEsmukov/afancontrol.svg?style=flat-square
+    :target: https://pypi.python.org/pypi/afancontrol/
+    :alt: License
 
-`libcec <https://github.com/Pulse-Eight/libcec>`__ must be installed [2]_ for
-this module to work in direct mode. Follow the installation instructions
-for your environment, provided at the link.  ``libcec`` installs Python 3
-bindings by default as a system Python module. If you are running ``pyCEC`` in a *Python virtual
-environment*, make sure it
-can access the system module, by either symlinking it or using the
-``--system-site-packages`` flag.
+`afancontrol` stands for "Advanced fancontrol". Think of it as
+`fancontrol <https://github.com/lm-sensors/lm-sensors/blob/master/prog/pwm/fancontrol>`_
+with more advanced configuration abilities.
 
-.. [1] \:bulb: When using ``pyCEC`` as a network client, ``libcec`` is not needed.
-.. [2] \:warning: Do not use ``pip3 install cec``. This will fail. `Compile <https://github.com/Pulse-Eight/libcec#supported-platforms>`__ ``libcec`` instead.
+`afancontrol` measures temperatures from sensors, computes the required
+airflow and sets PWM fan speeds accordingly.
 
-running server
---------------
-
-You can run ``pyCEC`` server which will provide bridge between HDMI CEC port
-and TCP network by exexcuting ``python3 -m pycec``. Server will bind to
-default port ``9526`` on all interfaces.
-
-Then you can connect by client part of ``pyCEC`` without need of libcec or
-HDMI port on client's machine. Just use ``TcpAdapter`` instead of
-``CecAdapter``.
-
-You can also connect to ``9526`` by `NetCat <https://www.wikiwand.com/en/Netcat>`_ and send CEC commands directly.
-
-.. |PyPi Version| image:: https://img.shields.io/pypi/v/pyCEC
-   :target: https://pypi.org/project/pyCEC/
-.. |Build Status| image:: https://github.com/konikvranik/pyCEC/workflows/Tests/badge.svg
-   :target: https://github.com/konikvranik/pyCEC/actions
-.. |Issue Count| image:: https://img.shields.io/github/issues-raw/konikvranik/pyCEC
-   :target: https://github.com/konikvranik/pyCEC/issues
-.. |Coverage Status| image:: https://img.shields.io/coveralls/github/konikvranik/pyCEC
-   :target: https://coveralls.io/github/konikvranik/pyCEC
+The docs are available at `<https://afancontrol.readthedocs.io/>`_.

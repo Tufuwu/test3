@@ -1,46 +1,16 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
-from setuptools import setup, find_packages
-import os
+import re
 
-this_dir = os.path.dirname(os.path.abspath(__file__))
-with open(os.path.join(this_dir, "README.rst"), "r") as f:
-    long_description = f.read()
+from setuptools import setup
 
-PACKAGES = find_packages(exclude=["tests", "tests.*", "build"])
+with open("src/afancontrol/__init__.py", "rt") as f:
+    version = re.search(r'^__version__ = "(.*?)"$', f.read()).group(1)
 
 setup(
-    name="pyCEC",
-    version="0.4.14",
-    author="Petr Vraník",
-    author_email="hpa@suteren.net",
-    description=(
-        "Provide HDMI CEC devices as objects,"
-        " especially for use with Home Assistant"
-    ),
-    license="MIT",
-    keywords="cec hdmi home-assistant",
-    url="https://github.com/konikvranik/pycec/",
-    packages=PACKAGES,
-    install_requires=[],
-    long_description=long_description,
-    test_suite="tests",
-    classifiers=[
-        "Development Status :: 4 - Beta",
-        "Topic :: Utilities",
-        "Topic :: Home Automation",
-        "Topic :: Multimedia",
-        "License :: OSI Approved :: MIT License",
-        "Programming Language :: Python :: 3 :: Only",
-        "Programming Language :: Python :: 3.5",
-        "Programming Language :: Python :: 3.6",
-        "Programming Language :: Python :: 3.7",
-        "Programming Language :: Python :: 3.8",
+    version=version,
+    data_files=[
+        ("etc/afancontrol", ["pkg/afancontrol.conf"]),
+        ("etc/systemd/system", ["pkg/afancontrol.service"]),
     ],
-    entry_points={
-        "console_scripts": [
-            "pycec=pycec.__main__:main",
-        ],
-    },
 )
