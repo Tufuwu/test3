@@ -1,88 +1,52 @@
-import os
-import sys
-
 from setuptools import setup
-from setuptools.command.test import test as TestCommand
+import codecs
+import os
 
-cwd = os.path.realpath(os.path.dirname(__file__))
 
-class PyTest(TestCommand):
-    user_options = [("pytest-args=", "a", "Arguments to pass into py.test")]
+VERSION = '1.4.1'
+AUTHOR_NAME = 'Andy Port'
+AUTHOR_EMAIL = 'AndyAPort@gmail.com'
 
-    def initialize_options(self):
-        TestCommand.initialize_options(self)
-        self.pytest_args = ""
 
-    def run_tests(self):
-        import shlex
+def read(*parts):
+    """
+    Build an absolute path from *parts* and and return the contents of the
+    resulting file.  Assume UTF-8 encoding.
+    """
+    HERE = os.path.abspath(os.path.dirname(__file__))
+    with codecs.open(os.path.join(HERE, *parts), "rb", "utf-8") as f:
+        return f.read()
 
-        import pytest
 
-        errno = pytest.main(shlex.split(self.pytest_args))
-        sys.exit(errno)
-
-# "setup.py publish" shortcut.
-if sys.argv[-1] == "publish":
-    os.system("python setup.py sdist bdist_wheel")
-    os.system("twine upload dist/*")
-    sys.exit()
-
-if sys.argv[-1] == "check":
-    os.system("python setup.py sdist bdist_wheel")
-    os.system("twine check dist/*")
-    sys.exit()
-
-packages = ["symspellpy"]
-
-requires = [
-    "numpy>=1.13.1"
-]
-test_requirements = [
-    'pytest-cov',
-    'pytest>=3.7.1'
-]
-
-about = {}
-with open(os.path.join(cwd, "symspellpy", "__version__.py"), "r",
-          encoding="utf-8") as infile:
-    exec(infile.read(), about)
-
-with open(os.path.join(cwd, "README.md"), "r", encoding="utf-8") as infile:
-    readme = infile.read()
-with open(os.path.join(cwd, "CHANGELOG.md"), "r",
-          encoding="utf-8") as infile:
-    changelog = infile.read()
-
-setup(
-    name=about["__title__"],
-    version=about["__version__"],
-    description=about["__description__"],
-    long_description=readme + "\n\n" + changelog,
-    long_description_content_type="text/markdown",
-    author=about["__author__"],
-    author_email=about["__author_email__"],
-    url=about["__url__"],
-    packages=packages,
-    package_data={"symspellpy": ["frequency_dictionary_en_82_765.txt",
-                                 "frequency_bigramdictionary_en_243_342.txt"]},
-    package_dir={"symspellpy": "symspellpy"},
-    include_package_data=True,
-    python_requires=">=3.4",
-    install_requires=requires,
-    license=about["__license__"],
-    zip_safe=False,
-    classifiers=[
-        "Development Status :: 4 - Beta",
-        "Intended Audience :: Developers",
-        "Natural Language :: English",
-        "License :: OSI Approved :: Apache Software License",
-        "Programming Language :: Python",
-        "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.4",
-        "Programming Language :: Python :: 3.5",
-        "Programming Language :: Python :: 3.6",
-        "Programming Language :: Python :: 3.7"
-    ],
-    cmdclass={"test": PyTest},
-    tests_require=test_requirements,
-)
+setup(name='svgpathtools',
+      packages=['svgpathtools'],
+      version=VERSION,
+      description=('A collection of tools for manipulating and analyzing SVG '
+                   'Path objects and Bezier curves.'),
+      long_description=read("README.md"),
+      long_description_content_type='text/markdown',
+      author=AUTHOR_NAME,
+      author_email=AUTHOR_EMAIL,
+      url='https://github.com/mathandy/svgpathtools',
+      # download_url = 'http://github.com/mathandy/svgpathtools/tarball/'+VERSION,
+      license='MIT',
+      install_requires=['numpy', 'svgwrite'],
+      platforms="OS Independent",
+      requires=['numpy', 'svgwrite'],
+      keywords=['svg', 'svg path', 'svg.path', 'bezier', 'parse svg path', 'display svg'],
+      classifiers=[
+            "Development Status :: 4 - Beta",
+            "Intended Audience :: Developers",
+            "License :: OSI Approved :: MIT License",
+            "Operating System :: OS Independent",
+            "Programming Language :: Python :: 2",
+            "Programming Language :: Python :: 3",
+            "Topic :: Multimedia :: Graphics :: Editors :: Vector-Based",
+            "Topic :: Scientific/Engineering",
+            "Topic :: Scientific/Engineering :: Image Recognition",
+            "Topic :: Scientific/Engineering :: Information Analysis",
+            "Topic :: Scientific/Engineering :: Mathematics",
+            "Topic :: Scientific/Engineering :: Visualization",
+            "Topic :: Software Development :: Libraries :: Python Modules",
+            ],
+      )
