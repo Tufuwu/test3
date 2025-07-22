@@ -13,6 +13,7 @@ jobs:
   test:
     runs-on: "ubuntu-22.04"
     strategy:
+      fail-fast: false
       matrix:
         distro: ["ubuntu1804", "ubuntu2004", "debian9", "debian10"]
 
