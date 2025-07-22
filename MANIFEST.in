@@ -1,10 +1,7 @@
-include MANIFEST.in
-include README.rst
-include LICENSE
-include AUTHORS
-recursive-include django_mongoengine *.html *.css *.js *.png *.gif *.woff *.ttf *.svg *.eot
-recursive-include docs *
-recursive-exclude docs *.pyc
-recursive-exclude docs *.pyo
-prune docs/_build
-prune docs/_themes/.git
+include *.rst requirements.txt LICENSE
+graft docs
+graft examples
+include versioneer.py
+include ncclient/_version.py
+include test
+include test-requirements.txt
