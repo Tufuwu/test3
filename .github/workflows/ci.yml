@@ -14,7 +14,7 @@ jobs:
     runs-on: "ubuntu-22.04"
     strategy:
       matrix:
-        distro: ["ubuntu2204", "ubuntu2404", "debian9", "debian10"]
+        distro: ["ubuntu1804", "ubuntu2004", "debian9", "debian10"]
 
     steps:
       - uses: "actions/checkout@v2"
