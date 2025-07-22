@@ -18,11 +18,13 @@ jobs:
         distro: [ubuntu1804, ubuntu2004, debian9, debian10]
 
     steps:
-    - name: Set up Docker
-      uses: docker/setup-buildx-action@v2
+    - name: Checkout code
+      uses: actions/checkout@v2
 
-    - name: Download test shim
-      run: wget -O tests/test.sh https://gist.githubusercontent.com/nickjj/d12353b5b601e33cd62fda111359957a/raw
+    - name: "Download test script"
+      run: |
+        wget -O tests/test.sh https://gist.githubusercontent.com/nickjj/d12353b5b601e33cd62fda111359957a/raw
+        chmod +x tests/test.sh
 
     - name: Make test shim executable
       run: chmod +x tests/test.sh
