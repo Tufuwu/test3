@@ -28,3 +28,5 @@ jobs:
         nosetests test --rednose --verbosity=3 --with-coverage --cover-package ncclient
     - name: Coveralls
       run: coveralls
+      env: 
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
