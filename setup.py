@@ -1,76 +1,66 @@
-# Copyright 2009 Shikhar Bhushan
-# Copyright 201[2-5] Leonidas Poulopoulos (@leopoul)
-# Copyright 2013 Ebben Aries
+#!/usr/bin/env python
+#-----------------------------------------------------------------------------
+# Copyright (c) 2013-2020, NeXpy Development Team.
 #
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
+# Distributed under the terms of the Modified BSD License.
 #
-#    http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# The full license is in the file COPYING, distributed with this software.
+#-----------------------------------------------------------------------------
 
-from setuptools import setup, find_packages
-from distutils.command.install import install as _install
+from setuptools import setup, find_packages, Extension
 
-import sys
-import platform
-import codecs
+import os, sys
 import versioneer
 
-__author__ = "Shikhar Bhushan, Leonidas Poulopoulos, Ebben Aries, Einar Nilsen-Nygaard"
-__author_email__ = "shikhar@schmizz.net, lpoulopoulos@verisign.com, exa@dscp.org, einarnn@gmail.com"
-__licence__ = "Apache 2.0"
+# pull in some definitions from the package's __init__.py file
+sys.path.insert(0, os.path.join('src', ))
+import nexpy
+import nexpy.requires
 
-if sys.version_info.major == 2 and sys.version_info.minor < 7:
-    print ("Sorry, Python < 2.7 is not supported")
-    exit()
+verbose=1
 
-#parse requirements
-req_lines = [line.strip() for line in open("requirements.txt").readlines()]
-install_reqs = list(filter(None, req_lines))
-
-test_req_lines = [line.strip() for line in open("test-requirements.txt").readlines()]
-test_reqs = list(filter(None, test_req_lines))
-
-with codecs.open('README.rst', 'r', encoding='utf8') as file:
-    long_description = file.read()
-
-
-setup(name='ncclient',
-      version=versioneer.get_version(),
-      cmdclass=versioneer.get_cmdclass(),
-      description="Python library for NETCONF clients",
-      long_description = long_description,
-      author=__author__,
-      author_email=__author_email__,
-      url="https://github.com/ncclient/ncclient",
-      packages=find_packages(exclude=['test', 'test.*']),
-      install_requires=install_reqs,
-      tests_require=test_reqs,
-      license=__licence__,
-      platforms=["Posix; OS X; Windows"],
-      keywords=['NETCONF', 'NETCONF Python client', 'Juniper Optimization', 'Cisco NXOS Optimization'],
-      python_requires='>=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*',
-      classifiers=[
-          'Development Status :: 5 - Production/Stable',
-          'Programming Language :: Python :: 2.7',
-          'Programming Language :: Python :: 3.5',
-          'Programming Language :: Python :: 3.6',
-          'Programming Language :: Python :: 3.7',
-          'Topic :: System :: Networking',
-          'Intended Audience :: Developers',
-          'Operating System :: OS Independent',
-          'Topic :: Software Development :: Libraries :: Python Modules',
-      ])
-
-
-
-
-
-
-
+setup (name =  nexpy.__package_name__,        # NeXpy
+       version=versioneer.get_version(),
+       cmdclass=versioneer.get_cmdclass(),
+       license = nexpy.__license__,
+       description = nexpy.__description__,
+       long_description = nexpy.__long_description__,
+       author=nexpy.__author_name__,
+       author_email=nexpy.__author_email__,
+       url=nexpy.__url__,
+       download_url=nexpy.__download_url__,
+       platforms='any',
+       python_requires='>=3.7',
+       install_requires = nexpy.requires.pkg_requirements,
+       extras_require = nexpy.requires.extra_requirements,
+       package_dir = {'': 'src'},
+       packages = find_packages('src'),
+       include_package_data = True,
+       package_data = {
+                       'nexpy.gui': ['resources/icon/*.svg',
+                                     'resources/icon/*.png',
+                                     'resources/*.png',
+                                    ],
+                       'nexpy.definitions': ['base_classes/*.xml'],
+                       'nexpy': [
+                           'examples/*.*',
+                           'examples/*/*.*',
+                           'examples/*/*/*.*',
+                       ],
+                   },
+       entry_points={
+            # create & install scripts in <python>/bin
+            'gui_scripts': ['nexpy = nexpy.nexpygui:main',],
+       },
+       classifiers= ['Development Status :: 4 - Beta',
+                     'Intended Audience :: Developers',
+                     'Intended Audience :: Science/Research',
+                     'License :: OSI Approved :: BSD License',
+                     'Programming Language :: Python',
+                     'Programming Language :: Python :: 3',
+                     'Programming Language :: Python :: 3.7',
+                     'Programming Language :: Python :: 3.8',
+                     'Programming Language :: Python :: 3.9',
+                     'Topic :: Scientific/Engineering',
+                     'Topic :: Scientific/Engineering :: Visualization'],
+      )

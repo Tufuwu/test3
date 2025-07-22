@@ -1,327 +1,174 @@
-ncclient: Python library for NETCONF clients
---------------------------------------------
-
-ncclient is a Python library that facilitates client-side scripting and
-application development around the NETCONF protocol. ``ncclient`` was
-developed by `Shikar Bhushan <http://schmizz.net>`. It is now
-maintained by `Leonidas Poulopoulos (@leopoul) <http://ncclient.org>`
-and `Einar Nilsen-Nygaard (@einarnn)`.
-
-Docs:
-`http://ncclient.readthedocs.org <http://ncclient.readthedocs.org>`_
-
-Github:
-`https://github.com/ncclient/ncclient <https://github.com/ncclient/ncclient>`_
-
-Requirements:
-^^^^^^^^^^^^^
-
--  Python 2.7 or Python 3.4+
--  setuptools 0.6+
--  Paramiko 1.7+
--  lxml 3.3.0+
--  libxml2
--  libxslt
-
-If you are on Debian/Ubuntu install the following libs (via aptitude or
-apt-get):
-
--  libxml2-dev
--  libxslt1-dev
-
-Installation:
-^^^^^^^^^^^^^
-
-::
-
-    [ncclient] $ sudo python setup.py install
-
-or via pip:
-
-::
-
-    pip install ncclient
-
-Examples:
-^^^^^^^^^
-
-::
-
-    [ncclient] $ python examples/juniper/*.py
-
-Usage
-~~~~~
-
-Get device running config
-'''''''''''''''''''''''''
-
-Use either an interactive Python console (ipython) or integrate the
-following in your code:
-
-::
-
-    from ncclient import manager
-
-    with manager.connect(host=host, port=830, username=user, hostkey_verify=False) as m:
-        c = m.get_config(source='running').data_xml
-        with open("%s.xml" % host, 'w') as f:
-            f.write(c)
-
-As of 0.4.1 ncclient integrates Juniper's and Cisco's forks, lots of new concepts
-have been introduced that ease management of Juniper and Cisco devices respectively.
-The biggest change is the introduction of device handlers in connection paramms.
-For example to invoke Juniper's functions annd params one has to re-write the above with 
-**device\_params={'name':'junos'}**:
-
-::
-
-    from ncclient import manager
-
-    with manager.connect(host=host, port=830, username=user, hostkey_verify=False, device_params={'name':'junos'}) as m:
-        c = m.get_config(source='running').data_xml
-        with open("%s.xml" % host, 'w') as f:
-            f.write(c)
-
-Device handlers are easy to implement and prove to be futureproof.
-
-Supported device handlers
-'''''''''''''''''''''''''
-
-* Juniper: `device_params={'name':'junos'}`
-* Cisco:
-    - CSR: `device_params={'name':'csr'}`
-    - Nexus: `device_params={'name':'nexus'}`
-    - IOS XR: `device_params={'name':'iosxr'}`
-    - IOS XE: `device_params={'name':'iosxe'}`
-* Huawei:
-    - `device_params={'name':'huawei'}`
-    - `device_params={'name':'huaweiyang'}`
-* Nokia SR OS: `device_params={'name':'sros'}`
-* H3C: `device_params={'name':'h3c'}`
-* HP Comware: `device_params={'name':'hpcomware'}`
-* Server or anything not in above: `device_params={'name':'default'}`
-
-Changes \| brief
-~~~~~~~~~~~~~~~~
-
-**v0.6.12**
-
-* Fix for accidental breakage of Juniper ExecuteRPC support
-
-**v0.6.11**
-
-* Support for custom client capabilities
-* Restructuring/refactoring of example scripts
-* Minor bugfixes
-* Minor unit test refactoring
-
-**v0.6.10**
-
-* NETCONF call-home (RFC8071) support
-* YANG 1.1 `action` support
-* Nokia SR OS device handler support
-* Removal of old ALU base-r13 API documentation
-* Increased test coverage
-* Variety of bugfixes and minor enhancements from a variety of contributors since 0.6.9 (see commit history)
-* Thanks to all contributors!
-
-**v0.6.9**
-
-* Fix for breaking API change
-
-**v0.6.8**
-
-* Pulled due to accidental breaking API change
-* Variety of small updates and bugfixes, but of note:
-    - Support for namespace prefixes for XPath queries
-    - `edit-config` parameter validation
-    - Support for multiple RPC errors
-    - API to get supported device types
-    - Support for subtree filters with multiple top-level tags
-* Thanks to all contributors!
-
-**v0.6.7**
-
-- Variety of bugfixes from a variety of contributors since 0.6.6 (see commit history)
-
-**v0.6.6**
-
-- Read ssh timeout from config file if not specified in method call
-- Tox support
-- Huge XML tree parser support
-- Adding optional bind address to connect
-
-**v0.6.5**
-
-- Updated README for 0.6.5 release
-
-**v0.6.4**
-
-- Pin selectors2 to Python versions <= 3.4
-- Fix config examples to actually use the nc namespace
-- Fix: correctly set port for paramiko when using ssh_config file
-- Test: add test to check ProxyCommand uses correct port
-- Update commits for py3
-- Enhance Alcatel-Lucent-support
-- Juniper RPC: allow specifying format in CompareConfiguration
-- Parsing of NETCONF 1.1 frames no longer decodes each chunk of bytes
-- Fix filter in create_subscription
-- Validate 'with-defaults' mode based on supported modes advertised in capability URI
-
-**v0.6.3**
-
-- Fix homepage link registered with PyPi
-- SSH Host Key checking
-- Updated junos.py to resolve RestrictedUser error
-- Close the channel when closing SSH session
-- Invoke self.parse() to ensure errors, if any, have been detected before check in ok()
-
-**v0.6.2**
-
-- Migration to user selectors instead of select, allowing higher scale operations
-- Improved netconf:base:1.1 parsing
-- Graceful exit on session close
-
-**v0.6.0**
-
-- Fix use of new Python 3.7 keyword, async
-- Re-enable Python 3.7
-
-**v0.5.4**
-
-- Rollup of minor changes since 0.5.3
-- Disablement of Python 3.7 due to async keyword issue
-
-**v0.5.3**
-
-- Add notifications support
-- Add support for ecdsa keys
-- Various bug fixes
-
-**v0.5.2**
-
-- Add support for Python 3
-- Improve Junos ioproc performance
-- Performance improvements
-- Updated test cases
-- Many bug and performance fixes
-
-
-**v0.4.7**
-
-- Add support for netconf 1.1
-
-**v0.4.6**
-
-- Fix multiple RPC error generation
-- Add support for cancel-commit and persist param
-- Add more examples
-
-**v0.4.5**
-
-- Add Huawei device support
-- Add cli command support for hpcomware v7 devices
-- Add H3C support, Support H3C CLI,Action,Get_bulk,Save,Rollback,etc.
-- Add alcatel lucent support
-
-- Rewrite multiple error handling
-- Add coveralls support, with shield in README.md
-- Set severity level to higher when multiple
-- Simplify logging and multi-error reporting
-- Keep stacktrace of errors
-- Check for known hosts on hostkey_verify only
-- Add check for device sending back null error_text
-- Fix RPC.raise_mode
-- Specifying hostkey_verify=False should not load_known_hosts
-- Check the correct field on rpc-error element
-
-**v0.4.3**
-
-- Nexus exec_command operation
-- Allow specifying multiple cmd elements in Cisco Nexus
-- Update rpc for nested rpc-errors
-- Prevent race condition in threading
-- Prevent hanging in session close
-
-**v0.4.2**
-
-- Support for paramiko ProxyCommand via ~/.ssh/config parsing
-- Add Juniper-specific commit operations
-- Add Huawei devices support
-- Tests/Travis support
-- ioproc transport support for Juniper devices
-- Update Cisco CSR device handler
-- Many minor and major fixes
-
-**v0.4.1**
-
--  Switch between replies if custom handler is found
--  Add Juniper, Cisco and default device handlers
--  Allow preferred SSH subsystem name in device params
--  Allow iteration over multiple SSH subsystem names.
-
-
-
+Installation
+============
+Released versions of NeXpy are available on `PyPI 
+<https://pypi.python.org/pypi/NeXpy/>`_ and as a `Conda installation 
+<https://anaconda.org/nexpy>`_. 
+
+If you have the `Python Setup Tools <https://pypi.python.org/pypi/setuptools>`_ 
+installed, then you can either install using 'pip'::
+
+    $ pip install nexpy
+
+or, if you have an Anaconda installation, NeXpy is now available on the 
+conda-forge channel::
+
+    $ conda install -c conda-forge nexpy
+
+.. note:: You can add conda-forge to your default channels so that it is 
+          automatically searched when installing. Just type 
+          ``conda config --add channels conda-forge``. 
+
+You can install the package from the source code either by downloading one of 
+the `Github releases <https://github.com/nexpy/nexpy/releases>`_ or by cloning 
+the latest development version in the `NeXpy Git repository <https://github.com/nexpy/nexpy>`_::
+
+    $ git clone https://github.com/nexpy/nexpy.git
+
+You can then install NeXpy by changing to the source directory and typing::
+
+    $ python setup.py install
+
+To install in an alternate location::
+
+    $ python setup.py install --prefix=/path/to/installation/dir
+
+The Python API for reading and writing NeXus files is in a separate package, 
+`nexusformat <https://github.com/nexpy/nexusformat>`_, which is also available 
+on `PyPI <https://pypi.python.org/pypi/nexusformat/>`_ and conda-forge. 
+
+If the NeXpy GUI is not required, the package may be used in a regular Python
+shell. It may be installed using:: 
+
+    $ pip install nexusformat
+
+or::
+
+    $ conda install -c conda-forge nexusformat
+
+The package can also be installed from the source code using the setup commands
+described above. The source code is available either by downloading one of the 
+`Github releases <https://github.com/nexpy/nexusformat/releases>`_ or by cloning 
+the latest development version in the `NeXpy Git repository 
+<https://github.com/nexpy/nexusformat>`_::
+
+    $ git clone https://github.com/nexpy/nexusformat.git
+
+Required Libraries
+==================
+Python Command-Line API
+-----------------------
+The current version of NeXpy uses `h5py <http://h5py.org>`_ to read and write 
+NeXus files because of its ability to handle large data files. There is 
+therefore no dependency on the `NeXus C API 
+<http://download.nexusformat.org/doc/html/napi.html>`_. This also means that the current version cannot read and write HDF4 or XML NeXus files. These can be
+converted to HDF5 file using the NeXus command-line utility 
+`nxconvert <http://download.nexusformat.org/doc/html/utilities.html>`_`.
+
+If you only intend to utilize the Python API from the command-line, the only 
+other required libraries iare `NumPy <https://numpy.org>`_ and, if you want
+autocompletion within an IPython shell,  `SciPy <http://numpy.scipy.org>`_.
+
+=================  =================================================
+Library            URL
+=================  =================================================
+nexusformat        https://github.com/nexpy/nexusformat
+h5py               https://www.h5py.org
+numpy              https://numpy.org/
+scipy              https://scipy.org/
+=================  =================================================
+
+.. note:: If you need to read HDF4 or XML files now, please clone the 
+          old-master branch (https://github.com/nexpy/nexpy/tree/old-master).
+
+NeXpy GUI
+---------
+The GUI is built using the PyQt. The latest version supports PyQt4, PySide, 
+PyQt5, and should load whichever library it finds. None are listed as a 
+dependency but one or other must be installed. PyQt5 is included in the 
+`Anaconda default distribution <https://store.continuum.io/cshop/anaconda/>`_ 
+while PySide is included in the `Enthought Python Distribution
+<http://www.enthought.com>`_ or within Enthought's `Canopy Application
+<https://www.enthought.com/products/canopy/>`_.
+
+The GUI includes an `IPython shell <http://ipython.org/>`_ and a `Matplotlib
+plotting pane <http://matplotlib.sourceforge.net>`_. The IPython shell is
+embedded in the Qt GUI using an implementation based on the newly-released
+Jupyter QtConsole, which has replaced the old IPython QtConsole.
+
+Least-squares fitting of 1D data uses the `lmfit package 
+<https://lmfit.github.io/lmfit-py/>`_`.
+
+=================  =================================================
+Library            URL
+=================  =================================================
+IPython            https://ipython.org/
+qtconsole          https://qtconsole.readthedocs.io/
+matplotlib         https://matplotlib.org/
+lmfit              https://lmfit.github.io/lmfit-py/
+pylatexenc         https://pylatexenc.readthedocs.io/
+pillow             https://pillow.readthedocs.io/
+ansi2html          https://pypi.python.org/pypi/ansi2html/
+=================  =================================================
+
+.. warning:: Some people have reported that NeXpy crashes on launch on some
+             Linux systems. We believe that this may be due to both PyQt4 and
+             PyQt5 being installed, although that doesn't cause a problem on 
+             all systems. If NeXpy crashes on launch, please try setting the
+             environment variable QT_API to either 'pyqt', for the PyQt4 
+             library, 'pyqt5' for the PyQt5 library, or 'pyside', for the 
+             PySide library, depending on what you have installed, *e.g.*, in 
+             BASH, type ::
+
+                 export QT_API=pyqt
+
+Additional Packages
+-------------------
+Additional functionality is provided by other external Python packages. 
+Least-squares fitting requires Matt Newville's least-squares fitting package, 
+`lmfit-py <http://newville.github.io/lmfit-py>`_. Importers may also require 
+libraries to read the imported files in their native format, *e.g.*, `spec2nexus 
+<http://spec2nexus.readthedocs.org/>`_ for reading SPEC files and 
+`FabIO <https://github.com/silx-kit/fabio>`_ for importing TIFF and CBF images. 
+
+From v0.9.1, a new 2D smoothing option is available in the list of 
+interpolations in the signal tab if `astropy <http://www.astropy.org>`_
+is installed. It is labelled 'convolve' and provides, by default, a 
+2-pixel Gaussian smoothing of the data. The number of pixels can be 
+changed in the shell by setting ``plotview.smooth``.
+
+=================  ==========================================================
+Library            URL
+=================  ==========================================================
+fabio              https://pythonhosted.org/fabio/
+spec2nexus         http://spec2nexus.readthedocs.org/
+astropy            http://www.astropy.org/
+=================  ==========================================================
+
+.. note:: NeXpy should still run without these additional packages, but invoking
+          the relevant menu items may trigger an exception.
+
+Semantic Versioning
+-------------------
+NeXpy uses `Semantic Versioning <http://semver.org/spec/v2.0.0.html>`_.
+
+User Support
+------------
+Consult the `NeXpy documentation <http://nexpy.github.io/nexpy/>`_ for details 
+of both the Python command-line API and how to use the NeXpy GUI. If you have 
+any general questions concerning the use of NeXpy, please address 
+them to the `NeXus Mailing List 
+<http://download.nexusformat.org/doc/html/mailinglist.html>`_. If you discover
+any bugs, please submit a `Github issue 
+<https://github.com/nexpy/nexpy/issues>`_, preferably with relevant tracebacks.
 
 Acknowledgements
-~~~~~~~~~~~~~~~~
--  v0.6.11: @musicinmybrain, @sstancu, @earies
--  v0.6.10: @vnitinv, @omaxx, @einarnn, @musicinmybrain, @tonynii, @sstancu, Martin Volf, @fredgan, @avisom, Viktor Velichkin, @ogenstad, @earies
--  v0.6.9: [Fred Gan](https://github.com/fredgan)
--  v0.6.8: [Fred Gan](https://github.com/fredgan), @vnitinv, @kbijakowski, @iwanb, @badguy99, @liuyong, Andrew Mallory, William Lvory
--  v0.6.7: @vnitinv, @chaitu-tk, @sidhujasminder, @crutcha, @markgoddard, @ganeshrn, @songxl, @doesitblend, @psikala, @xuxiaowei0512, @muffizone
--  v0.6.6: @sstancu, @hemna, @ishayansheikh
--  v0.6.4: @davidhankins, @mzagozen, @knobix, @markafarrell, @psikala, @moepman, @apt-itude, @yuekyang
--  v0.6.3: @rdkls, @Anthony25, @rsmekala, @vnitinv, @siming85
--  v0.6.2: @einarnn, @glennmatthews, @bryan-stripe, @nickylba
--  v0.6.0: `Einar Nilsen-Nygaard`_
--  v0.5.4: Various
--  v0.5.3: `Justin Wilcox`_, `Stacy W. Smith`_, `Mircea Ulinic`_,
-   `Ebben Aries`_, `Einar Nilsen-Nygaard`_, `QijunPan`_
--  v0.5.2: `Nitin Kumar`_, `Kristian Larsson`_, `palashgupta`_,
-   `Jonathan Provost`_, `Jainpriyal`_, `sharang`_, `pseguel`_,
-   `nnakamot`_, `Алексей Пастухов`_, `Christian Giese`_, `Peipei Guo`_,
-   `Time Warner Cable Openstack Team`_
--  v0.4.7: `Einar Nilsen-Nygaard`_, `Vaibhav Bajpai`_, Norio Nakamoto
--  v0.4.6: `Nitin Kumar`_, `Carl Moberg`_, `Stavros Kroustouris`_
--  v0.4.5: `Sebastian Wiesinger`_, `Vincent Bernat`_, `Matthew Stone`_,
-   `Nitin Kumar`_
--  v0.4.3: `Jeremy Schulman`_, `Ray Solomon`_, `Rick Sherman`_,
-   `subhak186`_
--  v0.4.2: `katharh`_, `Francis Luong (Franco)`_, `Vincent Bernat`_,
-   `Juergen Brendel`_, `Quentin Loos`_, `Ray Solomon`_, `Sebastian
-   Wiesinger`_, `Ebben Aries`_
--  v0.4.1: `Jeremy Schulman`_, `Ebben Aries`_, Juergen Brendel
-
-.. _Nitin Kumar: https://github.com/vnitinv
-.. _Kristian Larsson: https://github.com/plajjan
-.. _palashgupta: https://github.com/palashgupta
-.. _Jonathan Provost: https://github.com/JoProvost
-.. _Jainpriyal: https://github.com/Jainpriyal
-.. _sharang: https://github.com/sharang
-.. _pseguel: https://github.com/pseguel
-.. _nnakamot: https://github.com/nnakamot
-.. _Алексей Пастухов: https://github.com/p-alik
-.. _Christian Giese: https://github.com/GIC-de
-.. _Peipei Guo: https://github.com/peipeiguo
-.. _Time Warner Cable Openstack Team: https://github.com/twc-openstack
-.. _Einar Nilsen-Nygaard: https://github.com/einarnn
-.. _Vaibhav Bajpai: https://github.com/vbajpai
-.. _Carl Moberg: https://github.com/cmoberg
-.. _Stavros Kroustouris: https://github.com/kroustou
-.. _Sebastian Wiesinger: https://github.com/sebastianw
-.. _Vincent Bernat: https://github.com/vincentbernat
-.. _Matthew Stone: https://github.com/bigmstone
-.. _Jeremy Schulman: https://github.com/jeremyschulman
-.. _Ray Solomon: https://github.com/rsolomo
-.. _Rick Sherman: https://github.com/shermdog
-.. _subhak186: https://github.com/subhak186
-.. _katharh: https://github.com/katharh
-.. _Francis Luong (Franco): https://github.com/francisluong
-.. _Juergen Brendel: https://github.com/juergenbrendel
-.. _Quentin Loos: https://github.com/Kent1
-.. _Ebben Aries: https://github.com/earies
-.. _Justin Wilcox: https://github.com/jwwilcox
-.. _Stacy W. Smith: https://github.com/stacywsmith
-.. _Mircea Ulinic: https://github.com/mirceaulinic
-.. _QijunPan: https://github.com/QijunPan
+----------------
+The `NeXus format <http://www.nexusformat.org>`_ for neutron, x-ray and muon 
+data is developed by an international collaboration under the supervision of the 
+`NeXus International Advisory Committee <http://wiki.nexusformat.org/NIAC>`_. 
+The Python tree API used in NeXpy was originally developed by Paul Kienzle, who
+also wrote the standard Python interface to the NeXus C-API. The original 
+version of NeXpy was initially developed by Boyana Norris, Jason Sarich, and 
+Daniel Lowell, and Ray Osborn using wxPython, and formed the inspiration
+for the current PyQt version. I am grateful to Tom Schoonjans for installing
+the packages on conda-forge.

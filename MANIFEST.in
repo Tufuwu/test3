@@ -1,7 +1,6 @@
-include *.rst requirements.txt LICENSE
-graft docs
-graft examples
+include src/nexpy/definitions/base_classes/*.xml
+recursive-include src/nexpy/gui/resources *
+recursive-include src/nexpy/examples *
 include versioneer.py
-include ncclient/_version.py
-include test
-include test-requirements.txt
+include src/nexpy/_version.py
+include COPYING
