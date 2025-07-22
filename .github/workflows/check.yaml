@@ -36,6 +36,6 @@ jobs:
         nosetests test --rednose --verbosity=3 --with-coverage --cover-package ncclient
 
     - name: Upload coverage to Coveralls
-      env:
-        COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
+      env: 
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: coveralls
