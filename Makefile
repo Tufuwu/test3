@@ -1,10 +1,12 @@
-.PHONY: test
-test:
-	python3 -m pytest
-	bash test.sh
+release:
+	standard-version
 
-pip:
-	python3 setup.py sdist bdist_wheel
+release-beta:
+	standard-version -p beta
 
-publish: pip
+publish:
+	python setup.py sdist
 	twine upload dist/*
+
+test:
+	poetry run python -m pytest
