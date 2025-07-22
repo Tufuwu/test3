@@ -1,24 +1,18 @@
-name: Python package
+name: Python CI
 
-on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
+on: [push, pull_request]
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
     strategy:
       fail-fast: false
       matrix:
-        python-version: ['2.7', '3.5', '3.6', '3.7', '3.8', '3.9']
+        python-version: [2.7, 3.5, 3.6, 3.7, 3.8, 3.9]
 
     steps:
-    - uses: actions/checkout@v2
+    - name: Checkout code
+      uses: actions/checkout@v2
 
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v2
@@ -29,13 +23,11 @@ jobs:
       run: |
         pip install .
         pip install -r requirements.txt
-        pip install rednose coverage coveralls nose
+        pip install rednose coverage coveralls 
 
     - name: Run tests
-      run: |
-        nosetests test --rednose --verbosity=3 --with-coverage --cover-package ncclient
+      run: nosetests test --rednose --verbosity=3 --with-coverage --cover-package ncclient
 
     - name: Upload coverage to Coveralls
-      env: 
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      if: success()
       run: coveralls
