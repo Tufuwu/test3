@@ -1,28 +1,31 @@
-name: Python CI
+name: "CI"
 
-on: [push, pull_request]
+on:
+  pull_request:
+    branches:
+      - "*"
+  push:
+    branches:
+      - "main"
+      - "master"
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
+  test:
+    runs-on: "ubuntu-22.04"
     strategy:
-      fail-fast: false
       matrix:
-        python-version: [3.9, 3.8, 3.7]
+        distro: ["ubuntu2204", "ubuntu2404", "debian9", "debian10"]
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
+      - uses: "actions/checkout@v2"
 
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
-      with:
-        python-version: ${{ matrix.python-version }}
+      - name: "Download test script"
+        run: |
+          wget -O tests/test.sh https://gist.githubusercontent.com/nickjj/d12353b5b601e33cd62fda111359957a/raw
+          chmod +x tests/test.sh
 
-    - name: Install dependencies
-      run: |
-        pip install . -r requirements.txt pytest
-
-    - name: Run tests
-      run: |
-        pytest
+      - name: "Run test suite"
+        run: |
+          ./tests/test.sh
+        env:
+          distro: ${{ matrix.distro }}
