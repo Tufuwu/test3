@@ -1,63 +1,68 @@
-name: Test
+name: Python package
 
 on:
   push:
+    branches:
+      - main
   pull_request:
+    branches:
+      - main
 
 jobs:
   build:
-
-    runs-on: ${{ matrix.runs-on }}
+    runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.5", "3.6", "3.7", "3.8", "3.9", "3.10.0-beta.4", "pypy-3.6", "pypy-3.7"]
-        with-opt-deps: [false, true]
-        runs-on: [ubuntu-latest]
-        exclude:
-          # Some of the dependencies don't work on old Python versions
-          - python-version: "3.4"
-            with-opt-deps: true
-          - python-version: "3.5"
-            with-opt-deps: true
-          - python-version: "3.6"
-            with-opt-deps: true
-          - python-version: "pypy-3.6"
-            with-opt-deps: true
+        os: [ubuntu-latest]
+        python-version: ["3.4", "3.5", "3.6", "3.7", "3.8", "3.9", "nightly", "pypy3"]
+        with-opt-deps: [true, false]
         include:
           - python-version: "3.4"
             with-opt-deps: false
-            runs-on: ubuntu-18.04
+          - python-version: "3.5"
+            with-opt-deps: false
+          - python-version: "3.6"
+            with-opt-deps: false
+          - python-version: "3.7"
+            with-opt-deps: false
+          - python-version: "3.7"
+            with-opt-deps: true
+          - python-version: "3.8"
+            with-opt-deps: true
+          - python-version: "3.9"
+            with-opt-deps: true
+          - python-version: "nightly"
+            with-opt-deps: true
+          - python-version: "pypy3"
+            with-opt-deps: false
 
     steps:
-      - uses: actions/checkout@v2
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v2
-        with:
-          python-version: ${{ matrix.python-version }}
+    - uses: actions/checkout@v2
 
-      - name: Upgrade pip
-        run: |
-          python3 -m pip install --upgrade pip
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
 
-      - name: Install optional dependencies
-        if: ${{ matrix.with-opt-deps }}
-        run: |
-          python3 -m pip install --upgrade pip
-          pip3 install -r requirements.txt
+    - name: Install dependencies
+      run: |
+        if [ "${{ matrix.with-opt-deps }}" = "true" ]; then
+          pip install -r requirements.txt pytest
+        fi
+        git clone https://github.com/ProgVal/irctest.git
+        echo "y" | pip uninstall limnoria || true
 
-      - name: Install
-        run: |
-          LIMNORIA_WARN_OLD_PYTHON=0 python3 setup.py install
-
-      - name: Test with unittest
-        run: |
-          supybot-test test -v --plugins-dir=./plugins/ --no-network
-
-      - name: Test with irctest
-        if: "${{ matrix.with-opt-deps && matrix.python-version != 'pypy-3.7' }}"
-        run: |
-          git clone https://github.com/ProgVal/irctest.git
+    - name: Run tests
+      run: |
+        echo ${{ matrix.python-version }}
+        python setup.py install
+        supybot-test test -v --plugins-dir=./plugins/ --no-network
+        if [ "${{ matrix.with-opt-deps }}" = "true" ] && [[ "${{ matrix.python-version }}" =~ ^3\.[4-9] ]]; then
           cd irctest
-          pip3 install -r requirements.txt
-          make limnoria
+          pytest --controllers irctest.controllers.limnoria
+        fi
+
+    - name: Disable email notifications
+      if: always()
+      run: echo "Email notifications are disabled."
