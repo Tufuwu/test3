@@ -1,43 +1,50 @@
-name: CI
+name: Python package
 
 on: [push, pull_request]
 
 jobs:
   build:
-    runs-on: ubuntu-22.04
 
+    runs-on: ubuntu-latest
     strategy:
-      matrix:
-        python-version: [3.5, 3.6, 3.7, 3.8, 'nightly']
-        django-version: [2.2, 3.0, 'master']
       fail-fast: false
+      matrix:
+        python-version: [3.5, 3.6, 3.7, 3.8, nightly]
+        django-version: [2.2, 3.0, master]
+        toxenv: [docs, quality]
+        include:
+          - python-version: 3.5
+            django-version: 2.2
+          - python-version: 3.6
+            django-version: 2.2
+          - python-version: 3.7
+            django-version: 2.2
+          - python-version: 3.8
+            django-version: 2.2
+          - python-version: 3.6
+            django-version: 3.0
+          - python-version: 3.7
+            django-version: 3.0
+          - python-version: 3.8
+            django-version: 3.0
+          - python-version: 3.6
+            django-version: master
+          - python-version: 3.7
+            django-version: master
+          - python-version: 3.8
+            django-version: master
+        fail-fast: false
 
     steps:
-      - uses: actions/checkout@v2
-
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v2
-        with:
-          python-version: ${{ matrix.python-version }}
-
-      - name: Install dependencies
-        run: |
-          pip install tox
-
-      - name: Run tests
-        env:
-          DJANGO: ${{ matrix.django-version }}
-          TOXENV: ${{ matrix.toxenv }}
-        run: |
-          if [[ "${{ matrix.django-version }}" == "2.2" ]]; then
-            tox -e py${{ matrix.python-version//./ }}-django22
-          elif [[ "${{ matrix.django-version }}" == "3.0" ]]; then
-            tox -e py${{ matrix.python-version//./ }}-django30
-          elif [[ "${{ matrix.django-version }}" == "master" ]]; then
-            tox -e py${{ matrix.python-version//./ }}-django-master
-          elif [[ "${{ matrix.toxenv }}" == "docs" ]]; then
-            tox -e docs
-          elif [[ "${{ matrix.toxenv }}" == "quality" ]]; then
-            tox -e quality
-          fi
-
+    - uses: actions/checkout@v2
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install tox tox-gh-actions
+    - name: Test with tox
+      run: |
+        tox -e py${{ matrix.python-version }}-django${{ matrix.django-version }}-${{ matrix.toxenv }}
