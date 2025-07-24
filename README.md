@@ -1,170 +1,71 @@
-# ElasticSearch DBAPI
+Limnoria is a multipurpose Python IRC bot, designed for flexibility and robustness,
+while being easy to install, set up, and maintain.
 
-[![Build Status](https://travis-ci.org/preset-io/elasticsearch-dbapi.svg?branch=master)](https://travis-ci.org/preset-io/elasticsearch-dbapi)
-[![PyPI version](https://badge.fury.io/py/elasticsearch-dbapi.svg)](https://badge.fury.io/py/elasticsearch-dbapi)
-[![Coverage Status](https://codecov.io/github/preset-io/elasticsearch-dbapi/coverage.svg?branch=master)](https://codecov.io/github/preset-io/elasticsearch-dbapi)
+It aims to be an adequate replacement for most existing IRC bots.
+It includes a very flexible and powerful
+[ACL system](https://docs.limnoria.net/use/capabilities.html)
+for controlling access to commands,
+an equality powerful
+[configuration system](https://docs.limnoria.net/use/configuration.html)
+to customize your bot,
+as well as more than 60 builtin [plugins](https://limnoria.net/plugins.xhtml)
+providing around 400 actual commands.
 
+There are also dozens of third-party [plugins](https://limnoria.net/plugins.xhtml)
+written by dozens of independent developers,
+and it is very easy to
+[write your own](https://docs.limnoria.net/develop/plugin_tutorial.html)
+with only basic knowledge of Python.
 
-`elasticsearch-dbapi` Implements a DBAPI (PEP-249) and SQLAlchemy dialect, 
-that enables SQL access on elasticsearch clusters for query only access. 
-Uses Elastic X-Pack [SQL API](https://www.elastic.co/guide/en/elasticsearch/reference/current/xpack-sql.html)
+It is the successor of
+[Supybot](https://sourceforge.net/projects/supybot/)
+since 2010 and provides many new features, but keeps full compatibility
+with existing configurations and plugins.
 
-We are currently building support for `opendistro/_sql` API for AWS Elasticsearch Service / [Open Distro SQL](https://opendistro.github.io/for-elasticsearch-docs/docs/sql/) 
+# Build status
 
-This library supports Elasticsearch 7.X versions.
+Master branch: [![Build Status (master branch)](https://travis-ci.org/ProgVal/Limnoria.png?branch=master)](https://travis-ci.org/ProgVal/Limnoria)
 
-### Installation
+Testing branch: [![Build Status (testing branch)](https://travis-ci.org/ProgVal/Limnoria.png?branch=testing)](https://travis-ci.org/ProgVal/Limnoria)
 
-```bash
-$ pip install elasticsearch-dbapi
-```  
+Limnoria supports CPython 3.4 to 3.9, CPython nightly, and Pypy 3.
 
-To install support for AWS Elasticsearch Service / [Open Distro](https://opendistro.github.io/for-elasticsearch/features/SQL%20Support.html):
+# Support
 
-```bash
-$ pip install elasticsearch-dbapi[aws]
-```  
+## Documentation
 
-### Usage:
+If this is your first install, there is an [install guide](https://docs.limnoria.net/en/latest/use/install.html).
+You will probably be pointed to it if you ask on IRC how to install
+Limnoria.
+TL;DR version:
 
-#### Using DBAPI:
-
-```python
-from es.elastic.api import connect
-
-conn = connect(host='localhost')
-curs = conn.cursor()
-curs.execute(
-    "select * from flights LIMIT 10"
-)
-print([row for row in curs])
+```
+sudo apt-get install python3 python3-pip python3-wheel
+pip3 install --user limnoria
+# You might need to add $HOME/.local/bin to your PATH
+supybot-wizard
 ```
 
-#### Using SQLAlchemy execute:
+There is extensive documentation at [docs.limnoria.net] and at
+[Gribble wiki]. We took the time to write it; you should take the time to
+read it.
 
-```python
-from sqlalchemy.engine import create_engine
+[docs.limnoria.net]:https://docs.limnoria.net/
+[Gribble wiki]:https://sourceforge.net/p/gribble/wiki/Main_Page/
 
-engine = create_engine("elasticsearch+http://localhost:9200/")
-rows = engine.connect().execute(
-    "select * from flights LIMIT 10"
-)
-print([row for row in rows])
-```
+## IRC channels
 
-#### Using SQLAlchemy:
+### In English
 
-```python
-from sqlalchemy import func, select
-from sqlalchemy.engine import create_engine
-from sqlalchemy.schema import MetaData, Table
+If you have any trouble, feel free to swing by [#limnoria](ircs://irc.libera.chat:6697/#limnoria) on
+[Libera.Chat](https://libera.chat/) and ask questions.  We'll be happy to help
+wherever we can.  And by all means, if you find anything hard to
+understand or think you know of a better way to do something,
+*please* post it on the [issue tracker] so we can improve the bot!
 
+[issue tracker]:https://github.com/ProgVal/Limnoria/issues
 
-engine = create_engine("elasticsearch+http://localhost:9200/")
-logs = Table("flights", MetaData(bind=engine), autoload=True)
-count = select([func.count("*")], from_obj=logs).scalar()
-print(f"COUNT: {count}")
-```
+### In Other languages
 
-#### Using SQLAlchemy reflection:
+Only in French at the moment, located at [#limnoria-fr on Libera.Chat](ircs://irc.libera.chat:6697/#libera-fr).
 
-```python
-
-from sqlalchemy.engine import create_engine
-from sqlalchemy.schema import Table, MetaData
-
-engine = create_engine("elasticsearch+http://localhost:9200/")
-logs = Table("flights", MetaData(bind=engine), autoload=True)
-print(engine.table_names())
-
-metadata = MetaData()
-metadata.reflect(bind=engine)
-print([table for table in metadata.sorted_tables])
-print(logs.columns)
-```
-
-#### Connection Parameters:
-
-[elasticsearch-py](https://elasticsearch-py.readthedocs.io/en/master/index.html)
-is used to establish connections and transport, this is the official
-elastic python library. `Elasticsearch` constructor accepts multiple optional parameters
-that can be used to properly configure your connection on aspects like security, performance 
-and high availability. These optional parameters can be set at the connection string, for
-example:
-
- ```bash
-    elasticsearch+http://localhost:9200/?http_compress=True&timeout=100
-```
-will set transport to use gzip (http_compress) and timeout to 10 seconds.
-
-For more information on configuration options, look at `elasticsearch-py`’s documentation:
-- [Transport Options](https://elasticsearch-py.readthedocs.io/en/master/connection.html#transport)
-- [HTTP tranport](https://elasticsearch-py.readthedocs.io/en/master/transports.html#urllib3httpconnection)
-
-The connection string follows RFC-1738, to support multiple nodes you should use `sniff_*` parameters
-
-#### Fetch size
-
-By default the maximum number of rows which get fetched by a single query
-is limited to 10000. This can be adapted through the `fetch_size`
-parameter:
-```python
-from es.elastic.api import connect
-
-conn = connect(host='localhost')
-curs = conn.cursor(fetch_size=1000)
-```
-If more than 10000 rows should get fetched then
-[max_result_window](https://www.elastic.co/guide/en/elasticsearch/reference/7.x/index-modules.html#dynamic-index-settings)
-has to be adapted as well.
-
-### Tests
-
-To run unittest launch elasticsearch and kibana (kibana is really not required but is a nice to have)
-
-```bash
-$ docker-compose up -d
-$ nosetests -v
-```
-
-### Special case for sql opendistro endpoint (AWS ES)
-
-AWS ES exposes the opendistro SQL plugin, and it follows a different SQL dialect. 
-Because of dialect and API response differences, we provide limited support for opendistro SQL 
-on this package using the `odelasticsearch` driver:
-
-```python
-from sqlalchemy.engine import create_engine
-
-engine = create_engine(
-    "odelasticsearch+https://search-SOME-CLUSTER.us-west-2.es.amazonaws.com:443/"
-)
-rows = engine.connect().execute(
-    "select count(*), Carrier from flights GROUP BY Carrier"
-)
-print([row for row in rows])
-```
-
-Or using DBAPI:
-```python
-from es.opendistro.api import connect
-
-conn = connect(host='localhost',port=9200,path="", scheme="http")
-
-curs = conn.cursor().execute(
-    "select * from flights LIMIT 10"
-)
-
-print([row for row in curs])
-```
-
-### Known limitations
-
-This library does not yet support the following features:
-
-- Array type columns are not supported. Elaticsearch SQL does not support them either. 
-SQLAlchemy `get_columns` will exclude them.
-- `object` and `nested` column types are not well supported and are converted to strings
-- Indexes that whose name start with `.`
-- GEO points are not currently well-supported and are converted to strings
-- Very limited support for AWS ES, no AWS Auth yet for example
