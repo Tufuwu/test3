@@ -23,6 +23,10 @@ jobs:
     - name: Install Python dependencies
       run: python -m pip install --prefer-binary setuptools "cython>=0.28,<3.0" "matplotlib>=3,<4" ${{ matrix.numpy-version }}
     - name: Build and install Raysect
-      run: dev/build.sh
+      run: |
+        chmod +x dev/build.sh
+        dev/build.sh
     - name: Run tests
-      run: dev/test.sh
+      run: |
+        chmod +x dev/test.sh
+        dev/test.sh
