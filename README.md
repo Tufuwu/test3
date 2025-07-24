@@ -1,71 +1,59 @@
-Limnoria is a multipurpose Python IRC bot, designed for flexibility and robustness,
-while being easy to install, set up, and maintain.
+SQLAlchemy Adapter for PyCasbin 
+====
 
-It aims to be an adequate replacement for most existing IRC bots.
-It includes a very flexible and powerful
-[ACL system](https://docs.limnoria.net/use/capabilities.html)
-for controlling access to commands,
-an equality powerful
-[configuration system](https://docs.limnoria.net/use/configuration.html)
-to customize your bot,
-as well as more than 60 builtin [plugins](https://limnoria.net/plugins.xhtml)
-providing around 400 actual commands.
+[![GitHub Actions](https://github.com/pycasbin/sqlalchemy-adapter/workflows/build/badge.svg?branch=master)](https://github.com/pycasbin/sqlalchemy-adapter/actions)
+[![Coverage Status](https://coveralls.io/repos/github/pycasbin/sqlalchemy-adapter/badge.svg)](https://coveralls.io/github/pycasbin/sqlalchemy-adapter)
+[![Version](https://img.shields.io/pypi/v/casbin_sqlalchemy_adapter.svg)](https://pypi.org/project/casbin_sqlalchemy_adapter/)
+[![PyPI - Wheel](https://img.shields.io/pypi/wheel/casbin_sqlalchemy_adapter.svg)](https://pypi.org/project/casbin_sqlalchemy_adapter/)
+[![Pyversions](https://img.shields.io/pypi/pyversions/casbin_sqlalchemy_adapter.svg)](https://pypi.org/project/casbin_sqlalchemy_adapter/)
+[![Download](https://img.shields.io/pypi/dm/casbin_sqlalchemy_adapter.svg)](https://pypi.org/project/casbin_sqlalchemy_adapter/)
+[![License](https://img.shields.io/pypi/l/casbin_sqlalchemy_adapter.svg)](https://pypi.org/project/casbin_sqlalchemy_adapter/)
 
-There are also dozens of third-party [plugins](https://limnoria.net/plugins.xhtml)
-written by dozens of independent developers,
-and it is very easy to
-[write your own](https://docs.limnoria.net/develop/plugin_tutorial.html)
-with only basic knowledge of Python.
+SQLAlchemy Adapter is the [SQLAlchemy](https://www.sqlalchemy.org) adapter for [PyCasbin](https://github.com/casbin/pycasbin). With this library, Casbin can load policy from SQLAlchemy supported database or save policy to it.
 
-It is the successor of
-[Supybot](https://sourceforge.net/projects/supybot/)
-since 2010 and provides many new features, but keeps full compatibility
-with existing configurations and plugins.
+Based on [Officially Supported Databases](http://www.sqlalchemy.org/), The current supported databases are:
 
-# Build status
+- PostgreSQL
+- MySQL
+- SQLite
+- Oracle
+- Microsoft SQL Server
+- Firebird
+- Sybase
 
-Master branch: [![Build Status (master branch)](https://travis-ci.org/ProgVal/Limnoria.png?branch=master)](https://travis-ci.org/ProgVal/Limnoria)
-
-Testing branch: [![Build Status (testing branch)](https://travis-ci.org/ProgVal/Limnoria.png?branch=testing)](https://travis-ci.org/ProgVal/Limnoria)
-
-Limnoria supports CPython 3.4 to 3.9, CPython nightly, and Pypy 3.
-
-# Support
-
-## Documentation
-
-If this is your first install, there is an [install guide](https://docs.limnoria.net/en/latest/use/install.html).
-You will probably be pointed to it if you ask on IRC how to install
-Limnoria.
-TL;DR version:
+## Installation
 
 ```
-sudo apt-get install python3 python3-pip python3-wheel
-pip3 install --user limnoria
-# You might need to add $HOME/.local/bin to your PATH
-supybot-wizard
+pip install casbin_sqlalchemy_adapter
 ```
 
-There is extensive documentation at [docs.limnoria.net] and at
-[Gribble wiki]. We took the time to write it; you should take the time to
-read it.
+## Simple Example
 
-[docs.limnoria.net]:https://docs.limnoria.net/
-[Gribble wiki]:https://sourceforge.net/p/gribble/wiki/Main_Page/
+```python
+import casbin_sqlalchemy_adapter
+import casbin
 
-## IRC channels
+adapter = casbin_sqlalchemy_adapter.Adapter('sqlite:///test.db')
 
-### In English
+e = casbin.Enforcer('path/to/model.conf', adapter, True)
 
-If you have any trouble, feel free to swing by [#limnoria](ircs://irc.libera.chat:6697/#limnoria) on
-[Libera.Chat](https://libera.chat/) and ask questions.  We'll be happy to help
-wherever we can.  And by all means, if you find anything hard to
-understand or think you know of a better way to do something,
-*please* post it on the [issue tracker] so we can improve the bot!
+sub = "alice"  # the user that wants to access a resource.
+obj = "data1"  # the resource that is going to be accessed.
+act = "read"  # the operation that the user performs on the resource.
 
-[issue tracker]:https://github.com/ProgVal/Limnoria/issues
+if e.enforce(sub, obj, act):
+    # permit alice to read data1casbin_sqlalchemy_adapter
+    pass
+else:
+    # deny the request, show an error
+    pass
+```
 
-### In Other languages
 
-Only in French at the moment, located at [#limnoria-fr on Libera.Chat](ircs://irc.libera.chat:6697/#libera-fr).
+### Getting Help
 
+- [PyCasbin](https://github.com/casbin/pycasbin)
+
+### License
+
+This project is licensed under the [Apache 2.0 license](LICENSE).
