@@ -2,8 +2,7 @@ name: Python CI
 
 on:
   push:
-    tags:
-      - '*'
+    
   pull_request:
 
 jobs:
