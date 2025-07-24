@@ -1,173 +1,90 @@
-.. module:: trustme
+.. title:: Home
 
-.. include:: ../../README.rst
+|
 
+.. image:: RaysectLogo_small.png
+   :align: center
 
-Full working example
-====================
+|
+|
 
-Here's a fully working example you can run to see how :mod:`trustme`
-works. It demonstrates a simple TLS server and client that connect to
-each other using :mod:`trustme`\-generated certs.
+Welcome
+=======
 
-This example requires `Trio <https://trio.readthedocs.io>`__ (``pip
-install -U trio``) and Python 3.5+. Note that while :mod:`trustme` is
-maintained by the Trio project, :mod:`trustme` is happy to work with
-any networking library, and also supports Python 2.
+Welcome to Raysect, an OOP ray-tracing framework for Python. Raysect has been built with scientific ray-tracing in mind. Some of its features include:
 
-The key lines are the calls to :meth:`~CA.configure_trust`,
-:meth:`~LeafCert.configure_cert` – try commenting them out one at a
-time to see what happens! Also notice that the hostname
-``test-host.example.org`` appears twice – try changing one of the
-strings so that the two copies no longer match, and see what happens
-then!
+* Fully spectral, high precision. Supports scientific ray-tracing of spectra from physical light sources such as plasmas.
+* All core loops are written in cython for speed.
+* Easily extensible, written with user customisation of materials and emissive sources in mind.
+* Different observer types supported such as Pinhole cameras and optical fibres.
 
-.. literalinclude:: trustme-trio-example.py
+.. image:: demonstrations/optics/prism_720x405.png
+   :align: center
 
 
-API reference
-=============
+The Raysect Development Team:
+-----------------------------
 
-.. autoclass:: CA
-   :members:
-   :exclude-members: issue_server_cert
+* Dr Alex Meakins
+* Dr Matthew Carr
 
-.. autoclass:: LeafCert()
-   :members:
 
-.. autoclass:: Blob()
+Quick Installation
+------------------
 
-   .. automethod:: bytes
+The easiest way to install Raysect is using `pip <https://pip.pypa.io/en/stable/>`_::
 
-   .. automethod:: tempfile
-      :with: path
+    pip install raysect
 
-   .. automethod:: write_to_path
+For more detailed installation instructions see :any:`installation`.
 
+Need Help?
+----------
 
-Change history
-==============
+Please post a question on the `github issue queue <https://github.com/raysect/source/issues>`_.
 
-.. towncrier release notes start
+.. toctree::
+   :maxdepth: 2
+   :numbered:
+   :caption: Table of Contents
+   :name: mastertoc
 
-Trustme 0.6.0 (2019-12-19)
---------------------------
+   introduction
+   license
+   installation
+   how_it_works
+   quickstart_guide
+   observers
+   primitives
+   materials
+   conventions
+   references
+   glossary
 
-Features
-~~~~~~~~
 
-- Allow specifying organization and organization unit in CA and issued certs. (`#126 <https://github.com/python-trio/trustme/issues/126>`__)
+.. toctree::
+   :maxdepth: 3
+   :numbered:
+   :caption: Demonstrations
+   :name: demonstrations
 
+   demonstrations/demonstrations
 
-Trustme 0.5.3 (2019-10-31)
---------------------------
 
-Features
-~~~~~~~~
+.. toctree::
+   :maxdepth: 3
+   :numbered:
+   :caption: API Reference
+   :name: apireferenceto
 
-- Added :attr:`CA.from_pem` to import an existing certificate authority; this allows migrating to trustme step-by-step. (`#107 <https://github.com/python-trio/trustme/issues/107>`__)
+   api_reference/core/core
+   api_reference/primitives/primitives
+   api_reference/optical/optical
 
+Indices and Tables
+------------------
 
-Trustme 0.5.2 (2019-06-03)
---------------------------
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`
 
-Bugfixes
-~~~~~~~~
-
-- Update to avoid a deprecation warning on cryptography 2.7. (`#47 <https://github.com/python-trio/trustme/issues/47>`__)
-
-
-Trustme 0.5.1 (2019-04-15)
---------------------------
-
-Bugfixes
-~~~~~~~~
-
-- Update key size to 2048 bits, as required by recent Debian. (`#45 <https://github.com/python-trio/trustme/issues/45>`__)
-
-
-Trustme 0.5.0 (2019-01-21)
---------------------------
-
-Features
-~~~~~~~~
-
-- Added :meth:`CA.create_child_ca` to allow for certificate chains (`#3 <https://github.com/python-trio/trustme/issues/3>`__)
-- Added :attr:`CA.private_key_pem` to export CA private keys; this allows signing other certs with the same CA outside of trustme. (`#27 <https://github.com/python-trio/trustme/issues/27>`__)
-- CAs now include the KeyUsage and ExtendedKeyUsage extensions configured for SSL certificates. (`#30 <https://github.com/python-trio/trustme/issues/30>`__)
-- `CA.issue_cert` now accepts email addresses as a valid form of identity. (`#33 <https://github.com/python-trio/trustme/issues/33>`__)
-- It's now possible to set the "common name" of generated certs; see `CA.issue_cert` for details. (`#34 <https://github.com/python-trio/trustme/issues/34>`__)
-- ``CA.issue_server_cert`` has been renamed to `CA.issue_cert`, since it supports both server and client certs. To preserve backwards compatibility, the old name is retained as an undocumented alias. (`#35 <https://github.com/python-trio/trustme/issues/35>`__)
-
-
-Bugfixes
-~~~~~~~~
-
-- Make sure cert expiration dates don't exceed 2038-01-01, to avoid
-  issues on some 32-bit platforms that suffer from the `Y2038 problem
-  <https://en.wikipedia.org/wiki/Year_2038_problem>`__. (`#41 <https://github.com/python-trio/trustme/issues/41>`__)
-
-
-Trustme 0.4.0 (2017-08-06)
---------------------------
-
-Features
-~~~~~~~~
-
-- :meth:`CA.issue_cert` now accepts IP addresses and IP networks.
-  (`#19 <https://github.com/python-trio/trustme/issues/19>`__)
-
-
-Bugfixes
-~~~~~~~~
-
-- Start doing our own handling of Unicode hostname (IDNs), instead of relying
-  on cryptography to do it; this allows us to correctly handle a broader range
-  of cases, and avoids relying on soon-to-be-deprecated behavior (`#17
-  <https://github.com/python-trio/trustme/issues/17>`__)
-- Generated certs no longer contain a subject:commonName field, to better match
-  CABF guidelines (`#18 <https://github.com/python-trio/trustme/issues/18>`__)
-
-
-Trustme 0.3.0 (2017-08-03)
---------------------------
-
-Bugfixes
-~~~~~~~~
-
-- Don't crash on Windows (`#10
-  <https://github.com/python-trio/trustme/issues/10>`__)
-
-
-Misc
-~~~~
-
-- `#11 <https://github.com/python-trio/trustme/issues/11>`__, `#12
-  <https://github.com/python-trio/trustme/issues/12>`__
-
-
-Trustme 0.2.0 (2017-08-02)
---------------------------
-
-- Broke and re-did almost the entire public API. Sorry! Let's just
-  pretend v0.1.0 never happened.
-
-- Hey there are docs now though, that should be worth something right?
-
-
-Trustme 0.1.0 (2017-07-18)
---------------------------
-
-- Initial release
-
-
-Acknowledgements
-================
-
-This is basically just a trivial wrapper around the awesome Python
-`cryptography <https://cryptography.io/>`__ library. Also, `Glyph
-<https://glyph.twistedmatrix.com/>`__ originally wrote most of the
-tricky bits. I got tired of never being able to remember how this
-works or find the magic snippets to copy/paste, so I stole the code
-out of `Twisted <http://twistedmatrix.com/>`__ and wrapped it in a
-bow.
