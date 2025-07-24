@@ -1,89 +1,180 @@
-========
-Pyflakes
-========
+Feeds
+=====
 
-A simple program which checks Python source files for errors.
+|pypi| |support| |licence|
 
-Pyflakes analyzes programs and detects various errors.  It works by
-parsing the source file, not importing it, so it is safe to use on
-modules with side effects.  It's also much faster.
+|readthedocs|
 
-It is `available on PyPI <https://pypi.org/project/pyflakes/>`_
-and it supports all active versions of Python: 2.7 and 3.4 to 3.8.
+|travis|
 
+Once upon a time every website offered an RSS feed to keep readers updated
+about new articles/blog posts via the users' feed readers. These times are
+long gone. The once iconic orange RSS icon has been replaced by "social share"
+buttons.
 
+Feeds aims to bring back the good old reading times. It creates Atom feeds for
+websites that don't offer them (anymore). It allows you to read new articles of
+your favorite websites in your feed reader (e.g. TinyTinyRSS_) even if this is
+not officially supported by the website.
+
+Furthermore it can also enhance existing feeds by inlining the actual content
+into the feed entry so it can be read without leaving the feed reader.
+
+Feeds is based on Scrapy_, a framework for extracting data from websites, and
+it's easy to add support for new websites. Just take a look at the existing
+spiders_ and feel free to open a `pull request`_!
+
+Documentation
+-------------
+Feeds comes with extensive documentation. It is available at
+`https://pyfeeds.readthedocs.io <https://pyfeeds.readthedocs.io/en/latest/>`_.
+
+Supported Websites
+------------------
+
+Feeds is currently able to create full text Atom feeds for various sites. The
+complete list of `supported websites is available in the documentation
+<https://pyfeeds.readthedocs.io/en/latest/spiders.html>`_.
+
+Content behind paywalls
+~~~~~~~~~~~~~~~~~~~~~~~
+
+Some sites (Falter_, Konsument_, LWN_, `Oberösterreichische Nachrichten`_,
+Übermedien_) offer articles only behind a paywall. If you have a paid
+subscription, you can configure your username and password in ``feeds.cfg`` and
+also read paywalled articles from within your feed reader. For the less
+fortunate who don't have a subscription, paywalled articles are tagged with
+``paywalled`` so they can be filtered, if desired.
+
+All feeds contain the articles in full text so you never have to leave your
+feed reader while reading.
 
 Installation
 ------------
 
-It can be installed with::
+Feeds is meant to be installed on your server and run periodically in a cron
+job or similar job scheduler. We recommend to install Feeds inside a virtual
+environment.
 
-  $ pip install --upgrade pyflakes
+Feeds can be installed from PyPI using ``pip``:
 
+.. code-block:: bash
 
-Useful tips:
+   $ pip install PyFeeds
 
-* Be sure to install it for a version of Python which is compatible
-  with your codebase: for Python 2, ``pip2 install pyflakes`` and for
-  Python3, ``pip3 install pyflakes``.
+You may also install the current development version. The master branch is
+considered stable enough for daily use:
 
-* You can also invoke Pyflakes with ``python3 -m pyflakes .`` or
-  ``python2 -m pyflakes .`` if you have it installed for both versions.
+.. code-block:: bash
 
-* If you require more options and more flexibility, you could give a
-  look to Flake8_ too.
+   $ pip install https://github.com/pyfeeds/pyfeeds/archive/master.tar.gz
 
+After installation ``feeds`` is available in your virtual environment.
 
-Design Principles
+Feeds supports Python 3.6+.
+
+Quickstart
+----------
+
+* List all available spiders::
+
+  $ feeds list
+
+* Feeds allows to crawl one or more spiders without configuration, e.g.::
+
+  $ feeds crawl tvthek.orf.at
+
+* A configuration file is supported too. Simply copy the template configuration
+  and adjust it. Enable the spiders you are interested in and adjust the output
+  path where Feeds stores the scraped Atom feeds::
+
+  $ cp feeds.cfg.dist feeds.cfg
+  $ $EDITOR feeds.cfg
+  $ feeds --config feeds.cfg crawl
+
+* Point your feed reader to the generated Atom feeds and start reading. Feeds
+  works best when run periodically in a cron job.
+* Run ``feeds --help`` or ``feeds <subcommand> --help`` for help and usage
+  details.
+
+Caching
+-------
+
+Feeds caches HTTP responses by default to save bandwidth. Entries are cached
+for 90 days by default (this can be overwritten in the config file). Outdated
+entries are purged from cache automatically after a crawl. It's also possible
+to explicitly purge the cache from outdated entries::
+
+  $ feeds --config feeds.cfg cleanup
+
+Related work
+------------
+
+* `morss <https://github.com/pictuga/morss>`_ creates feeds, similar to Feeds
+  but in "real-time", i.e. on (HTTP) request.
+* `Full-Text RSS <https://bitbucket.org/fivefilters/full-text-rss>`_ converts
+  feeds to contain the full article and not only a teaser based on heuristics
+  and rules. Feeds are converted in "real-time", i.e. on request basis.
+* `f43.me <https://github.com/j0k3r/f43.me>`_ converts feeds to contain the
+  full article and also improves articles by adding links to the comment
+  sections of Hacker News and Reddit. Feeds are converted periodically.
+* `python-ftr <https://github.com/1flow/python-ftr>`_ is a library to extract
+  content from pages. A partial reimplementation of Full-Text RSS.
+
+How to contribute
 -----------------
-Pyflakes makes a simple promise: it will never complain about style,
-and it will try very, very hard to never emit false positives.
 
-Pyflakes is also faster than Pylint_
-or Pychecker_. This is
-largely because Pyflakes only examines the syntax tree of each file
-individually. As a consequence, Pyflakes is more limited in the
-types of things it can check.
+Issues
+~~~~~~
 
-If you like Pyflakes but also want stylistic checks, you want
-flake8_, which combines
-Pyflakes with style checks against
-`PEP 8`_ and adds
-per-project configuration ability.
+* Search the existing issues in the `issue tracker`_.
+* File a `new issue`_ in case the issue is undocumented.
 
+Pull requests
+~~~~~~~~~~~~~
 
-Mailing-list
-------------
+* Fork the project to your private repository.
+* Create a topic branch and make your desired changes.
+* Open a pull request. Make sure the travis checks are passing.
 
-Share your feedback and ideas: `subscribe to the mailing-list
-<https://mail.python.org/mailman/listinfo/code-quality>`_
+Authors
+-------
+Feeds is written and maintained by `Florian Preinstorfer <https://nblock.org>`_
+and `Lukas Anzinger <https://www.notinventedhere.org>`_.
 
-Contributing
-------------
+License
+-------
 
-Issues are tracked on `GitHub <https://github.com/PyCQA/pyflakes/issues>`_.
+AGPL3, see https://pyfeeds.readthedocs.io/en/latest/license.html for details.
 
-Patches may be submitted via a `GitHub pull request`_ or via the mailing list
-if you prefer. If you are comfortable doing so, please `rebase your changes`_
-so they may be applied to master with a fast-forward merge, and each commit is
-a coherent unit of work with a well-written log message.  If you are not
-comfortable with this rebase workflow, the project maintainers will be happy to
-rebase your commits for you.
+.. _issue tracker: https://github.com/pyfeeds/pyfeeds/issues
+.. _new issue: https://github.com/pyfeeds/pyfeeds/issues/new
+.. _Scrapy: https://www.scrapy.org
+.. _TinyTinyRSS: https://tt-rss.org
+.. _pull request: https://pyfeeds.readthedocs.io/en/latest/contribute.html
+.. _spiders: https://github.com/PyFeeds/PyFeeds/tree/master/feeds/spiders
+.. _Falter: https://pyfeeds.readthedocs.io/en/latest/spiders/falter.at.html
+.. _Konsument: https://pyfeeds.readthedocs.io/en/latest/spiders/konsument.at.html
+.. _LWN: https://pyfeeds.readthedocs.io/en/latest/spiders/lwn.net.html
+.. _Oberösterreichische Nachrichten: https://pyfeeds.readthedocs.io/en/latest/spiders/nachrichten.at.html
+.. _Übermedien: https://pyfeeds.readthedocs.io/en/latest/spiders/uebermedien.de.html
 
-All changes should include tests and pass flake8_.
+.. |pypi| image:: https://img.shields.io/pypi/v/pyfeeds.svg?style=flat-square
+    :target: https://pypi.org/project/pyfeeds/
+    :alt: pypi version
 
-.. image:: https://github.com/PyCQA/pyflakes/workflows/Test/badge.svg
-   :target: https://github.com/PyCQA/pyflakes/actions
-   :alt: GitHub Actions build status
+.. |support| image:: https://img.shields.io/pypi/pyversions/pyfeeds.svg?style=flat-square
+    :target: https://pypi.org/project/pyfeeds/
+    :alt: supported Python version
 
-.. _Pylint: https://www.pylint.org/
-.. _flake8: https://pypi.org/project/flake8/
-.. _`PEP 8`: https://www.python.org/dev/peps/pep-0008/
-.. _Pychecker: http://pychecker.sourceforge.net/
-.. _`rebase your changes`: https://git-scm.com/book/en/v2/Git-Branching-Rebasing
-.. _`GitHub pull request`: https://github.com/PyCQA/pyflakes/pulls
+.. |licence| image:: https://img.shields.io/pypi/l/pyfeeds.svg?style=flat-square
+    :target: https://pypi.org/project/pyfeeds/
+    :alt: licence
 
-Changelog
----------
+.. |readthedocs| image:: https://img.shields.io/readthedocs/pyfeeds/latest.svg?style=flat-square&label=Read%20the%20Docs
+   :alt: Read the documentation at https://pyfeeds.readthedocs.io/en/latest/
+   :target: https://pyfeeds.readthedocs.io/en/latest/
 
-Please see `NEWS.rst <https://github.com/PyCQA/pyflakes/blob/master/NEWS.rst>`_.
+.. |travis| image:: https://img.shields.io/travis/pyfeeds/pyfeeds/master.svg?style=flat-square&label=Travis%20Build
+    :target: https://travis-ci.org/PyFeeds/PyFeeds
+    :alt: travis build status
