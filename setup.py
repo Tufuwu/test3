@@ -1,49 +1,44 @@
-from setuptools import setup, find_packages
+import io
+import os
 
+from setuptools import find_packages, setup
 
-def clean_history(history):
-    # PyPI does not allow the `raw` directive. We'll laboriously
-    # replace it. Hang tight, it's going to be ugly.
-    history = history.replace('|backward-incompatible|', '**backward incompatible:** ')
-    lines = []
-    for line in history.split('\n'):
-        if line.startswith('.. role:: raw-html'):
-            break
-        lines.append(line)
-    return '\n'.join(lines)
+VERSION = "0.1.3"
+BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 
-
-readme = open('README.rst').read()
-changelog = clean_history(open('HISTORY.rst').read())
+with io.open("README.md", "r", encoding="utf-8") as f:
+    long_description = f.read()
 
 setup(
-    name='django-cid',
-    version='2.2.dev0',
-    description="""Correlation IDs in Django for debugging requests""",
-    long_description=readme + '\n\n' + changelog,
-    author='Snowball One',
-    author_email='opensource+django-cid@polyconseil.fr',
-    maintainer="Polyconseil",
-    maintainer_email="opensource+django-cid@polyconseil.fr",
-    url='https://github.com/Polyconseil/django-cid',
-    packages=find_packages(exclude=('sandbox*', 'tests*')),
+    name="elasticsearch-dbapi",
+    description=("A DBAPI and SQLAlchemy dialect for Elasticsearch"),
+    long_description=long_description,
+    long_description_content_type="text/markdown",
+    version=VERSION,
+    packages=find_packages(),
     include_package_data=True,
-    install_requires=[
-        'django>=2.2',
-    ],
-    license="BSD",
     zip_safe=False,
-    keywords='django logging correlation id debugging',
+    entry_points={
+        "sqlalchemy.dialects": [
+            "elasticsearch = es.elastic.sqlalchemy:ESHTTPDialect",
+            "elasticsearch.http = es.elastic.sqlalchemy:ESHTTPDialect",
+            "elasticsearch.https = es.elastic.sqlalchemy:ESHTTPSDialect",
+            "odelasticsearch = es.opendistro.sqlalchemy:ESHTTPDialect",
+            "odelasticsearch.http = es.opendistro.sqlalchemy:ESHTTPDialect",
+            "odelasticsearch.https = es.opendistro.sqlalchemy:ESHTTPSDialect",
+        ]
+    },
+    install_requires=["elasticsearch>7", "sqlalchemy"],
+    extras_require={"opendistro": ["requests_aws4auth"]},
+    author="Preset Inc.",
+    author_email="daniel@preset.io",
+    url="http://preset.io",
+    download_url="https://github.com/preset-io/elasticsearch-dbapi/releases/tag/"
+    + VERSION,
     classifiers=[
-        'Development Status :: 5 - Production/Stable',
-        'Framework :: Django',
-        'Intended Audience :: Developers',
-        'License :: OSI Approved :: BSD License',
-        'Natural Language :: English',
-        'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.6',
-        'Programming Language :: Python :: 3.7',
-        'Programming Language :: Python :: 3.8',
-        'Programming Language :: Python :: 3.9',
+        "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
     ],
+    tests_require=["nose>=1.0"],
+    test_suite="nose.collector",
 )
