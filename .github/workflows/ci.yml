@@ -1,25 +1,35 @@
-name: CI
+name: Python application
 
 on: [push, pull_request]
 
 jobs:
   build:
+
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+    - uses: actions/checkout@v2
 
-      - name: Set up Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: '3.9'
+    - name: Set up Python 3.7
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.9
 
-      - name: Install dependencies
-        run: python -m pip install -U -r dev-requirements.txt
+    - name: Cache pip
+      uses: actions/cache@v4
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/dev-requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
 
-      - name: Run tests with coverage
-        run: python -m coverage run --branch -m pytest tests/
+    - name: Install dependencies
+      run: |
+        python -m pip install -U -r dev-requirements.txt
 
-      - name: Upload coverage to Codecov
-        run: bash <(curl -s https://codecov.io/bash)
+    - name: Run tests with coverage
+      run: |
+        python -m coverage run --branch -m pytest tests/
+
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v1
