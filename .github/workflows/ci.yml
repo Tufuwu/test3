@@ -48,6 +48,8 @@ jobs:
         py.test --cov-config ${{ matrix.coveragerc }} --cov=pydispatch
     - name: Coveralls
       run: coveralls --rcfile=${{ matrix.coveragerc }}
+      env: 
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   deploy:
     if: github.ref == 'refs/tags/${{ matrix.python-version }}'
     runs-on: ubuntu-latest
