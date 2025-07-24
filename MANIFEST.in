@@ -1,14 +1,13 @@
-include LICENSE
-include NOTICE
-include README.md
+include pyproject.toml
 
-include pympler/templates/*.html
-include pympler/templates/*.tpl
-include pympler/templates/*.css
-include pympler/templates/*.js
+# Include the README
+include *.md
 
-include pympler/static/*.js
+# Include the license file
+include LICENSE.txt
 
-recursive-include doc *
-prune doc/source
-prune doc/build
+# Include setup.py
+include setup.py
+
+# Include the data files
+recursive-include data *

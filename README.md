@@ -1,69 +1,39 @@
-README for pympler
-==================
+# A sample Python project
 
-Pympler is a development tool to measure, monitor and analyze the memory
-behavior of Python objects in a running Python application.
+![Python Logo](https://www.python.org/static/community_logos/python-logo.png "Sample inline image")
 
-By pympling a Python application, detailed insight in the size and the lifetime
-of Python objects can be obtained.  Undesirable or unexpected runtime behavior
-like memory bloat and other "pymples" can easily be identified.
+A sample project that exists as an aid to the [Python Packaging User
+Guide][packaging guide]'s [Tutorial on Packaging and Distributing
+Projects][distribution tutorial].
 
-Pympler integrates three previously separate projects into a single,
-comprehensive profiling tool. Asizeof provides basic size information for one
-or several Python objects, muppy is used for on-line monitoring of a Python
-application and the class tracker provides off-line analysis of the lifetime of
-selected Python objects. A web profiling frontend exposes process statistics,
-garbage visualisation and class tracker statistics.
+This project does not aim to cover best practices for Python project
+development as a whole. For example, it does not provide guidance or tool
+recommendations for version control, documentation, or testing.
 
-Pympler is written entirely in Python, with no dependencies to external
-libraries. It has been tested with Python 3.5, 3.6, 3.7, 3.8, 3.9, 3.10 on
-Linux, Windows and MacOS X.
+[The source for this project is available here][src].
 
+Most of the configuration for a Python project is done in the `setup.py` file,
+an example of which is included in this project. You should edit this file
+accordingly to adapt this sample project to your needs.
 
-Installation from PyPI
-----------------------
+----
 
-To install the latest version of Pympler from the Python package index run:
+This is the README file for the project.
 
-    pip install Pympler
+The file should use UTF-8 encoding and can be written using
+[reStructuredText][rst] or [markdown][md use] with the appropriate [key set][md
+use]. It will be used to generate the project webpage on PyPI and will be
+displayed as the project homepage on common code-hosting services, and should be
+written for that purpose.
 
+Typical contents for this file would include an overview of the project, basic
+usage examples, etc. Generally, including the project changelog in here is not a
+good idea, although a simple “What's New” section for the most recent version
+may be appropriate.
 
-Installation from source
-------------------------
-
-Before installing Pympler, try it with your Python version:
-
-    python setup.py try
-
-If any errors are reported, check whether your Python version is supported.
-Pympler is written entirely in Python, with no dependencies other than standard
-Python modules and libraries. Pympler works with Python 3.5, 3.6, 3.7, 3.8, 3.9
-and 3.10.
-
-For a system-wide installation from source run:
-
-    pip install .
-
-Test the installed Pympler package:
-
-    python setup.py test
-
-
-Usage
------
-
-The usage of pympler is described in the documentation.  It is
-available either in this distribution at *doc/index.html* or
-you can [read it online](https://pympler.readthedocs.io/en/latest/).
-
-
-Contributing
-------------
-
-You can post wishes, bug reports or patches at our
-[issue tracker](https://github.com/pympler/pympler/issues) or
-write an email to *pympler-dev@googlegroups.com*.
-
-[![Latest Version](https://img.shields.io/pypi/v/pympler.svg)](https://pypi.org/project/Pympler/)
-[![License](https://img.shields.io/pypi/l/pympler.svg)](https://pypi.org/project/Pympler/)
-[![Coverage Status](https://coveralls.io/repos/pympler/pympler/badge.svg?branch=master)](https://coveralls.io/r/pympler/pympler?branch=master)
+[packaging guide]: https://packaging.python.org
+[distribution tutorial]: https://packaging.python.org/tutorials/packaging-projects/
+[src]: https://github.com/pypa/sampleproject
+[rst]: http://docutils.sourceforge.net/rst.html
+[md]: https://tools.ietf.org/html/rfc7764#section-3.5 "CommonMark variant"
+[md use]: https://packaging.python.org/specifications/core-metadata/#description-content-type-optional
