@@ -41,15 +41,15 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - name: Set up Python ${{ matrix.python }}
+    - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v2
       with:
-        python-version: ${{ matrix.python }}
+        python-version: ${{ matrix.python-version }}
 
     - name: Cache GEOS and pip packages
       uses: actions/cache@v2
       with:
-        key: ${{ runner.os }}-geos-${{ matrix.geos }}
+        key: ${{ runner.os }}-geos-${{ matrix.geos-version }}
         path: |
           ~/.cache/pip
           ${{ github.workspace }}/geosinstall
