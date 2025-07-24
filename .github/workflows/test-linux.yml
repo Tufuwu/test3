@@ -58,6 +58,7 @@ jobs:
       - name: Install GEOS
         shell: bash
         run: |
+          chmod +x ./ci/install_geos.sh
           ./ci/install_geos.sh
           cd ${{ github.workspace }}
 
