@@ -26,6 +26,7 @@ jobs:
     - name: Install dependencies
       run: |
         export GEOS_INSTALL=$HOME/geosinstall/geos-$GEOS_VERSION
+        chmod +x ./ci/install_geos.sh
         ./ci/install_geos.sh
         pip install --upgrade pip
         pip install --upgrade wheel
