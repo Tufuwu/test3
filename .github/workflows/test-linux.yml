@@ -38,7 +38,7 @@ jobs:
       GEOS_VERSION: ${{ matrix.geos-version }}
       GEOS_INSTALL: ${{ github.workspace }}/geosinstall/geos-${{ matrix.geos-version }}
 
-  steps:
+    steps:
     - uses: actions/checkout@v2
 
     - name: Set up Python ${{ matrix.python }}
