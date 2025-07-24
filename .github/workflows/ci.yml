@@ -43,10 +43,10 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies
       run: |
-        pip install -U pip setuptools wheel
-        pip install -U pytest pytest-cov coveralls
-        if [ "${{ matrix.aio-available }}" = "true" ]; then pip install -U pytest-asyncio; fi
-        pip install -e .
+        python -m pip install --upgrade pip setuptools wheel
+        python -m pip install pytest pytest-cov coveralls
+        if ${{ matrix.aio-available == 'true' }}; then python -m pip install pytest-asyncio; fi
+        python -m pip install .
     - name: Test with pytest
       run: |
         pytest --cov-config=${{ matrix.coveragerc }} --cov=pydispatch
