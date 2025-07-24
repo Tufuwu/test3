@@ -1,20 +1,16 @@
 name: Python package
 
-on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
+on: [push, pull_request]
 
 jobs:
-  test:
-    runs-on: ubuntu-latest
+  build:
+
+    runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
         python-version: [2.7, 3.4, 3.5, 3.6, 3.7, 3.8]
+        os: [ubuntu-latest]
         include:
           - python-version: 2.7
             aio-available: false
@@ -43,10 +39,24 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies
       run: |
-        pip install --upgrade pip setuptools wheel
-        pip install pytest pytest-cov coveralls
-        pip install pytest-asyncio
-        pip install -e .
+        python -m pip install --upgrade pip setuptools wheel
+        python -m pip install pytest pytest-cov coveralls
+        if ${{ matrix.aio-available == 'true' }}; then python -m pip install pytest-asyncio; fi
+        python -m pip install -e .
     - name: Test with pytest
       run: |
-        pytest --cov-config=${{ matrix.coveragerc }} --cov=pydispatch
+        py.test --cov-config ${{ matrix.coveragerc }} --cov=pydispatch
+    - name: Coveralls
+      run: coveralls --rcfile=${{ matrix.coveragerc }}
+  deploy:
+    if: github.ref == 'refs/tags/${{ matrix.python-version }}'
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+    - name: Publish package
+      uses: pypa/gh-action-pypi-publish@release/v1
+      with:
+        user: __token__
+        password: ${{ secrets.PYPI_API_TOKEN }}
