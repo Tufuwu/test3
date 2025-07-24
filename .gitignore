@@ -1,19 +1,68 @@
-# Python cached bytecode files
-*.pyc
-*.pyo
-*.pyd
+# Project-specific generated files
+docs/build/
 
-# Temporary files, usually created by text editors (vim)
-*.swp
+bench/results/
+bench/env/
+bench/trio/
+
+# Byte-compiled / optimized / DLL files / editor temp files
+__pycache__/
+*.py[cod]
 *~
+\#*
+.#*
+*.swp
 
-# Created by setup.py sdist
-build/
-dist/
-pyperformance.egg-info/
+# C extensions
+*.so
 
-# Created by the pyperformance script
-venv/
+# Distribution / packaging
+.Python
+/build/
+/develop-eggs/
+/dist/
+/eggs/
+/lib/
+/lib64/
+/parts/
+/sdist/
+/var/
+*.egg-info/
+.installed.cfg
+*.egg
+/.pybuild
 
-# Created by the tox program
+# Installer logs
+pip-log.txt
+
+# Unit test / coverage reports
+htmlcov/
 .tox/
+.venv/
+.coverage
+.coverage.*
+.cache
+.pytest_cache/
+nosetests.xml
+coverage.xml
+
+# Translations
+*.mo
+
+# Mr Developer
+.mr.developer.cfg
+.project
+.pydevproject
+
+# Rope
+.ropeproject
+
+# Django stuff:
+*.log
+*.pot
+
+# Sphinx documentation
+doc/_build/
+
+# pyenv
+.python-version
