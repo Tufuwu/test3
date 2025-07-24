@@ -6,6 +6,7 @@ jobs:
   test:
     runs-on: ubuntu-22.04
     strategy:
+      fail-fast: false
       matrix:
         python-version: [3.9]
         toxenv: [flake8, black, elasticsearch]
