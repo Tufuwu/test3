@@ -64,7 +64,6 @@ jobs:
 
     - name: Install GEOS
       run: |
-        export GEOS_INSTALL=${{ github.workspace }}/geosinstall/geos-${{ matrix.geos-version }}
         chmod +x ./ci/install_geos.sh
         ./ci/install_geos.sh
 
