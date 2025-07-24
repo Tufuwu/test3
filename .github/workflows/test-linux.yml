@@ -60,7 +60,7 @@ jobs:
         chmod +x ./ci/install_geos.sh
         ./ci/install_geos.sh
         cd ${{ github.workspace }}
-        
+
     - name: Install dependencies
       run: |
         pip install --disable-pip-version-check --upgrade pip
@@ -72,9 +72,10 @@ jobs:
         fi
 
     - name: Set environment variables
+      shell: bash
       run: |
-        export LD_LIBRARY_PATH=${{ github.workspace }}/geosinstall/geos-${{ matrix.geos-version }}/lib
-        export PATH=${{ github.workspace }}/geosinstall/geos-${{ matrix.geos-version }}/bin:$PATH
+        echo "LD_LIBRARY_PATH=$GEOS_INSTALL/lib" >> $GITHUB_ENV
+        echo $GEOS_INSTALL/bin >> $GITHUB_PATH
 
     - name: Build and install
       run: |
