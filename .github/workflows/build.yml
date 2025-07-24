@@ -1,40 +1,35 @@
 name: CI
 
-on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
+on: [push, pull_request]
 
 jobs:
   build:
     runs-on: ubuntu-22.04
+
     strategy:
       fail-fast: false
       matrix:
-        python-version: ['3.7', '3.8', '3.9', '3.10', '3.11']
+        python-version: [3.7, 3.8, 3.9, 3.10, 3.11]
 
     steps:
-    - uses: actions/checkout@v2
-    - name: Set up Python ${{ matrix.python-version }}
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Python
       uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python-version }}
+
     - name: Install dependencies
       run: pip install tox
+
     - name: Run tests
       run: tox
 
-  notify:
-    if: failure()
-    runs-on: ubuntu-20.04
-    steps:
-    - name: Send Slack notification
-      uses: 8398a7/action-slack@v3
+    - name: Notify Slack
+      if: failure()
+      uses: slackapi/slack-github-action@v1.21.0
       with:
-        status: ${{ job.status }}
-        fields: repo,message,commit,author,action,eventName,ref,workflow,job,took
-      env:
-        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        payload: '{"text": "Build failed!"}'
+        channel: '#your-channel'
+        slack-token: ${{ secrets.SLACK_TOKEN }}
