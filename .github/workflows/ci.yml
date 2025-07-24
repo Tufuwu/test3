@@ -41,7 +41,7 @@ jobs:
           py.test --cov-config ${{ matrix.coveragerc }} --cov=pydispatch
 
       - name: Upload coverage to Coveralls
-        if: success() && matrix.python-version == '3.6'
+
         run: coveralls --rcfile="${{ matrix.coveragerc }}"
 
   deploy:
