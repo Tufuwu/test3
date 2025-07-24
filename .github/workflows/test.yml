@@ -6,7 +6,7 @@ jobs:
   build:
     runs-on: ${{ matrix.os }}
     strategy:
-      fail--fast: false
+      fail-fast: false
       matrix:
         python-version: [3.4, 3.5, 3.6, 3.7, 3.7, 3.8, 3.9, 'nightly', 'pypy3']
         with-opt-deps: [false, true]
