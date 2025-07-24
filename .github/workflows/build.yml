@@ -1,35 +1,41 @@
-name: CI
+name: Python package
 
-on: [push, pull_request]
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ master ]
 
 jobs:
   build:
-    runs-on: ubuntu-22.04
 
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version: [3.7, 3.8, 3.9, 3.10, 3.11]
+    runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
 
     - name: Set up Python
       uses: actions/setup-python@v2
       with:
-        python-version: ${{ matrix.python-version }}
+        python-version: '3.8'
 
     - name: Install dependencies
-      run: pip install tox
+      run: |
+        python -m pip install --upgrade pip
+        pip install tox-gh-actions
 
-    - name: Run tests
-      run: tox
+    - name: Test with tox
+      run: |
+        tox
 
     - name: Notify Slack
       if: failure()
-      uses: slackapi/slack-github-action@v1.21.0
-      with:
-        payload: '{"text": "Build failed!"}'
-        channel: '#your-channel'
-        slack-token: ${{ secrets.SLACK_TOKEN }}
+      uses: rtCamp/action-slack-notify@v2
+      env:
+        SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+        SLACK_CHANNEL: '#general'
+        SLACK_USERNAME: 'GitHub Action'
+        SLACK_ICON: 'https://github.com/rtCamp.png'
+        SLACK_MESSAGE: 'Build failed'
