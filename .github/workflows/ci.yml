@@ -33,5 +33,3 @@ jobs:
       - name: Run script
         run: ci/travis.sh
 
-  exclude:
-    - if: startsWith(github.ref, 'refs/heads/dependabot/')
