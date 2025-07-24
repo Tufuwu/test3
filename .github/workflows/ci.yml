@@ -40,4 +40,4 @@ jobs:
       env:
         DJANGO: ${{ matrix.django-version }}
 
-      run: tox
+      run: pytest
