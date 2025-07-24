@@ -54,11 +54,13 @@ jobs:
           ~/.cache/pip
           ${{ github.workspace }}/geosinstall
 
+
     - name: Install GEOS
       run: |
         chmod +x ./ci/install_geos.sh
         ./ci/install_geos.sh
-
+        cd ${{ github.workspace }}
+        
     - name: Install dependencies
       run: |
         pip install --disable-pip-version-check --upgrade pip
