@@ -1,3 +1,19 @@
-# virtualenv
+# Python cached bytecode files
+*.pyc
+*.pyo
+*.pyd
+
+# Temporary files, usually created by text editors (vim)
+*.swp
+*~
+
+# Created by setup.py sdist
+build/
+dist/
+pyperformance.egg-info/
+
+# Created by the pyperformance script
 venv/
-ENV/
+
+# Created by the tox program
+.tox/
