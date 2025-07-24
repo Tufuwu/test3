@@ -23,7 +23,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y python-dev
+          sudo apt-get install -y python3-dev "click==8.0.4"
           pip install --upgrade pip
           pip install -r requirements.txt
           pip install -r requirements-dev.txt
@@ -54,7 +54,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y python-dev
+          sudo apt-get install -y python3-dev "click==8.0.4"
           pip install --upgrade pip
           pip install -r requirements.txt
           pip install -r requirements-dev.txt
