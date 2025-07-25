@@ -1,31 +1,28 @@
-name: Python CI
+name: Python application
 
 on: [push, pull_request]
 
 jobs:
   build:
+
     runs-on: ubuntu-latest
+
     strategy:
       matrix:
         python-version: [3.9]
-        django-version: [1.11]
+        django-version: ['1.11']
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v2
-        with:
-          python-version: ${{ matrix.python-version }}
-
-      - name: Install dependencies
-        run: |
-          pip install -q Django==${{ matrix.django-version }}
-          pip install -e .[flake8,tests]
-
-      - name: Run flake8
-        run: flake8
-
-      - name: Run tests
-        run: pytest
+    - uses: actions/checkout@v2
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install Django ${{ matrix.django-version }}
+      run: pip install Django==${{ matrix.django-version }}
+    - name: Install dependencies
+      run: pip install -e .[flake8,tests]
+    - name: Lint with flake8
+      run: flake8
+    - name: Test with pytest
+      run: pytest
