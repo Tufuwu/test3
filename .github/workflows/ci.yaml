@@ -15,8 +15,9 @@ jobs:
         with:
           python-version: '3.x'
 
-      - name: Create settings.py
-        run: echo "from Default.settings import *" > settings.py
+
 
       - name: Run generate.py
-        run: python generate.py
+        run: |
+          echo "from Default.settings import *" > settings.py
+          python generate.py
