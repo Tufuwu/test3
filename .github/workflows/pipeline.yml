@@ -32,4 +32,6 @@ jobs:
       run: mypy sendgrid_backend/
 
     - name: Test with tox
-      run: tox
+      run: |
+        pip install tox tox-gh-actions
+        tox
