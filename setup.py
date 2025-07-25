@@ -1,37 +1,37 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 
-with open('README.md', 'r') as fh:
-    long_description = fh.read()
+try:
+    long_description = open('README.md').read()
+except FileNotFoundError:
+    long_description = ''
 
 setup(
-    name='linkedin-jobs-scraper',
-    version='1.4.0',
-    author='Ludovico Fabbri',
-    author_email='ludovico.fabbri@gmail.com',
-    description='Scrape public available jobs on Linkedin using headless browser',
+    name='pytorch_memlab',
+    version='0.2.4',
+    licence='MIT',
+    description='A lab to do simple and accurate memory experiments on pytorch',
     long_description=long_description,
     long_description_content_type='text/markdown',
-    url='https://github.com/spinlud/py-linkedin-jobs-scraper.git',
-    packages=[
-        'linkedin_jobs_scraper',
-        'linkedin_jobs_scraper.chrome_cdp',
-        'linkedin_jobs_scraper.events',
-        'linkedin_jobs_scraper.exceptions',
-        'linkedin_jobs_scraper.filters',
-        'linkedin_jobs_scraper.query',
-        'linkedin_jobs_scraper.strategies',
-        'linkedin_jobs_scraper.utils',
-    ],
-    install_requires=[
-        'selenium',
-        'websocket-client'
-    ],
     classifiers=[
-        'Intended Audience :: Developers',
-        'Programming Language :: Python',
-        'Programming Language :: Python :: 3.6',
-        'License :: OSI Approved :: MIT License',
-        'Operating System :: OS Independent',
+        "Programming Language :: Python",
+        "Topic :: Software Development :: Libraries :: Python Modules",
+        ],
+    keywords='pytorch memory profile',
+    author='Kaiyu Shi',
+    author_email='skyisno.1@gmail.com',
+    url='https://github.com/Stonesjtu/pytorch_memlab',
+    license='MIT',
+    include_package_data=True,
+    zip_safe=True,
+    install_requires=[
+        'setuptools',
+        'calmsize',
+        'pandas>=0.18',
+        'torch>=1.4',
     ],
-    python_requires='>=3.6',
+    extras_require={
+        'ipython': ['IPython>=0.13'],
+        'test': ['pytest'],
+    },
+    packages=find_packages(),
 )
