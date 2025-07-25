@@ -10,7 +10,7 @@ jobs:
     strategy:
       matrix:
         python-version: [3.9]
-        django-version: ['3.2']
+        django-version: ['1.11']
 
     steps:
     - uses: actions/checkout@v2
@@ -22,6 +22,8 @@ jobs:
       run: pip install Django==${{ matrix.django-version }}
     - name: Install dependencies
       run: pip install -e .[flake8,tests]
+    - name: Add current directory to PYTHONPATH
+      run: echo "PYTHONPATH=$PWD" >> $GITHUB_ENV
     - name: Lint with flake8
       run: flake8
     - name: Test with pytest
