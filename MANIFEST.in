@@ -1,1 +1,2 @@
-recursive-include feedcrawler/web *
+include README.md
+recursive-include django_inlinecss *.py
