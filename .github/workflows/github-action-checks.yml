@@ -19,6 +19,7 @@ jobs:
     - name: Run link format check
       run: |
         chmod +x scripts/link-format-chk.sh
+        chmod +x scripts/buildtable.pl
         scripts/link-format-chk.sh
 
     - name: Build table and compare
