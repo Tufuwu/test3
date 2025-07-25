@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-  pull_request:
 
 jobs:
   test:
@@ -12,37 +11,44 @@ jobs:
     services:
       docker:
         image: docker:latest
-    strategy:
-      matrix:
-        python-version: ['3.9']
+        options: --privileged
+
     steps:
-      - uses: actions/checkout@v2
-      - name: Set up Python ${{ matrix.python-version }}
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Python
         uses: actions/setup-python@v2
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: '3.9'
+
       - name: Install dependencies
         run: pip install -r requirements.txt
+
       - name: Run tests
         run: |
           chmod +x ./tests/run_tests.sh
           ./tests/run_tests.sh
 
   deploy:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-20.04
     needs: test
     if: github.ref == 'refs/heads/master'
+
     steps:
-      - uses: actions/checkout@v2
-      - name: Set up Python 3.6
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Python
         uses: actions/setup-python@v2
         with:
-          python-version: 3.6
-      - name: Install dependencies
-        run: pip install -r requirements.txt
-      - name: Build package
+          python-version: '3.6'
+
+      - name: Build and package
         run: python setup.py install_egg_info sdist bdist_wheel
-      - name: Publish to PyPI
-        uses: pypa/gh-action-pypi-publish@v1.5.0
+
+      - name: Deploy to PyPI
+        uses: pypa/gh-action-pypi-publish@v1.4.2
         with:
+          username: '__token__'
           password: ${{ secrets.PYPI_TOKEN }}
