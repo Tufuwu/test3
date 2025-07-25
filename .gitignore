@@ -1,0 +1,13 @@
+venv
+.DS_Store
+*.sublime-*
+dist/
+build/
+*.egg-info/
+*.pyc
+.coverage
+.noseids
+.vscode/
+.tox
+\.eggs/
+.idea
