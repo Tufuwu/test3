@@ -1,0 +1,98 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - python-version: '2.6'
+            os: ubuntu-latest
+            dist: trusty
+          - python-version: '2.7'
+            os: ubuntu-latest
+          - python-version: '3.3'
+            os: ubuntu-latest
+            dist: trusty
+          - python-version: '3.4'
+            os: ubuntu-latest
+          - python-version: '3.5'
+            os: ubuntu-latest
+          - python-version: '3.6'
+            os: ubuntu-latest
+          - python-version: '3.6'
+            os: ubuntu-latest
+            arch: arm64
+          - python-version: '3.7'
+            os: ubuntu-latest
+          - python-version: '3.7'
+            os: ubuntu-latest
+            arch: arm64
+          - python-version: '3.8'
+            os: ubuntu-latest
+          - python-version: '3.8'
+            os: ubuntu-latest
+            arch: arm64
+          - python-version: '3.9'
+            os: ubuntu-latest
+          - python-version: '3.9'
+            os: ubuntu-latest
+            arch: arm64
+          - python-version: 'pypy'
+            os: ubuntu-latest
+          - python-version: 'pypy3'
+            os: ubuntu-latest
+          - python-version: '3.8'
+            os: ubuntu-latest
+            services: docker
+            env:
+              BUILD_SDIST: true
+              BUILD_WHEEL: true
+          - python-version: '3.8'
+            os: ubuntu-latest
+            arch: arm64
+            services: docker
+            env:
+              BUILD_WHEEL: true
+          - python-version: '2.7.17'
+            os: macos-latest
+            env:
+              PYENV_VERSION: 2.7.17
+          - python-version: '3.6.9'
+            os: macos-latest
+            env:
+              PYENV_VERSION: 3.6.9
+          - python-version: '3.7.5'
+            os: macos-latest
+            osx_image: xcode11.3
+            env:
+              PYENV_VERSION: 3.7.5
+          - python-version: '3.8.0'
+            os: macos-latest
+            osx_image: xcode11.3
+            env:
+              PYENV_VERSION: 3.8.0
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install dependencies
+      run: |
+        chmod +x ./.travis/install.sh
+        ./.travis/install.sh
+    - name: Run tests
+      run: |
+        chmod +x ./.travis/run.sh
+        ./.travis/run.sh
