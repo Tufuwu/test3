@@ -21,4 +21,5 @@ jobs:
     - name: Run script
       run: |
         echo "from Default.settings import *" > settings.py
+        chmod +x ./generate.py
         ./generate.py
