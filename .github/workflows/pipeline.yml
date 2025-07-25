@@ -1,39 +1,35 @@
-name: Python CI
+name: Python application
 
 on: [push, pull_request]
 
 jobs:
   build:
-    runs-on: ubuntu-22.04
 
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version: [3.6, 3.7, 3.8]
+    runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+    - uses: actions/checkout@v2
 
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v2
-        with:
-          python-version: ${{ matrix.python-version }}
 
-      - name: Install dependencies
-        run: pip install -r dev-requirements.txt
+    - name: Set up Python 3.8
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.8
 
-      - name: Run flake8
-        run: flake8 sendgrid_backend/
+    - name: Install dependencies
+      run: pip install -r dev-requirements.txt
 
-      - name: Run isort
-        run: isort -c ./
+    - name: Lint with flake8
+      run: flake8 sendgrid_backend/
 
-      - name: Run black
-        run: black --check ./
+    - name: Check with isort
+      run: isort -c ./
 
-      - name: Run mypy
-        run: mypy sendgrid_backend/
+    - name: Check with black
+      run: black --check ./
 
-      - name: Run tox
-        run: tox
+    - name: Check with mypy
+      run: mypy sendgrid_backend/
+
+    - name: Test with tox
+      run: tox
