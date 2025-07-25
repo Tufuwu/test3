@@ -1,13 +1,6 @@
-venv
-.DS_Store
-*.sublime-*
-dist/
-build/
-*.egg-info/
+__pycache__
 *.pyc
-.coverage
-.noseids
-.vscode/
-.tox
-\.eggs/
+*egg-info
+build
+dist
 .idea
