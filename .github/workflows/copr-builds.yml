@@ -1,34 +1,64 @@
----
-name: Fedora Copr build
+name: CI
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
   pull_request:
-    branches: [main]
-  schedule:
-    # This always runs against the default branch.  Two runs per month.
-    - cron: '0 0 1,16 * *'
+    branches:
+      - main
 
 jobs:
   build:
-    runs-on: ubuntu-latest
-    name: RPM package
+    runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
       matrix:
-        package:
-          - mock
-          - mock-core-configs
-
+        python-version: ["3.6", "3.7", "3.9", "3.10"]
     steps:
-      - name: Check out proper version of sources
-        uses: actions/checkout@v2
-
-      - name: Copr build ${{ matrix.package }}
-        env:
-          COPR_PR_WEBHOOK: https://copr.fedorainfracloud.org/webhooks/custom/29795/9d6af83d-7f27-4091-8161-c1098ff5a6dc/${{ matrix.package }}/
-          COPR_PUSH_WEBHOOK: ${{ secrets.COPR_PUSH_WEBHOOK }}/${{ matrix.package }}/
+      - uses: actions/checkout@v2
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install dependencies
         run: |
-          curl https://raw.githubusercontent.com/praiskup/copr-ci-tooling/main/copr-gh-actions-submit > submit
-          bash submit ${{ github.event.pull_request.number }}
+          pip install -r mock/requirements.txt
+          pip install pytest-cov
+      - name: Run tests
+        run: |
+          PYTHON=python${{ matrix.python-version }} ./mock/run-tests.sh
+
+  copr-build-mock:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.9
+      - name: Install dependencies
+        run: |
+          pip install -r mock/requirements.txt
+          pip install pytest-cov
+      - name: Build mock RPM in Copr
+        run: |
+          PACKAGE=mock .travis/copr-build
+
+  copr-build-mock-core-configs:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.9
+      - name: Install dependencies
+        run: |
+          pip install -r mock/requirements.txt
+          pip install pytest-cov
+      - name: Build mock-core-configs RPM in Copr
+        run: |
+          PACKAGE=mock-core-configs .travis/copr-build
