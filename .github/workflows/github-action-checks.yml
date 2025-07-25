@@ -17,7 +17,9 @@ jobs:
     - uses: actions/checkout@v2
 
     - name: Run link format check
-      run: scripts/link-format-chk.sh
+      run: |
+        chmod +x scripts/link-format-chk.sh
+        scripts/link-format-chk.sh
 
     - name: Build table and compare
       run: |
