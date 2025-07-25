@@ -85,5 +85,5 @@ jobs:
     - name: Upload coverage to Coveralls
       if: success()
       run: |
-        coverage combine
+
         coveralls
