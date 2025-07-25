@@ -1,71 +1,57 @@
-name: Python package
+name: CI
 
 on:
   push:
-    branches:
-      - main
+
   pull_request:
-    branches:
-      - main
-  release:
-    types: [created]
 
 jobs:
-  test:
+  build:
     runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
       matrix:
-        python-version: ['3.5', '3.6', '3.7', '3.8']
+        python-version: [3.5, 3.6, 3.7, 3.8]
         include:
-          - python-version: '3.5'
-            ipython-version: '7.9'
-            pandas-version: '0.24.2'
-          - python-version: '3.6'
-            ipython-version: '7'
-            pandas-version: '1'
-          - python-version: '3.7'
-            ipython-version: '7'
-            pandas-version: '1'
-          - python-version: '3.8'
-            ipython-version: '7'
-            pandas-version: '1'
+          - python-version: 3.5
+            IPYTHON_VERSION: '7.9'
+            PANDAS_VERSION: '0.24.2'
+          - python-version: 3.6
+            IPYTHON_VERSION: '7'
+            PANDAS_VERSION: '1'
+          - python-version: 3.7
+            IPYTHON_VERSION: '7'
+            PANDAS_VERSION: '1'
+          - python-version: 3.8
+            IPYTHON_VERSION: '7'
+            PANDAS_VERSION: '1'
+
     steps:
-    - uses: actions/checkout@v2
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
-      with:
-        python-version: ${{ matrix.python-version }}
-    - name: Install dependencies
-      run: |
-        pip install IPython==${{ matrix.ipython-version }}
-        pip install pandas==${{ matrix.pandas-version }}
-        pip install .[test]
-    - name: Run tests
-      run: |
-        python -c 'import pytorch_memlab'
-        pytest test/test_mem_reporter.py
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: |
+          pip install IPython==${{ matrix.IPYTHON_VERSION }}
+          pip install pandas==${{ matrix.PANDAS_VERSION }}
+          pip install .[test]
+
+      - name: Run tests
+        run: |
+          python -c 'import pytorch_memlab'
+          pytest test/test_mem_reporter.py
 
   deploy:
-
     runs-on: ubuntu-22.04
 
     steps:
-    - uses: actions/checkout@v2
-    - name: Set up Python 3.8
-      uses: actions/setup-python@v2
-      with:
-        python-version: 3.8
-    - name: Install dependencies
-      run: |
-        pip install IPython==7
-        pip install pandas==1
-        pip install .[test]
-    - name: Publish to PyPI
-      env:
-        TWINE_USERNAME: yoursky
-        TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
-      run: |
-        pip install twine wheel
-        python setup.py sdist bdist_wheel
-        twine upload dist/*
+      - name: Deploy to PyPI
+        uses: pypa/gh-action-pypi-publish@v1.4.2
+        with:
+          username: yoursky
+          password: ${{ secrets.PYPI_PASSWORD }}
