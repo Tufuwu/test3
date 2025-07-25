@@ -43,7 +43,7 @@ jobs:
     - name: Install dependencies
       run: |
         pip install -r requirements.txt
-        pip install coveralls
+        pip install coveralls nose
     - name: Install package
       run: python setup.py install
     - name: Run tests
