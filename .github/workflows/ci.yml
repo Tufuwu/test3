@@ -60,3 +60,7 @@ jobs:
 
     - name: Run tests
       run: tox -e py 
+      env:
+        SETUP_OPTIONS: ${{ !contains(matrix.lua, 'luajit') && (contains(matrix.lua, 'bundle') && '--use-bundle' || '--no-luajit') || '' }}
+        CFLAGS: ${{ contains(matrix.lua, 'bundle') && '-flto -g' || '-g' }}
+        LDFLAGS: ${{ contains(matrix.lua, 'bundle') && '-flto' || '' }}
