@@ -39,4 +39,4 @@ jobs:
 
     - name: Run script
       run: |
-        python FeedCrawler.py --port=9090 --config="/home/runner/config" --travis_ci --log-level=DEBUG
+        python FeedCrawler.py --port=9090 --config="/home/runner/work/_temp/_github_home" --test_run --log-level=DEBUG
