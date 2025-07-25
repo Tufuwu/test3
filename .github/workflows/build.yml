@@ -1,79 +1,102 @@
-name: Build
+name: CI
 
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  release:
+    types: [created]
 
 jobs:
-  macos:
-    runs-on: macos-latest
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          submodules: 'recursive'
-      - name: Set up Python 3.7
-        uses: actions/setup-python@v2
-        with:
-          python-version: 3.9
-      - name: Install dependencies
-        run: pip install -r requirements.txt
-      - name: Setup PYTHONPATH
-        run: echo "PYTHONPATH=$PYTHONPATH:$PWD:$PWD/spotify_lyric" >> $GITHUB_ENV
-      - name: Run test
-        working-directory: tests
-        run: python -m unittest discover . "*_test.py"
-      - name: Build .app
-        run: pyinstaller SpotifyLyrics.pyw -F -w -i icon.icns --add-data "icon.png:."
-      - name: Upload .app
-        uses: actions/upload-artifact@v4
-        with:
-          name: macos
-          path: dist/SpotifyLyrics.app
-  linux:
+  build-linux:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-        with:
-          submodules: 'recursive'
-      - name: Set up Python 3.7
+      - name: Set up Python
         uses: actions/setup-python@v2
         with:
           python-version: 3.9
-      - name: Install dbus
-        run: sudo apt install libdbus-1-dev libdbus-glib-1-dev --yes
       - name: Install dependencies
-        run: pip install -r requirements.txt
-      - name: Setup PYTHONPATH
-        run: echo "PYTHONPATH=$PYTHONPATH:$PWD:$PWD/spotify_lyric" >> $GITHUB_ENV
-      - name: Run test
-        working-directory: tests
-        run: python -m unittest discover . "*_test.py"
-      - name: Build executable
-        run: pyinstaller SpotifyLyrics.pyw -F -w -i icon.ico --add-data "icon.png:."
-      - name: Upload executable
-        uses: actions/upload-artifact@v4
+        run: |
+          sudo apt-get install libdbus-1-dev libdbus-glib-1-dev --yes
+          pip install --upgrade pip
+      - name: Set PYTHONPATH
+        run: echo "PYTHONPATH=$PYTHONPATH:$GITHUB_WORKSPACE:$GITHUB_WORKSPACE/spotify_lyric" >> $GITHUB_ENV
+      - name: Run tests
+        run: |
+          cd tests/
+          python -m unittest discover . "*_test.py"
+          cd ..
+      - name: Build with PyInstaller
+        run: |
+          pip install pyinstaller
+          pyinstaller SpotifyLyrics.pyw -F -w -i icon.ico --add-data "icon.png:." --additional-hooks-dir=pyinstaller_hooks
+      - name: Upload Release Asset
+        uses: actions/upload-release-asset@v1
         with:
-          name: linux
-          path: dist/SpotifyLyrics
-  windows:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: dist/SpotifyLyrics
+          asset_name: SpotifyLyrics
+          asset_content_type: application/octet-stream
+
+  build-macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install dependencies
+        run: |
+          python3 --version
+          pip3 install -r requirements.txt
+      - name: Set PYTHONPATH
+        run: echo "PYTHONPATH=$PYTHONPATH:$GITHUB_WORKSPACE:$GITHUB_WORKSPACE/spotify_lyric" >> $GITHUB_ENV
+      - name: Run tests
+        run: |
+          cd tests/
+          python3 -m unittest discover . "*_test.py"
+          cd ..
+      - name: Build with PyInstaller
+        run: |
+          pip3 install pyinstaller
+          pyinstaller SpotifyLyrics.pyw -F -w -i icon.icns --add-data "icon.png:." --additional-hooks-dir=pyinstaller_hooks
+          cd dist/
+          zip -r SpotifyLyrics.app.zip SpotifyLyrics.app
+          cd ..
+      - name: Upload Release Asset
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: dist/SpotifyLyrics.app.zip
+          asset_name: SpotifyLyrics.app.zip
+          asset_content_type: application/zip
+
+  build-windows:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v2
-        with:
-          submodules: 'recursive'
-      - name: Set up Python 3.9
+      - name: Install Python
         uses: actions/setup-python@v2
         with:
           python-version: 3.9
       - name: Install dependencies
-        run: pip install -r requirements.txt
-      - name: Setup PYTHONPATH
-        run: echo "PYTHONPATH=${env:PYTHONPATH};${env:GITHUB_WORKSPACE};${env:GITHUB_WORKSPACE}\spotify_lyric" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf-8 -Append
-      - name: Run test
-        working-directory: tests
-        run: python -m unittest discover . "*_test.py"
-      - name: Build .exe
-        run: pyinstaller SpotifyLyrics.pyw -F -w -i icon.ico --add-data "icon.png;."
-      - name: Upload .exe
-        uses: actions/upload-artifact@v4
+        run: python -m pip install -r requirements.txt
+      - name: Set PYTHONPATH
+        run: echo "PYTHONPATH=$PYTHONPATH;C:\Users\runner\work\spotifylyrics\spotifylyrics;C:\Users\runner\work\spotifylyrics\spotifylyrics\spotify_lyric" >> $GITHUB_ENV
+      - name: Run tests
+        run: |
+          cd tests/
+          python -m unittest discover . "*_test.py"
+          cd ..
+      - name: Build with PyInstaller
+        run: |
+          python -m pip install pyinstaller
+          pyinstaller SpotifyLyrics.pyw -F -w -i icon.ico --add-data "icon.png;." --additional-hooks-dir=pyinstaller_hooks
+      - name: Upload Release Asset
+        uses: actions/upload-release-asset@v1
         with:
-          name: windows
-          path: dist/SpotifyLyrics.exe
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: dist/SpotifyLyrics.exe
+          asset_name: SpotifyLyrics.exe
+          asset_content_type: application/octet-stream
