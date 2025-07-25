@@ -30,14 +30,3 @@ jobs:
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v1
 
-    - name: Notify on IRC
-      uses: appleboy/irc-action@master
-      with:
-        server: irc.freenode.org
-        channel: "#scrapy"
-        nick: github-actions
-        message: |
-          Github Actions has completed the build.
-          Check the results at ${{ github.server }}/${{ github.repository }}/actions
-        notice: true
-        join: true
