@@ -17,7 +17,9 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Test
-        run: tests/run_tests.sh
+        run: |
+          chmod +x tests/run_tests.sh
+          tests/run_tests.sh
         shell: bash
         env:
           LI_AT_COOKIE: ${{ secrets.LI_AT_COOKIE }}
