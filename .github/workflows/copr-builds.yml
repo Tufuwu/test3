@@ -27,6 +27,7 @@ jobs:
           pip install pytest-cov
       - name: Run tests
         run: |
+          chmod +x ./mock/run-tests.sh
           PYTHON=python${{ matrix.python-version }} ./mock/run-tests.sh
 
   copr-build-mock:
@@ -44,6 +45,7 @@ jobs:
           pip install pytest-cov
       - name: Build mock RPM in Copr
         run: |
+          chmod +x .travis/copr-build
           PACKAGE=mock .travis/copr-build
 
   copr-build-mock-core-configs:
@@ -61,4 +63,5 @@ jobs:
           pip install pytest-cov
       - name: Build mock-core-configs RPM in Copr
         run: |
+          chmod +x .travis/copr-build
           PACKAGE=mock-core-configs .travis/copr-build
