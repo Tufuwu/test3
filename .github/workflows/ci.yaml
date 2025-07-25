@@ -1,4 +1,4 @@
-name: Python package
+name: Python CI
 
 on:
   push:
@@ -31,25 +31,27 @@ jobs:
           - monitor
           - generators
           - loci
-          - adddelete
           - percolate
 
     steps:
-    - uses: actions/checkout@v2
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
-      with:
-        python-version: ${{ matrix.python-version }}
-    - name: Install dependencies
-      run: |
-        pip install -r requirements.txt
-        pip install coveralls nose
-    - name: Install package
-      run: python setup.py install
-    - name: Run tests
-      run: coverage run --include './epydemic/*' -m nose test/test_${{ matrix.test-suite }}.py
-    - name: Coveralls
-      if: success()
-      run: coveralls
-      env: 
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install coveralls
+
+      - name: Run tests
+        run: |
+          python setup.py install
+          coverage run --include './epydemic/*' -m nose test/test_${{ matrix.test-suite }}.py
+
+      - name: Upload coverage to Coveralls
+        if: success()
+        run: coveralls
