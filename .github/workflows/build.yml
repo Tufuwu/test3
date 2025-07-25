@@ -23,7 +23,7 @@ jobs:
       - name: Build .app
         run: pyinstaller SpotifyLyrics.pyw -F -w -i icon.icns --add-data "icon.png:."
       - name: Upload .app
-        uses: actions/upload-artifact@v2.1.4
+        uses: actions/upload-artifact@v4
         with:
           name: macos
           path: dist/SpotifyLyrics.app
@@ -49,7 +49,7 @@ jobs:
       - name: Build executable
         run: pyinstaller SpotifyLyrics.pyw -F -w -i icon.ico --add-data "icon.png:."
       - name: Upload executable
-        uses: actions/upload-artifact@v2.1.4
+        uses: actions/upload-artifact@v4
         with:
           name: linux
           path: dist/SpotifyLyrics
@@ -62,7 +62,7 @@ jobs:
       - name: Set up Python 3.9
         uses: actions/setup-python@v2
         with:
-          python-version: 3.7
+          python-version: 3.9
       - name: Install dependencies
         run: pip install -r requirements.txt
       - name: Setup PYTHONPATH
@@ -73,7 +73,7 @@ jobs:
       - name: Build .exe
         run: pyinstaller SpotifyLyrics.pyw -F -w -i icon.ico --add-data "icon.png;."
       - name: Upload .exe
-        uses: actions/upload-artifact@v2.1.4
+        uses: actions/upload-artifact@v4
         with:
           name: windows
           path: dist/SpotifyLyrics.exe
