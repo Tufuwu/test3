@@ -6,20 +6,17 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
-    strategy:
-      matrix:
-        python-version: [3.x]
-
     steps:
-    - uses: actions/checkout@v2
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
-      with:
-        python-version: ${{ matrix.python-version }}
-    - name: Install dependencies
-      run: pip install -r requirements.txt
-    - name: Run script
-      run: |
-        echo "from Default.settings import *" > settings.py
-        chmod +x ./generate.py
-        ./generate.py
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
+
+      - name: Create settings.py
+        run: echo "from Default.settings import *" > settings.py
+
+      - name: Run generate.py
+        run: python generate.py
