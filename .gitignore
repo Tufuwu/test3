@@ -1,19 +1,9 @@
-# Build/test processes
-
-.tox
-.idea
-build
-dist
-MANIFEST
 *.pyc
-*.pyd
-*.dll
-*.egg-info
-*.so
-*.c
-*.patch
-wheel*/
-lupa/version.py
-
-# Vim swapfiles
-*.swp
+_trial_temp
+docs/_build
+*egg-info
+.tox
+.coverage
+venv
+dist
+build
