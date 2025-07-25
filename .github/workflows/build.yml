@@ -23,6 +23,7 @@ jobs:
         run: |
           sudo apt-get install libdbus-1-dev libdbus-glib-1-dev --yes
           pip install --upgrade pip
+          pip install requests
       - name: Set PYTHONPATH
         run: echo "PYTHONPATH=$PYTHONPATH:$GITHUB_WORKSPACE:$GITHUB_WORKSPACE/spotify_lyric" >> $GITHUB_ENV
       - name: Run tests
