@@ -34,7 +34,7 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies
       run: |
-        pip install numpy==${{ matrix.numpy-version }} scipy 'matplotlib>=3,<4' cython>=0.28
+        python -m pip install --prefer-binary setuptools "cython>=0.28,<3.0" "matplotlib>=3,<4" numpy
         chmod +x dev/build.sh
         dev/build.sh
     - name: Run tests
