@@ -1,7 +1,19 @@
-*.pyc
+# Build/test processes
+
+.tox
+.idea
 build
 dist
-.idea/
+MANIFEST
+*.pyc
+*.pyd
+*.dll
 *.egg-info
-/.tox
-.eggs/
+*.so
+*.c
+*.patch
+wheel*/
+lupa/version.py
+
+# Vim swapfiles
+*.swp
