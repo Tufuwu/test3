@@ -1,91 +1,231 @@
-Python FHIR Parser
-==================
-A Python FHIR specification parser for model class generation.
-If you've come here because you want _Swift_ or _Python_ classes for FHIR data models, look at our client libraries instead:
+# linkedin-jobs-scraper
+> Scrape public available jobs on Linkedin using headless browser. 
+> For each job, the following fields are extracted: `job_id`, `link`, `apply_link`, `title`, `company`, `place`, `description`, 
+> `description_html`, `date`, `seniority_level`, `job_function`, `employment_type`, `industries`.
 
-- [Swift-FHIR][] and [Swift-SMART][]
-- Python [client-py][]
+## Table of Contents
 
-The `main` branch is currently capable of parsing _R4_
-and has preliminary support for _R5_.
+<!-- toc -->
 
-This work is licensed under the [APACHE license][license].
-FHIR® is the registered trademark of [HL7][] and is used with the permission of HL7.
+* [Requirements](#requirements)
+* [Installation](#installation)
+* [Usage](#usage)
+* [Anonymous vs authenticated session](#anonymous-vs-authenticated-session)
+* [Rate limiting](#rate-limiting)
+* [Filters](#filters)
+* [Company filter](#company-filter)
+* [Logging](#logging)
+* [License](#license)
 
-
-Tech
-----
-
-The _generate.py_ script downloads [FHIR specification][fhir] files, parses the profiles (using _fhirspec.py_) and represents them as `FHIRClass` instances with `FHIRClassProperty` properties (found in _fhirclass.py_).
-Additionally, `FHIRUnitTest` (in _fhirunittest.py_) instances get created that can generate unit tests from provided FHIR examples.
-These representations are then used by [Jinja][] templates to create classes in certain programming languages, mentioned below.
-
-This script does its job for the most part, but it doesn't yet handle all FHIR peculiarities and there's no guarantee the output is correct or complete.
-This repository **does not include the templates and base classes** needed for class generation, you must do this yourself in your project.
-You will typically add this repo as a submodule to your framework project, create a directory that contains the necessary base classes and templates, create _settings_ and _mappings_ files and run the script.
-Examples on what you would need to do for Python classes can be found in _Default/settings.py_, _Default/mappings.py_ and _Sample/templates*_.
+<!-- toc stop -->
 
 
-Use
----
-
-1. Add `fhir-parser` as a submodule/subdirectory to the project that will use it
-2. Create the file `mappings.py` in your project, to be copied to fhir-parser root.
-    First, import the default mappings using `from Default.mappings import *` (unless you will define all variables yourself anyway).
-    Then adjust your `mappings.py` to your liking by overriding the mappings you wish to change.
-3. Similarly, create the file `settings.py` in your project.
-    First, import the default settings using `from Default.settings import *` and override any settings you want to change.
-    Then, import the mappings you have just created with `from mappings import *`.
-    The default settings import the default mappings, so you may need to overwrite more keys from _mappings_ than you'd first think.
-    You most likely want to change the topmost settings found in the default file, which are determining where the templates can be found and generated classes will be copied to.
-4. Install the generator's requirements by running `pip3` (or `pip`):
-    ```bash
-    pip3 install -r requirements.txt
-    ```
-
-5. Create a script that copies your `mappings.py` and `settings.py` file to the root of `fhir-parser`, _cd_s into `fhir-parser` and then runs `generate.py`.
-    The _generate_ script by default wants to use Python _3_, issue `python generate.py` if you don't have Python 3 yet.
-    * Supply the `-f` flag to force a re-download of the spec.
-    * Supply the `--cache-only` (`-c`) flag to deny the re-download of the spec and only use cached resources (incompatible with `-f`).
-
-> NOTE that the script currently overwrites existing files without asking and without regret.
+## Requirements
+- [Chrome](https://www.google.com/intl/en_us/chrome/) or [Chromium](https://www.chromium.org/getting-involved/download-chromium)
+- [Chromedriver](https://chromedriver.chromium.org/)
+- Python >= 3.6
 
 
-Languages
-=========
-
-This repo used to contain templates for Python and Swift classes, but these have been moved to the respective framework repositories.
-A very basic Python sample implementation is included in the `Sample` directory, complementing the default _mapping_ and _settings_ files in `Default`.
-
-To get a sense of how to use _fhir-parser_, take a look at these libraries:
-
-- [**Swift-FHIR**][swift-fhir]
-- [**fhirclient**][client-py]
+## Installation
+Install package:
+```shell
+pip install linkedin-jobs-scraper
+```
 
 
-Tech Details
-============
+## Usage 
+```python
+import logging
+from linkedin_jobs_scraper import LinkedinScraper
+from linkedin_jobs_scraper.events import Events, EventData
+from linkedin_jobs_scraper.query import Query, QueryOptions, QueryFilters
+from linkedin_jobs_scraper.filters import RelevanceFilters, TimeFilters, TypeFilters, ExperienceLevelFilters
 
-This parser still applies some tricks, stemming from the evolving nature of FHIR's profile definitions.
-Some tricks may have become obsolete and should be cleaned up.
-
-### How are property names determined?
-
-Every “property” of a class, meaning every `element` in a profile snapshot, is represented as a `FHIRStructureDefinitionElement` instance.
-If an element itself defines a class, e.g. `Patient.animal`, calling the instance's `as_properties()` method returns a list of `FHIRClassProperty` instances – usually only one – that indicates a class was found in the profile.
-The class of this property is derived from `element.type`, which is expected to only contain one entry, in this matter:
-
-- If _type_ is `BackboneElement`, a class name is constructed from the parent element (in this case _Patient_) and the property name (in this case _animal_), camel-cased (in this case _PatientAnimal_).
-- Otherwise, the type is taken as-is (e.g. _CodeableConcept_) and mapped according to mappings' `classmap`, which is expected to be a valid FHIR class.
-
-> TODO: should `http://hl7.org/fhir/StructureDefinition/structuredefinition-explicit-type-name` be respected?
+# Change root logger level (default is WARN)
+logging.basicConfig(level = logging.INFO)
 
 
-[license]: ./LICENSE.txt
-[hl7]: http://hl7.org/
-[fhir]: http://www.hl7.org/implement/standards/fhir/
-[jinja]: http://jinja.pocoo.org/
-[swift]: https://developer.apple.com/swift/
-[swift-fhir]: https://github.com/smart-on-fhir/Swift-FHIR
-[swift-smart]: https://github.com/smart-on-fhir/Swift-SMART
-[client-py]: https://github.com/smart-on-fhir/client-py
+def on_data(data: EventData):
+    print('[ON_DATA]', data.title, data.company, data.date, data.link, len(data.description))
+
+
+def on_error(error):
+    print('[ON_ERROR]', error)
+
+
+def on_end():
+    print('[ON_END]')
+
+
+scraper = LinkedinScraper(
+    chrome_executable_path=None, # Custom Chrome executable path (e.g. /foo/bar/bin/chromedriver) 
+    chrome_options=None,  # Custom Chrome options here
+    headless=True,  # Overrides headless mode only if chrome_options is None
+    max_workers=1,  # How many threads will be spawned to run queries concurrently (one Chrome driver for each thread)
+    slow_mo=0.4,  # Slow down the scraper to avoid 'Too many requests (429)' errors
+)
+
+# Add event listeners
+scraper.on(Events.DATA, on_data)
+scraper.on(Events.ERROR, on_error)
+scraper.on(Events.END, on_end)
+
+queries = [
+    Query(
+        options=QueryOptions(
+            optimize=True,  # Blocks requests for resources like images and stylesheet
+            limit=27  # Limit the number of jobs to scrape
+        )
+    ),
+    Query(
+        query='Engineer',
+        options=QueryOptions(
+            locations=['United States'],
+            optimize=False,
+            limit=5,
+            filters=QueryFilters(
+                company_jobs_url='https://www.linkedin.com/jobs/search/?f_C=1441%2C17876832%2C791962%2C2374003%2C18950635%2C16140%2C10440912&geoId=92000000',  # Filter by companies
+                relevance=RelevanceFilters.RECENT,
+                time=TimeFilters.MONTH,
+                type=[TypeFilters.FULL_TIME, TypeFilters.INTERNSHIP],
+                experience=None,
+            )
+        )
+    ),
+]
+
+scraper.run(queries)
+```
+
+## Anonymous vs authenticated session
+By default the scraper will run in anonymous mode (no authentication required). In some environments (e.g. AWS or Heroku) 
+this may be not possible though. You may face the following error message:
+
+```
+Scraper failed to run in anonymous mode, authentication may be necessary for this environment.
+```
+
+In that case the only option available is to run using an authenticated session. These are the steps required:
+1. Login to LinkedIn using an account of your choice.
+2. Open Chrome developer tools:
+
+![](https://github.com/spinlud/py-linkedin-jobs-scraper/raw/master/images/img3.png)
+
+3. Go to tab `Application`, then from left panel select `Storage` -> `Cookies` -> `https://www.linkedin.com`. In the
+main view locate row with name `li_at` and copy content from the column `Value`.
+
+![](https://github.com/spinlud/py-linkedin-jobs-scraper/raw/master/images/img4.png)
+
+4. Set the environment variable `LI_AT_COOKIE` with the value obtained in step 3, then run your application as normal.
+Example:
+
+```shell script
+LI_AT_COOKIE=<your li_at cookie value here> python your_app.py
+```
+
+## Rate limiting
+You may experience the following rate limiting warning during execution: 
+```
+[429] Too many requests. You should probably increase scraper "slow_mo" value or reduce concurrency.
+```
+
+This means you are exceeding the number of requests per second allowed by the server (this is especially true when 
+using authenticated sessions where the rate limits are much more strict). You can overcome this by:
+
+- Trying a higher value for `slow_mo` parameter (this will slow down scraper execution). 
+- Reducing the value of `max_workers` to limit concurrency. I recommend to use no more than one worker in authenticated
+  mode.
+
+## Filters
+It is possible to customize queries with the following filters:
+- RELEVANCE:
+    * `RELEVANT`
+    * `RECENT`
+- TIME:
+    * `DAY`
+    * `WEEK`
+    * `MONTH`
+    * `ANY`
+- TYPE:
+    * `FULL_TIME`
+    * `PART_TIME`
+    * `TEMPORARY`
+    * `CONTRACT`
+- EXPERIENCE LEVEL:
+    * `INTERNSHIP`
+    * `ENTRY_LEVEL`
+    * `ASSOCIATE`
+    * `MID_SENIOR`
+    * `DIRECTOR`
+    
+See the following example for more details:
+
+```python
+from linkedin_jobs_scraper.query import Query, QueryOptions, QueryFilters
+from linkedin_jobs_scraper.filters import RelevanceFilters, TimeFilters, TypeFilters, ExperienceLevelFilters
+
+
+query = Query(
+    query='Engineer',
+    options=QueryOptions(
+        locations=['United States'],
+        optimize=False,
+        limit=5,
+        filters=QueryFilters(            
+            relevance=RelevanceFilters.RECENT,
+            time=TimeFilters.MONTH,
+            type=[TypeFilters.FULL_TIME, TypeFilters.INTERNSHIP],
+            experience=[ExperienceLevelFilters.INTERNSHIP, ExperienceLevelFilters.MID_SENIOR],
+        )
+    )
+)
+```
+
+### Company Filter
+
+It is also possible to filter by company using the public company jobs url on LinkedIn. To find this url you have to:
+ 1. Login to LinkedIn using an account of your choice.
+ 2. Go to the LinkedIn page of the company you are interested in (e.g. [https://www.linkedin.com/company/google](https://www.linkedin.com/company/google)).
+ 3. Click on `jobs` from the left menu.
+ 
+ ![](https://github.com/spinlud/py-linkedin-jobs-scraper/raw/master/images/img1.png)
+
+ 
+ 4. Scroll down and locate `See all jobs` or `See jobs` button.
+ 
+ ![](https://github.com/spinlud/py-linkedin-jobs-scraper/raw/master/images/img2.png)
+ 
+ 5. Right click and copy link address (or navigate the link and copy it from the address bar).
+ 6. Paste the link address in code as follows:
+ 
+```python
+query = Query(    
+    options=QueryOptions(        
+        filters=QueryFilters(
+            # Paste link below
+            company_jobs_url='https://www.linkedin.com/jobs/search/?f_C=1441%2C17876832%2C791962%2C2374003%2C18950635%2C16140%2C10440912&geoId=92000000',        
+        )
+    )
+)
+```
+  
+## Logging
+Package logger can be retrieved using namespace `li:scraper`. Default level is `INFO`. 
+It is possible to change logger level using environment variable `LOG_LEVEL` or in code:
+
+```python
+import logging
+
+# Change root logger level (default is WARN)
+logging.basicConfig(level = logging.DEBUG)
+
+# Change package logger level
+logging.getLogger('li:scraper').setLevel(logging.DEBUG)
+
+# Optional: change level to other loggers
+logging.getLogger('urllib3').setLevel(logging.WARN)
+logging.getLogger('selenium').setLevel(logging.WARN)
+```
+
+## License
+[MIT License](http://en.wikipedia.org/wiki/MIT_License)
