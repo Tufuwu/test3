@@ -6,7 +6,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     strategy:
-      fafil-fast: false
+      fail-fast: false
       matrix:
         python-version: [3.6, 3.7, 3.8, 3.9]
         numpy-version: [1.15.4, 1.15.4, 1.15.4, 1.19.4]
