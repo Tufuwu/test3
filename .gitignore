@@ -1,3 +1,36 @@
+# -*- coding: utf-8 -*-
+# FeedCrawler
+# Projekt von https://github.com/rix1337
+
+# Python
 *.pyc
-.coverage
-htmlcov/
+*.bak
+*.spec
+file_version_info.txt
+version.txt
+__pycache__
+
+# Build Tools
+build
+dist
+venv
+*.egg-info
+
+# FeedCrawler files
+*.conf
+*.db
+*.log
+*.crawljob
+*.ini
+*.journal
+*.zip
+*.1
+*.2
+*.3
+*.4
+*.5
+
+# PyCharm
+.idea
+.eggs
+

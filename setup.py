@@ -1,29 +1,43 @@
-import os
-from setuptools import setup, find_packages
+# -*- coding: utf-8 -*-
+# FeedCrawler
+# Projekt von https://github.com/rix1337
 
-from tos import VERSION
+import setuptools
 
-f = open(os.path.join(os.path.dirname(__file__), 'README.rst'))
-readme = f.read()
-f.close()
+from feedcrawler.version import get_version
 
-setup(
-    name='django-tos',
-    version=".".join(map(str, VERSION)),
-    description='django-tos is a reusable Django application for setting Terms of Service.',
-    long_description=readme,
-    author='Frank Wiles',
-    author_email='frank@revsys.com',
-    url='http://github.com/revsys/django-tos/tree/master',
-    packages=find_packages(),
+try:
+    with open('README.md', encoding='utf-8') as f:
+        long_description = f.read()
+except:
+    import io
+
+    long_description = io.open('README.md', encoding='utf-8').read()
+
+with open('requirements.txt') as f:
+    required = f.read().splitlines()
+
+setuptools.setup(
+    name="feedcrawler",
+    version=get_version(),
+    author="rix1337",
+    author_email="",
+    description="Automating JDownloader Downloads (German!)",
+    long_description=long_description,
+    long_description_content_type="text/markdown",
+    url="https://github.com/rix1337/FeedCrawler",
+    packages=setuptools.find_packages(),
     include_package_data=True,
+    install_requires=required,
+    zip_safe=False,
     classifiers=[
-        'Development Status :: 4 - Beta',
-        'Environment :: Web Environment',
-        'Intended Audience :: Developers',
-        'License :: OSI Approved :: BSD License',
-        'Operating System :: OS Independent',
-        'Programming Language :: Python',
-        'Framework :: Django',
+        "Programming Language :: Python :: 3",
+        "License :: OSI Approved :: MIT License",
+        "Operating System :: OS Independent",
     ],
+    entry_points={
+        'console_scripts': [
+            'feedcrawler = feedcrawler.crawler:main',
+        ],
+    },
 )
