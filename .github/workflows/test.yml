@@ -1,29 +1,31 @@
-name: Python CI
+name: Python package
 
 on: [push, pull_request]
 
 jobs:
   build:
+
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        python-version: [2.7, 3.5, 3.6, 3.7, 3.8, 3.9, 'pypy', 'pypy3']
-        os: [ubuntu-latest]
-    
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        python: [2.7, 3.5, 3.6, 3.7, 3.8, 3.9, pypy, pypy3]
+        arch: [x64, x86]
+        include:
+          - os: windows-latest
+            arch: x64
+          - os: windows-latest
+            arch: x86
+
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v2
-        with:
-          python-version: ${{ matrix.python-version }}
-
-      - name: Install dependencies
-        run: |
-          pip install mock
-
-      - name: Run tests
-        run: |
-          python -m unittest discover -p '*_test.py'
+    - uses: actions/checkout@v2
+    - name: Set up Python ${{ matrix.python }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python }}
+        architecture: ${{ matrix.arch }}
+    - name: Install dependencies
+      run: pip install mock
+    - name: Test with unittest
+      run: python -m unittest discover -p *_test.py
