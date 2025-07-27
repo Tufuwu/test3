@@ -20,7 +20,7 @@ jobs:
         sudo apt-get update -qq
         sudo apt-get install -qq libhdf5-serial-dev
         python -m pip install --upgrade pip setuptools wheel virtualenv
-        pip install tox tox-travis codecov
+        pip install tox tox-gh-actions codecov
 
     - name: Run tox
       run: tox
