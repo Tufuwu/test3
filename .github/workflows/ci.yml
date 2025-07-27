@@ -55,6 +55,7 @@ jobs:
           RUN_WEB_TESTS: ${{ matrix.run-web-tests }}
           BROWSER_TAG:  chrome-latest
         run: |
+          chmod +x ./scripts/ci_runtests.sh
           ./scripts/ci_runtests.sh
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v1
