@@ -1,25 +1,18 @@
-name: Python package
+name: Python CI
 
-on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
+on: [push, pull_request]
 
 jobs:
   build:
     runs-on: ubuntu-latest
+
     strategy:
-      fail-fast: false
       matrix:
-        toxenv:
-          - pep8
-          - py3
+        toxenv: [pep8, py3]
 
     steps:
-    - uses: actions/checkout@v2
+    - name: Checkout code
+      uses: actions/checkout@v2
 
     - name: Set up Python
       uses: actions/setup-python@v2
@@ -27,9 +20,7 @@ jobs:
         python-version: '3.9'
 
     - name: Install dependencies
-      run: pip install -U tox 
+      run: pip install -U tox
 
     - name: Run tox
-      env:
-        TOXENV: ${{ matrix.toxenv }}
-      run: tox
+      run: tox -e ${{ matrix.toxenv }}
