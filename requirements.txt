@@ -6,3 +6,4 @@ paho-mqtt==1.5.0
 pyserial==3.4
 pyserial-asyncio==0.4
 voluptuous==0.11.7
+typeguard<3.0
