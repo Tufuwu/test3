@@ -1,7 +1,15 @@
-*.pyc
+*.egg-info
+*.py[co]
+__pycache__
+MANIFEST
+./dist/
+docs/_build/
+build/
+.coverage
+.tox
+.hypothesis
+*.sqlite3
+node_modules/
+npm-debug.log
 .cache/
-*.sublime-*
-
-# Ignore pipenv's lockfile until support for multiple versions of python is
-# dropped
-/Pipfile.lock
+.pytest_cache/
