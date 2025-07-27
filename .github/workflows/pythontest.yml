@@ -1,33 +1,32 @@
-name: CI
+name: Python package
 
-on: [push, pull_request]
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ master ]
 
 jobs:
   build:
-    runs-on: ubuntu-22.04
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version: [3.5, 3.6, 3.7, 3.8]
+
+    runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+    - uses: actions/checkout@v2
 
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v2
-        with:
-          python-version: ${{ matrix.python-version }}
+    - name: Set up Python 3.8
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.8
 
-      - name: Install dependencies
-        run: |
-          pip install -r requirements.txt
-          pip install -r test-requirements.txt
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt -r test-requirements.txt
 
-      - name: Run tests
-        run: |
-          pytest --cov=tdclient tdclient/test
+    - name: Run tests
+      run: |
+        py.test --cov tdclient tdclient/test
 
-      - name: Upload coverage to Coveralls
-        if: success()
-        run: coveralls
+    - name: Coveralls
+      run: coveralls
