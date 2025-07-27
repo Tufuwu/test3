@@ -1,6 +1,14 @@
-name: Tests
+name: Python package
 
-on: [push]
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  release:
+    types: [created]
 
 jobs:
   test:
@@ -8,23 +16,47 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [2.7, 3.4, 3.5, 3.6, 3.7, 3.8, 3.9]
-
+        python-version: [2.7, 3.4, 3.5, 3.6, 3.7, 3.8, 3.9, "3.9-flake8"]
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python-version }}
-    - name: Install test utilities
-      run: pip install 'tox<4' tox-factor codecov "coverage<5"
-    - name: Lint with flake8
-      run: tox -e flake8
-      if: matrix.python-version == '3.9'
-    - name: Test via tox
+    - name: Install dependencies
       run: |
-        export TOXFACTOR=$(echo "py${{ matrix.python-version }}" | sed 's/\.//g')
-        tox -- -p no:warnings
-    - name: Upload coverage report
+        if [[ "${{ matrix.python-version }}" == "3.9-flake8" ]]; then
+          pip install tox-travis codecov flake8
+        else
+          pip install tox-travis codecov
+        fi
+    - name: Run tests
+      run: |
+        if [[ "${{ matrix.python-version }}" == "3.9-flake8" ]]; then
+          tox -e flake8 -- -p no:warnings
+        else
+          tox -- -p no:warnings
+        fi
+    - name: Upload coverage to Codecov
+      if: success()
       run: codecov
-      if: ${{ success() }}
+
+  deploy:
+    runs-on: ubuntu-22.04
+    needs: test
+    if: github.event_name == 'release'
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python 3.8
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.8
+    - name: Install dependencies
+      run: pip install setuptools wheel twine
+    - name: Build and publish
+      env:
+        TWINE_USERNAME: W1ldPo1nter
+        TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
+      run: |
+        python setup.py sdist bdist_wheel
+        twine upload dist/*
