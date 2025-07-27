@@ -1,21 +1,13 @@
 name: Python package
 
-on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
+on: [push, pull_request]
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
     strategy:
-      fail-fast: false
       matrix:
-        python-version: [3.8, pypy-3.7]
+        python-version: [3.8, pypy3.5]
 
     steps:
     - uses: actions/checkout@v2
