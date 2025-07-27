@@ -1,69 +1,71 @@
----
-name: CI
+name: Python package
 
 on:
   push:
-    branches: ["main"]
+    branches:
+      - main
   pull_request:
-    branches: ["master"]
-  workflow_dispatch:
+    branches:
+      - main
 
 jobs:
-  tests:
-    name: "Python ${{ matrix.python-version }}"
-    runs-on: "ubuntu-latest"
-    env:
-      USING_COVERAGE: "3.6,3.7,3.8,3.9"
-
+  build:
+    runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.6", "3.7", "3.8", "3.9", "pypy-3.7"]
+        os: [ubuntu-latest]
+        python-version: [3.5, 3.6, 3.7, 3.8, 3.9-dev]
+        include:
+          - os: ubuntu-latest
+            python-version: 3.5
+            arch: ppc64le
+          - os: ubuntu-latest
+            python-version: 3.6
+            arch: ppc64le
+          - os: ubuntu-latest
+            python-version: 3.7
+            arch: ppc64le
+          - os: ubuntu-latest
+            python-version: 3.8
+            arch: ppc64le
+          - os: ubuntu-latest
+            python-version: 3.9-dev
+            arch: ppc64le
+      exclude:
+        - python-version: pypy3
+          arch: ppc64le
 
     steps:
-      - uses: "actions/checkout@v2"
-      - uses: "actions/setup-python@v2"
-        with:
-          python-version: "${{ matrix.python-version }}"
-      - name: "Install dependencies"
-        run: |
-          set -xe
-          python -VV
-          python -m site
-          python -m pip install --upgrade pip wheel poetry
-          python -m pip install --upgrade coverage[toml] virtualenv tox tox-gh-actions
-      - name: "Run tox targets for ${{ matrix.python-version }}"
-        run: "python -m tox"
+    - uses: actions/checkout@v2
 
-      # We always use a modern Python version for combining coverage to prevent
-      # parsing errors in older versions for modern code.
-      - uses: "actions/setup-python@v2"
-        with:
-          python-version: "3.9"
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+        architecture: ${{ matrix.arch }}
 
-      - name: "Upload coverage to Codecov"
-        if: "contains(env.USING_COVERAGE, matrix.python-version)"
-        uses: "codecov/codecov-action@v1"
-        with:
-          fail_ci_if_error: true
+    - name: Cache pip
+      uses: actions/cache@v4
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
 
-  package:
-    name: "Build & verify package"
-    runs-on: "ubuntu-latest"
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install tox
+        pip install codecov
 
-    steps:
-      - uses: "actions/checkout@v2"
-      - uses: "actions/setup-python@v2"
-        with:
-          python-version: "3.9"
+    - name: Run tests
+      run: tox -e py${{ matrix.python-version }}
 
-      - name: "Install poetry and twine"
-        run: "python -m pip install poetry twine check-wheel-contents"
-      - name: "Build package"
-        run: "poetry build"
-      - name: "List result"
-        run: "ls -l dist"
-      - name: "Check wheel contents"
-        run: "check-wheel-contents dist/*.whl"
-      - name: "Check long_description"
-        run: "python -m twine check dist/*"
+    - name: Generate coverage report
+      if: success()
+      run: tox -e coverage-report
+
+    - name: Upload coverage to Codecov
+      if: success()
+      run: codecov
