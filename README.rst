@@ -1,320 +1,227 @@
-=====================================
-fgivenx: Functional Posterior Plotter  
-=====================================
-:fgivenx:  Functional Posterior Plotter 
-:Author: Will Handley
-:Version: 2.2.2
-:Homepage: https://github.com/williamjameshandley/fgivenx
-:Documentation: http://fgivenx.readthedocs.io/
+The Walrus
+##########
 
-.. image:: https://github.com/williamjameshandley/fgivenx/workflows/CI/badge.svg?branch=master
-   :target: https://github.com/williamjameshandley/fgivenx/actions?query=workflow%3ACI+branch%3Amaster
-   :alt: Build Status
-.. image:: https://codecov.io/gh/williamjameshandley/fgivenx/branch/master/graph/badge.svg
-   :target: https://codecov.io/gh/williamjameshandley/fgivenx
-   :alt: Test Coverage Status
-.. image:: https://badge.fury.io/py/fgivenx.svg
-   :target: https://badge.fury.io/py/fgivenx
-   :alt: PyPi location
-.. image:: https://readthedocs.org/projects/fgivenx/badge/?version=latest
-   :target: https://fgivenx.readthedocs.io/en/latest/?badge=latest
-   :alt: Documentation Status
-.. image:: http://joss.theoj.org/papers/cf6f8ac309d6a18b6d6cf08b64aa3f62/status.svg
-   :target: http://joss.theoj.org/papers/cf6f8ac309d6a18b6d6cf08b64aa3f62
-   :alt: Review Status
-.. image:: https://zenodo.org/badge/100947684.svg
-   :target: https://zenodo.org/badge/latestdoi/100947684
-   :alt: Permanent DOI
-.. image:: https://img.shields.io/badge/arXiv-1908.01711-b31b1b.svg
-   :target: https://arxiv.org/abs/1908.01711
-   :alt: Open-access paper
+.. image:: https://circleci.com/gh/XanaduAI/thewalrus/tree/master.svg?style=svg
+    :alt: CircleCI
+    :target: https://circleci.com/gh/XanaduAI/thewalrus/tree/master
 
-Description
-===========
+.. image:: https://ci.appveyor.com/api/projects/status/9udscqldo1xd25yk/branch/master?svg=true
+    :alt: Appveyor
+    :target: https://ci.appveyor.com/project/josh146/hafnian/branch/master
 
-``fgivenx`` is a python package for plotting posteriors of functions. It is
-currently used in astronomy, but will be of use to any scientists performing
-Bayesian analyses which have predictive posteriors that are functions.
+.. image:: https://img.shields.io/codecov/c/github/xanaduai/thewalrus/master.svg?style=flat
+    :alt: Codecov coverage
+    :target: https://codecov.io/gh/XanaduAI/thewalrus
 
-This package allows one to plot a predictive posterior of a function,
-dependent on sampled parameters. We assume one has a Bayesian posterior
-``Post(theta|D,M)`` described by a set of posterior samples ``{theta_i}~Post``.
-If there is a function parameterised by theta ``y=f(x;theta)``, then this script
-will produce a contour plot of the conditional posterior ``P(y|x,D,M)`` in the
-``(x,y)`` plane.
+.. image:: https://img.shields.io/codacy/grade/df94d22534cf4c05b1bddcf697011a82.svg?style=flat
+    :alt: Codacy grade
+    :target: https://app.codacy.com/app/XanaduAI/thewalrus?utm_source=github.com&utm_medium=referral&utm_content=XanaduAI/thewalrus&utm_campaign=badger
 
-The driving routines are ``fgivenx.plot_contours``, ``fgivenx.plot_lines`` and
-``fgivenx.plot_dkl``. The code is compatible with getdist, and has a loading function
-provided by ``fgivenx.samples_from_getdist_chains``.
+.. image:: https://img.shields.io/readthedocs/the-walrus.svg?style=flat
+    :alt: Read the Docs
+    :target: https://the-walrus.readthedocs.io
 
-|image0|
+.. image:: https://img.shields.io/pypi/pyversions/thewalrus.svg?style=flat
+    :alt: PyPI - Python Version
+    :target: https://pypi.org/project/thewalrus
 
-Getting Started
-===============
+.. image:: https://joss.theoj.org/papers/10.21105/joss.01705/status.svg
+    :alt: JOSS - The Journal of Open Source Software
+    :target: https://doi.org/10.21105/joss.01705
 
-Users can install using pip:
+A library for the calculation of hafnians, Hermite polynomials and Gaussian boson sampling. For more information, please see the `documentation <https://the-walrus.readthedocs.io>`_.
 
-.. code:: bash
+Features
+========
 
-   pip install fgivenx
+* Fast calculation of hafnians, loop hafnians, and torontonians of general and certain structured matrices.
 
-from source:
+* An easy to use interface to use the loop hafnian for Gaussian quantum state calculations.
 
-.. code:: bash
+* Sampling algorithms for hafnian and torontonians of graphs.
 
-   git clone https://github.com/williamjameshandley/fgivenx
-   cd fgivenx
-   python setup.py install --user
+* Efficient classical methods for approximating the hafnian of non-negative matrices.
 
-or for those on `Arch linux <https://www.archlinux.org/>`__ it is
-available on the
-`AUR <https://aur.archlinux.org/packages/python-fgivenx/>`__
+* Easy to use implementations of the multidimensional Hermite polynomials, which can also be used to calculate hafnians of all reductions of a given matrix.
 
-You can check that things are working by running the test suite (You may
-encounter warnings if the optional dependency ``joblib`` is not installed):
 
-.. code:: bash
+Installation
+============
 
-   pip install pytest pytest-runner pytest-mpl
-   export MPLBACKEND=Agg
-   pytest <fgivenx-install-location>
+Pre-built binary wheels are available for the following platforms:
 
-   # or, equivalently
-   git clone https://github.com/williamjameshandley/fgivenx
-   cd fgivenx
-   python setup.py test
++------------+-------------+------------------+---------------+
+|            | macOS 10.6+ | manylinux x86_64 | Windows 64bit |
++============+=============+==================+===============+
+| Python 3.6 |      X      |        X         |       X       |
++------------+-------------+------------------+---------------+
+| Python 3.7 |      X      |        X         |       X       |
++------------+-------------+------------------+---------------+
+| Python 3.8 |      X      |        X         |       X       |
++------------+-------------+------------------+---------------+
 
-Check the dependencies listed in the next section are installed. You can then use the
-``fgivenx`` module from your scripts.
+To install, simply run
 
-Some users of OSX or `Anaconda <https://en.wikipedia.org/wiki/Anaconda_(Python_distribution)>`__ may find ``QueueManagerThread`` errors if `Pillow <https://pypi.org/project/Pillow/>`__ is not installed (run ``pip install pillow``).
+.. code-block:: bash
 
-If you want to use parallelisation, have progress bars or getdist compatibility
-you should install the additional optional dependencies:
+    pip install thewalrus
 
-.. code:: bash
 
-   pip install joblib tqdm getdist
-   # or, equivalently
-   pip install -r  requirements.txt
+Compiling from source
+=====================
 
-You may encounter warnings if you don't have the optional dependency ``joblib``
-installed.
+The Walrus depends on the following Python packages:
 
-Dependencies
-=============
-Basic requirements:
+* `Python <http://python.org/>`_ >= 3.6
+* `NumPy <http://numpy.org/>`_  >= 1.13.3
+* `Numba <https://numba.pydata.org/>`_ >= 0.43.1
 
-* Python 2.7+ or 3.4+
-* `matplotlib <https://pypi.org/project/matplotlib/>`__
-* `numpy <https://pypi.org/project/numpy/>`__
-* `scipy <https://pypi.org/project/scipy/>`__
+In addition, to compile the C++ extension, the following dependencies are required:
 
-Documentation:
+* A C++11 compiler, such as ``g++`` >= 4.8.1, ``clang`` >= 3.3, ``MSVC`` >= 14.0/2015
+* `Eigen3 <http://eigen.tuxfamily.org/index.php?title=Main_Page>`_ - a C++ header library for linear algebra.
+* `Cython <https://cython.org/>`_ an optimising static compiler for the Python programming language.
 
-* `sphinx <https://pypi.org/project/Sphinx/>`__
-* `numpydoc <https://pypi.org/project/numpydoc/>`__
+On Debian-based systems, these can be installed via ``apt`` and ``curl``:
 
-Tests:
+.. code-block:: console
 
-* `pytest <https://pypi.org/project/pytest/>`__
-* `pytest-mpl <https://pypi.org/project/pytest-mpl/>`__
+    $ sudo apt install g++ libeigen3-dev
+    $ pip install Cython
 
-Optional extras:
+or using Homebrew on MacOS:
 
-* `joblib <https://pypi.org/project/joblib/>`__ (parallelisation) [`+ pillow <https://pypi.org/project/Pillow/>`__ on some systems]
-* `tqdm <https://pypi.org/project/tqdm/>`__ (progress bars)
-* `getdist <https://pypi.org/project/GetDist/>`__ (reading of getdist compatible files)
+.. code-block:: console
 
+    $ brew install gcc eigen
+    $ pip install Cython
+
+Alternatively, you can download the Eigen headers manually:
+
+.. code-block:: console
+
+    $ mkdir ~/.local/eigen3 && cd ~/.local/eigen3
+    $ wget https://gitlab.com/libeigen/eigen/-/archive/3.3.7/eigen-3.3.7.tar.gz -O eigen3.tar.gz
+    $ tar xzf eigen3.tar.gz eigen-eigen-323c052e1731/Eigen --strip-components 1
+    $ export EIGEN_INCLUDE_DIR=$HOME/.local/eigen3
+
+Note that we export the environment variable ``EIGEN_INCLUDE_DIR`` so that The Walrus can find the Eigen3 header files (if not provided, The Walrus will by default look in ``/use/include/eigen3`` and ``/usr/local/include/eigen3``).
+
+You can compile the latest development version by cloning the git repository, and installing using pip in development mode.
+
+.. code-block:: console
+
+    $ git clone https://github.com/XanaduAI/thewalrus.git
+    $ cd thewalrus && python -m pip install -e .
+
+
+OpenMP
+------
+
+``libwalrus`` uses OpenMP to parallelize both the permanent and the hafnian calculation. **At the moment, this is only supported on Linux using the GNU g++ compiler, due to insufficient support using Windows/MSCV and MacOS/Clang.**
+
+
+
+Using LAPACK, OpenBLAS, or MKL
+------------------------------
+
+If you would like to take advantage of the highly optimized matrix routines of LAPACK, OpenBLAS, or MKL, you can optionally compile the ``libwalrus`` such that Eigen uses these frameworks as backends. As a result, all calls in the ``libwalrus`` library to Eigen functions are silently substituted with calls to LAPACK/OpenBLAS/MKL.
+
+For example, for LAPACK integration, make sure you have the ``lapacke`` C++ LAPACK bindings installed (``sudo apt install liblapacke-dev`` in Ubuntu-based Linux distributions), and then compile with the environment variable ``USE_LAPACK=1``:
+
+.. code-block:: console
+
+    $ USE_LAPACK=1 python -m pip install thewalrus --no-binary :all:
+
+Alternatively, you may pass ``USE_OPENBLAS=1`` to use the OpenBLAS library.
+
+
+Software tests
+==============
+
+To ensure that The Walrus library is working correctly after installation, the test suite can be run by navigating to the source code folder and running
+
+.. code-block:: console
+
+    $ make test
+
+To run the low-level C++ test suite, `Googletest <https://github.com/google/googletest>`_
+will need to be installed. In Ubuntu-based distributions, this can be done as follows:
+
+.. code-block:: console
+
+    sudo apt-get install cmake libgtest-dev
+
+Alternatively, the latest Googletest release can be installed from source:
+
+.. code-block:: console
+
+    sudo apt install cmake
+    wget -qO - https://github.com/google/googletest/archive/release-1.8.1.tar.gz | tar -xz
+    cmake -D CMAKE_INSTALL_PREFIX:PATH=$HOME/googletest -D CMAKE_BUILD_TYPE=Release googletest-release-1.8.1
+    make install
+
+If installing Googletest from source, make sure that the included headers and
+libraries are available on your include/library paths.
 
 Documentation
 =============
 
-Full Documentation is hosted at
-`ReadTheDocs <http://fgivenx.readthedocs.io/>`__.
-To build your own local copy of the documentation you'll need to install
-`sphinx <https://pypi.org/project/Sphinx/>`__. You can then run:
+The Walrus documentation is available online on `Read the Docs <https://the-walrus.readthedocs.io>`_.
 
-.. code:: bash
+To build it locally, you need to have the following packages installed:
 
-   cd docs
-   make html
+* `Sphinx <http://sphinx-doc.org/>`_ >= 1.5
+* `sphinxcontrib-bibtex <https://sphinxcontrib-bibtex.readthedocs.io/en/latest/>`_ >= 0.3.6
+* `nbsphinx <https://github.com/spatialaudio/nbsphinx>`_
+* `Pandoc <https://pandoc.org/>`_
+* `breathe <https://breathe.readthedocs.io/en/latest/>`_ >= 4.12.0
+* `exhale <https://exhale.readthedocs.io/en/latest/>`_
+* `Doxygen <http://www.doxygen.nl/>`_
 
-Citation
-========
+They can be installed via a combination of ``pip`` and ``apt`` if on a Debian-based system:
+::
 
-If you use ``fgivenx`` to generate plots for a publication, please cite
-as: ::
+    $ sudo apt install pandoc doxygen
+    $ pip3 install sphinx sphinxcontrib-bibtex nbsphinx breathe exhale
 
-   Handley, (2018). fgivenx: A Python package for functional posterior
-   plotting . Journal of Open Source Software, 3(28), 849,
-   https://doi.org/10.21105/joss.00849
+To build the HTML documentation, go to the top-level directory and run the command
 
-or using the BibTeX:
+.. code-block:: console
 
-.. code:: bibtex
+    $ make doc
 
-   @article{fgivenx,
-       doi = {10.21105/joss.00849},
-       url = {http://dx.doi.org/10.21105/joss.00849},
-       year  = {2018},
-       month = {Aug},
-       publisher = {The Open Journal},
-       volume = {3},
-       number = {28},
-       author = {Will Handley},
-       title = {fgivenx: Functional Posterior Plotter},
-       journal = {The Journal of Open Source Software}
-   }
+The documentation can then be found in the ``docs/_build/html/`` directory.
 
-Example Usage
-=============
+Contributing to The Walrus
+==========================
 
+We welcome contributions - simply fork The Walrus repository, and then make a pull request containing your contribution. All contributors to The Walrus will be listed as authors on the releases.
 
+We also encourage bug reports, suggestions for new features and enhancements, and even links to projects, applications or scientific publications that use The Walrus.
 
-Plot user-generated samples
----------------------------
+Authors
+=======
 
-.. code:: python
+Brajesh Gupt, Josh Izaac and Nicolas Quesada.
 
-    import numpy
-    import matplotlib.pyplot as plt
-    from fgivenx import plot_contours, plot_lines, plot_dkl
+All contributions are acknowledged in the `acknowledgments page <https://github.com/XanaduAI/thewalrus/blob/master/.github/ACKNOWLEDGMENTS.md>`_.
+
+If you are doing research using The Walrus, please cite `our paper <https://joss.theoj.org/papers/10.21105/joss.01705>`_:
+
+ Brajesh Gupt, Josh Izaac and Nicolas Quesada. The Walrus: a library for the calculation of hafnians, Hermite polynomials and Gaussian boson sampling. Journal of Open Source Software, 4(44), 1705 (2019)
 
 
-    # Model definitions
-    # =================
-    # Define a simple straight line function, parameters theta=(m,c)
-    def f(x, theta):
-        m, c = theta
-        return m * x + c
+Support
+=======
+
+- **Source Code:** https://github.com/XanaduAI/thewalrus
+- **Issue Tracker:** https://github.com/XanaduAI/thewalrus/issues
+
+If you are having issues, please let us know by posting the issue on our Github issue tracker.
 
 
-    numpy.random.seed(1)
+License
+=======
 
-    # Posterior samples
-    nsamples = 1000
-    ms = numpy.random.normal(loc=-5, scale=1, size=nsamples)
-    cs = numpy.random.normal(loc=2, scale=1, size=nsamples)
-    samples = numpy.array([(m, c) for m, c in zip(ms, cs)]).copy()
-
-    # Prior samples
-    ms = numpy.random.normal(loc=0, scale=5, size=nsamples)
-    cs = numpy.random.normal(loc=0, scale=5, size=nsamples)
-    prior_samples = numpy.array([(m, c) for m, c in zip(ms, cs)]).copy()
-
-    # Set the x range to plot on
-    xmin, xmax = -2, 2
-    nx = 100
-    x = numpy.linspace(xmin, xmax, nx)
-
-    # Set the cache
-    cache = 'cache/test'
-    prior_cache = cache + '_prior'
-
-    # Plotting
-    # ========
-    fig, axes = plt.subplots(2, 2)
-
-    # Sample plot
-    # -----------
-    ax_samples = axes[0, 0]
-    ax_samples.set_ylabel(r'$c$')
-    ax_samples.set_xlabel(r'$m$')
-    ax_samples.plot(prior_samples.T[0], prior_samples.T[1], 'b.')
-    ax_samples.plot(samples.T[0], samples.T[1], 'r.')
-
-    # Line plot
-    # ---------
-    ax_lines = axes[0, 1]
-    ax_lines.set_ylabel(r'$y = m x + c$')
-    ax_lines.set_xlabel(r'$x$')
-    plot_lines(f, x, prior_samples, ax_lines, color='b', cache=prior_cache)
-    plot_lines(f, x, samples, ax_lines, color='r', cache=cache)
-
-    # Predictive posterior plot
-    # -------------------------
-    ax_fgivenx = axes[1, 1]
-    ax_fgivenx.set_ylabel(r'$P(y|x)$')
-    ax_fgivenx.set_xlabel(r'$x$')
-    cbar = plot_contours(f, x, prior_samples, ax_fgivenx,
-                         colors=plt.cm.Blues_r, lines=False,
-                         cache=prior_cache)
-    cbar = plot_contours(f, x, samples, ax_fgivenx, cache=cache)
-
-    # DKL plot
-    # --------
-    ax_dkl = axes[1, 0]
-    ax_dkl.set_ylabel(r'$D_\mathrm{KL}$')
-    ax_dkl.set_xlabel(r'$x$')
-    ax_dkl.set_ylim(bottom=0, top=2.0)
-    plot_dkl(f, x, samples, prior_samples, ax_dkl,
-             cache=cache, prior_cache=prior_cache)
-
-    ax_lines.get_shared_x_axes().join(ax_lines, ax_fgivenx, ax_samples)
-
-    fig.tight_layout()
-    fig.savefig('plot.png')
-
-|image0|
-
-Plot GetDist chains
--------------------
-
-.. code:: python
-
-    import numpy
-    import matplotlib.pyplot as plt
-    from fgivenx import plot_contours, samples_from_getdist_chains
-
-    file_root = './plik_HM_TT_lowl/base_plikHM_TT_lowl'
-    samples, weights = samples_from_getdist_chains(['logA', 'ns'], file_root)
-
-    def PPS(k, theta):
-        logA, ns = theta
-        return logA + (ns - 1) * numpy.log(k)
-        
-    k = numpy.logspace(-4,1,100)
-    cbar = plot_contours(PPS, k, samples, weights=weights)
-    cbar = plt.colorbar(cbar,ticks=[0,1,2,3])
-    cbar.set_ticklabels(['',r'$1\sigma$',r'$2\sigma$',r'$3\sigma$'])
-    
-    plt.xscale('log')
-    plt.ylim(2,4)
-    plt.ylabel(r'$\ln\left(10^{10}\mathcal{P}_\mathcal{R}\right)$')
-    plt.xlabel(r'$k / {\rm Mpc}^{-1}$')
-    plt.tight_layout()
-    plt.savefig('planck.png')
-
-|image1|
-
-Contributing
-============
-Want to contribute to ``fgivenx``? Awesome!
-There are many ways you can contribute via the 
-[GitHub repository](https://github.com/williamjameshandley/fgivenx), 
-see below.
-
-Opening issues
---------------
-Open an issue to report bugs or to propose new features.
-
-Proposing pull requests
------------------------
-Pull requests are very welcome. Note that if you are going to propose drastic
-changes, be sure to open an issue for discussion first, to make sure that your
-PR will be accepted before you spend effort coding it.
-
-.. |image0| image:: https://raw.githubusercontent.com/williamjameshandley/fgivenx/master/plot.png
-.. |image1| image:: https://raw.githubusercontent.com/williamjameshandley/fgivenx/master/planck.png 
-
-Changelog
-=========
-:v2.2.0:  Paper accepted
-:v2.1.17: 100% coverage
-:v2.1.16: Tests fixes
-:v2.1.15: Additional plot tests
-:v2.1.13: Further bug fix in test suite for image comparison
-:v2.1.12: Bug fix in test suite for image comparison
-:v2.1.11: Documentation upgrades
-:v2.1.10: Added changelog
+The Walrus is **free** and **open source**, released under the Apache License, Version 2.0.
