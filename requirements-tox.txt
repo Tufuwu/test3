@@ -8,4 +8,4 @@ pytest==4.0.2
 pytest-cov==2.8.1
 pytest-pythonpath==0.7.3
 six==1.12.0
-typeguard>=4.1.0
+typeguard==2.13.3
