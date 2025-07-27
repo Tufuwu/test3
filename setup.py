@@ -1,62 +1,74 @@
 #!/usr/bin/env python
+
+import os
+import re
 import sys
-from distutils.core import Command
-import subprocess
 
-from setuptools import setup
-
-import defusedxml
+from setuptools import find_packages, setup
+from setuptools.command.test import test as TestCommand
 
 
-class PyTest(Command):
-    user_options = []
+def read(fname):
+    with open(os.path.join(os.path.dirname(__file__), fname)) as fp:
+        return fp.read()
+
+
+m = re.search(
+    r"^__version__ *= *\"([^\"]*)\" *$", read("tdclient/version.py"), re.MULTILINE
+)
+
+if m is None:
+    raise (RuntimeError("could not read tdclient/version.py"))
+else:
+    version = m.group(1)
+
+
+class PyTest(TestCommand):
+    user_options = [("pytest-args=", "a", "Arguments to pass to py.test")]
 
     def initialize_options(self):
-        pass
+        TestCommand.initialize_options(self)
+        self.pytest_args = []
 
-    def finalize_options(self):
-        pass
+    def run_tests(self):
+        import pytest
 
-    def run(self):
-        errno = subprocess.call([sys.executable, "tests.py"])
-        raise SystemExit(errno)
-
-
-long_description = []
-with open("README.txt") as f:
-    long_description.append(f.read())
-with open("CHANGES.txt") as f:
-    long_description.append(f.read())
+        errno = pytest.main(self.pytest_args)
+        sys.exit(errno)
 
 
 setup(
-    name="defusedxml",
-    version=defusedxml.__version__,
+    name="td-client",
+    version=version,
+    description="Treasure Data API library for Python",
+    long_description=read("README.rst"),
+    long_description_content_type="text/x-rst; charset=UTF-8;",
+    author="Treasure Data, Inc.",
+    author_email="support@treasure-data.com",
+    url="http://treasuredata.com/",
+    python_requires=">=3.5",
+    install_requires=["msgpack>=0.6.2", "python-dateutil", "urllib3"],
+    tests_require=["coveralls", "mock", "pytest", "pytest-cov", "tox"],
+    extras_require={
+        "dev": ["black==19.3b0", "isort", "flake8"],
+        "docs": ["sphinx", "sphinx_rtd_theme"],
+    },
+    packages=find_packages(),
     cmdclass={"test": PyTest},
-    packages=["defusedxml"],
-    author="Christian Heimes",
-    author_email="christian@python.org",
-    maintainer="Christian Heimes",
-    maintainer_email="christian@python.org",
-    url="https://github.com/tiran/defusedxml",
-    download_url="https://pypi.python.org/pypi/defusedxml",
-    keywords="xml bomb DoS",
-    platforms="all",
-    license="PSFL",
-    description="XML bomb protection for Python stdlib modules",
-    long_description="\n".join(long_description),
+    license="Apache Software License",
+    platforms="Posix; MacOS X; Windows",
     classifiers=[
-        "Development Status :: 5 - Production/Stable",
+        "Development Status :: 4 - Beta",
+        "Environment :: Web Environment",
         "Intended Audience :: Developers",
-        "License :: OSI Approved :: Python Software Foundation License",
-        "Natural Language :: English",
-        "Programming Language :: Python",
-        "Programming Language :: Python :: 3",
+        "License :: OSI Approved :: Apache Software License",
+        "Operating System :: OS Independent",
+        "Topic :: Internet",
+        "Programming Language :: Python :: 3.5",
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
-        "Programming Language :: Python :: 3.9",
-        "Topic :: Text Processing :: Markup :: XML",
+        "Programming Language :: Python :: Implementation :: CPython",
+        "Programming Language :: Python :: Implementation :: PyPy",
     ],
-    python_requires=">=3.6",
 )

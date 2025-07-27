@@ -1,12 +1,17 @@
-/build/
-/dist/
-__pycache__
+*.egg-info
 *.pyc
 *.pyo
-*.egg-info
-.tox
-.cache
-.coverage
-coverage.xml
-MANIFEST
-README.html
+*.swo
+*.swp
+/.cache
+/.coverage
+/.eggs
+/.envrc
+/.tox
+/build
+/dist
+/tmp
+
+# JetBrains IDE
+.idea/
+/docs/_build
