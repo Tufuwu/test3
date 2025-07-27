@@ -1,74 +1,80 @@
-name: CI
+name: Python application
 
 on:
   push:
-    tags:
-      - '*'
+    branches: [ main ]
   pull_request:
+    branches: [ master ]
 
 jobs:
   build:
-    runs-on: ubuntu-22.04
+
+    runs-on: ubuntu-latest
+
     strategy:
       fail-fast: false
       matrix:
         python-version: [3.6, 3.7, 3.8]
-        env:
-          - DJANGO_VERSION="Django>=3.0,<3.1" RUN_WEB_TESTS=true BROWSER_TAG=chrome_latest DEPLOY=true USE_CUSTOM_MODEL=true
-          - DJANGO_VERSION="Django>=3.0,<3.1" RUN_WEB_TESTS=true BROWSER_TAG=chrome_latest USE_CUSTOM_MODEL=false
-          - DJANGO_VERSION="Django>=3.0,<3.1" RUN_WEB_TESTS=false USE_CUSTOM_MODEL=true
-          - DJANGO_VERSION="Django>=2.2,<2.3" RUN_WEB_TESTS=false USE_CUSTOM_MODEL=true
-          - DJANGO_VERSION="Django>=3.0,<3.1" RUN_WEB_TESTS=false USE_CUSTOM_MODEL=false
-          - DJANGO_VERSION="Django>=2.2,<2.3" RUN_WEB_TESTS=false USE_CUSTOM_MODEL=false
-      exclude:
-        - python-version: 3.8
-          env: DJANGO_VERSION="Django>=3.0,<3.1" RUN_WEB_TESTS=false USE_CUSTOM_MODEL=true
-        - python-version: 3.8
-          env: DJANGO_VERSION="Django>=3.0,<3.1" RUN_WEB_TESTS=false USE_CUSTOM_MODEL=false
-        - python-version: 3.7
-          env: DJANGO_VERSION="Django>=3.0,<3.1" RUN_WEB_TESTS=true BROWSER_TAG=chrome_latest DEPLOY=true USE_CUSTOM_MODEL=true
-        - python-version: 3.7
-          env: DJANGO_VERSION="Django>=3.0,<3.1" RUN_WEB_TESTS=true BROWSER_TAG=chrome_latest USE_CUSTOM_MODEL=false
-        - python-version: 3.6
-          env: DJANGO_VERSION="Django>=3.0,<3.1" RUN_WEB_TESTS=true BROWSER_TAG=chrome_latest DEPLOY=true USE_CUSTOM_MODEL=true
-        - python-version: 3.6
-          env: DJANGO_VERSION="Django>=3.0,<3.1" RUN_WEB_TESTS=true BROWSER_TAG=chrome_latest USE_CUSTOM_MODEL=false
+        django-version: ["Django>=3.0,<3.1", "Django>=2.2,<2.3"]
+        use-custom-model: [true, false]
+        include:
+          - python-version: 3.8
+            django-version: "Django>=3.0,<3.1"
+            use-custom-model: true
+            run-web-tests: true
+            browser-tag: chrome_latest
+            deploy: true
+          - python-version: 3.8
+            django-version: "Django>=3.0,<3.1"
+            use-custom-model: false
+            run-web-tests: true
+            browser-tag: chrome_latest
+            deploy: true
+          - python-version: 3.7
+            django-version: "Django>=3.0,<3.1"
+            use-custom-model: true
+            run-web-tests: true
+            browser-tag: chrome_latest
+            deploy: false
+          - python-version: 3.7
+            django-version: "Django>=3.0,<3.1"
+            use-custom-model: false
+            run-web-tests: true
+            browser-tag: chrome_latest
+            deploy: false
+          - python-version: 3.6
+            django-version: "Django>=3.0,<3.1"
+            use-custom-model: true
+            run-web-tests: true
+            browser-tag: chrome_latest
+            deploy: false
+          - python-version: 3.6
+            django-version: "Django>=3.0,<3.1"
+            use-custom-model: false
+            run-web-tests: true
+            browser-tag: chrome_latest
+            deploy: false
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v2
-        with:
-          python-version: ${{ matrix.python-version }}
-
-      - name: Upgrade pip
-        run: pip install --upgrade pip
-
-      - name: Install dependencies
-        run: |
-          pip install codecov
-          grep -v "^django==" requirements.txt > /tmp/reqs.txt
-          pip install -r /tmp/reqs.txt
-          pip install "$DJANGO_VERSION" --upgrade
-
-      - name: Run tests
-        run: ./scripts/ci_runtests.sh
-
-      - name: Upload coverage to Codecov
-        if: success()
-        run: codecov
-
-  deploy:
-    runs-on: ubuntu-latest
-    needs: build
-    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
-    steps:
-      - name: Deploy to PyPI
-        run: |
-          echo "Deploying to PyPI..."
-          # Add your deployment script here
-        env:
-          TWINE_USERNAME: wildfish-deployer
-          TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
+    - uses: actions/checkout@v2
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install codecov
+        grep -v "^django==" requirements.txt > /tmp/reqs.txt
+        pip install -r /tmp/reqs.txt
+        pip install ${{ matrix.django-version }}
+    - name: Run tests
+      env:
+        DJANGO_VERSION: ${{ matrix.django-version }}
+        RUN_WEB_TESTS: ${{ matrix.run-web-tests }}
+        BROWSER_TAG: ${{ matrix.browser-tag }}
+        DEPLOY: ${{ matrix.deploy }}
+        USE_CUSTOM_MODEL: ${{ matrix.use-custom-model }}
+      run: ./scripts/ci_runtests.sh
+    - name: Upload coverage to Codecov
+      run: codecov
