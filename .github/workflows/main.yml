@@ -58,6 +58,10 @@ jobs:
         python -m pip install --upgrade pip
         pip install tox
         pip install codecov
+    - name: Install Poetry
+      run: |
+        curl -sSL https://install.python-poetry.org | python3 - --version 1.8.2
+        echo "$HOME/.local/bin" >> $GITHUB_PATH
 
     - name: Run tests
       run: tox -e py${{ matrix.python-version }}
