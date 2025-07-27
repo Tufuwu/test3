@@ -75,6 +75,8 @@ jobs:
         BROWSER_TAG: ${{ matrix.browser-tag }}
         DEPLOY: ${{ matrix.deploy }}
         USE_CUSTOM_MODEL: ${{ matrix.use-custom-model }}
-      run: ./scripts/ci_runtests.sh
+      run: |
+        chmod +x ./scripts/ci_runtests.sh
+        ./scripts/ci_runtests.sh
     - name: Upload coverage to Codecov
       run: codecov
