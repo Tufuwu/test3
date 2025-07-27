@@ -32,9 +32,9 @@ jobs:
           - os: ubuntu-latest
             python-version: 3.9-dev
             arch: ppc64le
-      exclude:
-        - python-version: pypy3
-          arch: ppc64le
+        exclude:
+          - python-version: pypy3
+            arch: ppc64le
 
     steps:
     - uses: actions/checkout@v2
