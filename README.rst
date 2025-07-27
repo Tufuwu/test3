@@ -1,108 +1,161 @@
-Incremental
-===========
+====================================
+Django REST Framework JSON CamelCase
+====================================
 
-|travis|
-|pypi|
-|coverage|
+.. image:: https://travis-ci.org/vbabiy/djangorestframework-camel-case.svg?branch=master
+        :target: https://travis-ci.org/vbabiy/djangorestframework-camel-case
 
-Incremental is a small library that versions your Python projects.
+.. image:: https://badge.fury.io/py/djangorestframework-camel-case.svg
+    :target: https://badge.fury.io/py/djangorestframework-camel-case
 
-API documentation can be found `here <https://twisted.github.io/incremental/docs/>`_.
+Camel case JSON support for Django REST framework.
 
+============
+Installation
+============
 
-Quick Start
------------
+At the command line::
 
-Add this to your ``setup.py``\ 's ``setup()`` call, removing any other versioning arguments:
+    $ pip install djangorestframework-camel-case
 
-.. code::
+Add the render and parser to your django settings file.
 
-   setup(
-       use_incremental=True,
-       setup_requires=['incremental'],
-       install_requires=['incremental'], # along with any other install dependencies
-       ...
-   }
+.. code-block:: python
 
+    # ...
+    REST_FRAMEWORK = {
 
-Install Incremental to your local environment with ``pip install incremental[scripts]``.
-Then run ``python -m incremental.update <projectname> --create``.
-It will create a file in your package named ``_version.py`` and look like this:
+        'DEFAULT_RENDERER_CLASSES': (
+            'djangorestframework_camel_case.render.CamelCaseJSONRenderer',
+            'djangorestframework_camel_case.render.CamelCaseBrowsableAPIRenderer',
+            # Any other renders
+        ),
 
-.. code::
+        'DEFAULT_PARSER_CLASSES': (
+            # If you use MultiPartFormParser or FormParser, we also have a camel case version
+            'djangorestframework_camel_case.parser.CamelCaseFormParser',
+            'djangorestframework_camel_case.parser.CamelCaseMultiPartParser',
+            'djangorestframework_camel_case.parser.CamelCaseJSONParser',
+            # Any other parsers
+        ),
+    }
+    # ...
 
-   from incremental import Version
+=================
+Swapping Renderer
+=================
 
-   __version__ = Version("widgetbox", 17, 1, 0)
-   __all__ = ["__version__"]
+By default the package uses `rest_framework.renderers.JSONRenderer`. If you want
+to use another renderer (the only possible alternative is
+`rest_framework.renderers.UnicodeJSONRenderer`, only available in DRF < 3.0), you must specify it in your django
+settings file.
 
+.. code-block:: python
 
-Then, so users of your project can find your version, in your root package's ``__init__.py`` add:
+    # ...
+    JSON_CAMEL_CASE = {
+        'RENDERER_CLASS': 'rest_framework.renderers.UnicodeJSONRenderer'
+    }
+    # ...
 
-.. code::
-
-   from ._version import __version__
-
-
-Subsequent installations of your project will then use Incremental for versioning.
-
-
-Incremental Versions
---------------------
-
-``incremental.Version`` is a class that represents a version of a given project.
-It is made up of the following elements (which are given during instantiation):
-
-- ``package`` (required), the name of the package this ``Version`` represents.
-- ``major``, ``minor``, ``micro`` (all required), the X.Y.Z of your project's ``Version``.
-- ``release_candidate`` (optional), set to 0 or higher to mark this ``Version`` being of a release candidate (also sometimes called a "prerelease").
-- ``post`` (optional), set to 0 or higher to mark this ``Version`` as a postrelease.
-- ``dev`` (optional), set to 0 or higher to mark this ``Version`` as a development release.
-
-You can extract a PEP-440 compatible version string by using the ``.public()`` method, which returns a ``str`` containing the full version. This is the version you should provide to users, or publicly use. An example output would be ``"13.2.0"``, ``"17.1.2dev1"``, or ``"18.8.0rc2"``.
-
-Calling ``repr()`` with a ``Version`` will give a Python-source-code representation of it, and calling ``str()`` with a ``Version`` will provide a string similar to ``'[Incremental, version 16.10.1]'``.
-
-
-Updating
---------
-
-Incremental includes a tool to automate updating your Incremental-using project's version called ``incremental.update``.
-It updates the ``_version.py`` file and automatically updates some uses of Incremental versions from an indeterminate version to the current one.
-It requires ``click`` from PyPI.
-
-``python -m incremental.update <projectname>`` will perform updates on that package.
-The commands that can be given after that will determine what the next version is.
-
-- ``--newversion=<version>``, to set the project version to a fully-specified version (like 1.2.3, or 17.1.0dev1).
-- ``--rc``, to set the project version to ``<year-2000>.<month>.0rc1`` if the current version is not a release candidate, or bump the release candidate number by 1 if it is.
-- ``--dev``, to set the project development release number to 0 if it is not a development release, or bump the development release number by 1 if it is.
-- ``--patch``, to increment the patch number of the release. This will also reset the release candidate number, pass ``--rc`` at the same time to increment the patch number and make it a release candidate.
-- ``--post``, to set the project postrelease number to 0 if it is not a postrelease, or bump the postrelease number by 1 if it is. This will also reset the release candidate and development release numbers.
-
-If you give no arguments, it will strip the release candidate number, making it a "full release".
-
-Incremental supports "indeterminate" versions, as a stand-in for the next "full" version. This can be used when the version which will be displayed to the end-user is unknown (for example "introduced in" or "deprecated in"). Incremental supports the following indeterminate versions:
-
-- ``Version("<projectname>", "NEXT", 0, 0)``
-- ``<projectname> NEXT``
-
-When you run ``python -m incremental.update <projectname> --rc``, these will be updated to real versions (assuming the target final version is 17.1.0):
-
-- ``Version("<projectname>", 17, 1, 0, release_candidate=1)``
-- ``<projectname> 17.1.0rc1``
-
-Once the final version is made, it will become:
-
-- ``Version("<projectname>", 17, 1, 0)``
-- ``<projectname> 17.1.0``
+=====================
+Underscoreize Options
+=====================
 
 
-.. |coverage| image:: https://codecov.io/github/twisted/incremental/coverage.svg?branch=master
-.. _coverage: https://codecov.io/github/twisted/incremental
+**No Underscore Before Number**
 
-.. |travis| image:: https://travis-ci.org/twisted/incremental.svg?branch=master
-.. _travis: https://travis-ci.org/twisted/incremental
 
-.. |pypi| image:: http://img.shields.io/pypi/v/incremental.svg
-.. _pypi: https://pypi.python.org/pypi/incremental
+As raised in `this comment <https://github.com/krasa/StringManipulation/issues/8#issuecomment-121203018>`_
+there are two conventions of snake case.
+
+.. code-block:: text
+
+    # Case 1 (Package default)
+    v2Counter -> v_2_counter
+    fooBar2 -> foo_bar_2
+
+    # Case 2
+    v2Counter -> v2_counter
+    fooBar2 -> foo_bar2
+
+
+By default, the package uses the first case. To use the second case, specify it in your django settings file.
+
+.. code-block:: python
+
+    REST_FRAMEWORK = {
+        # ...
+        'JSON_UNDERSCOREIZE': {
+            'no_underscore_before_number': True,
+        },
+        # ...
+    }
+
+Alternatively, you can change this behavior on a class level by setting `json_underscoreize`:
+
+.. code-block:: python
+
+    from djangorestframework_camel_case.parser import CamelCaseJSONParser
+    from rest_framework.generics import CreateAPIView
+
+    class NoUnderscoreBeforeNumberCamelCaseJSONParser(CamelCaseJSONParser):
+        json_underscoreize = {'no_underscore_before_number': True}
+
+    class MyView(CreateAPIView):
+        queryset = MyModel.objects.all()
+        serializer_class = MySerializer
+        parser_classes = (NoUnderscoreBeforeNumberCamelCaseJSONParser,)
+
+=============
+Ignore Fields
+=============
+
+You can also specify fields which should not have their data changed.
+The specified field(s) would still have their name change, but there would be no recursion.
+For example:
+
+.. code-block:: python
+
+    data = {"my_key": {"do_not_change": 1}}
+
+Would become:
+
+.. code-block:: python
+
+    {"myKey": {"doNotChange": 1}}
+
+However, if you set in your settings:
+
+.. code-block:: python
+
+    REST_FRAMEWORK = {
+        # ...
+        "JSON_UNDERSCOREIZE": {
+            # ...
+            "ignore_fields": ("my_key",),
+            # ...
+        },
+        # ...
+    }
+
+The `my_key` field would not have its data changed:
+
+.. code-block:: python
+
+    {"myKey": {"do_not_change": 1}}
+
+=============
+Running Tests
+=============
+
+To run the current test suite, execute the following from the root of he project::
+
+    $ python -m unittest discover
+
+
+=======
+License
+=======
+
+* Free software: BSD license
