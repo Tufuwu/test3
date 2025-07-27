@@ -26,9 +26,9 @@ jobs:
     - name: Install dependencies
       run: |
         if [[ "${{ matrix.python-version }}" == "3.9-flake8" ]]; then
-          pip install tox-travis codecov flake8
+          pip install tox-gh-actions codecov flake8
         else
-          pip install tox-travis codecov
+          pip install tox-gh-actions codecov
         fi
     - name: Run tests
       run: |
