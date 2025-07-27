@@ -1,37 +1,40 @@
-name: CI
+name: Python application
 
 on: [push, pull_request]
 
 jobs:
   build:
+
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: [3.9]
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
+    - uses: actions/checkout@v2
 
-    - name: Set up Python
+    - name: Set up Python 3.6
       uses: actions/setup-python@v2
       with:
-        python-version: ${{ matrix.python-version }}
+        python-version: 3.9
 
-    - name: Install system dependencies
-      run: |
-        sudo apt-get -qq update
-        sudo apt-get install -y libeigen3-dev
+    - name: Cache pip
+      uses: actions/cache@v4
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
 
     - name: Install dependencies
       run: |
+        sudo apt-get -qq update
+        sudo apt-get install -y libeigen3-dev
         pip install -r requirements.txt
         pip install pytest pytest-cov pytest-randomly wheel codecov
         pip install -e .
 
-    - name: Run tests and coverage
-      run: make coverage
+    - name: Test with pytest
+      run: |
+        make coverage
 
     - name: Upload coverage to Codecov
-      if: success()
-      run: bash <(curl -s https://codecov.io/bash)
+      run: |
+        codecov
