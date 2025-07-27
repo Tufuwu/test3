@@ -34,7 +34,7 @@ jobs:
     - name: Install dependencies
       run: |
         pip install pipenv
-        pipenv install --deploy --system
+        pipenv install --deploy --dev --system
 
     - name: Lint with flake8
       run: |
