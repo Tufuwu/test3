@@ -1,82 +1,41 @@
-name: Python application
+name: CI
 
 on:
   push:
     branches: [ main ]
   pull_request:
     branches: [ master ]
+  schedule:
+    - cron: "0 0 * * *"
+
+  workflow_dispatch:
 
 jobs:
-  build:
-
-    runs-on: ubuntu-latest
-
+  pip:
+    runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        python-version: [3.6, 3.7, 3.8]
-        django-version: ["Django>=3.0,<3.1", "Django>=2.2,<2.3"]
-        use-custom-model: [true, false]
-        include:
-          - python-version: 3.8
-            django-version: "Django>=3.0,<3.1"
-            use-custom-model: true
-            run-web-tests: true
-            browser-tag: chrome_latest
-            deploy: true
-          - python-version: 3.8
-            django-version: "Django>=3.0,<3.1"
-            use-custom-model: false
-            run-web-tests: true
-            browser-tag: chrome_latest
-            deploy: true
-          - python-version: 3.7
-            django-version: "Django>=3.0,<3.1"
-            use-custom-model: true
-            run-web-tests: true
-            browser-tag: chrome_latest
-            deploy: false
-          - python-version: 3.7
-            django-version: "Django>=3.0,<3.1"
-            use-custom-model: false
-            run-web-tests: true
-            browser-tag: chrome_latest
-            deploy: false
-          - python-version: 3.6
-            django-version: "Django>=3.0,<3.1"
-            use-custom-model: true
-            run-web-tests: true
-            browser-tag: chrome_latest
-            deploy: false
-          - python-version: 3.6
-            django-version: "Django>=3.0,<3.1"
-            use-custom-model: false
-            run-web-tests: true
-            browser-tag: chrome_latest
-            deploy: false
-
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        python-version: [3.6, 3.7, 3.8, 3.9]
+        requirements: [minimal_requirements.txt, requirements.txt]
+    env:
+      MPLBACKEND: Agg
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python-version }}
+
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install codecov
-        grep -v "^django==" requirements.txt > /tmp/reqs.txt
-        pip install -r /tmp/reqs.txt
-        pip install '${{ matrix.django-version }}'
-    - name: Run tests
-      env:
-        DJANGO_VERSION: ${{ matrix.django-version }}
-        RUN_WEB_TESTS: ${{ matrix.run-web-tests }}
-        BROWSER_TAG: ${{ matrix.browser-tag }}
-        DEPLOY: ${{ matrix.deploy }}
-        USE_CUSTOM_MODEL: ${{ matrix.use-custom-model }}
-      run: |
-        chmod +x ./scripts/ci_runtests.sh
-        ./scripts/ci_runtests.sh
+        python -m pip install pytest pytest-cov pytest-xdist
+        python -m pip install -r ${{ matrix.requirements }} 
+
+    - name: Test with pytest
+      run: python -m pytest --cov=fgivenx
+
     - name: Upload coverage to Codecov
-      run: codecov
+      uses: codecov/codecov-action@v1
