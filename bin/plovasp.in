@@ -1,0 +1,4 @@
+#!/bin/bash
+
+python -m triqs_dft_tools.converters.plovasp.converter $@
+
