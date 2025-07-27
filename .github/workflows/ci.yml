@@ -1,28 +1,25 @@
-name: CI
+name: Python package
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
   pull_request:
-    branches: [ master ]
-  schedule:
-    - cron: "0 0 * * *"
-
-  workflow_dispatch:
+    branches:
+      - main
 
 jobs:
-  pip:
-    runs-on: ${{ matrix.os }}
+  build:
+    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
-        python-version: [3.6, 3.7, 3.8, 3.9]
-        requirements: [minimal_requirements.txt, requirements.txt]
-    env:
-      MPLBACKEND: Agg
+        python-version: [2.7, 3.6, 3.7, 3.8]
+        requirements-file: [minimal_requirements.txt, requirements.txt]
+
     steps:
     - uses: actions/checkout@v2
+
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v2
       with:
@@ -30,12 +27,19 @@ jobs:
 
     - name: Install dependencies
       run: |
-        python -m pip install --upgrade pip
-        python -m pip install pytest pytest-cov pytest-xdist
-        python -m pip install -r ${{ matrix.requirements }} 
+        pip install -r ${{ matrix.requirements-file }}
+        pip install --upgrade pytest
+        pip install pytest-cov codecov
+
+    - name: Set environment variable
+      run: echo "MPLBACKEND=Agg" >> $GITHUB_ENV
 
     - name: Test with pytest
       run: python -m pytest --cov=fgivenx
 
     - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v1
+      env:
+        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+      run: |
+        codecov
+        bash <(curl -s https://codecov.io/bash)
