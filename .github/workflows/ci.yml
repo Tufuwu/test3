@@ -67,7 +67,7 @@ jobs:
       run: codecov
 
   deploy:
-    if: github.event_name == 'push' && github.ref_type == 'tag' && matrix.env.DEPLOY == 'true'
+
     runs-on: ubuntu-latest
     needs: build
     steps:
