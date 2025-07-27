@@ -1,13 +1,6 @@
 *.pyc
-*.egg-info
-.coverage
-.tox/
-/MANIFEST
-/build/
-/dist/
-/sandbox/
-/tags
-virtualenv
-
-# PyCharm
+.pypirc
+build/
+dist/
+.DS_Store
 .idea
