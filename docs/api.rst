@@ -1,59 +1,27 @@
 .. _api:
 
+API
+===
 
-API reference
-=============
+Flask-pyoidc extension
+----------------------
+.. autoclass:: flask_pyoidc.OIDCAuthentication
+   :members:
 
-.. automodule:: pybufrkit
+Configuration
+-------------
+.. automodule:: flask_pyoidc.provider_configuration
+   :members:
 
-.. automodule:: pybufrkit.bufr
-    :members:
+User session handling
+---------------------
+.. automodule:: flask_pyoidc.user_session
+   :members:
 
-.. automodule:: pybufrkit.descriptors
-    :members:
+Internals
+---------
+.. automodule:: flask_pyoidc.auth_response_handler
+   :members:
 
-.. automodule:: pybufrkit.tables
-    :members:
-
-.. automodule:: pybufrkit.coder
-    :members:
-
-.. automodule:: pybufrkit.decoder
-    :members:
-
-.. automodule:: pybufrkit.encoder
-    :members:
-
-.. automodule:: pybufrkit.templatecompiler
-    :members:
-
-.. automodule:: pybufrkit.templatedata
-    :members:
-
-.. automodule:: pybufrkit.dataquery
-    :members:
-
-.. automodule:: pybufrkit.mdquery
-    :members:
-
-.. automodule:: pybufrkit.query
-    :members:
-
-.. automodule:: pybufrkit.script
-    :members:
-
-.. automodule:: pybufrkit.renderer
-    :members:
-
-.. automodule:: pybufrkit.bitops
-    :members:
-
-.. automodule:: pybufrkit.commands
-    :members:
-
-.. automodule:: pybufrkit.utils
-    :members:
-
-.. automodule:: pybufrkit.constants
-    :members:
-
+.. automodule:: flask_pyoidc.pyoidc_facade
+   :members:
