@@ -3,27 +3,24 @@ name: CI
 on: [push, pull_request]
 
 jobs:
-  test:
+  build:
+
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: [3.9]
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
+    - uses: actions/checkout@v2
 
-    - name: Set up Python
+    - name: Set up Python 3.6
       uses: actions/setup-python@v2
       with:
-        python-version: ${{ matrix.python-version }}
+        python-version: 3.9
 
     - name: Install dependencies
       run: |
         pip install -r requirements-dev.txt
         pip install -e .
 
-    - name: Run tests
+    - name: Run pytest
       run: pytest pywnedpasswords/tests/
 
     - name: Run flake8
