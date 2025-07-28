@@ -1,36 +1,33 @@
+---
 name: CI
 
 on:
   push:
     branches:
       - main
+    tags:
+      - v*
+  pull_request:
+    branches:
+      - master
+  workflow_dispatch:
 
 jobs:
-  linter:
-    runs-on: ubuntu-latest
+  build:
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python 3.7
         uses: actions/setup-python@v2
         with:
           python-version: 3.9
-      - name: Install dependencies
-        run: pip install flake8
-      - name: Run linter
-        run: flake8 etip/
-
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: Set up Python 3.7
-        uses: actions/setup-python@v2
-        with:
-          python-version: 3.8
-      - name: Install dependencies
-        run: pip install -r requirements.txt
-      - name: Run tests
+      - name: Install Dependencies
         run: |
-          cd etip/
-          export DJANGO_SETTINGS_MODULE=etip.settings.dev
-          python manage.py test
+          python -m pip install --upgrade pip
+          pip install flake8
+      - name: Lint with flake8
+        run: |
+          flake8
+      - uses: hadolint/hadolint-action@v1.5.0
+        with:
+          dockerfile: Dockerfile
