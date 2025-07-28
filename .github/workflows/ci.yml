@@ -1,29 +1,32 @@
 name: Python CI
 
-on:
-  push:
-    branches:
-      - main
-  pull_request:
+on: [push, pull_request]
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
       matrix:
-        python-version: [3.6, 3.7, 3.8]
+        python-version: [2.7, 3.6, 3.7, 3.8]
 
     steps:
-    - uses: actions/checkout@v2
-    - uses: actions/setup-python@v2
-      with:
-        python-version: ${{ matrix.python-version }}
-    - run: |
-        python -m pip install --upgrade pip
-        chmod +x ./setup.py
-        ./setup.py develop
-        pip install -e '.[tests]'
-    - run: |
-        pylama
-        py.test
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: |
+          pip install -U --force setuptools pip
+          python setup.py develop
+          pip install -e '.[tests]'
+
+      - name: Run linters
+        run: pylama
+
+      - name: Run tests
+        run: py.test
