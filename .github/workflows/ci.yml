@@ -24,7 +24,7 @@ jobs:
       - name: Run tox targets for ${{ matrix.python-version }}
         run: "python -m tox"
       - name: Upload coverage data
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: coverage-data
           path: ".coverage.*"
