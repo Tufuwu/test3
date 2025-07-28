@@ -26,18 +26,6 @@ jobs:
 
     - name: Coveralls
       run: coveralls
+      env: 
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Send email notification
-      if: ${{ failure() }}
-      uses: dawidd6/action-send-mail@v2
-      with:
-        server_address: smtp.gmail.com
-        server_port: 465
-        username: ${{ secrets.EMAIL_USERNAME }}
-        password: ${{ secrets.EMAIL_PASSWORD }}
-        subject: Build failure
-        body: |
-          Build failure detected in Filestack project.
-        to: dev@filestack.com
-        from: Github Action
-        smtp_secure: true
