@@ -21,7 +21,7 @@ jobs:
           --health-retries 5
 
       clickhouse:
-        image: yandex/clickhouse-server:${{ matrix.clickhouse-version }}
+        image: yandex/clickhouse-server:latest
         ports:
           - 8123:8123
 
