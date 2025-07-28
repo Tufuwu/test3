@@ -1,32 +1,28 @@
-name: Python package
+name: Python CI
 
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - master
+  pull_request:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        python-version: [3.6, 3.7, 3.8, 3.9, 3.10-dev]
+        python-version: [3.6, 3.7, 3.8]
 
     steps:
     - uses: actions/checkout@v2
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
+    - uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python-version }}
-    - name: Install dependencies
-      run: |
+    - run: |
         python -m pip install --upgrade pip
-        pip install setuptools tox pip virtualenv
-        pip install -e .
-        pip install pytest-cov codecov -r tests/requirements.txt
-    - name: Test with tox
-      run: |
-        tox
-    - name: Test with pytest and coverage
-      run: |
-        py.test tests/ example/ --cov=./
-        codecov
+        ./setup.py develop
+        pip install -e '.[tests]'
+    - run: |
+        pylama
+        py.test
