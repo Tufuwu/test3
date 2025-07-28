@@ -36,7 +36,7 @@ jobs:
         run: |
           pip install codecov
           pip install -U pip wheel setuptools
-          pip install ${{ matrix.packages }} -e .[tests]
+          pip install '${{ matrix.packages }}' -e .[tests]
 
       - name: Run tests
         run: coverage run --rcfile=.coveragerc runtests.py
