@@ -10,8 +10,9 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     strategy:
+      fail-fast: false
       matrix:
         python-version: [3.6, 3.7, 3.8]
         pg-version: [9.6, 10, 11, 12]
@@ -23,7 +24,7 @@ jobs:
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: test
+
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
