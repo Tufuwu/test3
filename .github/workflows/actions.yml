@@ -37,6 +37,8 @@ jobs:
       run: coverage run --source=clickhouse_sqlalchemy setup.py test
     - name: Coveralls
       run: coveralls
+      env: 
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 
     - name: Docker run
