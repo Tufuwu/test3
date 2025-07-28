@@ -1,4 +1,8 @@
-*.o
+.idea
+*.iml
+dist
+build
 *.pyc
-*.so
-*~
+.eggs
+*.egg-info
+.cache
