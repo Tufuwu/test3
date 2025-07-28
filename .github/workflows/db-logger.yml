@@ -23,6 +23,7 @@ jobs:
       - name: Install dependencies
         run: |
           pip install Django==${{ matrix.django-version }}
+          pip insatll six
 
       - name: Run tests
         run: python test_manage.py test
