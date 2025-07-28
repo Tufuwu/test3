@@ -1,74 +1,65 @@
 name: CI
 
-on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
+on: [push, pull_request]
 
 jobs:
   build:
     runs-on: ubuntu-22.04
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version: [3.8]
-        pg-version: [9.6, 10, 11, 12]
-        django-version: [2.1, 2.2, 3.0, 3.1]
 
     services:
       postgres:
-        image: postgres:${{ matrix.pg-version }}
+        image: postgres:11
+        ports:
+          - 5432:5432
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
-
         options: >-
-          --health-cmd pg_isready
+          --health-cmd "pg_isready -U postgres"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-        ports:
-          - 5432:5432
-          
+
       clickhouse:
-        image: yandex/clickhouse-server:latest
+        image: yandex/clickhouse-server:${{ matrix.clickhouse-version }}
         ports:
           - 8123:8123
 
       redis:
-        image: redis
+        image: redis:latest
         ports:
           - 6379:6379
 
     steps:
-    - uses: actions/checkout@v2
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
-      with:
-        python-version: ${{ matrix.python-version }}
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.9'
 
-    - name: Install pip dependencies
-      run: |
-        python -m pip install --upgrade pip wheel setuptools
-        python -m pip install -r requirements-test.txt
-        python -m pip install -U django==${{ matrix.django-version }}.*
-        python setup.py -q install
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clickhouse-client clickhouse-server clickhouse-common-static
+          sudo service clickhouse-server restart
+          pip install -r requirements-test.txt
 
-    - name: Set up test databases
-      run: |
-        psql -tc 'SHOW server_version' -U postgres -h localhost
-        psql -c 'CREATE ROLE test;' -U postgres -h localhost
-        psql -c 'ALTER ROLE test WITH SUPERUSER;' -U postgres -h localhost
-        psql -c 'ALTER ROLE test WITH LOGIN;' -U postgres -h localhost
-        psql -c "ALTER ROLE test PASSWORD 'test';" -U postgres -h localhost
-        psql -c 'CREATE DATABASE test OWNER test;' -U postgres -h localhost
-        psql -c 'CREATE DATABASE test2 OWNER test;' -U postgres -h localhost
-      env:
-        PGPASSWORD: postgres
+      - name: Set up PostgreSQL
+        run: |
+          sudo sed -i 's/port = 5433/port = 5432/' /etc/postgresql/11/main/postgresql.conf
+          sudo cp /etc/postgresql/{10,11}/main/pg_hba.conf
 
-    - name: Run tests
-      run: python runtests.py
+          psql -c 'CREATE ROLE test;' -U postgres
+          psql -c 'ALTER ROLE test WITH SUPERUSER;' -U postgres
+          psql -c 'ALTER ROLE test WITH LOGIN;' -U postgres
+          psql -c "ALTER ROLE test PASSWORD 'test';" -U postgres
+          psql -c 'CREATE DATABASE test OWNER test;' -U postgres
+          psql -c 'CREATE DATABASE test2 OWNER test;' -U postgres
+
+      - name: Run tests
+        run: |
+          python -m pip install -q Django==$DJANGO.*
+          python setup.py -q install
+          python runtests.py
