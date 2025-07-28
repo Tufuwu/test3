@@ -6,7 +6,6 @@ jobs:
   build:
     runs-on: ubuntu-latest
     strategy:
-      fail-fast: false
       matrix:
         python-version: [2.7, 3.5, 3.6, 3.7, 3.8]
         version: [19.3.5, 18.14.9]
@@ -51,5 +50,3 @@ jobs:
 
       - name: Upload coverage to Coveralls
         run: coveralls
-        env: 
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
