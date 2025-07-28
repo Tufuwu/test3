@@ -1,5 +1,0 @@
-catkin_pkg
-lxml
-rosdep
-rosdistro
-
