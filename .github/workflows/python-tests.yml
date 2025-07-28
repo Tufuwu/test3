@@ -14,7 +14,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [3.6, 3.7, 3.8]
+        python-version: [3.8]
         pg-version: [9.6, 10, 11, 12]
         django-version: [2.1, 2.2, 3.0, 3.1]
 
@@ -56,7 +56,6 @@ jobs:
     - name: Before script
       run: |
 
-        erl -eval 'erlang:display(erlang:system_info(otp_release)), halt().'  -noshell
         rabbitmqctl status | grep "RabbitMQ"
         clickhouse-client --query "SELECT version();"
         psql -tc 'SHOW server_version' -U postgres -h localhost
