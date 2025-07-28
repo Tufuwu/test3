@@ -26,7 +26,7 @@ jobs:
         python -m pip install --upgrade pip
     - name: Run setconf.py
       run: |
-        chmod +x ./setconf.py --test
+        
         ./setconf.py --test
     - name: Run tests
       run: |
