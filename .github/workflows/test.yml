@@ -27,7 +27,7 @@ jobs:
     - name: Report coverage
       run: coverage report
     - name: Install pycodestyle and pyflakes
-      run: pip install pycodestyle pyflakes==2.2.0
+      run: pip install pycodestyle pyflakes==2.1.1
     - name: Check with pyflakes
       run: pyflakes .
     - name: Check with pycodestyle
