@@ -41,7 +41,7 @@ jobs:
         conda update -q conda
         conda install -q conda-build
         conda create -q -n test-environment python=${{ matrix.python-version }}
-        echo "source activate test-environment" >> $GITHUB_ENV
+        conda activate test-environment
 
     - name: Install dependencies
       run: |
