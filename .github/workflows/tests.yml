@@ -21,8 +21,7 @@ jobs:
           - python-version: 3.7
             toxenv: black
 
-    env:
-      TOXENV: ${{ matrix.toxenv || 'py' }}
+
 
     steps:
     - uses: actions/checkout@v2
@@ -38,6 +37,7 @@ jobs:
         pip install tox-travis
 
     - name: Run tests
+    
       run: tox
 
     - name: Upload coverage to Coveralls
