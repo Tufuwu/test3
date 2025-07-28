@@ -1,2 +1,9 @@
-pyyaml==5.1
-argcomplete==1.9.4
+-e .
+
+# Tests
+pytest
+pytest-xdist
+mock; python_version < '3.3'
+
+# Lint
+flake8

@@ -1,8 +1,9 @@
-.idea
-*.iml
-dist
-build
-*.pyc
-.eggs
-*.egg-info
-.cache
+*.py[cod]
+build/
+dist/
+venv/
+*.egg-info/
+
+keys.py
+
+.idea/
