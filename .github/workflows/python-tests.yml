@@ -48,11 +48,7 @@ jobs:
 
     - name: Install dependencies
       run: |
-        sudo apt-get update
-        sudo apt-get install -y dirmngr apt-transport-https unzip rabbitmq-server
-
-        sudo apt-get install -y clickhouse-client clickhouse-server clickhouse-common-static
-        sudo service clickhouse-server restart
+        pip install --upgrade pip wheel setuptools
         pip install -r requirements-test.txt
         pip install -q Django==${{ matrix.django-version }}.*
         python setup.py -q install
