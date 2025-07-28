@@ -13,7 +13,6 @@ jobs:
         python-version: [3.6, 3.7, 3.8, 3.9, 'nightly']
         exclude:
         - python-version: 'nightly'
-          allow_failure: true
 
     steps:
     - uses: actions/checkout@v2
