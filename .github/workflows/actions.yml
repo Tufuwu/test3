@@ -1,63 +1,52 @@
 name: CI
 
-on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
+on: [push, pull_request]
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [2.7, 3.5, 3.6, 3.7, 3.8]
+        version: [19.3.5, 18.14.9]
+
     services:
       clickhouse:
         image: yandex/clickhouse-server:${{ matrix.version }}
         ports:
           - 9000:9000
           - 8123:8123
-        options: --ulimit nofile=262144:262144
-
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version: [2.7, 3.5, 3.6, 3.7, 3.8]
-        version: [19.3.5, 18.14.9]
-
+        options: >-
+          --ulimit nofile=262144:262144
+          
     steps:
-    - uses: actions/checkout@v2
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
-      with:
-        python-version: ${{ matrix.python-version }}
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
 
-    - name: Cache pip
-      uses: actions/cache@v4
-      with:
-        path: ~/.cache/pip
-        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
-        restore-keys: |
-          ${{ runner.os }}-pip-
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip setuptools==58.5.3
+          pip install flake8 flake8-print coveralls
 
-    - name: Install dependencies
-      run: |
-        pip install --upgrade pip setuptools==58.5.3
-        pip install flake8 flake8-print coveralls
+      - name: Docker login
+        if: env.DOCKER_PASSWORD != ''
+        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
-    - name: Configure ClickHouse server
-      run: |
-        sudo sed -i 's/^host=localhost$/host=clickhouse-server/' setup.cfg
-        echo '127.0.0.1 clickhouse-server' | sudo tee -a /etc/hosts
+      - name: Modify setup.cfg
+        run: |
+          sed -i 's/^host=localhost$/host=clickhouse-server/' setup.cfg
+          echo '127.0.0.1 clickhouse-server' | sudo tee -a /etc/hosts > /dev/null
 
-    - name: Lint with flake8
-      run: flake8
+      - name: Run flake8
+        run: flake8
 
-    - name: Test with coverage
-      run: coverage run --source=clickhouse_sqlalchemy setup.py test
+      - name: Run tests with coverage
+        run: coverage run --source=clickhouse_sqlalchemy setup.py test
 
-    - name: Coveralls
-      env: 
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: coveralls
+      - name: Upload coverage to Coveralls
+        run: coveralls
