@@ -56,8 +56,7 @@ jobs:
     - name: Before script
       run: |
 
-        rabbitmqctl status | grep "RabbitMQ"
-        clickhouse-client --query "SELECT version();"
+
         psql -tc 'SHOW server_version' -U postgres -h localhost
         psql -c 'CREATE ROLE test;' -U postgres -h localhost
         psql -c 'ALTER ROLE test WITH SUPERUSER;' -U postgres -h localhost
