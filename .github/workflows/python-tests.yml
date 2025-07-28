@@ -53,10 +53,8 @@ jobs:
         pip install -q Django==${{ matrix.django-version }}.*
         python setup.py -q install
 
-    - name: Before script
+    - name: Set up test databases
       run: |
-
-
         psql -tc 'SHOW server_version' -U postgres -h localhost
         psql -c 'CREATE ROLE test;' -U postgres -h localhost
         psql -c 'ALTER ROLE test WITH SUPERUSER;' -U postgres -h localhost
