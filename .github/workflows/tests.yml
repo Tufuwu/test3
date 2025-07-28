@@ -1,10 +1,4 @@
-name: Tests
 
-on:
-  push:
-    branches: [main]
-  pull_request:
-  schedule:
 name: Python package
 
 on: [push, pull_request]
