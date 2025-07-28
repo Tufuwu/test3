@@ -43,7 +43,7 @@ jobs:
 
     - name: Install dependencies
       run: |
-        pip install --upgrade pip setuptools
+        pip install --upgrade pip setuptools==58.5.3
         pip install flake8 flake8-print coveralls
 
     - name: Configure ClickHouse server
