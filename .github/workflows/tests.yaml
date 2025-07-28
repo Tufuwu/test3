@@ -36,7 +36,7 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies
       run: |
-        python -m pip install --upgrade pip wheel setuptools
+        python -m pip install --upgrade pip wheel setuptools coverage
         pip install -U pip wheel setuptools
         pip install Django==${{ matrix.django-version }} -e .[tests]
     - name: Run tests
