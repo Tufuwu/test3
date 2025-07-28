@@ -21,7 +21,7 @@ jobs:
     - name: Install Dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install django==${{ matrix.django-version }}
+        pip install ${{ matrix.django-version }}
         pip install requests
         pip install -e .
     - name: Test with runtests.py
