@@ -58,6 +58,6 @@ jobs:
       run: coverage run --source=clickhouse_sqlalchemy setup.py test
 
     - name: Coveralls
-      env:
-        COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
+      env: 
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: coveralls
