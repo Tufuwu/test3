@@ -1,176 +1,168 @@
-<p align="center"><img src="logo.svg" align="center" width="100"/></p>
-<h1 align="center">Filestack Python</h1>
-<p align="center">
-  <a href="http://travis-ci.org/filestack/filestack-python">
-    <img src="https://img.shields.io/travis/filestack/filestack-python.svg">
-  </a>
-  <a href="https://pypi.python.org/pypi/filestack-python">
-    <img src="https://img.shields.io/pypi/v/filestack-python.svg">
-  </a>
-    <img src="https://img.shields.io/pypi/pyversions/filestack-python.svg">
-</p>
-This is the official Python SDK for Filestack - API and content management system that makes it easy to add powerful file uploading and transformation capabilities to any web or mobile application.
+Census Geocode
+--------------
 
-## Resources
+Census Geocode is a light weight Python wrapper for the US Census [Geocoder API](http://geocoding.geo.census.gov/geocoder/), compatible with  Python 3. It comes packaged with a simple command line tool for geocoding an address to a longitude and latitude, or a batch file into a parsed address and coordinates.
 
-To learn more about this SDK, please visit our API Reference
+It's strongly recommended to review the [Census Geocoder docs](https://www.census.gov/programs-surveys/geography/technical-documentation/complete-technical-documentation/census-geocoder.html) before using this module.
 
-* [API Reference](https://filestack-python.readthedocs.io)
-
-## Installing
-
-Install ``filestack`` with pip
-
-```shell
-pip install filestack-python
-```
-
-or directly from GitHub
-
-```shell
-pip install git+https://github.com/filestack/filestack-python.git
-```
-
-## Quickstart
-
-The Filestack SDK allows you to upload and handle filelinks using two main classes: Client and Filelink.
-
-### Uploading files with `filestack.Client`
-``` python
-from filestack import Client
-client = Client('<YOUR_API_KEY>')
-
-new_filelink = client.upload(filepath='path/to/file')
-print(new_filelink.url)
-```
-
-#### Uploading files using Filestack Intelligent Ingestion
-To upload files using Filestack Intelligent Ingestion, simply add `intelligent=True` argument
-```python
-new_filelink = client.upload(filepath='path/to/file', intelligent=True)
-```
-FII always uses multipart uploads. In case of network issues, it will dynamically split file parts into smaller chunks (sacrificing upload speed in favour of upload reliability).
-
-### Working with Filelinks
-Filelink objects can by created by uploading new files, or by initializing `filestack.Filelink` with already existing file handle
-```python
-from filestack import Filelink, Client
-
-client = Client('<APIKEY>')
-filelink = client.upload(filepath='path/to/file')
-filelink.url  # 'https://cdn.filestackcontent.com/FILE_HANDLE
-
-# work with previously uploaded file
-filelink = Filelink('FILE_HANDLE')
-```
-
-### Basic Filelink Functions
-
-With a Filelink, you can download to a local path or get the content of a file. You can also perform various transformations.
+Basic example:
 
 ```python
-file_content = new_filelink.get_content()
+import censusgeocode as cg
 
-size_in_bytes = new_filelink.download('/path/to/file')
-
-filelink.overwrite(filepath='path/to/new/file')
-
-filelink.resize(width=400).flip()
-
-filelink.delete()
+cg.coordinates(x=-76, y=41)
+cg.onelineaddress('1600 Pennsylvania Avenue, Washington, DC')
+cg.address('1600 Pennsylvania Avenue', city='Washington', state='DC', zip='20006')
+cg.addressbatch('data/addresses.csv')
 ```
 
-### Transformations
+Use the returntype keyword to specify 'locations' or 'geographies'. 'Locations' yields structured information about the address, and 'geographies' yields information about the Census geographies. Geographies is the default.
+```python
+cg.onelineaddress('1600 Pennsylvania Avenue, Washington, DC', returntype='locations')
+```
 
-You can chain transformations on both Filelinks and external URLs. Storing transformations will return a new Filelink object.
+Queries return a CensusResult object, which is basically a Python list with an extra 'input' property, which the Census returns to tell you how they interpreted your request.
 
 ```python
-transform = client.transform_external('http://<SOME_URL>')
-new_filelink = transform.resize(width=500, height=500).flip().enhance().store()
-
-filelink = Filelink('<YOUR_HANDLE'>)
-new_filelink = filelink.resize(width=500, height=500).flip().enhance().store()
-```
-
-You can also retrieve the transformation url at any point.
-
- ```python
-transform_candidate = client.transform_external('http://<SOME_URL>')
-transform = transform_candidate.resize(width=500, height=500).flip().enhance()
-print(transform.url)
-```
-
-### Audio/Video Convert
-
-Audio and video conversion works just like any transformation, except it returns an instance of class AudioVisual, which allows you to check the status of your video conversion, as well as get its UUID and timestamp. 
-
-```python
-av_object = filelink.av_convert(width=100, height=100)
-while (av_object.status != 'completed'):
-    print(av_object.status)
-    print(av_object.uuid)
-    print(av_object.timestamp)
-```
-
-The status property makes a call to the API to check its current status, and you can call to_filelink() once video is complete (this function checks its status first and will fail if not completed yet).
-
-```python
-filelink = av_object.to_filelink()
-```
-
-### Security Objects
-
-Security is set on Client or Filelink classes upon instantiation and is used to sign all API calls.
-
-```python
-from filestack import Security
-
-policy = {'expiry': 253381964415}  # 'expiry' is the only required key
-security = Security(policy, '<YOUR_APP_SECRET>')
-client = Client('<YOUR_API_KEY', security=security)
-
-# new Filelink object inherits security and will use for all calls
-new_filelink = client.upload(filepath='path/to/file')
-
-# you can also provide Security objects explicitly for some methods
-size_in_bytes = filelink.download(security=security)
-```
-
-You can also retrieve security details straight from the object:
-```python
->>> policy = {'expiry': 253381964415, 'call': ['read']}
->>> security = Security(policy, 'SECURITY-SECRET')
->>> security.policy_b64
-'eyJjYWxsIjogWyJyZWFkIl0sICJleHBpcnkiOiAyNTMzODE5NjQ0MTV9'
->>> security.signature
-'f61fa1effb0638ab5b6e208d5d2fd9343f8557d8a0bf529c6d8542935f77bb3c'
-```
-
-### Webhook verification
-
-You can use `filestack.helpers.verify_webhook_signature` method to make sure that the webhooks you receive are sent by Filestack.
-
-```python
-from filestack.helpers import verify_webhook_signature
-
-# webhook_data is raw content you receive
-webhook_data = b'{"action": "fp.upload", "text": {"container": "some-bucket", "url": "https://cdn.filestackcontent.com/Handle", "filename": "filename.png", "client": "Computer", "key": "key_filename.png", "type": "image/png", "size": 1000000}, "id": 50006}'
-
-result, details = verify_webhook_signature(
-    '<YOUR_WEBHOOK_SECRET>',
-    webhook_data,
-    {
-      'FS-Signature': '<SIGNATURE-FROM-REQUEST-HEADERS>',
-      'FS-Timestamp': '<TIMESTAMP-FROM-REQUEST-HEADERS>'
+>>> result = cg.coordinates(x=-76, y=41)
+>>> result.input
+{
+    u'vintage': {
+        u'vintageName': u'Current_Current',
+        u'id': u'4',
+        u'vintageDescription': u'Current Vintage - Current Benchmark',
+        u'isDefault': True
+    },
+    u'benchmark': {
+        u'benchmarkName': u'Public_AR_Current',
+        u'id': u'4',
+        u'isDefault': False,
+        u'benchmarkDescription': u'Public Address Ranges - Current Benchmark'
+    },
+    u'location': {
+        u'y': 41.0,
+        u'x': -76.0
     }
-)
-
-if result is True:
-    print('Webhook is valid and was generated by Filestack')
-else:
-    raise Exception(details['error'])
+}
+>>> result
+[{
+    '2010 Census Blocks': [{
+        'AREALAND': 1409023,
+        'AREAWATER': 0,
+        'BASENAME': '1045',
+        'BLKGRP': '1',
+        'BLOCK': '1045',
+        'CENTLAT': '+40.9957436',
+        'CENTLON': '-076.0089338',
+        'COUNTY': '079',
+        'FUNCSTAT': 'S',
+        'GEOID': '420792166001045',
+        'INTPTLAT': '+40.9957436',
+        'INTPTLON': '-076.0089338',
+        'LSADC': 'BK',
+        'LWBLKTYP': 'L',
+        'MTFCC': 'G5040',
+        'NAME': 'Block 1045',
+        'OBJECTID': 9940449,
+        'OID': 210404020212114,
+        'STATE': '42',
+        'SUFFIX': '',
+        'TRACT': '216600'
+    }],
+    'Census Tracts': [{
+        # snip 
+        'NAME': 'Census Tract 2166',
+        'OBJECTID': 61245,
+        'OID': 20790277158250,
+        'STATE': '42',
+        'TRACT': '216600'
+    }],
+    'Counties': [{
+        # snip
+        'NAME': 'Luzerne County',
+        'OBJECTID': 866,
+        'OID': 27590277115518,
+        'STATE': '42'
+    }],
+    'States': [{
+        # snip
+        'NAME': 'Pennsylvania',
+        'REGION': '1',
+        'STATE': '42',
+        'STATENS': '01779798',
+        'STUSAB': 'PA'
+    }]
+}]
 ```
 
-## Versioning
+### Advanced
 
-Filestack Python SDK follows the [Semantic Versioning](http://semver.org/).
+By default, the geocoder uses the "Current" vintage and benchmarks. To use another vintage or benchmark, use the `CensusGeocode` class:
+````python
+from censusgeocode import CensusGeocode
+cg = CensusGeocode(benchmark='Public_AR_Current', vintage='Census2020_Current')
+cg.onelineaddress(foobar)
+````
+
+The Census may update the available benchmarks and vintages. Review the Census Geocoder docs for the currently available [benchmarks](https://geocoding.geo.census.gov/geocoder/benchmarks) and [vintages](https://geocoding.geo.census.gov/geocoder/vintages?form).
+
+## Command line tool
+
+The `censusgeocode` tool has two settings.
+
+At the simplest, it takes one argument, an address, and returns a comma-delimited longitude, latitude pair.
+````bash
+censusgeocode '100 Fifth Avenue, New York, NY'
+-73.992195,40.73797
+
+censusgeocode '1600 Pennsylvania Avenue, Washington DC'
+-77.03535,38.898754
+````
+
+The Census geocoder is reasonably good at recognizing non-standard addresses.
+````bash
+censusgeocode 'Hollywood & Vine, LA, CA'
+-118.32668,34.101624
+````
+
+It can also use the Census Geocoder's batch function to process an entire file. The file must be comma-delimited, have no header, and include the following columns:
+````
+unique id, street address, state, city, zip code
+````
+
+The geocoder can read from a file:
+````
+censusgeocode --csv tests/fixtures/batch.csv
+````
+([example file](https://github.com/fitnr/censusgeocode/blob/master/tests/fixtures/batch.csv))
+
+Or from stdin, using `-` as the filename:
+````
+head tests/fixtures/batch.csv | censusgeocode --csv -
+````
+
+According to the Census docs, the batch geocoder is limited to 10,000 rows.
+
+The output will be a CSV file (with a header) and the columns:
+* id
+* address
+* match
+* matchtype
+* parsed
+* tigerlineid
+* side
+* lat
+* lon
+
+If your data doesn't have a unique id, try adding line numbers with the Unix command line utility `nl`:
+```
+nl -s , input.csv | censusgeocode --csv - > output.csv
+```
+
+## License
+
+This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along with this program.  If not, see http://www.gnu.org/licenses/.
