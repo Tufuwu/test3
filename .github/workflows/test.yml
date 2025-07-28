@@ -1,9 +1,10 @@
-name: Python CI
+name: Python package
 
 on: [push, pull_request]
 
 jobs:
   build:
+
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -11,34 +12,26 @@ jobs:
         python-version: [2.7, 3.5, 3.6, 3.7, 3.8, 3.9-dev, pypy, pypy3]
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
-
+    - uses: actions/checkout@v2
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python-version }}
-
     - name: Install dependencies
       run: |
-        pip install coverage nose
-
+        python -m pip install --upgrade pip
+        pip install coverage
     - name: Run tests with coverage
       run: |
         coverage run --source=olefile -m nose tests
-
-    - name: Upload coverage to Coveralls
-      if: success()
+    - name: Report coverage
+      run: coverage report
+    - name: Install pycodestyle and pyflakes
+      run: pip install pycodestyle pyflakes
+    - name: Check with pyflakes
+      run: pyflakes .
+    - name: Check with pycodestyle
+      run: pycodestyle --statistics --count .
+    - name: Publish to coveralls
       run: |
-        pip install coveralls
-        coveralls
-
-    - name: Coverage report
-      run: |
-        coverage report
-
-    - name: Code style checks
-      run: |
-        pip install pycodestyle pyflakes
-        pyflakes .
-        pycodestyle --statistics --count .
+        pip install cov
