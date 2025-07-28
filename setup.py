@@ -1,31 +1,27 @@
-"""setup module"""
-from setuptools import setup, find_packages
+# -*- coding: utf-8 -*-
 import os
+import sys
 
-from pywnedpasswords import __version__
+from setuptools import setup
 
-readme_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "README.md")
-with open(readme_file) as f:
-    readme = f.read()
-
-setup(
-    name="pywnedpasswords",
-    version=__version__,
-    description="Client for HIBP passwords api using K-Anonymity method",
-    long_description=readme,
-    long_description_content_type="text/markdown",
-    url="http://github.com/xmatthias/pywnedpasswords",
-    author="Matthias Voppichler",
-    author_email="xmatthias@outlook.com",
-    license="MIT",
-    entry_points="""
-      [console_scripts]
-      pywnedpasswords=pywnedpasswords.pywnedpasswords:main
-      """,
-    python_requires=">=3",
-    packages=find_packages(),
-    install_requires=["requests>=2"],
-    zip_safe=False,
-    keywords=["pwnedpasswords", "passwords", "pwned", "security"],
-    project_urls={"Source Code": "http://github.com/xmatthias/pywnedpasswords"},
-)
+setup(name="setconf",
+      version="0.7.7",
+      description="Change configuration settings in text files",
+      url="https://setconf.roboticoverlords.org/",
+      author="Alexander F. Rødseth",
+      author_email="xyproto@archlinux.org",
+      license="GPLv2",
+      py_modules=["setconf"],
+      entry_points={
+          "console_scripts": [
+              "setconf = setconf:main",
+          ]
+      },
+      classifiers=[
+          "Environment :: Console",
+          "License :: OSI Approved :: GNU General Public License v2 (GPLv2)",
+          "Programming Language :: Python",
+          "Topic :: System :: Shells",
+          "Topic :: Utilities",
+      ]
+      )
