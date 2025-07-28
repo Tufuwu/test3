@@ -38,8 +38,7 @@ jobs:
     - name: Coveralls
       run: coveralls
     - name: Docker login
-      if: ${{ secrets.DOCKER_USERNAME && secrets.DOCKER_PASSWORD }}
-      run: echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
+
     - name: Docker run
       run: docker run -d -p 127.0.0.1:9000:9000 -p 127.0.0.1:8123:8123 --name test-clickhouse-server --ulimit nofile=262144:262144 yandex/clickhouse-server:${{ matrix.version }}
     - name: Docker ps
