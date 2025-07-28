@@ -37,7 +37,7 @@ jobs:
 
     - name: Run tests
       run: 
-        chmdo +x ./run-tests.py
+        chmod +x ./run-tests.py
         ./run-tests.py
 
     - name: Upload coverage to Codecov
