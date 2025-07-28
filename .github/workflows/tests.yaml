@@ -44,3 +44,16 @@ jobs:
       run: coverage run --rcfile=.coveragerc runtests.py
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v1
+    - name: Notify on Slack
+
+      uses: rtCamp/action-slack-notify@v2
+      env:
+        SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+        SLACK_CHANNEL: django-fluent
+        SLACK_USERNAME: Travis CI
+        SLACK_ICON: https://avatars0.githubusercontent.com/u/13715671?s=200&v=4
+        SLACK_COLOR: ${{ job.status }}
+        SLACK_TITLE: Build #${{ github.run_number }} (${{ github.sha }}) ${{ github.event_name == 'pull_request' && 'PR ' || '' }}${{ github.ref }} failed
+        SLACK_MESSAGE: ${{ steps.failure_message.outputs.message }}
+      with:
+        status: ${{ job.status }}
