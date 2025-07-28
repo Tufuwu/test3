@@ -1,0 +1,31 @@
+#accessibility {
+    list-style: none;
+    margin: 0;
+    padding: 0 2.5%;
+    background: $primary-700;
+    overflow: hidden;
+    height: 0;
+
+    &.focused {
+        height: auto;
+    }
+
+    li {
+        display: inline;
+        margin: 0;
+        padding: 0;
+
+        a {
+            display: inline-block;
+            padding: 0 $length-8;
+            color: $white;
+
+            &:hover,
+            &:focus {
+                color: $primary-700;
+                background-color: $white;
+                text-decoration: none;
+            }
+        }
+    }
+}

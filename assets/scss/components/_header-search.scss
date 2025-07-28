@@ -1,0 +1,109 @@
+.search {
+    position: relative;
+    display: flex;
+
+    height: 30px; // Must match the breadcrumbs' height.
+
+    &:before {
+        content: " ";
+        display: block;
+        position: absolute;
+        left: -$length-20;
+        height: 100%;
+        width: $length-20;
+        background: linear-gradient(to left, rgba($black, .03), transparent);
+    }
+
+    form {
+        input,
+        button {
+            border: none;
+            background: rgba($grey-000, .25);
+
+            transition-property: background;
+            transition-duration: $transition-duration;
+
+            &:hover,
+            &:focus {
+                background-color: $true-white;
+            }
+
+            &:focus {
+                outline-color: $color-secondary;
+            }
+        }
+
+        input {
+            width: $length-192;  // Align with the boxes above
+            height: 100%;
+            padding: $length-4 $length-8;
+        }
+
+        button {
+            width: $length-32;
+            text-indent: -9999px;
+
+            height: 100%;
+            line-height: 2;
+
+            cursor: pointer;
+
+            &.disabled {
+                opacity: .5;
+                background: transparent;
+
+                cursor: default;
+            }
+
+            &:after {
+                content: " ";
+
+                position: absolute;
+                top: $length-6;
+                left: 50%;
+
+                display: block;
+
+                margin-left: -$length-8;
+
+                // Sprite size
+                height: 17px;
+                width: 17px;
+
+                @include sprite-position($search);
+            }
+        }
+    }
+
+    .search-more {
+        display: block;
+
+        width: $length-32;
+        height: 100%;
+
+        background: $true-white;
+
+        font-size: $font-size-5;
+        font-weight: bold;
+
+        text-align: center;
+        text-decoration: none;
+        line-height: .96;
+
+        color: $color-primary;
+
+        transition: background $transition-duration ease;
+
+        &:hover,
+        &:focus {
+            background: $accent-800;
+            color: $white;
+
+            outline: none;
+        }
+
+        &:before {
+            content: "+";
+        }
+    }
+}

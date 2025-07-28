@@ -1,0 +1,47 @@
+html,
+body,
+button,
+input,
+select,
+textarea {
+    font-family: $font-sans-serif;
+    color: $black;
+}
+
+hr {
+    display: block;
+    margin: $length-10 0;
+    padding: 0;
+
+    height: $length-1;
+
+    border: 0;
+    border-top: $length-1 solid $grey-200;
+}
+
+a,
+.link {
+    color: $color-link;
+    transition: color $transition-duration ease-in-out,
+                text-decoration $transition-duration ease-in-out;
+
+    &:hover {
+        color: $color-link-hover;
+        text-decoration: none;
+    }
+}
+
+.page-container .header-container .staff-only a {
+    color: $color-staff-link;
+}
+
+button.link {
+    display: inline-block;
+    background: none;
+    border: none;
+    text-decoration: underline;
+}
+
+.bold {
+    font-weight: bold;
+}

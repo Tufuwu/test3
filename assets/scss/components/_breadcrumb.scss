@@ -1,0 +1,78 @@
+.breadcrumb {
+    display: none;
+}
+
+@include desktop {
+    .breadcrumb {
+        position: relative;
+        display: flex;
+
+        width: calc(100% - 60px * 4); // TODO why?
+        height: 30px; // Must be 30px for now as it's the separator image's height.
+
+        padding-left: $length-20;
+
+        &:after {
+            content: " ";
+            display: block;
+
+            position: absolute;
+            top: 0;
+            right: 0;
+
+            width: $length-48;
+            height: 100%;
+
+            background-image:linear-gradient(to right, $grey-000, rgba($grey-000, 0.75));
+        }
+
+        ol {
+            margin: 0;
+            padding: 0;
+
+            list-style: none;
+
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+
+            li {
+                position: relative;
+                display: inline-block;
+
+                padding-right: $length-32;
+                line-height: 2.2;
+
+                a {
+                    text-decoration: none;
+                    color: $primary-600;
+
+                    &:hover,
+                    &:focus {
+                        text-decoration: underline;
+                        outline: none;
+                    }
+                }
+
+                &:not(:last-child):after {
+                    content: " ";
+
+                    display: block;
+
+                    position: absolute;
+                    top: 0;
+                    right: $length-8;
+
+                    height: 30px;
+                    width: $length-16;
+
+                    @include sprite();
+                    background-repeat: no-repeat;
+                    @include sprite-position($ariane);
+
+                    opacity: .2;
+                }
+            }
+        }
+    }
+}

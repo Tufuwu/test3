@@ -1,0 +1,174 @@
+{% extends "forum/base.html" %}
+{% load i18n %}
+{% load interventions %}
+
+
+{% block title %}
+    {{ forum.title }}
+    {% if request.GET.filter == "solve" %}
+        / {% trans "Sujets résolus" %}
+    {% elif request.GET.filter == "unsolve" %}
+        / {% trans "Sujets non résolus" %}
+    {% elif request.GET.filter == "noanswer" %}
+        / {% trans "Sujets sans réponse" %}
+    {% endif %}
+{% endblock %}
+
+{% block feeds_rss %}
+    {% include "forum/includes/feed.part.html" with param="?forum=" value=forum.pk %}
+{% endblock %}
+
+{% block breadcrumb %}
+    <li itemscope itemtype="http://data-vocabulary.org/Breadcrumb">
+        <a href="{{ forum.category.get_absolute_url }}" itemprop="url">
+            <span itemprop="title">{{ forum.category.title }}</span>
+        </a>
+    </li>
+
+    {% if request.GET.filter %}
+        <li itemscope itemtype="http://data-vocabulary.org/Breadcrumb">
+            <a href="{{ forum.get_absolute_url }}" itemprop="url">
+                <span itemprop="title">{{ forum.title }}</span>
+            </a>
+        </li>
+    {% else %}
+        <li>{{ forum.title }}</li>
+    {% endif %}
+
+    {% if request.GET.filter == "solve" %}
+        <li>{% trans "Sujets résolus" %}</li>
+    {% elif request.GET.filter == "unsolve" %}
+        <li>{% trans "Sujets non-résolus" %}</li>
+    {% elif request.GET.filter == "noanswer" %}
+        <li>{% trans "Sujets sans réponse" %}</li>
+    {% endif %}
+{% endblock %}
+
+
+
+{% block headline %}
+    {{ forum.title }}
+    {% if request.GET.filter == "solve" %}
+        / {% trans "Sujets résolus" %}
+    {% elif request.GET.filter == "unsolve" %}
+        / {% trans "Sujets non-résolus" %}
+    {% elif request.GET.filter == "noanswer" %}
+        / {% trans "Sujets sans réponse" %}
+    {% endif %}
+{% endblock %}
+
+
+
+{% block headline_sub %}
+    {{ forum.subtitle }}
+{% endblock %}
+
+
+
+{% block new_btn %}
+  {% if user.profile.can_write_now %}
+      <a href="{% url "forum:topic-new" %}?forum={{ forum.pk }}" class="new-btn ico-after more blue">
+          {% trans "Nouveau sujet" %}
+      </a>
+  {% endif %}
+{% endblock %}
+
+
+
+{% block content %}
+    {% include "misc/paginator.html" with position="top" %}
+
+    {% if sticky_topics %}
+        <div class="topic-list navigable-list" itemscope itemtype="http://schema.org/ItemList">
+            {% for topic in sticky_topics %}
+                {% include "forum/includes/topic_row.part.html" %}
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    {% if topics %}
+        <div class="topic-list navigable-list" itemscope itemtype="http://schema.org/ItemList">
+            {% for topic in topics %}
+                {% include "forum/includes/topic_row.part.html" %}
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    {% if not sticky_topics and not topics %}
+        <p>
+            {% trans "Aucun sujet trouvé." %}
+        </p>
+    {% endif %}
+
+    {% include "misc/paginator.html" with position="bottom" %}
+{% endblock %}
+
+
+{% block sidebar_actions %}
+    <li>
+        {% with forum_is_followed=forum|is_followed_for_new_topic %}
+            {% url "forum:topics-list" forum.category.slug forum.slug as link_follow %}
+            {% if forum_is_followed %}
+                {% trans "Suivre ce forum" as data_onclick %}
+                {% trans "Ne plus suivre ce forum" as button_text %}
+            {% else %}
+                {% trans "Suivre ce forum" as button_text %}
+                {% trans "Ne plus suivre ce forum" as data_onclick %}
+            {% endif %}
+            {% include 'notification/follow_template.html' with link=link_follow is_followed=forum_is_followed data_onclick=data_onclick button_text=button_text subscriber_count=subscriber_count %}
+        {% endwith %}
+    </li>
+
+    <li>
+        {% with forum_is_email_followed=forum|is_email_followed_for_new_topic %}
+            {% url "forum:topics-list" forum.category.slug forum.slug as link_follow %}
+            {% if forum_is_email_followed %}
+                {% trans "Être notifié par courriel" as data_onclick %}
+                {% trans "Ne plus être notifié par courriel" as button_text %}
+            {% else %}
+                {% trans "Être notifié par courriel" as button_text %}
+                {% trans "Ne plus être notifié par courriel" as data_onclick %}
+            {% endif %}
+            {% include 'notification/follow_by_email_template.html' with link=link_follow is_followed=forum_is_email_followed data_onclick=data_onclick button_text=button_text %}
+        {% endwith %}
+    </li>
+{% endblock %}
+
+
+{% block sidebar_blocks %}
+    <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Filtres">
+        <h3>{% trans "Filtres" %}</h3>
+        <ul>
+            <li>
+                <a href="{% url "forum:topics-list" forum.category.slug forum.slug %}?filter=solve"
+                   class="ico-after tick green {% if request.GET.filter == "solve" %}selected{% endif %}"
+                >
+                    {% trans "Sujets résolus" %}
+                </a>
+            </li>
+            <li>
+                <a href="{% url "forum:topics-list" forum.category.slug forum.slug %}?filter=unsolve"
+                   class="ico-after tick blue {% if request.GET.filter == "unsolve" %}selected{% endif %}"
+                >
+                    {% trans "Sujets non résolus" %}
+                </a>
+            </li>
+            <li>
+                <a href="{% url "forum:topics-list" forum.category.slug forum.slug %}?filter=noanswer"
+                   class="ico-after view {% if request.GET.filter == "noanswer" %}selected{% endif %}"
+                >
+                    {% trans "Sujets sans réponse" %}
+                </a>
+            </li>
+            {% if request.GET.filter %}
+                <li>
+                    <a href="{% url "forum:topics-list" forum.category.slug forum.slug %}"
+                       class="ico-after cross blue"
+                    >
+                        {% trans "Annuler le filtre" %}
+                    </a>
+                </li>
+            {% endif %}
+        </ul>
+    </div>
+{% endblock %}

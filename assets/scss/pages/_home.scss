@@ -1,0 +1,327 @@
+@use "sass:math";
+
+.home {
+    .home-row {
+        display: flex;
+        margin-bottom: $length-24;
+    }
+
+    .flexpage-header {
+        // Layout magic values
+        margin-bottom: -170px;
+        padding-bottom: 180px;
+
+        padding-top: $length-20;
+    }
+
+    .home-description {
+        display: flex;
+
+        p {
+            margin: 0;
+            padding: 0;
+
+            color: $white;
+            text-align: justify;
+        }
+
+        ul {
+            color: $white;
+            margin: $length-10 0;
+        }
+
+        a:not(.home-description-button) {
+            color: $white;
+
+            &:hover, &:focus {
+                color: $grey-000;
+                text-decoration: none;
+            }
+        }
+
+        .column {
+            flex: 1;
+            padding: 0 $length-20;
+
+            h1 {
+                margin: $length-20 0 $length-10 0;
+                border-bottom-color: $white;
+
+                color: $white;
+
+                font-size: $font-size-6;
+                font-weight: 300; // Light
+            }
+        }
+
+        blockquote {
+            margin: 0;
+            padding: 0;
+
+            font-size: $font-size-5;
+            font-weight: 300;
+            line-height: 1.2;
+
+            color: white;
+
+            span:first-of-type::before {
+                content: "«\00A0";
+            }
+            span:last-of-type::after {
+                content: "\00A0»";
+            }
+        }
+
+        &:not(.connected):not(.short) {
+            padding-bottom: $length-64;
+        }
+
+        &.connected {
+            text-align: center;
+            flex-direction: column;
+
+            .important {
+                display: inline-block;
+                margin-right: $length-4;
+
+                color: $color-secondary;
+                text-transform: uppercase;
+                font-weight: bold;
+            }
+
+            p {
+                margin-top: $length-6;
+                text-align: center;
+            }
+
+            .home-description-button {
+                margin-left: $length-16;
+            }
+        }
+
+        &.short {
+            display: none;
+
+            color: $white;
+            text-align: center;
+            font-size: $font-size-7;
+
+            .home-description-button {
+                margin-top: $length-12;
+                padding: 0 $length-10;
+
+                font-size: $font-size-10;
+                line-height: 2;
+            }
+
+            blockquote > span {
+                display: inline-block; // for propper line-brek
+            }
+        }
+
+    }
+
+    .home-description-button {
+        display: inline-block;
+        margin-top: $length-6;
+        padding: 0 $length-6;
+
+        border: solid $length-1 $primary-100;
+
+        font-size: $font-size-11;
+        line-height: 1.5;
+
+        color: $white;
+        text-decoration: none;
+
+        &:hover, &:focus {
+            color: $color-primary;
+            border-color: $white;
+            background-color: $white;
+        }
+
+        &.close-description {
+            display: none;
+        }
+    }
+
+    .featured-resource-row {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+
+        margin-bottom: $length-32;
+        padding: $length-1 0 $length-1 $length-1;
+
+        width: 100%;
+
+        background-color: $white;
+
+        .no-featured-resource {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+            margin: 0;
+            padding: $length-10;
+
+            height: $length-256;
+
+            text-align: center;
+            color: $grey-400;
+        }
+    }
+
+    .home-heading {
+        display: flex;
+
+        &.heading-white {
+            color: $white;
+            border-bottom-color: $white;
+        }
+
+        span {
+            flex: 2;
+        }
+
+        a.btn {
+            float: none;
+        }
+    }
+}
+
+@include mobile {
+    .home {
+        .home-description:not(.connected):not(.short) {
+            display: none;
+        }
+
+        .home-description.short {
+            display: block;
+
+            // Rules to avoid being overridden by .home .search-box::before background-image
+            width: auto;
+            padding: 0 $length-20;
+
+            &:target {
+                .home-description-button {
+                    display: none;
+
+                    &.close-description {
+                        display: inline-block;
+                    }
+                }
+
+                & ~ .home-description:not(.short) {
+                    display: block;
+                    margin-top: $length-20;
+                }
+            }
+        }
+        .home-description.connected {
+            // Rules to avoid being overridden by .home .search-box::before background-image
+            padding: 0 $length-20 !important;
+        }
+
+        .home-description .featured-message {
+            display: none;
+        }
+
+        .home-heading {
+            .btn {
+                display: none;
+            }
+        }
+
+        .featured-resource-row {
+            .featured-resource-item {
+                &:nth-of-type(4) {
+                    display: none;
+                }
+            }
+        }
+    }
+}
+
+@include until-desktop {
+    .home {
+        .flexpage-header {
+            margin-bottom: 0;
+            padding-top: $length-10;
+            padding-bottom: $length-10;
+        }
+
+        .featured-resource-row {
+            .featured-resource-item {
+                margin: $length-4;
+                padding: 0 !important;
+
+                &:last-of-type {
+                    display: none;
+                }
+            }
+        }
+
+        .home-heading {
+            margin-top: $length-18;
+
+            &.heading-white {
+                border-color: $color-secondary;
+                color: $color-primary;
+            }
+        }
+
+        .home-row {
+            flex-direction: column;
+            margin-bottom: 0;
+
+            > section {
+                margin-top: $length-32;
+            }
+        }
+
+        .home-description {
+            &.connected {
+                // Rules to avoid being overridden by .home .search-box::before background-image
+                width: auto;
+                padding: 0 $length-96;
+            }
+        }
+    }
+}
+
+@include desktop {
+    .home {
+        $gap: $length-20;
+
+        .home-row {
+            margin-right: -(math.div($gap, 2));
+            margin-left: -(math.div($gap, 2));
+
+            > section {
+                margin: 0 math.div($gap, 2);
+                flex: 1;
+                min-width: $length-384; // must be specified to have the elements correctely sized
+            }
+        }
+
+        .home-description {
+            .column {
+                h2 {
+                    font-size: $font-size-6;
+                }
+
+                p, ul {
+                    font-size: $font-size-9;
+                    line-height: 1.5;
+                }
+            }
+
+            &.connected {
+                // Rules to avoid being overridden by .home .search-box::before background-image
+                max-width: $length-640;
+                margin: $length-16 auto 0;
+            }
+        }
+    }
+}

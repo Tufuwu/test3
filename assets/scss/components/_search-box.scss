@@ -1,0 +1,171 @@
+.search-box {
+    position: relative;
+    margin: $length-32 auto 0;
+    max-width: $length-768;
+
+    background: $white;
+
+    form {
+        display: flex;
+    }
+
+    label, input {
+        display: inline-block;
+        box-sizing: border-box;
+
+        height: $length-48;
+    }
+
+    label {
+        margin-top: 0;
+        margin-left: $length-48;
+        padding: 0 $length-6;
+
+        font-size: $font-size-7;
+        font-weight: 300;
+
+        text-align: right;
+        line-height: 2.4;
+    }
+
+    input {
+        flex: 1;
+
+        border: none;
+        background: $white;
+
+        font-weight: 300;
+        font-size: $font-size-7;
+
+        // The field is required, but we don't want to display a red outline
+        // if a user fills in the search field and then empties it.
+        &:invalid {
+            border: none;
+            box-shadow: none;
+            outline: none;
+        }
+    }
+
+    button[type=submit] {
+        width: $length-48;
+        height: $length-48;
+
+        background-color: $white !important;
+
+        &:hover, &:focus {
+            background-color: $grey-200 !important;
+        }
+
+        &:after {
+            margin: $length-16 !important;
+            @include sprite-position($search);
+            @include sprite-width($search);
+            @include sprite-height($search);
+        }
+    }
+
+    &:before {
+        content: '';
+
+        position: absolute;
+        bottom: -$length-6;
+        left: -$length-24;
+
+        // Clem' size
+        width: 68px;
+        height: 134px;
+
+        background: url('../images/home-clem.png');
+        background-size: 100%;
+
+        @at-root {
+            body.vc-clem-christmas .search-box::before {
+                background-image: url('../images/home-clem-christmas.png');
+            }
+
+            body.vc-clem-halloween .search-box::before {
+                background-image: url('../images/home-clem-halloween.png');
+
+                // Halloween Clem's size
+                width: 160px;
+                left: -80px;
+            }
+        }
+    }
+
+    .control-group {
+        display: inline-flex;
+        width: 100%;
+
+        .controls {
+            width: 100%;
+        }
+
+        input {
+            padding: 0;
+            width: 100% !important;
+        }
+    }
+}
+
+.search-results {
+    .content-item {
+        margin-left: 0;
+    }
+}
+
+.search-filters {
+    margin-right: auto;
+    margin-left: auto;
+
+    padding-left: 0;
+
+    max-width: $length-768;
+
+    text-align: center;
+    list-style: none;
+
+    li {
+        display: inline-flex;
+        padding-right: $length-16;
+
+        input[type=checkbox] {
+            margin-top: $length-8;
+        }
+    }
+
+    label {
+        color: $white;
+        margin-top: 0;
+    }
+}
+
+@include mobile {
+    .search-box {
+        margin: $length-32 0 0!important;
+        padding-left: $length-38;
+
+        label {
+            display: none;
+        }
+
+        &:before {
+            left: -$length-48;
+        }
+    }
+
+    .search-filters {
+        padding-left: $length-10;
+        text-align: left;
+
+        li {
+            display: list-item;
+        }
+    }
+}
+
+@include until-desktop {
+    .search-box {
+        margin: $length-32 $length-38 0;
+    }
+}

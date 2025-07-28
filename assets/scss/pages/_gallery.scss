@@ -1,0 +1,126 @@
+.gallery {
+    &.grid-view {
+        display: flex;
+        flex-wrap: wrap;
+
+        .gallery-item {
+            position: relative;
+
+            margin: $length-10;
+            padding: $length-4 $length-10;
+
+            width: $length-192;
+
+            border: $length-1 solid $grey-200;
+            border-radius: $radius-1;
+
+            &:hover,
+            &.active {
+                border-color: lighten($color-primary, 20%) !important;
+
+                &:before {
+                    display: none;
+                }
+
+                .topic-title {
+                    text-decoration: none;
+                }
+            }
+
+            .topic-infos {
+                position: absolute;
+
+                left: $length-6;
+                bottom: $length-2;
+
+                width: $length-16;
+                height: $length-16;
+
+                padding: $length-4;
+
+                z-index: 1;
+
+                input {
+                    margin: 0;
+                }
+            }
+
+            .topic-description {
+                width: 100%;
+
+                a {
+                    flex-direction: column;
+                    width: 100%;
+
+                    img.topic-image {
+                        width: 100%;
+                        max-width: 100%;
+                        max-height: 100%;
+                    }
+
+                    .topic-title {
+                        display: inline-block;
+
+                        width: calc(100% - #{$length-24});
+                        height: $length-20;
+
+                        margin-left: $length-24 !important;
+
+                        vertical-align: middle;
+
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                        white-space: nowrap;
+
+                        line-height: 1.5;
+                    }
+
+                    .topic-subtitle {
+                        display: none;
+                    }
+                }
+            }
+
+            &.selected {
+                border-color: $primary-400;
+            }
+
+            &.add-image {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+
+                background: $grey-100;
+                color: $grey-600;
+
+                font-size: 12rem;
+                text-align: center;
+
+                text-decoration: none;
+
+                border: $length-2 dashed $grey-400;
+
+                &:hover,
+                &:focus {
+                    background-color: $grey-200;
+                    border-color: $grey-600 !important;
+                    color: $grey-600;
+                }
+            }
+        }
+    }
+
+    &.list-view {
+        .topic {
+            .topic-description {
+                .topic-title {
+                    margin-top: $length-12;
+                }
+            }
+        }
+
+        .add-image {
+            display: none;
+        }
+    }
+}

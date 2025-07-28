@@ -1,0 +1,252 @@
+.modal {
+    display: none;
+}
+
+.modals-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+
+    display: none;
+
+    height: 100vh;
+    width: 100vw;
+
+    overflow-y: auto;
+    z-index: 50;
+
+    &.open {
+        display: block;
+    }
+
+    .modals-wrapper {
+        display: flex;
+
+        align-items: center;
+        justify-content: space-around;
+        flex-direction: column;
+
+        width: 100vw;
+        min-height: 100vh;
+    }
+
+    .modals-overlay {
+        position: fixed;
+
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+
+        background-color: rgba($primary-400, .8);
+
+        z-index: 1;
+    }
+}
+
+.modals-container .modal {
+    position: relative;
+    z-index: 2;
+    background: $white;
+    flex: 0;
+    flex-direction: column;
+
+    &.open {
+        display: flex;
+    }
+
+    .modal-title {
+        display: flex;
+        align-items: center;
+
+        margin-left: 0;
+
+        height: $length-48;
+        background: $color-primary;
+
+        border-bottom: $length-4 solid $color-secondary;
+
+        font-size: $font-size-9;
+        text-indent: $length-16;
+        line-height: 2.2;
+
+        color: $white;
+        text-shadow: rgba($black, 0.75) 0 0 $length-4;
+
+        user-select: none;
+
+        &.ico-after {
+            padding-left: $length-24;
+
+            &:after {
+                margin: $length-16 0 0 $length-14;
+            }
+        }
+    }
+
+    .modal-body {
+        padding: $length-16;
+        flex: 1;
+
+        table {
+            margin-top: 0;
+        }
+
+        p,
+        input:not([type=checkbox]):not([type=radio]),
+        select,
+        textarea {
+            margin: 0 0 $length-16;
+            width: 100%;
+        }
+
+        label:first-of-type,
+        input:not([type=checkbox]):not([type=radio]):first-of-type,
+        textarea:first-of-type {
+            margin-top: 0;
+        }
+
+        input:not([type=checkbox]):not([type=radio]):last-of-type,
+        textarea:last-of-type {
+            margin-bottom: 0;
+        }
+    }
+
+    .modal-footer {
+        display: flex;
+        border-top: $length-1 solid $grey-200;
+        flex-direction: row-reverse;
+
+        & > * {
+            flex: 1;
+
+            margin: 0;
+            padding: 0;
+
+            height: $length-48;
+
+            background: none!important;
+
+            text-align: center;
+            line-height: $length-48;
+            color: $black;
+
+            &:not(:first-child) {
+                border-right: $length-1 solid $grey-200;
+            }
+
+            &:only-child {
+                font-weight: bold;
+            }
+        }
+
+        .btn-submit, [type=submit] {
+            color: $color-primary;
+            font-weight: bold;
+        }
+
+        .btn-cancel {
+            color: $grey-600;
+        }
+    }
+}
+
+.enable-mobile-menu .modals-container .modal {
+    margin: $modal-margin;
+    box-shadow: 0 0 $length-6 $black;
+    max-width: 100%;
+
+    &.modal-flex {
+        width: $length-384;
+    }
+
+    &.modal-large {
+        width: $length-768;
+    }
+
+    &.modal-flex, &.modal-large {
+        p {
+            width: 100%;
+        }
+    }
+}
+
+@include desktop {
+    .enable-mobile-menu .modals-container .modal {
+        box-shadow: 0 $length-2 $length-8 rgba($black, .7);
+
+        .modal-title {
+            line-height: $length-48;
+        }
+
+        [type=submit],
+        .btn-submit {
+            &:not(.disabled):hover,
+            &:not(.disabled):focus {
+                color: $white;
+                background: $color-success-hover !important;
+            }
+        }
+
+        .btn-cancel {
+            &:hover,
+            &:focus {
+                color: $white;
+                background: $color-danger-hover !important;
+            }
+        }
+    }
+}
+
+// Specific modal content
+.modal .vote-details {
+    display: flex;
+
+    max-height: $length-512;
+    overflow-y: auto;
+
+    color: $grey-600;
+
+    .vote-col {
+        flex: 1;
+        padding: 0 $length-8 $length-16;
+
+        h3 {
+            margin: 0 0 $length-2;
+        }
+    }
+
+    ul.vote-list {
+        padding: 0;
+        margin: 0;
+        list-style: none;
+
+        li {
+            a {
+                display: block;
+                padding: $length-4;
+
+                text-decoration: none;
+                color: inherit;
+
+                &:hover, &:focus {
+                    background-color: $true-white;
+                }
+            }
+
+            border-top: solid $length-1 $grey-200;
+            line-height: 1.5;
+
+            &.muted {
+                color: $grey-400;
+                padding: $length-4;
+            }
+
+            img {
+                height: $length-24;
+                width: $length-24;
+                margin-right: $length-6;
+            }
+        }
+    }
+}
