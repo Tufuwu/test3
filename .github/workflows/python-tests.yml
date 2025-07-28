@@ -32,6 +32,11 @@ jobs:
           --health-retries 5
         ports:
           - 5432:5432
+          
+      clickhouse:
+        image: yandex/clickhouse-server:latest
+        ports:
+          - 8123:8123
 
       redis:
         image: redis
