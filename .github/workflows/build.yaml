@@ -1,35 +1,32 @@
-name: Python CI
+name: Python package
 
 on: [push, pull_request]
 
 jobs:
   build:
-    runs-on: ubuntu-22.04
 
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version: [3.6, 3.7, 3.8, 3.9]
+    runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+    - uses: actions/checkout@v2
 
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v2
-        with:
-          python-version: ${{ matrix.python-version }}
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.9'
 
-      - name: Install dependencies
-        run: |
-          pip install .[test]
-          pip install codecov
+    - name: Cache pip
+      uses: actions/cache@v4
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+
+    - name: Install dependencies
+      run: pip install .[test] codecov
 
 
 
-      - name: Upload coverage to Codecov
-        if: success()
-        run: codecov
-
-      - name: Clean up pip cache
-        run: rm -f $HOME/.cache/pip/log/debug.log
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v1
