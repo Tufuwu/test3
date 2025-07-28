@@ -1,49 +1,31 @@
-# setup.py
-
-import pathlib
+"""setup module"""
 from setuptools import setup, find_packages
+import os
+
+from pywnedpasswords import __version__
+
+readme_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "README.md")
+with open(readme_file) as f:
+    readme = f.read()
 
 setup(
-    name='gsheets',
-    version='0.6.dev0',
-    author='Sebastian Bank',
-    author_email='sebastian.bank@uni-leipzig.de',
-    description='Pythonic wrapper for the Google Sheets API',
-    keywords='spreadhseets google api v4 wrapper csv pandas',
-    license='MIT',
-    url='https://github.com/xflr6/gsheets',
-    project_urls={
-        'Documentation': 'https://gsheets.readthedocs.io',
-        'Changelog': 'https://gsheets.readthedocs.io/en/latest/changelog.html',
-        'Issue Tracker': 'https://github.com/xflr6/gsheets/issues',
-        'CI': 'https://github.com/xflr6/gsheets/actions',
-        'Coverage': 'https://codecov.io/gh/xflr6/gsheets',
-    },
+    name="pywnedpasswords",
+    version=__version__,
+    description="Client for HIBP passwords api using K-Anonymity method",
+    long_description=readme,
+    long_description_content_type="text/markdown",
+    url="http://github.com/xmatthias/pywnedpasswords",
+    author="Matthias Voppichler",
+    author_email="xmatthias@outlook.com",
+    license="MIT",
+    entry_points="""
+      [console_scripts]
+      pywnedpasswords=pywnedpasswords.pywnedpasswords:main
+      """,
+    python_requires=">=3",
     packages=find_packages(),
-    platforms='any',
-    python_requires='>=3.6',
-    install_requires=[
-        'google-api-python-client',
-        'oauth2client>=1.5.0',
-    ],
-    extras_require={
-        'dev': ['tox>=3', 'flake8', 'pep8-naming', 'wheel', 'twine'],
-        'test': ['mock>=3', 'pytest>=4', 'pytest-mock>=2', 'pytest-cov'],
-        'docs': ['sphinx>=1.8', 'sphinx-rtd-theme'],
-    },
-    long_description=pathlib.Path('README.rst').read_text(encoding='utf-8'),
-    classifiers=[
-        'Development Status :: 4 - Beta',
-        'Intended Audience :: Developers',
-        'Intended Audience :: Science/Research',
-        'License :: OSI Approved :: MIT License',
-        'Operating System :: OS Independent',
-        'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.6',
-        'Programming Language :: Python :: 3.7',
-        'Programming Language :: Python :: 3.8',
-        'Programming Language :: Python :: 3.9',
-        'Topic :: Internet :: WWW/HTTP',
-        'Topic :: Office/Business :: Financial :: Spreadsheet',
-    ],
+    install_requires=["requests>=2"],
+    zip_safe=False,
+    keywords=["pwnedpasswords", "passwords", "pwned", "security"],
+    project_urls={"Source Code": "http://github.com/xmatthias/pywnedpasswords"},
 )
