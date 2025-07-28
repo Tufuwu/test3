@@ -1,33 +1,36 @@
-name: pybikes
+name: Python package
 
-on:
-  push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "master" ]
+on: [push, pull_request]
 
 jobs:
-  test:
+  build:
+
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version: ["2.7", "3.8", "3.9", "3.10"]
+
     steps:
-    - uses: actions/checkout@v3
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v3
+    - uses: actions/checkout@v2
+
+    - name: Set up Python 3.7
+      uses: actions/setup-python@v2
       with:
-        python-version: ${{ matrix.python-version }}
+        python-version: 3.9
+
+    - name: Get pip cache dir
+      id: pip-cache
+      run: echo "::set-output name=dir::$(pip cache dir)"
+
+    - name: Cache pip
+      uses: actions/cache@v4
+      with:
+        path: ${{ steps.pip-cache.outputs.dir }}
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+
     - name: Install dependencies
-      run: make install
-    - name: lint
-      run: make lint
-    - name: Core tests
-      run: make test-base
-    - name: Instance tests (not update)
-      run: make test-instances
-    - name: Update instance tests (fail ok)
+      run: CFLAGS="-O0" pip install . --upgrade
+
+    - name: Run tests
       run: |
-        make test-update-instances T_FLAGS+="-n 10"
-      continue-on-error: true
+        chmod +x ./runtests.sh
+        ./runtests.sh
