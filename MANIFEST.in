@@ -1,5 +1,8 @@
-include MANIFEST.in
+include CHANGELOG.md
 include LICENSE
-include README.rst
+include README.md
 include runtests.py
-recursive-include micawber/contrib/mcdjango/templates *
+include scout_client.py
+include tests.py
+recursive-include docker/*
+recursive-include docs/*
