@@ -17,9 +17,12 @@ jobs:
         python-version: [3.5, 3.6, 3.7]
         include:
           - python-version: 3.7
-            env: TOXENV=cover
+            toxenv: cover
           - python-version: 3.7
-            env: TOXENV=black
+            toxenv: black
+
+    env:
+      TOXENV: ${{ matrix.toxenv || 'py' }}
 
     steps:
     - uses: actions/checkout@v2
@@ -38,5 +41,5 @@ jobs:
       run: tox
 
     - name: Upload coverage to Coveralls
-      if: success()
+      if: success() && matrix.toxenv == 'cover'
       run: coveralls
