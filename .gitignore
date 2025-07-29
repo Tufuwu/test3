@@ -1,13 +1,17 @@
-# Python
+*.eggs/
+*.egg-info/
+*__pycache__*
+build/
+.tox/
 *.pyc
-/*.egg-info
-/.eggs
-/dist
-
-# coverage
-/.coverage
-/htmlcov
-
-# tests
-*.vcd
-*.gtkw
+dist/
+*.swa
+*.swp
+*~
+bin/
+lib/
+lib64
+pyvenv.cfg
+venv/
+.venv/
+ChangeLog
