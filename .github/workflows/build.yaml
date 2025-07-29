@@ -38,7 +38,7 @@ jobs:
         with:
           python-version: 3.8
       - name: Install dependencies
-        run: pip install .[test]
+        run: pip install .[test] twine
       - name: Build and publish
         env:
           TWINE_USERNAME: mara-pypi-upload-account
