@@ -19,7 +19,7 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
     - name: Upgrade setuptools
-      run: pip install --upgrade setuptools
+      run: pip install --upgrade 
     - name: Install dependencies
       run: pip install -r requirements.txt
     - name: Run tests
