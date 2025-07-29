@@ -1,127 +1,105 @@
-pyroma
-======
+|gh-test| |rtd| |pypi|
 
-Pyroma rhymes with aroma, and is a product aimed at giving a rating of how well
-a Python project complies with the best practices of the Python packaging
-ecosystem, primarily PyPI, pip, Distribute etc, as well as a list of issues that
-could be improved.
+.. |gh-test| image:: https://github.com/RKrahl/pytest-dependency/actions/workflows/run-tests.yaml/badge.svg
+   :target: https://github.com/RKrahl/pytest-dependency/actions/workflows/run-tests.yaml
+   :alt: GitHub Workflow Status
+	 
+.. |rtd| image:: https://img.shields.io/readthedocs/pytest-dependency/latest
+   :target: https://pytest-dependency.readthedocs.io/en/latest/
+   :alt: Documentation build status
 
-The aim of this is both to help people make a project that is nice and usable,
-but also to improve the quality of Python third-party software, making it easier
-and more enjoyable to use the vast array of available modules for Python.
+.. |pypi| image:: https://img.shields.io/pypi/v/pytest-dependency
+   :target: https://pypi.org/project/pytest-dependency/
+   :alt: PyPI version
 
-It's written so that there are a library with methods to call from Python, as
-well as a script, also called pyroma.
+pytest-dependency – Manage dependencies of tests
+================================================
 
-It can be run on a project directory before making a release:
-
-    $ pyroma .
-
-On a distribution before uploading it to the CheeseShop:
-
-    $ pyroma pyroma-1.0.tar.gz
-
-Or you can give it a package name on CheeseShop:
-
-    $ pyroma pyroma
-
-Giving it a name on CheeseShop is the most extensive test, as it will
-test for several things isn't otherwise tested.
-
-In all cases the output is similar::
-
-    ------------------------------
-    Checking .
-    Found pyroma
-    ------------------------------
-    The packages long_description is quite short.
-    ------------------------------
-    Final rating: 9/10
-    Cottage Cheese
-    ------------------------------
+This pytest plugin manages dependencies of tests.  It allows to mark
+some tests as dependent from other tests.  These tests will then be
+skipped if any of the dependencies did fail or has been skipped.
 
 
-Tests
------
+Download
+--------
 
-This is the list of checks that are currently performed:
+The latest release version can be found `at PyPI`__.
 
-* The package should have a name, a version and a Description.
-  If it does not, it will receive a rating of 0.
-
-* The version number should be a string. A floating point number will
-  work with distutils, but most other tools will fail.
-
-* The version number should comply to PEP386.
-
-* The description should be over 10 characters, and the long_description
-  should be over a 100 characters.
-
-* Pyroma will convert your long_description to HTML using Docutils, to
-  verify that it is possible. This guarantees pretty formatting of your
-  description on PyPI. As long as Docutils can convert it, this passes,
-  even if there are warnings or error in the conversion. These warnings
-  and errors are printed to stdout so you will see them.
-
-  NB! Currently this doesn't change the rating, this is because Docutils
-  no longer raises an error during this process, so I have to rewrite the
-  test. Once it's reinstated, incorrect syntax will be fatal.
-
-* You should have the following meta data fields filled in:
-  classifiers, keywords, author, author_email, url and license.
-
-* You should have classifiers specifying the supported Python versions.
-
-* You should have a classifier specifying the project license.
-
-* If you are checking on a PyPI package, and not a local directory or
-  local package, pyroma will check the number of owners the package has
-  on PyPI. It should be three or more, to minimize the "Bus factor",
-  the risk of the index owners suddenly going off-line for whatever reason.
-
-* If you are checking on a PyPI package, and not a local directory or
-  local package, pyroma will check that you have uploaded a source
-  distribution, and not just binary distributions.
+.. __: `PyPI site`_
 
 
-Version control integration
----------------------------
+System requirements
+-------------------
 
-With `pre-commit <https://pre-commit.com>`_, pyroma can be run whenever you
-commit your work by adding the following to your ``.pre-commit-config.yaml``:
++ Python 2.7 or 3.4 and newer.
++ `setuptools`_.
++ `pytest`_ 3.7.0 or newer.
 
-.. code-block:: yaml
+Optional library packages:
 
-    repos:
-    -   repo: https://github.com/regebro/pyroma
-        rev: "3.2"
-        hooks:
-        -   id: pyroma
++ `setuptools_scm`_
+
+  The version number is managed using this package.  All source
+  distributions add a static text file with the version number and
+  fall back using that if `setuptools_scm` is not available.  So this
+  package is only needed to build out of the plain development source
+  tree as cloned from GitHub.
 
 
-Credits
--------
+Installation
+------------
 
-The project was created by Lennart Regebro, regebro@gmail.com
+1. Download the sources, unpack, and change into the source directory.
 
-The name "Pyroma" was coined by Wichert Akkerman, wichert@wiggy.net
+2. Build (optional)::
 
-Contributors:
+     $ python setup.py build
 
-  * Godefroid Chapelle
-  * Dmitry Vakhrushev
-  * hugovk
-  * Jeff Quast
-  * Maurits van Rees
-  * Hervé Beraud
-  * Érico Andrei
-  * Jakub Wilk
-  * Andreas Lutro
-  * Scott Colby
-  * Andrew Murray
-  * Nikita Sobolev
-  * Charles Tapley Hoyt
-  * Max Tyulin
-  * Michael Howitz
-  * Florian Bruhin
-  * Christopher A.M. Gerlach
+3. Test (optional)::
+
+     $ PYTHONPATH=build/lib python -m pytest tests
+
+4. Install::
+
+     $ python setup.py install
+
+The last step might require admin privileges in order to write into
+the site-packages directory of your Python installation.
+
+
+Documentation
+-------------
+
+See the `online documentation`__.
+
+The example test modules used in the documentation can be found in
+doc/examples in the source distribution.
+
+.. __: `Read the Docs site`_
+
+
+Copyright and License
+---------------------
+
+- Copyright 2013–2015
+  Helmholtz-Zentrum Berlin für Materialien und Energie GmbH
+- Copyright 2016–2020 Rolf Krahl
+
+Licensed under the Apache License, Version 2.0 (the "License"); you
+may not use this file except in compliance with the License.  You may
+obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+implied.  See the License for the specific language governing
+permissions and limitations under the License.
+
+
+.. _PyPI site: https://pypi.org/project/pytest-dependency/
+.. _setuptools: http://pypi.python.org/pypi/setuptools/
+.. _pytest: http://pytest.org/
+.. _setuptools_scm: https://github.com/pypa/setuptools_scm/
+.. _Read the Docs site: https://pytest-dependency.readthedocs.io/
