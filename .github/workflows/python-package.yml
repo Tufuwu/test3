@@ -8,25 +8,24 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-    - name: Set up Python 3.7.4
-      uses: actions/setup-python@v2
-      with:
-        python-version: 3.8
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
 
-    - name: Upgrade pip
-      run: pip install --upgrade pip
+      - name: Upgrade pip
+        run: pip install --upgrade pip
 
-    - name: Install dependencies
-      run: pip install numpy scipy matplotlib pandas sympy nose statsmodels tabulate pytest
+      - name: Install dependencies
+        run: |
+          pip install numpy scipy matplotlib pandas sympy nose statsmodels tabulate pytest
+          pip install .
 
-    - name: Install package
-      run: pip install .
-
-    - name: Run tests
-      run: nosetests
+      - name: Run tests
+        run: nosetests
