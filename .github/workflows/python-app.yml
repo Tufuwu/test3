@@ -1,43 +1,32 @@
-name: Python application
+name: Python package
 
-on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
+on: [push, pull_request]
 
 jobs:
   build:
+
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v2
 
     - name: Set up Python 3.7
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v2
       with:
-        python-version: '3.9'
+        python-version: 3.9
 
-    - name: Install Miniconda
+    - name: Install dependencies
       run: |
         wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O $HOME/miniconda.sh
         bash $HOME/miniconda.sh -b -u -p $HOME/miniconda
         echo "$HOME/miniconda/bin" >> $GITHUB_PATH
-
-    - name: Install dependencies
-      run: |
+        hash -r
         pip install nose coverage coveralls flake8 scikit-image
         pip install -e .
+        flake8
 
-    - name: Lint with flake8
-      run: flake8
-
-    - name: Test with nosetests
+    - name: Test with nose
       run: nosetests -sv --with-doctest --no-byte-compile --with-coverage --cover-package=tftb
 
     - name: Coveralls
       run: coveralls
-      env:
-        COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
