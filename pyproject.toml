@@ -14,9 +14,9 @@ description = "A command-line tool to work with YAML, JSON, and TOML files."
 readme = "README.md"
 requires-python = ">=3.6"
 license = {text = "MIT"}
-url.Homepage = "https://github.com/openuado/niet"
-url.Source = "https://github.com/openuado/niet"
-url.Tracker = "https://github.com/openuado/niet/issues"
+urls.Homepage = "https://github.com/openuado/niet"
+urls.Source = "https://github.com/openuado/niet"
+urls.Tracker = "https://github.com/openuado/niet/issues"
 classifiers = [
     "Environment :: Console",
     "Intended Audience :: Developers",
