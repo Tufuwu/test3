@@ -1,22 +1,41 @@
-name: Test
+name: Python package
 
-on: [push, pull_request]
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
 
 jobs:
-  test:
-    runs-on: ubuntu-22.04
+  build:
+
+    runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v2
+    - uses: actions/checkout@v2
 
-      - name: Setup Python
-        uses: actions/setup-python@v1
-        with:
-          python-version: 3.8
+    - name: Set up Python 3.6
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.9
 
-      - name: Install dependencies with pip
-        run: |
-          pip install doc8 sphinx sphinx-multiversion
-          pip install git+https://github.com/osrf/sphinx-tabs
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install doc8 sphinx
+        pip install git+https://github.com/osrf/sphinx-tabs
+        pip install sphinx_multiversion
 
-      - run: make html
-      - run: doc8 --ignore D001 --ignore-path build
+    - name: Build the documentation
+      run: |
+        make html 2> stderr.log
+        cat stderr.log
+        doc8 --ignore D001 --ignore-path build --ignore-path source/Tutorials/Actions
+        doc8 --ignore D000 --ignore D001 --ignore-path build source/Tutorials/Actions
+        if [ -s "stderr.log" ]; then false; fi
+
+    - name: Send notification
+      if: ${{ failure() }}
+      run: echo "The build failed"
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
