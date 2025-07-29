@@ -1,10 +1,16 @@
-__pycache__/
-build/
-dist/
-*.egg-info
-env
-.idea/
-test*.py
-!tests/*
-tests/messages/private_*
+syntax: glob
 *.pyc
+*.egg-info
+*.egg
+EGG-INFO
+dist
+build
+py2*
+py3*
+.tox
+*.wpr
+*.wpu
+*.bak
+*.class
+.venv
+.env

@@ -1,2 +1,7 @@
-recursive-include tests *.py *.bin
-include LICENSE.txt
+include *.txt
+recursive-include pyroma/testdata *.py *.txt *.cfg *.html
+prune pyroma/testdata/complete/*.egg
+graft pyroma/testdata/distributions
+include tox.ini
+include DEVELOPMENT.rst
+include Makefile
