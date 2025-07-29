@@ -28,7 +28,7 @@ jobs:
         coverage run -m pytest -v tests/
         codecov
     - name: Cache pip
-      uses: actions/cache@v2
+      uses: actions/cache@v4
       with:
         path: ~/.cache/pip
         key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
