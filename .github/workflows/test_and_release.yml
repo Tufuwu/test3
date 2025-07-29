@@ -1,59 +1,52 @@
-name: Python Package
+name: Python package
 
 on:
   push:
     branches:
       - main
-    tags: true
+    tags:
+      - '*'
+  pull_request:
+    branches:
+      - master
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
       matrix:
-        python-version: [2.7, 3.5, 3.6, 3.7, 3.8, 3.9-dev]
-    
+        python-version: ['2.7', '3.5', '3.6', '3.7', '3.8', '3.9-dev']
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v2
-        with:
-          python-version: ${{ matrix.python-version }}
-
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install setuptools wheel
-
-      - name: Run tests
-        run: python setup.py test
+    - uses: actions/checkout@v2
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install .
+    - name: Test with setup.py
+      run: python setup.py test
 
   deploy:
     runs-on: ubuntu-22.04
-
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Set up Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: '3.8'  # Use a stable version for deployment
-
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install setuptools wheel
-
-      - name: Deploy to PyPI
-        env:
-          TWINE_USERNAME: phillbaker
-          TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
-        run: |
-          python -m pip install twine
-          python setup.py sdist bdist_wheel
-          twine upload dist/*
+    - uses: actions/checkout@v2
+    - name: Set up Python 3.8
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.8
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install .
+    - name: Publish to PyPI
+      env:
+        TWINE_USERNAME: phillbaker
+        TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
+      run: |
+        python -m pip install --upgrade twine
+        python setup.py sdist bdist_wheel
+        twine upload --skip-existing dist/*
