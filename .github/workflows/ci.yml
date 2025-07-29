@@ -30,7 +30,7 @@ jobs:
       - name: Install dependencies
         run: |
           pip install -r test-requirements.txt
-          pip install tox-travis .[devel]
+          pip install tox-gh-actions .[devel]
 
       - name: Run tests
         run: |
