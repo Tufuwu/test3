@@ -1,4 +1,3 @@
-*.egg-info
-/build
 *.pyc
-.tox
+.idea
+*.iml
