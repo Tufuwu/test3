@@ -30,7 +30,7 @@ jobs:
         python -m pip install --upgrade pip setuptools wheel
         python -m pip install -r test-requirements.txt
     - name: Install tox
-      run: pip install tox-travis .[devel]
+      run: pip install tox-gh-actions .[devel]
     - name: Test with tox
       run: tox
     - name: Install package
