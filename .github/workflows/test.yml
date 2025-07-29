@@ -18,8 +18,7 @@ jobs:
       uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python-version }}
-    - name: Upgrade setuptools
-      run: pip install --upgrade 
+ 
     - name: Install dependencies
       run: pip install -r requirements.txt
     - name: Run tests
