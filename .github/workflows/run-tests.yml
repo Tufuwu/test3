@@ -35,7 +35,7 @@ jobs:
         token: ${{ secrets.CODECOV_TOKEN }}
 
     - name: Notifications
-      if: ${{ failure() }}
+   
       uses: rtCamp/action-slack-notify@v2
       env:
         SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
