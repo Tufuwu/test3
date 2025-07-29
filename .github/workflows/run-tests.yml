@@ -1,37 +1,48 @@
-name: unit tests
+name: Python application
 
 on: [push, pull_request]
 
 jobs:
-  test:
+  build:
 
     runs-on: ubuntu-latest
+
     strategy:
       fail-fast: false
       matrix:
         python-version: [3.6, 3.7, 3.8, 3.9]
 
     steps:
-      - uses: actions/checkout@v2
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v2
-        with:
-          python-version: ${{ matrix.python-version }}
-      - name: Install poetry
-        run: |
-          python -m pip install --upgrade pip
-          pip install poetry
-      - name: Set up environment with poetry
-        run: |
-          poetry install
-      - name: Lint with flake8
-        run: |
-          make lint
-      - name: Test with pytest
-        run: |
-          make tests
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v2
-        with:
-          files: ./coverage.xml
-        if: ${{ matrix.python-version == 3.9 }}
+    - uses: actions/checkout@v2
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install dependencies
+      run: |
+        make
+        pip install poetry
+        poetry install
+
+    - name: Run tests
+      run: make tests
+
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v1
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+
+    - name: Notifications
+      if: ${{ failure() }}
+      uses: rtCamp/action-slack-notify@v2
+      env:
+        SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+        SLACK_USERNAME: Github Action
+        SLACK_CHANNEL: gitter
+        SLACK_ICON: https://avatars.githubusercontent.com/u/14946101
+      with:
+        status: ${{ job.status }}
+        color: ${{ job.status == 'failure' && 'danger' || 'good' }}
+        fields: repo,message,commit,author_name,action
