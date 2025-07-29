@@ -1,31 +1,26 @@
-name: Tests
+name: Python application
 
-on:
-  pull_request:
-  push:
-    branches: [master, main]
+on: [push, pull_request]
 
 jobs:
-  test:
-    runs-on: ubuntu-22.04
+  build:
+
+    runs-on: ubuntu-latest
+
     strategy:
       fail-fast: false
       matrix:
-        python: [2.7, 3.6, 3.7, 3.8]
-
-    name: Python ${{ matrix.python }} Test
+        python-version: [2.7, 3.5, 3.6, 3.7, 3.8]
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-
-      - name: Setup Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: ${{ matrix.python }}
-
-      - name: Install dependencies
-        run: pip install -r requirements.txt
-
-      - name: Run test suite
-        run: python setup.py test
+    - uses: actions/checkout@v2
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Upgrade setuptools
+      run: pip install --upgrade setuptools
+    - name: Install dependencies
+      run: pip install -r requirements.txt
+    - name: Run tests
+      run: python setup.py test
