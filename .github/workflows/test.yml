@@ -30,4 +30,5 @@ jobs:
         pip install -r tests/requirements.txt
 
     - name: Test with pytest
-      run: py.test -vv
+      run: |
+        pytest -vv
