@@ -1,0 +1,8 @@
+.DS_Store
+*.egg-info
+*.pyc
+*.eggs
+dist/*
+build/*
+.vscode
+.coverage
