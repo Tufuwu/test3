@@ -1,63 +1,86 @@
-![PyTeal logo](https://github.com/algorand/pyteal/blob/master/docs/pyteal.png?raw=true)
+# html2text
+
+[![Build Status](https://secure.travis-ci.org/Alir3z4/html2text.png)](https://travis-ci.org/Alir3z4/html2text)
+[![Coverage Status](https://coveralls.io/repos/Alir3z4/html2text/badge.png)](https://coveralls.io/r/Alir3z4/html2text)
+[![Downloads](http://badge.kloud51.com/pypi/d/html2text.png)](https://pypi.org/project/html2text/)
+[![Version](http://badge.kloud51.com/pypi/v/html2text.png)](https://pypi.org/project/html2text/)
+[![Wheel?](http://badge.kloud51.com/pypi/wheel/html2text.png)](https://pypi.org/project/html2text/)
+[![Format](http://badge.kloud51.com/pypi/format/html2text.png)](https://pypi.org/project/html2text/)
+[![License](http://badge.kloud51.com/pypi/license/html2text.png)](https://pypi.org/project/html2text/)
 
 
-# PyTeal: Algorand Smart Contracts in Python
+html2text is a Python script that converts a page of HTML into clean, easy-to-read plain ASCII text. Better yet, that ASCII also happens to be valid Markdown (a text-to-HTML format).
 
-[![Build Status](https://travis-ci.com/algorand/pyteal.svg?branch=master)](https://travis-ci.com/algorand/pyteal)
-[![PyPI version](https://badge.fury.io/py/pyteal.svg)](https://badge.fury.io/py/pyteal)
-[![Documentation Status](https://readthedocs.org/projects/pyteal/badge/?version=latest)](https://pyteal.readthedocs.io/en/latest/?badge=latest)
-[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
-PyTeal is a Python language binding for [Algorand Smart Contracts (ASC1s)](https://developer.algorand.org/docs/features/asc1/). 
+Usage: `html2text [filename [encoding]]`
 
-Algorand Smart Contracts are implemented using a new language that is stack-based, 
-called [Transaction Execution Approval Language (TEAL)](https://developer.algorand.org/docs/features/asc1/teal/). 
+| Option                                                 | Description
+|--------------------------------------------------------|---------------------------------------------------
+| `--version`                                            | Show program's version number and exit
+| `-h`, `--help`                                         | Show this help message and exit
+| `--ignore-links`                                       | Don't include any formatting for links
+|`--escape-all`                                          | Escape all special characters.  Output is less readable, but avoids corner case formatting issues.
+| `--reference-links`                                    | Use reference links instead of links to create markdown
+| `--mark-code`                                          | Mark preformatted and code blocks with [code]...[/code]
 
-However, TEAL is essentially an assembly language. With PyTeal, developers can express smart contract logic purely using Python. 
-PyTeal provides high level, functional programming style abstractions over TEAL and does type checking at construction time.
+For a complete list of options see the [docs](https://github.com/Alir3z4/html2text/blob/master/docs/usage.md)
 
-### Install 
 
-PyTeal requires Python version >= 3.6.
+Or you can use it from within `Python`:
 
-#### Recommended: Install from PyPi
+```
+>>> import html2text
+>>>
+>>> print(html2text.html2text("<p><strong>Zed's</strong> dead baby, <em>Zed's</em> dead.</p>"))
+**Zed's** dead baby, _Zed's_ dead.
 
-Install the latest official release from PyPi:
+```
 
-* `pip install pyteal`
 
-#### Install Latest Commit
+Or with some configuration options:
+```
+>>> import html2text
+>>>
+>>> h = html2text.HTML2Text()
+>>> # Ignore converting links from HTML
+>>> h.ignore_links = True
+>>> print h.handle("<p>Hello, <a href='https://www.google.com/earth/'>world</a>!")
+Hello, world!
 
-If needed, it's possible to install directly from the latest commit on master to use unreleased features:
+>>> print(h.handle("<p>Hello, <a href='https://www.google.com/earth/'>world</a>!"))
 
-> **WARNING:** Unreleased code is experimental and may not be backwards compatible or function properly. Use extreme caution when installing PyTeal this way.
+Hello, world!
 
-* `pip install git+https://github.com/algorand/pyteal`
+>>> # Don't Ignore links anymore, I like links
+>>> h.ignore_links = False
+>>> print(h.handle("<p>Hello, <a href='https://www.google.com/earth/'>world</a>!"))
+Hello, [world](https://www.google.com/earth/)!
 
-### Documentation
+```
 
-[PyTeal Docs](https://pyteal.readthedocs.io/)
+*Originally written by Aaron Swartz. This code is distributed under the GPLv3.*
 
-### Development Setup
 
-Setup venv (one time):
- * `python3 -m venv venv`
+## How to install
 
-Active venv:
- * `. venv/bin/activate` (if your shell is bash/zsh)
- * `. venv/bin/activate.fish` (if your shell is fish)
+`html2text` is available on pypi
+https://pypi.org/project/html2text/
 
-Pip install PyTeal in editable state
- * `pip install -e .`
+```
+$ pip install html2text
+```
 
-Install dependencies:
-* `pip install -r requirements.txt`
- 
-Type checking using mypy:
-* `mypy pyteal`
 
-Run tests:
-* `pytest`
+## How to run unit tests
 
-Format code:
-* `black .`
+    tox
+
+To see the coverage results:
+
+    coverage html
+
+then open the `./htmlcov/index.html` file in your browser.
+
+## Documentation
+
+Documentation lives [here](https://github.com/Alir3z4/html2text/blob/master/docs/usage.md)
