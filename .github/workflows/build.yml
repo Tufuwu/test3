@@ -1,36 +1,32 @@
-name: Python package
+name: Python application
 
-on: [push, pull_request]
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ master ]
 
 jobs:
   build:
 
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: [3.9]
 
     steps:
     - uses: actions/checkout@v2
-    - name: Set up Python ${{ matrix.python-version }}
+
+    - name: Set up Python 3.9
       uses: actions/setup-python@v2
       with:
-        python-version: ${{ matrix.python-version }}
+        python-version: 3.9
     - name: Install dependencies
       run: |
-        sudo apt-get update
-        sudo apt-get install -y libicu-dev
-        pip install -e .
-        pip install pyicu coverage nose twine
-    - name: Test with nose and coverage
-      run: |
-        nosetests --with-coverage --cover-package=fingerprints --cover-erase
-    - name: Build and publish Python 📦 to PyPI
-
-      run: |
-        pip install wheel
-        python setup.py sdist bdist_wheel
-        twine upload dist/*
-      env:
-        TWINE_USERNAME: __token__
-        TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    - name: Lint with black
+      run: black --check .
+    - name: Test with pytest
+      run: pytest
+    - name: Type check with mypy
+      run: mypy pyteal
+    - name: Check imports
+      run: python3 -c "import pyteal" scripts/generate_init.py --check
