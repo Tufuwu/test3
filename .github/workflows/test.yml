@@ -1,42 +1,61 @@
-name: Python package
+name: CI
 
 on:
   push:
     branches:
       - main
-      - /^v\d+\.\d+(\.(\d|x)+)?(-\S*)?$/
+      - 'v*.*.*'
+  pull_request:
 
 jobs:
   build:
+    runs-on: ubuntu-22.04
 
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.5, 3.6, 3.7, 3.8, 'pypy3']
+        toxenv: 
+          - lint,docs
+          - django20-py35-all
+          - django20-py36-all
+          - django20-pypy3-all
+          - django21-py35-all
+          - django21-py36-all
+          - django21-py37-all
+          - django21-pypy3-all
+          - django22-py35-all
+          - django22-py36-all
+          - django22-py37-all
+          - django22-pypy3-all
+          - django30-py36-all
+          - django30-py37-all
+          - django30-py38-all
+          - django30-pypy3-all
+          - django31-py36-all
+          - django31-py37-all
+          - django31-py38-all
+          - django31-pypy3-all
+          - djangoDev-py37-all
+          - django31-py37-none
+          - django31-py37-amazon_ses
+          - django22-py37-all-old_urllib3
 
     steps:
-    - uses: actions/checkout@v2
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-    - name: Set up Python 3.8
-      uses: actions/setup-python@v2
-      with:
-        python-version: 3.8
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
 
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install tox
+      - name: Install dependencies
+        run: |
+          pip install tox
 
-    - name: Test with tox
-      run: |
-        tox
-
-    - name: Cache pip
-      uses: actions/cache@v4
-      with:
-        path: ~/.cache/pip
-        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
-        restore-keys: |
-          ${{ runner.os }}-pip-
-
-    - name: Allow failures
-      if: ${{ failure() }}
-      run: exit 0
-
+      - name: Run tests
+        env:
+          TOX_FORCE_IGNORE_OUTCOME: false
+          TOXENV: ${{ matrix.toxenv }}
+        run: |
+          tox
