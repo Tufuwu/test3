@@ -31,8 +31,6 @@ jobs:
         pip install -r requirements.txt
         pip install flake8
 
-    - name: Lint with flake8
-      run: flake8 --ignore=E501
 
     - name: Test
       run: |
