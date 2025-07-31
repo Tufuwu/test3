@@ -20,7 +20,17 @@ jobs:
     - name: Install dependencies
       run: pip install -r dev-requirements.txt
 
+    - name: Lint with flake8
+      run: |
+        make clean
+        make pep8
+        make flake8
 
+    - name: Test with unittest
+      run: make unittest
+
+    - name: Coveralls
+      run: coveralls
 
     - name: Send notification
       if: failure()
