@@ -1,151 +1,156 @@
-dynamodump
-==========
+# django-csv-export-view
 
-![Build Status](https://github.com/bchew/dynamodump/workflows/Python%20package/badge.svg) [![DockerBuildstatus](https://img.shields.io/docker/build/bchew/dynamodump.svg)](https://hub.docker.com/r/bchew/dynamodump/)
+A Django class-based view for CSV export.
 
-Simple backup and restore script for Amazon DynamoDB using boto to work similarly to mysqldump.
+[![Build Status](https://travis-ci.org/benkonrath/django-csv-export-view.svg?branch=master)](https://travis-ci.org/benkonrath/django-csv-export-view)
 
-Suitable for DynamoDB usages of smaller data volume which do not warrant the usage of AWS Data Pipeline for backup/restores/empty.
+## Features
 
-dynamodump supports local DynamoDB instances as well (tested with [DynamoDB Local](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/DynamoDBLocal.html)).
+* Easy CSV exports by setting a Django `model` and a `fields` or `exclude` iterable
+* Works with existing class-based view mixins for access control
+* Generates Microsoft Excel friendly CSV by default
+* Proper HTTP headers set for CSV
+* Easy to override defaults as needed
+* Easy integration into Django Admin
 
-Usage
------
-```
-usage: dynamodump.py [-h] [-a {zip,tar}] [-b BUCKET]
-                     [-m {backup,restore,empty}] [-r REGION] [--host HOST]
-                     [--port PORT] [--accessKey ACCESSKEY]
-                     [--secretKey SECRETKEY] [-p PROFILE] [-s SRCTABLE]
-                     [-d DESTTABLE] [--prefixSeparator PREFIXSEPARATOR]
-                     [--noSeparator] [--readCapacity READCAPACITY] [-t TAG]
-                     [--writeCapacity WRITECAPACITY] [--schemaOnly]
-                     [--dataOnly] [--skipThroughputUpdate]
-                     [--dumpPath DUMPPATH] [--log LOG]
+## Installation
 
-Simple DynamoDB backup/restore/empty.
+`pip install django-csv-export-view`
 
-optional arguments:
-  -h, --help            show this help message and exit
-  -a {zip,tar}, --archive {zip,tar}
-                        Type of compressed archive to create.If unset, don't
-                        create archive
-  -b BUCKET, --bucket BUCKET
-                        S3 bucket in which to store or retrieve backups.[must
-                        already exist]
-  -m {backup,restore,empty}, --mode {backup,restore,empty}
-                        Operation to perform
-  -r REGION, --region REGION
-                        AWS region to use, e.g. 'us-west-1'. Can use
-                        AWS_DEFAULT_REGION for local testing. Use 'local' for
-                        local DynamoDB testing
-  --host HOST           Host of local DynamoDB [required only for local]
-  --port PORT           Port of local DynamoDB [required only for local]
-  --accessKey ACCESSKEY
-                        Access key of local DynamoDB [required only for local]
-  --secretKey SECRETKEY
-                        Secret key of local DynamoDB [required only for local]
-  -p PROFILE, --profile PROFILE
-                        AWS credentials file profile to use. Allows you to use
-                        a profile instead accessKey, secretKey authentication
-  -s SRCTABLE, --srcTable SRCTABLE
-                        Source DynamoDB table name to backup or restore from,
-                        use 'tablename*' for wildcard prefix selection or '*'
-                        for all tables. Mutually exclusive with --tag
-  -d DESTTABLE, --destTable DESTTABLE
-                        Destination DynamoDB table name to backup or restore
-                        to, use 'tablename*' for wildcard prefix selection
-                        (defaults to use '-' separator) [optional, defaults to
-                        source]
-  --prefixSeparator PREFIXSEPARATOR
-                        Specify a different prefix separator, e.g. '.'
-                        [optional]
-  --noSeparator         Overrides the use of a prefix separator for backup
-                        wildcard searches [optional]
-  --readCapacity READCAPACITY
-                        Change the temp read capacity of the DynamoDB table to
-                        backup from [optional]
-  -t TAG, --tag TAG     Tag to use for identifying tables to back up. Mutually
-                        exclusive with srcTable. Provided as KEY=VALUE
-  --writeCapacity WRITECAPACITY
-                        Change the temp write capacity of the DynamoDB table
-                        to restore to [defaults to 25, optional]
-  --schemaOnly          Backup or restore the schema only. Do not
-                        backup/restore data. Can be used with both backup and
-                        restore modes. Cannot be used with the --dataOnly
-                        [optional]
-  --dataOnly            Restore data only. Do not delete/recreate schema
-                        [optional for restore]
-  --skipThroughputUpdate
-                        Skip updating throughput values across tables
-                        [optional]
-  --dumpPath DUMPPATH   Directory to place and search for DynamoDB table
-                        backups (defaults to use 'dump') [optional]
-  --log LOG             Logging level - DEBUG|INFO|WARNING|ERROR|CRITICAL
-                        [optional]
+## Quick Start
+
+Examples:
+```python
+from csv_export.views import CSVExportView
+
+class DataExportView(CSVExportView):
+    model = Data
+    fields = ("field", "related", "property")
+
+    # When using related fields you will likely want to override get_queryset() use select_related() or prefetch_related().
+    def get_queryset(self):
+        return super().get_queryset().select_related("related")
+        OR
+        return super().get_queryset().prefetch_related("related")
+
+class DataExportView(CSVExportView):
+    model = Data
+    fields = ("field", "related__field", "property")
+
+class DataExportView(CSVExportView):
+    model = Data
+    fields = "__all__"
+
+class DataExportView(CSVExportView):
+    model = Data
+    exclude = ("id",)
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        return queryset.exclude(deleted=True)
+
+class DataExportView(CSVExportView):
+    model = Data
+
+    def get_fields(self, queryset):
+        fields = ["username", "email"]
+        if self.request.user.is_superuser:
+            fields.append("birth_date")
+        return fields
 ```
 
-Backup files are stored in a 'dump' subdirectory, and are restored from there as well by default.
+`fields` / `exclude`: An iterable of field names and properties. You cannot set both `fields` and `exclude`.
+`fields` can also be `"__all__"` to export all fields. Model properties are not included when `"__all__"` is used.
+Related field can be used with `__`. Override `get_fields(self, queryset)` for custom behaviour not supported by the
+default logic.
 
-AWS example
------------
-The following examples assume your AWS access key and secret key is present in ~/.boto
+`model`: The model to use for the CSV export queryset. Override `get_queryset()` if you need a custom queryset.
 
-Single table backup/restore:
-```
-python dynamodump.py -m backup -r us-west-1 -s testTable
+## Further Customization
 
-python dynamodump.py -m restore -r us-west-1 -s testTable
-```
-Multiple table backup/restore (assumes prefix of 'production-' of table names, use --prefixSeparator to specify a
-different separator):
-```
-python dynamodump.py -m backup -r us-west-1 -s production*
+Examples:
+```python
+from csv_export.views import CSVExportView
 
-python dynamodump.py -m restore -r us-west-1 -s production*
-```
-The above, but between different environments (e.g. production-* tables to development-* tables):
-```
-python dynamodump.py -m backup -r us-west-1 -s production*
+class DataExportView(CSVExportView):
+    model = Data
+    fields = "__all__"
+    header = False
+    specify_separator = False
+    filename = "data-export.csv"
 
-python dynamodump.py -m restore -r us-west-1 -s production* -d development*
-```
-Backup all tables and restore only data (will not delete and recreate schema):
-```
-python dynamodump.py -m backup -r us-west-1 -s "*"
+class DataExportView(CSVExportView):
+    model = Data
+    fields = "__all__"
+    verbose_names = False
 
-python dynamodump.py -m restore -r us-west-1 -s "*" --dataOnly
-```
-Dump all table schemas and create the schemas (e.g. creating blank tables in a different AWS account):
-```
-python dynamodump.py -m backup -r us-west-1 -p source_credentials -s "*" --schemaOnly
+class DataExportView(CSVExportView):
+    model = Data
+    fields = "__all__"
 
-python dynamodump.py -m restore -r us-west-1 -p destination_credentials -s "*" --schemaOnly
+    def get_filename(self, queryset):
+        return "data-export-{!s}.csv".format(timezone.now())
 ```
 
-Backup all tables based on AWS tag `key=value`
-```
-python dynamodump.py -p profile -r us-east-1 -m backup -t KEY=VALUE
+`header` - *boolean* - Default: `True`  
+Whether to include the header in the CSV.
+
+`filename` - *string* - Default: Dasherized version of `verbose_name_plural` from `queryset.model`.  
+Override `get_filename(self, queryset)` if a dynamic filename is required.
+
+`specify_separator` - *boolean* - Default: `True`  
+Whether to include `sep=<sepaator>` as the first line of the CSV file. This is useful for generating Microsoft
+Excel friendly CSV.
+
+`verbose_names` - *boolean* - Default: `True`  
+Whether to use capitalized verbose column names in the header of the CSV file. If `False`, field names are used
+instead.
+
+## CSV Writer Options
+
+Example:
+```python
+from csv_export.views import CSVExportView
+
+class DataExportView(CSVExportView):
+    model = Data
+    fields = "__all__"
+
+    def get_csv_writer_fmtparams(self):
+        fmtparams = super().get_csv_writer_fmtparams()
+        fmtparams["delimiter"] = "|"
+        return fmtparams
 ```
 
-Backup all tables based on AWS tag, compress and store in specified S3 bucket.
-```
-python dynamodump.py -p profile -r us-east-1 -m backup -a tar -b some_s3_bucket -t TAG_KEY=TAG_VALUE
+Override `get_csv_writer_fmtparams(self)` and return a dictionary of csv write format parameters. Default format
+parameters are: dialect="excel" and quoting=csv.QUOTE_ALL. See all available options in the Python docs:
 
-python dynamodump.py -p profile -r us-east-1 -m backup -a zip -b some_s3_bucket -t TAG_KEY=TAG_VALUE
+https://docs.python.org/3.9/library/csv.html#csv.writer
+
+## Django Admin Integration
+
+Example:
+```python
+from django.contrib import admin
+from csv_export.views import CSVExportView
+
+@admin.register(Data)
+class DataAdmin(admin.ModelAdmin):
+    actions = ("export_data_csv",)
+
+    def export_data_csv(self, request, queryset):
+        view = CSVExportView(queryset=queryset, fields="__all__")
+        return view.get(request)
+
+    export_data_csv.short_description = "Export CSV for selected Data records"
 ```
 
-Restore from S3 bucket to specified destination table
-```
-## source_table identifies archive file in S3 bucket from which backup data is restored
-python2 dynamodump.py -a tar -b some_s3_bucket -m restore -r us-east-1 -p profile -d destination_table -s source_table
-```
+## Contributions
 
-Local example
--------------
-The following assume your local DynamoDB is running on localhost:8000 and is accessible via 'a' as access/secret keys.
-```
-python dynamodump.py -m backup -r local -s testTable --host localhost --port 8000 --accessKey a --secretKey a
+Pull requests are happily accepted.
 
-python dynamodump.py -m restore -r local -s testTable --host localhost --port 8000 --accessKey a --secretKey a
-```
-Multiple table backup/restore as stated in the AWS examples are also available for local.
+## Alternatives
+
+https://github.com/django-import-export/django-import-export/
+
+https://github.com/mjumbewu/django-rest-framework-csv
