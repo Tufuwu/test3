@@ -31,3 +31,5 @@ jobs:
         coverage run -m unittest discover -s lexpy/tests
         coverage report -i -m
         coveralls
+      env: 
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
