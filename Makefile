@@ -1,27 +1,25 @@
-.PHONY: docs release clean build install test
+.PHONY: docs test build publish clean
 
-test: buildenv install
-	. nvd3_env/bin/activate; python setup.py test
+init:
+	poetry install
 
-buildenv:
-	virtualenv nvd3_env
-	. nvd3_env/bin/activate; pip install -Ur requirements.txt
+docs:
+	@touch docs/api.rst  # ensure api docs always rebuilt
+	make -C docs/ html
 
-# assume that the developer already works with virtualenv
-# or virtualenv-wrapper
-install:
-	. nvd3_env/bin/activate; python setup.py install
+test:
+	tox --parallel auto
 
-coverage: install
-	coverage run --source=nvd3 setup.py test
-	coverage report
-	coverage html
+test-examples:
+	pytest examples/
 
-docs: buildenv
-	$(MAKE) -C docs;
+coverage:
+	pytest --live --cov=snug --cov-report html --cov-report term
 
 clean:
-	rm -rf nvd3_env htmlcov
+	make -C docs/ clean
+	find . | grep -E "(__pycache__|\.pyc|\.pyo$$)" | xargs rm -rf
 
-cleanall: clean
-	$(MAKE) -C docs clean
+format:
+	black src tests
+	isort src tests
