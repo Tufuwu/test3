@@ -28,10 +28,5 @@ jobs:
         coverage run --source=nvd3 setup.py test
     - name: Coveralls
       run: coveralls
-    - name: Notifications
-      if: failure()
-      uses: dorny/test-reporter@v1
-      with:
-        artifact: report.json
-        name: Test report
-        path: ./report.json
+      env: 
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
