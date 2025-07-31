@@ -1,15 +1,16 @@
-.DS_Store
-._*
+.env
+sample.py
+samplewords.txt
+samplewords2.txt
+.coverage
+sampledawg.py
+.idea
 *.pyc
-*.egg
-*.egg-info
-.eggs/
-.tox/
-build/
-dist/
-docs/_build/
-local.py
-
-# Because pipenv is only used to manage a local development
-# environment, it's not helpful to track its lock file
-Pipfile.lock
+dist
+lexpy.egg-info
+build
+.venv
+dawg_sample.py
+compare_trie_dawg_size.py
+compare_trie_dawg_time.py
+venv
