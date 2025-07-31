@@ -32,6 +32,9 @@ jobs:
       run: tox
     - name: Report coverage to Codecov
       run: coveralls
+      env: 
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        
     - name: Publish to PyPI
       if: startsWith(github.ref, 'refs/tags')
       uses: pypa/gh-action-pypi-publish@release/v1
