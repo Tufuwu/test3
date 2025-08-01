@@ -51,13 +51,7 @@ jobs:
             toxenv: py39-main
           - python: pypy3
             toxenv: pypy3-main
-        allow_failures:
-          - python: 3.8
-            toxenv: py38-main
-          - python: 3.9
-            toxenv: py39-main
-          - python: pypy3
-            toxenv: pypy3-main
+
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python
