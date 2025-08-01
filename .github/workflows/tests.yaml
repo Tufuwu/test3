@@ -1,0 +1,30 @@
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: [3.5, 3.6, 3.7, 3.8, 'pypy3']
+        toxenv: [pep8, placement, py35, py36, py37, py38, py35-pytest, py36-pytest, py37-pytest, py37-failskip, py37-limit, py37-prefix]
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: pip install tox
+
+      - name: Run tests
+        run: tox -e ${{ matrix.toxenv }}
+
+notifications:
+  irc: "chat.freenode.net#gabbi"
