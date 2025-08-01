@@ -1,20 +1,28 @@
-name: CI
+name: Python Tests
 
-on: [push, pull_request]
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
 jobs:
   build:
     runs-on: ubuntu-22.04
-
     strategy:
       matrix:
-        python-version: [3.8]
-
+        python-version: [3.6, 3.7, 3.8]
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Set up Miniconda
+      - uses: actions/checkout@v2
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y wget bash
+      - name: Install Miniconda
         run: |
           if [[ "${{ matrix.python-version }}" == "2.7" ]]; then
             wget https://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh -O miniconda.sh;
@@ -22,22 +30,13 @@ jobs:
             wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
           fi
           bash miniconda.sh -b -p $HOME/miniconda
-          echo "$HOME/miniconda/bin" >> $GITHUB_PATH
-
-      - name: Create conda environment
-        run: |
+          export PATH="$HOME/miniconda/bin:$PATH"
+          hash -r
           conda config --set always_yes yes --set changeps1 no
           conda update -q conda
-          conda create -q -n test python=${{ matrix.python-version }}
+          conda create -q -n test python=${{ matrix.python-version }} --yes
           source activate test
-          conda install altair matplotlib numba numpy pandas pyteomics pytest -c defaults -c bioconda -c conda-forge
-
-      - name: Install package
-        run: |
-          source activate test
+          conda install altair matplotlib numba numpy pandas pyteomics pytest -c defaults -c bioconda -c conda-forge --yes
           python setup.py install
-
       - name: Run tests
-        run: |
-          source activate test
-          pytest
+        run: pytest
