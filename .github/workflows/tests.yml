@@ -34,7 +34,7 @@ jobs:
 
       - name: Install package
         run: |
-
+          source activate test
           python setup.py install
 
       - name: Run tests
