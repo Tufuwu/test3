@@ -11,7 +11,7 @@ jobs:
       fail-fast: false
       matrix:
         python-version: [3.5, 3.6, 3.7, 3.8, pypy3]
-        toxenv: [pre-commit, py35-2.2, py36-2.2, py37-2.2, py38-2.2, pypy3-2.2, py36-3.0, py37-3.0, py38-3.0, pypy3-3.0, py36-3.1, py37-3.1, py38-3.1, pypy3-3.1, py36-3.2, py37-3.2, py38-3.2, py39-3.2, pypy3-3.2, py38-main, py39-main, pypy3-main]
+        toxenv: [ py38-2.2, pypy3-2.2, py36-3.0, py37-3.0, py38-3.0, pypy3-3.0, py36-3.1, py37-3.1, py38-3.1, pypy3-3.1, py36-3.2, py37-3.2, py38-3.2, py39-3.2, pypy3-3.2, py38-main, py39-main, pypy3-main]
 
     steps:
     - uses: actions/checkout@v2
