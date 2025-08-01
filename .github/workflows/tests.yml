@@ -8,31 +8,25 @@ jobs:
     runs-on: ubuntu-22.04
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+    - uses: actions/checkout@v2
 
-      - name: Set up Miniconda
-        run: |
 
-          wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
 
-          bash miniconda.sh -b -p $HOME/miniconda
-          echo "$HOME/miniconda/bin" >> $GITHUB_PATH
+    - name: Install Dependencies
+      run: |
+        sudo apt-get update
+        wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
+        bash miniconda.sh -b -p $HOME/miniconda
+        echo "$HOME/miniconda/bin" >> $GITHUB_PATH
+        hash -r
+        conda config --set always_yes yes --set changeps1 no
+        conda update -q conda
+        conda create -q -n test python=3.8
+        source activate test
+        conda install altair matplotlib numba numpy pandas pyteomics pytest -c defaults -c bioconda -c conda-forge
+        python setup.py install
 
-      - name: Create conda environment
-        run: |
-          conda config --set always_yes yes --set changeps1 no
-          conda update -q conda
-          conda create -q -n test python=3.8
-          source activate test
-          conda install altair matplotlib numba numpy pandas pyteomics pytest -c defaults -c bioconda -c conda-forge
-
-      - name: Install package
-        run: |
-          source activate test
-          python setup.py install
-
-      - name: Run tests
-        run: |
-          source activate test
-          pytest
+    - name: Test with pytest
+      run: |
+        source activate test
+        pytest
