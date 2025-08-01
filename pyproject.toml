@@ -1,7 +1,5 @@
-# https://black.readthedocs.io/en/stable/guides/using_black_with_other_tools.html#isort
-[tool.isort]
-profile = "black"
-line_length = 120
+[build-system]
+requires = ['setuptools>=45', 'wheel', 'setuptools_scm[toml]>=6.0']
+build-backend = 'setuptools.build_meta'
 
-[tool.black]
-line_length = 120
+[tool.setuptools_scm]
