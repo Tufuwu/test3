@@ -1,0 +1,4 @@
+# deps in this file are for local dev purposes only
+mkdocs
+pytest
+wheel
