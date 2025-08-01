@@ -37,8 +37,3 @@ jobs:
           python-version: ${{ matrix.python }}
       - run: pip install tox
       - run: tox -e ${{ matrix.env }}
-      - uses: actions/github-irc@v1
-        with:
-          irc_token: ${{ secrets.IRC_TOKEN }}
-          channel: chat.freenode.net#gabbi
-          message: "Tests completed for ${{ matrix.env }} on Python ${{ matrix.python }}"
