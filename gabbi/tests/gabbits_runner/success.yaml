@@ -3,4 +3,4 @@ tests:
 - name: expected success
   GET: /baz
 
-  status: [200.301]
+  status: 200
