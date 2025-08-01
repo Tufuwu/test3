@@ -11,8 +11,8 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.9]
-        env: [py39, lint]
+        python-version: [3.8]
+        env: [py38, lint]
 
     steps:
       - name: Checkout code
