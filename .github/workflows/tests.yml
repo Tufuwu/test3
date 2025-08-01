@@ -24,7 +24,7 @@ jobs:
         conda create -q -n test python=3.8
         source activate test
         conda install altair matplotlib numba numpy pandas pyteomics pytest -c defaults -c bioconda -c conda-forge
-
+        source activate test
         python setup.py install
 
     - name: Test with pytest
