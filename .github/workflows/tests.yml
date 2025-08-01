@@ -29,7 +29,7 @@ jobs:
         env:
           TOXENV: py${{ matrix.python-version }}
         run: |
-          python -m tox
+          xvfb-run python -m tox
 
   types_checking:
     runs-on: ubuntu-latest
@@ -46,7 +46,7 @@ jobs:
         env:
           TOXENV: types
         run: |
-          python -m tox
+          xvfb-run python -m tox
 
   documentation_build:
     runs-on: ubuntu-latest
@@ -63,7 +63,7 @@ jobs:
         env:
           TOXENV: docs
         run: |
-          python -m tox
+          xvfb-run python -m tox
 
   pypy3_on_linux:
     runs-on: ubuntu-latest
@@ -80,4 +80,4 @@ jobs:
         env:
           TOXENV: pypy3
         run: |
-          python -m tox
+          xvfb-run python -m tox
