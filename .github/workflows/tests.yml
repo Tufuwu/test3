@@ -31,7 +31,7 @@ jobs:
           fi
           bash miniconda.sh -b -p $HOME/miniconda
           export PATH="$HOME/miniconda/bin:$PATH"
-          hash -r
+      - name: Install Miniconda
           conda config --set always_yes yes --set changeps1 no
           conda update -q conda
           conda create -q -n test python=${{ matrix.python-version }} --yes
@@ -39,4 +39,6 @@ jobs:
           conda install altair matplotlib numba numpy pandas pyteomics pytest -c defaults -c bioconda -c conda-forge --yes
           python setup.py install
       - name: Run tests
-        run: pytest
+        run: |
+          source activate test
+          pytest
