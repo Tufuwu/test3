@@ -9,6 +9,7 @@ jobs:
         ports: ["5432"]
         options: -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres
     strategy:
+      fail-fast: false
       matrix:
         python: [3.6, 3.7, 3.8, 3.9]
     steps:
