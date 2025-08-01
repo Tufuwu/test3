@@ -1,37 +1,40 @@
-name: Python CI
+name: Python application
+
 on: [push, pull_request]
+
 jobs:
   build:
+
     runs-on: ubuntu-latest
+
     services:
-      postgresql:
+      postgres:
         image: postgres:13
-        ports: ["5432"]
-        options: -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres
-    strategy:
-      fail-fast: false
-      matrix:
-        python: [3.6, 3.7, 3.8, 3.9]
+        env:
+          POSTGRES_DB: postgres
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
     steps:
     - uses: actions/checkout@v2
-    - name: Set up Python
+
+    - name: Set up Python 3.9
       uses: actions/setup-python@v2
       with:
-        python-version: ${{ matrix.python }}
-    - name: Install dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y postgresql-13
-        pip install .
-    - name: Set up SSH
+        python-version: 3.9
+    - name: Generate SSH key
       run: |
         ssh-keygen -f ~/.ssh/id_rsa -N ""
         cp ~/.ssh/id_rsa.pub ~/.ssh/authorized_keys
         ssh -o StrictHostKeyChecking=no localhost id
-    - name: Run tests
-      run: py.test tests
-    - name: IRC Notifications
+
+    - name: Install dependencies
       run: |
-        echo "irc.freenode.org#bundlewrap"
-        echo "use_notice: true"
-        echo "skip_join: true"
+        python -m pip install --upgrade pip
+        pip install . pytest
+
+    - name: Run tests
+      run: pytest tests
