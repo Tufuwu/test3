@@ -22,7 +22,7 @@ jobs:
       run: |
         sudo apt-get update
 
-        pip install .
+        pip install . pytest
     - name: Set up SSH
       run: |
         ssh-keygen -f ~/.ssh/id_rsa -N ""
