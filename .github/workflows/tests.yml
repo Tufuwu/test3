@@ -60,7 +60,7 @@ jobs:
           python-version: ${{ matrix.python }}
       - name: Install dependencies
         run: |
-          pip install coverage tox
+          pip install coverage tox coveralls
       - name: Run tests
         run: tox -e ${{ matrix.toxenv }}
       - name: Upload coverage
