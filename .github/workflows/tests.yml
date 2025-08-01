@@ -32,6 +32,7 @@ jobs:
           bash miniconda.sh -b -p $HOME/miniconda
           export PATH="$HOME/miniconda/bin:$PATH"
       - name: Install Miniconda
+        run: |
           conda config --set always_yes yes --set changeps1 no
           conda update -q conda
           conda create -q -n test python=${{ matrix.python-version }} --yes
