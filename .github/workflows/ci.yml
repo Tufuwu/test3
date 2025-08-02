@@ -1,35 +1,38 @@
-name: Run Tests
-on:
-  push:
-    branches:
-      - main
+name: Python application
+
+on: [push, pull_request]
+
 jobs:
-  test:
+  build:
+
     runs-on: ubuntu-latest
+
     strategy:
+      fail-fast: false
       matrix:
-        python: ["2.7", "3.5", "3.6", "3.9"]
-        django: ["1.8", "1.11", "2.0", "2.1", "2.2"]
+        python-version: ['2.7', '3.5', '3.6', '3.9']
+        django-version: ['1.8', '1.11', '2.0', '2.1', '2.2']
         exclude:
-          - python: 2.7
-            django: 2.0
-          - python: 2.7
-            django: 2.1
-          - python: 2.7
-            django: 2.2
+        - python-version: '2.7'
+          django-version: '2.0'
+        - python-version: '2.7'
+          django-version: '2.1'
+        - python-version: '2.7'
+          django-version: '2.2'
+
     steps:
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: ${{ matrix.python }}
-      - name: Install dependencies
-        run: |
-          pip install -U django==${{ matrix.django }}
-          if [ "${{ matrix.python }}" = "3.9" ]; then pip install black; fi
-      - name: Run tests
-        run: python manage.py test
-      - name: Check black formatting
-        run: |
-          if [ "${{ matrix.python }}" = "3.9" ]; then
-            black --check zen_queries
-          fi
+    - uses: actions/checkout@v2
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install Django ${{ matrix.django-version }}
+      run: pip install -U django==${{ matrix.django-version }}
+    - name: Install black (for Python 3.7)
+      run: pip install black
+      if: matrix.python-version == '3.9'
+    - name: Run tests
+      run: python manage.py test
+    - name: Run black (for Python 3.7)
+      run: black --check zen_queries
+      if: matrix.python-version == '3.9'
