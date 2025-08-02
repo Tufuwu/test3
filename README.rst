@@ -1,75 +1,59 @@
-====================
-django-import-export
-====================
+RELAX NG Compact to RELAX NG conversion library
+===============================================
 
-.. image:: https://github.com/django-import-export/django-import-export/actions/workflows/django-import-export-ci.yml/badge.svg
-    :target: https://github.com/django-import-export/django-import-export/actions/workflows/django-import-export-ci.yml
-    :alt: Build status on Github
+.. image:: https://travis-ci.org/djc/rnc2rng.svg?branch=master
+   :target: https://travis-ci.org/djc/rnc2rng
+.. image:: https://coveralls.io/repos/djc/rnc2rng/badge.svg?branch=master&service=github
+   :target: https://coveralls.io/github/djc/rnc2rng?branch=master
 
-.. image:: https://coveralls.io/repos/github/django-import-export/django-import-export/badge.svg?branch=main
-    :target: https://coveralls.io/github/django-import-export/django-import-export?branch=main
+Converts RELAX NG schemata in Compact syntax (`rnc`) to the equivalent schema
+in the XML-based default RELAX NG syntax. Dependencies:
 
-.. image:: https://img.shields.io/pypi/v/django-import-export.svg
-    :target: https://pypi.org/project/django-import-export/
-    :alt: Current version on PyPi
+- Python 2.x (tested with 2.6, 2.7)
+- Python 3.x (tested with 3.3, 3.4, 3.5, 3.7, 3.8)
+- `rply`_
 
-.. image:: http://readthedocs.org/projects/django-import-export/badge/?version=stable
-    :target: https://django-import-export.readthedocs.io/en/stable/
-    :alt: Documentation
+Feedback welcome on `GitHub`_.
 
-.. image:: https://img.shields.io/pypi/pyversions/django-import-export
-    :alt: PyPI - Python Version
+.. _GitHub: https://github.com/djc/rnc2rng
+.. _rply: https://pypi.python.org/pypi/rply
 
-.. image:: https://img.shields.io/pypi/djversions/django-import-export
-    :alt: PyPI - Django Version
+History
+-------
 
-django-import-export is a Django application and library for importing
-and exporting data with included admin integration.
+rnc2rng was originally written by `David Mertz`_ in 2003 and published as part
+of a collection of files around RELAX NG `on his site`_ into the Public Domain.
+`Hartmut Goebel`_ published it as a package on PyPI to make it easier to access.
+It was mirrored on GitHub by `Dustin J. Mitchell`_ in 2010 after he fixed some
+bugs. `Timmy Zhu`_ forked his repository and contributed further enhancements.
+Recently, I (Dirkjan Ochtman) was interested in playing with RELAX NG Compact
+and started making further updates. I asked Hartmut for maintainership on PyPI
+and received it. While I cannot promise many updates, I should be responsive to
+bug reports and (especially!) pull requests.
 
-Features:
+.. _David Mertz: http://www.gnosis.cx/publish/
+.. _on his site: http://www.gnosis.cx/download/relax/
+.. _Hartmut Goebel: http://www.goebel-consult.de/
+.. _Dustin J. Mitchell: http://code.v.igoro.us/
+.. _Timmy Zhu: https://github.com/nattofriends
 
-* support multiple formats (Excel, CSV, JSON, ...
-  and everything else that `tablib`_ supports)
+How to install
+--------------
 
-* admin integration for importing
+The usual should work:
 
-* preview import changes
+.. code-block:: shell
 
-* admin integration for exporting
+   $ sudo pip install .
 
-* export data respecting admin filters
+Getting started
+---------------
 
-.. image:: docs/_static/images/django-import-export-change.png
+.. code-block:: shell
 
+   $ python -m rnc2rng test.rnc > test.rng
 
-* Documentation: https://django-import-export.readthedocs.io/en/stable/
-* GitHub: https://github.com/django-import-export/django-import-export/
-* Free software: BSD license
-* PyPI: https://pypi.org/project/django-import-export/
+License
+-------
 
-Example app
------------
-
-To run the demo app::
-
-    cd tests
-    ./manage.py makemigrations
-    ./manage.py migrate
-    ./manage.py createsuperuser
-    ./manage.py loaddata category book
-    ./manage.py runserver
-
-Contribute
-----------
-
-If you'd like to contribute, simply fork `the repository`_, commit your
-changes to the **develop** branch (or branch off of it), and send a pull
-request. Make sure you add yourself to AUTHORS_.
-
-As most projects, we try to follow PEP8_ as closely as possible. Please bear
-in mind that most pull requests will be rejected without proper unit testing.
-
-.. _`PEP8`: https://www.python.org/dev/peps/pep-0008/
-.. _`tablib`: https://github.com/jazzband/tablib
-.. _`the repository`: https://github.com/django-import-export/django-import-export/
-.. _AUTHORS: https://github.com/django-import-export/django-import-export/blob/master/AUTHORS
+All of the code is released into the Public Domain.
