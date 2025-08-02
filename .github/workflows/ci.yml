@@ -23,6 +23,6 @@ jobs:
     - name: Run linter
       run: flake8 .
     - name: Upload coverage
-      uses: coverallsapp/coveralls-action@v1
+      uses: coverallsapp/coveralls-action@v2
       with:
         token: ${{ secrets.COVERALLS_TOKEN }}
