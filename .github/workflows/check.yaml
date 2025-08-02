@@ -28,11 +28,3 @@ jobs:
       - name: Run tests
         run: |
           tox -v
-      - name: Upload coverage
-        if: ${{ success }}
-        run: |
-          codecov
-      - name: IRC notification on failure
-        if: ${{ failure }}
-        run: |
-          echo "irc: ${{ secrets.IRC_CHANNEL }}"
