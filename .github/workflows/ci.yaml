@@ -1,29 +1,29 @@
-name: Python package
-
+name: Python CI
 on:
   push:
-
-
+    tags: true
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ['2.7', 'pypy', '3.5', '3.6', '3.7', '3.8']
     steps:
-    - uses: actions/checkout@v2
-    - name: Set up Python
-      uses: actions/setup-python@v2
-      with:
-        python-version: '3.8'
-    - name: Install dependencies
-      run: |
-        python setup.py build sdist
-        pip install -r requirements-dev.txt
-    - name: Test with nose
-      run: nosetests --verbosity 2
-    - name: Publish Python 🐍 distributions 📦 to PyPI
-
-      uses: pypa/gh-action-pypi-publish@release/v1
-      with:
-        user: tuxtimo
-        password: ${{ secrets.PYPI_API_TOKEN }}
+      - uses: actions/checkout@v2
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Install dependencies
+        run: |
+          python setup.py build sdist
+          pip install -r requirements-dev.txt
+      - name: Run tests
+        run: nosetests --verbosity 2
+      - name: Deploy to PyPI
+        uses: pypa/python-action@v1
+        with:
+          username: tuxtimo
+          password: ${{ secrets.PYPI_PASSWORD }}
+          distributions: sdist bdist_wheel
