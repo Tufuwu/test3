@@ -1,34 +1,35 @@
-name: Python package
+name: Python CI
 
-on: [push, pull_request]
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
     strategy:
       fail-fast: false
       matrix:
-        python-version: [2.7, 3.5, 3.6, 3.7, 3.8, nightly]
-        matrix.include:
-          - python-version: 3.8
-            allow_failure: true
-          - python-version: nightly
-            allow_failure: true
+        include:
+          - python: 2.7
+          - python: 3.5
+          - python: 3.6
+          - python: 3.7
+          - python: 3.8-dev
+          - python: nightly
 
     steps:
-    - uses: actions/checkout@v2
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
-      with:
-        python-version: ${{ matrix.python-version }}
-    - name: Install dependencies
-      run: pip install tox-gh-actions coveralls
-    - name: Test with tox
-      run: tox
-    - name: Report coverage to coveralls.io
-      run: coveralls
-      if: ${{ matrix.python-version != 'nightly' }}
-      env: 
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/checkout@v2
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Install dependencies
+        run: |
+          pip install tox-travis coveralls
+      - name: Run tests
+        run: tox
+      - name: Upload coverage
+        run: coveralls
