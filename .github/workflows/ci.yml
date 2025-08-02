@@ -23,4 +23,4 @@ jobs:
         pip3 install tox
 
     - name: Run tox
-      run: tox .
+      run: tox 
