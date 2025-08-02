@@ -39,22 +39,3 @@ jobs:
     - name: Coverage with coveralls
       run: coveralls
 
-    - name: Notifications
-      uses: dorny/paths-filter@v2
-      id: changes
-      with:
-        filters: |
-          changed: |
-            - '**.py'
-            - '**.md'
-            - '**.rst'
-
-    - name: Email notifications
-      if: steps.changes.outputs.changed == 'true'
-      uses: dorny/notify-slack@v2
-      with:
-        status: ${{ job.status }}
-        if_mention: ${{ secrets.SLACK_WEBHOOK }}
-        mention: everyone
-        on_failure: always
-        on_success: change
