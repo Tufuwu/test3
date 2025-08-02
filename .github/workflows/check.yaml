@@ -1,41 +1,47 @@
-name: CI
+name: Python package
 
-on:
-  push:
-    branches:
-      - main
-  pull_request:
+on: [push, pull_request]
 
 jobs:
   build:
-    runs-on: ubuntu-22.04
+
+    runs-on: ubuntu-latest
+
     strategy:
       fail-fast: false
       matrix:
         python-version: [3.6, 3.7, 3.8, 3.9]
+        toxenv: [mypy]
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+    - uses: actions/checkout@v2
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install tox-gh-actions codecov
+    - name: Test with tox
+      run: |
+        tox -v
+    - name: Upload coverage to Codecov
+      run: |
+        codecov
 
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v2
-        with:
-          python-version: ${{ matrix.python-version }}
-
-      - name: Install dependencies
-        run: |
-          pip install tox-travis codecov
-
-      - name: Run tests
-        run: |
-          tox -v
-
-      - name: Upload coverage to Codecov
-        run: |
-          codecov
-
-      - name: Notify IRC
-        if: github.ref == 'refs/heads/master'
-        run: |
-          echo "Notify IRC here" # Replace with actual notification command
+  notify:
+    needs: build
+    runs-on: ubuntu-latest
+    if: ${{ failure() || success() }}
+    steps:
+    - name: Notify
+      uses: 8398a7/action-slack@v3
+      with:
+        status: ${{ job.status }}
+        fields: repo,message,commit,author,action,eventName,ref,workflow,job
+      env:
+        SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+        SLACK_CHANNEL: ${{ secrets.SLACK_CHANNEL }}
+        SLACK_USERNAME: GitHub Action
+        SLACK_ICON: https://github.githubassets.com/favicon.ico
