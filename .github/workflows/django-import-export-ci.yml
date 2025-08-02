@@ -1,0 +1,46 @@
+name: Python application
+
+on: [push, pull_request]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:10
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: ''
+      mysql:
+        image: mysql:5.7
+        env:
+          MYSQL_ROOT_PASSWORD: ''
+
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: [3.6, 3.7, 3.8, 3.9]
+        django: ["Django==2.2.*", "Django==2.2.*", "Django==2.2.*", "Django==3.0.*", "Django==3.0.*", "Django==3.0.*", "Django==3.1.*", "Django==3.1.*", "Django==3.1.*", "Django==3.2.*", "Django==3.2.*", "Django==3.2.*", "https://github.com/django/django/archive/main.tar.gz", "https://github.com/django/django/archive/main.tar.gz", "https://github.com/django/django/archive/main.tar.gz", "Django==2.1.*", "Django==2.1.*", "Django==2.1.*", "Django==2.0.*", "Django==2.0.*", "Django==2.0.*"]
+        test-type: ["postgres", "mysql-innodb", "sqlite", "postgres", "mysql-innodb", "sqlite", "postgres", "mysql-innodb", "sqlite", "postgres", "mysql-innodb", "sqlite", "postgres", "mysql-innodb", "sqlite", "postgres", "mysql-innodb", "sqlite", "postgres", "mysql-innodb", "sqlite", "postgres", "mysql-innodb", "sqlite", "postgres", "mysql-innodb", "sqlite"]
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -q ${{ matrix.django }}
+        pip install -r requirements/base.txt
+        pip install -r requirements/test.txt
+        pip install coveralls
+    - name: Run tests
+      run: |
+        PYTHONPATH=".:tests:$PYTHONPATH" python -Wall -m coverage run --omit='setup.py' --source=. tests/manage.py test core --settings=
+        if python -c 'import sys; sys.exit(1 - (sys.version_info >= (3, 6)))'; then isort --check-only import_export tests; fi
+    - name: Coveralls
+      run: coveralls

@@ -1,119 +1,75 @@
-===============
-django-guardian
-===============
+====================
+django-import-export
+====================
 
-.. image:: https://github.com/django-guardian/django-guardian/workflows/Tests/badge.svg?branch=devel
-  :target: https://github.com/django-guardian/django-guardian/actions/workflows/tests.yml
+.. image:: https://github.com/django-import-export/django-import-export/actions/workflows/django-import-export-ci.yml/badge.svg
+    :target: https://github.com/django-import-export/django-import-export/actions/workflows/django-import-export-ci.yml
+    :alt: Build status on Github
 
-.. image:: https://img.shields.io/pypi/v/django-guardian.svg
-    :target: https://pypi.python.org/pypi/django-guardian
+.. image:: https://coveralls.io/repos/github/django-import-export/django-import-export/badge.svg?branch=main
+    :target: https://coveralls.io/github/django-import-export/django-import-export?branch=main
 
-.. image:: https://img.shields.io/pypi/pyversions/django-guardian.svg
-    :target: https://pypi.python.org/pypi/django-guardian
+.. image:: https://img.shields.io/pypi/v/django-import-export.svg
+    :target: https://pypi.org/project/django-import-export/
+    :alt: Current version on PyPi
 
-``django-guardian`` is an implementation of per object permissions [1]_ on top
-of Django's authorization backend
+.. image:: http://readthedocs.org/projects/django-import-export/badge/?version=stable
+    :target: https://django-import-export.readthedocs.io/en/stable/
+    :alt: Documentation
 
-Documentation
--------------
+.. image:: https://img.shields.io/pypi/pyversions/django-import-export
+    :alt: PyPI - Python Version
 
-Online documentation is available at https://django-guardian.readthedocs.io/.
+.. image:: https://img.shields.io/pypi/djversions/django-import-export
+    :alt: PyPI - Django Version
 
-Requirements
-------------
+django-import-export is a Django application and library for importing
+and exporting data with included admin integration.
 
-* Python 3.5+
-* A supported version of Django (currently 2.2+)
+Features:
 
-GitHub Actions run tests against Django versions 2.2, 3.0, 3.1, 3.2, and main.
+* support multiple formats (Excel, CSV, JSON, ...
+  and everything else that `tablib`_ supports)
 
-Installation
-------------
+* admin integration for importing
 
-To install ``django-guardian`` simply run::
+* preview import changes
 
-    pip install django-guardian
+* admin integration for exporting
 
-Configuration
--------------
+* export data respecting admin filters
 
-We need to hook ``django-guardian`` into our project.
-
-1. Put ``guardian`` into your ``INSTALLED_APPS`` at settings module:
-
-.. code:: python
-
-    INSTALLED_APPS = (
-     ...
-     'guardian',
-    )
-
-2. Add extra authorization backend to your ``settings.py``:
-
-.. code:: python
-
-    AUTHENTICATION_BACKENDS = (
-        'django.contrib.auth.backends.ModelBackend', # default
-        'guardian.backends.ObjectPermissionBackend',
-    )
-
-3. Create ``guardian`` database tables by running::
-
-     python manage.py migrate
-
-Usage
------
-
-After installation and project hooks we can finally use object permissions
-with Django_.
-
-Lets start really quickly:
-
-.. code:: python
-
-      >>> from django.contrib.auth.models import User, Group
-      >>> jack = User.objects.create_user('jack', 'jack@example.com', 'topsecretagentjack')
-      >>> admins = Group.objects.create(name='admins')
-      >>> jack.has_perm('change_group', admins)
-      False
-      >>> from guardian.models import UserObjectPermission
-      >>> UserObjectPermission.objects.assign_perm('change_group', jack, obj=admins)
-      <UserObjectPermission: admins | jack | change_group>
-      >>> jack.has_perm('change_group', admins)
-      True
-
-Of course our agent jack here would not be able to *change_group* globally:
-
-.. code:: python
-
-    >>> jack.has_perm('change_group')
-    False
-
-Admin integration
------------------
-
-Replace ``admin.ModelAdmin`` with ``GuardedModelAdmin`` for those models
-which should have object permissions support within admin panel.
-
-For example:
-
-.. code:: python
-
-    from django.contrib import admin
-    from myapp.models import Author
-    from guardian.admin import GuardedModelAdmin
-
-    # Old way:
-    #class AuthorAdmin(admin.ModelAdmin):
-    #    pass
-
-    # With object permissions support
-    class AuthorAdmin(GuardedModelAdmin):
-        pass
-
-    admin.site.register(Author, AuthorAdmin)
+.. image:: docs/_static/images/django-import-export-change.png
 
 
-.. [1] Great paper about this feature is available at `djangoadvent articles <https://github.com/djangoadvent/djangoadvent-articles/blob/master/1.2/06_object-permissions.rst>`_.
+* Documentation: https://django-import-export.readthedocs.io/en/stable/
+* GitHub: https://github.com/django-import-export/django-import-export/
+* Free software: BSD license
+* PyPI: https://pypi.org/project/django-import-export/
 
-.. _Django: http://www.djangoproject.com/
+Example app
+-----------
+
+To run the demo app::
+
+    cd tests
+    ./manage.py makemigrations
+    ./manage.py migrate
+    ./manage.py createsuperuser
+    ./manage.py loaddata category book
+    ./manage.py runserver
+
+Contribute
+----------
+
+If you'd like to contribute, simply fork `the repository`_, commit your
+changes to the **develop** branch (or branch off of it), and send a pull
+request. Make sure you add yourself to AUTHORS_.
+
+As most projects, we try to follow PEP8_ as closely as possible. Please bear
+in mind that most pull requests will be rejected without proper unit testing.
+
+.. _`PEP8`: https://www.python.org/dev/peps/pep-0008/
+.. _`tablib`: https://github.com/jazzband/tablib
+.. _`the repository`: https://github.com/django-import-export/django-import-export/
+.. _AUTHORS: https://github.com/django-import-export/django-import-export/blob/master/AUTHORS
