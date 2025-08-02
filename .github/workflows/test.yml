@@ -28,7 +28,7 @@ jobs:
           python-version: ${{ matrix.python }}
       - name: Install dependencies
         run: |
-          pip install tox-travis coveralls
+          pip install tox-gh-actions coveralls
       - name: Run tests
         run: tox
       - name: Upload coverage
