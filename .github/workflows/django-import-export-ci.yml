@@ -22,11 +22,7 @@ jobs:
           MYSQL_ROOT_PASSWORD: root
           MYSQL_DATABASE: testdb
         options: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
-    env:
-      IMPORT_EXPORT_POSTGRESQL_USER: postgres
-      IMPORT_EXPORT_POSTGRESQL_PASSWORD: ''
-      IMPORT_EXPORT_MYSQL_USER: root
-      IMPORT_EXPORT_MYSQL_PASSWORD: ''
+
     strategy:
       fail-fast: false
       matrix:
