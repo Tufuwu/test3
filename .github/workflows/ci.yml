@@ -19,7 +19,7 @@ jobs:
           - py27-django-19
           - py34-django-19
           - py35-django-19
-          - py39-django-32
+          - py39-django32
           - py27-django-110
           - py34-django-110
           - py35-django-110
