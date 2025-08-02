@@ -1,0 +1,60 @@
+name: Python package
+
+on: [push, pull_request]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.9'
+
+    - name: Cache pip
+      uses: actions/cache@v4
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements/testing.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install tox-travis
+        pip install coveralls
+        pip install -r requirements/testing.txt
+
+    - name: Lint with flake8
+      run: flake8
+
+    - name: Test with tox
+      run: tox
+
+    - name: Coverage with coveralls
+      run: coveralls
+
+    - name: Notifications
+      uses: dorny/paths-filter@v2
+      id: changes
+      with:
+        filters: |
+          changed: |
+            - '**.py'
+            - '**.md'
+            - '**.rst'
+
+    - name: Email notifications
+      if: steps.changes.outputs.changed == 'true'
+      uses: dorny/notify-slack@v2
+      with:
+        status: ${{ job.status }}
+        if_mention: ${{ secrets.SLACK_WEBHOOK }}
+        mention: everyone
+        on_failure: always
+        on_success: change
