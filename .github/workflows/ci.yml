@@ -1,0 +1,38 @@
+name: Python application
+
+on: [push, pull_request]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ['2.7', '3.5', '3.6', '3.9']
+        django-version: ['1.8', '1.11', '2.0', '2.1', '2.2']
+        exclude:
+        - python-version: '2.7'
+          django-version: '2.0'
+        - python-version: '2.7'
+          django-version: '2.1'
+        - python-version: '2.7'
+          django-version: '2.2'
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install Django ${{ matrix.django-version }}
+      run: pip install -U django==${{ matrix.django-version }}
+    - name: Install black (for Python 3.7)
+      run: pip install black
+      if: matrix.python-version == '3.9'
+    - name: Run tests
+      run: python manage.py test
+    - name: Run black (for Python 3.7)
+      run: black --check zen_queries
+      if: matrix.python-version == '3.9'
