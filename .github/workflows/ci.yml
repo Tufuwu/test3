@@ -1,24 +1,26 @@
 name: CI
 
-on:
-  push:
-    branches:
-      - main
+on: [push, pull_request]
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-18.04
+
     steps:
-      - uses: actions/checkout@v2
-      - name: Set up Python 3.6
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Python
         uses: actions/setup-python@v2
         with:
-          python-version: 3.9
+          python-version: '3.9'
+
       - name: Install dependencies
         run: |
           sudo apt-get update
           sudo apt install python3-pip
-          pip3 install -r requirements.txt
-          pip3 install tox
+          sudo pip3 install -r requirements.txt
+          sudo pip3 install tox
+
       - name: Run tests
-        run: tox .
+        run: tox 
