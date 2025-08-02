@@ -1,40 +1,42 @@
 name: CI
 
-on:
-  push:
-    branches:
-      - main
-  pull_request:
+on: [push, pull_request]
 
 jobs:
-  test:
-    runs-on: ${{ matrix.os }}
+  build:
+    runs-on: macos-latest
+
     strategy:
       fail-fast: false
       matrix:
-        os: ["windows-latest", "ubuntu-latest", "macos-latest"]
-        python-version: ["3.6", "3.7", "3.8"]
+        python-version: [3.8, 3.7, 3.6]
 
     steps:
-      - name: Checkout source
+      - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Setup Conda Environment
-        uses: conda-incubator/setup-miniconda@v2
-        with:
-          miniconda-version: "latest"
-          python-version: ${{ matrix.python-version }}
-          environment-file: continuous_integration/environment-${{ matrix.python-version }}.yml
-          activate-environment: dask-image-testenv
-          auto-activate-base: false
-
-      - name: Install dask-image
-        shell: bash -l {0}
+      - name: Set up Miniconda
         run: |
-          conda activate dask-image-testenv
-          python -m pip install -e .
-          conda list
+          source .travis_support/install_miniconda.sh
 
-      - name: Run tests
-        shell: bash -l {0}
-        run: pytest -v
+      - name: Create test environment
+        run: |
+          export CONDA_ENV_TYPE="tst_py${{ matrix.python-version }}"
+          source .travis_support/create_env.sh
+
+      - name: Install package and dependencies
+        run: |
+          pip install -e .
+
+      - name: Run tests and measure coverage
+        run: |
+          coverage erase
+          coverage run --source . setup.py test
+          coverage report -m
+
+      - name: Report coverage
+        if: success()
+        run: |
+          export CONDA_ENV_TYPE="dpl"
+          source .travis_support/create_env.sh
+          coveralls
