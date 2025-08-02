@@ -1,6 +1,0 @@
-black==19.10b0
-flit==2.3.0
-isort>=5.0
-mypy==0.770
-twine==1.15.0
-wheel>=0.34

@@ -1,0 +1,72 @@
+name: Python package
+
+on: [push, pull_request]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+
+
+    - name: Set up Python 3.6
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.9
+
+    - name: Install tox
+      run: pip install tox
+
+    - name: Run tox
+      run: tox
+
+    - name: Test with py27-django-18
+      run: TOXENV=py27-django-18 tox
+
+    - name: Test with py34-django-18
+      run: TOXENV=py34-django-18 tox
+
+    - name: Test with py35-django-18
+      run: TOXENV=py35-django-18 tox
+
+    - name: Test with py36-django-18
+      run: TOXENV=py36-django-18 tox
+
+    - name: Test with py27-django-19
+      run: TOXENV=py27-django-19 tox
+
+    - name: Test with py34-django-19
+      run: TOXENV=py34-django-19 tox
+
+    - name: Test with py35-django-19
+      run: TOXENV=py35-django-19 tox
+
+    - name: Test with py36-django-19
+      run: TOXENV=py36-django-19 tox
+
+    - name: Test with py27-django-110
+      run: TOXENV=py27-django-110 tox
+
+    - name: Test with py34-django-110
+      run: TOXENV=py34-django-110 tox
+
+    - name: Test with py35-django-110
+      run: TOXENV=py35-django-110 tox
+
+    - name: Test with py36-django-110
+      run: TOXENV=py36-django-110 tox
+
+    - name: Test with py27-django-111
+      run: TOXENV=py27-django-111 tox
+
+    - name: Test with py34-django-111
+      run: TOXENV=py34-django-111 tox
+
+    - name: Test with py35-django-111
+      run: TOXENV=py35-django-111 tox
+
+    - name: Test with py36-django-111
+      run: TOXENV=py36-django-111 tox
