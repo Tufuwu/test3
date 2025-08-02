@@ -21,9 +21,3 @@ jobs:
           pip install -r requirements-dev.txt
       - name: Run tests
         run: nosetests --verbosity 2
-      - name: Deploy to PyPI
-        uses: pypa/python-action@v1
-        with:
-          username: tuxtimo
-          password: ${{ secrets.PYPI_PASSWORD }}
-          distributions: sdist bdist_wheel
