@@ -18,7 +18,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt install python3-pip
-          sudo pip3 install -r requirements.txt
-          sudo pip3 install tox
+          pip3 install -r requirements.txt
+          pip3 install tox
       - name: Run tests
         run: tox .
