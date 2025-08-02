@@ -1,5 +1,5 @@
 codecov
-pytest
+pytest==3.2.1
 pytest-cov
 pytest-timeout
 flake8
