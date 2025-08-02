@@ -35,11 +35,3 @@ jobs:
       if: success()
       uses: codecov/codecov-action@v2
 
-  notifications:
-    if: github.ref == 'refs/heads/master'
-    runs:
-      - name: Notify IRC
-        if: failure()
-        run: |
-          echo "Sending notification to IRC"
-          # Add your IRC notification script here
