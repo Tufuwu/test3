@@ -21,7 +21,6 @@ jobs:
         env:
           MYSQL_ROOT_PASSWORD: root
           MYSQL_DATABASE: testdb
-        options: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
 
     strategy:
       fail-fast: false
