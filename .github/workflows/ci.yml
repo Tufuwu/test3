@@ -22,7 +22,3 @@ jobs:
       run: coverage run test.py
     - name: Run linter
       run: flake8 .
-    - name: Upload coverage
-      uses: coverallsapp/coveralls-action@v2
-      with:
-        token: ${{ secrets.COVERALLS_TOKEN }}
