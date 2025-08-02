@@ -1,19 +1,17 @@
-*~
-tmp
-.git
-.tox
-.env
-dist
-.eggs
+# vim swap files
+*.swp
+
+# python bytecode files
 *.pyc
-*.pyo
-*.bak
-*.xml
-*.sw?
-build
-.cache
-coverage
-.coverage*
-docs/build
-*.egg-info
-*/version.py
+__pycache__/
+
+# setuptools files
+*.egg-info/
+
+# testing files
+.tox/
+.coverage
+
+# files generated for release
+dist/
+README.rst

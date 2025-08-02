@@ -1,94 +1,120 @@
-[![Build Status](https://travis-ci.com/circuits/circuits.svg)](https://travis-ci.com/circuits/circuits)
+# click-man
 
-[![codecov](https://codecov.io/gh/circuits/circuits/branch/master/graph/badge.svg)](https://codecov.io/gh/circuits/circuits)
+[![Build Status](https://github.com/click-contrib/click-man/actions/workflows/ci.yaml/badge.svg)](https://github.com/click-contrib/click-man/actions/workflows/ci.yaml) [![PyPI Package version](https://badge.fury.io/py/click-man.svg)](https://pypi.python.org/pypi/click-man)
 
-[![Stories Ready](https://badge.waffle.io/circuits/circuits.png?label=ready&title=Ready)](https://waffle.io/circuits/circuits)
+Create **man pages** for [click](https://github.com/pallets/click) application as easy as this:
 
-circuits is a **Lightweight** **Event** driven and **Asynchronous** **Application Framework** for the [Python Programming Language](http://www.python.org/) with a strong **Component** Architecture.
+```bash
+python3 setup.py --command-packages=click_man.commands man_pages
+```
 
-circuits also includes a lightweight, high performance and scalable HTTP/WSGI compliant web server as well as various I/O and Networking components.
+→ Checkout the [debian packaging example](#debian-packages)
 
--   [Website](http://circuitsframework.com/)
--   [Downloads](https://github.com/circuits/circuits/releases)
--   [Documentation](http://circuits.readthedocs.org/en/latest/)
+## What it does
 
-Got questions?
+*click-man* will generate one man page per command of your click CLI application specified in `console_scripts` in your `setup.py`.
 
--   [Ask a Question](http://stackoverflow.com/questions/ask) (Tag it: `circuits-framework`)
+## Installation
 
-Examples
-========
+```bash
+pip3 install click-man
+```
 
-Features
-========
+**click-man** is also available for Python 2:
 
--   event driven
--   concurrency support
--   component architecture
--   asynchronous I/O components
--   no required external dependencies
--   full featured web framework (circuits.web)
--   coroutine based synchronization primitives
+```bash
+pip install click-man
+```
 
-Requirements
-============
+## Usage Recipes
 
--   circuits has no dependencies beyond the [Python Standard Library](http://docs.python.org/library/).
+The following sections describe different usage example for *click-man*.
 
-Supported Platforms
-===================
+### Use with a previously installed package
 
--   Linux, FreeBSD, Mac OS X, Windows
--   Python 2.7, 3.4, 3.5, 3.6
--   pypy (the newer the better)
+**click-man** provides its own command line tool which can be passed the name of
+an installed script:
 
-Installation
-============
+```bash
+click-man commandname
+```
 
-The simplest and recommended way to install circuits is with pip. You may install the latest stable release from PyPI with pip:
+where `commandname` is the name of an installed `console_script` entry point.
 
-    $ pip install circuits
+To specify a target directory for the man pages, use the `--target` option:
 
-If you do not have pip, you may use easy\_install:
+```bash
+click-man --target path/to/man/pages commandname
+```
 
-    $ easy_install circuits
+### Use with setuptools
 
-Alternatively, you may download the source package from the [PyPi](http://pypi.python.org/pypi/circuits) or the [Downloads](https://github.com/circuits/circuits/releases) extract it and install using:
+**click-man** provides a sane setuptools command extension which can be used like the following:
 
-    $ python setup.py install
+```bash
+python3 setup.py --command-packages=click_man.commands man_pages
+```
 
-> **note**
->
-> You can install the [development version](https://github.com/circuits/circuits/archive/master.zip#egg=circuits-dev)  
-> via `pip install circuits==dev`.
->
-License
-=======
+or specify the man pages target directory:
 
-circuits is licensed under the [MIT License](http://www.opensource.org/licenses/mit-license.php).
+```bash
+python3 setup.py --command-packages=click_man.commands man_pages --target path/to/man/pages
+```
 
-Feedback
-========
+### Automatic man page installation with setuptools and pip
 
-We welcome any questions or feedback about bugs and suggestions on how to improve circuits.
+This approach of installing man pages is problematic for various reasons:
 
-Let us know what you think about circuits. [@pythoncircuits](http://twitter.com/pythoncircuits).
+#### (1) Man pages are a UNIX thing
 
-Do you have suggestions for improvement? Then please [Create an Issue](https://github.com/circuits/circuits/issues/new) with details of what you would like to see. I'll take a look at it and work with you to either incorporate the idea or find a better solution.
+Python in general and with that pip and setuptools are aimed to be platform independent.
+Man pages are **not**: they are a UNIX thing which means setuptools does not provide a sane
+solution to generate and install man pages. 
+We should consider using automatic man page installation only with vendor specific packaging, e.g. for `*.deb` or `*.rpm` packages.
 
-Community
-=========
+#### (2) Man pages are not compatible with Python virtualenvs
 
-There are also several places you can reach out to the circuits community:
+Even on systems that support man pages, Python packages can be installed in
+virtualenvs via pip and setuptools, which do not make commands available
+globally. In fact, one of the "features" of a virtualenv is the ability to
+install a package without affecting the main system. As it is imposable to
+ensure a man page is only generated when not installing into a virtualenv,
+auto-generated man pages would pollute the main system and not stay contained in
+the virtualenv. Additionally, as a user could install multiple different
+versions of the same package into multiple different virtualenvs on the same
+system, there is no guarantee that a globally installed man page will document
+the version and behavior available in any given virtualenv.
 
--   [Mailing List](http://groups.google.com/group/circuits-users)
--   [Google+ Group](https://plus.google.com/communities/107775112577294599973)
--   [\#circuits IRC Channel](http://webchat.freenode.net/?randomnick=1&channels=circuits&uio=d4) on the [FreeNode IRC Network](http://freenode.net)
--   [Ask a Question](http://stackoverflow.com/questions/ask) on [Stackoverflow](http://stackoverflow.com/) (Tag it: `circuits-framework`)
+#### (3) We want to generate man pages on the fly
 
-------------------------------------------------------------------------
+First, we do not want to commit man pages to our source control.
+We want to generate them on the fly. Either
+during build or installation time.
 
-Disclaimer
-==========
+With setuptools and pip we face two problems:
 
-Whilst I (James Mills) continue to contribute and maintain the circuits project I do not represent the interests or business of my employer Facebook Inc. The contributions I make are of my own free time and have no bearing or relevance to Facebook Inc.
+1. If we generate and install them during installation of the package pip does not know about the man pages and thus cannot uninstall it.
+2. If we generate them in our build process and add them to your distribution we do not have a way to prevent installation to */usr/share/man* for non-UNIX-like Operating Systems or from within virtualenvs.
+
+### Debian packages
+
+The `debhelper` packages provides a very convenient script called `dh_installman`.
+It checks for the `debian/(pkg_name.)manpages` file and it's content which is basically a line by line list of man pages or globs:
+
+```
+debian/tmp/manpages/*
+```
+
+We override the rule provided by `dh_installman` to generate our man pages in advance, like this:
+
+```Makefile
+override_dh_installman:
+	python3 setup.py --command-packages=click_man.commands man_pages --target debian/tmp/manpages
+	dh_installman -O--buildsystem=pybuild
+```
+
+Now we are able to build a debian package with the tool of our choice, e.g.:
+
+```debuild -us -uc```
+
+Checkout a working example here: [repo debian package](https://github.com/click-contrib/click-man/tree/master/examples/debian_pkg)
