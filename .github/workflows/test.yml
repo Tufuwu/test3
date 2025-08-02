@@ -1,43 +1,32 @@
-name: CI
+name: Python package
 
 on: [push, pull_request]
 
 jobs:
   build:
-    runs-on: macos-latest
+
+    runs-on: ubuntu-latest
 
     strategy:
       fail-fast: false
       matrix:
-        python-version: [3.8, 3.7, 3.6]
+        python-version: [2.7, 3.5, 3.6, 3.7, 3.8, nightly]
+        matrix.include:
+          - python-version: 3.8
+            allow_failure: true
+          - python-version: nightly
+            allow_failure: true
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Set up Miniconda
-        uses: conda-incubator/setup-miniconda@v2
-        with:
-          auto-update-conda: true
-          python-version: 3.9
-      - name: Create test environment
-        run: |
-          export CONDA_ENV_TYPE="tst_py${{ matrix.python-version }}"
-          source .travis_support/create_env.sh
-
-      - name: Install package and dependencies
-        run: |
-          pip install -e .
-
-      - name: Run tests and measure coverage
-        run: |
-          coverage erase
-          coverage run --source . setup.py test
-          coverage report -m
-
-      - name: Report coverage
-        if: success()
-        run: |
-          export CONDA_ENV_TYPE="dpl"
-          source .travis_support/create_env.sh
-          coveralls
+    - uses: actions/checkout@v2
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install dependencies
+      run: pip install tox-gh-actions coveralls
+    - name: Test with tox
+      run: tox
+    - name: Report coverage to coveralls.io
+      run: coveralls
+      if: ${{ matrix.python-version != 'nightly' }}
