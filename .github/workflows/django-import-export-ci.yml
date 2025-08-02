@@ -22,8 +22,8 @@ jobs:
       fail-fast: false
       matrix:
         python-version: [3.6, 3.7, 3.8, 3.9]
-        django: ["Django==2.2.*", "Django==2.2.*", "Django==2.2.*", "Django==3.0.*", "Django==3.0.*", "Django==3.0.*", "Django==3.1.*", "Django==3.1.*", "Django==3.1.*", "Django==3.2.*", "Django==3.2.*", "Django==3.2.*", "https://github.com/django/django/archive/main.tar.gz", "https://github.com/django/django/archive/main.tar.gz", "https://github.com/django/django/archive/main.tar.gz", "Django==2.1.*", "Django==2.1.*", "Django==2.1.*", "Django==2.0.*", "Django==2.0.*", "Django==2.0.*"]
-        test-type: ["postgres", "mysql-innodb", "sqlite", "postgres", "mysql-innodb", "sqlite", "postgres", "mysql-innodb", "sqlite", "postgres", "mysql-innodb", "sqlite", "postgres", "mysql-innodb", "sqlite", "postgres", "mysql-innodb", "sqlite", "postgres", "mysql-innodb", "sqlite", "postgres", "mysql-innodb", "sqlite", "postgres", "mysql-innodb", "sqlite"]
+        django: ["Django==2.2.*", "Django==3.0.*",  "Django==3.1.*",  "Django==3.2.*",  "https://github.com/django/django/archive/main.tar.gz", "Django==2.1.*", "Django==2.0.*"]
+        test-type: ["postgres","sqlite",  "mysql-innodb",   ]
 
     steps:
     - uses: actions/checkout@v2
