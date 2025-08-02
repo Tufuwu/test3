@@ -14,3 +14,5 @@ SQLAlchemy==1.4.40
 verlib==0.1
 blinker==1.5
 Werkzeug<1.0
+MarkupSafe==1.1.1
+flask_github
