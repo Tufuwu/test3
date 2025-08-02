@@ -1,72 +1,37 @@
-name: Python package
+name: Test with Tox
 
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - main
 
 jobs:
-  build:
-
+  test:
     runs-on: ubuntu-latest
-
+    strategy:
+      fail-fast: false
+      matrix:
+        toxenv:
+          - py27-django-18
+          - py34-django-18
+          - py35-django-18
+          - py36-django-18
+          - py27-django-19
+          - py34-django-19
+          - py35-django-19
+          - py36-django-19
+          - py27-django-110
+          - py34-django-110
+          - py35-django-110
+          - py36-django-110
+          - py27-django-111
+          - py34-django-111
+          - py35-django-111
+          - py36-django-111
     steps:
-    - uses: actions/checkout@v2
-
-
-
-    - name: Set up Python 3.6
-      uses: actions/setup-python@v2
-      with:
-        python-version: 3.9
-
-    - name: Install tox
-      run: pip install tox
-
-    - name: Run tox
-      run: tox
-
-    - name: Test with py27-django-18
-      run: TOXENV=py27-django-18 tox
-
-    - name: Test with py34-django-18
-      run: TOXENV=py34-django-18 tox
-
-    - name: Test with py35-django-18
-      run: TOXENV=py35-django-18 tox
-
-    - name: Test with py36-django-18
-      run: TOXENV=py36-django-18 tox
-
-    - name: Test with py27-django-19
-      run: TOXENV=py27-django-19 tox
-
-    - name: Test with py34-django-19
-      run: TOXENV=py34-django-19 tox
-
-    - name: Test with py35-django-19
-      run: TOXENV=py35-django-19 tox
-
-    - name: Test with py36-django-19
-      run: TOXENV=py36-django-19 tox
-
-    - name: Test with py27-django-110
-      run: TOXENV=py27-django-110 tox
-
-    - name: Test with py34-django-110
-      run: TOXENV=py34-django-110 tox
-
-    - name: Test with py35-django-110
-      run: TOXENV=py35-django-110 tox
-
-    - name: Test with py36-django-110
-      run: TOXENV=py36-django-110 tox
-
-    - name: Test with py27-django-111
-      run: TOXENV=py27-django-111 tox
-
-    - name: Test with py34-django-111
-      run: TOXENV=py34-django-111 tox
-
-    - name: Test with py35-django-111
-      run: TOXENV=py35-django-111 tox
-
-    - name: Test with py36-django-111
-      run: TOXENV=py36-django-111 tox
+      - uses: actions/checkout@v2
+      - run: sudo apt-add-repository -y ppa:deadsnakes/ppa
+      - run: sudo apt-get update
+      - run: sudo apt-get install -y python3.8 python3.9
+      - run: pip install tox
+      - run: tox -e ${{ matrix.toxenv }}
