@@ -1,8 +1,12 @@
-include LICENSE
-include *.rst
-include requirements.txt
-include test.py
-recursive-include docs *
+recursive-include man *
 recursive-include tests *
-global-exclude *.pyc
+
+include LICENSE README.rst CHANGES.rst
+
+prune docs
+prune fabfile
+prune examples
+prune setup.cfg
+
 global-exclude __pycache__
+global-exclude *.py[co]
