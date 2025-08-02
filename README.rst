@@ -1,44 +1,14 @@
-PyPI Notifier
-=============
+JOSE protocol implementation in Python using cryptography
 
-http://www.pypi-notifier.org
+.. image:: https://travis-ci.com/certbot/josepy.svg?branch=master
+  :target: https://travis-ci.com/certbot/josepy
 
-Watches your ``requirements.txt`` files and notifies you via email when
-a requirement is updated.
+.. image:: https://codecov.io/gh/certbot/josepy/branch/master/graph/badge.svg
+  :target: https://codecov.io/gh/certbot/josepy
 
-.. image:: https://travis-ci.org/cenkalti/pypi-notifier.svg?branch=master
-    :target: https://travis-ci.org/cenkalti/pypi-notifier
+.. image:: https://readthedocs.org/projects/josepy/badge/?version=latest
+  :target: http://josepy.readthedocs.io/en/latest/?badge=latest
 
-Requirements
-------------
+Originally developed as part of the ACME_ protocol implementation.
 
-Python 3 is required to run PyPI Notifier. Install the project's dependencies
-with::
-
-    pip install -r requirements.txt
-
-Running
--------
-
-First, add your Github client credentials into development config in `config.py`.
-
-Then, set your config env var in your shell::
-
-    export PYPI_NOTIFIER_CONFIG=development
-
-Create necessary tables for the application::
-
-    flask init-db
-
-Web server is run with `gevent <http://www.gevent.org/>`_.
-There is a script for running the web server::
-
-    ./run_gevent.py
-
-Flask development server can be run with the following command::
-
-    flask run
-
-An hourly task is run by a scheduler to send emails::
-
-    flask hourly
+.. _ACME: https://pypi.python.org/pypi/acme
