@@ -44,3 +44,5 @@ jobs:
         if python -c 'import sys; sys.exit(1 - (sys.version_info >= (3, 6)))'; then isort --check-only import_export tests; fi
     - name: Coveralls
       run: coveralls
+      env: 
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
