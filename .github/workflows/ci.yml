@@ -1,20 +1,20 @@
-name: Python package
-
+name: Python tests
 on: [push, pull_request]
-
 jobs:
-  build:
-
+  test:
     runs-on: ubuntu-latest
-
+    strategy:
+      fail-fast: false
+      matrix:
+        python: [3.7, 3.8]
     steps:
     - uses: actions/checkout@v2
-
-    - name: Set up Python 3.8
+    - name: Set up Python
       uses: actions/setup-python@v2
       with:
-        python-version: 3.8
+        python-version: ${{ matrix.python }}
     - name: Install dependencies
-      run: pip install tox-gh-actions
-    - name: Test with tox
+      run: |
+        pip install tox-travis
+    - name: Run tests
       run: tox
