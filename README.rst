@@ -1,82 +1,98 @@
-.. image:: http://www.repostatus.org/badges/latest/active.svg
-    :target: http://www.repostatus.org/#active
-    :alt: Project Status: Active — The project has reached a stable, usable
-          state and is being actively developed.
+==============================
+Python API Client for Kanboard
+==============================
 
-.. image:: https://github.com/jwodder/apachelogs/workflows/Test/badge.svg?branch=master
-    :target: https://github.com/jwodder/apachelogs/actions?workflow=Test
-    :alt: CI Status
+Client library for Kanboard API.
 
-.. image:: https://codecov.io/gh/jwodder/apachelogs/branch/master/graph/badge.svg
-    :target: https://codecov.io/gh/jwodder/apachelogs
-
-.. image:: https://img.shields.io/pypi/pyversions/apachelogs.svg
-    :target: https://pypi.org/project/apachelogs/
-
-.. image:: https://img.shields.io/github/license/jwodder/apachelogs.svg
-    :target: https://opensource.org/licenses/MIT
-    :alt: MIT License
-
-`GitHub <https://github.com/jwodder/apachelogs>`_
-| `PyPI <https://pypi.org/project/apachelogs/>`_
-| `Documentation <https://apachelogs.readthedocs.io>`_
-| `Issues <https://github.com/jwodder/apachelogs/issues>`_
-| `Changelog <https://github.com/jwodder/apachelogs/blob/master/CHANGELOG.md>`_
-
-``apachelogs`` parses Apache access log files.  Pass it a `log format string
-<http://httpd.apache.org/docs/current/mod/mod_log_config.html>`_ and get back a
-parser for logfile entries in that format.  ``apachelogs`` even takes care of
-decoding escape sequences and converting things like timestamps, integers, and
-bare hyphens to ``datetime`` values, ``int``\s, and ``None``\s.
-
+- Author: Frédéric Guillot
+- License: MIT
 
 Installation
 ============
-``apachelogs`` requires Python 3.6 or higher.  Just use `pip
-<https://pip.pypa.io>`_ for Python 3 (You have pip, right?) to install
-``apachelogs`` and its dependencies::
 
-    python3 -m pip install apachelogs
+.. code-block:: bash
 
+    pip install kanboard
+
+
+This library is compatible with Python >= 3.5.
+
+Note: **Support for Python 2.7 has been dropped from version 1.1.0.**
 
 Examples
 ========
 
-Parse a single log entry:
+Methods and arguments are the same as the JSON-RPC procedures described in the
+`official documentation <https://docs.kanboard.org/en/latest/api/index.html>`_.
 
->>> from apachelogs import LogParser
->>> parser = LogParser("%h %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-Agent}i\"")
->>> # The above log format is also available as the constant `apachelogs.COMBINED`.
->>> entry = parser.parse('209.126.136.4 - - [01/Nov/2017:07:28:29 +0000] "GET / HTTP/1.1" 301 521 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.133 Safari/537.36"\n')
->>> entry.remote_host
-'209.126.136.4'
->>> entry.request_time
-datetime.datetime(2017, 11, 1, 7, 28, 29, tzinfo=datetime.timezone.utc)
->>> entry.request_line
-'GET / HTTP/1.1'
->>> entry.final_status
-301
->>> entry.bytes_sent
-521
->>> entry.headers_in["Referer"] is None
-True
->>> entry.headers_in["User-Agent"]
-'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.133 Safari/537.36'
->>> # Log entry components can also be looked up by directive:
->>> entry.directives["%r"]
-'GET / HTTP/1.1'
->>> entry.directives["%>s"]
-301
->>> entry.directives["%t"]
-datetime.datetime(2017, 11, 1, 7, 28, 29, tzinfo=datetime.timezone.utc)
+Python methods are dynamically mapped to the API procedures. **You must use named arguments.**
 
-Parse a file full of log entries:
+By default, calls are made synchronously, meaning that they will block the program until completed.
 
->>> with open('/var/log/apache2/access.log') as fp:  # doctest: +SKIP
-...     for entry in parser.parse_lines(fp):
-...         print(str(entry.request_time), entry.request_line)
-...
-2019-01-01 12:34:56-05:00 GET / HTTP/1.1
-2019-01-01 12:34:57-05:00 GET /favicon.ico HTTP/1.1
-2019-01-01 12:34:57-05:00 GET /styles.css HTTP/1.1
-# etc.
+Creating a new team project
+---------------------------
+
+.. code-block:: python
+
+    import kanboard
+
+    kb = kanboard.Client('http://localhost/jsonrpc.php', 'jsonrpc', 'your_api_token')
+    project_id = kb.create_project(name='My project')
+
+
+Authenticate as user
+--------------------
+
+.. code-block:: python
+
+    import kanboard
+
+    kb = kanboard.Client('http://localhost/jsonrpc.php', 'admin', 'secret')
+    kb.get_my_projects()
+
+Create a new task
+-----------------
+
+.. code-block:: python
+
+    import kanboard
+
+    kb = kanboard.Client('http://localhost/jsonrpc.php', 'jsonrpc', 'your_api_token')
+    project_id = kb.create_project(name='My project')
+    task_id = kb.create_task(project_id=project_id, title='My task title')
+
+Asynchronous I/O
+================
+
+The client also exposes async/await style method calls. Similarly to the synchronous calls (see above),
+the method names are mapped to the API methods.
+
+To invoke an asynchronous call, the method name must be appended with ``_async``. For example, a synchronous call
+to ``create_project`` can be made asynchronous by calling ``create_project_async`` instead.
+
+.. code-block:: python
+
+    import asyncio
+    import kanboard
+
+    kb = kanboard.Client('http://localhost/jsonrpc.php', 'jsonrpc', 'your_api_token')
+
+    loop = asyncio.get_event_loop()
+    project_id = loop.run_until_complete(kb.create_project_async(name='My project'))
+
+
+.. code-block:: python
+
+    import asyncio
+    import kanboard
+
+    async def call_within_function():
+        kb = kanboard.Client('http://localhost/jsonrpc.php', 'jsonrpc', 'your_api_token')
+        return await kb.create_project_async(name='My project')
+
+    loop = asyncio.get_event_loop()
+    project_id = loop.run_until_complete(call_within_function())
+
+
+See the `official API documentation <https://docs.kanboard.org/en/latest/api/index.html>`_ for the complete list of
+methods and arguments.
