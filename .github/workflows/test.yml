@@ -41,7 +41,7 @@ jobs:
           tox
 
       - name: Upload coverage
-        if: ${{ success }}
+
         run: |
           if [ -f .coverage ]; then coveralls; fi
 
