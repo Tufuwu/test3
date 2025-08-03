@@ -43,7 +43,7 @@ jobs:
     - name: Install dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y gcc libhdf5-serial-dev libblas-dev liblapack-dev libatlas-base-dev libquadmath0
+        sudo apt-get install -y gcc libhdf5-dev libblas-dev liblapack-dev libatlas-base-dev libquadmath0
         python -m pip install --upgrade pip
         pip install -U numpy Cython
         pip install h5py${{ matrix.h5py-version }}
