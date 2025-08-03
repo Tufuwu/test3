@@ -1,34 +1,38 @@
-name: Python application
-
+name: Build and Test
 on: [push, pull_request]
-
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
+    strategy:
+      matrix:
+        python: [ 3.9]
     steps:
-    - uses: actions/checkout@v2
-
- 
-    - name: Set up Python 3.9
-      uses: actions/setup-python@v2
-      with:
-        python-version: 3.9
-
-    - name: Install dependencies
-      run: |
-        sudo apt update
-        sudo apt install -y gettext rsync  python3-sphinx  python3-pyqt5 python3-venv
-
-    - name: Build translations
-      run: make all
-
-    - name: Install tox and tox-venv
-      run: pip install 'tox<4' tox-venv
-
-    - name: Run tox
-      run: tox
-
-    - name: Run pylint
-      run: tox -e pylint
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Git config
+        run: |
+          git config --global user.name "Git Cola"
+          git config --global user.email git-cola@localhost.localdomain
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ matrix.python }}-pip
+          restore-keys: |
+            ${{ matrix.python }}-pip
+      - name: Install dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y gettext rsync  python3-sphinx  python3-pyqt5 python3-venv
+      - name: Build translations
+        run: make all
+      - name: Install tox
+        run: pip install 'tox<4' tox-venv
+      - name: Run tests
+        run: |
+          tox
+          tox -e pylint
