@@ -1,46 +1,76 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python
 
-#  htheatpump - Serial communication module for Heliotherm heat pumps
-#  Copyright (C) 2021  Daniel Strigl
+import io
+import os
+import sys
+import tempfile
 
-#  This program is free software: you can redistribute it and/or modify
-#  it under the terms of the GNU General Public License as published by
-#  the Free Software Foundation, either version 3 of the License, or
-#  (at your option) any later version.
-#
-#  This program is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#  GNU General Public License for more details.
-#
-#  You should have received a copy of the GNU General Public License
-#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+from fitparse.utils import fileish_open, is_iterable
 
-""" Tests for code in htheatpump.utils. """
-
-import time
-
-from htheatpump.utils import Singleton, Timer
+if sys.version_info >= (2, 7):
+    import unittest
+else:
+    import unittest2 as unittest
 
 
-# A simple Singleton class with one `int` member
-class MySingleton(Singleton):
-    val: int = -1
-
-    def __init__(self, v: int):
-        self.val = v
+def testfile(filename):
+    return os.path.join(os.path.dirname(os.path.realpath(__file__)), 'files', filename)
 
 
-def test_SingletonClass():
-    s1 = MySingleton(1)
-    assert s1.val == 1
-    s2 = MySingleton(2)
-    assert s2.val == 2
-    assert s1.val == 2  # now, 's1' should also be 2
+class UtilsTestCase(unittest.TestCase):
+
+    def test_fileish_open_read(self):
+        """Test the constructor does the right thing when given different types
+        (specifically, test files with 8 characters, followed by an uppercase.FIT
+        extension), which confused the fileish check on Python 2, see
+        https://github.com/dtcooper/python-fitparse/issues/29#issuecomment-312436350
+        for details"""
+
+        def test_fopen(fileish):
+            with fileish_open(fileish, 'rb') as f:
+                self.assertIsNotNone(f.read(1))
+                f.seek(0, os.SEEK_SET)
+
+        test_fopen(testfile('nametest.FIT'))
+        with open(testfile("nametest.FIT"), 'rb') as f:
+            test_fopen(f)
+        with open(testfile("nametest.FIT"), 'rb') as f:
+            test_fopen(f.read())
+        with open(testfile("nametest.FIT"), 'rb') as f:
+            test_fopen(io.BytesIO(f.read()))
+
+    def test_fileish_open_write(self):
+
+        def test_fopen(fileish):
+            with fileish_open(fileish, 'wb') as f:
+                f.write(b'\x12')
+                f.seek(0, os.SEEK_SET)
+
+        tmpfile = tempfile.NamedTemporaryFile(prefix='fitparse-test', suffix='.FIT', delete=False)
+        filename = tmpfile.name
+        tmpfile.close()
+        try:
+            test_fopen(filename)
+            with open(filename, 'wb') as f:
+                test_fopen(f)
+            test_fopen(io.BytesIO())
+        finally:
+            # remove silently
+            try:
+                os.remove(filename)
+            except OSError:
+                pass
+
+    def test_is_iterable(self):
+        self.assertFalse(is_iterable(None))
+        self.assertFalse(is_iterable(1))
+        self.assertFalse(is_iterable('1'))
+        self.assertFalse(is_iterable(b'1'))
+
+        self.assertTrue(is_iterable((1, 2)))
+        self.assertTrue(is_iterable([1, 2]))
+        self.assertTrue(is_iterable(range(2)))
 
 
-def test_Timer():
-    with Timer() as timer:
-        time.sleep(1)  # wait for 1s
-    assert timer.elapsed >= 1
+if __name__ == '__main__':
+    unittest.main()
