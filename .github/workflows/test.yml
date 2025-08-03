@@ -67,7 +67,7 @@ jobs:
       - name: Run tests
         run: tox
       - name: Upload coverage to Coveralls
-        if: success() && matrix.python-version == '3.5'
+        if: success() && matrix.python-version == '3.8'
         run: |
           if [ -f .coverage ]; then coveralls; fi
 
