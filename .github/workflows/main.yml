@@ -17,4 +17,3 @@ jobs:
         run: py.test
       - name: Upload coverage
         run: coveralls
-        if: ${{ success }}
