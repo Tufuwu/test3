@@ -1,34 +1,26 @@
-name: Python application
-
-on: [push, pull_request]
+name: Python Application
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
+    strategy:
+      matrix:
+        python: ["3.8", "3.9"]
     steps:
-    - uses: actions/checkout@v2
-
-
-
-    - name: Set up Python 3.7
-      uses: actions/setup-python@v2
-      with:
-        python-version: 3.9
-
-    - name: Install dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y coinor-cbc
-        python -m pip install -U pip
-        pip install flake8==3.8.3 black==19.10b0 pytest==5.4.3
-
-    - name: Install package
-      run: python setup.py -q install
-
-    - name: Lint with flake8
-      run: flake8
-
-    - name: Test with pytest
-      run: pytest
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python }}
+      - run: |
+          sudo apt-get update
+          sudo apt-get install -y coinor-cbc
+      - run: |
+          pip install flake8==3.8.3 black==19.10b0 pytest==5.4.3
+          python setup.py install
+      - run: flake8
+      - run: py.test
