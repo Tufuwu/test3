@@ -16,7 +16,7 @@ jobs:
       with:
         python-version: ${{ matrix.python }}
     - name: Cache pip
-      uses: actions/cache@v2
+      uses: actions/cache@v4
       with:
         path: $HOME/.cache/pip
         key: pip-${{ matrix.python }}
@@ -27,7 +27,7 @@ jobs:
     - name: Run tests
       run: make test
     - name: Save cache
-      uses: actions/cache@v2
+      uses: actions/cache@v4
       with:
         path: $HOME/.cache/pip
         key: pip-${{ matrix.python }}
