@@ -38,6 +38,7 @@ pip-delete-this-directory.txt
 # Unit test / coverage reports
 htmlcov/
 .tox/
+.nox/
 .coverage
 .coverage.*
 .cache
@@ -45,16 +46,11 @@ nosetests.xml
 coverage.xml
 *.cover
 .hypothesis/
+.pytest_cache/
 
 # Translations
 *.mo
 *.pot
-
-# Django stuff:
-*.log
-.static_storage/
-.media/
-local_settings.py
 
 # Flask stuff:
 instance/
@@ -71,6 +67,10 @@ target/
 
 # Jupyter Notebook
 .ipynb_checkpoints
+
+# IPython
+profile_default/
+ipython_config.py
 
 # pyenv
 .python-version
@@ -102,3 +102,36 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
+
+# Django
+*.pyc
+*~
+__pycache__
+myvenv
+/static
+.DS_Store
+*.log
+local_settings.py
+*.sqlite3
+
+# Squire-specific gitignore (Secret Keys, etc.)
+/squire/secret_key.txt
+htdocs/media/local_only/*
+htdocs/media/images/*
+/output/
+/test/output/
+
+# Visual Studio Code
+.vscode
+
+# IntelliJ
+/.idea/
+Squire.iml
+
+# coverage.py files
+/coverage
