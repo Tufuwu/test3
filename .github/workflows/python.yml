@@ -21,7 +21,7 @@ jobs:
         python-version: ${{ matrix.python }}
     - name: Install dependencies
       run: |
-        pip install pyusb coverage coveralls pyserial PyYAML tqdm
+        pip install pyusb coverage coveralls pyserial 'PyYAML==5.3' tqdm
     - name: Build
       run: python setup.py build
     - name: Test with coverage
