@@ -1,39 +1,32 @@
-#!/usr/bin/env python3
+from setuptools import setup
+import io
+import os
 
-import sys, os
+here = os.path.abspath(os.path.dirname(__file__))
+
+short_description = 'Various BM25 algorithms for document ranking'
+
 try:
-  from setuptools import setup
-except ImportError:
-  from distutils.core import setup
+    with io.open(os.path.join(here, 'README.md'), encoding='utf-8') as f:
+        long_description = '\n' + f.read()
+except FileNotFoundError:
+    long_description = short_description
 
-if sys.version_info < (3,3):
-    sys.exit("Python 3.3+ is required; you are using %s" % sys.version)
-
-########################################
-
-version_py = os.path.join('vpn_slice', 'version.py')
-
-d = {}
-with open(version_py, 'r') as fh:
-    exec(fh.read(), d)
-    version_pep = d['__version__']
-
-########################################
-
-setup(name="vpn-slice",
-      version=version_pep,
-      description=("vpnc-script replacement for easy split-tunnel VPN setup"),
-      long_description=open('description.rst').read(),
-      author="Daniel Lenski",
-      author_email="dlenski@gmail.com",
-      extras_require={
-        "setproctitle": ["setproctitle"],
-        "dnspython": ["dnspython"],
-      },
-      install_requires=["setproctitle", "dnspython"],
-      license='GPL v3 or later',
-      url="https://github.com/dlenski/vpn-slice",
-      packages=["vpn_slice"],
-      include_package_data = True,
-      entry_points={ 'console_scripts': [ 'vpn-slice=vpn_slice.__main__:main' ] },
-      )
+setup(
+    name='rank_bm25',
+    version='0.2.1',
+    description=short_description,
+    long_description=long_description,
+    long_description_content_type='text/markdown',
+    author='D. Brown',
+    author_email='dorianstuartbrown@gmail.com',
+    url="https://github.com/dorianbrown/rank_bm25",
+    license='Apache2.0',
+    py_modules=['rank_bm25'],
+    install_requires=['numpy'],
+    extras_require={
+        'dev': [
+            'pytest'
+        ]
+    }
+)
