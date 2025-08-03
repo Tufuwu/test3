@@ -8,8 +8,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [2.7, 3.4, 3.5, 3.6, 3.7-dev]
-        toxenv: [py27, py34, py35, py36]
+        python-version: [3.9]
+        toxenv: [ py39]
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
