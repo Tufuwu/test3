@@ -28,7 +28,7 @@ jobs:
 
     steps:
       - name: Deploy to PyPI
-        uses: pypa/gh-action-pypi-publish@v1.5.3
+        uses: pypa/gh-action-pypi-publish@v3
         with:
           username: ${{ secrets.PYPI_USERNAME }}
           password: ${{ secrets.PYPI_PASSWORD }}
