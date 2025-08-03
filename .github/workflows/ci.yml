@@ -26,7 +26,7 @@ jobs:
     - name: Upload coverage
       run: coveralls
     - name: Deploy to PyPI
-      uses: pypa/gh-action-pypi-publish@v2
+      uses: pypa/gh-action-pypi-publish@v4
       with:
         user: moxfyre
         password: ${{ secrets.PYPI_PASSWORD }}
