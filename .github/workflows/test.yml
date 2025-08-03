@@ -44,6 +44,8 @@ jobs:
 
         run: |
           if [ -f .coverage ]; then coveralls; fi
+        env: 
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }
 
   deploy:
     runs-on: ubuntu-latest
