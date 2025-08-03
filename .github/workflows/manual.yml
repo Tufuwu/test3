@@ -30,6 +30,7 @@ jobs:
     - name: Build with PyInstaller
       run: |
         cd pyinstaller
+        chmod +x ./bundle.sh
         ./bundle.sh
 
     - name: Release
