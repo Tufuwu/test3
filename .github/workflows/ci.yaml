@@ -10,7 +10,9 @@ jobs:
       with:
         python-version: 3.9
     - name: Install dependencies
-      run: pip install tox-gh-actions coveralls
+      run: |
+        sudo apt-get update && sudo apt-get install -y libjpeg-dev zlib1g-dev
+        pip install tox-gh-actions coveralls
     - name: Run tests
       run: tox
     - name: Upload coverage
