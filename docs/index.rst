@@ -1,106 +1,55 @@
-===========================
-python-fitparse Documention
-===========================
+MWParserFromHell v\ |version| Documentation
+===========================================
 
-.. toctree::
-   :maxdepth: 2
+:mod:`mwparserfromhell` (the *MediaWiki Parser from Hell*) is a Python package
+that provides an easy-to-use and outrageously powerful parser for MediaWiki_
+wikicode. It supports Python 3.8+.
 
-   api
+Developed by Earwig_ with contributions from `Σ`_, Legoktm_, and others.
+Development occurs on GitHub_.
 
-
-Introduction
-============
-
-The :mod:`fitparse` module is a Python library for parsing
-`ANT <http://www.thisisant.com>`_/`Garmin <http://www.garmin.com>`_ ``.FIT``
-files.
-
-The FIT (Flexible and Interoperable Data Transfer) file protocol is specified
-by `ANT <http://www.thisisant.com>`_ in its FIT SDK. It's a common file format
-used internally on embedded fitness computers, for example on the Edge and
-Forerunner series of `Garmin <http://www.garmin.com>`_ products.
-
-
-Quickstart Guide
-----------------
-
-TODO
-
+.. _MediaWiki:            https://www.mediawiki.org
+.. _Earwig:               https://en.wikipedia.org/wiki/User:The_Earwig
+.. _Σ:                    https://en.wikipedia.org/wiki/User:%CE%A3
+.. _Legoktm:              https://en.wikipedia.org/wiki/User:Legoktm
+.. _GitHub:               https://github.com/earwig/mwparserfromhell
 
 Installation
 ------------
 
-Using ``pip``
-~~~~~~~~~~~~~
+The easiest way to install the parser is through the `Python Package Index`_;
+you can install the latest release with ``pip install mwparserfromhell``
+(`get pip`_). Make sure your pip is up-to-date first, especially on Windows.
 
-The easiest way to grab :mod:`fitparse` is using ``pip``,
+Alternatively, get the latest development version::
 
-::
+    git clone https://github.com/earwig/mwparserfromhell.git
+    cd mwparserfromhell
+    python setup.py install
 
-    $ pip install fitparse
+The comprehensive unit testing suite requires `pytest`_ (``pip install pytest``)
+and can be run with ``python -m pytest``.
 
+.. _Python Package Index:   https://pypi.org/
+.. _get pip:                https://pypi.org/project/pip/
+.. _pytest:                 https://docs.pytest.org/
 
-From github
-~~~~~~~~~~~
-
-Navigate to `dtcooper/python-fitparse <https://github.com/dtcooper/python-fitparse>`_
-on github and clone the latest version::
-
-    $ git clone git@github.com:dtcooper/python-fitparse.git
-    $ cd python-fitparse
-    $ python setup.py install
-
-
-Requirements
-~~~~~~~~~~~~
-
-The following are required to install :mod:`fitparse`,
-
-* `Python <http://www.python.org/>`_ 2.7 and above
-
-
-API Documentation
------------------
-
-If you are looking for information on a specific function, class or method,
-this part of the documentation is for you.
+Contents
+--------
 
 .. toctree::
    :maxdepth: 2
 
-   api
+   usage
+   limitations
+   integration
+   changelog
+   API Reference <api/modules>
 
 
+Indices and tables
+------------------
 
-Usage Examples
---------------
-
-Here's a simple program to print all the record fields in an activity file::
-
-    from fitparse import FitFile
-
-
-    fitfile = FitFile('/home/dave/garmin-activities/2012-12-19-16-14-54.fit')
-
-    # Get all data messages that are of type record
-    for record in fitfile.get_messages('record'):
-
-        # Go through all the data entries in this record
-        for record_data in record:
-
-            # Print the records name and value (and units if it has any)
-            if record_data.units:
-                print(" * %s: %s %s" % (
-                    record_data.name, record_data.value, record_data.units,
-                ))
-            else:
-                print(" * %s: %s" % (record_data.name, record_data.value))
-        print()
-
-
-License
--------
-
-
-.. include:: ../LICENSE
-   :literal:
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`

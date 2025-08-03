@@ -1,27 +1,46 @@
-name: CI
+name: Python package
+
 on:
   push:
     branches: [ main ]
   pull_request:
-    branches: [ main ]
+    branches: [ master ]
 
 jobs:
   build:
+
     runs-on: ubuntu-latest
+
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["2.7", "3.3", "3.4", "3.8", "3.9", "nightly", "pypy3", "pypy"]
+        python-version: [3.6, 3.7, 3.8, 3.9, '3.10']
+        platform: [ubuntu-latest, macos-latest, windows-latest]
+        without-extension: [0, 1]
+
     steps:
     - uses: actions/checkout@v2
-    - name: Setup Python
+
+    - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python-version }}
+
     - name: Install dependencies
       run: |
-        pip install -r requirements-test.txt
-    - name: Run tests
+        python -m pip install --upgrade pip
+        pip install coveralls pytest
+        python setup.py develop
+
+    - name: Run tests with coverage
       run: |
-        python -m unittest discover -s tests
-        coverage run run_tests.py && coverage report -m
+        coverage run --source=mwparserfromhell -m pytest
+
+    - name: Report coverage to coveralls
+      run: coveralls
+
+    - name: Archive test reports
+      uses: actions/upload-artifact@v2
+      with:
+        name: pytest-report
+        path: pytest.html
