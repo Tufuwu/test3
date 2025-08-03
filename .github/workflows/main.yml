@@ -1,0 +1,34 @@
+name: Python application
+
+on: [push, pull_request]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+ 
+    - name: Set up Python 3.9
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.9
+
+    - name: Install dependencies
+      run: |
+        sudo apt update
+        sudo apt install -y gettext rsync python-sphinx python3-sphinx python-pyqt5 python3-pyqt5 python3-venv
+
+    - name: Build translations
+      run: make all
+
+    - name: Install tox and tox-venv
+      run: pip install tox tox-venv
+
+    - name: Run tox
+      run: tox
+
+    - name: Run pylint
+      run: tox -e pylint
