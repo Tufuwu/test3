@@ -25,9 +25,3 @@ jobs:
         coverage run --source=vipaccess setup.py test
     - name: Upload coverage
       run: coveralls
-    - name: Deploy to PyPI
-      uses: pypa/gh-action-pypi-publish@v4
-      with:
-        user: moxfyre
-        password: ${{ secrets.PYPI_PASSWORD }}
-      if: ${{ github.event_name == 'push' && github.ref_type == 'tag' }}
