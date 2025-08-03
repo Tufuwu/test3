@@ -25,6 +25,8 @@ jobs:
 
     - name: Report coverage to coveralls
       run: coveralls
+      env: 
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Notifications
       if: failure()
