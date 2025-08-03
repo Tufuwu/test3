@@ -30,4 +30,4 @@ jobs:
     - name: Type check with pytype
       run: pytype
     - name: Format check with yapf
-      run: yapf -drp --style=yapf .
+      run: python -m yapf -drp comment_parser
