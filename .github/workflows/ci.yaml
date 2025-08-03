@@ -17,3 +17,5 @@ jobs:
       run: tox
     - name: Upload coverage
       run: coveralls
+      env: 
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
