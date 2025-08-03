@@ -1,12 +1,8 @@
-name: Python application
-
-on: [push, pull_request]
-
+name: Python CI
+on: [push]
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python 3.7
@@ -15,9 +11,10 @@ jobs:
         python-version: 3.9
     - name: Install dependencies
       run: pip install -r requirements/ci.txt
-    - name: Run tests with coverage
+    - name: Run tests and generate coverage
       run: |
         coverage run manage.py test
         coverage report
         coverage xml
-        codecov --file coverage/coverage.xml
+    - name: Upload coverage to Codecov
+      run: codecov --file coverage/coverage.xml
