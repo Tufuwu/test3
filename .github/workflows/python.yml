@@ -1,29 +1,30 @@
-name: Python package
-
-on: [push, pull_request]
-
+name: Build and Test
+on: [push]
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
+    strategy:
+      matrix:
+        python: ["3.4", "3.5", "3.6"]
     steps:
-    - uses: actions/checkout@v2
-
+    - name: Checkout code
+      uses: actions/checkout@v2
+    - name: Cache pip
+      uses: actions/cache@v4
+      with:
+        path: ~/.cache/pip
+        key: pip-${{ matrix.python }}
+        restore-keys: pip-
     - name: Set up Python
       uses: actions/setup-python@v2
       with:
-        python-version: 3.9
-
+        python-version: ${{ matrix.python }}
     - name: Install dependencies
       run: |
-        python -m pip install --upgrade pip
-        pip install pyusb coverage coveralls pyserial 'PyYAML==5.3' tqdm
-
-    - name: Build and test with coverage
-      run: |
-        python setup.py build
-        coverage run --source=stcgal setup.py test
-        coveralls
-      env: 
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        pip install pyusb coverage coveralls pyserial PyYAML tqdm
+    - name: Build
+      run: python setup.py build
+    - name: Test with coverage
+      run: coverage run --source=stcgal setup.py test
+    - name: Upload coverage
+      run: coveralls
