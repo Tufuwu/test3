@@ -19,7 +19,7 @@ jobs:
     - name: Install dependencies
       run: |
         pip install .
-        pip install coveralls
+        pip install coveralls nose
     - name: Run tests
       run: |
         coverage run --source=vipaccess setup.py test
