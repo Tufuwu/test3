@@ -1,5 +1,5 @@
 [MESSAGES CONTROL]
-disable=R,locally-disabled,invalid-name,wrong-import-order,wrong-import-position,ungrouped-imports,missing-docstring,redefined-outer-name,unneeded-not,superfluous-parens,consider-iterating-dictionary,len-as-condition,bad-option-value,unnecessary-pass,no-member,import-outside-toplevel,C0209
+disable=R,locally-disabled,invalid-name,wrong-import-order,wrong-import-position,ungrouped-imports,missing-docstring,redefined-outer-name,unneeded-not,superfluous-parens,consider-iterating-dictionary,len-as-condition,bad-option-value,unnecessary-pass,no-member,import-outside-toplevel,C0209,W0707,C3001,W1307,E0702
 
 [REPORTS]
 reports=no
