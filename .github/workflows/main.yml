@@ -19,7 +19,7 @@ jobs:
     - name: Install dependencies
       run: |
         sudo apt update
-        sudo apt install -y gettext rsync python-sphinx python3-sphinx python-pyqt5 python3-pyqt5 python3-venv
+        sudo apt install -y gettext rsync  python3-sphinx  python3-pyqt5 python3-venv
 
     - name: Build translations
       run: make all
