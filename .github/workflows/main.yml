@@ -13,7 +13,7 @@ jobs:
         python-version: [3.5, 3.6, 3.7, 3.8, 3.9]
         django-version: [2.2, 3.0, 3.1, 'main']
         toxenv: [flake8, integration, py35-django22, py36-django22, py37-django22, py38-django22, py39-django22, py35-django30, py36-django30, py37-django30, py38-django30, py39-django30, py35-django31, py36-django31, py37-django31, py38-django31, py39-django31, py35-djangomain, py36-djangomain, py37-djangomain, py38-djangomain, py39-djangomain]
-        allow_failures: [py36-djangomain, py37-djangomain, py38-djangomain, py39-djangomain]
+        
 
     steps:
     - uses: actions/checkout@v2
