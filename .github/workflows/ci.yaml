@@ -10,7 +10,7 @@ jobs:
       with:
         python-version: 3.9
     - name: Install dependencies
-      run: pip install tox-travis coveralls
+      run: pip install tox-gh-actions coveralls
     - name: Run tests
       run: tox
     - name: Upload coverage
