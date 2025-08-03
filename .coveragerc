@@ -1,2 +1,11 @@
 [run]
-source = georss_ingv_centro_nazionale_terremoti_client
+branch = True
+omit =
+        .tox/*
+        fabfile.py
+        manage.py
+        setup.py
+        */migrations/*
+        treo/wsgi.py
+        */apps.py
+source = .

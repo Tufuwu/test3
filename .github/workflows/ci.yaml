@@ -1,51 +1,37 @@
-name: CI
-on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+name: Python package
+
+on: [push, pull_request]
+
 jobs:
   build:
+
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - python: 3.6
-            env: TOXENV=py36
-            runs-on: ubuntu-latest
-          - python: 3.6
-            env: TOXENV=cov
-            after_success: coveralls
-            runs-on: ubuntu-latest
-          - python: 3.7
-            env: TOXENV=py37
-            dist: xenial
-            sudo: true
-            runs-on: ubuntu-16.04
-          - python: 3.8
-            env: TOXENV=py38
-            dist: bionic
-            sudo: true
-            runs-on: ubuntu-18.04
-          - python: 3.9
-            env: TOXENV=py39
-            dist: bionic
-            sudo: true
-            runs-on: ubuntu-18.04
+
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-      - name: Set up Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: ${{ matrix.python }}
-      - name: Install dependencies
-        run: |
-          pip install -U tox coveralls
-      - name: Run tests
-        run: |
-          tox 
-      - name: Upload coverage
-        if: matrix.env == 'TOXENV=cov'
-        run: coveralls
+    - uses: actions/checkout@v2
+
+    - name: Set up Python 3.6
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.9
+
+    - name: Install dependencies
+      run: pip install tox-travis coveralls
+
+    - name: Run tests with tox
+      run: tox
+
+    - name: Report coverage to coveralls
+      run: coveralls
+
+    - name: Notifications
+      if: failure()
+      uses: rtCamp/action-slack-notify@v2
+      env:
+        SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+        SLACK_CHANNEL: notifications
+        SLACK_USERNAME: Github Actions
+        SLACK_ICON: https://avatars.githubusercontent.com/u/14946016?s=200&v=4
+        SLACK_COLOR: '#FF0000'
+        SLACK_TITLE: 'Github Actions Failed'
+        SLACK_MESSAGE: 'The build failed for ${{ github.repository }}'
