@@ -1,7 +1,8 @@
 
 Django==2.2.13
 Pillow==7.1.0
-Coverage==4.4.1
+coverage>=6.0,<7.0
+coveralls>=3.3,<4.0
 pytz==2018.3
 regex==2017.07.28
 freezegun==0.3.15
