@@ -56,7 +56,7 @@ jobs:
         with:
           python-version: 3.9
       - name: Install dependencies
-        run: pip install django
+        run: pip install django wheel
       - name: Build and publish to PyPI
         env:
           TWINE_USERNAME: charettes
