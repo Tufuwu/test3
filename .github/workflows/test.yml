@@ -63,7 +63,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install django
+          pip install django twine
 
       - name: Deploy to PyPI
         run: |
