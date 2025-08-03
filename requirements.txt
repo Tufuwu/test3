@@ -1,3 +1,1 @@
-Flask==2.0.3
-jinja2==3.0.0
-werkzeug==2.0.2
+in-toto==1.2.0
