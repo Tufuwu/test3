@@ -1,147 +1,68 @@
-#!/usr/bin/env python
-# usage: use the Makefile instead of invoking this script directly.
-# pylint: disable=import-error,no-name-in-module
-from __future__ import absolute_import, division, print_function, unicode_literals
-from glob import glob
-from distutils.command import build_scripts
-from distutils.core import setup
-import os
-import re
-import sys
+#!/usr/bin/env python3
+#
+# Copyright (c) 2016 Grigori Goronzy <greg@chown.ath.cx>
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+#
 
-sys.path.insert(1, os.path.dirname(__file__))
-from extras import cmdclass
+import stcgal
+from setuptools import setup, find_packages
 
-# Hack: prevent python2's ascii default encoding from breaking inside
-# distutils when installing from utf-8 paths.
-if sys.version_info[0] < 3:
-    # pylint: disable=reload-builtin,undefined-variable
-    reload(sys)  # noqa
-    # pylint: disable=no-member
-    sys.setdefaultencoding('utf-8')
+with open("doc/PyPI.md", "r") as fh:
+    long_description = fh.read()
 
-# Prevent distutils from changing "#!/usr/bin/env python" when
-# --use-env-python is specified.
-try:
-    sys.argv.remove('--use-env-python')
-    use_env_python = True
-except ValueError:
-    use_env_python = False
-if use_env_python:
-    if sys.version_info[0] < 3:
-        # Python2 accepts the r'' unicode literal.
-        pattern = re.compile(r'^should not match$')
-    else:
-        # Python3 reads files as bytes and requires that the regex pattern is
-        # specified as bytes.
-        pattern = re.compile(b'^should not match$')
-    build_scripts.first_line_re = pattern
-
-# Disable installation of the private cola package by passing --no-private-libs or
-# by setting GIT_COLA_NO_PRIVATE_LIBS=1 in th environment.
-try:
-    sys.argv.remove('--no-private-libs')
-    private_libs = False
-except ValueError:
-    private_libs = not os.getenv('GIT_COLA_NO_PRIVATE_LIBS', '')
-
-# Disable vendoring of qtpy and friends by passing --no-vendor-libs to setup.py or
-# by setting GIT_COLA_NO_VENDOR_LIBS=1 in the environment.
-try:
-    sys.argv.remove('--no-vendor-libs')
-    vendor_libs = False
-except ValueError:
-    vendor_libs = not os.getenv('GIT_COLA_NO_VENDOR_LIBS', '')
-
-# fmt: off
-here = os.path.dirname(__file__)
-version = os.path.join(here, 'cola', '_version.py')
-scope = {}
-# flake8: noqa
-exec(open(version).read(), scope)  # pylint: disable=exec-used
-version = scope['VERSION']
-# fmt: on
-
-
-def main():
-    """Runs distutils.setup()"""
-    scripts = [
-        'bin/git-cola',
-        'bin/git-cola-sequence-editor',
-        'bin/git-dag',
-    ]
-
-    if sys.platform == 'win32':
-        scripts.append('contrib/win32/cola')
-
-    packages = [str('cola'), str('cola.models'), str('cola.widgets')]
-
-    setup(
-        name='git-cola',
-        version=version,
-        description='The highly caffeinated git GUI',
-        long_description='A sleek and powerful git GUI',
-        license='GPLv2',
-        author='David Aguilar',
-        author_email='davvid@gmail.com',
-        url='https://git-cola.github.io/',
-        scripts=scripts,
-        cmdclass=cmdclass,
-        packages=packages,
-        platforms='any',
-        data_files=_data_files(),
-    )
-
-
-def _data_files():
-    """Return the list of data files"""
-    data = [
-        _app_path('share/git-cola/bin', '*'),
-        _app_path('share/git-cola/icons', '*.png'),
-        _app_path('share/git-cola/icons', '*.svg'),
-        _app_path('share/git-cola/icons/dark', '*.png'),
-        _app_path('share/git-cola/icons/dark', '*.svg'),
-        _app_path('share/metainfo', '*.xml'),
-        _app_path('share/applications', '*.desktop'),
-        _app_path('share/doc/git-cola', '*.rst'),
-        _app_path('share/doc/git-cola', '*.html'),
-    ]
-
-    if private_libs:
-        data.extend(
-            [_package('cola'), _package('cola.models'), _package('cola.widgets')]
-        )
-
-    if vendor_libs:
-        data.extend([_package('qtpy'), _package('qtpy._patch')])
-
-    data.extend(
-        [
-            _app_path(localedir, 'git-cola.mo')
-            for localedir in glob('share/locale/*/LC_MESSAGES')
-        ]
-    )
-    return data
-
-
-def _package(package, subdirs=None):
-    """Collect python files for a given python "package" name"""
-    dirs = package.split('.')
-    app_dir = _lib_path(*dirs)
-    if subdirs:
-        dirs = list(subdirs) + dirs
-    src_dir = os.path.join(*dirs)
-    return (app_dir, glob(os.path.join(src_dir, '*.py')))
-
-
-def _lib_path(*dirs):
-    return os.path.join('share', 'git-cola', 'lib', *dirs)
-
-
-def _app_path(dirname, entry):
-    """Construct (dirname, [glob-expanded-entries relative to dirname])"""
-    return (dirname, glob(os.path.join(dirname, entry)))
-
-
-if __name__ == '__main__':
-    main()
+setup(
+    name = "stcgal",
+    version = stcgal.__version__,
+    packages = find_packages(exclude=["doc", "tests"]),
+    install_requires = ["pyserial>=3.0", "tqdm>=4.0.0"],
+    extras_require = {
+        "usb": ["pyusb>=1.0.0"]
+    },
+    entry_points = {
+        "console_scripts": [
+            "stcgal = stcgal.frontend:cli",
+        ],
+    },
+    description = "STC MCU ISP flash tool",
+    long_description = long_description,
+    long_description_content_type = "text/markdown",
+    keywords = "stc mcu microcontroller 8051 mcs-51",
+    url = "https://github.com/grigorig/stcgal",
+    author = "Grigori Goronzy",
+    author_email = "greg@kinoho.net",
+    license = "MIT License",
+    platforms = "any",
+    classifiers = [
+        "Development Status :: 5 - Production/Stable",
+        "Environment :: Console",
+        "Intended Audience :: Developers",
+        "License :: OSI Approved :: MIT License",
+        "Operating System :: POSIX",
+        "Operating System :: Microsoft :: Windows",
+        "Operating System :: MacOS",
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.5",
+        "Programming Language :: Python :: 3.6",
+        "Topic :: Software Development :: Embedded Systems",
+        "Topic :: Software Development",
+    ],
+    test_suite = "tests",
+    tests_require = ["PyYAML"],
+)
