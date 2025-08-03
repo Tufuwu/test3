@@ -83,6 +83,5 @@ jobs:
           file_glob: true
           files: deploy/*
           draft: true
-          on:
-            tags: true
+
           name: ${{ github.ref_name }} (DRAFT)
