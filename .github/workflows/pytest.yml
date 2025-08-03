@@ -24,7 +24,7 @@ jobs:
       run: |
         pytest
     - name: Publish Package
-      if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
       uses: pypa/gh-action-pypi-publish@release/v1
       with:
         user: ${{ secrets.PYPI_USERNAME }}
