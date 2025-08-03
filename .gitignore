@@ -1,63 +1,9 @@
-*.py[cod]
-
-# Cardinal configuration files
-/config/*
-!/config/config.example.json
-
-# Docker-compose overrides
-docker-compose.*.yml
-
-# C extensions
-*.so
-
-# Packages
-.Python
-*.egg
-*.egg-info
-dist
-build
-eggs
-parts
-bin
-var
-sdist
-develop-eggs
-.installed.cfg
-lib
-lib64
-include
-
-# Installer logs
-pip-log.txt
-pip-selfcheck.json
-
-# Unit test / coverage reports
+.mypy_cache
 .coverage
-.tox
-nosetests.xml
-.cache
-
-# Translations
-*.mo
-
-# Mr Developer
-.mr.developer.cfg
-.project
-.pydevproject
-
-# Sublime Text 2
-*.sublime-project
-*.sublime-workspace
-
-# vim
-*.swp
-
-# PyCharm
-.idea/
-
-# Persistence files generated at runtime
-storage/database/*
-storage/logs/*
-
-# OS X
-.DS_Store
+/build
+/dist
+.pytest_cache
+/*.egg-info
+julia_pkg
+__pycache__
+/*.log
