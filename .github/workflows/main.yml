@@ -1,32 +1,20 @@
-name: Python application
-
-on: [push, pull_request]
-
+name: Python CI
+on: [push]
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
     steps:
-    - uses: actions/checkout@v2
-
-    - name: Set up Python 3.9
-      uses: actions/setup-python@v2
-      with:
-        python-version: 3.9
-
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
-        pip install -r test_requirements.txt
-        pip install coveralls
-
-    - name: Run tests with pytest
-      run: |
-        pytest
-
-    - name: Report coverage to coveralls
-      run: coveralls
-      env: 
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: 3.9
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install -r test_requirements.txt
+          pip install coveralls
+      - name: Run tests
+        run: py.test
+      - name: Upload coverage
+        run: coveralls
+        if: ${{ success }}
