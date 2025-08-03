@@ -1,33 +1,29 @@
-name: Python CI
+name: Python package
+
 on: [push, pull_request]
+
 jobs:
   build:
+
     runs-on: ubuntu-latest
+
     strategy:
       fail-fast: false
       matrix:
-        python: ["3.6", "3.7", "3.8", "nightly"]
-    env:
-      PIP_CACHE_DIR: $HOME/.cache/pip
+        python-version: [3.5, 3.6, 3.7, 3.8, 3.9]
+        django-version: [2.2, 3.0, 3.1, 'main']
+        toxenv: [flake8, integration, py35-django22, py36-django22, py37-django22, py38-django22, py39-django22, py35-django30, py36-django30, py37-django30, py38-django30, py39-django30, py35-django31, py36-django31, py37-django31, py38-django31, py39-django31, py35-djangomain, py36-djangomain, py37-djangomain, py38-djangomain, py39-djangomain]
+        allow_failures: [py36-djangomain, py37-djangomain, py38-djangomain, py39-djangomain]
+
     steps:
     - uses: actions/checkout@v2
-    - name: Set up Python
+    - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v2
       with:
-        python-version: ${{ matrix.python }}
-    - name: Cache pip
-      uses: actions/cache@v4
-      with:
-        path: $HOME/.cache/pip
-        key: pip-${{ matrix.python }}
-    - name: Remove debug log
-      run: rm -f $HOME/.cache/pip/log/debug.log
-    - name: Install dependencies
-      run: pip install -r requirements.txt
-    - name: Run tests
-      run: make test
-    - name: Save cache
-      uses: actions/cache@v4
-      with:
-        path: $HOME/.cache/pip
-        key: pip-${{ matrix.python }}
+        python-version: ${{ matrix.python-version }}
+    - name: Install tox and any other packages
+      run: |
+        python -m pip install --upgrade pip
+        pip install tox
+    - name: Test with tox
+      run: tox
