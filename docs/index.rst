@@ -1,40 +1,74 @@
-django-storages
-===============
+================================================
+Welcome to Jupyter Server Proxy's documentation!
+================================================
 
-django-storages is a collection of custom storage backends for Django.
+Jupyter Server Proxy lets you run arbitrary external processes (such
+as RStudio, Shiny Server, syncthing, PostgreSQL, etc) alongside your
+notebook, and provide authenticated web access to them.
+
+.. note::
+
+    This project used to be called **nbserverproxy**. if you have an older
+    version of nbserverproxy installed, remember to uninstall it before installing
+    jupyter-server-proxy - otherwise they may conflict
+
+The primary use cases are:
+
+#. Use with JupyterHub / Binder to allow launching users into web
+   interfaces that have nothing to do with Jupyter - such as RStudio,
+   Shiny, or OpenRefine.
+#. Allow access from frontend javascript (in classic notebook or
+   JupyterLab extensions) to access web APIs of other processes
+   running locally in a safe manner. This is used by the `JupyterLab
+   extension <https://github.com/dask/dask-labextension>`_ for
+   `dask <https://dask.org/>`_.
+
+
+Contents
+========
+
+.. toctree::
+   :maxdepth: 2
+
+   install
+   server-process
+   launchers
+   arbitrary-ports-hosts
+
+
+Convenience packages for popular applications
+=============================================
+
+This repository contains various python packages
+set up with appropriate :ref:`entrypoints <server-process/package>`
+so pip installing them automatically sets up common config
+for popular applications.
 
 .. toctree::
    :maxdepth: 1
-   :glob:
 
-   backends/*
+   convenience/packages/theia
 
-Installation
-************
 
-Use pip to install from PyPI::
+Making and contributing a :ref:`new convenience package <convenience/new>`
+is very much appreciated.
 
-    pip install django-storages
+Examples
+========
 
-Each storage backend has its own unique settings you will need to add to your settings.py file. Read the documentation for your storage engine(s) of choice to determine what you need to add.
+.. toctree::
+   :maxdepth: 1
+
+   examples
+
 
 Contributing
-************
+============
 
-To contribute to django-storages `create a fork`_ on GitHub. Clone your fork, make some changes, and submit a pull request.
+Contributions of all kinds - documentation, issues, blog posts, code, are most welcome!
 
-.. _create a fork: https://github.com/jschneier/django-storages
+.. toctree::
+   :maxdepth: 2
 
-Issues
-******
-
-Use the GitHub `issue tracker`_ for django-storages to submit bugs, issues, and feature requests.
-
-.. _issue tracker: https://github.com/jschneier/django-storages/issues
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+   contributing/release
+   convenience/new
