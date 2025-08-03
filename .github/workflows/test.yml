@@ -73,8 +73,7 @@ jobs:
 
   deploy:
     runs-on: ubuntu-22.04
-    needs: test
-    if: github.ref_type == 'tag' 
+
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python 3.5
