@@ -39,6 +39,8 @@ jobs:
     - name: Coveralls
       run: |
         if [ -f .coverage ]; then coveralls; fi
+      env: 
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Deploy to PyPI
       if: startsWith(github.ref, 'refs/tags')
