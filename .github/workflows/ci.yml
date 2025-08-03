@@ -1,48 +1,30 @@
-name: Python package
-
+name: Test
 on:
   push:
     branches: [ main ]
   pull_request:
-    branches: [ master ]
-
+    branches: [ main ]
 jobs:
-  build:
-
-    runs-on: ubuntu-latest
-
+  test:
+    runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
       matrix:
-        python-version: [3.6, 3.7, 3.8, 3.9, '3.10']
-        platform: [ubuntu-latest, macos-latest, windows-latest]
-        without-extension: [0, 1]
-
+        python: ["3.6", "3.7", "3.8", "3.9", "3.10"]
+        env:
+          - WITHOUT_EXTENSION=0
+          - WITHOUT_EXTENSION=1
     steps:
-    - uses: actions/checkout@v2
-
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
-      with:
-        python-version: ${{ matrix.python-version }}
-
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install coveralls pytest
-        python setup.py develop
-
-    - name: Run tests with coverage
-      run: |
-        coverage run --source=mwparserfromhell -m pytest
-
-    - name: Report coverage to coveralls
-      run: coveralls
-      env: 
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-    - name: Archive test reports
-      uses: actions/upload-artifact@v4
-      with:
-        name: pytest-report
-        path: pytest.html
+      - uses: actions/checkout@v2
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Install dependencies
+        run: |
+          pip install coveralls pytest
+          python setup.py develop
+      - name: Run tests
+        run: coverage run --source=mwparserfromhell -m pytest
+      - name: Upload coverage
+        run: coveralls
