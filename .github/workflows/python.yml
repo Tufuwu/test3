@@ -25,3 +25,5 @@ jobs:
         python setup.py build
         coverage run --source=stcgal setup.py test
         coveralls
+      env: 
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
