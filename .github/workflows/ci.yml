@@ -16,6 +16,7 @@ jobs:
           - python-version: 3.9
             numpy-version: 1.19.4
     steps:
+      - uses: actions/checkout@v2
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
