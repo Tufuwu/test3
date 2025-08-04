@@ -1,45 +1,53 @@
-from codecs import open
+import codecs
 from os import path
 
-from setuptools import find_packages, setup
+from setuptools import setup, find_packages
+
+
+try:
+    from collections import OrderedDict
+except ImportError:
+    dependencies = ['ordereddict']
+else:
+    dependencies = []
 
 here = path.abspath(path.dirname(__file__))
 
-with open(path.join(here, "README.md"), encoding="utf-8") as f:
+with codecs.open(path.join(here, 'README.rst'), encoding='utf-8') as f:
     long_description = f.read()
 
-__version__ = None
-with open("sendgrid_backend/version.py") as f:
-    exec(f.read())
-
 setup(
-    name="django-sendgrid-v5",
-    version=str(__version__),
-    description="An implementation of Django's EmailBackend compatible with sendgrid-python v5+",
+    name='cvss',
+    version='2.2',
+    description='CVSS2/3 library with interactive calculator for Python 2 and Python 3',
     long_description=long_description,
-    url="https://github.com/sklarsa/django-sendgrid-v5",
-    license="MIT",
-    author="Steven Sklar",
-    author_email="sklarsa@gmail.com",
+    url='https://github.com/skontar/cvss',
+    author='Stanislav Kontar, Red Hat Product Security',
+    author_email='skontar@redhat.com',
+    license='LGPLv3+',
     classifiers=[
-        "Development Status :: 3 - Alpha",
-        "Intended Audience :: Developers",
-        "Programming Language :: Python :: 2",
-        "Programming Language :: Python :: 2.7",
-        "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.4",
-        "Programming Language :: Python :: 3.5",
-        "Programming Language :: Python :: 3.6",
+        'Development Status :: 5 - Production/Stable',
+        'Intended Audience :: Developers',
+        'Topic :: Security',
+        'License :: OSI Approved :: GNU Lesser General Public License v3 or later (LGPLv3+)',
+        'Programming Language :: Python :: 2',
+        'Programming Language :: Python :: 2.6',
+        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.2',
+        'Programming Language :: Python :: 3.3',
+        'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
     ],
-    keywords="django email sendgrid backend",
-    packages=find_packages(
-        exclude=[
-            "test",
-        ]
-    ),
-    install_requires=[
-        "django >=1.8",
-        "sendgrid >=5.0.0",
-        "python-http-client >=3.0.0",
-    ],
+    keywords='security cvss score calculator',
+    packages=find_packages(),
+    install_requires=dependencies,
+    entry_points={
+        'console_scripts': [
+            'cvss_calculator = cvss.cvss_calculator:main',
+        ],
+    },
 )
