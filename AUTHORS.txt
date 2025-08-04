@@ -1,17 +1,11 @@
-The Raysect Development Team
-----------------------------
+django-tos is a Revolution Systems (http://www.revsys.com/) project.
 
-* Dr Alex Meakins
-* Dr Matthew Carr
+The following is a list of much appreciated contributors:
 
-
-Contributors
-------------
-
-* Dr Scott Silburn
-* Vlad Neverov
-* Dr Jack Lovell
-* Koyo Munechika
-* Dr Matej Tomes
-* Dr Simon Orchard
-
+Daniel Greenfeld <pydanny@gmail.com>
+Frank Wiles <frank@revsys.com>
+Krzysztof Dorosz <cypreess@gmail.com>
+akuryou
+George Dorn
+Nicholas Serra <nicks@ydekproductions.com>
+blag - https://github.com/blag
