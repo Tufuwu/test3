@@ -38,9 +38,9 @@ jobs:
           pip install --disable-pip-version-check --upgrade pip
           pip install --upgrade wheel
           if [ "$GEOS_VERSION" = "master" ]; then
-            pip install --upgrade --pre Cython 'numpy==1.13.3' pytest
+            pip install --upgrade --pre 'Cython==0.29.33' 'numpy==1.13.3' pytest
           else
-            pip install --upgrade Cython "numpy==1.13.3" pytest
+            pip install --upgrade 'Cython==0.29.33' "numpy==1.13.3" pytest
           fi
           export LD_LIBRARY_PATH=$GEOS_INSTALL/lib
           export PATH=$GEOS_INSTALL/bin:$PATH
