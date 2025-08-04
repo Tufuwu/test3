@@ -34,13 +34,13 @@ jobs:
       if: ${{ matrix.python-version == '3.8' && github.ref_type != 'tag' }}
       run: |
         pip install --upgrade pip
-        pip install twine 
+        pip install twine  wheel
         python setup.py sdist bdist_wheel
         twine upload --repository-url https://test.pypi.org/legacy/ dist/* --username __token__ --password ${{ secrets.TEST_PYPI_TOKEN }}
     - name: Deploy to PyPI (on 3.8 and tag)
       if: ${{ matrix.python-version == '3.8' && github.ref_type == 'tag' }}
       run: |
         pip install --upgrade pip
-        pip install twine
+        pip install twine wheel
         python setup.py sdist bdist_wheel
         twine upload --repository-url https://upload.pypi.org/legacy/ dist/* --username __token__ --password ${{ secrets.PYPI_TOKEN }}
