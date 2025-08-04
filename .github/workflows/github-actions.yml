@@ -64,7 +64,7 @@ jobs:
           key: ${{ runner.os }}-tox-${{ hashFiles('**/tox.ini') }}
           restore-keys: ${{ runner.os }}-tox-
       - run: |
-          travis_retry pip install setuptools --upgrade
+          pip install setuptools --upgrade
           pip install tox $PKGS
           pip freeze
       - run: tox -e $TOX_ENV
