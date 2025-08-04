@@ -4,7 +4,7 @@ from distutils.core import setup
 setup(name='btcde',
       version='4.0',
       py_modules=['btcde'],
-      install_requires=['requests', 'future'],
+      install_requires=['requests', 'future','wheel'],
       description='API Wrapper for Bitcoin.de Trading API.',
       url='https://github.com/peshay/btcde',
       author='Andreas Hubert',
