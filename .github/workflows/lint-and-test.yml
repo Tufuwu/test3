@@ -21,7 +21,7 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies
       run: |
-        pip install -q Django==$DJANGO_VERSION
+        pip install -q 'Django==1.11'
         pip install -e .[flake8,tests]
     - name: Run flake8
       run: flake8
