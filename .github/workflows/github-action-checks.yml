@@ -8,7 +8,9 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Run link-format-chk.sh
-        run: ./scripts/link-format-chk.sh
+        run: |
+          chmod +x ./scripts/link-format-chk.sh
+          ./scripts/link-format-chk.sh
       - name: Build table and check
         run: |
           scripts/buildtable.pl > /tmp/table.mediawiki || exit 1
