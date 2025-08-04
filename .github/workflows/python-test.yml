@@ -1,31 +1,27 @@
-name: Python package
+name: Test Python Package
 
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
-  build:
-
+  test:
     runs-on: ubuntu-latest
     strategy:
-      fail-fast: false
       matrix:
-        python-version: [3.5, 3.6, 3.7, 3.8, ]
-
+        python: ["3.8"]
     steps:
     - uses: actions/checkout@v2
-    - name: Set up Python ${{ matrix.python-version }}
+    - name: Set up Python ${{ matrix.python }}
       uses: actions/setup-python@v2
       with:
-        python-version: ${{ matrix.python-version }}
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
+        python-version: ${{ matrix.python }}
+    - run: |
         pip install -r test-requirements.txt
         pip install -e .
-    - name: Test with nose and coverage
-      run: |
-        nosetests -q --with-coverage --cover-package=pycron
-    - name: Coveralls
-      run: coveralls
-      env: 
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - run: nosetests -q --with-coverage --cover-package=pycron
+    - run: coveralls
