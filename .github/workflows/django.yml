@@ -63,7 +63,7 @@ jobs:
       - name: Install dependencies
         run: |
           pip install coveralls coverage
-          pip install ${{ matrix.env }}
+          pip install '${{ matrix.env }}'
 
       - name: Run tests
         run: coverage run runtests.py
