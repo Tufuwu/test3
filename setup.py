@@ -1,27 +1,46 @@
-#!/usr/bin/env python
-from setuptools import setup
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+from setuptools import setup, find_packages
+import os
+
+this_dir = os.path.dirname(os.path.abspath(__file__))
+with open(os.path.join(this_dir, "README.rst"), "r") as f:
+    long_description = f.read()
+
+PACKAGES = find_packages(exclude=["tests", "tests.*", "build"])
 
 setup(
-    name='pycron',
-    version='3.0.0',
-    description='Simple cron-like parser, which determines if current datetime matches conditions.',
-    author='Kimmo Huoman',
-    author_email='kipenroskaposti@gmail.com',
-    license='MIT',
-    keywords='cron parser',
-    url='https://github.com/kipe/pycron',
-    packages=[
-        'pycron',
+    name="pyCEC",
+    version="0.4.14",
+    author="Petr Vraník",
+    author_email="hpa@suteren.net",
+    description=(
+        "Provide HDMI CEC devices as objects,"
+        " especially for use with Home Assistant"
+    ),
+    license="MIT",
+    keywords="cec hdmi home-assistant",
+    url="https://github.com/konikvranik/pycec/",
+    packages=PACKAGES,
+    install_requires=[],
+    long_description=long_description,
+    test_suite="tests",
+    classifiers=[
+        "Development Status :: 4 - Beta",
+        "Topic :: Utilities",
+        "Topic :: Home Automation",
+        "Topic :: Multimedia",
+        "License :: OSI Approved :: MIT License",
+        "Programming Language :: Python :: 3 :: Only",
+        "Programming Language :: Python :: 3.5",
+        "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
     ],
-    python_requires='>=3.5',
-    tests_require=[
-        "arrow>=0.12.0",
-        "coverage>=4.4.2",
-        "coveralls>=1.2.0",
-        "Delorean>=0.6.0",
-        "nose>=1.0",
-        "pendulum>=1.3.2",
-        "pytz>=2017.3",
-        "udatetime>=0.0.14"
-    ]
+    entry_points={
+        "console_scripts": [
+            "pycec=pycec.__main__:main",
+        ],
+    },
 )

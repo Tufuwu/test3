@@ -1,10 +1,8 @@
-bin
-include
-lib
-local
-man
-venv
-
-*.pyc
+.idea
+build
+.eggs
+.cache
+.coverage
+pyCEC.egg-info
 dist
-*.egg-info
+__pycache__
