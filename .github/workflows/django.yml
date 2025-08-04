@@ -43,9 +43,9 @@ jobs:
           - python: 3.9
             env: "Django>=1.8,<1.9"
           - python: 3.9
-            env: "Django>=1.9,<1.10"
+            env: "Django>=1.9,<4.0"
           - python: 3.9
-            env: "Django>=1.10,<1.11"
+            env: "Django>=1.10,<3.0"
           - python: 3.9
             env: "Django>=1.11,<2.0"
           - python: 3.9
@@ -63,7 +63,7 @@ jobs:
       - name: Install dependencies
         run: |
           pip install coveralls coverage
-          pip install Django
+          pip install '${{ matrix.env }}'
 
       - name: Run tests
         run: coverage run runtests.py
