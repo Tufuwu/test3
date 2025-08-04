@@ -25,6 +25,7 @@ extras_require = {
         "pytest-cov",
         "requests-mock>=1.7",
         "tox>=3.15",
+        "numpy<1.24",
     ],
 }
 # All development/testing packages combined
