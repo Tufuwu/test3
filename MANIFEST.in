@@ -1,4 +1,6 @@
-include README.rst
-include LICENSE
-include tox.ini
-recursive-include tests *.py
+include LICENSE.txt
+recursive-include e3fp/test/data *
+recursive-include e3fp *cfg
+recursive-include e3fp/fingerprint/metrics *
+recursive-exclude * __pycache__
+recursive-exclude * *.py[co] 
