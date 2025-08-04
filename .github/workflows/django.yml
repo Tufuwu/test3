@@ -66,8 +66,7 @@ jobs:
           django-version: "Django>=1.9,<1.10"
         - python-version: "3.6"
           django-version: "Django>=1.10,<1.11"
-      allow_failures:
-        - django-version: "https://github.com/django/django/archive/master.tar.gz"
+
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python ${{ matrix.python-version }}
