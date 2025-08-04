@@ -1,57 +1,47 @@
 name: CI
-on: [push, pull_request]
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
 jobs:
   test:
     runs-on: ubuntu-latest
     strategy:
-      fail-fast: false
       matrix:
         include:
-          - env: DJANGO=2.2
-            python: '3.5'
-          - env: DJANGO=2.2
-            python: '3.6'
-          - env: DJANGO=2.2
-            python: '3.7'
-          - env: DJANGO=2.2
-            python: '3.8'
-          - env: DJANGO=2.2
-            python: 'nightly'
-            allow_failure: true
-          - env: DJANGO=3.0
-            python: '3.6'
-          - env: DJANGO=3.0
-            python: '3.7'
-          - env: DJANGO=3.0
-            python: '3.8'
-          - env: DJANGO=3.0
-            python: 'nightly'
-            allow_failure: true
-          - env: DJANGO=master
-            python: '3.6'
-            allow_failure: true
-          - env: DJANGO=master
-            python: '3.7'
-            allow_failure: true
-          - env: DJANGO=master
-            python: '3.8'
-            allow_failure: true
-          - env: DJANGO=master
-            python: 'nightly'
-            allow_failure: true
-          - python: '3.7'
-            env: TOXENV=docs
-          - python: '3.7'
-            env: TOXENV=quality
+          - env: TOXENV=flake8
+          - env: TOXENV=black
+          - env: TOXENV=elasticsearch
+            services: docker
+    services:
+      - ${{ matrix.services }}
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
         with:
-          python-version: ${{ matrix.python }}
-      - uses: actions/cache@v4
-        with:
-          path: ~/.cache/pip
-          key: ${{ matrix.python }}-pip
-          restore-keys: ${{ matrix.python }}-pip
-      - run: pip install tox tox-gh-actions
-      - run: tox
+          python-version: 3.9
+
+      - name: Install dependencies
+        run: |
+          pip install tox
+          pip install codecov
+
+      - name: Before install
+        if: matrix.env == 'TOXENV=elasticsearch'
+        run: |
+          docker pull elasticsearch:7.3.2
+          docker run --name elasticsearch -e "discovery.type=single-node" -p 9200:9200 -d elasticsearch:7.3.2
+          docker ps
+          sleep 60
+
+      - name: Run tests
+        run: tox
+
+      - name: Upload coverage
+        run: codecov

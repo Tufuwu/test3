@@ -1,31 +1,17 @@
-*.py[cod]
-.cache
-.ropeproject
-*.sublime-*
-.python-version
-
-# Packages
-*.egg
-*.egg-info
-dist
-build
-eggs
-parts
-bin
-var
-sdist
-develop-eggs
-.installed.cfg
-
-# Installer logs
-pip-log.txt
-
-# Unit test / coverage reports
 .coverage
+coverage.xml
+*.egg-info
+.eggs/
+*.pyc
+app.db
+./tmp
+build/
+dist/
+docs/_build/
+.idea
+.idea/
+env
+venv
+*.sublime*
+.vscode/
 .tox
-
-# Sphinx
-docs/_build
-
-# Django
-*.sqlite3
