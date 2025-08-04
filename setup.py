@@ -24,7 +24,7 @@ extras_require = {
         "pytest>=5.0",
         "pytest-cov",
         "requests-mock>=1.7",
-        "tox>=3.15",
+        "tox<4",
         "numpy<1.24",
     ],
 }
