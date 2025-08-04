@@ -1,0 +1,52 @@
+name: CI
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.5", "3.6", "3.7", "3.8", "3.9", "3.9-dev"]
+        include:
+          - python-version: "3.9-dev"
+            geos-version: "master"
+    env:
+      GEOS_VERSION: ${{ matrix.geos-version }}
+      NUMPY_VERSION: ${{ matrix.numpy-version }}
+    steps:
+      - uses: actions/checkout@v2
+      - name: Cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            $HOME/geosinstall
+            ~/.cache/pip
+          key: ${{ matrix.python-version }}-${{ env.GEOS_VERSION }}
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install dependencies
+        run: |
+          export GEOS_INSTALL=$HOME/geosinstall/geos-$GEOS_VERSION
+          ./ci/install_geos.sh
+          cd $GITHUB_WORKSPACE
+          pip install --disable-pip-version-check --upgrade pip
+          pip install --upgrade wheel
+          if [ "$GEOS_VERSION" = "master" ]; then
+            pip install --upgrade --pre Cython numpy pytest
+          else
+            pip install --upgrade Cython "numpy==$NUMPY_VERSION" pytest
+          fi
+          export LD_LIBRARY_PATH=$GEOS_INSTALL/lib
+          export PATH=$GEOS_INSTALL/bin:$PATH
+          python setup.py build_ext --inplace
+          pip install --no-deps -e .
+      - name: Run tests
+        run: |
+          pytest --doctest-modules

@@ -1,180 +1,134 @@
-Feeds
-=====
+======
+PyGEOS
+======
 
-|pypi| |support| |licence|
+.. Documentation at RTD — https://readthedocs.org
 
-|readthedocs|
+.. image:: https://readthedocs.org/projects/pygeos/badge/?version=latest
+	:alt: Documentation Status
+	:target: https://pygeos.readthedocs.io/en/latest/?badge=latest
 
-|travis|
+.. Github Actions status — https://github.com/pygeos/pygeos/actions
 
-Once upon a time every website offered an RSS feed to keep readers updated
-about new articles/blog posts via the users' feed readers. These times are
-long gone. The once iconic orange RSS icon has been replaced by "social share"
-buttons.
+.. image:: https://github.com/pygeos/pygeos/workflows/Conda/badge.svg
+	:alt: Github Actions status
+	:target: https://github.com/pygeos/pygeos/actions?query=workflow%3AConda
 
-Feeds aims to bring back the good old reading times. It creates Atom feeds for
-websites that don't offer them (anymore). It allows you to read new articles of
-your favorite websites in your feed reader (e.g. TinyTinyRSS_) even if this is
-not officially supported by the website.
+.. Appveyor CI status — https://ci.appveyor.com
 
-Furthermore it can also enhance existing feeds by inlining the actual content
-into the feed entry so it can be read without leaving the feed reader.
+.. image:: https://ci.appveyor.com/api/projects/status/jw48gpd88f188av6?svg=true
+	:alt: Appveyor CI status
+	:target: https://ci.appveyor.com/project/caspervdw/pygeos-3e5cu
 
-Feeds is based on Scrapy_, a framework for extracting data from websites, and
-it's easy to add support for new websites. Just take a look at the existing
-spiders_ and feel free to open a `pull request`_!
+.. PyPI
 
-Documentation
--------------
-Feeds comes with extensive documentation. It is available at
-`https://pyfeeds.readthedocs.io <https://pyfeeds.readthedocs.io/en/latest/>`_.
+.. image:: https://badge.fury.io/py/pygeos.svg
+	:alt: PyPI
+	:target: https://badge.fury.io/py/pygeos
 
-Supported Websites
-------------------
+.. Anaconda
 
-Feeds is currently able to create full text Atom feeds for various sites. The
-complete list of `supported websites is available in the documentation
-<https://pyfeeds.readthedocs.io/en/latest/spiders.html>`_.
+.. image:: https://anaconda.org/conda-forge/pygeos/badges/version.svg
+  :alt: Anaconda
 
-Content behind paywalls
-~~~~~~~~~~~~~~~~~~~~~~~
+.. Zenodo
 
-Some sites (Falter_, Konsument_, LWN_, `Oberösterreichische Nachrichten`_,
-Übermedien_) offer articles only behind a paywall. If you have a paid
-subscription, you can configure your username and password in ``feeds.cfg`` and
-also read paywalled articles from within your feed reader. For the less
-fortunate who don't have a subscription, paywalled articles are tagged with
-``paywalled`` so they can be filtered, if desired.
+.. image:: https://zenodo.org/badge/191151963.svg
+  :alt: Zenodo 
+  :target: https://zenodo.org/badge/latestdoi/191151963
 
-All feeds contain the articles in full text so you never have to leave your
-feed reader while reading.
 
-Installation
-------------
+PyGEOS is a C/Python library with vectorized geometry functions. The geometry
+operations are done in the open-source geometry library GEOS. PyGEOS wraps
+these operations in NumPy ufuncs providing a performance improvement when
+operating on arrays of geometries.
 
-Feeds is meant to be installed on your server and run periodically in a cron
-job or similar job scheduler. We recommend to install Feeds inside a virtual
-environment.
+Note: PyGEOS is a very young package. While the available functionality should
+be stable and working correctly, it's still possible that APIs change in upcoming
+releases. But we would love for you to try it out, give feedback or contribute!
 
-Feeds can be installed from PyPI using ``pip``:
+What is a ufunc?
+----------------
 
-.. code-block:: bash
+A universal function (or ufunc for short) is a function that operates on
+n-dimensional arrays in an element-by-element fashion, supporting array
+broadcasting. The for-loops that are involved are fully implemented in C
+diminishing the overhead of the Python interpreter.
 
-   $ pip install PyFeeds
+Multithreading
+--------------
 
-You may also install the current development version. The master branch is
-considered stable enough for daily use:
+PyGEOS functions support multithreading. More specifically, the Global
+Interpreter Lock (GIL) is released during function execution. Normally in Python, the
+GIL prevents multiple threads from computing at the same time. PyGEOS functions
+internally releases this constraint so that the heavy lifting done by GEOS can be
+done in parallel, from a single Python process.
 
-.. code-block:: bash
+Examples
+--------
 
-   $ pip install https://github.com/pyfeeds/pyfeeds/archive/master.tar.gz
+Compare an grid of points with a polygon:
 
-After installation ``feeds`` is available in your virtual environment.
+.. code:: python
 
-Feeds supports Python 3.6+.
+  >>> geoms = points(*np.indices((4, 4)))
+  >>> polygon = box(0, 0, 2, 2)
 
-Quickstart
+  >>> contains(polygon, geoms)
+
+    array([[False, False, False, False],
+           [False,  True, False, False],
+           [False, False, False, False],
+           [False, False, False, False]])
+
+
+Compute the area of all possible intersections of two lists of polygons:
+
+.. code:: python
+
+  >>> from pygeos import box, area, intersection
+
+  >>> polygons_x = box(range(5), 0, range(10, 15), 10)
+  >>> polygons_y = box(0, range(5), 10, range(10, 15))
+
+  >>> area(intersection(polygons_x[:, np.newaxis], polygons_y[np.newaxis, :]))
+
+  array([[100.,  90.,  80.,  70.,  60.],
+       [ 90.,  81.,  72.,  63.,  54.],
+       [ 80.,  72.,  64.,  56.,  48.],
+       [ 70.,  63.,  56.,  49.,  42.],
+       [ 60.,  54.,  48.,  42.,  36.]])
+
+See the documentation for more: https://pygeos.readthedocs.io
+
+
+Relationship to Shapely
+-----------------------
+
+Both Shapely and PyGEOS are exposing the functionality of the GEOS C++ library
+to Python. While Shapely only deals with single geometries, PyGEOS provides
+vectorized functions to work with arrays of geometries, giving better
+performance and convenience for such usecases.
+
+There is active discussion and work toward integrating PyGEOS into Shapely:
+
+* latest proposal: https://github.com/shapely/shapely-rfc/pull/1
+* prior discussion: https://github.com/Toblerity/Shapely/issues/782
+
+For now PyGEOS is developed as a separate project.
+
+References
 ----------
 
-* List all available spiders::
+- GEOS: http://trac.osgeo.org/geos
+- Shapely: https://shapely.readthedocs.io/en/latest/
+- Numpy ufuncs: https://docs.scipy.org/doc/numpy/reference/ufuncs.html
+- Joris van den Bossche's blogpost: https://jorisvandenbossche.github.io/blog/2017/09/19/geopandas-cython/
+- Matthew Rocklin's blogpost: http://matthewrocklin.com/blog/work/2017/09/21/accelerating-geopandas-1
 
-  $ feeds list
 
-* Feeds allows to crawl one or more spiders without configuration, e.g.::
+Copyright & License
+-------------------
 
-  $ feeds crawl tvthek.orf.at
-
-* A configuration file is supported too. Simply copy the template configuration
-  and adjust it. Enable the spiders you are interested in and adjust the output
-  path where Feeds stores the scraped Atom feeds::
-
-  $ cp feeds.cfg.dist feeds.cfg
-  $ $EDITOR feeds.cfg
-  $ feeds --config feeds.cfg crawl
-
-* Point your feed reader to the generated Atom feeds and start reading. Feeds
-  works best when run periodically in a cron job.
-* Run ``feeds --help`` or ``feeds <subcommand> --help`` for help and usage
-  details.
-
-Caching
--------
-
-Feeds caches HTTP responses by default to save bandwidth. Entries are cached
-for 90 days by default (this can be overwritten in the config file). Outdated
-entries are purged from cache automatically after a crawl. It's also possible
-to explicitly purge the cache from outdated entries::
-
-  $ feeds --config feeds.cfg cleanup
-
-Related work
-------------
-
-* `morss <https://github.com/pictuga/morss>`_ creates feeds, similar to Feeds
-  but in "real-time", i.e. on (HTTP) request.
-* `Full-Text RSS <https://bitbucket.org/fivefilters/full-text-rss>`_ converts
-  feeds to contain the full article and not only a teaser based on heuristics
-  and rules. Feeds are converted in "real-time", i.e. on request basis.
-* `f43.me <https://github.com/j0k3r/f43.me>`_ converts feeds to contain the
-  full article and also improves articles by adding links to the comment
-  sections of Hacker News and Reddit. Feeds are converted periodically.
-* `python-ftr <https://github.com/1flow/python-ftr>`_ is a library to extract
-  content from pages. A partial reimplementation of Full-Text RSS.
-
-How to contribute
------------------
-
-Issues
-~~~~~~
-
-* Search the existing issues in the `issue tracker`_.
-* File a `new issue`_ in case the issue is undocumented.
-
-Pull requests
-~~~~~~~~~~~~~
-
-* Fork the project to your private repository.
-* Create a topic branch and make your desired changes.
-* Open a pull request. Make sure the travis checks are passing.
-
-Authors
--------
-Feeds is written and maintained by `Florian Preinstorfer <https://nblock.org>`_
-and `Lukas Anzinger <https://www.notinventedhere.org>`_.
-
-License
--------
-
-AGPL3, see https://pyfeeds.readthedocs.io/en/latest/license.html for details.
-
-.. _issue tracker: https://github.com/pyfeeds/pyfeeds/issues
-.. _new issue: https://github.com/pyfeeds/pyfeeds/issues/new
-.. _Scrapy: https://www.scrapy.org
-.. _TinyTinyRSS: https://tt-rss.org
-.. _pull request: https://pyfeeds.readthedocs.io/en/latest/contribute.html
-.. _spiders: https://github.com/PyFeeds/PyFeeds/tree/master/feeds/spiders
-.. _Falter: https://pyfeeds.readthedocs.io/en/latest/spiders/falter.at.html
-.. _Konsument: https://pyfeeds.readthedocs.io/en/latest/spiders/konsument.at.html
-.. _LWN: https://pyfeeds.readthedocs.io/en/latest/spiders/lwn.net.html
-.. _Oberösterreichische Nachrichten: https://pyfeeds.readthedocs.io/en/latest/spiders/nachrichten.at.html
-.. _Übermedien: https://pyfeeds.readthedocs.io/en/latest/spiders/uebermedien.de.html
-
-.. |pypi| image:: https://img.shields.io/pypi/v/pyfeeds.svg?style=flat-square
-    :target: https://pypi.org/project/pyfeeds/
-    :alt: pypi version
-
-.. |support| image:: https://img.shields.io/pypi/pyversions/pyfeeds.svg?style=flat-square
-    :target: https://pypi.org/project/pyfeeds/
-    :alt: supported Python version
-
-.. |licence| image:: https://img.shields.io/pypi/l/pyfeeds.svg?style=flat-square
-    :target: https://pypi.org/project/pyfeeds/
-    :alt: licence
-
-.. |readthedocs| image:: https://img.shields.io/readthedocs/pyfeeds/latest.svg?style=flat-square&label=Read%20the%20Docs
-   :alt: Read the documentation at https://pyfeeds.readthedocs.io/en/latest/
-   :target: https://pyfeeds.readthedocs.io/en/latest/
-
-.. |travis| image:: https://img.shields.io/travis/pyfeeds/pyfeeds/master.svg?style=flat-square&label=Travis%20Build
-    :target: https://travis-ci.org/PyFeeds/PyFeeds
-    :alt: travis build status
+PyGEOS is licensed under BSD 3-Clause license. Copyright (c) 2019, Casper van der Wel.
+GEOS is available under the terms of ​GNU Lesser General Public License (LGPL) 2.1 at https://trac.osgeo.org/geos.

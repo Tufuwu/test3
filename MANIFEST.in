@@ -1,5 +1,8 @@
+include src/*
+include pygeos/*.pyx pygeos/*.pxd
+include versioneer.py
+include pygeos/_version.py
+include pygeos/*.dll
 include LICENSE
-include README.rst
-include feeds.cfg.dist
-include scrapy.cfg
-recursive-include docs Makefile conf.py *.rst
+include pyproject.toml
+exclude MANIFEST.in
