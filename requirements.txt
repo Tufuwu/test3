@@ -1,5 +1,2 @@
-setuptools>0.6
-paramiko<=3.0.0
-lxml>=3.3.0
-selectors2>=2.0.1; python_version <= '3.4'
-six
+pyqt5
+matplotlib<3.6
