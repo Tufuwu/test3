@@ -26,5 +26,5 @@ jobs:
     - name: Run tests
       run: |
         python3 -m pytest
-        ./test.sh
         chmod +x ./test.sh
+        ./test.sh
