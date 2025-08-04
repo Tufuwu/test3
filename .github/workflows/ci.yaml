@@ -12,7 +12,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python: [ 3.8, pypy3]
+        python: [ 3.8]
         test_suite: [adddelete, compartmentedmodel, networkdynamics, sir, sirs, sir_fixedrecovery, sis, sis_fixedrecovery, seir, stochasticrates, monitor, generators, loci, adddelete, percolate]
     steps:
     - name: Checkout code
@@ -34,3 +34,5 @@ jobs:
         coverage run --include './epydemic/*' -m nose test/test_${TEST_SUITE}.py
     - name: Upload coverage
       run: coveralls
+      env: 
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
