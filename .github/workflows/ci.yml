@@ -1,0 +1,57 @@
+name: CI
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - env: DJANGO=2.2
+            python: '3.5'
+          - env: DJANGO=2.2
+            python: '3.6'
+          - env: DJANGO=2.2
+            python: '3.7'
+          - env: DJANGO=2.2
+            python: '3.8'
+          - env: DJANGO=2.2
+            python: 'nightly'
+            allow_failure: true
+          - env: DJANGO=3.0
+            python: '3.6'
+          - env: DJANGO=3.0
+            python: '3.7'
+          - env: DJANGO=3.0
+            python: '3.8'
+          - env: DJANGO=3.0
+            python: 'nightly'
+            allow_failure: true
+          - env: DJANGO=master
+            python: '3.6'
+            allow_failure: true
+          - env: DJANGO=master
+            python: '3.7'
+            allow_failure: true
+          - env: DJANGO=master
+            python: '3.8'
+            allow_failure: true
+          - env: DJANGO=master
+            python: 'nightly'
+            allow_failure: true
+          - python: '3.7'
+            env: TOXENV=docs
+          - python: '3.7'
+            env: TOXENV=quality
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python }}
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ matrix.python }}-pip
+          restore-keys: ${{ matrix.python }}-pip
+      - run: pip install tox tox-gh-actions
+      - run: tox
