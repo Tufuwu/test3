@@ -1,7 +1,9 @@
 *.pyc
-build
+_trial_temp
+docs/_build
+*egg-info
+.tox
+.coverage
+venv
 dist
-.idea/
-*.egg-info
-/.tox
-.eggs/
+build
