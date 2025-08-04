@@ -10,7 +10,7 @@ jobs:
       with:
         depth: false
     - name: Install dependencies
-      run: pip install tox-travis
+      run: pip install tox-gh-actions
     - name: Run tests
       run: tox
     - name: Slack notification
