@@ -1,5 +1,5 @@
-black==20.8b1
-codecov
+black==22.3.0 
+codecov==2.1.13
 coverage==4.4.1
 flake8==3.8.4
 isort==5.7.0
