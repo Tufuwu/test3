@@ -23,7 +23,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - name: Install dependencies
-        run: pip install tox-travis 'tox<4' tox-venv
+        run: pip install tox-gh-actions 'tox<4' tox-venv
       - name: Run tests
         run: tox
 
