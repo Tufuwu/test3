@@ -40,3 +40,5 @@ jobs:
       run: docker-compose -f tests/config/docker-compose.yml down
     - name: Coveralls
       run: coveralls
+      env: 
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
