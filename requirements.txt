@@ -1,4 +1,0 @@
-pyqt5
-
-pytest
-matplotlib<3.6
