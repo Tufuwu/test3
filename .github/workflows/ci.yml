@@ -16,8 +16,7 @@ jobs:
           - env: TOXENV=black
           - env: TOXENV=elasticsearch
             services: docker
-    services:
-      - ${{ matrix.services }}
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
