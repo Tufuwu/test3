@@ -21,13 +21,14 @@ jobs:
       run: |
         pip install -r requirements.txt
         pip install coveralls
-      env: 
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        
     - name: Run tests
       run: |
         coverage run -m unittest discover -s tests -t tests
     - name: Upload coverage
       run: coveralls
+      env: 
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - name: Deploy to PyPI
       if: ${{ matrix.python-version == '3.6' && github.ref_type == 'tag' }}
       run: |
