@@ -1,1 +1,1 @@
-recursive-include tos/templates *
+recursive-include feedcrawler/web *

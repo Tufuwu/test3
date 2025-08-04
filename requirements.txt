@@ -1,3 +1,16 @@
-Django==1.11
-coverage
-coveralls
+# -*- coding: utf-8 -*-
+# FeedCrawler
+# Projekt von https://github.com/rix1337
+
+bs4
+docopt
+flask
+imdbpy
+lxml
+passlib
+pycryptodomex
+python-dateutil
+rapidfuzz
+requests
+simplejson
+waitress
