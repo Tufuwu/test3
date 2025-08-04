@@ -7,6 +7,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v2
       - name: Generate settings
         run: echo "from Default.settings import *" > settings.py
       - name: Run generate script
