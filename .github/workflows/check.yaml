@@ -1,0 +1,33 @@
+name: Python tests
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python: [ '3.6', '3.7', '3.8', '3.9']
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python ${{ matrix.python }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python }}
+    - name: Install dependencies
+      run: |
+        pip install .
+        pip install -r requirements.txt
+        pip install rednose coverage coveralls
+    - name: Run tests
+      run: |
+        nosetests test --rednose --verbosity=3 --with-coverage --cover-package ncclient
+    - name: Upload coverage to coveralls
+      uses: coverallsapp/coveralls-action@v1
+      with:
+        coveralls_token: ${{ secrets.COVERALLS_REPO_TOKEN }}
