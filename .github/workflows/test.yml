@@ -1,0 +1,45 @@
+name: CI
+on: [push, pull_request]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    services:
+      mongodb: {}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - python: 3.7
+            django: "Django>=2.2,<2.3"
+          - python: 3.8
+            django: "Django>=2.2,<2.3"
+          - python: 3.9
+            django: "Django>=2.2,<2.3"
+          - python: pypy3
+            django: "Django>=2.2,<2.3"
+          - python: 3.7
+            django: "Django>=3.0,<3.2"
+          - python: 3.8
+            django: "Django>=3.0,<3.2"
+          - python: 3.9
+            django: "Django>=3.0,<3.2"
+          - python: pypy3
+            django: "Django>=3.0,<3.2"
+          - python: 3.7
+            django: "Django>=3.2,<3.3"
+          - python: 3.8
+            django: "Django>=3.2,<3.3"
+          - python: 3.9
+            django: "Django>=3.2,<3.3"
+          - python: pypy3
+            django: "Django>=3.2,<3.3"
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install Poetry
+        run: pip install poetry
+      - name: Install dependencies
+        run: |
+          poetry install -q
+          poetry run pip install -q ${{ matrix.django }}
+      - name: Run tests
+        run: poetry run python -m pytest
