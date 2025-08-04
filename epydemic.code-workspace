@@ -1,0 +1,12 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+		"git.ignoreLimitWarning": true,
+		"python.pythonPath": "venv3/bin/python3",
+		"restructuredtext.languageServer.disabled": true
+	}
+}

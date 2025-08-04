@@ -1,0 +1,36 @@
+name: Test and Coveralls
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python: [3.6, 3.7, 3.8, pypy3]
+        test_suite: [adddelete, compartmentedmodel, networkdynamics, sir, sirs, sir_fixedrecovery, sis, sis_fixedrecovery, seir, stochasticrates, monitor, generators, loci, adddelete, percolate]
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+    - name: Setup Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python }}
+    - name: Install dependencies
+      run: |
+        pip install -r requirements.txt
+        pip install coveralls
+    - name: Install package
+      run: python setup.py install
+    - name: Run tests
+      env:
+        TEST_SUITE: ${{ matrix.test_suite }}
+      run: |
+        coverage run --include './epydemic/*' -m nose test/test_${TEST_SUITE}.py
+    - name: Upload coverage
+      run: coveralls
