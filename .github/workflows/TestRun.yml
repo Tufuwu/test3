@@ -20,9 +20,8 @@ jobs:
       uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python }}
-    - name: Create config directory
-      run: mkdir -p /home/travis/config
+ 
     - name: Install dependencies
       run: pip install -r requirements.txt
     - name: Run script
-      run: python FeedCrawler.py --port=9090 --config="/home/travis/config" --travis_ci --log-level=DEBUG
+      run: python FeedCrawler.py --port=9090 --config="/home/runner/work/_temp/_github_home" --test_run --log-level=DEBUG
