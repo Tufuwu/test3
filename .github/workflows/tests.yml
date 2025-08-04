@@ -32,7 +32,7 @@ jobs:
       run: |
         docker-compose -f tests/config/docker-compose.yml up -d
         sleep 120
-        ./tests/config/bootstrap
+        ./tests/config/graylog-setup.sh
     - name: Test with pytest
       run: py.test -v --cov=pygelf
     - name: Stop Docker containers
