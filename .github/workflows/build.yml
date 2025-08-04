@@ -30,7 +30,7 @@ jobs:
       env: 
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - name: Deploy to PyPI
-      if: ${{ matrix.python-version == '3.6' && github.ref_type == 'tag' }}
+
       run: |
         python setup.py sdist bdist_wheel
         twine upload dist/*
