@@ -1,0 +1,20 @@
+name: Python CI
+
+on: [push]
+
+jobs:
+  test:
+    runs-on: ubuntu-22.04
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        depth: false
+    - name: Install dependencies
+      run: pip install tox-travis
+    - name: Run tests
+      run: tox
+    - name: Slack notification
+      uses: rtCamp/action-slack-notify@v2
+      with:
+        webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
+        message: "Build completed"
