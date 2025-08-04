@@ -39,6 +39,6 @@ jobs:
       - name: Install dependencies
         run: |
           poetry install -q
-          poetry run pip install -q ${{ matrix.django }}
+          poetry run pip install -q '${{ matrix.django }}'
       - name: Run tests
         run: poetry run python -m pytest
