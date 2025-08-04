@@ -1,25 +1,40 @@
 name: CI
 on:
   push:
+    branches:
+      - master
+      - dev
+    exclude:
+      - /^dependabot.*/
   pull_request:
+    branches:
+      - master
+      - dev
+    exclude:
+      - /^dependabot.*/
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu:22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: [2.7, 3.5, 3.6, 3.7, 3.8, pypy, pypy3]
+        include:
+          - python-version: 3.8
+            env:
+              OLD_CRYPTOGRAPHY: 2.6.1
     steps:
-      - uses: actions/checkout@v3
-      - name: Cache pip
-        uses: actions/cache@v3
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
-          restore-keys: ${{ runner.os }}-pip-
+      - name: Checkout code
+        uses: actions/checkout@v2
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v2
         with:
-          python-version: 3.9
+          python-version: ${{ matrix.python-version }}
       - name: Install dependencies
-        run: python -m pip install -U -r dev-requirements.txt
-      - name: Run tests
-        run: python -m coverage run --branch -m pytest tests/
-      - name: Upload coverage to Codecov
-        run: bash <(curl -s https://codecov.io/bash)
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      - name: Run script
+        run: ./ci/travis.sh
+        env:
+          OLD_CRYPTOGRAPHY: ${{ matrix.env.OLD_CRYPTOGRAPHY }}
