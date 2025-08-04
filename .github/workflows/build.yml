@@ -42,11 +42,4 @@ jobs:
         if: ${{ matrix.python-version == '3.8' && contains(env.TOXENV, 'coverage') }}
         run: coveralls
 
-      - name: Deploy to PyPI (stable)
-        if: ${{ matrix.python-version == '3.8' && github.ref == 'refs/heads/master' && github.event_name == 'push' }}
-        uses: pypa/gh-action-pypi-publish@v1.5.3
-        with:
-          username: __token__
-          password: ${{ secrets.PYPI_TOKEN }}
-          distributions: sdist bdist_wheel
 
