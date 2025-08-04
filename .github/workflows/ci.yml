@@ -1,0 +1,34 @@
+name: CI
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      - docker
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: 3.9
+      - run: pip install -r requirements.txt
+      - run: ./tests/run_tests.sh
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: 3.9
+      - run: python setup.py install_egg_info sdist bdist_wheel
+      - name: Deploy to PyPI
+        uses: pypa/python-action@v1
+        with:
+          username: __token__
+          password: ${{ secrets.PYPI_TOKEN }}
+          files: dist/*
