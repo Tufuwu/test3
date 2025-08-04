@@ -30,7 +30,6 @@ jobs:
         run: |
           nosetests --with-coverage --cover-package=fingerprints --cover-erase
       - name: Upload to PyPI
-        if: ${{ github.event_name == 'push' && github.ref_type == 'branch' && github.event.head_commit.tag == github.ref_name }}
         run: |
           python setup.py sdist bdist_wheel
           twine upload dist/*
