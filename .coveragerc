@@ -1,8 +1,2 @@
-# .coveragerc to control coverage.py
 [run]
-branch = True
-source = e3fp
-omit =
-    */e3fp/test/*
-    */setup.py
-    */doc/*
+relative_files = True
