@@ -1,37 +1,50 @@
-from setuptools import setup
+#!/usr/bin/env python
+from itertools import chain
+from setuptools import setup, find_packages
+from pyinaturalist import __version__
+
+# These package categories allow tox and build environments to install only what they need
+extras_require = {
+    # Packages used for CI jobs
+    "build": ["coveralls", "twine", "wheel"],
+    # Packages used for documentation builds
+    "docs": [
+        "m2r2",
+        "Sphinx~=3.2.1",
+        "sphinx-autodoc-typehints",
+        "sphinx-automodapi",
+        "sphinx-rtd-theme",
+        "sphinxcontrib-apidoc",
+    ],
+    # Packages used for testing both locally and in CI jobs
+    "test": [
+        "black==20.8b1",
+        "flake8",
+        "mypy",
+        "pytest>=5.0",
+        "pytest-cov",
+        "requests-mock>=1.7",
+        "tox>=3.15",
+    ],
+}
+# All development/testing packages combined
+extras_require["dev"] = list(chain.from_iterable(extras_require.values()))
 
 
 setup(
-    name="Flask-Static-Digest",
-    version="0.2.1",
-    author="Nick Janetakis",
-    author_email="nick.janetakis@gmail.com",
-    url="https://github.com/nickjj/flask-static-digest",
-    description="Flask extension for md5 tagging and gzipping static files.",
-    license="MIT",
-    package_data={"Flask-Static-Digest": ["VERSION"]},
-    packages=["flask_static_digest"],
-    platforms="any",
-    python_requires=">=3.6",
-    zip_safe=False,
+    name="pyinaturalist",
+    version=__version__,
+    author="Nicolas Noé",
+    author_email="nicolas@niconoe.eu",
+    url="https://github.com/niconoe/pyinaturalist",
+    packages=find_packages(),
+    include_package_data=True,
     install_requires=[
-        "Flask>=2.2"
+        "keyring~=21.4.0",
+        "python-dateutil>=2.0",
+        "python-forge",
+        "requests>=2.24.0",
     ],
-    entry_points={
-        "flask.commands": [
-            "digest=flask_static_digest.cli:digest"
-        ],
-    },
-    classifiers=[
-        "Environment :: Web Environment",
-        "Framework :: Flask",
-        "Intended Audience :: Developers",
-        "License :: OSI Approved :: MIT License",
-        "Operating System :: OS Independent",
-        "Programming Language :: Python",
-        "Programming Language :: Python :: 3",
-        "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
-        "Topic :: Software Development :: Libraries :: Python Modules",
-        "Topic :: System :: Archiving :: Compression"
-    ]
+    extras_require=extras_require,
+    zip_safe=False,
 )

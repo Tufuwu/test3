@@ -31,12 +31,12 @@ jobs:
         run: |
           flask digest compile
           ls -laR example/static/ | wc -l | grep -q "36"
-          if [ $? -eq 0 ]; then
+  
             echo "File count after compiling test: pass"
-          else
+
             echo "File count after compiling test: fail"
             exit 1
-          fi
+
       - name: Cache manifest has nested file test
         run: |
           grep -q "js/modules/hello.js" example/static/cache_manifest.json
