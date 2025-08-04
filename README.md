@@ -1,39 +1,66 @@
-# A sample Python project
+# buildmaster-config
 
-![Python Logo](https://www.python.org/static/community_logos/python-logo.png "Sample inline image")
+[Buildbot](https://buildbot.net/) master configuration for
+[buildbot.python.org](http://buildbot.python.org/all/).
 
-A sample project that exists as an aid to the [Python Packaging User
-Guide][packaging guide]'s [Tutorial on Packaging and Distributing
-Projects][distribution tutorial].
+[![Build Status](https://travis-ci.org/python/buildmaster-config.svg?branch=master)](https://travis-ci.org/python/buildmaster-config)
 
-This project does not aim to cover best practices for Python project
-development as a whole. For example, it does not provide guidance or tool
-recommendations for version control, documentation, or testing.
+## Private settings
 
-[The source for this project is available here][src].
+The production server uses /etc/buildbot/settings.yaml configuration file which
+contains secrets like the IRC nickname password.
 
-Most of the configuration for a Python project is done in the `setup.py` file,
-an example of which is included in this project. You should edit this file
-accordingly to adapt this sample project to your needs.
+## Update requirements
 
-----
+Run locally:
 
-This is the README file for the project.
+    make regen-requirements
 
-The file should use UTF-8 encoding and can be written using
-[reStructuredText][rst] or [markdown][md use] with the appropriate [key set][md
-use]. It will be used to generate the project webpage on PyPI and will be
-displayed as the project homepage on common code-hosting services, and should be
-written for that purpose.
+Create a PR. Merge the PR. Then recreate the venv on the server:
 
-Typical contents for this file would include an overview of the project, basic
-usage examples, etc. Generally, including the project changelog in here is not a
-good idea, although a simple “What's New” section for the most recent version
-may be appropriate.
+    make stop-master
+    mv venv old-venv
+    make venv
+    make start-master
 
-[packaging guide]: https://packaging.python.org
-[distribution tutorial]: https://packaging.python.org/tutorials/packaging-projects/
-[src]: https://github.com/pypa/sampleproject
-[rst]: http://docutils.sourceforge.net/rst.html
-[md]: https://tools.ietf.org/html/rfc7764#section-3.5 "CommonMark variant"
-[md use]: https://packaging.python.org/specifications/core-metadata/#description-content-type-optional
+Upgrading buildbot sometimes requires to run the command:
+
+    ./venv/bin/buildbot upgrade-master /data/buildbot/master
+
+Make sure that the server is running, and then remove the old virtual environment:
+
+    rm -rf old-venv
+
+## Hosting
+
+The buildbot master is hosted on the PSF Infrastructure and is managed via
+[salt](https://github.com/python/psf-salt/blob/master/salt/buildbot/init.sls).
+
+psycopg2 also requires libpq-dev:
+
+    sudo apt-get install libpq-dev
+
+- Backend host address is `buildbot.nyc1.psf.io`.
+- The host is behind the PSF HaProxy cluster which is CNAMEd by `buildbot.python.org`.
+- Database is hosted on a managed Postgres cluster, including backups.
+- Remote backups of `/etc/buildbot/settings.yaml` are taken hourly and retained for 90 days.
+- No other state for the buildbot host is backed up!
+
+Configurations from this repository are applied from the `master` branch on
+a `*/15` cron interval using the `update-master` target in `Makefile`.
+
+Python 3.9 is installed manually using ``pyenv`` (which was also installed
+manually). Commands to install Python 3.9:
+
+    pyenv update
+    pyenv install 3.9.1
+    pyenv global 3.8.1 3.9.1
+
+
+## Add a worker
+
+The list of workers is stored in `/etc/buildbot/settings.yaml` on the server.
+A worker password should be made of 14 characters (a-z, A-Z, 0-9 and special
+characters), for example using KeePassX.
+
+Documentation: http://docs.buildbot.net/current/manual/configuration/workers.html#defining-workers
