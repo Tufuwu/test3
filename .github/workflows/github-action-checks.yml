@@ -13,6 +13,7 @@ jobs:
           ./scripts/link-format-chk.sh
       - name: Build table and check
         run: |
+          chmod +x scripts/buildtable.pl
           scripts/buildtable.pl > /tmp/table.mediawiki || exit 1
           diff README.mediawiki /tmp/table.mediawiki | grep '^[<>] |' > /tmp/after.diff || true
       - name: Compare previous commit
