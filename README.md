@@ -1,411 +1,537 @@
-## What is ansible-docker? ![CI](https://github.com/nickjj/ansible-docker/workflows/CI/badge.svg?branch=master)
+# What is Flask-Static-Digest? ![CI](https://github.com/nickjj/flask-static-digest/workflows/CI/badge.svg?branch=master)
 
-It is an [Ansible](http://www.ansible.com/home) role to:
+It is a Flask extension that will help make your static files production ready
+with very minimal effort on your part. It does this by md5 tagging and gzipping
+your static files after running a `flask digest compile` command that this
+extension adds to your Flask app. It should be the last thing you do to your
+static files before uploading them to your server or CDN.
 
-- Install Docker (editions, channels and version pinning are all supported)
-- Install Docker Compose using PIP (version pinning is supported)
-- Install the `docker` PIP package so Ansible's `docker_*` modules work
-- Manage Docker registry login credentials
-- Configure 1 or more users to run Docker without needing root access
-- Configure the Docker daemon's options and environment variables
-- Configure a cron job to run Docker clean up commands
+Other web frameworks like Django, Ruby on Rails and Phoenix all have this
+feature built into their framework, and now with this extension Flask does too.
 
-## Why would you want to use this role?
+**This extension will work if you're not using any asset build tools but at the
+same time it also works with Webpack, Grunt, Gulp or any other build tool you
+can think of. This tool does not depend on or compete with existing asset build
+tools.**
 
-If you're like me, you probably love Docker. This role provides everything you
-need to get going with a production ready Docker host.
+If you're already using Webpack or a similar tool, that's great. Webpack takes
+care of bundling your assets and helps convert things like SASS to CSS and ES6+
+JS to browser compatible JS. That is solving a completely different problem
+than what this extension solves. This extension will further optimize your
+static files after your build tool produces its output files.
 
-By the way, if you don't know what Docker is, or are looking to become an expert
-with it then check out
-[Dive into Docker: The Complete Docker Course for Developers](https://diveintodocker.com/?utm_source=ansibledocker&utm_medium=github&utm_campaign=readmetop).
+This extension does things that Webpack alone cannot do because in order for
+things like md5 tagging to work Flask needs to be aware of how to map those
+hashed file names back to regular file names you would reference in your Jinja
+2 templates.
 
-## Supported platforms
+## How does it work?
 
-- Ubuntu 18.04 LTS (Bionic)
-- Ubuntu 20.04 LTS (Focal Fossa)
-- Debian 9 (Stretch)
-- Debian 10 (Buster)
+There's 3 pieces to this extension:
 
----
+1. It adds a custom Flask CLI command to your project. When you run this
+   command it looks at your static files and then generates an md5 tagged
+   version of each file along with optionally gzipping them too.
 
-*You are viewing the master branch's documentation which might be ahead of the
-latest release. [Switch to the latest release](https://github.com/nickjj/ansible-docker/tree/v2.0.0).*
+2. When the above command finishes it creates a `cache_manifest.json` file in
+   your static folder which maps the regular file names, such as
+   `images/flask.png` to `images/flask-f86b271a51b3cfad5faa9299dacd987f.png`.
 
----
+3. It adds a new template helper called `static_url_for` which uses Flask's
+   `url_for` under the hood but is aware of the `cache_manifest.json` file so
+   it knows how to resolve `images/flask.png` to the md5 tagged file name.
 
-## Quick start
+### Demo video
 
-The philosophy for all of my roles is to make it easy to get going, but provide
-a way to customize nearly everything.
+This 25 minute video goes over using this extension but it also spends a lot
+of time on the "why" where we cover topics like cache busting and why IMO you
+might want to use this extension in all of your Flask projects.
 
-### What's configured by default?
+If you prefer reading instead of video, this README file covers installing,
+configuring and using this extension too.
 
-The latest Docker CE and Docker Compose will be installed, Docker disk clean up
-will happen once a week and Docker container logs will be sent to `journald`.
+[![Demo
+Video](https://img.youtube.com/vi/-Xd84hlIjkI/0.jpg)](https://www.youtube.com/watch?v=-Xd84hlIjkI)
 
-### Example playbook
+#### Changes since this video
 
-```yml
----
+- `FLASK_STATIC_DIGEST_HOST_URL` has been added to configure an optional external host, aka. CDN ([explained here](#configuring-this-extension))
 
-# docker.yml
+## Table of Contents
 
-- name: Example
-  hosts: "all"
-  become: true
+- [Installation](#installation)
+- [Using the newly added Flask CLI command](#using-the-newly-added-flask-cli-command)
+- [Going over the Flask CLI commands](#going-over-the-flask-cli-commands)
+- [Configuring this extension](#configuring-this-extension)
+- [Modifying your templates to use static_url_for instead of url_for](#modifying-your-templates-to-use-static_url_for-instead-of-url_for)
+- [Potentially updating your .gitignore file](#potentially-updating-your-gitignore-file)
+- [FAQ](#faq)
+  - [What about development vs production and performance implications?](#what-about-development-vs-production-and-performance-implications)
+  - [Why bother gzipping your static files here instead of with nginx?](#why-bother-gzipping-your-static-files-here-instead-of-with-nginx)
+  - [How do you use this extension with Webpack or another build tool?](#how-do-you-use-this-extension-with-webpack-or-another-build-tool)
+  - [Migrating from Flask-Webpack](#migrating-from-flask-webpack)
+  - [How do you use this extension with Docker?](#how-do-you-use-this-extension-with-docker)
+  - [What about user uploaded files?](#what-about-user-uploaded-files)
+- [About the author](#about-the-author)
 
-  roles:
-    - role: "nickjj.docker"
-      tags: ["docker"]
+## Installation
+
+*You'll need to be running Python 3.5+ and using Flask 1.0 or greater.*
+
+`pip install Flask-Static-Digest`
+
+### Example directory structure for a 'hello' app
+
+```
+├── hello
+│   ├── __init__.py
+│   ├── app.py
+│   └── static
+│       └── css
+│           ├── app.css
+└── requirements.txt
 ```
 
-Usage: `ansible-playbook docker.yml`
+### Flask app factory example using this extension
 
-### Installation
+```py
+from flask import Flask
+from flask_static_digest import FlaskStaticDigest
 
-`$ ansible-galaxy install nickjj.docker`
+flask_static_digest = FlaskStaticDigest()
 
-## Default role variables
 
-### Installing Docker
+def create_app():
+    app = Flask(__name__)
 
-#### Edition
+    flask_static_digest.init_app(app)
 
-Do you want to use "ce" (community edition) or "ee" (enterprise edition)?
+    @app.route("/")
+    def index():
+        return "Hello, World!"
 
-```yml
-docker__edition: "ce"
+    return app
 ```
 
-#### Channel
+*A more complete example app can be found in the [tests/
+directory](https://github.com/nickjj/flask-static-digest/tree/master/tests/example_app).*
 
-Do you want to use the "stable", "edge", "testing" or "nightly" channels? You
-can add more than one (order matters).
+## Using the newly added Flask CLI command
 
-```yml
-docker__channel: ["stable"]
-```
-
-#### Version
-
-- When set to "", the current latest version of Docker will be installed
-- When set to a specific version, that version of Docker will be installed and pinned
-
-```yml
-docker__version: ""
-
-# For example, pin it to 19.03.
-docker__version: "19.03"
-
-# For example, pin it to a more precise version of 19.03.
-docker__version: "19.03.9"
-```
-
-*Pins are set with `*` at the end of the package version so you will end up
-getting minor and security patches unless you pin an exact version.*
-
-##### Upgrade strategy
-
-- When set to `"present"`, running this role in the future won't install newer
-versions (if available)
-- When set to `"latest"`, running this role in the future will install newer
-versions (if available)
-
-```yml
-docker__state: "present"
-```
-
-##### Downgrade strategy
-
-The easiest way to downgrade would be to uninstall the Docker package manually
-and then run this role afterwards while pinning whatever specific Docker version
-you want.
+You'll want to make sure to at least set the `FLASK_APP` environment variable:
 
 ```sh
-# An ad-hoc Ansible command to stop and remove the Docker CE package on all hosts.
-ansible all -m systemd -a "name=docker-ce state=stopped" \
-  -m apt -a "name=docker-ce autoremove=true purge=true state=absent" -b
+export FLASK_APP=hello.app
+export FLASK_ENV=development
 ```
 
-### Installing Docker Compose
+Then run the `flask` binary to see its help menu:
 
-Docker Compose will get PIP installed inside of a Virtualenv. This is covered
-in detail in another section of this README file.
+```sh
+Usage: flask [OPTIONS] COMMAND [ARGS]...
 
-#### Version
+  ...
 
-- When set to "", the current latest version of Docker Compose will be installed
-- When set to a specific version, that version of Docker Compose will be installed
-and pinned
+Options:
+  --version  Show the flask version
+  --help     Show this message and exit.
 
-```yml
-docker__compose_version: ""
-
-# For example, pin it to 1.25.
-docker__compose_version: "1.25"
-
-# For example, pin it to a more precise version of 1.25.
-docker__compose_version: "1.25.5"
+Commands:
+  digest  md5 tag and gzip static files.
+  routes  Show the routes for the app.
+  run     Run a development server.
+  shell   Run a shell in the app context.
 ```
 
-*Upgrade and downgrade strategies will be explained in the other section of this
-README.*
+If all went as planned you should see the new `digest` command added to the
+list of commands.
 
-### Configuring users to run Docker without root
+## Going over the Flask CLI commands
 
-A list of users to be added to the `docker` group.
+Running `flask digest` will produce this help menu:
 
-Keep in mind this user needs to already exist, this role will not create it. If
-you want to create users, check out my
-[user role](https://github.com/nickjj/ansible-user).
+```sh
+Usage: flask digest [OPTIONS] COMMAND [ARGS]...
 
-This role does not configure User Namespaces or any other security features
-by default. If the user you add here has SSH access to your server then you're
-effectively giving them root access to the server since they can run Docker
-without `sudo` and volume mount in any path on your file system.
+  md5 tag and gzip static files.
 
-In a controlled environment this is safe, but like anything security related
-it's worth knowing this up front. You can enable User Namespaces and any
-other options with the `docker__daemon_json` variable which is explained later.
+Options:
+  --help  Show this message and exit.
 
-```yml
-# Try to use the sudo user by default, but fall back to root.
-docker__users: ["{{ ansible_env.SUDO_USER | d('root') }}"]
-
-# For example, if the user you want to set is different than the sudo user.
-docker__users: ["admin"]
+Commands:
+  clean    Remove generated static files and cache manifest.
+  compile  Generate optimized static files and a cache manifest.
 ```
 
-### Configuring Docker registry logins
+Each command is labeled, but here's a bit more information on what they do.
 
-Login to 1 or more Docker registries (such as the
-[Docker Hub](https://hub.docker.com/)).
+### compile
 
-```yml
-docker__registries:
-  - #registry_url: "https://index.docker.io/v1/"
-    username: "your_docker_hub_username"
-    password: "your_docker_hub_password"
-    #email: "your_docker_hub@emailaddress.com"
-    #reauthorize: false
-    #config_path: "$HOME/.docker/config.json"
-    #state: "present"
-docker__registries: []
+Inspects your Flask app's `static_folder` and uses that as both the input and
+output path of where to look for and create the newly digested and compressed
+files.
+
+At a high level it recursively loops over all of the files it finds in that
+directory and then generates the md5 tagged and gzipped versions of each file.
+It also creates a `cache_manifest.json` file in the root of your
+`static_folder`.
+
+That manifest file is machine generated meaning you should not edit it unless
+you really know what you're doing.
+
+This file maps the human readable file name of let's say `images/flask.png` to
+the digested file name. It's a simple key / value set up. It's basically a
+Python dictionary in JSON format.
+
+In the end it means if your static folder looked like this originally:
+
+- `css/app.css`
+- `js/app.js`
+- `images/flask.png`
+
+And you decided to run the compile command, it would now look like this:
+
+- `css/app.css`
+- `css/app.css.gz`
+- `css/app-5d41402abc4b2a76b9719d911017c592.css`
+- `css/app-5d41402abc4b2a76b9719d911017c592.css.gz`
+- `js/app.js`
+- `js/app.js.gz`
+- `js/app-098f6bcd4621d373cade4e832627b4f6.js`
+- `js/app-098f6bcd4621d373cade4e832627b4f6.js.gz`
+- `images/flask.png`
+- `images/flask.png.gz`
+- `images/flask-f86b271a51b3cfad5faa9299dacd987f.png`
+- `images/flask-f86b271a51b3cfad5faa9299dacd987f.png.gz`
+- `cache_manifest.json`
+
+*Your md5 hashes will be different because it depends on what the contents of
+the file are.*
+
+### clean
+
+Inspects your Flask app's `static_folder` and uses that as the input path of
+where to look for digested and compressed files.
+
+It will recursively delete files that have a file extension of `.gz` and also
+deletes files that have been digested. It determines if a file has been
+digested based on its file name. In other words, it will delete files that
+match this regexp `r"-[a-f\d]{32}"`.
+
+In the end that means if you had these 4 files in your static folder:
+
+- `images/flask.png`
+- `images/flask.png.gz`
+- `images/flask-f86b271a51b3cfad5faa9299dacd987f.png`
+- `images/flask-f86b271a51b3cfad5faa9299dacd987f.png.gz`
+
+And you decided to run the clean command, the last 3 files would be deleted
+leaving you with the original `images/flask.png`.
+
+## Configuring this extension
+
+By default this extension will md5 tag all files it finds in your configured
+`static_folder`. It will also create gzipped versions of each file and it won't
+prefix your static files with an external host.
+
+If you don't like any of this behavior, you can optionally configure:
+
+```py
+FLASK_STATIC_DIGEST_BLACKLIST_FILTER = []
+# If you want specific extensions to not get md5 tagged you can add them to
+# the list, such as: [".htm", ".html", ".txt"]. Make sure to include the ".".
+
+FLASK_STATIC_DIGEST_GZIP_FILES = True
+# When set to False then gzipped files will not be created but static files
+# will still get md5 tagged.
+
+FLASK_STATIC_DIGEST_HOST_URL = None
+# When set to a value such as https://cdn.example.com and you use static_url_for
+# it will prefix your static path with this URL. This would be useful if you
+# host your files from a CDN. Make sure to include the protocol (aka. https://).
 ```
 
-*Properties prefixed with \* are required.*
+You can override these defaults in your Flask app's config file.
 
-- `registry_url` defaults to `https://index.docker.io/v1/`
-- *`username` is your Docker registry username
-- *`password` is your Docker registry password
-- `email` defaults to not being used (not all registries use it)
-- `reauthorize` defaults to `false`, when `true` it updates your credentials
-- `config_path` defaults to `(ansible_env.PWD | d('/root')) + '/.docker/config.json'`
-- `state` defaults to "present", when "absent" the login will be removed
+## Modifying your templates to use static_url_for instead of url_for
 
-### Configuring the Docker daemon options (json)
+We're all familiar with this code right?
 
-Default Docker daemon options as they would appear in `/etc/docker/daemon.json`.
-
-```yml
-docker__default_daemon_json: |
-  "log-driver": "journald"
-
-# Add your own additional daemon options without overriding the default options.
-# It follows the same format as the default options, and don't worry about
-# starting it off with a comma. The template will add the comma if needed.
-docker__daemon_json: ""
+```html
+<img src="{{ url_for('static', filename='images/flask.png') }}"
+     width="480" height="188" alt="Flask logo" />
 ```
 
-### Configure the Docker daemon options (flags)
+When you put the above code into a Flask powered Jinja 2 template, it turns
+into this:
 
-Flags that are set when starting the Docker daemon cannot be changed in the
-`daemon.json` file. By default Docker sets `-H unix://` which means that option
-cannot be changed with the json options.
-
-Add or change the starting Docker daemon flags by supplying them exactly how
-they would appear on the command line.
-
-```yml
-# Each command line flag should be its own item in the list.
-#
-# Using a Docker version prior to 18.09?
-#   You must set `-H fd://` instead of `-H unix://`.
-docker__daemon_flags:
-  - "-H unix://"
+```html
+<img src="images/flask.png"
+     width="480" height="188" alt="Flask logo" />
 ```
 
-*If you don't supply some type of `-H` flag here, Docker will fail to start.*
+The path might vary depending on how you configured your Flask app's
+`static_folder` but you get the idea.
 
-### Configuring the Docker daemon environment variables
+#### Using static_url_for instead of url_for
 
-```yml
-docker__daemon_environment: []
+Let's use the same example as above:
 
-# For example, here's how to set a couple of proxy environment variables.
-docker__daemon_environment:
-  - "HTTP_PROXY=http://proxy.example.com:80"
-  - "HTTPS_PROXY=https://proxy.example.com:443"
+```html
+<img src="{{ static_url_for('static', filename='images/flask.png') }}"
+     width="480" height="188" alt="Flask logo" />
 ```
 
-### Configuring advanced systemd directives
+But now take a look at the output this produces:
 
-This role lets the Docker package manage its own systemd unit file and adjusts
-things like the Docker daemon flags and environment variables by using
-the systemd override pattern.
-
-If you know what you're doing, you can override or add to any of Docker's systemd
-directives by setting this variable. Anything you place in this string will be
-written to `/etc/systemd/system/docker.service.d/custom.conf` as is.
-
-```yml
-docker__systemd_override: ""
+```html
+<img src="/images/flask-f86b271a51b3cfad5faa9299dacd987f.png"
+     width="480" height="188" alt="Flask logo" />
 ```
 
-### Configuring Docker related cron jobs
+Or if you set `FLASK_STATIC_DIGEST_HOST_URL = "https://cdn.example.com"` it
+would produce:
 
-By default this will safely clean up disk space used by Docker every Sunday at
-midnight.
-
-```yml
-# `a` removes unused images (useful in production).
-# `f` forces it to happen without prompting you to agree.
-docker__cron_jobs_prune_flags: "af"
-
-# Control the schedule of the docker system prune.
-docker__cron_jobs_prune_schedule: ["0", "0", "*", "*", "0"]
-
-docker__cron_jobs:
-  - name: "Docker disk clean up"
-    job: "docker system prune -{{ docker__cron_jobs_prune_flags }} > /dev/null 2>&1"
-    schedule: "{{ docker__cron_jobs_prune_schedule }}"
-    cron_file: "docker-disk-clean-up"
-    #user: "{{ (docker__users | first) | d('root') }}"
-    #state: "present"
+```html
+<img src="https://cdn.example.com/images/flask-f86b271a51b3cfad5faa9299dacd987f.png"
+     width="480" height="188" alt="Flask logo" />
 ```
 
-*Properties prefixed with \* are required.*
+Instead of using `url_for` you would use `static_url_for`. This uses Flask's
+`url_for` under the hood so things like `_external=True` and everything else
+`url_for` supports is available to use with `static_url_for`.
 
-- *`name` is the cron job's description
-- *`job` is the command to run in the cron job
-- *`schedule` is the [standard cron job](https://en.wikipedia.org/wiki/Cron#Overview)
-format for every Sunday at midnight
-- *`cron_file` writes a cron file to `/etc/cron.d` instead of a user's individual crontab
-- `user` defaults to the first `docker__users` user or root if that's not available
-- `state` defaults to "present", when "absent" the cron file will be removed
+That means to use this extension you don't have to do anything other than
+install it, optionally run the CLI command to generate the manifest and then
+rename your static file references to use `static_url_for` instead of
+`url_for`.
 
-### Configuring the APT package manager
+If your editor supports performing a find / replace across multiple files you
+can quickly make the change by finding `url_for('static'` and replacing that
+with `static_url_for('static'`. If you happen to use double quotes instead of
+single quotes you'll want to adjust for that too.
 
-Docker requires a few dependencies to be installed for it to work. You shouldn't
-have to edit any of these variables.
+## Potentially updating your .gitignore file
 
-```yml
-# List of packages to be installed.
-docker__package_dependencies:
-  - "apt-transport-https"
-  - "ca-certificates"
-  - "cron"
-  - "gnupg2"
-  - "software-properties-common"
+If you're using something like Webpack then chances are you're already git
+ignoring the static files it produces as output. It's a common pattern to
+commit your Webpack source static files but ignore the compiled static files
+it produces.
 
-# Ansible identifies CPU architectures differently than Docker.
-docker__architecture_map:
-  "x86_64": "amd64"
-  "aarch64": "arm64"
-  "aarch": "arm64"
-  "armhf": "armhf"
-  "armv7l": "armhf"
+But if you're not using Webpack or another asset build tool then the static
+files that are a part of your project might have the same source and
+destination directory. If that's the case, chances are you'll want to git
+ignore the md5 tagged files as well as the gzipped and `cache_manifest.json`
+files from version control.
 
-# The Docker GPG key id used to sign the Docker package.
-docker__apt_key_id: "9DC858229FC7DD38854AE2D88D81803C0EBFCD88"
+For clarity, you want to ignore them because you'll be generating them on your
+server at deploy time or within a Docker image if you're using Docker.  They
+don't need to be tracked in version control.
 
-# The Docker GPG key server address.
-docker__apt_key_url: "https://download.docker.com/linux/{{ ansible_distribution | lower }}/gpg"
+Add this to your `.gitignore` file to ignore certain files this extension
+creates:
 
-# The Docker upstream APT repository.
-docker__apt_repository: >
-  deb [arch={{ docker__architecture_map[ansible_architecture] }}]
-  https://download.docker.com/linux/{{ ansible_distribution | lower }}
-  {{ ansible_distribution_release }} {{ docker__channel | join (' ') }}
+```
+*-[0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f].*
+*.gz
+cache_manifest.json
 ```
 
-### Installing Python packages with Virtualenv and PIP
+This allows your original static files but ignores everything else this
+extension creates. I am aware at how ridiculous that ignore rule is for the md5
+hash but using `[0-9a-f]{32}` does not work. If you know of a better way,
+please open a PR!
 
-#### Configuring Virtualenv
+## FAQ
 
-Rather than pollute your server's version of Python, all PIP packages are
-installed into a Virtualenv of your choosing.
+### What about development vs production and performance implications?
 
-```yml
-docker__pip_virtualenv: "/usr/local/lib/docker/virtualenv"
-```
+You would typically only run the CLI command to prepare your static files for
+production. Running `flask digest compile` would become a part of your build
+process -- typically after you pip install your dependencies.
 
-#### Installing PIP and its dependencies
+In development when the `cache_manifest.json` likely doesn't exist
+`static_url_for` calls `url_for` directly. This allows the `static_url_for`
+helper to work in both development and production without any fuss.
 
-This role installs PIP because Docker Compose is installed with the
-`docker-compose` PIP package and Ansible's `docker_*` modules use the `docker`
-PIP package.
+It's also worth pointing out the CLI command is expected to be run before you
+even start your Flask server (or gunicorn / etc.), so there's no perceivable
+run time performance hit. It only involves doing 1 extra dictionary lookup at
+run time which is many orders of magnitude faster than even the most simple
+database query.
 
-```yml
-docker__pip_dependencies:
-  - "gcc"
-  - "python3-setuptools"
-  - "python3-dev"
-  - "python3-pip"
-  - "virtualenv"
-```
+**In other words, this extension is not going to negatively impact the
+performance of your web application. If anything it's going to speed it up and
+save you money on hosting**.
 
-#### Installing PIP packages
+That's because gzipped files can be upwards of 5-10x smaller so there's less
+bytes to transfer over the network.
 
-```yml
-docker__default_pip_packages:
-  - name: "docker"
-    state: "{{ docker__pip_docker_state }}"
-  - name: "docker-compose"
-    version: "{{ docker__compose_version }}"
-    path: "/usr/local/bin/docker-compose"
-    src: "{{ docker__pip_virtualenv + '/bin/docker-compose' }}"
-    state: "{{ docker__pip_docker_compose_state }}"
+Also with md5 tagging each file it means you can configure your web server such
+as nginx to cache each file forever. That means if a user visits your site a
+second time in the future, nginx will be smart enough to load it from their
+local browser's cache without even contacting your server. It's a 100% local
+look up.
 
-# Add your own PIP packages with the same properties as above.
-docker__pip_packages: []
-```
+This is as efficient as it gets. You can't do this normally without md5 tagging
+each file because if the file changes in the future, nginx will continue
+serving the old file until the cache expires so users will never see your
+updates. But due to how md5 hashing works, if the contents of a file changes it
+will get generated with a new name and nginx will serve the uncached new file.
 
-*Properties prefixed with \* are required.*
+This tactic is commonly referred to as "cache busting" and it's a very good
+idea to do this in production. You can even go 1 step further and serve your
+static files using a CDN. Using this cache busting strategy makes configuring
+your CDN a piece of cake since you don't need to worry about ever expiring your
+cache manually.
 
-- *`name` is the package name
-- `version` is the package version to be installed (or "" if this is not defined)
-- `path` is the destination path of the symlink
-- `src` is the source path to be symlinked
-- `state` defaults to "present", other values can be "forcereinstall" or "absent"
+### Why bother gzipping your static files here instead of with nginx?
 
-##### PIP package state
+You would still be using nginx's gzip features, but now instead of nginx having
+to gzip your files on the fly at run time you can configure nginx to use the
+pre-made gzipped files that this extension creates.
 
-- When set to `"present"`, the package will be installed but not updated on
-future runs
-- When set to `"forcereinstall"`, the package will always be (re)installed and
-updated on future runs
-- When set to `"absent"`, the package will be removed
+This way you can benefit from having maximum compression without having nginx
+waste precious CPU cycles gzipping files on the fly. This gives you the best of
+both worlds -- the highest compression ratio with no noticeable run time
+performance penalty.
 
-```yml
-docker__pip_docker_state: "present"
-docker__pip_docker_compose_state: "present"
-```
+### How do you use this extension with Webpack or another build tool?
 
-#### Working with Ansible's `docker_*` modules
+It works out of the box with no extra configuration or plugins needed for
+Webpack or your build tool of choice.
 
-This role uses `docker_login` to login to a Docker registry, but you may also
-use the other `docker_*` modules in your own roles. They are not going to work
-unless you instruct Ansible to use this role's Virtualenv.
+Typically the Webpack (or another build tool) work flow would look like this:
 
-At either the inventory, playbook or task level you'll need to set
-`ansible_python_interpreter: "/usr/bin/env python3-docker"`. This works because
-this role creates a proxy script from the Virtualenv's Python binary to
-`python3-docker`.
+- You configure Webpack with your source static files directory
+- You configure Webpack with your destination static files directory
+- Webpack processes your files in the source directory and copies them to the destination directory
+- Flask is configured to serve static files from that destination directory
 
-You can look at this role's `docker_login` task as an example on how to do it
-at the task level.
+For example, your source directory might be `assets/` inside of your project
+and the destination might be `myapp/static`.
 
-## License
+This extension will look at your Flask configuration for the `static_folder`
+and determine it's set to `myapp/static` so it will md5 tag and gzip those
+files. Your Webpack source files will not get digested and compressed.
 
-MIT
+### Migrating from Flask-Webpack
+
+[Flask-Webpack](https://github.com/nickjj/flask-webpack) is another extension I
+wrote a long time ago which was specific to Webpack but had a similar idea to
+this extension. Flask-Webpack is now deprecated in favor of
+Flask-Static-Digest. Migrating is fairly painless. There are a number of
+changes but on the bright side you get to delete more code than you add!
+
+#### Dependency / Flask app changes
+
+- Remove `Flask-Webpack` from `requirements.txt`
+- Remove all references to Flask-Webpack from your Flask app and config
+- Remove `manifest-revision-webpack-plugin` from `package.json`
+- Remove all references to this webpack plugin from your webpack config
+- Add `Flask-Static-Digest` to `requirements.txt`
+- Add the Flask-Static-Digest extension to your Flask app
+
+#### Jinja 2 template changes
+
+- Replace `stylesheet_tag('main_css') | safe` with `static_url_for('static', filename='css/main.css')`
+- Replace `javascript_tag('main_js') | safe` with `static_url_for('static', filename='js/main.js')`
+- Replace any occurrences of `asset_url_for('foo.png')` with `static_url_for('static', filename='images/foo.png')`
+
+### How do you use this extension with Docker?
+
+It's really no different than without Docker, but instead of running `flask
+digest compile` on your server directly at deploy time you would run it inside
+of your Docker image at build time. This way your static files are already set
+up and ready to go by the time you pull and use your Docker image in
+production.
+
+You can see a fully working example of this in the open source version of my
+[Build a SAAS App with
+Flask](https://github.com/nickjj/build-a-saas-app-with-flask) course. It
+leverages Docker's build arguments to only compile the static files when
+`FLASK_ENV` is set to `production`. The key files to look at are the
+`Dockerfile`, `docker-compose.yml` and `.env` files. That wires up the build
+arguments and env variables to make it work.
+
+### What about user uploaded files?
+
+Let's say that besides having static files like your logo and CSS / JavaScript
+bundles you also have files uploaded by users. This could be things like a user
+avatar, blog post images or anything else.
+
+**You would still want to md5 tag and gzip these files but now we've run into a
+situation**. The `flask digest compile` command is meant to be run at deploy
+time and it could potentially be run from your dev box, inside of a Docker
+image, on a CI server or your production server. In these cases you wouldn't
+have access to the user uploaded files.
+
+But at the same time you have users uploading files at run time. They are
+changing all the time.
+
+**Needless to say you can't use the `flask digest compile` command to digest
+user uploaded files**. The `cache_manifest.json` file should be reserved for
+files that exist in your code repo (such as your CSS / JS bundles, maybe a
+logo, fonts, etc.).
+
+The above files do not change at run time and align well with running the
+`flask digest compile` command at deploy time.
+
+For user uploaded content you wouldn't ever write these entries to the manifest
+JSON file. Instead, you would typically upload your files to disk, S3 or
+somewhere else and then save the file name of the file you uploaded into your
+local database.
+
+So now when you reference a user uploaded file (let's say an avatar), you would
+loop over your users from the database and reference the file name from the DB.
+
+There's no need for a manifest file to store the user uploaded files because
+the database has a reference to the real name and then you are dynamically
+referencing that in your template helper (`static_url_for`), so it's never a
+hard coded thing that changes at the template level.
+
+What's cool about this is you already did the database query to retrieve the
+record(s) from the database, so there's no extra database work to do. All you
+have to do is reference the file name field that's a part of your model.
+
+But that doesn't fully solve the problem. You'll still want to md5 tag and gzip
+your user uploaded content at run time and you would want to do this before you
+save the uploaded file into its final destination (local file system, S3,
+etc.).
+
+This can be done completely separate from this extension and it's really going
+to vary depending on where you host your user uploaded content. For example
+some CDNs will automatically create gzipped files for you and they use things
+like an ETag header in the response to include a unique file name (and this is
+what you can store in your DB).
+
+So maybe md5 hashing and maybe gzipping your user uploaded content becomes an
+app specific responsibility, although I'm not opposed to maybe creating helper
+functions you can use but that would need to be thought out carefully.
+
+However the implementation is not bad. It's really only about 5 lines of code
+to do both things. Feel free to `CTRL + F` around the [code
+base](https://github.com/nickjj/flask-static-digest/blob/master/flask_static_digest/digester.py)
+for `hashlib` and `gzip` and you'll find the related code.
+
+**So with that said, here's a work flow you can do to deal with this today:**
+
+- User uploads file
+- Your Flask app potentially md5 tags / gzips the file if necessary
+- Your Flask app saves the file name + gzipped file to its final destination (local file system, S3, etc.)
+- Your Flask app saves the final unique file name to your database
+
+That final unique file name would be the md5 tagged version of the file that
+you created or the unique file name that your CDN returned back to you. I hope
+that clears up how to deal with user uploaded files and efficiently serving
+them!
+
+## About the author
+
+- Nick Janetakis | <https://nickjanetakis.com> | [@nickjanetakis](https://twitter.com/nickjanetakis)
+
+If you're interested in learning Flask I have a 17+ hour video course called
+[Build a SAAS App with
+Flask](https://buildasaasappwithflask.com/?utm_source=github&utm_medium=staticdigest&utm_campaign=readme).
+It's a course where we build a real world SAAS app. Everything about the course
+and demo videos of what we build is on the site linked above.
