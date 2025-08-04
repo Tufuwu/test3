@@ -1,29 +1,40 @@
-name: Python Tests and Linting
+name: Python package
+
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
   pull_request:
-    branches: [ main ]
+    branches:
+      - main
+
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
-        python-version: [3.9]
-    env:
-      DJANGO_VERSION: '1.11'
+        python-version: [3.7, 3.8, 3.5, 3.6]
+        django-version: [1.11]
+
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
-    - name: Set up Python
+    - uses: actions/checkout@v2
+
+    - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python-version }}
+
     - name: Install dependencies
       run: |
-        pip install -q 'Django==1.11'
+        python -m pip install --upgrade pip
+        pip install Django==${{ matrix.django-version }}
         pip install -e .[flake8,tests]
-    - name: Run flake8
-      run: flake8
-    - name: Run tests
-      run: pytest
+
+    - name: Lint with flake8
+      run: |
+        flake8 .
+
+    - name: Test with pytest
+      run: |
+        pytest
