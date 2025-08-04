@@ -1,6 +1,11 @@
-__pycache__
 *.pyc
-*egg-info
-build
-dist
-.idea
+__pycache__
+env
+/.idea/
+
+# ignore mappings and settings files
+/mappings.py
+/settings.py
+
+# ignore downloads
+/downloads

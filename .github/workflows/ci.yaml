@@ -1,0 +1,15 @@
+name: Python app
+on:
+  push:
+    branches:
+      - main
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate settings
+        run: echo "from Default.settings import *" > settings.py
+      - name: Run generate script
+        run: 
+          chmod +x ./generate.py
+          ./generate.py
