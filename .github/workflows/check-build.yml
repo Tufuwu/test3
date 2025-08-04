@@ -27,3 +27,4 @@ jobs:
       run: |
         python3 -m pytest
         ./test.sh
+        chmod +x ./test.sh
