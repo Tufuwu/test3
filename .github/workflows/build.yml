@@ -20,7 +20,7 @@ jobs:
     - name: Install dependencies
       run: |
         pip install -r requirements.txt
-        pip install coveralls
+        pip install coveralls wheel
         
     - name: Run tests
       run: |
