@@ -34,6 +34,7 @@ jobs:
       - name: Install dependencies
         run: |
           export GEOS_INSTALL=$HOME/geosinstall/geos-$GEOS_VERSION
+          chmod +x ./ci/install_geos.sh
           ./ci/install_geos.sh
           cd $GITHUB_WORKSPACE
           pip install --disable-pip-version-check --upgrade pip
