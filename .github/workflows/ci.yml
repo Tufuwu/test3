@@ -33,8 +33,10 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+
       - name: Run script
-        run: ./ci/travis.sh
+        run: |
+          chmod +x ./ci.sh
+          ./ci.sh
         env:
           OLD_CRYPTOGRAPHY: ${{ matrix.env.OLD_CRYPTOGRAPHY }}
