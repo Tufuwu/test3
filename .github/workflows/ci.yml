@@ -1,89 +1,43 @@
-name: CI
-on: [push]
+name: Python application
+
+on: [push, pull_request]
+
 jobs:
   build:
+
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v2
-      - name: Set up Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: 3.9
-      - name: Install dependencies
-        run: |
-          pip install flake8 'Flask>=2.2'
-          pip install -e .
-          flake8 .
-      - name: Change directory and set environment variable
-        run: |
-          cd tests/example_app
-          echo "FLASK_APP=example.app" >> $GITHUB_ENV
-      - name: File count before compiling test
-        run: |
-          ls -laR example/static/ | wc -l | grep -q "26"
-          if [ $? -eq 0 ]; then
-            echo "File count before compiling test: pass"
-          else
-            echo "File count before compiling test: fail"
-            exit 1
-          fi
-      - name: Digest compile and file count check
-        run: |
-          flask digest compile
-          ls -laR example/static/ | wc -l | grep -q "36"
-          if [ $? -eq 0 ]; then
-            echo "File count after compiling test: pass"
-          else
-            echo "File count after compiling test: fail"
-            exit 1
-          fi
-      - name: Cache manifest has nested file test
-        run: |
-          grep -q "js/modules/hello.js" example/static/cache_manifest.json
-          if [ $? -eq 0 ]; then
-            echo "Cache manifest has nested file test: pass"
-          else
-            echo "Cache manifest has nested file test: fail"
-            exit 1
-          fi
-      - name: Cache manifest has digested file test
-        run: |
-          grep -q "js/modules/hello-d41d8cd98f00b204e9800998ecf8427e.js" example/static/cache_manifest.json
-          if [ $? -eq 0 ]; then
-            echo "Cache manifest has digested file test: pass"
-          else
-            echo "Cache manifest has digested file test: fail"
-            exit 1
-          fi
-      - name: Stylesheet is md5 tagged test
-        run: |
-          flask run &
-          sleep 5
-          curl http://localhost:5000 | grep -q 'https://cdn.example.com/static/css/app-d41d8cd98f00b204e9800998ecf8427e.css'
-          if [ $? -eq 0 ]; then
-            echo 'Stylesheet is md5 tagged test: pass'
-          else
-            echo 'Stylesheet is md5 tagged test: fail'
-            exit 1
-          fi
-      - name: Digest clean and file count check
-        run: |
-          flask digest clean
-          ls -laR example/static/ | wc -l | grep -q "26"
-          if [ $? -eq 0 ]; then
-            echo "File count after cleaning test: pass"
-          else
-            echo "File count after cleaning test: fail"
-            exit 1
-          fi
-      - name: Javascript is not md5 tagged test
-        run: |
-          flask run -p 5001 &
-          sleep 5
-          curl http://localhost:5001 | grep -q 'https://cdn.example.com/static/js/app.js'
-          if [ $? -eq 0 ]; then
-            echo 'Javascript is not md5 tagged test: pass'
-          else
-            echo 'Javascript is not md5 tagged test: fail'
-            exit 1
-          fi
+    - uses: actions/checkout@v2
+
+    - name: Set up Python 3.7
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.9
+
+    - name: Install dependencies
+      run: |
+        pip install flake8 'Flask>=2.2'
+        pip install -e .
+        flake8 .
+
+    - name: Run tests
+      run: |
+        cd tests/example_app
+        export FLASK_APP=example.app
+
+        ls -laR example/static/ | wc -l | grep -q "26" && (echo "File count before compiling test: pass" && exit 0) || (echo "File count before compiling test: fail" && exit 1)
+
+        flask digest compile
+        ls -laR example/static/ | wc -l | grep -q "36" && (echo "File count after compiling test: pass" && exit 0) || (echo "File count after compiling test: fail" && exit 1)
+
+        grep -q "js/modules/hello.js" example/static/cache_manifest.json && (echo "Cache manifest has nested file test: pass" && exit 0) || (echo "Cache manifest has nested file test: fail" && exit 1)
+
+        grep -q "js/modules/hello-d41d8cd98f00b204e9800998ecf8427e.js" example/static/cache_manifest.json && (echo "Cache manifest has digested file test: pass" && exit 0) || (echo "Cache manifest has digested file test: fail" && exit 1)
+
+        flask run & sleep 5 && curl http://localhost:5000 | grep -q 'https://cdn.example.com/static/css/app-d41d8cd98f00b204e9800998ecf8427e.css' && (echo 'Stylesheet is md5 tagged test: pass' && exit 0) || (echo 'Stylesheet is md5 tagged test: fail' && exit 1)
+
+        flask digest clean
+        ls -laR example/static/ | wc -l | grep -q "26" && (echo "File count after cleaning test: pass" && exit 0) || (echo "File count after cleaning test: fail" && exit 1)
+
+        flask run -p 5001 & sleep 5 && curl http://localhost:5001 | grep -q 'https://cdn.example.com/static/js/app.js' && (echo 'Javascript is not md5 tagged test: pass' && exit 0) || (echo 'Javascript is not md5 tagged test: fail' && exit 1)
