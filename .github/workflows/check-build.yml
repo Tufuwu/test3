@@ -1,0 +1,29 @@
+name: CI
+on:
+  push:
+    branches:
+      - main
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python: [3.9]
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python ${{ matrix.python }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python }}
+    - name: Install system dependencies
+      run: |
+        sudo apt-get -y update
+    - name: Install Python dependencies
+      run: |
+        python3 setup.py install
+        pip install pytest-cov
+        pip install .[ja]
+    - name: Run tests
+      run: |
+        python3 -m pytest
+        ./test.sh
