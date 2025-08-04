@@ -12,10 +12,10 @@ jobs:
         uses: actions/setup-python@v2
         with:
           python-version: 3.9
-      - name: Generate settings
-        run: echo "from Default.settings import *" > settings.py
-      - name: Run generate script
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Run script
         run: |
-          run: pip install -r requirements.txt
+          echo "from Default.settings import *" > settings.py
           chmod +x ./generate.py
           ./generate.py
