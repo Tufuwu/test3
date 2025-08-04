@@ -10,6 +10,7 @@ jobs:
       - name: Generate settings
         run: echo "from Default.settings import *" > settings.py
       - name: Run generate script
-        run: 
+        run: |
+          run: pip install -r requirements.txt
           chmod +x ./generate.py
           ./generate.py
