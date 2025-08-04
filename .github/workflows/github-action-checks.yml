@@ -1,0 +1,27 @@
+name: Build and Test
+on:
+  push
+  pull_request
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Run link-format-chk.sh
+        run: ./scripts/link-format-chk.sh
+      - name: Build table and check
+        run: |
+          scripts/buildtable.pl > /tmp/table.mediawiki || exit 1
+          diff README.mediawiki /tmp/table.mediawiki | grep '^[<>] |' > /tmp/after.diff || true
+      - name: Compare previous commit
+        run: |
+          if git checkout HEAD^ && scripts/buildtable.pl > /tmp/table.mediawiki 2>/dev/null; then
+            diff README.mediawiki /tmp/table.mediawiki | grep '^[<>] |' > /tmp/before.diff || true
+            newdiff=$(diff -s /tmp/before.diff /tmp/after.diff -u | grep '^+')
+            if [ -n "$newdiff" ]; then
+              echo "$newdiff"
+              exit 1
+            fi
+          else
+            echo 'Cannot build previous commit table for comparison'
+          fi
