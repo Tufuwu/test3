@@ -1,7 +1,7 @@
 name: Python CI
 on: [push, pull_request]
 jobs:
-  test-3.4:
+  test-34:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -14,7 +14,7 @@ jobs:
         run: pip install -r requirements.txt
       - name: Run tests
         run: python -m pytest tests
-  test-3.5:
+  test-35:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -27,7 +27,7 @@ jobs:
         run: pip install -r requirements.txt
       - name: Run tests
         run: python -m pytest tests
-  test-3.6:
+  test-36:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -40,7 +40,7 @@ jobs:
         run: pip install -r requirements.txt
       - name: Run tests
         run: python -m pytest tests
-  test-3.7:
+  test-37:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -53,7 +53,7 @@ jobs:
         run: pip install -r requirements.txt
       - name: Run tests
         run: python -m pytest tests
-  test-3.8:
+  test-38:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v2
