@@ -67,5 +67,5 @@ jobs:
           pip install setuptools --upgrade
           pip install tox $PKGS
           pip freeze
-      - run: tox -e py3-django3
+      - run: tox -e py3-django40 
       - run: cat tox_log/*.log
