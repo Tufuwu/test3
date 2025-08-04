@@ -13,7 +13,7 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
       - name: Run tests
-        run: python -m pytest test
+        run: python -m pytest tests
   test-3.5:
     runs-on: ubuntu-latest
     steps:
@@ -26,7 +26,7 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
       - name: Run tests
-        run: python -m pytest test
+        run: python -m pytest tests
   test-3.6:
     runs-on: ubuntu-latest
     steps:
@@ -39,7 +39,7 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
       - name: Run tests
-        run: python -m pytest test
+        run: python -m pytest tests
   test-3.7:
     runs-on: ubuntu-latest
     steps:
@@ -52,7 +52,7 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
       - name: Run tests
-        run: python -m pytest test
+        run: python -m pytest tests
   test-3.8:
     runs-on: ubuntu-22.04
     steps:
@@ -65,7 +65,7 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
       - name: Run tests
-        run: python -m pytest test
+        run: python -m pytest tests
   coverage:
     runs-on: ubuntu-latest
     steps:
