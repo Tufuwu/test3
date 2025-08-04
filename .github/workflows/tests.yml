@@ -31,4 +31,4 @@ jobs:
       run: docker-compose -f tests/config/docker-compose.yml down
     - name: Upload coverage
       run: coveralls
-      if: ${{ success }}
+  
