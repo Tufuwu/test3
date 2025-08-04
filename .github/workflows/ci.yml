@@ -2,7 +2,7 @@ name: CI
 on:
   push:
     branches:
-      - master
+      - main
 
 jobs:
   test:
@@ -15,7 +15,9 @@ jobs:
         with:
           python-version: 3.9
       - run: pip install -r requirements.txt
-      - run: ./tests/run_tests.sh
+      - run: |
+          chmod +x ./tests/run_tests.sh
+          ./tests/run_tests.sh
 
   deploy:
     runs-on: ubuntu-latest
