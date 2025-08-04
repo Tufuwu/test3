@@ -1,43 +1,50 @@
-import setuptools
+import os
+from setuptools import setup, find_packages
+import mjml
 
-with open("README.md", "r") as readme:
-    long_description = readme.read()
 
-setuptools.setup(
-    name="django-uniauth",
-    version="1.4.1",
-    author="Lance Goodridge",
-    author_email="ldgoodridge95@gmail.com",
-    keywords=["django", "auth", "authentication", "cas", "sso", "single sign-on"],
-    description="A Django app for managing CAS and custom user authentication.",
+setup(
+    name='django-mjml',
+    version=mjml.__version__,
+    description='Use MJML in Django templates',
+    long_description=open(os.path.join(os.path.dirname(__file__), 'README.rst')).read(),
+    license='MIT',
+    author='Igor Melnyk @liminspace',
+    author_email='liminspace@gmail.com',
+    url='https://github.com/liminspace/django-mjml',
+    packages=find_packages(exclude=('tests', 'tests.*')),
     include_package_data=True,
-    long_description=long_description,
-    long_description_content_type="text/markdown",
-    url="https://github.com/lgoodridge/django-uniauth",
-    license='LGPLv3',
-    python_requires=">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*",
+    zip_safe=False,  # because include static
+    platforms=['OS Independent'],
     install_requires=[
-        "Django>=1.11",
-        "python-cas>=1.4.0",
-        "djangorestframework-simplejwt>=4.1.0",
+        'django >=1.8,<3.3',
     ],
-    extras_require = {
-        ":python_version<='3.2'": ["mock"],
+    extras_require={
+        'requests': [
+            'requests>=2.20; python_version >= "3.0"',
+            'requests[security] >= 2.20; python_version < "3.0"',
+        ],
     },
-    packages=setuptools.find_packages(exclude=["demo-app",]),
+    keywords=[
+        'django', 'mjml', 'django-mjml', 'email', 'layout', 'template', 'templatetag',
+    ],
     classifiers=[
-        "Development Status :: 5 - Production/Stable",
-        "Framework :: Django",
-        "Framework :: Django :: 1.11",
-        "Framework :: Django :: 2",
-        "Framework :: Django :: 3",
-        "Framework :: Django :: 4",
-        "Intended Audience :: Developers",
-        "License :: OSI Approved :: GNU Lesser General Public License v3 (LGPLv3)",
-        "Natural Language :: English",
-        "Operating System :: OS Independent",
-        "Programming Language :: Python",
-        "Programming Language :: Python :: 2",
-        "Programming Language :: Python :: 3",
-    ]
+        'Development Status :: 5 - Production/Stable',
+        'Environment :: Web Environment',
+        'Programming Language :: Python',
+        'Programming Language :: Python :: 2',
+        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
+        'Intended Audience :: Developers',
+        'Topic :: Software Development :: Libraries',
+        'Topic :: Software Development :: Libraries :: Application Frameworks',
+        'Topic :: Software Development :: Libraries :: Python Modules',
+        'Framework :: Django',
+        'License :: OSI Approved :: MIT License',
+    ],
 )
