@@ -1,39 +1,54 @@
-name: Python CI
+name: CI
 
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
+  test:
+    runs-on: ubuntu-22.04
     strategy:
+      fail-fast: false
       matrix:
-        python-version: [3.9]
+        python-version: ["3.6", "3.7", "3.8", "3.9-dev"]
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
+      - uses: actions/checkout@v2
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
-
       - name: Install dependencies
-        run: |
-          pip install -r test_requirements.txt
-          pip install .
-          pip install coveralls
-          pip install codeclimate-test-reporter
-          pip install pytest-cov 
-
+        run: pip install tox-travis tox tox-venv
       - name: Run tests
-        run: |
-          py.test --cov=pycec tests/
-          coverage run --source=pycec setup.py test
-          coverage run --source=pycec `which py.test`
+        run: tox
 
-      - name: Code Climate Test Reporter
-        run: codeclimate-test-reporter
+  lint:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python 3.7
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.9
+      - name: Install dependencies
+        run: pip install tox-travis tox tox-venv
+      - name: Run lint
+        run: TOXENV=lint tox
 
-      - name: Coveralls
-        run: coveralls
+  check-docs:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python 3.7
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.9
+      - name: Install dependencies
+        run: pip install tox-travis tox tox-venv
+      - name: Check docs
+        run: TOXENV=check-docs tox
