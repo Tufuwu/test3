@@ -6,7 +6,7 @@ jobs:
   test:
     runs-on: ubuntu-latest
     strategy:
-      fail-fst: false
+      fail-fast: false
       matrix:
         version: [19.3.5, 18.14.9]
         python: [ "3.9", "3.8"]
