@@ -2,9 +2,9 @@ name: Test Python Versions
 on: [push, pull_request]
 jobs:
   test:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-focal
     strategy:
-      fail-fast: falae
+      fail-fast: false
       matrix:
         python: [3.9, 3.6, 3.7, 3.8, pypy3]
     steps:
