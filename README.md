@@ -1,15 +1,24 @@
-# Flask-pyoidc
+# OWASP ZAP Python API
 
-[![PyPI](https://img.shields.io/pypi/v/flask-pyoidc.svg)](https://pypi.python.org/pypi/Flask-pyoidc)
-[![codecov.io](https://codecov.io/github/zamzterz/Flask-pyoidc/coverage.svg?branch=master)](https://codecov.io/github/its-dirg/Flask-pyoidc?branch=master)
-[![Build Status](https://travis-ci.org/zamzterz/Flask-pyoidc.svg?branch=master)](https://travis-ci.org/zamzterz/Flask-pyoidc)
+[![Version](https://img.shields.io/pypi/v/python-owasp-zap-v2.4.svg)](https://pypi.python.org/pypi/python-owasp-zap-v2.4)
+[![License](https://img.shields.io/badge/license-Apache%202-4EB1BA.svg)](https://www.apache.org/licenses/LICENSE-2.0.html)
 
-This Flask extension provides simple OpenID Connect authentication, backed by [pyoidc](https://github.com/rohe/pyoidc).
+The Python implementation to access the [OWASP ZAP API](https://www.zaproxy.org/docs/api/). For more information
+about OWASP ZAP consult the (main) [OWASP ZAP project](https://github.com/zaproxy/zaproxy/).
 
-["Authorization Code Flow"](http://openid.net/specs/openid-connect-core-1_0.html#CodeFlowAuth), as well as
-["Implicit Flow"](https://openid.net/specs/openid-connect-core-1_0.html#ImplicitFlowAuth) and 
-["Hybrid Flow"](https://openid.net/specs/openid-connect-core-1_0.html#HybridFlowAuth), is supported.
+## How to Obtain
 
-## Getting started
-Read [the documentation](https://flask-pyoidc.readthedocs.io/) or have a look at the
-[example Flask app](example/app.py) for a full example of how to use this extension.
+The latest released version can be downloaded from the [https://pypi.python.org/pypi/python-owasp-zap-v2.4](https://pypi.python.org/pypi/python-owasp-zap-v2.4) using:
+
+    pip install python-owasp-zap-v2.4
+
+## Getting Help
+
+For help using OWASP ZAP API refer to:
+  * [Examples](https://github.com/zaproxy/zap-api-python/tree/master/src/examples) - collection of examples using the library;
+  * [API Documentation](https://www.zaproxy.org/docs/api/)
+  * [OWASP ZAP User Group](https://groups.google.com/group/zaproxy-users) - for asking questions;
+  
+## Issues
+
+To report issues related to OWASP ZAP API, bugs and enhancements requests, use the [issue tracker of the main OWASP ZAP project](https://github.com/zaproxy/zaproxy/issues).
