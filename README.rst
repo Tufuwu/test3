@@ -1,347 +1,209 @@
-django-fluent-blogs
+
+django-linkcheck
 ===================
 
-.. image:: https://github.com/django-fluent/django-fluent-blogs/actions/workflows/tests.yaml/badge.svg?branch=master
-    :target: https://github.com/django-fluent/django-fluent-blogs/actions/workflows/tests.yaml
-.. image:: https://img.shields.io/pypi/v/django-fluent-blogs.svg
-    :target: https://pypi.python.org/pypi/django-fluent-blogs/
-.. image:: https://img.shields.io/pypi/l/django-fluent-blogs.svg
-    :target: https://pypi.python.org/pypi/django-fluent-blogs/
-.. image:: https://img.shields.io/codecov/c/github/django-fluent/django-fluent-blogs/master.svg
-    :target: https://codecov.io/github/django-fluent/django-fluent-blogs?branch=master
+.. image:: https://github.com/DjangoAdminHackers/django-linkcheck/workflows/Test/badge.svg
+   :target: https://github.com/DjangoAdminHackers/django-linkcheck/actions
+   :alt: GitHub Actions
 
-This is a basic blogging engine, with the following features:
+A fairly flexible app that will analyze and report on links in any model that
+you register with it.
 
-* Archive views by date, author, category and tags.
-* Contents filled by django-fluent-contents_
-* RSS and Atom feeds
-* Granularity in templates to override layouts.
-* Abstract base model for custom blog models.
+.. image:: https://github.com/DjangoAdminHackers/django-linkcheck/raw/master/linkcheck.jpg
 
-Used applications:
+Links can be bare (urls or image and file fields) or
+embedded in HTML (linkcheck handles the parsing). It's fairly easy to override
+methods of the Linkcheck object should you need to do anything more
+complicated (like generate URLs from slug fields etc).
 
-* Categories based on django-categories-i18n_ (or django-categories_).
-* *Optional* comments based on django-contrib-comments_
-* *Optional* multilingual support based on django-parler_.
-* *Optional* integration with django-taggit_ and django-taggit-autocomplete-modified_ for tag support
-* *Optional* integration with django-fluent-comments_ for Ajax-based comments
-* *Optional* integration with django-fluent-pages_
-* *Optional* integration with django.contrib.sitemaps_
+You should run its management command via cron or similar to check external
+links regularly to see if their status changes. All links are checked
+automatically when objects are saved. This is handled by signals.
 
-TODO:
+Minimal requirements
+--------------------
 
-* Have integration with blog publication protocols (like django-blog-zinnia_ provides), built in a similar way like django.contrib.syndication_ works.
+django-linkchecks requires Python 3 and Django 2.2.
 
+Basic usage
+-----------
 
-Installation
-============
+#. Install app to somewhere on your Python path (e.g. ``pip install
+   django-linkcheck``).
+   
+#. Add ``'linkcheck'`` to your ``settings.INSTALLED_APPS``.
 
-First install the module, preferably in a virtual environment:
+#. Add a file named ``linklists.py`` to every app (see an example in ``examples/linklists.py``) that either:
 
-.. code-block:: bash
+   #) has models that contain content (e.g. url/image fields, chunks of markup
+      or anything that gets transformed into a IMG or HREF when displayed
+   #) can be the target of a link - i.e. is addressed by a url - in this case
+      make sure it has an instance method named 'get_absolute_url'
 
-    pip install django-fluent-blogs
+#. Run ``./manage.py migrate``.
 
-    # Install the plugins of fluent-contents that you use:
-    pip install django-fluent-contents[text]
+#. Add to your root url config::
 
-    # Optional: to add tagging support + autocomplete use:
-    pip install django-taggit django-taggit-autocomplete-modified
+    path('admin/linkcheck/', include('linkcheck.urls'))
 
+#. View ``/admin/linkcheck/`` from your browser.
 
-Configuration
--------------
+We are aware that this documentation is on the brief side of things so any
+suggestions for elaboration or clarification would be gratefully accepted.
 
-Add the applications to ``settings.py``:
+Linklist classes
+----------------
 
-.. code-block:: python
+The following class attributes can be added to your ``Linklist`` subclasses to
+customize the extracted links:
 
-    INSTALLED_APPS += (
-        # Blog engine
-        'fluent_blogs',
+    ``object_filter``: a dictionary which will be passed as a filter argument to
+    the ``filter`` applied to the default queryset of the target class. This
+    allows you to filter the objects from which the links will be extracted.
+    (example: ``{'active': True}``)
 
-        # The content plugins
-        'fluent_contents',
-        'fluent_contents.plugins.text',
+    ``object_exclude``: a dictionary which will be passed as a filter argument to
+    the ``exclude`` applied to the default queryset of the target class. As with
+    ``object_filter``, this allows you to exclude objects from which the links
+    will be extracted.
 
-        # Support libs
-        'categories_i18n',
-        'django_wysiwyg',
-        'slug_preview',
+    ``html_fields``: a list of field names which will be searched for links.
 
-        # Optional commenting support
-        'django_comments',
+    ``url_fields``: a list of ``URLField`` field names whose content will be
+    considered as links. If the field content is empty and the field name is
+    in ``ignore_empty``, the content is ignored.
 
-        # Optional tagging
-        'taggit',
-        'taggit_autocomplete_modified',
-    )
+    ``ignore_empty``: a list of fields from ``url_fields``. See the explanation
+    above. (new in django-linkcheck 1.1)
 
-    DJANGO_WYSIWYG_FLAVOR = "yui_advanced"
+    ``image_fields``: a list of ``ImageField`` field names whose content will be
+    considered as links. Empty ``ImageField`` content is always ignored.
 
-Note that not all applications are required;
-tagging is optional, and so are the various ``fluent_contents.plugin.*`` packages.
-
-Include the apps in ``urls.py``:
-
-.. code-block:: python
-
-    urlpatterns += patterns('',
-        url(r'^admin/util/taggit_autocomplete_modified/', include('taggit_autocomplete_modified.urls')),
-        url(r'^blog/comments/', include('django_comments.urls')),
-        url(r'^blog/', include('fluent_blogs.urls')),
-    )
-
-The database can be created afterwards::
-
-    ./manage.py migrate
-
-In case additional plugins of django-fluent-contents_ are used, follow their
-`installation instructions <http://django-fluent-contents.readthedocs.org/en/latest/plugins/index.html>`_ as well.
-Typically this includes:
-
-* adding the package name to ``INSTALLED_APPS``.
-* running ``pip install django-fluent-contents[pluginname]``
-* running  ``./manage.py syncdb``
-
-
-Configuring the templates
--------------------------
-
-To display the blog contents, a ``fluent_blogs/base.html`` file needs to be created.
-This will be used to map the output of the module to your site templates.
-
-The base template needs to have the blocks:
-
-* ``content`` - displays the main content
-* ``title`` - the ``<head>`` title fragment.
-* ``link`` - displays ``<link>`` tags for RSS feeds.
-* ``script`` - includes additional ``<script>`` tags.
-* ``meta-description`` - the ``value`` of the meta-description tag.
-* ``meta-keywords`` - the ``value`` for the meta-keywords tag.
-* ``og-type`` - the OpenGraph type for Facebook (optional)
-* ``og-description`` the OpenGraph description for Facebook (optional)
-
-The ``fluent_blogs/base.html`` template could simply remap the block names to the site's ``base.html`` template.
-For example:
-
-.. code-block:: html+django
-
-    {% extends "base.html" %}
-
-    {% block headtitle %}{% block title %}{% endblock %}{% endblock %}
-
-    {% block main %}
-        {# This area is filled with the blog archive/details:
-        {% block content %}{% endblock %}
-
-        {# Add any common layout, e.g. a sidebar here #}
-    {% endblock %}
-
-When all other block names are already available in the site's ``base.html`` template,
-this example should be sufficient.
-
-The filename of the base template can also be changed by defining the  ``FLUENT_BLOGS_BASE_TEMPLATE`` setting.
-
-Comments
-~~~~~~~~
-
-The commenting support can be based on django-contrib-comments_, or any other system of your choice.
-To integrate django-contrib-comments_ with your site theme, also create a ``comments/base.html`` template that maps the blocks:
-
-* ``title``
-* ``content``
-* ``extrahead`` (only for django-fluent-comments_)
-
-
-Adding pages to the sitemap
----------------------------
-
-Optionally, the blog pages can be included in the sitemap.
-Add the following in ``urls.py``:
-
-.. code-block:: python
-
-    from fluent_blogs.sitemaps import EntrySitemap, CategoryArchiveSitemap, AuthorArchiveSitemap, TagArchiveSitemap
-
-    sitemaps = {
-        'blog_entries': EntrySitemap,
-        'blog_categories': CategoryArchiveSitemap,
-        'blog_authors': AuthorArchiveSitemap,
-        'blog_tags': TagArchiveSitemap,
-    }
-
-    urlpatterns += patterns('',
-        url(r'^sitemap.xml$', 'django.contrib.sitemaps.views.sitemap', {'sitemaps': sitemaps}),
-    )
-
-
-Integration with django-fluent-pages:
--------------------------------------
-
-To integrate with the page types of django-fluent-pages_, don't include ``fluent_blogs.urls`` in the URLconf:
-
-.. code-block:: python
-
-    urlpatterns += patterns('',
-        url(r'^admin/util/taggit_autocomplete_modified/', include('taggit_autocomplete_modified.urls')),
-        url(r'^blog/comments/', include('django_comments.urls')),   # or fluent_comments.urls
-    )
-
-Instead, add a page type instead:
-
-.. code-block:: python
-
-    INSTALLED_APPS += (
-        'fluent_pages',
-        'fluent_blogs.pagetypes.blogpage',
-    )
-
-A "Blog" page can now be created in the page tree of django-fluent-pages_
-at the desired URL path.
-
-
-Integration with django-fluent-comments:
-----------------------------------------
-
-To use Ajax-based commenting features of django-fluent-comments_, include it in ``settings.py``:
-
-.. code-block:: python
-
-    INSTALLED_APPS += (
-        'fluent_blogs',
-        'fluent_comments',      # Before django_comments
-        'django_comments',
-
-        ...
-    )
-
-Include the proper module in ``urls.py``:
-
-.. code-block:: python
-
-    urlpatterns += patterns('',
-        url(r'^blog/comments/', include('fluent_comments.urls')),
-
-        ...
-    )
-
-This module will detect the installation, and enable the moderation features and include
-the required CSS and JavaScript files to have a Ajax-based commenting system.
-
-
-Integration with other commenting systems
------------------------------------------
-
-To use a different commenting system instead of django-contrib-comments_ (e.g. DISQUS_ or Facebook-comments_), override the following templates:
-
-* ``fluent_blogs/entry_detail/comments.html``
-
-These CSS/JavaScript includes are generated using:
-
-* ``fluent_blogs/entry_detail/comments_css.html``
-* ``fluent_blogs/entry_detail/comments_script.html``
-
-
-Overriding the blog layout
---------------------------
-
-To change the layout of the blog , the following templates can be overwritten:
-
-In the archive/list page:
-
-* ``fluent_blogs/entry_archive.html`` - the starting point, which includes all sub templates:
-* ``fluent_blogs/entry_archive/item.html`` - a single list item (extends ``fluent_blogs/entry_contents_base.html``).
-* ``fluent_blogs/entry_archive/empty.html`` - the default message when there are no entries.
-* ``fluent_blogs/entry_archive/pagination.html`` - the pagination at the bottom of the page.
-
-In the detail page:
-
-* ``fluent_blogs/entry_detail.html`` - the starting point, which includes all sub templates:
-* ``fluent_blogs/entry_detail/contents.html`` - the entry contents (extends ``fluent_blogs/entry_contents_base.html``).
-* ``fluent_blogs/entry_detail/widgets.html`` - space to add Social Media buttons.
-* ``fluent_blogs/entry_detail/comments.html`` - the comments.
-* ``fluent_blogs/entry_detail/navigation.html`` - the entry navigation links
-* ``fluent_blogs/entry_detail/page_footer.html`` - space below the comments to add Social Media buttons.
-* ``fluent_blogs/entry_detail/comments_css.html``
-* ``fluent_blogs/entry_detail/comments_script.html``
-
-Common appearance:
-
-* ``fluent_blogs/entry_contents_base.html`` - the common appearance of entries in the archive and detail page.
-* ``fluent_blogs/base.html`` - the base template, e.g. to introduce a common sidebar.
-
-
-Shared entry layout
-~~~~~~~~~~~~~~~~~~~
-
-When the layout of individual entries is shared with
-
-* By default, the contents ``fluent_blogs/entry_archive/item.html`` and , based on ``fluent_blogs/entry_archive/item.html`` by default
-
-
-Custom entry models
+Management commands
 -------------------
 
-This applications supports the use of custom models for the blog entries.
-Include the following setting in your project:
+findlinks
+~~~~~~~~~
 
-.. code-block:: python
+This command goes through all registered fields and records the URLs it finds.
+This command does not validate anything. Typically run just after installing
+and configuring django-linkcheck.
 
-    FLUENT_BLOGS_ENTRY_MODEL = 'myapp.ModelName'
+checklinks
+~~~~~~~~~~
 
-This application will use the custom model for feeds, views and the sitemap.
-The model can either inherit from the following classes:
+For each recorded URL, check and report the validity of the URL. All internal
+links are checked, but only external links that have not been checked during
+the last ``LINKCHECK_EXTERNAL_RECHECK_INTERVAL`` minutes are checked. This
+interval can be adapted per-invocation by using the ``--externalinterval``
+(``-e``) command option (in minutes).
 
-* ``fluent_blogs.models.Entry`` (the default entry)
-* ``fluent_blogs.base_models.AbstractEntry`` (the default entry, as abstract model)
-* A mix of ``fluent_blogs.base_models.AbstractEntryBase`` combined with:
+You can also limit the maximum number of links to be checked by passing a number
+to the ``--limit`` (``--l``) command option.
 
- * ``fluent_blogs.base_models.ExcerptEntryMixin``
- * ``fluent_blogs.base_models.ContentsEntryMixin``
- * ``fluent_blogs.base_models.CommentsEntryMixin``
- * ``fluent_blogs.base_models.CategoriesEntryMixin``
- * ``fluent_blogs.base_models.TagsEntryMixin``
+Settings
+--------
 
-When a custom model is used, the admin needs to be registered manually.
-The admin can inherit from either:
+LINKCHECK_DISABLE_LISTENERS
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-* ``fluent_blogs.admin.AbstractEntryBaseAdmin``
-* ``fluent_blogs.admin.EntryAdmin``
+A setting to totally disable linkcheck, typically when running tests. See also
+the context managers below.
 
-The views are still rendered using the same templates, but you can also override:
+LINKCHECK_EXTERNAL_RECHECK_INTERVAL
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-* ``myapp/modelname_archive_*.html``
-* ``myapp/modelname_detail.html``
-* ``myapp/modelname_feed_description.html``
+Default: 10080 (1 week in minutes)
+
+Will not recheck any external link that has been checked more recently than this value.
+
+LINKCHECK_EXTERNAL_REGEX_STRING
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Default: r'^https?://'
+
+A string applied as a regex to a URL to determine whether it's internal or external.
+
+LINKCHECK_MEDIA_PREFIX
+~~~~~~~~~~~~~~~~~~~~~~
+
+Default: '/media/'
+
+Currently linkcheck tests whether links to internal static media are correct by wrangling the URL to be a local filesystem path.
+
+It strips MEDIA_PREFIX off the interal link and concatenates the result onto settings.MEDIA_ROOT and tests that using os.path.exists
+
+This 'works for me' but it is probably going to break for other people's setups. Patches welcome.
+
+LINKCHECK_RESULTS_PER_PAGE
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Controls pagination.
+
+Pagination is slightly peculiar at the moment due to the way links are grouped by object.
 
 
-Contributing
-------------
+LINKCHECK_MAX_URL_LENGTH
+~~~~~~~~~~~~~~~~~~~~~~~~
 
-This module is designed to be generic, and easy to plug into your site.
-In case there is anything you didn't like about it, or think it's not
-flexible enough, please let us know. We'd love to improve it!
+Default: 255
 
-If you have any other valuable contribution, suggestion or idea,
-please let us know as well because we will look into it.
-Pull requests are welcome too. :-)
+The length of the URL field. Defaults to 255 for compatibility with MySQL (see http://docs.djangoproject.com/en/dev/ref/databases/#notes-on-specific-fields )
 
 
+LINKCHECK_CONNECTION_ATTEMPT_TIMEOUT
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. _DISQUS: http://disqus.com/
-.. _django-blog-zinnia: http://django-blog-zinnia.com/documentation/
-.. _django.contrib.syndication: https://docs.djangoproject.com/en/dev/ref/contrib/syndication/
-.. _django-contrib-comments: https://django-contrib-comments.readthedocs.io/
-.. _django.contrib.sitemaps: https://docs.djangoproject.com/en/dev/ref/contrib/sitemaps/
-.. _django-categories: https://github.com/callowayproject/django-categories
-.. _django-categories-i18n: https://github.com/django-parler/django-categories-i18n
-.. _django-fluent-comments: https://github.com/django-fluent/django-fluent-comments
-.. _django-fluent-contents: https://github.com/django-fluent/django-fluent-contents
-.. _django-fluent-pages: https://github.com/django-fluent/django-fluent-pages
-.. _django-parler: https://github.com/django-parler/django-parler
-.. _django-polymorphic: https://github.com/bconstantin/django_polymorphic
-.. _django-taggit: https://github.com/alex/django-taggit
-.. _django-taggit-autocomplete-modified: http://packages.python.org/django-taggit-autocomplete-modified/
-.. _Facebook-comments: https://developers.facebook.com/docs/reference/plugins/comments/
+Default: 10
 
+The timeout in seconds for each connection attempts. Sometimes it is useful to limit check time per connection in order to hold at bay the total check time.
+
+
+SITE_DOMAIN and LINKCHECK_SITE_DOMAINS
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Linkcheck tests external and internal using differently. Internal links use the Django test client whereas external links are tested using urllib2.
+
+Testing internal links this as if they were external can cause errors in some circumstances so Linkcheck needs to know which external urls are to be treated as internal.
+
+Linkcheck looks for either of the settings above. It only uses SITE_DOMAIN if LINKCHECK_SITE_DOMAINS isn't present
+
+
+SITE_DOMAIN = "mysite.com"
+
+would tell linkchecker to treat the following as internal links:
+
+mysite.com
+www.mysite.com
+test.mysite.com
+
+If you instead set LINKCHECK_SITE_DOMAINS to be a list or tuple then you can explicitly list the domains that should be treated as internal.
+
+
+django-filebrowser integration
+------------------------------
+
+If django-filebrowser is present on your path then linkcheck will listen to the post-upload, delete and rename signals and update itself according
+
+
+Running tests
+-------------
+
+Tests can be run standalone by using the runtests.py script in linkcheck root:
+    $ python runtests.py
+
+If you want to run linkcheck tests in the context of your project, you should include 'linkcheck.tests.sampleapp' in your INSTALLED_APPS setting.
+
+Linkcheck gives you two context managers to enable or disable listeners in your
+own tests. For example:
+
+    def test_something_without_listeners(self):
+        with listeners.disable_listeners():
+            # Create/update here without linkcheck intervening.
+
+In the case you defined the LINKCHECK_DISABLE_LISTENERS setting, you can
+temporarily enable it by:
+
+    def test_something_with_listeners(self):
+        with listeners.enable_listeners():
+            # Create/update here and see linkcheck activated.

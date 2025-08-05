@@ -1,0 +1,106 @@
+name: Test Python and Django Compatibility
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - python: 3.5
+            django: Django==1.11.*
+          - python: 3.5
+            django: Django==2.0.*
+          - python: 3.5
+            django: Django==2.1.*
+          - python: 3.5
+            django: Django==2.2.*
+          - python: 3.5
+            django: Django==3.0.*
+          - python: 3.5
+            django: Django==3.1.*
+          - python: 3.5
+            django: Django==3.2.*
+          - python: 3.6
+            django: Django==1.11.*
+          - python: 3.6
+            django: Django==2.0.*
+          - python: 3.6
+            django: Django==2.1.*
+          - python: 3.6
+            django: Django==2.2.*
+          - python: 3.6
+            django: Django==3.0.*
+          - python: 3.6
+            django: Django==3.1.*
+          - python: 3.6
+            django: Django==3.2.*
+          - python: 3.7
+            django: Django==1.11.*
+          - python: 3.7
+            django: Django==2.0.*
+          - python: 3.7
+            django: Django==2.1.*
+          - python: 3.7
+            django: Django==2.2.*
+          - python: 3.7
+            django: Django==3.0.*
+          - python: 3.7
+            django: Django==3.1.*
+          - python: 3.7
+            django: Django==3.2.*
+          - python: 3.8
+            django: Django==1.11.*
+          - python: 3.8
+            django: Django==2.0.*
+          - python: 3.8
+            django: Django==2.1.*
+          - python: 3.8
+            django: Django==2.2.*
+          - python: 3.8
+            django: Django==3.0.*
+          - python: 3.8
+            django: Django==3.1.*
+          - python: 3.8
+            django: Django==3.2.*
+          - python: 3.9
+            django: Django==1.11.*
+          - python: 3.9
+            django: Django==2.0.*
+          - python: 3.9
+            django: Django==2.1.*
+          - python: 3.9
+            django: Django==2.2.*
+          - python: 3.9
+            django: Django==3.0.*
+          - python: 3.9
+            django: Django==3.1.*
+          - python: 3.9
+            django: Django==3.2.*
+        exclude:
+          - python: 3.5
+            django: Django==3.0.*
+          - python: 3.5
+            django: Django==3.1.*
+          - python: 3.5
+            django: Django==3.2.*
+    steps:
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Install dependencies
+        run: |
+          pip install $DJANGO
+          pip install requests
+          pip install -e .
+      - name: Run tests
+        run: python runtests.py
