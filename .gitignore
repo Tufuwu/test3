@@ -1,8 +1,10 @@
-*.pyc
-*.egg-info
-dist/
 .DS_Store
-.mypy_cache
-.coverage
-env/
-build/
+*.py[co]
+.cache
+__pycache__
+*.html
+/tmp/
+.idea/
+.scannerwork/
+.env
+.pytest_cache/

@@ -1,0 +1,33 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+    - uses: actions/setup-java@v1
+      with:
+        java-version: 8
+    - run: bash scripts/install.sh
+    - run: bash scripts/run_tests.sh
+    - name: Cache Sonar
+      uses: actions/cache@v4
+      with:
+        path: $HOME/.sonar/cache
+        key: sonar-cache
+    - name: SonarCloud Analysis
+      if: ${{ !github.event.pull_request }}
+      run: |
+        sonar-scanner
+    env:
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
