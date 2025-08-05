@@ -10,6 +10,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         python: [ "3.7", "3.8", "pypy3.5"]
     steps:
@@ -22,8 +23,3 @@ jobs:
         run: python setup.py develop
       - name: Run tests
         run: python -m pytest
-      - name: Slack notification
-        uses: honglu/notify@v1
-        with:
-          webhook: ${{ secrets.SLACK_WEBHOOK }}
-          message: "Build succeeded on Python ${{ matrix.python }}"
