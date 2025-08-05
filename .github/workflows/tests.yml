@@ -2,7 +2,7 @@ name: Test Python Versions
 on: [push, pull_request]
 jobs:
   test:
-    runs-on: ubuntu-focal
+    runs-on: ubuntu-22.04
     strategy:
       fail-fast: falae
       matrix:
