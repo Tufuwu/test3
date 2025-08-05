@@ -1,13 +1,26 @@
-![Hackerman](https://www.gravatar.com/avatar/2090713a50fcdae69b802e73815000a4?s=328&d=identicon&r=PG )
+# The gpodder.net Client Library
 
+This library provides an easy and structured way to access the
+gpodder.net web services. In addition to subscription list
+synchronization and storage, the advanced API support allows
+to upload and download episode status changes.
 
-|-----------------------|-----------------------------------------------------------------------------------------|
-| Build Status          | ![Build Status](https://secure.travis-ci.org/getslash/flux.png?branch=master,develop)   |
-| Supported Versions    | ![Supported Versions](https://img.shields.io/pypi/pyversions/flux.svg)                  |
-| Latest Version        | ![Latest Version](https://img.shields.io/pypi/v/flux.svg)                               |
+The source of this library is managed in a Git repository at
 
+ - https://github.com/gpodder/mygpoclient
 
-# What is Flux?
-Flux is a Python library enabling you to create virtual timelines and use them to test long processes.
+Documentation can be read online at
 
-For more details, see the documentation at http://flux.readthedocs.org
+    http://mygpoclient.readthedocs.io/
+
+If you have any questions, please don't hesitate to contact
+the gPodder developers mailing list at
+
+ - gpodder@freelists.org
+
+You can report bugs and problems that you find on GitHub at
+
+ - https://github.com/gpodder/gpodder/issues
+
+Thank you for your interest in the mygpoclient library!
+

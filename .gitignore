@@ -1,11 +1,7 @@
+/doc/_build
+__pycache__
 *.pyc
-.vagrant
-*.egg-info
-build
-.tox
-dist
-.eggs
-.env
-AUTHORS
-ChangeLog
-.venv
+docs/
+*~
+*#
+/.coverage
