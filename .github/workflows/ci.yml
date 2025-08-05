@@ -20,7 +20,7 @@ jobs:
     - name: Install dependencies
       run: |
         pip install -r requirements.txt
-        pip install codecov coverage
+        pip install codecov coverage nose
     - name: Run tests
       run: |
         nosetests --verbose --with-coverage --cover-erase --cover-package=catkin_lint test
