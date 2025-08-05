@@ -25,4 +25,6 @@ jobs:
       run: |
         CFLAGS="-O0" pip install . --upgrade
     - name: Run tests
-      run: ./runtests.sh
+      run: |
+        chmod +x ./runtests.sh
+        ./runtests.sh
