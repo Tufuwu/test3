@@ -33,3 +33,5 @@ jobs:
           python -m feedgen rss
       - name: Upload coverage
         run: coveralls
+        env: 
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
