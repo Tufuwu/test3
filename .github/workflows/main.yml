@@ -80,7 +80,7 @@ jobs:
           esac
 
       - name: Deploy to PyPI
-        if: ${{ github.event_name == 'push' && github.ref_type == 'tag' }}
+
         run: |
           python setup.py sdist bdist_wheel upload
         env:
