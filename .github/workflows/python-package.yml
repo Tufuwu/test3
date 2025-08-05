@@ -19,6 +19,9 @@ jobs:
         with:
           python-version: ${{ matrix.python }}
       - name: Install dependencies
-        run: python setup.py develop
+        run: |
+          pip install pytest
+          python setup.py develop
+
       - name: Run tests
         run: python -m pytest
