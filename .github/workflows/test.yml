@@ -43,7 +43,6 @@ jobs:
           python -c 'import pytorch_memlab'
           pytest test/test_mem_reporter.py
       - name: Deploy to PyPI
-        if: ${{ matrix.python-version == '3.8' && github.event_name == 'push' && github.ref_type == 'tag' }}
         run: |
           python setup.py sdist bdist_wheel
           twine upload dist/*
