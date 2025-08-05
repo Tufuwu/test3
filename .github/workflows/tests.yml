@@ -19,7 +19,7 @@ jobs:
           python-version: ${{ matrix.python }}
       - name: Install dependencies
         run: |
-          pip install bandit flake8 python-coveralls 'coverage<6.0' liccheck wheel
+          pip install bandit flake8 coveralls coverage liccheck wheel
           pip install -r requirements.txt
           python setup.py bdist_wheel
           pip install dist/feedgen*
