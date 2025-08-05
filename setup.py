@@ -1,47 +1,53 @@
-#!/usr/bin/env python
+import os
 
-from setuptools import setup
+from setuptools import find_packages, setup
+
+basedir = os.path.dirname(__file__)
+
+
+def readme():
+    with open(os.path.join(basedir, 'README.rst')) as f:
+        return f.read()
+
+
+about = {}
+with open(os.path.join(basedir, 'src', 'flake8_aaa', '__about__.py')) as f:
+    exec(f.read(), about)  # yapf: disable
 
 setup(
-    name='topy',
-    version='1.1.0',
+    # --- META ---
+    name=about['__iam__'],
+    version=about['__version__'],
+    description=about['__description__'],
+    license='MIT',
+    long_description=readme(),
+    author='James Cooke',
+    author_email='github@jamescooke.info',
+    url='https://github.com/jamescooke/flake8-aaa',
 
-    # PyPI metadata
-    author='Marti Raudsepp',
-    author_email='marti@juffo.org',
-    url='https://github.com/intgr/topy',
-    download_url='https://pypi.python.org/pypi/topy/',
-    license='MIT, CC-BY-SA',
-    description='Fixes typos in text using regular expressions, based on RegExTypoFix from Wikipedia',
-    long_description=open('README.rst').read(),
-    platforms='any',
-    keywords='typo spelling grammar text',
+    # --- Python ---
+    packages=find_packages('src'),
+    package_dir={'': 'src'},
+    python_requires='>=3.6, <4',
+    install_requires=[
+        'asttokens >= 2',
+    ],
+    entry_points={
+        'flake8.extension': [
+            'AAA = flake8_aaa:Checker',
+        ],
+    },
     classifiers=[
-        # https://pypi.python.org/pypi?%3Aaction=list_classifiers
-        'Development Status :: 5 - Production/Stable',
-        'Environment :: Console',
+        'Development Status :: 4 - Beta',
+        'Framework :: Flake8',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: MIT License',
-        # Until we have a test suite we're conservative about Python version compatibility claims
+        'Programming Language :: Python :: 3 :: Only',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
-        'Programming Language :: Python :: 3.9',
-        'Programming Language :: Python :: 3.10',
-        'Programming Language :: Python :: 3.11',
-        'Topic :: Documentation',
-        'Topic :: Software Development :: Quality Assurance',
-        'Topic :: Text Processing :: Filters',
+        'Programming Language :: Python',
     ],
-
-    # Installation settings
-    packages=['topy'],
-    entry_points={'console_scripts': ['topy = topy.topy:main']},
-    package_data={
-        '': ['*.txt']
-    },
-    install_requires=[
-        'regex>=2016.07.14',
-        'beautifulsoup4',
-    ],
-    test_suite='tests',
+    zip_safe=False,
 )

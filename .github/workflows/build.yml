@@ -1,0 +1,28 @@
+name: Test with Python
+on:
+  push:
+    branches:
+      - main
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.6", "3.7", "3.8"]
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install tox
+      run: pip install tox
+    - name: Run tests
+      run: |
+        python_version=${{ matrix.python-version }}
+        python_version=${python_version//./-}
+        pattern="py${python_version}-"
+        TOXENV=$(tox --listenvs | grep "$pattern" | tr '\n' ',')
+        export TOXENV
+        tox
