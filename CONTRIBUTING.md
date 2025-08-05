@@ -1,18 +1,49 @@
-## Contributing to hickle
+# How to contribute
 
-Thanks for thinking about contributing to hickle, improvements and bugfixes are most welcome. 
+Bug reports in the issue tracker and pull requests are welcome.
 
-The following is a brief set of guidelines (not rules) for contributing:
+## Pull request
 
-* **Be nice.** Please follow the [code of conduct](https://github.com/telegraphic/hickle/blob/master/CODE_OF_CONDUCT.md).
-* **Squashing bugs.** If you find a bug, please [open an issue](https://github.com/telegraphic/hickle/issues), with some simple steps on how to reproduce it. Try not to make duplicate requests.
-* **Feature requests.** Feel free to make feature requests, also by [opening an issue](https://github.com/telegraphic/hickle/issues). Be clear about what it is and why it would be awesome.
-* **Pull requests.** If you add a cool feature you think would be useful broadly, please issue a pull request with some notes on what it does.
-* **Git comments.** Try and make these clear, even if concise. 
-* **Major changes.** As quite a few people use this package, we have tried to maintain backwards compatibility as much as possible. As such, please open a discussion before you start your quest, to make sure the changes can be merged without upset.
-* **Unit tests.** If you add new functionality, please write a unit test (if you're familiar with how to). This should be places in the `./tests` directory, and will run with py.test.
-* **Travis-CI.** When you issue a pull request, Travis-CI will automatically run the unit tests. You can test yourself by running `cd tests; coverage run --source=hickle -m py.test`.
-* **Style.** Try and keep your code Py2.7 and Py3 compatible, and roughly follow [PEP8](https://www.python.org/dev/peps/pep-0008/) with [google style docstrings](https://sphinxcontrib-napoleon.readthedocs.io/en/latest/example_google.html).
-* **Beginners welcome.** If you're not yet comfortable with some of the fancier things mentioned above, do your best! Just package up your idea/thought/code and [open an issue](https://github.com/telegraphic/hickle/issues) with some clear details.
+1. Fork the repository at github.
+2. Clone your fork.
 
-That's about it. Happy contributing!
+    ```sh
+    git clone https://github.com/YOUR_GIT_USERNAME/pymysensors.git
+    cd pymysensors
+    ```
+
+3. Add the main repository as upstream.
+
+    ```sh
+    git remote add upstream https://github.com/theolind/pymysensors.git
+    ```
+
+4. Create a feature branch based off master branch.
+
+    ```sh
+    git checkout -b cool_new_feature master
+    ```
+
+5. Make your changes in the new topic branch. New features should preferably be accompanied with new tests. PEP8 and PEP257 style should be followed. We use pylint and flake8 as code linters.
+6. Test with tox and make sure existing tests don't fail. Linting will also be checked when tox is run.
+
+    ```sh
+    pip3 install -r requirements_dev.txt
+    tox
+    ```
+
+7. Add and commit your work and describe the additions and or changes in the commit message. Use an editor for the commit message, not the command line. Try to keep the header of the commit message within 50 characters and the body within 72 characters per line. A blank line should separate the header from the body of the commit message. Markdown is cool.
+
+    ```sh
+    git add -A
+    git commit
+    ```
+
+8. Push you local changes to your fork.
+
+    ```sh
+    git push origin HEAD
+    ```
+
+9. Create a pull request at github to the main pymysensors repository and target the master branch with your changes.
+10. Watch build checks turn green :white_check_mark:, and get the :thumbsup: in the code review.
