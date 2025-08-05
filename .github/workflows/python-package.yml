@@ -1,0 +1,38 @@
+name: Python Tests
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - python: '3.5'
+            env: TOXENV=py35-django22
+          - python: '3.6'
+            env: TOXENV=py36-django22,py36-django31,py36-django32
+          - python: '3.7'
+            env: TOXENV=py37-django22,py37-django31,py37-django32
+          - python: '3.8'
+            env: TOXENV=lint,py38-django22,py38-django31,py38-django32,coverage
+          - python: '3.9'
+            env: TOXENV=py39-django22,py39-django31,py39-django32
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Install dependencies
+        run: |
+          pip install tox codecov
+      - name: Run tests
+        run: tox
+      - name: Upload coverage
+        run: codecov
