@@ -1,15 +1,22 @@
-.*
-*.pyc
-*.eggi*
-*.egg-info
-*.orig
-**/_build/*
-bin/*
-build/*
-dist/*
-include/*
-lib/*
-src/*
-!.gitignore
-venv*
-!.github
+*.py[co]
+*.swp
+.pytest_cache/
+
+# coverage
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+
+# distutils files
+build/
+dist
+MANIFEST
+isodatetime.egg-info/
+metomi_isodatetime.egg-info/
+.eggs
+node_modules/
+
+# editor files
+.vscode/
+.idea/

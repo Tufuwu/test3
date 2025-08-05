@@ -1,0 +1,69 @@
+name: CI
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macOS-latest]
+        python: [3.5, 3.6, 3.7, 3.8, 3.9-dev]
+        env: [RUN_COVERAGE=false, RUN_COVERAGE=true]
+        include:
+          - os: macOS-latest
+            python: 3.8
+            env: RUN_COVERAGE=false
+            TZ: XXX-05:30
+    runs-on: ${{ matrix.os }}
+    env:
+      TZ: ${{ matrix.TZ }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python }}
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip setuptools
+          pip install -e .[all]
+          pip install pytest-xdist pycodestyle
+
+      - name: Lint with flake8
+        run: |
+          flake8 metomi/isodatetime
+
+      - name: Run tests
+        run: |
+          PYTEST_ARGS=('-n' '2')
+          if [ "$RUN_COVERAGE" = "true" ]; then
+            PYTEST_ARGS+=('--cov=metomi/isodatetime')
+          fi
+
+          pytest "${PYTEST_ARGS[@]}" &
+          TEST_PID="$!"
+          minutes=0
+          limit=50
+          while ps -p "${TEST_PID}" >/dev/null 2>&1; do
+            echo -n -e " \b"
+            if ((minutes == limit)); then
+              exit 1
+            fi
+            minutes=$((minutes + 1))
+            sleep 60
+          done
+          wait "${TEST_PID}"
+
+      - name: Generate coverage report
+        run: |
+          coverage xml --ignore-errors
+          if [ "$RUN_COVERAGE" = "true" ]; then
+            bash <(curl -s https://codecov.io/bash)
+          fi
