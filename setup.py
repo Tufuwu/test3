@@ -32,6 +32,7 @@ setup(
     extras_require={
         'ipython': ['IPython>=0.13'],
         'test': ['pytest'],
+        'numpy':['numpy==1.19.5']
     },
     packages=find_packages(),
 )
