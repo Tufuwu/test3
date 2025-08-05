@@ -15,14 +15,16 @@ except ImportError:
 
 install_dependencies = (
     'requests',
-    'six'
+    'six',
+    'urllib3<2.0',
 )
 test_requirements = (
     'mock',
     'pyhamcrest',
     'pylama',
     'pytest',
-    'requests_mock'
+    'requests_mock',
+    'urllib3<2.0',
 )
 setup(
     name="python-owasp-zap-v2.4",
