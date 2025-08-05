@@ -23,6 +23,7 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -U --force-reinstall setuptools pip
+        chmod +x ./setup.py
         ./setup.py develop
         pip install -e '.[tests]'
     - name: Run pylama
