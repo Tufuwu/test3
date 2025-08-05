@@ -63,7 +63,7 @@ jobs:
       - name: Install tox
         run: pip install tox
       - name: Run tests
-        run: tox -e $TOXENV
+        run: tox -e ${{ matrix.toxenv }}
       - name: Run coverage report
 
         run: tox -e coverage-report
