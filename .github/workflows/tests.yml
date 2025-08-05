@@ -44,6 +44,7 @@ jobs:
     - name: Install dependencies
       run: |
         export GEOS_INSTALL=${{ github.workspace }}/geosinstall/geos-${{ matrix.geos-version }}
+        chmod +x ./ci/install_geos.sh
         ./ci/install_geos.sh
         pip install --disable-pip-version-check --upgrade pip
         pip install --upgrade wheel
