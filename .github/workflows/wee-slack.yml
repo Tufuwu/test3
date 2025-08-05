@@ -1,0 +1,34 @@
+name: Python CI
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ['3.9']
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python }}
+    - name: Cache pip
+      uses: actions/cache@v4
+      with:
+        path: ~/.cache/pip
+        key: ${{ matrix.python }}-pip
+        restore-keys: |
+          ${{ matrix.python }}-pip
+    - name: Install dependencies
+      run: |
+        pip install pipenv
+        pipenv install --dev --system
+    - name: Lint with flake8
+      run: |
+        flake8 .
+        flake8 . --exit-zero --select=C,E,F,W
+    - name: Test with pytest
+      run: pytest

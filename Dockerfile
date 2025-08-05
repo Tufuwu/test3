@@ -1,27 +1,36 @@
-FROM debian:9.6
+# Usage:
+# 	Building
+# 		docker build -t wee-slack .
+#	Running (no saved state)
+# 		docker run -it \
+#			-v /etc/localtime:/etc/localtime:ro \ # for your time
+# 			wee-slack
+# 	Running (saved state)
+# 		docker run -it \
+#			-v /etc/localtime:/etc/localtime:ro \ # for your time
+# 			-v "${HOME}/.weechat:/home/user/.weechat" \
+# 			wee-slack
+#
+FROM alpine:latest
 
-RUN apt-get update
-RUN apt-get --yes install apache2
-RUN apt-get --yes install python
-RUN apt-get --yes install ca-certificates
+RUN apk add --no-cache \
+	ca-certificates \
+	python \
+	py-pip \
+	weechat \
+	weechat-perl \
+	weechat-python
 
-RUN a2dissite 000-default
+RUN pip install websocket-client
 
-RUN a2enmod cgid
-RUN a2enmod rewrite
-RUN echo 'ServerName feedvalidator.org' >>/etc/apache2/apache2.conf
+ENV HOME /home/user
 
-WORKDIR /feedvalidator
+COPY wee_slack.py /home/user/.weechat/python/autoload/wee_slack.py
 
-ADD . /feedvalidator
-ADD sites-available-feedvalidator.conf /etc/apache2/sites-available/feedvalidator.conf
+RUN adduser -S user -h $HOME \
+	&& chown -R user $HOME
 
-RUN a2ensite feedvalidator
+WORKDIR $HOME
+USER user
 
-EXPOSE 80
-
-ENV HTTP_HOST https://feedvalidator.org/
-ENV SCRIPT_NAME check.cgi
-ENV SCRIPT_FILENAME /feedvalidator/check.cgi
-
-CMD ["/usr/sbin/apache2ctl", "-D", "FOREGROUND"]
+ENTRYPOINT [ "weechat" ]
