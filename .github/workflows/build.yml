@@ -1,0 +1,18 @@
+name: Python package
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        toxenv: [pep8, py3]
+    env:
+      TOXENV: ${{ matrix.toxenv }}
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install dependencies
+        run: pip install -U tox
+      - name: Run tests
+        run: tox
