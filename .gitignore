@@ -1,14 +1,16 @@
-venv/
-docs/build
+# Byte-compiled / optimized / DLL files
 __pycache__/
+*.py[cod]
+*$py.class
+
+# Distribution / packaging
+build/
+dist/
 *.egg-info/
 .eggs/
-dist/
-build/
-.pytest_cache/
-.tox/
-*.pyc
-.idea/
-.envrc
-build.sh
-total_downloads.py
+
+# Dev tools
+.idea
+
+# Environments
+/.venv
