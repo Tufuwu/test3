@@ -1,227 +1,216 @@
-The Walrus
-##########
+gsheets
+=======
 
-.. image:: https://circleci.com/gh/XanaduAI/thewalrus/tree/master.svg?style=svg
-    :alt: CircleCI
-    :target: https://circleci.com/gh/XanaduAI/thewalrus/tree/master
+|PyPI version| |License| |Supported Python| |Format|
 
-.. image:: https://ci.appveyor.com/api/projects/status/9udscqldo1xd25yk/branch/master?svg=true
-    :alt: Appveyor
-    :target: https://ci.appveyor.com/project/josh146/hafnian/branch/master
+|Build| |Codecov| |Readthedocs-stable| |Readthedocs-latest|
 
-.. image:: https://img.shields.io/codecov/c/github/xanaduai/thewalrus/master.svg?style=flat
-    :alt: Codecov coverage
-    :target: https://codecov.io/gh/XanaduAI/thewalrus
+``gsheets`` is a small wrapper around the `Google Sheets API`_ (v4) to provide
+more convenient access to `Google Sheets`_ from Python scripts.
 
-.. image:: https://img.shields.io/codacy/grade/df94d22534cf4c05b1bddcf697011a82.svg?style=flat
-    :alt: Codacy grade
-    :target: https://app.codacy.com/app/XanaduAI/thewalrus?utm_source=github.com&utm_medium=referral&utm_content=XanaduAI/thewalrus&utm_campaign=badger
+`Turn on the API`_, download an OAuth client ID as JSON file, and create a
+``Sheets`` object from it. Use its index access (``__getitem__``) to retrieve
+SpreadSheet objects by their id, or use ``.get()`` with a sheet URL.
+Iterate over the ``Sheets`` object for all spreadsheets, or fetch spreadsheets
+by title with the ``.find()`` and ``.findall()`` methods.
 
-.. image:: https://img.shields.io/readthedocs/the-walrus.svg?style=flat
-    :alt: Read the Docs
-    :target: https://the-walrus.readthedocs.io
+SpreadSheet objects are collections of WorkSheets, which provide access to the
+cell values via spreadsheet coordinates/slices (e.g. ``ws['A1']``) and
+zero-based cell position (e.g. ``ws.at(0, 1)``).
 
-.. image:: https://img.shields.io/pypi/pyversions/thewalrus.svg?style=flat
-    :alt: PyPI - Python Version
-    :target: https://pypi.org/project/thewalrus
+Save WorkSheets (or all from a SpreadSheet) as CSV files with the
+``.to_csv()``-method. Create ``pandas.DataFrames`` from worksheet with the
+``.to_frame()``-method.
 
-.. image:: https://joss.theoj.org/papers/10.21105/joss.01705/status.svg
-    :alt: JOSS - The Journal of Open Source Software
-    :target: https://doi.org/10.21105/joss.01705
 
-A library for the calculation of hafnians, Hermite polynomials and Gaussian boson sampling. For more information, please see the `documentation <https://the-walrus.readthedocs.io>`_.
+Links
+-----
 
-Features
-========
-
-* Fast calculation of hafnians, loop hafnians, and torontonians of general and certain structured matrices.
-
-* An easy to use interface to use the loop hafnian for Gaussian quantum state calculations.
-
-* Sampling algorithms for hafnian and torontonians of graphs.
-
-* Efficient classical methods for approximating the hafnian of non-negative matrices.
-
-* Easy to use implementations of the multidimensional Hermite polynomials, which can also be used to calculate hafnians of all reductions of a given matrix.
+- GitHub: https://github.com/xflr6/gsheets
+- PyPI: https://pypi.org/project/gsheets/
+- Documentation: https://gsheets.readthedocs.io
+- Changelog: https://gsheets.readthedocs.io/en/latest/changelog.html
+- Issue Tracker: https://github.com/xflr6/gsheets/issues
+- Download: https://pypi.org/project/gsheets/#files
 
 
 Installation
-============
+------------
 
-Pre-built binary wheels are available for the following platforms:
+This package runs under Python 3.6+, use pip_ to install:
 
-+------------+-------------+------------------+---------------+
-|            | macOS 10.6+ | manylinux x86_64 | Windows 64bit |
-+============+=============+==================+===============+
-| Python 3.6 |      X      |        X         |       X       |
-+------------+-------------+------------------+---------------+
-| Python 3.7 |      X      |        X         |       X       |
-+------------+-------------+------------------+---------------+
-| Python 3.8 |      X      |        X         |       X       |
-+------------+-------------+------------------+---------------+
+.. code:: bash
 
-To install, simply run
+    $ pip install gsheets
 
-.. code-block:: bash
+This will also install google-api-python-client_ and its dependencies, notably
+httplib2_ and oauth2client_, as required dependencies.
 
-    pip install thewalrus
 
+Quickstart
+----------
 
-Compiling from source
-=====================
+Log into the `Google Developers Console`_ with the Google account whose
+spreadsheets you want to access. Create (or select) a project and enable the
+**Drive API** and **Sheets API** (under **Google Apps APIs**).
 
-The Walrus depends on the following Python packages:
+Go to the **Credentials** for your project and create **New credentials** >
+**OAuth client ID** > of type **Other**. In the list of your **OAuth 2.0 client
+IDs** click **Download JSON** for the Client ID you just created. Save the
+file as ``client_secrets.json`` in your home directory (user directory).
+Another file, named ``storage.json`` in this example, will be created after
+successful authorization to cache OAuth data.
 
-* `Python <http://python.org/>`_ >= 3.6
-* `NumPy <http://numpy.org/>`_  >= 1.13.3
-* `Numba <https://numba.pydata.org/>`_ >= 0.43.1
+On you first usage of ``gsheets`` with this file (holding the client secrets),
+your webbrowser will be opened, asking you to log in with your Google account
+to authorize this client read access to all its Google Drive files and Google
+Sheets.
 
-In addition, to compile the C++ extension, the following dependencies are required:
+Create a sheets object:
 
-* A C++11 compiler, such as ``g++`` >= 4.8.1, ``clang`` >= 3.3, ``MSVC`` >= 14.0/2015
-* `Eigen3 <http://eigen.tuxfamily.org/index.php?title=Main_Page>`_ - a C++ header library for linear algebra.
-* `Cython <https://cython.org/>`_ an optimising static compiler for the Python programming language.
+.. code:: python
 
-On Debian-based systems, these can be installed via ``apt`` and ``curl``:
+    >>> from gsheets import Sheets
 
-.. code-block:: console
+    >>> sheets = Sheets.from_files('~/client_secrets.json', '~/storage.json')
+    >>> sheets  #doctest: +ELLIPSIS
+    <gsheets.api.Sheets object at 0x...>
 
-    $ sudo apt install g++ libeigen3-dev
-    $ pip install Cython
+Fetch a spreadsheet by id or url:
 
-or using Homebrew on MacOS:
+.. code:: python
 
-.. code-block:: console
+    # id only
+    >>> sheets['1dR13B3Wi_KJGUJQ0BZa2frLAVxhZnbz0hpwCcWSvb20']
+    <SpreadSheet 1dR13...20 'Spam'>
 
-    $ brew install gcc eigen
-    $ pip install Cython
+    # id or url
+    >>> url = 'https://docs.google.com/spreadsheets/d/1dR13B3Wi_KJGUJQ0BZa2frLAVxhZnbz0hpwCcWSvb20'
+    >>> s = sheets.get(url)  
+    >>> s
+    <SpreadSheet 1dR13...20 'Spam'>
 
-Alternatively, you can download the Eigen headers manually:
+Access worksheets and their values:
 
-.. code-block:: console
+.. code:: python
 
-    $ mkdir ~/.local/eigen3 && cd ~/.local/eigen3
-    $ wget https://gitlab.com/libeigen/eigen/-/archive/3.3.7/eigen-3.3.7.tar.gz -O eigen3.tar.gz
-    $ tar xzf eigen3.tar.gz eigen-eigen-323c052e1731/Eigen --strip-components 1
-    $ export EIGEN_INCLUDE_DIR=$HOME/.local/eigen3
+    # first worksheet with title
+    >>> s.find('Tabellenblatt2')
+    <WorkSheet 1747240182 'Tabellenblatt2' (10x2)>
 
-Note that we export the environment variable ``EIGEN_INCLUDE_DIR`` so that The Walrus can find the Eigen3 header files (if not provided, The Walrus will by default look in ``/use/include/eigen3`` and ``/usr/local/include/eigen3``).
+    # worksheet by position, cell value by index
+    >>> s.sheets[0]['A1']
+    'spam'
 
-You can compile the latest development version by cloning the git repository, and installing using pip in development mode.
+    # worksheet by id, cell value by position
+    >>> s[1747240182].at(row=1, col=1)
+    1
 
-.. code-block:: console
+Dump a worksheet to a CSV file:
 
-    $ git clone https://github.com/XanaduAI/thewalrus.git
-    $ cd thewalrus && python -m pip install -e .
+.. code:: python
 
+    >>> s.sheets[1].to_csv('Spam.csv', encoding='utf-8', dialect='excel')
 
-OpenMP
-------
+Dump all worksheet to a CSV file (deriving filenames from spreadsheet and
+worksheet title):
 
-``libwalrus`` uses OpenMP to parallelize both the permanent and the hafnian calculation. **At the moment, this is only supported on Linux using the GNU g++ compiler, due to insufficient support using Windows/MSCV and MacOS/Clang.**
+.. code:: python
 
+    >>> csv_name = lambda infos: '%(title)s - %(sheet)s.csv' % infos
+    >>> s.to_csv(make_filename=csv_name)
 
+Load the worksheet data into a pandas DataFrame (requires ``pandas``):
 
-Using LAPACK, OpenBLAS, or MKL
-------------------------------
+.. code:: python
 
-If you would like to take advantage of the highly optimized matrix routines of LAPACK, OpenBLAS, or MKL, you can optionally compile the ``libwalrus`` such that Eigen uses these frameworks as backends. As a result, all calls in the ``libwalrus`` library to Eigen functions are silently substituted with calls to LAPACK/OpenBLAS/MKL.
+    >>> s.find('Tabellenblatt2').to_frame(index_col='spam')
+          eggs
+    spam      
+    spam  eggs
+    ...
 
-For example, for LAPACK integration, make sure you have the ``lapacke`` C++ LAPACK bindings installed (``sudo apt install liblapacke-dev`` in Ubuntu-based Linux distributions), and then compile with the environment variable ``USE_LAPACK=1``:
+``WorkSheet.to_frame()`` passes its kwargs on to ``pandas.read_csv()`` 
 
-.. code-block:: console
 
-    $ USE_LAPACK=1 python -m pip install thewalrus --no-binary :all:
+See also
+--------
 
-Alternatively, you may pass ``USE_OPENBLAS=1`` to use the OpenBLAS library.
-
-
-Software tests
-==============
-
-To ensure that The Walrus library is working correctly after installation, the test suite can be run by navigating to the source code folder and running
-
-.. code-block:: console
-
-    $ make test
-
-To run the low-level C++ test suite, `Googletest <https://github.com/google/googletest>`_
-will need to be installed. In Ubuntu-based distributions, this can be done as follows:
-
-.. code-block:: console
-
-    sudo apt-get install cmake libgtest-dev
-
-Alternatively, the latest Googletest release can be installed from source:
-
-.. code-block:: console
-
-    sudo apt install cmake
-    wget -qO - https://github.com/google/googletest/archive/release-1.8.1.tar.gz | tar -xz
-    cmake -D CMAKE_INSTALL_PREFIX:PATH=$HOME/googletest -D CMAKE_BUILD_TYPE=Release googletest-release-1.8.1
-    make install
-
-If installing Googletest from source, make sure that the included headers and
-libraries are available on your include/library paths.
-
-Documentation
-=============
-
-The Walrus documentation is available online on `Read the Docs <https://the-walrus.readthedocs.io>`_.
-
-To build it locally, you need to have the following packages installed:
-
-* `Sphinx <http://sphinx-doc.org/>`_ >= 1.5
-* `sphinxcontrib-bibtex <https://sphinxcontrib-bibtex.readthedocs.io/en/latest/>`_ >= 0.3.6
-* `nbsphinx <https://github.com/spatialaudio/nbsphinx>`_
-* `Pandoc <https://pandoc.org/>`_
-* `breathe <https://breathe.readthedocs.io/en/latest/>`_ >= 4.12.0
-* `exhale <https://exhale.readthedocs.io/en/latest/>`_
-* `Doxygen <http://www.doxygen.nl/>`_
-
-They can be installed via a combination of ``pip`` and ``apt`` if on a Debian-based system:
-::
-
-    $ sudo apt install pandoc doxygen
-    $ pip3 install sphinx sphinxcontrib-bibtex nbsphinx breathe exhale
-
-To build the HTML documentation, go to the top-level directory and run the command
-
-.. code-block:: console
-
-    $ make doc
-
-The documentation can then be found in the ``docs/_build/html/`` directory.
-
-Contributing to The Walrus
-==========================
-
-We welcome contributions - simply fork The Walrus repository, and then make a pull request containing your contribution. All contributors to The Walrus will be listed as authors on the releases.
-
-We also encourage bug reports, suggestions for new features and enhancements, and even links to projects, applications or scientific publications that use The Walrus.
-
-Authors
-=======
-
-Brajesh Gupt, Josh Izaac and Nicolas Quesada.
-
-All contributions are acknowledged in the `acknowledgments page <https://github.com/XanaduAI/thewalrus/blob/master/.github/ACKNOWLEDGMENTS.md>`_.
-
-If you are doing research using The Walrus, please cite `our paper <https://joss.theoj.org/papers/10.21105/joss.01705>`_:
-
- Brajesh Gupt, Josh Izaac and Nicolas Quesada. The Walrus: a library for the calculation of hafnians, Hermite polynomials and Gaussian boson sampling. Journal of Open Source Software, 4(44), 1705 (2019)
-
-
-Support
-=======
-
-- **Source Code:** https://github.com/XanaduAI/thewalrus
-- **Issue Tracker:** https://github.com/XanaduAI/thewalrus/issues
-
-If you are having issues, please let us know by posting the issue on our Github issue tracker.
+- gsheets.py_ |--| self-containd script to dump all worksheets of a Google
+  Spreadsheet to CSV or convert any subsheet to a pandas DataFrame (Python 2
+  prototype for this library)
+- gspread_ |--| Google Spreadsheets Python API (more mature and featureful
+  Python wrapper, currently using the XML-based `legacy v3 API`_)
+- `example Jupyter notebook`_ using gspread_ to fetch a sheet into a pandas
+  DataFrame
+- df2gspread_ |--| Transfer data between Google Spreadsheets and Pandas (build
+  upon gspread_, currently Python 2 only, GPL)
+- pygsheets_ |--| Google Spreadsheets Python API v4 (v4 port of gspread_
+  providing further extensions)
+- gspread-pandas_ |--| Interact with Google Spreadsheet through Pandas DataFrames
+- pgsheets_ |--| Manipulate Google Sheets Using Pandas DataFrames (independent
+  bidirectional transfer library, using the `legacy v3 API`_, Python 3 only)
+- PyDrive_ |--| Google Drive API made easy (google-api-python-client_ wrapper
+  for the `Google Drive`_ API, currently v2) 
 
 
 License
-=======
+-------
 
-The Walrus is **free** and **open source**, released under the Apache License, Version 2.0.
+This package is distributed under the `MIT license`_.
+
+
+.. _Google Sheets API: https://developers.google.com/sheets/
+.. _Google Sheets: https://sheets.google.com
+.. _Google Drive: https://drive.google.com
+.. _Turn on the API: https://developers.google.com/sheets/quickstart/python#step_1_turn_on_the_api_name
+
+.. _pip: https://pip.readthedocs.io
+.. _google-api-python-client: https://pypi.org/project/google-api-python-client/
+.. _httplib2: https://pypi.org/project/httplib2/
+.. _oauth2client: https://pypi.org/project/oauth2client/
+.. _rsa: https://pypi.org/project/rsa/
+
+.. _Google Developers Console: https://console.developers.google.com
+
+.. _gsheets.py: https://gist.github.com/xflr6/57508d28adec1cd3cd047032e8d81266
+.. _gspread: https://pypi.org/project/gspread/
+.. _legacy v3 API: https://developers.google.com/google-apps/spreadsheets/
+.. _example Jupyter notebook: https://gist.github.com/egradman/3b8140930aef97f9b0e4
+.. _df2gspread: https://pypi.org/project/df2gspread/
+.. _pygsheets : https://pypi.org/project/pygsheets/
+.. _gspread-pandas: https://pypi.org/project/gspread-pandas/
+.. _pgsheets: https://pypi.org/project/pgsheets/
+.. _PyDrive: https://pypi.org/project/PyDrive/
+
+.. _MIT license: https://opensource.org/licenses/MIT
+
+
+.. |--| unicode:: U+2013
+
+
+.. |PyPI version| image:: https://img.shields.io/pypi/v/gsheets.svg
+    :target: https://pypi.org/project/gsheets/
+    :alt: Latest PyPI Version
+.. |License| image:: https://img.shields.io/pypi/l/gsheets.svg
+    :target: https://pypi.org/project/gsheets/
+    :alt: License
+.. |Supported Python| image:: https://img.shields.io/pypi/pyversions/gsheets.svg
+    :target: https://pypi.org/project/gsheets/
+    :alt: Supported Python Versions
+.. |Format| image:: https://img.shields.io/pypi/format/gsheets.svg
+    :target: https://pypi.org/project/gsheets/
+    :alt: Format
+
+.. |Build| image:: https://github.com/xflr6/gsheets/actions/workflows/build.yaml/badge.svg?branch=master
+    :target: https://github.com/xflr6/gsheets/actions/workflows/build.yaml?query=branch%3Amaster
+    :alt: Build
+.. |Codecov| image:: https://codecov.io/gh/xflr6/gsheets/branch/master/graph/badge.svg
+    :target: https://codecov.io/gh/xflr6/gsheets
+    :alt: Codecov
+.. |Readthedocs-stable| image:: https://readthedocs.org/projects/gsheets/badge/?version=stable
+    :target: https://gsheets.readthedocs.io/en/stable/?badge=stable
+    :alt: Readthedocs stable
+.. |Readthedocs-latest| image:: https://readthedocs.org/projects/gsheets/badge/?version=latest
+    :target: https://gsheets.readthedocs.io/en/latest/?badge=latest
+    :alt: Readthedocs latest
