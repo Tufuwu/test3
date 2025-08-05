@@ -3,27 +3,22 @@ import setuptools
 with open('README.md', 'r') as fh:
     long_description = fh.read()
 
-requires = [
-    'numpy==1.24.2',
-    'terminaltables==3.1.0',
-    'ortools==9.7.2996',
-]
-
 setuptools.setup(
-    name='draftfast',
-    version='3.9.0',
-    author='Ben Brostoff',
-    author_email='ben.brostoff@gmail.com',
-    description='A tool to automate and optimize DraftKings and FanDuel '
-                'lineup construction.',
+    name='soft-webauthn',
+    version='0.1.3',
+    author='Radoslav Bodó',
+    author_email='bodik@cesnet.cz',
+    description='Python webauthn software authenticator',
     long_description=long_description,
     long_description_content_type='text/markdown',
-    url='https://github.com/BenBrostoff/draftfast',
-    packages=setuptools.find_packages(),
+    url='https://github.com/bodik/soft-webauthn',
+    py_modules=['soft_webauthn'],
+    install_requires=[
+        'fido2>=0.8,<1.0.0',
+        'cryptography'
+    ],
     classifiers=[
         'Programming Language :: Python :: 3',
         'License :: OSI Approved :: MIT License',
-        'Operating System :: OS Independent',
     ],
-    install_requires=requires,
 )
