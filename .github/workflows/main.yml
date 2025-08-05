@@ -48,4 +48,3 @@ jobs:
         run: tox
       - name: Upload coverage
         run: codecov
-        if: always
