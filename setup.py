@@ -1,67 +1,68 @@
-#!/usr/bin/env python
-# Copyright Jonathan Hartley 2013. BSD 3-Clause license, see LICENSE file.
+# To increment version
+# Check you have ~/.pypirc filled in
+# git tag x.y.z
+# git push && git push --tags
+# rm -rf dist; python setup.py sdist bdist_wheel
+# TEST: twine upload --repository-url https://test.pypi.org/legacy/ dist/*
+# twine upload dist/*
 
-from __future__ import with_statement
-
-from io import open
-import os
+from codecs import open
 import re
-try:
-    from setuptools import setup
-except ImportError:
-    from distutils.core import setup
 
+from setuptools import setup, find_packages
+import sys
 
-NAME = 'colorama'
+author = "Danny Price, Ellert van der Velden and contributors"
 
+with open("README.md", "r") as fh:
+    long_description = fh.read()
 
-def read_file(path, encoding='ascii'):
-    with open(os.path.join(os.path.dirname(__file__), path),
-              encoding=encoding) as fp:
-        return fp.read()
+with open("requirements.txt", 'r') as fh:
+    requirements = fh.read().splitlines()
 
-def _get_version_match(content):
-    # Search for lines of the form: # __version__ = 'ver'
-    regex = r"^__version__ = ['\"]([^'\"]*)['\"]"
-    version_match = re.search(regex, content, re.M)
-    if version_match:
-        return version_match.group(1)
-    raise RuntimeError("Unable to find version string.")
+with open("requirements_test.txt", 'r') as fh:
+    test_requirements = fh.read().splitlines()
 
-def get_version(path):
-    return _get_version_match(read_file(path))
+# Read the __version__.py file
+with open('hickle/__version__.py', 'r') as f:
+    vf = f.read()
 
-setup(
-    name=NAME,
-    version=get_version(os.path.join('colorama', '__init__.py')),
-    description='Cross-platform colored terminal text.',
-    long_description=read_file('README.rst'),
-    keywords='color colour terminal text ansi windows crossplatform xplatform',
-    author='Jonathan Hartley',
-    author_email='tartley@tartley.com',
-    maintainer='Arnon Yaari',
-    url='https://github.com/tartley/colorama',
-    license='BSD',
-    packages=[NAME],
-    python_requires='>=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*',
-    # see classifiers https://pypi.org/pypi?%3Aaction=list_classifiers
-    classifiers=[
-        'Development Status :: 5 - Production/Stable',
-        'Environment :: Console',
-        'Intended Audience :: Developers',
-        'License :: OSI Approved :: BSD License',
-        'Operating System :: OS Independent',
-        'Programming Language :: Python',
-        'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.5',
-        'Programming Language :: Python :: 3.6',
-        'Programming Language :: Python :: 3.7',
-        'Programming Language :: Python :: 3.8',
-        'Programming Language :: Python :: 3.9',
-        'Programming Language :: Python :: Implementation :: CPython',
-        'Programming Language :: Python :: Implementation :: PyPy',
-        'Topic :: Terminals',
-    ]
+# Obtain version from read-in __version__.py file
+version = re.search(r"^_*version_* = ['\"]([^'\"]*)['\"]", vf, re.M).group(1)
+
+setup(name='hickle',
+      version=version,
+      description='Hickle - an HDF5 based version of pickle',
+      long_description=long_description,
+      long_description_content_type='text/markdown',
+      author=author,
+      author_email='dan@thetelegraphic.com',
+      url='http://github.com/telegraphic/hickle',
+      download_url=('https://github.com/telegraphic/hickle/archive/v%s.zip'
+                    % (version)),
+      platforms='Cross platform (Linux, Mac OSX, Windows)',
+      classifiers=[
+          'Development Status :: 5 - Production/Stable',
+          'Intended Audience :: Developers',
+          'Intended Audience :: Science/Research',
+          'License :: OSI Approved',
+          'Natural Language :: English',
+          'Operating System :: MacOS',
+          'Operating System :: Microsoft :: Windows',
+          'Operating System :: Unix',
+          'Programming Language :: Python',
+          'Programming Language :: Python :: 3',
+          'Programming Language :: Python :: 3.5',
+          'Programming Language :: Python :: 3.6',
+          'Programming Language :: Python :: 3.7',
+          'Programming Language :: Python :: 3.8',
+          'Topic :: Software Development :: Libraries :: Python Modules',
+          'Topic :: Utilities',
+          ],
+      keywords=['pickle', 'hdf5', 'data storage', 'data export'],
+      install_requires=requirements,
+      tests_require=test_requirements,
+      python_requires='>=3.5',
+      packages=find_packages(),
+      zip_safe=False,
 )
