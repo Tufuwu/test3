@@ -1,6 +1,13 @@
+.. micawber documentation master file, created by
+   sphinx-quickstart on Tue Apr 17 13:43:41 2012.
+   You can adapt this file completely to your liking, but it should at least
+   contain the root `toctree` directive.
+
 .. image:: http://media.charlesleifer.com/blog/photos/micawber-logo-0.png
 
 A small library for extracting rich content from urls.
+
+https://github.com/coleifer/micawber
 
 
 what does it do?
@@ -10,6 +17,7 @@ micawber supplies a few methods for retrieving rich metadata about a variety of
 links, such as links to youtube videos.  micawber also provides functions for
 parsing blocks of text and html and replacing links to videos with rich embedded
 content.
+
 
 examples
 --------
@@ -53,3 +61,34 @@ here is a quick example:
 
     # returns the following html:
     <p><iframe width="459" height="344" src="http://www.youtube.com/embed/54XHDUOHuzU?fs=1&amp;feature=oembed" frameborder="0" allowfullscreen="allowfullscreen"></iframe></p>
+
+check out the :ref:`getting started <getting_started>` for more examples
+
+
+integration with web frameworks
+-------------------------------
+
+* :ref:`flask <flask>`
+* :ref:`django <django>`
+
+Contents:
+
+.. toctree::
+   :maxdepth: 2
+   :glob:
+
+   installation
+   getting_started
+   examples
+   flask
+   django
+   api
+
+
+Indices and tables
+==================
+
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`
+
