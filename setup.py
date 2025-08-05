@@ -28,11 +28,12 @@ setup(
         'calmsize',
         'pandas>=0.18',
         'torch>=1.4',
+        'numpy==1.19.5',
     ],
     extras_require={
         'ipython': ['IPython>=0.13'],
         'test': ['pytest'],
-        'numpy':['numpy==1.19.5']
+        'numpy':['numpy==1.19.5'],
     },
     packages=find_packages(),
 )
