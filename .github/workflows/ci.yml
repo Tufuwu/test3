@@ -51,13 +51,13 @@ jobs:
         run: ./scripts/ci_runtests.sh
       - name: Upload coverage
         run: codecov
-        if:success ():
+        if: ${{ success }}
       - name: Slack notification
         uses: actions/notify-slack@v1
         with:
           webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
           message: "Build succeeded"
-        if:success ():
+        if: ${{ success }}
       - name: Deploy to PyPI
         run: |
           if [[ "$DEPLOY" == "true" ]]; then
