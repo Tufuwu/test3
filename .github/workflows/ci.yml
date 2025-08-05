@@ -1,0 +1,67 @@
+name: CI
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python: [3.6, 3.7, 3.8]
+        env:
+          - DJANGO_VERSION="Django>=3.0,<3.1" RUN_WEB_TESTS=true BROWSER_TAG=chrome_latest DEPLOY=true USE_CUSTOM_MODEL=true
+          - DJANGO_VERSION="Django>=3.0,<3.1" RUN_WEB_TESTS=true BROWSER_TAG=chrome_latest USE_CUSTOM_MODEL=false
+          - DJANGO_VERSION="Django>=3.0,<3.1" RUN_WEB_TESTS=false USE_CUSTOM_MODEL=true
+          - DJANGO_VERSION="Django>=2.2,<2.3" RUN_WEB_TESTS=false USE_CUSTOM_MODEL=true
+          - DJANGO_VERSION="Django>=3.0,<3.1" RUN_WEB_TESTS=false USE_CUSTOM_MODEL=false
+          - DJANGO_VERSION="Django>=2.2,<2.3" RUN_WEB_TESTS=false USE_CUSTOM_MODEL=false
+        exclude:
+          - python: 3.8
+            env: DJANGO_VERSION="Django>=3.0,<3.1" RUN_WEB_TESTS=false USE_CUSTOM_MODEL=true
+          - python: 3.8
+            env: DJANGO_VERSION="Django>=3.0,<3.1" RUN_WEB_TESTS=false USE_CUSTOM_MODEL=false
+          - python: 3.7
+            env: DJANGO_VERSION="Django>=3.0,<3.1" RUN_WEB_TESTS=true BROWSER_TAG=chrome_latest DEPLOY=true USE_CUSTOM_MODEL=true
+          - python: 3.7
+            env: DJANGO_VERSION="Django>=3.0,<3.1" RUN_WEB_TESTS=true BROWSER_TAG=chrome_latest USE_CUSTOM_MODEL=false
+          - python: 3.6
+            env: DJANGO_VERSION="Django>=3.0,<3.1" RUN_WEB_TESTS=true BROWSER_TAG=chrome_latest DEPLOY=true USE_CUSTOM_MODEL=true
+          - python: 3.6
+            env: DJANGO_VERSION="Django>=3.0,<3.1" RUN_WEB_TESTS=true BROWSER_TAG=chrome_latest USE_CUSTOM_MODEL=false
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Install dependencies
+        run: |
+          pip install pip -U
+          pip install codecov
+          grep -v "^django==" requirements.txt > /tmp/reqs.txt
+          pip install -r /tmp/reqs.txt
+          pip install "$DJANGO_VERSION" -U
+      - name: Run tests
+        run: ./scripts/ci_runtests.sh
+      - name: Upload coverage
+        run: codecov
+        if: ${{ success }}
+      - name: Slack notification
+        uses: actions/notify-slack@v1
+        with:
+          webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
+          message: "Build succeeded"
+        if: ${{ success }}
+      - name: Deploy to PyPI
+        run: |
+          if [[ "$DEPLOY" == "true" ]]; then
+            pip install twine
+            twine upload dist/*
+          fi
+        if: ${{ matrix.env contains 'DEPLOY=true' }}
