@@ -64,4 +64,4 @@ jobs:
             pip install twine
             twine upload dist/*
           fi
-        if: ${{ matrix.env contains 'DEPLOY=true' }}
+        if: ${{ matrix.env == 'DEPLOY=true' }}
