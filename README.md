@@ -1,125 +1,202 @@
-# ETIP - εxodus tracker investigation platform
+# εxodus standalone
 
-[![Build Status](https://github.com/Exodus-Privacy/etip/actions/workflows/main.yml/badge.svg?branch=master)](https://github.com/Exodus-Privacy/etip/actions/workflows/main.yml) [![Language grade: Python](https://img.shields.io/lgtm/grade/python/g/Exodus-Privacy/etip.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/Exodus-Privacy/etip/context:python)
+[![Build Status](https://github.com/Exodus-Privacy/exodus-standalone/actions/workflows/main.yml/badge.svg?branch=master)](https://github.com/Exodus-Privacy/exodus-standalone/actions/workflows/main.yml)
 
-ETIP is meant to ease investigations on tracker detection. For the moment, it offers few features:
+εxodus CLI client for local APK static analysis.
 
-* track all modifications on trackers
-* detect rules collisions for both network and code signature
+## Summary
 
-## Contribute to the identification of trackers
+- [**Using Docker**](#using-docker)
+- [**Manual usage**](#manual-usage)
+  - [**Installation**](#installation)
+  - [**Analyze an APK file**](#analyze-an-apk-file)
+  - [**Download an APK from an εxodus instance**](#download-an-apk-from-an-εxodus-instance)
+- [**Continuous Integration**](#continuous-integration)
 
-If you wish to help us identify new trackers, you can **request an ETIP account** by sending a username and an email address to etip@exodus-privacy.eu.org
+## Using Docker
 
-You can also take a look at to the following repositories:
+The easiest way to analyze an APK is to use [our Docker image](https://hub.docker.com/r/exodusprivacy/exodus-standalone).
 
-* <https://github.com/YalePrivacyLab/tracker-profiles>
-* <https://github.com/jawz101/potentialTrackers>
+Simply go to the directory where the APK file is and run:
 
-## Contributing to ETIP development
-
-If you want to contribute to this project, you can refer to [this documentation](CONTRIBUTING.md).
-
-## API
-
-An API is available to help administrate the ETIP database.
-
-### Authenticate
-
-```sh
-POST /api/get-auth-token/
+```bash
+docker run -v $(pwd)/<your apk file>:/app.apk --rm -i exodusprivacy/exodus-standalone
 ```
 
-Example:
-
-```sh
-curl -X POST http://localhost:8000/api/get-auth-token/ --data "username=admin&password=testtest"
-```
-
-You need to include your token as an `Authorization` header in all subsequent requests.
-
-### Get trackers
-
-```sh
-GET /api/trackers/
-```
-
-Example:
-
-```sh
-curl -X GET http://localhost:8000/api/trackers/ -H 'Authorization: Token <your-token>'
-```
-
-## Development environment
+## Manual usage
 
 ### Installation
 
-Clone the project
+Clone this repository:
 
-```sh
-git clone https://github.com/Exodus-Privacy/etip.git
+```bash
+git clone https://github.com/Exodus-Privacy/exodus-standalone.git
+cd exodus-standalone
 ```
 
-Create the Python virtual env
+Install `dexdump`:
 
-```sh
-cd etip
+```bash
+sudo apt-get install dexdump
+```
+
+Create Python `virtualenv`:
+
+```bash
+sudo apt-get install virtualenv
 virtualenv venv -p python3
 source venv/bin/activate
 ```
 
-Install dependencies
+Download and install dependencies:
 
-```sh
+```bash
 pip install -r requirements.txt
 ```
 
-Create the database
+### Analyze an APK file
 
-```sh
-export DJANGO_SETTINGS_MODULE=etip.settings.dev
-cd etip/
-python manage.py migrate
+#### Usage
 
-# Import tracker definitions from the official instance of εxodus
-python manage.py import_trackers
+```bash
+$ python exodus_analyze.py -h
+Usage: exodus_analyze.py [options] apk_file
 
-# Import predefined tracker categories
-python manage.py import_categories
+Options:
+  -h, --help            show this help message and exit
+  -t, --text            print textual report (default)
+  -j, --json            print JSON report
+  -o OUTPUT_FILE, --output=OUTPUT_FILE
+                        store JSON report in file (requires -j option)
 ```
 
-Create admin user
+#### Text output
 
-```sh
-python manage.py createsuperuser
+```bash
+python exodus_analyze.py my_apk.apk
 ```
 
-### Run the tests
+be sure to activate the Python `virtualenv` before running `exodus_analyze.py`.
 
-```sh
-export DJANGO_SETTINGS_MODULE=etip.settings.dev
-python manage.py test
+*Example:*
+
+```bash
+=== Informations
+- APK path: /tmp/tmp1gzosyt4/com.semitan.tan.apk
+- APK sum: 8e85737be6911ea817b3b9f6a80290b85befe24ff5f57dc38996874dfde13ba7
+- App version: 5.7.0
+- App version code: 39
+- App name: Tan Network
+- App package: com.semitan.tan
+- App permissions: 9
+    - android.permission.INTERNET
+    - android.permission.ACCESS_NETWORK_STATE
+    - android.permission.ACCESS_FINE_LOCATION
+    - android.permission.WRITE_EXTERNAL_STORAGE
+    - android.permission.READ_PHONE_STATE
+    - android.permission.VIBRATE
+    - com.semitan.tan.permission.C2D_MESSAGE
+    - com.google.android.c2dm.permission.RECEIVE
+    - android.permission.WAKE_LOCK
+- App libraries: 0
+=== Found trackers
+ - Google Analytics
+ - Google Ads
+ - Google DoubleClick
 ```
 
-### Start the server
+#### JSON output
 
-```sh
-export DJANGO_SETTINGS_MODULE=etip.settings.dev
-python manage.py runserver
+```bash
+python exodus_analyze.py -j [-o report.json] my_apk.apk
 ```
 
-### Useful commands
+be sure to activate the Python `virtualenv` before running `exodus_analyze.py`.
 
-Some admin commands are available to help administrate the ETIP database.
+*Example:*
 
-#### Compare with Exodus
-
-This command retrieves trackers data from an εxodus instance and looks for differences with trackers in the local database.
-
-```sh
-python manage.py compare_with_exodus
+```json
+{
+  "trackers": [
+    {
+      "id": 70,
+      "name": "Facebook Share"
+    },
+    [...]
+  ],
+  "apk": {
+    "path": "com.johnson.nett.apk",
+    "checksum": "70b6f0d9df432c66351a587df7b65bea160de59e791be420f0e68b2fc435429f"
+  },
+  "application": {
+    "version_code": "15",
+    "name": "Nett",
+    "permissions": [
+      "android.permission.INTERNET",
+      "android.permission.ACCESS_NETWORK_STATE",
+      "android.permission.WRITE_EXTERNAL_STORAGE",
+      "android.permission.READ_PHONE_STATE",
+      "android.permission.READ_EXTERNAL_STORAGE",
+      "android.permission.WAKE_LOCK",
+      "com.google.android.c2dm.permission.RECEIVE",
+      "com.johnson.nett.permission.C2D_MESSAGE"
+    ],
+    "version_name": "1.1.12",
+    "libraries": [],
+    "handle": "com.johnson.nett"
+  }
+}
 ```
 
-Note: for now, it only compares with local trackers having the flag `is_in_exodus`.
+#### Pitfalls
 
-The default εxodus instance queried is the public one available at <https://reports.exodus-privacy.eu.org> (see `--exodus-hostname` parameter).
+This tool uses `dexdump` and only provides `GNU/Linux x86_64` version of it.
+
+### Download an APK from an εxodus instance
+
+Create `config.py` file in the project directory specifying:
+
+```bash
+CONFIG = {
+    'username': 'alice',
+    'password': 'bob',
+    'host': 'http://localhost:8000'
+}
+```
+
+Run
+
+```bash
+python exodus_download.py 15 /tmp/
+```
+
+be sure to activate the Python `virtualenv` before running `exodus_download.py`.
+
+#### Example of output
+
+```bash
+python exodus_download.py 15 /tmp/
+Successfully logged in
+Downloading the APK ...
+APK successfully downloaded: /tmp/fr.meteo.apk
+```
+
+## Continuous Integration
+
+You can use εxodus-standalone in your CI pipelines.
+
+Below are listed some examples of how to integrate it.
+
+:warning: Please note that the task will fail if it finds **any tracker**.
+
+### GitLab CI/CD
+
+```yml
+exodus_scan:
+  stage: audit
+  image:
+    name: exodusprivacy/exodus-standalone:latest
+    entrypoint: [""]
+  script:
+    - python /exodus_analyze.py [YOUR_APK_PATH]
+```
