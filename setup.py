@@ -1,24 +1,27 @@
-import setuptools
+from setuptools import setup
 
-with open('README.md', 'r') as fh:
+with open("README.md", "r") as fh:
     long_description = fh.read()
 
-setuptools.setup(
-    name='soft-webauthn',
-    version='0.1.3',
-    author='Radoslav Bodó',
-    author_email='bodik@cesnet.cz',
-    description='Python webauthn software authenticator',
+requires = []
+with open('requirements.txt') as f:
+    for line in f.readlines():
+        line = line.strip()  # Remove spaces
+        line = line.split('#')[0]  # Remove comments
+        if line:  # Remove empty lines
+            requires.append(line)
+
+setup(
+    name='django-clickhouse',
+    version='1.0.3',
+    packages=['django_clickhouse'],
+    package_dir={'': 'src'},
+    url='https://github.com/carrotquest/django-clickhouse',
+    license='BSD 3-clause "New" or "Revised" License',
+    author='Carrot quest',
+    author_email='m1ha@carrotquest.io',
+    description='Django extension to integrate with ClickHouse database',
     long_description=long_description,
-    long_description_content_type='text/markdown',
-    url='https://github.com/bodik/soft-webauthn',
-    py_modules=['soft_webauthn'],
-    install_requires=[
-        'fido2>=0.8,<1.0.0',
-        'cryptography'
-    ],
-    classifiers=[
-        'Programming Language :: Python :: 3',
-        'License :: OSI Approved :: MIT License',
-    ],
+    long_description_content_type="text/markdown",
+    install_requires=requires
 )
