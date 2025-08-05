@@ -28,8 +28,4 @@ jobs:
       - run: echo "hello world"
       - name: Deploy to PyPI
         if: ${{ env.UPLOAD == 'True' }}
-        uses: pypa/upload-to-pypi@v1.5.3
-        with:
-          username: mara-pypi-upload-account
-          password: ${{ secrets.PYPI_PASSWORD }}
-          distributions: sdist
+        run: echo "hello world"
