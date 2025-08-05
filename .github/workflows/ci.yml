@@ -1,82 +1,35 @@
-name: Python application
-
+name: Python Tests
 on:
   push:
-    branches: [ main ]
-  pull_request:
-    branches: [ master ]
-
+    branches:
+      - main
 jobs:
-  build:
-
+  test:
     runs-on: ubuntu-latest
-
     strategy:
       fail-fast: false
       matrix:
-        python-version: [ 3.8]
-        django-version: ["Django>=3.0,<3.1", "Django>=2.2,<2.3"]
-        use-custom-model: [true, false]
-        include:
-          - python-version: 3.8
-            django-version: "Django>=3.0,<3.1"
-            use-custom-model: true
-            run-web-tests: true
-            browser-tag: chrome_latest
-            deploy: true
-          - python-version: 3.8
-            django-version: "Django>=3.0,<3.1"
-            use-custom-model: false
-            run-web-tests: true
-            browser-tag: chrome_latest
-            deploy: true
-          - python-version: 3.7
-            django-version: "Django>=3.0,<3.1"
-            use-custom-model: true
-            run-web-tests: true
-            browser-tag: chrome_latest
-            deploy: false
-          - python-version: 3.7
-            django-version: "Django>=3.0,<3.1"
-            use-custom-model: false
-            run-web-tests: true
-            browser-tag: chrome_latest
-            deploy: false
-          - python-version: 3.6
-            django-version: "Django>=3.0,<3.1"
-            use-custom-model: true
-            run-web-tests: true
-            browser-tag: chrome_latest
-            deploy: false
-          - python-version: 3.6
-            django-version: "Django>=3.0,<3.1"
-            use-custom-model: false
-            run-web-tests: true
-            browser-tag: chrome_latest
-            deploy: false
-
+        python: ["2.7", "3.6", "3.7", "3.8"]
+        requirements: ["minimal_requirements.txt", "requirements.txt"]
     steps:
-    - uses: actions/checkout@v2
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
-      with:
-        python-version: ${{ matrix.python-version }}
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install codecov
-        grep -v "^django==" requirements.txt > /tmp/reqs.txt
-        pip install -r /tmp/reqs.txt
-        pip install '${{ matrix.django-version }}'
-    - name: Run tests
-      env:
-        DJANGO_VERSION: ${{ matrix.django-version }}
-        RUN_WEB_TESTS: ${{ matrix.run-web-tests }}
-        BROWSER_TAG: ${{ matrix.browser-tag }}
-        DEPLOY: ${{ matrix.deploy }}
-        USE_CUSTOM_MODEL: ${{ matrix.use-custom-model }}
-      run: |
-        chmod +x ./scripts/ci_runtests.sh
-        ./scripts/ci_runtests.sh
-    - name: Upload coverage to Codecov
-      run: codecov
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r ${{ matrix.requirements }}
+          pip install --upgrade pytest
+          pip install pytest-cov codecov
+      - name: Set environment variable
+        run: echo "MPLBACKEND=Agg" >> $GITHUB_ENV
+      - name: Run tests
+        run: |
+          python -m pytest --cov=fgivenx
+      - name: Upload coverage
+        run: |
+          codecov
+          bash <(curl -s https://codecov.io/bash)

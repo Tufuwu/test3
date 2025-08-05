@@ -1,300 +1,320 @@
-===================
-django-star-ratings
-===================
+=====================================
+fgivenx: Functional Posterior Plotter  
+=====================================
+:fgivenx:  Functional Posterior Plotter 
+:Author: Will Handley
+:Version: 2.2.2
+:Homepage: https://github.com/williamjameshandley/fgivenx
+:Documentation: http://fgivenx.readthedocs.io/
 
-|Build Status| |codecov.io| |Documentation Status|
+.. image:: https://github.com/williamjameshandley/fgivenx/workflows/CI/badge.svg?branch=master
+   :target: https://github.com/williamjameshandley/fgivenx/actions?query=workflow%3ACI+branch%3Amaster
+   :alt: Build Status
+.. image:: https://codecov.io/gh/williamjameshandley/fgivenx/branch/master/graph/badge.svg
+   :target: https://codecov.io/gh/williamjameshandley/fgivenx
+   :alt: Test Coverage Status
+.. image:: https://badge.fury.io/py/fgivenx.svg
+   :target: https://badge.fury.io/py/fgivenx
+   :alt: PyPi location
+.. image:: https://readthedocs.org/projects/fgivenx/badge/?version=latest
+   :target: https://fgivenx.readthedocs.io/en/latest/?badge=latest
+   :alt: Documentation Status
+.. image:: http://joss.theoj.org/papers/cf6f8ac309d6a18b6d6cf08b64aa3f62/status.svg
+   :target: http://joss.theoj.org/papers/cf6f8ac309d6a18b6d6cf08b64aa3f62
+   :alt: Review Status
+.. image:: https://zenodo.org/badge/100947684.svg
+   :target: https://zenodo.org/badge/latestdoi/100947684
+   :alt: Permanent DOI
+.. image:: https://img.shields.io/badge/arXiv-1908.01711-b31b1b.svg
+   :target: https://arxiv.org/abs/1908.01711
+   :alt: Open-access paper
 
-Python 3 compatible ratings for Django.
+Description
+===========
 
-Add ratings to any Django model with a template tag.
+``fgivenx`` is a python package for plotting posteriors of functions. It is
+currently used in astronomy, but will be of use to any scientists performing
+Bayesian analyses which have predictive posteriors that are functions.
 
-See full `documentation
-<http://django-star-ratings.readthedocs.io/en/latest/?badge=latest/>`_.
+This package allows one to plot a predictive posterior of a function,
+dependent on sampled parameters. We assume one has a Bayesian posterior
+``Post(theta|D,M)`` described by a set of posterior samples ``{theta_i}~Post``.
+If there is a function parameterised by theta ``y=f(x;theta)``, then this script
+will produce a contour plot of the conditional posterior ``P(y|x,D,M)`` in the
+``(x,y)`` plane.
 
-Built by Wildfish. https://wildfish.com
+The driving routines are ``fgivenx.plot_contours``, ``fgivenx.plot_lines`` and
+``fgivenx.plot_dkl``. The code is compatible with getdist, and has a loading function
+provided by ``fgivenx.samples_from_getdist_chains``.
 
-Requirements
-============
+|image0|
 
-* Python 3.6+.
-* Django 2.2+
+Getting Started
+===============
+
+Users can install using pip:
+
+.. code:: bash
+
+   pip install fgivenx
+
+from source:
+
+.. code:: bash
+
+   git clone https://github.com/williamjameshandley/fgivenx
+   cd fgivenx
+   python setup.py install --user
+
+or for those on `Arch linux <https://www.archlinux.org/>`__ it is
+available on the
+`AUR <https://aur.archlinux.org/packages/python-fgivenx/>`__
+
+You can check that things are working by running the test suite (You may
+encounter warnings if the optional dependency ``joblib`` is not installed):
+
+.. code:: bash
+
+   pip install pytest pytest-runner pytest-mpl
+   export MPLBACKEND=Agg
+   pytest <fgivenx-install-location>
+
+   # or, equivalently
+   git clone https://github.com/williamjameshandley/fgivenx
+   cd fgivenx
+   python setup.py test
+
+Check the dependencies listed in the next section are installed. You can then use the
+``fgivenx`` module from your scripts.
+
+Some users of OSX or `Anaconda <https://en.wikipedia.org/wiki/Anaconda_(Python_distribution)>`__ may find ``QueueManagerThread`` errors if `Pillow <https://pypi.org/project/Pillow/>`__ is not installed (run ``pip install pillow``).
+
+If you want to use parallelisation, have progress bars or getdist compatibility
+you should install the additional optional dependencies:
+
+.. code:: bash
+
+   pip install joblib tqdm getdist
+   # or, equivalently
+   pip install -r  requirements.txt
+
+You may encounter warnings if you don't have the optional dependency ``joblib``
+installed.
+
+Dependencies
+=============
+Basic requirements:
+
+* Python 2.7+ or 3.4+
+* `matplotlib <https://pypi.org/project/matplotlib/>`__
+* `numpy <https://pypi.org/project/numpy/>`__
+* `scipy <https://pypi.org/project/scipy/>`__
+
+Documentation:
+
+* `sphinx <https://pypi.org/project/Sphinx/>`__
+* `numpydoc <https://pypi.org/project/numpydoc/>`__
+
+Tests:
+
+* `pytest <https://pypi.org/project/pytest/>`__
+* `pytest-mpl <https://pypi.org/project/pytest-mpl/>`__
+
+Optional extras:
+
+* `joblib <https://pypi.org/project/joblib/>`__ (parallelisation) [`+ pillow <https://pypi.org/project/Pillow/>`__ on some systems]
+* `tqdm <https://pypi.org/project/tqdm/>`__ (progress bars)
+* `getdist <https://pypi.org/project/GetDist/>`__ (reading of getdist compatible files)
 
 
-Installation
-============
-
-Install from PyPI:
-
-::
-
-    pip install django-star-ratings
-
-add ``star_ratings`` to ``INSTALLED_APPS``:
-
-::
-
-    INSTALLED_APPS = (
-        ...
-        'star_ratings'
-    )
-
-sync your database:
-
-::
-
-    python manage.py migrate
-
-add the following to your urls.py:
-
-::
-
-    path('ratings/', include('star_ratings.urls', namespace='ratings')),
-
-Make sure ``'django.core.context_processors.request',`` is in
-``TEMPLATE_CONTEXT_PROCESSORS``.
-
-Usage
-=====
-
-Add the following javascript and stylesheet to your template
-
-::
-
-    {% load static %}
-    <html>
-    ...
-    <link rel="stylesheet" href="{% static 'star-ratings/css/star-ratings.css' %}">
-    <script type="text/javascript" src="{% static 'star-ratings/js/dist/star-ratings.min.js' %}"></script>
-    ...
-    </html>
-
-To enable ratings for a model add the following tag in your template
-
-::
-
-    {% load ratings %}
-    <html>
-    ...
-    {% ratings object %}
-    ...
-    </html>
-
-Template tags
+Documentation
 =============
 
-The template tag takes four arguments:
+Full Documentation is hosted at
+`ReadTheDocs <http://fgivenx.readthedocs.io/>`__.
+To build your own local copy of the documentation you'll need to install
+`sphinx <https://pypi.org/project/Sphinx/>`__. You can then run:
 
--  ``icon_height``: defaults to ``STAR_RATINGS_STAR_HEIGHT``
--  ``icon_width``: defaults to ``STAR_RATINGS_STAR_WIDTH``
--  ``read_only``: overrides the ``editable`` behaviour to make the widget read only
--  ``template_name``: overrides the tempalte to use for the widget
+.. code:: bash
 
-Settings
+   cd docs
+   make html
+
+Citation
 ========
 
-To prohibit users from altering their ratings set
-``STAR_RATINGS_RERATE = False`` in settings.py
-
-To allow users to delete a rating by selecting the same score again, set
-``STAR_RATINGS_RERATE_SAME_DELETE = True`` in settings.py, note
-that ``STAR_RATINGS_RERATE`` must be True if this is set.
-
-To allow uses to delete a rating via a clear button, set
-``STAR_RATINGS_CLEARABLE = True``` in settings.py. This can be used
-with or without STAR_RATINGS_RERATE.
-
-To change the number of rating stars, set ``STAR_RATINGS_RANGE``
-(defaults to 5)
-
-To enable anonymous rating set ``STAR_RATINGS_ANONYMOUS = True``.
-
-Please note that ``STAR_RATINGS_RERATE``, ``STAR_RATINGS_RERATE_SAME_DELETE`` and  ``STAR_RATINGS_CLEARABLE``
-will have no affect when anonymous rating is enabled.
-
-Anonymous Rating
-================
-
-If anonymous rating is enabled only the ip address for the rater will be stored (even if the user is logged in).
-When a user rates an object a preexisting object will not be searched for, instead a new rating object will be created
-
-**If this value is changed your lookups will return different results!**
-
-To control the default size of stars in pixels set the values of ``STAR_RATINGS_STAR_HEIGHT`` and
-``STAR_RATINGS_STAR_WIDTH``. By default ``STAR_RATINGS_STAR_WIDTH`` is the same as
-``STAR_RATINGS_STAR_HEIGHT`` and ``STAR_RATINGS_STAR_HEIGHT`` defaults to 32.
-
-
-Changing the star graphics
-==========================
-
-To change the star graphic, add a sprite sheet to
-``/static/star-ratings/images/stars.png`` with the states aligned
-horizontally. The stars should be laid out in three states: full, empty
-and active.
-
-You can also set ``STAR_RATINGS_STAR_SPRITE`` to the location of your sprite sheet.
-
-Customize widget template
-=========================
-
-You can customize ratings widget by creating ``star_ratings/widget.html``. For example :
-
-::
-
-    {% extends "star_ratings/widget_base.html" %}
-    {% block rating_detail %}
-    Whatever you want
-    {% endblock %}
-
-See ``star_ratings/widget_base.html`` for other blocks to be extended.
-
-Ordering by ratings
-===================
-
-The easiest way to order by ratings is to add a ``GenericRelation`` to
-the ``Rating`` model from your model:
-
-::
-
-    from django.contrib.contenttypes.fields import GenericRelation
-    from star_ratings.models import Rating
-
-    class Foo(models.Model):
-        bar = models.CharField(max_length=100)
-        ratings = GenericRelation(Rating, related_query_name='foos')
-
-    Foo.objects.filter(ratings__isnull=False).order_by('ratings__average')
-
-Custom Rating Model
-===================
-
-In some cases you may need to create your own rating model. This is possible
-by setting ``STAR_RATING_RATING_MODEL`` in your settings file. This can be useful
-to add additional fields or methods to the model. This is very similar to the how
-django handles swapping the user model
-(see [https://docs.djangoproject.com/en/1.10/topics/auth/customizing/#substituting-a-custom-user-model]).
-
-For ease ``AbstractBaseRating`` is supplied. For example if you wanted to add the
-field ``foo`` to the rating model you would need to crate your rating model
-extending ``AbstractBaseRating``:
-
-::
-
-   ./myapp/models.py
-
-   class MyRating(AbstractBaseRating):
-      foo = models.TextField()
-
-And add the setting to the setting file:
-
-::
-
-   ./settings.py
-
-   ...
-   STAR_RATINGS_RATING_MODEL = 'myapp.MyRating'
-   ...
-
-**NOTE:** If you are using a custom rating model there is an issue with how django
-migration handles dependency orders. In order to create your initial migration you
-will need to comment out the ``STAR_RATINGS_RATING_MODEL`` setting and run
-``makemigrations``. After this initial migration you will be able to add the setting
-back in and run ``migrate`` and ``makemigrations`` without issue.
-
-Changing the ``pk`` type (Requires django >= 1.10)
-==================================================
-
-One use case for changing the rating model would be to change the pk type of the
-related object. By default we assume the pk of the rated object will be a
-positive integer field which is fine for most uses, if this isn't though you will
-need to override the ``object_id`` field on the rating model as well as set
-STAR_RATINGS_OBJECT_ID_PATTERN to a reasonable value for your new pk field. As
-of django 1.10 you can now hide fields form parent abstract models, so to change
-the ``object_id``to a ``CharField`` you can do something like:
-
-::
-
-   class MyRating(AbstractBaseRating):
-      object_id = models.CharField(max_length=10)
-
-And add the setting to the setting file:
-
-::
-
-   ./settings.py
-
-   ...
-   STAR_RATINGS_OBJECT_ID_PATTERN = '[a-z0-9]{32}'
-   ...
-
-
-Events
-======
-
-Some events are dispatched from the javascript when an object is raised. Each
-event that ias dispatched has a ``details`` property that contains information
-about the object and the rating.
-
-``rate-success``
-----------------
-
-Dispatched after the user has rated an object and the display has been updated.
-
-The event details contains
-
-::
-
-    {
-        sender: ... // The star DOM object that was clicked
-        rating: {
-            average: ... // Float giving the updated average of the rating
-            count: ... // Integer giving the total number of ratings
-            percentage: ... // Float giving the percentage rating
-            total: ... // Integer giving the sum of all ratings
-            user_rating: ... // Integer giving the rating by the user
-    }
-
-``rate-failed``
----------------
-
-Dispatched after the user has rated an object but the server responds with an error.
-
-The event details contains
-
-::
-
-    {
-        sender: ... // The star DOM object that was clicked
-        error: ... // String giving the error message from the server
-    }
-
-
-Running tests
--------------
-
-To run the test use:
-
-::
-
-    $> ./runtests.py
-
-.. |Build Status| image:: https://travis-ci.org/wildfish/django-star-ratings.svg?branch=master
-   :target: https://travis-ci.org/wildfish/django-star-ratings
-.. |codecov.io| image:: http://codecov.io/github/wildfish/django-star-ratings/coverage.svg?branch=master
-   :target: http://codecov.io/github/wildfish/django-star-ratings?branch=master
-.. |Documentation Status| image:: https://readthedocs.org/projects/django-star-ratings/badge/?version=latest
-   :target: http://django-star-ratings.readthedocs.io/en/latest/?badge=latest
-   :alt: Documentation Status
-
-
-Releasing
----------
-
-Travis is setup to push releases to pypi automatically on tags, to do a release:
-
-1. Up version number.
-2. Update release notes.
-3. Push dev.
-4. Merge develop into master.
-5. Tag with new version number.
-6. Push tags.
+If you use ``fgivenx`` to generate plots for a publication, please cite
+as: ::
+
+   Handley, (2018). fgivenx: A Python package for functional posterior
+   plotting . Journal of Open Source Software, 3(28), 849,
+   https://doi.org/10.21105/joss.00849
+
+or using the BibTeX:
+
+.. code:: bibtex
+
+   @article{fgivenx,
+       doi = {10.21105/joss.00849},
+       url = {http://dx.doi.org/10.21105/joss.00849},
+       year  = {2018},
+       month = {Aug},
+       publisher = {The Open Journal},
+       volume = {3},
+       number = {28},
+       author = {Will Handley},
+       title = {fgivenx: Functional Posterior Plotter},
+       journal = {The Journal of Open Source Software}
+   }
+
+Example Usage
+=============
+
+
+
+Plot user-generated samples
+---------------------------
+
+.. code:: python
+
+    import numpy
+    import matplotlib.pyplot as plt
+    from fgivenx import plot_contours, plot_lines, plot_dkl
+
+
+    # Model definitions
+    # =================
+    # Define a simple straight line function, parameters theta=(m,c)
+    def f(x, theta):
+        m, c = theta
+        return m * x + c
+
+
+    numpy.random.seed(1)
+
+    # Posterior samples
+    nsamples = 1000
+    ms = numpy.random.normal(loc=-5, scale=1, size=nsamples)
+    cs = numpy.random.normal(loc=2, scale=1, size=nsamples)
+    samples = numpy.array([(m, c) for m, c in zip(ms, cs)]).copy()
+
+    # Prior samples
+    ms = numpy.random.normal(loc=0, scale=5, size=nsamples)
+    cs = numpy.random.normal(loc=0, scale=5, size=nsamples)
+    prior_samples = numpy.array([(m, c) for m, c in zip(ms, cs)]).copy()
+
+    # Set the x range to plot on
+    xmin, xmax = -2, 2
+    nx = 100
+    x = numpy.linspace(xmin, xmax, nx)
+
+    # Set the cache
+    cache = 'cache/test'
+    prior_cache = cache + '_prior'
+
+    # Plotting
+    # ========
+    fig, axes = plt.subplots(2, 2)
+
+    # Sample plot
+    # -----------
+    ax_samples = axes[0, 0]
+    ax_samples.set_ylabel(r'$c$')
+    ax_samples.set_xlabel(r'$m$')
+    ax_samples.plot(prior_samples.T[0], prior_samples.T[1], 'b.')
+    ax_samples.plot(samples.T[0], samples.T[1], 'r.')
+
+    # Line plot
+    # ---------
+    ax_lines = axes[0, 1]
+    ax_lines.set_ylabel(r'$y = m x + c$')
+    ax_lines.set_xlabel(r'$x$')
+    plot_lines(f, x, prior_samples, ax_lines, color='b', cache=prior_cache)
+    plot_lines(f, x, samples, ax_lines, color='r', cache=cache)
+
+    # Predictive posterior plot
+    # -------------------------
+    ax_fgivenx = axes[1, 1]
+    ax_fgivenx.set_ylabel(r'$P(y|x)$')
+    ax_fgivenx.set_xlabel(r'$x$')
+    cbar = plot_contours(f, x, prior_samples, ax_fgivenx,
+                         colors=plt.cm.Blues_r, lines=False,
+                         cache=prior_cache)
+    cbar = plot_contours(f, x, samples, ax_fgivenx, cache=cache)
+
+    # DKL plot
+    # --------
+    ax_dkl = axes[1, 0]
+    ax_dkl.set_ylabel(r'$D_\mathrm{KL}$')
+    ax_dkl.set_xlabel(r'$x$')
+    ax_dkl.set_ylim(bottom=0, top=2.0)
+    plot_dkl(f, x, samples, prior_samples, ax_dkl,
+             cache=cache, prior_cache=prior_cache)
+
+    ax_lines.get_shared_x_axes().join(ax_lines, ax_fgivenx, ax_samples)
+
+    fig.tight_layout()
+    fig.savefig('plot.png')
+
+|image0|
+
+Plot GetDist chains
+-------------------
+
+.. code:: python
+
+    import numpy
+    import matplotlib.pyplot as plt
+    from fgivenx import plot_contours, samples_from_getdist_chains
+
+    file_root = './plik_HM_TT_lowl/base_plikHM_TT_lowl'
+    samples, weights = samples_from_getdist_chains(['logA', 'ns'], file_root)
+
+    def PPS(k, theta):
+        logA, ns = theta
+        return logA + (ns - 1) * numpy.log(k)
+        
+    k = numpy.logspace(-4,1,100)
+    cbar = plot_contours(PPS, k, samples, weights=weights)
+    cbar = plt.colorbar(cbar,ticks=[0,1,2,3])
+    cbar.set_ticklabels(['',r'$1\sigma$',r'$2\sigma$',r'$3\sigma$'])
+    
+    plt.xscale('log')
+    plt.ylim(2,4)
+    plt.ylabel(r'$\ln\left(10^{10}\mathcal{P}_\mathcal{R}\right)$')
+    plt.xlabel(r'$k / {\rm Mpc}^{-1}$')
+    plt.tight_layout()
+    plt.savefig('planck.png')
+
+|image1|
+
+Contributing
+============
+Want to contribute to ``fgivenx``? Awesome!
+There are many ways you can contribute via the 
+[GitHub repository](https://github.com/williamjameshandley/fgivenx), 
+see below.
+
+Opening issues
+--------------
+Open an issue to report bugs or to propose new features.
+
+Proposing pull requests
+-----------------------
+Pull requests are very welcome. Note that if you are going to propose drastic
+changes, be sure to open an issue for discussion first, to make sure that your
+PR will be accepted before you spend effort coding it.
+
+.. |image0| image:: https://raw.githubusercontent.com/williamjameshandley/fgivenx/master/plot.png
+.. |image1| image:: https://raw.githubusercontent.com/williamjameshandley/fgivenx/master/planck.png 
+
+Changelog
+=========
+:v2.2.0:  Paper accepted
+:v2.1.17: 100% coverage
+:v2.1.16: Tests fixes
+:v2.1.15: Additional plot tests
+:v2.1.13: Further bug fix in test suite for image comparison
+:v2.1.12: Bug fix in test suite for image comparison
+:v2.1.11: Documentation upgrades
+:v2.1.10: Added changelog
