@@ -22,9 +22,3 @@ jobs:
       run: pip install simplejson minimock coverage
     - name: Run tests
       run: make test
-    - name: Deploy to PyPI
-      if: ${{ github.event_name == 'push' && github.ref_type == 'tag' }}
-      uses: pypa/pypi-publish@v1.8.0
-      with:
-        user: "gpodder"
-        password: ${{ secrets.PYPI_PASSWORD }}
