@@ -23,6 +23,8 @@ jobs:
             geos-version: master
             speedups: 1
             numpy: 1
+    env:
+      GEOS_VERSION: ${{matrix.geos-version}}
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python ${{ matrix.python-version }}
