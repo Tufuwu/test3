@@ -67,7 +67,7 @@ jobs:
         pip install codecov
         grep -v "^django==" requirements.txt > /tmp/reqs.txt
         pip install -r /tmp/reqs.txt
-        pip install ${{ matrix.django-version }}
+        pip install '${{ matrix.django-version }}''
     - name: Run tests
       env:
         DJANGO_VERSION: ${{ matrix.django-version }}
