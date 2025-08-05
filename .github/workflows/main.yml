@@ -63,8 +63,8 @@ jobs:
       - name: Run tests
         run: tox -e $TOXENV
       - name: Run coverage report
-        if: ${{ success }}
+
         run: tox -e coverage-report
       - name: Upload coverage
-        if: ${{ success }}
+
         run: codecov
