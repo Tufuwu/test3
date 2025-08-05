@@ -1,0 +1,38 @@
+{
+    "instances": [
+        {
+            "tag": "santander-cycles",
+            "meta": {
+                "city": "London",
+                "name": "Santander Cycles",
+                "country": "GB",
+                "company": [
+                    "PBSC",
+                    "Serco Group plc"
+                ],
+                "longitude": -0.1198244,
+                "latitude": 51.51121389999999
+            },
+            "feed_url": "http://www.tfl.gov.uk/tfl/syndication/feeds/cycle-hire/livecyclehireupdates.xml",
+            "format": "xml"
+        },
+        {
+            "tag": "wowcycle-reykjavik",
+            "meta": {
+                "city": "Reykjavík",
+                "name": "WOW Citybike",
+                "country": "IS",
+                "company": [
+                    "PBSC",
+                    "Alta Bicycle Share, Inc"
+                ],
+                "longitude": -21.827774,
+                "latitude": 64.128288
+            },
+            "feed_url": "https://rey.publicbikesystem.net/ube/stations",
+            "format": "json"
+        }
+    ],
+    "system": "bixi",
+    "class": "BixiSystem"
+}
