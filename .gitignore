@@ -1,17 +1,2 @@
-*.egg-info
-*.pyc
-*.pyo
-*.swo
-*.swp
-/.cache
-/.coverage
-/.eggs
-/.envrc
-/.tox
-/build
-/dist
-/tmp
-
-# JetBrains IDE
-.idea/
-/docs/_build
+_build
+*pyc
