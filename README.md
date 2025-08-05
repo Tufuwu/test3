@@ -1,94 +1,149 @@
-# pywnedPasswords
+![Setconf Logo](web/icon_128x128.png)
 
-[![Build Status](https://travis-ci.org/xmatthias/pywnedpasswords.svg?branch=master)](https://travis-ci.org/xmatthias/pywnedpasswords)
+![Build](https://github.com/xyproto/setconf/workflows/Build/badge.svg) [![License](https://img.shields.io/badge/license-GPL2-green.svg?style=flat)](https://raw.githubusercontent.com/xyproto/setconf/main/COPYING)
 
-This script uses the pwnedpasswords.com v2 api to check your password in
-a secure way (using the [K-anonymity](https://en.wikipedia.org/wiki/K-anonymity) method)
+Setconf is a small utility for changing settings in configuration textfiles.
 
-The full Hash is never transmitted over the wire, only the first 5 characters.
-The comparison happens offline.
+It has no dependencies except the built-in Python modules.
 
-Special thanks to Troy Hunt ([@troyhunt](https://twitter.com/troyhunt)) for making this script possible.
+Pull requests are welcome.
 
-## Installation
+[![Packaging status](https://repology.org/badge/vertical-allrepos/setconf.svg)](https://repology.org/project/setconf/versions)
 
-``` bash
-pip install pywnedpasswords
-```
+Compile time features
+---------------------
 
-## Usage
-
-### Interactive 
-
-``` bash
-pywnedpasswords
-```
-
-Insert your password when asked.
-
-the output will either be:
-
-> Password to check:
-> 
-> Found your password 47205 times.
-
-or in case your password is secure
-
-> Password to check:
-> 
-> Your password did not appear in PwnedPasswords yet.
+* It can be compiled to native with <a href="http://nuitka.net/">nuitka</a>. Try these parameters: `--exe --lto --python-version=2.7`
 
 
-### Passing the password as a command line argument
+TODO
+----
 
-**Discouraged - as it might leaves the password in your shell history**
-
-``` bash
-pywnedpasswords Passw0rd
-```
-
-> Found your password 46980 times.
-
-
-### Piping the password 
-
-**Discouraged - as it might leaves the password in your shell history**
-
-``` bash
-echo -n 'Passw0rd!' | pywnedpasswords 
-```
-
-> Found your password 46980 times.
-
-### Reading passwords from a file 
+* A flag for changing the n'th occurence.
+* A cleaner way to handle arguments, without adding an external dependency.
+* A flag for commenting out keys (adding "# ")
+* A flag for removing a value instead of using `''`.
+* A flag for removing both the key and the value.
+* Rewrite in a different language?
+* Optimize the code that is used for adding options with `-a`.
+* A way to add an option with `-a` after a given string occurs.
+* Test and fix the combination of `-a` and multiline markers.
+* Fix the behavior when `"` is the multiline marker and `:` the delimiter (the [yml](https://fdik.org/yml/) format).
+* Document which assignment symbols and comment markers are supported.
+* Refactor.
+* Support both `#define` and `%define` (ref asmttpd).
+* When changing settings in JSON files, a line may look like this: `"go.formatTool": "gofmt",`. Add a flag for being able to set the key and value without having to specify the quotes and the final comma.
 
 
-``` bash
-pywnedpasswords -f list-of-passwords.txt
-```
+Changes from 0.7.6 to 0.7.7
+---------------------------
 
-Result is in the form: `<line number>: <number of time the password was found>`. `0` meaning the password is not known from Have I Been Pwned yet.
+* Apply fix for trailing newlines by @zappolowski (issue #16).
+* Also test with Python 3.8.
 
-> <pre>
-> 0: 7026
-> 1: 45337
-> 2: 376
-> 3: 51
-> 4: 27
-> 5: 11
-> 6: 136
-> 7: 1
-> 8: 6
-> 9: 1
-> 10: 0
-> 11: 0
-> 12: 0
-> </pre>
+Changes from 0.7.5 to 0.7.6
+---------------------------
+
+* Add test cases.
+* Allow uncommenting keys without providing a value.
+* Update documentation.
+
+Changes from 0.7.4 to 0.7.5
+---------------------------
+
+* Can now uncomment configuration options with the `-u` flag.
+* Uncommenting and setting values also works on Linux kernel configuration (`#CONFIG_KERNEL_XY is not set` to `CONFIG_KERNEL_XY=y`).
+
+Changes from 0.7.3 to 0.7.4
+---------------------------
+
+* Correctly formatted help text.
+
+Changes from 0.7.2 to 0.7.3
+---------------------------
+
+* Can change single-line `#define` values by using the `-d` flag.
+
+Changes from 0.7.1 to 0.7.2
+---------------------------
+* Fixed an issue that only happened on Python 3.2.
+* Several minor changes.
+
+Changes from 0.7 to 0.7.1
+-------------------------
+* Removed a dependency on chardet
+
+Changes from 0.6.8 to 0.7
+-------------------------
+* Fix issue #6, a failing testcase for `+=`.
+
+Changes from 0.6.7 to 0.6.8
+---------------------------
+* Deal mainly with bytes instead of strings.
+* Handle ISO-8859-1 (Latin1) better, for Python 3.
+
+Changes from 0.6.6 to 0.6.7
+---------------------------
+* Can use floating point numbers together with `+=` and `-=`
+
+Changes from 0.6.5 to 0.6.6
+---------------------------
+* Fixed a problem with files without newline endings
+
+Changes from 0.6.4 to 0.6.5
+---------------------------
+* Can now use += or -= for increasing or decreasing integer values
+
+Changes from 0.6.3 to 0.6.4
+---------------------------
+* Better error messages when write permissions are denied
+
+Changes from 0.6.2 to 0.6.3
+---------------------------
+* Fixed a problem with -a that occurred when a key existed but was commented out
+* Added regression test
+
+Changes from 0.6.1 to 0.6.2
+---------------------------
+* Now runs on Python 2 and Python 3 (tested with 2.4, 2.5, 2.6, 2.7 and 3.3)
+
+Changes from 0.6 to 0.6.1
+-------------------------
+* Fixed a problem with the -a option
+* Creates the file when -a or --add is given, if needed
+
+Changes from 0.5.3 to 0.6
+-------------------------
+* Made -a add options only when not already present
+
+Changes from 0.5.2 to 0.5.3
+---------------------------
+* Made it compile with the latest version of shedskin
+* Added an option -a for adding keys/values to a file
+
+Changes from 0.5.1 to 0.5.2
+---------------------------
+* Fixed a problem with ascii/utf-8 encoding
+
+Changes from 0.5 to 0.5.1
+-------------------------
+* Fixed a problem with => assignments
+* Changed the way files are opened with open()
+* Added more tests relating to ascii/utf-8
+
+Changes from 0.4 to 0.5
+-----------------------
+* Add support for => as well
+* Fixed a bug where comments were not ignored for multiline values
+* New logo
+
+Changes from 0.3.2 to 0.4 (released)
+------------------------------------
+* Ignored configuration options that are commented out
 
 
+General information
+-------------------
 
-## Exit code
-
-The `pywnedpasswords` exits with code `2` if the password is know of Have I Been Pwned already, and exit code `0` otherwise.
-
-© xmatthias 2018
+* License: GPL2
+* Author: Alexander F. Rødseth
