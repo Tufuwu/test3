@@ -1,51 +1,40 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+from setuptools import setup, find_packages
 
-from setuptools import setup
+from codecs import open
+from os import path
 
-import feedgen.version
+here = path.abspath(path.dirname(__file__))
 
-packages = ['feedgen', 'feedgen/ext']
+# Get the long description from the README file
+with open(path.join(here, 'README.md'), encoding='utf-8') as f:
+    long_description = f.read()
 
-setup(name='feedgen',
-      packages=packages,
-      version=feedgen.version.version_full_str,
-      description='Feed Generator (ATOM, RSS, Podcasts)',
-      author='Lars Kiesow',
-      author_email='lkiesow@uos.de',
-      url='https://lkiesow.github.io/python-feedgen',
-      keywords=['feed', 'ATOM', 'RSS', 'podcast'],
-      license='FreeBSD and LGPLv3+',
-      install_requires=['lxml', 'python-dateutil'],
-      classifiers=[
+setup(
+    name='simple-pid',
+    version='1.0.1',
+    description='A simple, easy to use PID controller',
+    long_description=long_description,
+    long_description_content_type='text/markdown',
+    url='https://github.com/m-lundberg/simple-pid',
+    author='Martin Lundberg',
+    license='MIT',
+    classifiers=[
         'Development Status :: 5 - Production/Stable',
-        'Intended Audience :: Developers',
-        'Intended Audience :: Information Technology',
-        'Intended Audience :: Science/Research',
-        'License :: OSI Approved :: BSD License',
-        'License :: OSI Approved :: GNU Lesser General Public License v3 ' +
-        'or later (LGPLv3+)',
-        'Natural Language :: English',
-        'Operating System :: OS Independent',
-        'Programming Language :: Python',
+        'License :: OSI Approved :: MIT License',
         'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 3',
-        'Topic :: Communications',
-        'Topic :: Internet',
-        'Topic :: Text Processing',
-        'Topic :: Text Processing :: Markup',
-        'Topic :: Text Processing :: Markup :: XML'
-        ],
-      test_suite="tests",
-      long_description='''\
-Feedgenerator
-=============
-
-This module can be used to generate web feeds in both ATOM and RSS format. It
-has support for extensions. Included is for example an extension to produce
-Podcasts.
-
-It is licensed under the terms of both, the FreeBSD license and the LGPLv3+.
-Choose the one which is more convenient for you. For more details have a look
-at license.bsd and license.lgpl.
-''')
+    ],
+    keywords='pid controller control',
+    packages=find_packages(exclude=['tests']),
+    package_data={
+        'simple_pid': ['*.pyi', 'py.typed'],
+    },
+    include_package_data=True,
+    zip_safe=False,
+    extras_require={
+        'docs': ['m2r', 'sphinx-rtd-theme'],
+    },
+    project_urls={
+        'Documentation': 'https://simple-pid.readthedocs.io/',
+    },
+)
