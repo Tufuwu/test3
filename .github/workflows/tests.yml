@@ -1,0 +1,29 @@
+name: Test with Python
+
+on: [push]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ["3.5", "3.6", "3.7", "3.8"]
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+      - name: Run tests
+        run: |
+          pytest -v --cov=filestack tests
+      - name: Upload coverage
+        if: success()
+        uses: coverallsapp/coveralls-action@v1
+        with:
+          os: linux
+          repo_token: ${{ secrets.COVERALLS_REPO_TOKEN }}

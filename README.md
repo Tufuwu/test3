@@ -1,202 +1,176 @@
-# εxodus standalone
+<p align="center"><img src="logo.svg" align="center" width="100"/></p>
+<h1 align="center">Filestack Python</h1>
+<p align="center">
+  <a href="http://travis-ci.org/filestack/filestack-python">
+    <img src="https://img.shields.io/travis/filestack/filestack-python.svg">
+  </a>
+  <a href="https://pypi.python.org/pypi/filestack-python">
+    <img src="https://img.shields.io/pypi/v/filestack-python.svg">
+  </a>
+    <img src="https://img.shields.io/pypi/pyversions/filestack-python.svg">
+</p>
+This is the official Python SDK for Filestack - API and content management system that makes it easy to add powerful file uploading and transformation capabilities to any web or mobile application.
 
-[![Build Status](https://github.com/Exodus-Privacy/exodus-standalone/actions/workflows/main.yml/badge.svg?branch=master)](https://github.com/Exodus-Privacy/exodus-standalone/actions/workflows/main.yml)
+## Resources
 
-εxodus CLI client for local APK static analysis.
+To learn more about this SDK, please visit our API Reference
 
-## Summary
+* [API Reference](https://filestack-python.readthedocs.io)
 
-- [**Using Docker**](#using-docker)
-- [**Manual usage**](#manual-usage)
-  - [**Installation**](#installation)
-  - [**Analyze an APK file**](#analyze-an-apk-file)
-  - [**Download an APK from an εxodus instance**](#download-an-apk-from-an-εxodus-instance)
-- [**Continuous Integration**](#continuous-integration)
+## Installing
 
-## Using Docker
+Install ``filestack`` with pip
 
-The easiest way to analyze an APK is to use [our Docker image](https://hub.docker.com/r/exodusprivacy/exodus-standalone).
-
-Simply go to the directory where the APK file is and run:
-
-```bash
-docker run -v $(pwd)/<your apk file>:/app.apk --rm -i exodusprivacy/exodus-standalone
+```shell
+pip install filestack-python
 ```
 
-## Manual usage
+or directly from GitHub
 
-### Installation
-
-Clone this repository:
-
-```bash
-git clone https://github.com/Exodus-Privacy/exodus-standalone.git
-cd exodus-standalone
+```shell
+pip install git+https://github.com/filestack/filestack-python.git
 ```
 
-Install `dexdump`:
+## Quickstart
 
-```bash
-sudo apt-get install dexdump
+The Filestack SDK allows you to upload and handle filelinks using two main classes: Client and Filelink.
+
+### Uploading files with `filestack.Client`
+``` python
+from filestack import Client
+client = Client('<YOUR_API_KEY>')
+
+new_filelink = client.upload(filepath='path/to/file')
+print(new_filelink.url)
 ```
 
-Create Python `virtualenv`:
+#### Uploading files using Filestack Intelligent Ingestion
+To upload files using Filestack Intelligent Ingestion, simply add `intelligent=True` argument
+```python
+new_filelink = client.upload(filepath='path/to/file', intelligent=True)
+```
+FII always uses multipart uploads. In case of network issues, it will dynamically split file parts into smaller chunks (sacrificing upload speed in favour of upload reliability).
 
-```bash
-sudo apt-get install virtualenv
-virtualenv venv -p python3
-source venv/bin/activate
+### Working with Filelinks
+Filelink objects can by created by uploading new files, or by initializing `filestack.Filelink` with already existing file handle
+```python
+from filestack import Filelink, Client
+
+client = Client('<APIKEY>')
+filelink = client.upload(filepath='path/to/file')
+filelink.url  # 'https://cdn.filestackcontent.com/FILE_HANDLE
+
+# work with previously uploaded file
+filelink = Filelink('FILE_HANDLE')
 ```
 
-Download and install dependencies:
+### Basic Filelink Functions
 
-```bash
-pip install -r requirements.txt
+With a Filelink, you can download to a local path or get the content of a file. You can also perform various transformations.
+
+```python
+file_content = new_filelink.get_content()
+
+size_in_bytes = new_filelink.download('/path/to/file')
+
+filelink.overwrite(filepath='path/to/new/file')
+
+filelink.resize(width=400).flip()
+
+filelink.delete()
 ```
 
-### Analyze an APK file
+### Transformations
 
-#### Usage
+You can chain transformations on both Filelinks and external URLs. Storing transformations will return a new Filelink object.
 
-```bash
-$ python exodus_analyze.py -h
-Usage: exodus_analyze.py [options] apk_file
+```python
+transform = client.transform_external('http://<SOME_URL>')
+new_filelink = transform.resize(width=500, height=500).flip().enhance().store()
 
-Options:
-  -h, --help            show this help message and exit
-  -t, --text            print textual report (default)
-  -j, --json            print JSON report
-  -o OUTPUT_FILE, --output=OUTPUT_FILE
-                        store JSON report in file (requires -j option)
+filelink = Filelink('<YOUR_HANDLE'>)
+new_filelink = filelink.resize(width=500, height=500).flip().enhance().store()
 ```
 
-#### Text output
+You can also retrieve the transformation url at any point.
 
-```bash
-python exodus_analyze.py my_apk.apk
+ ```python
+transform_candidate = client.transform_external('http://<SOME_URL>')
+transform = transform_candidate.resize(width=500, height=500).flip().enhance()
+print(transform.url)
 ```
 
-be sure to activate the Python `virtualenv` before running `exodus_analyze.py`.
+### Audio/Video Convert
 
-*Example:*
+Audio and video conversion works just like any transformation, except it returns an instance of class AudioVisual, which allows you to check the status of your video conversion, as well as get its UUID and timestamp. 
 
-```bash
-=== Informations
-- APK path: /tmp/tmp1gzosyt4/com.semitan.tan.apk
-- APK sum: 8e85737be6911ea817b3b9f6a80290b85befe24ff5f57dc38996874dfde13ba7
-- App version: 5.7.0
-- App version code: 39
-- App name: Tan Network
-- App package: com.semitan.tan
-- App permissions: 9
-    - android.permission.INTERNET
-    - android.permission.ACCESS_NETWORK_STATE
-    - android.permission.ACCESS_FINE_LOCATION
-    - android.permission.WRITE_EXTERNAL_STORAGE
-    - android.permission.READ_PHONE_STATE
-    - android.permission.VIBRATE
-    - com.semitan.tan.permission.C2D_MESSAGE
-    - com.google.android.c2dm.permission.RECEIVE
-    - android.permission.WAKE_LOCK
-- App libraries: 0
-=== Found trackers
- - Google Analytics
- - Google Ads
- - Google DoubleClick
+```python
+av_object = filelink.av_convert(width=100, height=100)
+while (av_object.status != 'completed'):
+    print(av_object.status)
+    print(av_object.uuid)
+    print(av_object.timestamp)
 ```
 
-#### JSON output
+The status property makes a call to the API to check its current status, and you can call to_filelink() once video is complete (this function checks its status first and will fail if not completed yet).
 
-```bash
-python exodus_analyze.py -j [-o report.json] my_apk.apk
+```python
+filelink = av_object.to_filelink()
 ```
 
-be sure to activate the Python `virtualenv` before running `exodus_analyze.py`.
+### Security Objects
 
-*Example:*
+Security is set on Client or Filelink classes upon instantiation and is used to sign all API calls.
 
-```json
-{
-  "trackers": [
+```python
+from filestack import Security
+
+policy = {'expiry': 253381964415}  # 'expiry' is the only required key
+security = Security(policy, '<YOUR_APP_SECRET>')
+client = Client('<YOUR_API_KEY', security=security)
+
+# new Filelink object inherits security and will use for all calls
+new_filelink = client.upload(filepath='path/to/file')
+
+# you can also provide Security objects explicitly for some methods
+size_in_bytes = filelink.download(security=security)
+```
+
+You can also retrieve security details straight from the object:
+```python
+>>> policy = {'expiry': 253381964415, 'call': ['read']}
+>>> security = Security(policy, 'SECURITY-SECRET')
+>>> security.policy_b64
+'eyJjYWxsIjogWyJyZWFkIl0sICJleHBpcnkiOiAyNTMzODE5NjQ0MTV9'
+>>> security.signature
+'f61fa1effb0638ab5b6e208d5d2fd9343f8557d8a0bf529c6d8542935f77bb3c'
+```
+
+### Webhook verification
+
+You can use `filestack.helpers.verify_webhook_signature` method to make sure that the webhooks you receive are sent by Filestack.
+
+```python
+from filestack.helpers import verify_webhook_signature
+
+# webhook_data is raw content you receive
+webhook_data = b'{"action": "fp.upload", "text": {"container": "some-bucket", "url": "https://cdn.filestackcontent.com/Handle", "filename": "filename.png", "client": "Computer", "key": "key_filename.png", "type": "image/png", "size": 1000000}, "id": 50006}'
+
+result, details = verify_webhook_signature(
+    '<YOUR_WEBHOOK_SECRET>',
+    webhook_data,
     {
-      "id": 70,
-      "name": "Facebook Share"
-    },
-    [...]
-  ],
-  "apk": {
-    "path": "com.johnson.nett.apk",
-    "checksum": "70b6f0d9df432c66351a587df7b65bea160de59e791be420f0e68b2fc435429f"
-  },
-  "application": {
-    "version_code": "15",
-    "name": "Nett",
-    "permissions": [
-      "android.permission.INTERNET",
-      "android.permission.ACCESS_NETWORK_STATE",
-      "android.permission.WRITE_EXTERNAL_STORAGE",
-      "android.permission.READ_PHONE_STATE",
-      "android.permission.READ_EXTERNAL_STORAGE",
-      "android.permission.WAKE_LOCK",
-      "com.google.android.c2dm.permission.RECEIVE",
-      "com.johnson.nett.permission.C2D_MESSAGE"
-    ],
-    "version_name": "1.1.12",
-    "libraries": [],
-    "handle": "com.johnson.nett"
-  }
-}
+      'FS-Signature': '<SIGNATURE-FROM-REQUEST-HEADERS>',
+      'FS-Timestamp': '<TIMESTAMP-FROM-REQUEST-HEADERS>'
+    }
+)
+
+if result is True:
+    print('Webhook is valid and was generated by Filestack')
+else:
+    raise Exception(details['error'])
 ```
 
-#### Pitfalls
+## Versioning
 
-This tool uses `dexdump` and only provides `GNU/Linux x86_64` version of it.
-
-### Download an APK from an εxodus instance
-
-Create `config.py` file in the project directory specifying:
-
-```bash
-CONFIG = {
-    'username': 'alice',
-    'password': 'bob',
-    'host': 'http://localhost:8000'
-}
-```
-
-Run
-
-```bash
-python exodus_download.py 15 /tmp/
-```
-
-be sure to activate the Python `virtualenv` before running `exodus_download.py`.
-
-#### Example of output
-
-```bash
-python exodus_download.py 15 /tmp/
-Successfully logged in
-Downloading the APK ...
-APK successfully downloaded: /tmp/fr.meteo.apk
-```
-
-## Continuous Integration
-
-You can use εxodus-standalone in your CI pipelines.
-
-Below are listed some examples of how to integrate it.
-
-:warning: Please note that the task will fail if it finds **any tracker**.
-
-### GitLab CI/CD
-
-```yml
-exodus_scan:
-  stage: audit
-  image:
-    name: exodusprivacy/exodus-standalone:latest
-    entrypoint: [""]
-  script:
-    - python /exodus_analyze.py [YOUR_APK_PATH]
-```
+Filestack Python SDK follows the [Semantic Versioning](http://semver.org/).
