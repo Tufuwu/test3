@@ -1,8 +1,5 @@
-include CHANGELOG.md
+include README.rst
 include LICENSE
-include README.md
-include runtests.py
-include scout_client.py
-include tests.py
-recursive-include docker/*
-recursive-include docs/*
+include MANIFEST.in
+recursive-include swingtime/locale *
+recursive-include tests *.py

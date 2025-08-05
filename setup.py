@@ -1,43 +1,47 @@
-import os
-import warnings
+#!/usr/bin/env python
+import os, sys
+from setuptools import setup, find_packages
 
-from setuptools import setup
+if sys.argv[-1] == 'publish':
+    os.system('python setup.py sdist upload')
+    sys.exit(0)
 
-cur_dir = os.path.dirname(__file__)
-readme_file = os.path.join(cur_dir, 'README.md')
-with open(readme_file) as fh:
-    readme = fh.read()
+with open('README.rst', 'r') as f:
+    long_description = f.read()
 
-try:
-    from scout import __version__ as scout_version
-except ImportError:
-    scout_version = '0.0.0'
-    warnings.warn('Unable to determine scout library version!')
+# Dynamically calculate the version based on swingtime.VERSION.
+version=__import__('swingtime').get_version()
 
 setup(
-    name='scout',
-    version=scout_version,
-    url='http://github.com/coleifer/scout/',
-    license='MIT',
-    author='Charles Leifer',
-    author_email='coleifer@gmail.com',
-    description='scout - a lightweight search server powered by SQLite',
-    packages=['scout'],
-    zip_safe=False,
-    platforms='any',
-    install_requires=[
-        'flask',
-        'peewee>=3.0.0'],
+    name='django-swingtime',
+    url='https://github.com/dakrauth/django-swingtime',
+    author='David A Krauth',
+    author_email='dakrauth@gmail.com',
+    description='A Django calendaring application.',
+    version=version,
+    long_description=long_description,
+    long_description_content_type='text/x-rst',
+    platforms=['any'],
+    license='MIT License',
+    python_requires='>=3.6, <4',
+    install_requires=['Django>=2.2,<4.0', 'python-dateutil==2.8.0'],
     classifiers=[
-        'Development Status :: 4 - Beta',
-        'Intended Audience :: Developers',
+        'Development Status :: 5 - Production/Stable',
+        'Environment :: Web Environment',
+        'Framework :: Django',
+        'Framework :: Django :: 2.2',
+        'Framework :: Django :: 3.0',
+        'Framework :: Django :: 3.1',
+        'Framework :: Django :: 3.2',
         'License :: OSI Approved :: MIT License',
-        'Operating System :: OS Independent',
-        'Programming Language :: Python'],
-    py_modules=['scout_client'],
-    test_suite='scout.tests',
-    entry_points="""
-        [console_scripts]
-        scout=scout.server:main
-    """,
+        'Programming Language :: Python',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
+        'Topic :: Office/Business :: Scheduling',
+    ],
+    packages=find_packages(),
+    package_data={'swingtime': ['locale/*/*/*.*',]},
+    zip_safe=False,
 )
