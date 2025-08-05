@@ -1,58 +1,55 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-import io
+"""
+Python toolkit to work with BUFR messages.
+"""
+import os
 
-try:
-    from setuptools import setup
-except ImportError:
-    from distutils.core import setup
+from setuptools import setup
 
-from logya import __version__
 
-# Use io.open to be able to set encoding to utf-8.
-with io.open('README.rst', encoding='utf-8') as f:
-    readme = f.read()
+def get_version():
+    with open(os.path.join(os.path.dirname(__file__), 'pybufrkit', '__init__.py')) as ins:
+        for line in ins.readlines():
+            if line.startswith('__version__'):
+                return line.split('=')[1].strip()[1:-1]
 
-with io.open('requirements.txt', encoding='utf-8') as f:
-    requirements = f.read().splitlines()
+
+def get_requirements():
+    requirements = ['bitstring>=3.1.3', 'six']
+    return requirements
+
 
 setup(
-    name='logya',
-    version=__version__,
-    description='Logya: easy to use and flexible static Web site generator.',
-    long_description=readme,
-    url='https://ramiro.org/logya/',
-    author='Ramiro Gómez',
-    author_email='code@ramiro.org',
-    maintainer='Ramiro Gómez',
-    maintainer_email='code@ramiro.org',
-    keywords=['Website Generator'],
-    license='MIT',
-    packages=['logya'],
-    package_data={'': ['LICENSE']},
+    name='pybufrkit',
+    version=get_version(),
+    platforms=['any'],
+    packages=['pybufrkit'],
+    package_dir={'pybufrkit': 'pybufrkit'},
     include_package_data=True,
-    exclude_package_data={'': ['*.pyc']},
-    install_requires=requirements,
-    classifiers=[
-        'Development Status :: 5 - Production/Stable',
-        'Environment :: Console',
-        'Intended Audience :: Developers',
-        'License :: OSI Approved :: MIT License',
-        'Operating System :: POSIX :: Linux',
-        'Programming Language :: Python',
-        'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3.5',
-        'Programming Language :: Python :: 3.6',
-        'Programming Language :: Python :: 3.7',
-        'Topic :: Internet :: WWW/HTTP :: Dynamic Content :: News/Diary',
-        'Topic :: Internet :: WWW/HTTP :: Site Management',
-        'Topic :: Text Processing :: Markup :: HTML'
-    ],
+    setup_requires=["pytest-runner"],
+    install_requires=get_requirements(),
+    tests_require=['pytest'],
     entry_points={
-        'console_scripts': [
-            'logya = logya.main:main'
-        ]
+        'console_scripts': ['pybufrkit = pybufrkit:main'],
     },
-    test_suite='tests',
-    tests_require=['tox'],
+
+    author='Yang Wang',
+    author_email='ywangd@gmail.com',
+    description='Python toolkit to work with BUFR files',
+    long_description=__doc__,
+    license='MIT',
+    classifiers=[
+        "Development Status :: 5 - Production/Stable",
+        "Environment :: Console",
+        "Intended Audience :: Developers",
+        "Intended Audience :: Science/Research",
+        "Operating System :: OS Independent",
+        "License :: OSI Approved :: MIT License",
+        "Programming Language :: Python :: 2.7",
+        "Programming Language :: Python :: 3.5",
+        "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
+        "Topic :: Utilities",
+    ],
+    keywords=['BUFR', 'WMO'],
+    url='https://github.com/ywangd/pybufrkit',
 )
