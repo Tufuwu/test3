@@ -2,7 +2,7 @@ name: Python Tests
 
 on:
   push:
-    branches: [ master ]
+    branches: [ main ]
   pull_request:
     branches: [ master ]
 
@@ -22,8 +22,3 @@ jobs:
         run: python setup.py develop
       - name: Run tests
         run: python -m pytest
-      - name: Slack notification
-        uses: honglu/notify@v1
-        with:
-          webhook: ${{ secrets.SLACK_WEBHOOK }}
-          message: "Build succeeded on Python ${{ matrix.python }}"
