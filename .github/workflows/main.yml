@@ -48,9 +48,7 @@ jobs:
             dist: xenial
             sudo: true
             arch: ppc64le
-        exclude:
-          - python: "pypy3"
-            arch: ppc64le
+
     env:
       TOXENV: ${{ matrix.toxenv }}
     steps:
