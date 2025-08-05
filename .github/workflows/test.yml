@@ -33,4 +33,3 @@ jobs:
         flake8 --statistics --count
         black --check --diff --target-version py36 .
         python random_street_view.py --help
-    fast_finish: true
