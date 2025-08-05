@@ -19,6 +19,6 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies
-      run: pip install simplejson minimock coverage
+      run: pip install simplejson minimock coverage pytest
     - name: Run tests
       run: make test
