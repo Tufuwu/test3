@@ -1,19 +1,18 @@
-=======
-Shapely
-=======
-
-Documentation Contents
-======================
+.. include:: ../README.rst
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
+   :caption: Contents
 
-   The Project <project>
-   User Manual <manual>
-   API Documentation <modules>
+   file_import_parameters
+   api/index
+   changelog
+
+
 
 Indices and tables
 ==================
 
 * :ref:`genindex`
+* :ref:`modindex`
 * :ref:`search`

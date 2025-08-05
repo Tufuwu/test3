@@ -1,161 +1,311 @@
-=======
-Shapely
-=======
 
-|github-actions| |appveyor| |coveralls|
+Treasure Data API library for Python
+====================================
 
-.. |github-actions| image:: https://github.com/Toblerity/Shapely/workflows/Tests%20(Linux)/badge.svg
-   :target: https://github.com/Toblerity/Shapely/actions
 
-.. |appveyor| image:: https://ci.appveyor.com/api/projects/status/github/Toblerity/Shapely?branch=master&svg=true
-   :target: https://ci.appveyor.com/project/frsci/shapely?branch=master
+.. image:: https://travis-ci.org/treasure-data/td-client-python.svg
+   :target: https://travis-ci.org/treasure-data/td-client-python
+   :alt: Build Status
 
-.. |coveralls| image:: https://coveralls.io/repos/github/Toblerity/Shapely/badge.svg?branch=master
-   :target: https://coveralls.io/github/Toblerity/Shapely?branch=master
 
-Manipulation and analysis of geometric objects in the Cartesian plane.
+.. image:: https://ci.appveyor.com/api/projects/status/eol91l1ag50xee9m/branch/master?svg=true
+   :target: https://ci.appveyor.com/project/treasure-data/td-client-python/branch/master
+   :alt: Build status
 
-.. image:: https://c2.staticflickr.com/6/5560/31301790086_b3472ea4e9_c.jpg
-   :width: 800
-   :height: 378
 
-Shapely is a BSD-licensed Python package for manipulation and analysis of
-planar geometric objects. It is based on the widely deployed `GEOS
-<https://trac.osgeo.org/geos/>`__ (the engine of `PostGIS
-<http://postgis.org>`__) and `JTS
-<https://locationtech.github.io/jts/>`__ (from which GEOS is ported)
-libraries. Shapely is not concerned with data formats or coordinate systems,
-but can be readily integrated with packages that are. For more details, see:
+.. image:: https://coveralls.io/repos/treasure-data/td-client-python/badge.svg
+   :target: https://coveralls.io/r/treasure-data/td-client-python
+   :alt: Coverage Status
 
-* `Shapely GitHub repository <https://github.com/Toblerity/Shapely>`__
-* `Shapely documentation and manual <https://shapely.readthedocs.io/en/latest/>`__
 
-Usage
-=====
+.. image:: https://badge.fury.io/py/td-client.svg
+   :target: http://badge.fury.io/py/td-client
+   :alt: PyPI version
 
-Here is the canonical example of building an approximately circular patch by
-buffering a point.
 
-.. code-block:: pycon
-
-    >>> from shapely.geometry import Point
-    >>> patch = Point(0.0, 0.0).buffer(10.0)
-    >>> patch
-    <shapely.geometry.polygon.Polygon object at 0x...>
-    >>> patch.area
-    313.65484905459385
-
-See the manual for more examples and guidance.
+Treasure Data API library for Python
 
 Requirements
-============
+------------
 
-Shapely 1.7 requires
+``td-client`` supports the following versions of Python.
 
-* Python 2.7, >=3.5
-* GEOS >=3.3
 
-Installing Shapely
-==================
+* Python 3.5+
+* PyPy
 
-Shapely may be installed from a source distribution or one of several kinds
-of built distribution.
+Install
+-------
 
-Built distributions
--------------------
+You can install the releases from `PyPI <https://pypi.python.org/>`_.
 
-Built distributions are the only option for users who do not have or do not
-know how to use their platform's compiler and Python SDK, and a good option for
-users who would rather not bother.
+.. code-block:: sh
 
-Linux, OS X, and Windows users can get Shapely wheels with GEOS included from the
-Python Package Index with a recent version of pip (8+):
+   $ pip install td-client
 
-.. code-block:: console
+It'd be better to install `certifi <https://pypi.python.org/pypi/certifi>`_ to enable SSL certificate verification.
 
-    $ pip install shapely
+.. code-block:: sh
 
-Shapely is available via system package management tools like apt, yum, and
-Homebrew, and is also provided by popular Python distributions like Canopy and
-Anaconda. If you use the Conda package manager to install Shapely, be sure to
-use the conda-forge channel.
+   $ pip install certifi
 
-Windows users have another good installation options: the wheels published at
-https://www.lfd.uci.edu/~gohlke/pythonlibs/#shapely. These can be installed
-using pip by specifying the entire URL.
+Examples
+--------
 
-Source distributions
---------------------
+Please see also the examples at `Treasure Data Documentation <http://docs.treasuredata.com/articles/rest-api-python-client>`_.
 
-If you want to build Shapely from source for compatibility with other modules
-that depend on GEOS (such as cartopy or osgeo.ogr) or want to use a different
-version of GEOS than the one included in the project wheels you should first
-install the GEOS library, Cython, and Numpy on your system (using apt, yum,
-brew, or other means) and then direct pip to ignore the binary wheels.
+The td-client documentation is hosted at https://tdclient.readthedocs.io/,
+or you can go directly to the
+`API documentation <https://tdclient.readthedocs.io/en/latest/api/index.html>`_.
 
-.. code-block:: console
+For information on the parameters that may be used when reading particular
+types of data, see `File import parameters`_.
 
-    $ pip install shapely --no-binary shapely
+.. _`file import parameters`:
+   https://tdclient.readthedocs.io/en/latest/api/file_import_paremeters.html
 
-If you've installed GEOS to a standard location, the geos-config program will
-be used to get compiler and linker options. If geos-config is not on your
-executable, it can be specified with a GEOS_CONFIG environment variable, e.g.:
+Listing jobs
+^^^^^^^^^^^^
 
-.. code-block:: console
+Treasure Data API key will be read from environment variable ``TD_API_KEY``\ , if none is given via ``apikey=`` argument passed to ``tdclient.Client``.
 
-    $ GEOS_CONFIG=/path/to/geos-config pip install shapely
+Treasure Data API endpoint ``https://api.treasuredata.com`` is used by default. You can override this with environment variable ``TD_API_SERVER``\ , which in turn can be overridden via ``endpoint=`` argument passed to ``tdclient.Client``. List of available Treasure Data sites and corresponding API endpoints can be found `here <https://support.treasuredata.com/hc/en-us/articles/360001474288-Sites-and-Endpoints>`_.
 
-Integration
-===========
+.. code-block:: python
 
-Shapely does not read or write data files, but it can serialize and deserialize
-using several well known formats and protocols. The shapely.wkb and shapely.wkt
-modules provide dumpers and loaders inspired by Python's pickle module.
+   import tdclient
 
-.. code-block:: pycon
+   with tdclient.Client() as td:
+       for job in td.jobs():
+           print(job.job_id)
 
-    >>> from shapely.wkt import dumps, loads
-    >>> dumps(loads('POINT (0 0)'))
-    'POINT (0.0000000000000000 0.0000000000000000)'
+Running jobs
+^^^^^^^^^^^^
 
-Shapely can also integrate with other Python GIS packages using GeoJSON-like
-dicts.
+Running jobs on Treasure Data.
 
-.. code-block:: pycon
+.. code-block:: python
 
-    >>> import json
-    >>> from shapely.geometry import mapping, shape
-    >>> s = shape(json.loads('{"type": "Point", "coordinates": [0.0, 0.0]}'))
-    >>> s
-    <shapely.geometry.point.Point object at 0x...>
-    >>> print(json.dumps(mapping(s)))
-    {"type": "Point", "coordinates": [0.0, 0.0]}
+   import tdclient
 
-Development and Testing
-=======================
+   with tdclient.Client() as td:
+       job = td.query("sample_datasets", "SELECT COUNT(1) FROM www_access", type="hive")
+       job.wait()
+       for row in job.result():
+           print(repr(row))
 
-Dependencies for developing Shapely are listed in requirements-dev.txt. Cython
-and Numpy are not required for production installations, only for development.
-Use of a virtual environment is strongly recommended.
+Running jobs via DBAPI2
+^^^^^^^^^^^^^^^^^^^^^^^
 
-.. code-block:: console
+td-client-python implements `PEP 0249 <https://www.python.org/dev/peps/pep-0249/>`_ Python Database API v2.0.
+You can use td-client-python with external libraries which supports Database API such like `pandas <http://pandas.pydata.org/>`_.
 
-    $ virtualenv .
-    $ source bin/activate
-    (env)$ pip install -r requirements-dev.txt
-    (env)$ pip install -e .
+.. code-block:: python
 
-The project uses pytest to run Shapely's suite of unittests and doctests.
+   import pandas
+   import tdclient
 
-.. code-block:: console
+   def on_waiting(cursor):
+       print(cursor.job_status())
 
-    (env)$ python -m pytest
+   with tdclient.connect(db="sample_datasets", type="presto", wait_callback=on_waiting) as td:
+       data = pandas.read_sql("SELECT symbol, COUNT(1) AS c FROM nasdaq GROUP BY symbol", td)
+       print(repr(data))
 
-Support
-=======
+We offer another package for pandas named `pytd <https://github.com/treasure-data/pytd>`_ with some advanced features.
+You may prefer it if you need to do complicated things, such like exporting result data to Treasure Data, printing job's
+progress during long execution, etc.
 
-Questions about using Shapely may be asked on the `GIS StackExchange
-<https://gis.stackexchange.com/questions/tagged/shapely>`__ using the "shapely"
-tag.
+Importing data
+^^^^^^^^^^^^^^
 
-Bugs may be reported at https://github.com/Toblerity/Shapely/issues.
+Importing data into Treasure Data in streaming manner, as similar as `fluentd <http://www.fluentd.org/>`_ is doing.
+
+.. code-block:: python
+
+   import sys
+   import tdclient
+
+   with tdclient.Client() as td:
+       for file_name in sys.argv[:1]:
+           td.import_file("mydb", "mytbl", "csv", file_name)
+
+
+.. Warning::
+   Importing data in streaming manner requires certain amount of time to be ready to query since schema update will be
+   executed with delay.
+
+Bulk import
+^^^^^^^^^^^
+
+Importing data into Treasure Data in batch manner.
+
+.. code-block:: python
+
+   import sys
+   import tdclient
+   import uuid
+   import warnings
+
+   if len(sys.argv) <= 1:
+       sys.exit(0)
+
+   with tdclient.Client() as td:
+       session_name = "session-{}".format(uuid.uuid1())
+       bulk_import = td.create_bulk_import(session_name, "mydb", "mytbl")
+       try:
+           for file_name in sys.argv[1:]:
+               part_name = "part-{}".format(file_name)
+               bulk_import.upload_file(part_name, "json", file_name)
+           bulk_import.freeze()
+       except:
+           bulk_import.delete()
+           raise
+       bulk_import.perform(wait=True)
+       if 0 < bulk_import.error_records:
+           warnings.warn("detected {} error records.".format(bulk_import.error_records))
+       if 0 < bulk_import.valid_records:
+           print("imported {} records.".format(bulk_import.valid_records))
+       else:
+           raise(RuntimeError("no records have been imported: {}".format(bulk_import.name)))
+       bulk_import.commit(wait=True)
+       bulk_import.delete()
+
+
+If you want to import data as `msgpack <https://msgpack.org/>`_ format, you can write as follows:
+
+.. code-block:: python
+
+   import io
+   import time
+   import uuid
+   import warnings
+
+   import tdclient
+
+   t1 = int(time.time())
+   l1 = [{"a": 1, "b": 2, "time": t1}, {"a": 3, "b": 9, "time": t1}]
+
+   with tdclient.Client() as td:
+       session_name = "session-{}".format(uuid.uuid1())
+       bulk_import = td.create_bulk_import(session_name, "mydb", "mytbl")
+       try:
+           _bytes = tdclient.util.create_msgpack(l1)
+           bulk_import.upload_file("part", "msgpack", io.BytesIO(_bytes))
+           bulk_import.freeze()
+       except:
+           bulk_import.delete()
+           raise
+       bulk_import.perform(wait=True)
+       # same as the above example
+
+
+Changing how CSV and TSV columns are read
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The ``td-client`` package will generally make sensible choices on how to read
+the columns in CSV and TSV data, but sometimes the user needs to override the
+default mechanism. This can be done using the optional `file import
+parameters`_ ``dtypes`` and ``converters``.
+
+For instance, consider CSV data that starts with the following records::
+
+  time,col1,col2,col3
+  1575454204,a,0001,a;b;c
+  1575454204,b,0002,d;e;f
+
+If that data is read using the defaults, it will produce values that look
+like:
+
+.. code:: python
+
+  1575454204, "a", 1, "a;b;c"
+  1575454204, "b", 2, "d;e;f"
+  
+that is, an integer, a string, an integer and another string.
+
+If the user wants to keep the leading zeroes in ``col2``, then they can
+specify the column datatype as string. For instance, using
+``bulk_import.upload_file`` to read data from ``input_data``:
+
+.. code:: python
+
+    bulk_import.upload_file(
+        "part", "msgpack", input_data,
+        dtypes={"col2": "str"},
+    )
+
+which would produce:
+
+.. code:: python
+
+  1575454204, "a", "0001", "a;b;c"
+  1575454204, "b", "0002", "d;e;f"
+
+If they also wanted to treat ``col3`` as a sequence of strings, separated by
+semicolons, then they could specify a function to process ``col3``:
+
+.. code:: python
+
+    bulk_import.upload_file(
+        "part", "msgpack", input_data,
+        dtypes={"col2": "str"},
+        converters={"col3", lambda x: x.split(";")},
+    )
+
+which would produce:
+
+.. code:: python
+
+  1575454204, "a", "0001", ["a", "b", "c"]
+  1575454204, "b", "0002", ["d", "e", "f"]
+
+Development
+-----------
+
+Running tests
+^^^^^^^^^^^^^
+
+Run tests.
+
+.. code-block:: sh
+
+   $ python setup.py test
+
+Running tests (tox)
+^^^^^^^^^^^^^^^^^^^
+
+You can run tests against all supported Python versions. I'd recommend you to install `pyenv <https://github.com/yyuu/pyenv>`_ to manage Pythons.
+
+.. code-block:: sh
+
+   $ pyenv shell system
+   $ for version in $(cat .python-version); do [ -d "$(pyenv root)/versions/${version}" ] || pyenv install "${version}"; done
+   $ pyenv shell --unset
+
+Install `tox <https://pypi.python.org/pypi/tox>`_.
+
+.. code-block:: sh
+
+   $ pip install tox
+
+Then, run ``tox``.
+
+.. code-block:: sh
+
+   $ tox
+
+Release
+^^^^^^^
+
+Release to PyPI. Ensure you installed twine.
+
+.. code-block:: sh
+
+   $ python setup.py bdist_wheel sdist
+   $ twine upload dist/*
+
+License
+-------
+
+Apache Software License, Version 2.0
