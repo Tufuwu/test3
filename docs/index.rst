@@ -1,75 +1,48 @@
-.. micawber documentation master file, created by
-   sphinx-quickstart on Tue Apr 17 13:43:41 2012.
+.. Scout documentation master file, created by
+   sphinx-quickstart on Sat Mar 28 11:51:29 2015.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-.. image:: http://media.charlesleifer.com/blog/photos/micawber-logo-0.png
+scout
+=====
 
-A small library for extracting rich content from urls.
+.. image:: http://media.charlesleifer.com/blog/photos/scout-logo.png
 
-https://github.com/coleifer/micawber
+**scout** is a RESTful search server written in Python with a focus on using
+lightweight components:
 
+* search powered by `sqlite's full-text search extension <http://sqlite.org/fts3.html>`_
+* database access coordinated using `peewee ORM <http://docs.peewee-orm.com/>`_
+* web application built with `flask <http://flask.pocoo.org>`_ framework
 
-what does it do?
-----------------
+Scout aims to be a lightweight, RESTful search server in the spirit of
+[ElasticSearch](https://www.elastic.co), powered by the SQLite full-text search
+extension. In addition to search, Scout can be used as a document database,
+supporting complex filtering operations. Arbitrary files can be attached to
+documents and downloaded through the REST API.
 
-micawber supplies a few methods for retrieving rich metadata about a variety of
-links, such as links to youtube videos.  micawber also provides functions for
-parsing blocks of text and html and replacing links to videos with rich embedded
-content.
+Scout is simple to use, simple to deploy and *just works*.
 
-
-examples
+Features
 --------
 
-here is a quick example:
+* multiple search indexes present in a single database.
+* restful design for easy indexing and searching.
+* simple key-based authentication (optional).
+* lightweight, low resource utilization, minimal setup required.
+* store search content and arbitrary metadata.
+* attach files or BLOBs to indexed documents.
+* multiple result ranking algorithms, porter stemmer.
+* besides full-text search, perform complex filtering based on metadata values.
+* comprehensive unit-tests.
+* supports SQLite `FTS4 <http://sqlite.org/fts3.html>`_.
 
-.. code-block:: python
+named in honor of the best dog ever,
 
-    import micawber
+.. image:: http://media.charlesleifer.com/blog/photos/p1473037171.1.JPG
 
-    # load up rules for some default providers, such as youtube and flickr
-    providers = micawber.bootstrap_basic()
-
-    providers.request('http://www.youtube.com/watch?v=54XHDUOHuzU')
-
-    # returns the following dictionary:
-    {
-        'author_name': 'pascalbrax',
-        'author_url': u'http://www.youtube.com/user/pascalbrax'
-        'height': 344,
-        'html': u'<iframe width="459" height="344" src="http://www.youtube.com/embed/54XHDUOHuzU?fs=1&feature=oembed" frameborder="0" allowfullscreen></iframe>',
-        'provider_name': 'YouTube',
-        'provider_url': 'http://www.youtube.com/',
-        'title': 'Future Crew - Second Reality demo - HD',
-        'type': u'video',
-        'thumbnail_height': 360,
-        'thumbnail_url': u'http://i2.ytimg.com/vi/54XHDUOHuzU/hqdefault.jpg',
-        'thumbnail_width': 480,
-        'url': 'http://www.youtube.com/watch?v=54XHDUOHuzU',
-        'width': 459,
-        'version': '1.0',
-    }
-
-    providers.parse_text('this is a test:\nhttp://www.youtube.com/watch?v=54XHDUOHuzU')
-
-    # returns the following string:
-    this is a test:
-    <iframe width="459" height="344" src="http://www.youtube.com/embed/54XHDUOHuzU?fs=1&feature=oembed" frameborder="0" allowfullscreen></iframe>
-
-    providers.parse_html('<p>http://www.youtube.com/watch?v=54XHDUOHuzU</p>')
-
-    # returns the following html:
-    <p><iframe width="459" height="344" src="http://www.youtube.com/embed/54XHDUOHuzU?fs=1&amp;feature=oembed" frameborder="0" allowfullscreen="allowfullscreen"></iframe></p>
-
-check out the :ref:`getting started <getting_started>` for more examples
-
-
-integration with web frameworks
--------------------------------
-
-* :ref:`flask <flask>`
-* :ref:`django <django>`
+Table of contents
+-----------------
 
 Contents:
 
@@ -78,11 +51,10 @@ Contents:
    :glob:
 
    installation
-   getting_started
-   examples
-   flask
-   django
-   api
+   server
+   client
+   deployment
+   hacks
 
 
 Indices and tables
