@@ -1,19 +1,17 @@
-override T_FLAGS += -v
-install:
-	python -m pip install --upgrade pip
+init:
 	pip install -r requirements.txt
+	pip install -r test_requirements.txt
 
-test: test-base test-instances test-update-instances
+test:
+	pytest --spec -s tests/
 
-test-base:
-	pytest tests -k 'not test_instances' $(T_FLAGS)
+test-coverage:
+	pytest --spec -s tests/ --cov=./greenswitch --cov-report term-missing
 
-test-instances:
-	pytest tests -k 'test_instances and not test_update' $(T_FLAGS)
+build:
+	python setup.py sdist bdist_wheel
 
-test-update-instances:
-	pytest tests -k 'test_instances and test_update' $(T_FLAGS)
+upload:
+	python -m twine upload dist/*
 
-lint:
-	flake8 pybikes tests --count --select=E9,F63,F7,F82 --show-source --statistics
-	flake8 pybikes tests --count --exit-zero --max-complexity=10 --max-line-length=88 --statistics
+release: build upload
