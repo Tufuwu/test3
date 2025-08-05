@@ -65,7 +65,7 @@ jobs:
       - name: Install dependencies
         run: |
           pip uninstall -y nose mock
-          pip install pbr tox tox-travis
+          pip install pbr tox tox-travis wheel
           pip install -r doc/requirements.txt .[test]
 
       - name: Run tests
