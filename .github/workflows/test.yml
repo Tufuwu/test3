@@ -93,7 +93,7 @@ jobs:
           python-version: ${{ matrix.python }}
       - name: Install dependencies
         run: |
-          pip install $DJANGO
+          pip install ${{matrix.django}}
           pip install requests
           pip install -e .
       - name: Run tests
