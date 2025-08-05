@@ -22,10 +22,11 @@ jobs:
         key: ${{ matrix.python }}-pip
         restore-keys: |
           ${{ matrix.python }}-pip
+    - name: Install pipenv
+      run: pip install pipenv
+
     - name: Install dependencies
-      run: |
-        pip install pipenv
-        pipenv install --dev --system
+      run: pipenv install --dev --system
     - name: Lint with flake8
       run: |
         flake8 .
