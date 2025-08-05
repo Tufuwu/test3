@@ -1,35 +1,21 @@
-name: CI
-on:
-  push:
-    branches:
-      - main
+name: Python Tests
+on: [push]
 jobs:
   build:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python: [3.9]
+        python-version: [3.9]
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
-    - name: Setup Python
+    - name: Set up Python
       uses: actions/setup-python@v2
       with:
-        python-version: ${{ matrix.python }}
-    - name: Cache pip
-      uses: actions/cache@v4
-      with:
-        path: ~/.cache/pip
-        key: ${{ matrix.python }}-pip
-        restore-keys: |
-          ${{ matrix.python }}-pip
+        python-version: ${{ matrix.python-version }}
     - name: Install dependencies
       run: |
-        pip install --upgrade black
-        pip install --upgrade flake8
-        pip install -r requirements.txt
-    - name: Run checks
-      run: |
-        flake8 --statistics --count
-        black --check --diff --target-version py36 .
-        python random_street_view.py --help
+        pip install -U nose -r requirements.txt
+        python setup.py install
+    - name: Run tests
+      run: make tests
