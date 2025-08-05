@@ -1,0 +1,52 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - '*'
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - python-version: '3.5'
+            ipython-version: '7.9'
+            pandas-version: '0.24.2'
+          - python-version: '3.6'
+            ipython-version: '7'
+            pandas-version: '1'
+          - python-version: '3.7'
+            ipython-version: '7'
+            pandas-version: '1'
+          - python-version: '3.8'
+            ipython-version: '7'
+            pandas-version: '1'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install dependencies
+        run: |
+          pip install IPython==${{ matrix.ipython-version }}
+          pip install pandas==${{ matrix.pandas-version }}
+          pip install .[test]
+      - name: Run tests
+        run: |
+          python -c 'import pytorch_memlab'
+          pytest test/test_mem_reporter.py
+      - name: Deploy to PyPI
+        if: ${{ matrix.python-version == '3.8' && github.event_name == 'push' && github.ref_type == 'tag' }}
+        run: |
+          python setup.py sdist bdist_wheel
+          twine upload dist/*
+        env:
+          TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
+          TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
