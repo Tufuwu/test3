@@ -1,9 +1,11 @@
-name: Python CI
+name: Python application
+
 on:
   push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+    branches:
+      - main
+    tags:
+      - '*'
 
 jobs:
   build:
@@ -11,20 +13,75 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python: [3.6, 3.7, 3.8, 3.9]
+        include:
+          - python: '3.6'
+            build: 'docs'
+          - python: '3.6'
+            build: 'pep8'
+          - python: '3.6'
+            build: 'cover'
+          - python: '3.7'
+            build: 'docs'
+          - python: '3.7'
+            build: 'pep8'
+          - python: '3.7'
+            build: 'cover'
+          - python: '3.8'
+            build: 'docs'
+          - python: '3.8'
+            build: 'pep8'
+          - python: '3.8'
+            build: 'cover'
+          - python: '3.8-dev'
+            build: 'docs'
+          - python: '3.8-dev'
+            build: 'pep8'
+          - python: '3.8-dev'
+            build: 'cover'
+          - python: 'nightly'
+            build: 'docs'
+          - python: 'nightly'
+            build: 'pep8'
+          - python: 'nightly'
+            build: 'cover'
+
+
     steps:
-    - uses: actions/checkout@v2
-    - name: Set up Python
-      uses: actions/setup-python@v2
-      with:
-        python-version: ${{ matrix.python }}
-    - name: Install dependencies
-      run: |
-        pip install pyflakes pytest pytest-doctestplus
-    - name: Run tests
-      run: |
-        set -e
-        pyflakes .
-        python -We:invalid -We::SyntaxWarning -m compileall -f -q removestar/
-        pytest
-        python setup.py install
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python }}
+
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ matrix.python }}-pip
+          restore-keys: ${{ matrix.python }}-pip
+
+      - name: Install dependencies
+        run: |
+          pip uninstall -y nose mock
+          pip install pbr tox tox-travis
+          pip install -r doc/requirements.txt .[test]
+
+      - name: Run tests
+        run: |
+          case "${{ matrix.build }}" in
+            docs|pep8|cover)
+              tox -e ${{ matrix.build }}
+              ;;
+            *)
+              tox
+              ;;
+          esac
+
+      - name: Deploy to PyPI
+        if: ${{ github.event_name == 'push' && github.ref_type == 'tag' }}
+        run: |
+          python setup.py sdist bdist_wheel upload
+        env:
+          TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
