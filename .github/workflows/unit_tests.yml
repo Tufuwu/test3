@@ -3,9 +3,7 @@ on:
   push:
     branches:
       - main
-  tags:
-    branches:
-      - '*'
+
 
 jobs:
   build-and-deploy:
