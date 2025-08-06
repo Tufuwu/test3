@@ -31,7 +31,7 @@ jobs:
       - name: Install dependencies
         run: |
           pip install tox-gh-actions
-          pip install codecov
+          pip install codecov poetry
       - name: Run tests
         run: tox
       - name: Upload coverage
