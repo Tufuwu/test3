@@ -13,11 +13,9 @@ jobs:
       fail-fast: false
       matrix:
         include:
-        - python: "2.7"
-        - python: "3.4"
-        - python: "3.5"
-        - python: "3.6"
+
         - python: "3.7"
+        - python: "3.9"
         - python: "3.8"
           env: TOXENV=lint
         - python: "3.9-dev"
