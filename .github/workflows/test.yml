@@ -17,6 +17,6 @@ jobs:
       - uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python }}
-      - run: pip install -U setuptools>=39.2.0
+
       - run: python setup.py develop
       - run: python setup.py test
