@@ -75,7 +75,7 @@ jobs:
           restore-keys: ${{ runner.os }}-pip-
 
       - name: Install tox
-        run: pip install tox
+        run: pip install tox-gh-actions
 
       - name: Run tox
         run: tox
