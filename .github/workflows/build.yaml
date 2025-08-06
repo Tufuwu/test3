@@ -30,6 +30,8 @@ jobs:
       - name: Install graphviz
         run: sudo apt-get install -y graphviz
       - name: Run tests
-        run: ./run-tests.py
+        run: |
+          chmod +x ./run-tests.py
+          ./run-tests.py
       - name: Upload coverage
         run: codecov
