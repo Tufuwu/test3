@@ -1,11 +1,15 @@
+.DS_Store
+._*
 *.pyc
-__pycache__
-*.pyo
-dist/**
-*.egg-info*
-.idea/
-venv/
+*.egg
+*.egg-info
+.eggs/
+.tox/
 build/
-db.sqlite3
 dist/
+docs/_build/
+local.py
 
+# Because pipenv is only used to manage a local development
+# environment, it's not helpful to track its lock file
+Pipfile.lock

@@ -1,42 +1,81 @@
-name: Test Python and Django Configurations
+name: CI
 
 on:
   push:
     branches:
       - main
+      - /^v\d+\.\d+(\.(\d|x)+)?(-\S*)?$/
+  pull_request:
+    branches:
+      - main
+      - /^v\d+\.\d+(\.(\d|x)+)?(-\S*)?$/
 
 jobs:
-  test:
+  build:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        python: ["3.5", "3.6", "3.7", "3.8", "pypy3"]
-        django: ["2.2", "3.0", "3.1", "master"]
-        exclude:
-          - python: "3.5"
-            django: "3.0"
-          - python: "3.5"
-            django: "3.1"
-          - python: "3.5"
-            django: "master"
+        include:
+          - python: 3.8
+            env: TOXENV="lint,docs"
+          - python: 3.5
+            env: TOXENV=django20-py35-all
+          - python: 3.6
+            env: TOXENV=django20-py36-all
+          - python: pypy3
+            env: TOXENV=django20-pypy3-all
+          - python: 3.5
+            env: TOXENV=django21-py35-all
+          - python: 3.6
+            env: TOXENV=django21-py36-all
+          - python: 3.7
+            env: TOXENV=django21-py37-all
+          - python: pypy3
+            env: TOXENV=django21-pypy3-all
+          - python: 3.5
+            env: TOXENV=django22-py35-all
+          - python: 3.6
+            env: TOXENV=django22-py36-all
+          - python: 3.7
+            env: TOXENV=django22-py37-all
+          - python: pypy3
+            env: TOXENV=django22-pypy3-all
+          - python: 3.6
+            env: TOXENV=django30-py36-all
+          - python: 3.7
+            env: TOXENV=django30-py37-all
+          - python: 3.8
+            env: TOXENV=django30-py38-all
+          - python: pypy3
+            env: TOXENV=django30-pypy3-all
+          - python: 3.6
+            env: TOXENV=django31-py36-all
+          - python: 3.7
+            env: TOXENV=django31-py37-all
+          - python: 3.8
+            env: TOXENV=django31-py38-all RUN_LIVE_TESTS=true
+          - python: pypy3
+            env: TOXENV=django31-pypy3-all
+          - python: 3.7
+            env: TOXENV=djangoDev-py37-all
+
+    env:
+      TOX_FORCE_IGNORE_OUTCOME: false
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-      - name: Set up Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: ${{ matrix.python }}
+
       - name: Cache pip
         uses: actions/cache@v4
         with:
-          path: /home/runner/.cache/pip
-          key: pip-${{ hashFiles('**/requirements.txt') }}
-          restore-keys: | 
-            pip-
-      - name: Install dependencies
-        run: |
-          pip install tox-gh-actions
-      - name: Run tests
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: ${{ runner.os }}-pip-
+
+      - name: Install tox
+        run: pip install tox
+
+      - name: Run tox
         run: tox
