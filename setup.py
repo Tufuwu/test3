@@ -1,48 +1,32 @@
-#!/usr/bin/env python
-
-"""Setup for docformatter."""
-
-from __future__ import (absolute_import,
-                        division,
-                        print_function,
-                        unicode_literals)
-
-import ast
-from pathlib import Path
-
-from setuptools import setup
+from setuptools import setup, find_packages
 
 
-def version():
-    """Return version string."""
-    with open('docformatter.py') as input_file:
-        for line in input_file:
-            if line.startswith('__version__'):
-                return ast.parse(line).body[0].value.s
+def scm_version():
+    def local_scheme(version):
+        if version.tag and not version.distance:
+            return version.format_with("")
+        else:
+            return version.format_choice("+{node}", "+{node}.dirty")
+    return {
+        "relative_to": __file__,
+        "version_scheme": "guess-next-dev",
+        "local_scheme": local_scheme
+    }
 
 
-setup(name='docformatter',
-        version=version(),
-        description='Formats docstrings to follow PEP 257.',
-        long_description=Path('README.rst').read_text(),
-        license='Expat License',
-        author='Steven Myint',
-        url='https://github.com/myint/docformatter',
-        classifiers=['Intended Audience :: Developers',
-                    'Environment :: Console',
-                    'Programming Language :: Python :: 3',
-                    'Programming Language :: Python :: 3.6',
-                    'Programming Language :: Python :: 3.7',
-                    'Programming Language :: Python :: 3.8',
-                    'Programming Language :: Python :: 3.9',
-                    'Programming Language :: Python :: 3.10',
-                    'Programming Language :: Python :: Implementation',
-                    'Programming Language :: Python :: Implementation :: PyPy',
-                    'Programming Language :: Python :: Implementation :: CPython',
-                    'License :: OSI Approved :: MIT License'],
-        keywords='PEP 257, pep257, style, formatter, docstrings',
-        py_modules=['docformatter'],
-        entry_points={
-            'console_scripts': ['docformatter = docformatter:main']},
-        install_requires=['untokenize'],
-        test_suite='test_docformatter')
+setup(
+    name="nmigen-soc",
+    use_scm_version=scm_version(),
+    author="whitequark",
+    author_email="whitequark@whitequark.org",
+    description="System on Chip toolkit for nMigen",
+    #long_description="""TODO""",
+    license="BSD",
+    setup_requires=["wheel", "setuptools", "setuptools_scm"],
+    install_requires=["nmigen>=0.2,<0.5"],
+    packages=find_packages(),
+    project_urls={
+        "Source Code": "https://github.com/nmigen/nmigen-soc",
+        "Bug Tracker": "https://github.com/nmigen/nmigen-soc/issues",
+    },
+)
