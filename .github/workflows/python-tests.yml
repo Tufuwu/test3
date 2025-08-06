@@ -29,3 +29,5 @@ jobs:
         coverage run --source=nvd3 setup.py test
     - name: Upload coverage
       run: coveralls
+      env: 
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
