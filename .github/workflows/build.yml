@@ -24,7 +24,7 @@ jobs:
     - name: Install Python packages
       run: |
         pip install -e .
-        pip install pyicu coverage nose twine
+        pip install pyicu coverage nose twine wheel
     - name: Run tests
       run: |
         nosetests --with-coverage --cover-package=fingerprints --cover-erase
