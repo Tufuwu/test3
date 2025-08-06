@@ -43,11 +43,3 @@ jobs:
     - name: Upload coverage to codecov
       run: |
         codecov
-    - name: Deploy to PyPI
-      if: matrix.deploy
-      uses: pypa/python-action@v2
-      with:
-        user: apsl
-        password: ${{ secrets.PYPI_PASSWORD }}
-        distributions: sdist bdist_wheel
-        skip_existing: true
