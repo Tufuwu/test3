@@ -22,7 +22,7 @@ jobs:
         run: python setup.py test
       - name: Deploy to PyPI
         run: |
-          pip install wheel
+          pip install wheel twine
           python setup.py sdist bdist_wheel
           twine upload --skip-existing dist/*
         env:
