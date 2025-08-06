@@ -37,6 +37,6 @@ jobs:
             pip-
       - name: Install dependencies
         run: |
-          pip install tox-travis
+          pip install tox-gh-actions
       - name: Run tests
         run: tox
