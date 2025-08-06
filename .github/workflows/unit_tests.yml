@@ -27,7 +27,7 @@ jobs:
       run: |
         pytest --vcr-record=none --cov=tenable tests
     - name: Deploy to PyPI
-      if: ${{ github.event_name == 'push' && github.ref_type == 'tag' }}
+
       run: |
         python setup.py sdist bdist_wheel
         twine upload dist/* --skip-existing
