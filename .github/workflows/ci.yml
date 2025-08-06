@@ -1,25 +1,23 @@
-name: CI
-on: [push]
+name: Python CI
+on: [push, pull_request]
 jobs:
   build:
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        python: [3.6, 3.7, 3.8]
     steps:
     - uses: actions/checkout@v2
-    - name: Set up Node.js
-      uses: actions/setup-node@v2
+    - uses: actions/setup-python@v2
       with:
-        node-version: 14.x
-    - name: Set up Python
-      uses: actions/setup-python@v2
-      with:
-        python-version: ${{ matrix.python }}
+        python-version:  3.8
     - name: Install dependencies
       run: |
-        npm install -g jshint
         pip install -r requirements.txt
-    - name: Run script
-      run: make
+        pip install -r requirements-dev.txt
+        pip install -e .
+    - name: Lint with flake8
+      run: flake8
+    - name: Run tests
+      run: pytest --cov
+    - name: Upload coverage
+      uses: coverallsapp/coveralls-action@v1
+      with:
+        coveralls_token: ${{ secrets.COVERALLS_TOKEN }}

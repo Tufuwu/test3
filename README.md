@@ -1,76 +1,148 @@
-JARVIS
-======
+# Fierce
 
-![Build Status](https://github.com/mpolden/jarvis2/workflows/ci/badge.svg)
+[![CI](https://github.com/mschwager/fierce/actions/workflows/ci.yml/badge.svg)](https://github.com/mschwager/fierce/actions/workflows/ci.yml)
+[![Coverage Status](https://coveralls.io/repos/github/mschwager/fierce/badge.svg?branch=master)](https://coveralls.io/github/mschwager/fierce?branch=master)
+[![Dlint](https://github.com/mschwager/fierce/actions/workflows/dlint.yml/badge.svg)](https://github.com/mschwager/fierce/actions/workflows/dlint.yml)
+[![Python Versions](https://img.shields.io/pypi/pyversions/fierce.svg)](https://img.shields.io/pypi/pyversions/fierce.svg)
+[![PyPI Version](https://img.shields.io/pypi/v/fierce.svg)](https://img.shields.io/pypi/v/fierce.svg)
 
-JARVIS is a dashboard framework designed to run on the Raspberry Pi.
+Fierce is a `DNS` reconnaissance tool for locating non-contiguous IP space.
 
-It features live-updating widgets using
-[server-sent events](https://en.wikipedia.org/wiki/Server-sent_events) and can be
-easily extended to fit your needs.
+Useful links:
 
-Screenshots
------------
-![Screenshot 1](docs/jarvis2.png)
-![Screenshot 2](docs/jarvis2_1.png)
+* [Domain Name System (DNS)](https://en.wikipedia.org/wiki/Domain_Name_System)
+  * [Domain Names - Concepts and Facilities](https://tools.ietf.org/html/rfc1034)
+  * [Domain Names - Implementation and Specification](https://tools.ietf.org/html/rfc1035)
+  * [Threat Analysis of the Domain Name System (DNS)](https://tools.ietf.org/html/rfc3833)
+* [Name Servers (NS)](https://en.wikipedia.org/wiki/Domain_Name_System#Name_servers)
+* [State of Authority Record (SOA)](https://en.wikipedia.org/wiki/List_of_DNS_record_types#SOA)
+* [Zone Transfer](https://en.wikipedia.org/wiki/DNS_zone_transfer)
+  * [DNS Zone Transfer Protocol (AXFR)](https://tools.ietf.org/html/rfc5936)
+  * [Incremental Zone Transfer in DNS (IXFR)](https://tools.ietf.org/html/rfc1995)
+* [Wildcard DNS Record](https://en.wikipedia.org/wiki/Wildcard_DNS_record)
 
-Dependencies
-------------
-JARVIS requires Python 3.6+ to run.
+# Overview
 
-Install requirements:
+First, credit where credit is due, `fierce` was originally written by RSnake
+along with others at http://ha.ckers.org/. This is simply a conversion to
+Python 3 to simplify and modernize the codebase.
 
-    pip install -r requirements.txt
+The original description was very apt, so I'll include it here:
 
-For development it's recommended to use [virtualenv](https://virtualenv.pypa.io).
+> Fierce is a semi-lightweight scanner that helps locate non-contiguous
+> IP space and hostnames against specified domains. It's really meant
+> as a pre-cursor to nmap, unicornscan, nessus, nikto, etc, since all 
+> of those require that you already know what IP space you are looking 
+> for. This does not perform exploitation and does not scan the whole 
+> internet indiscriminately. It is meant specifically to locate likely 
+> targets both inside and outside a corporate network. Because it uses 
+> DNS primarily you will often find mis-configured networks that leak 
+> internal address space. That's especially useful in targeted malware.
 
-Configuration
--------------
-All configuration of widgets is done in a single Python source file. The
-configuration is specified by setting the `JARVIS_SETTINGS` environment
-variable.
+# Installing
 
-A sample config (`jarvis/config.py.sample`) is provided. This file can be used as a
-starting point for your own configuration.
+```
+$ python -m pip install fierce
+$ fierce -h
+```
 
-Copy `jarvis/config.py.sample` to `jarvis/config.py` and edit it to suit your needs.
+OR
 
-Usage
------
-After installing dependencies and creating a config file, the app can be started
-by running:
+```
+$ git clone https://github.com/mschwager/fierce.git
+$ cd fierce
+$ python -m pip install -r requirements.txt
+$ python fierce/fierce.py -h
+```
 
-    JARVIS_SETTINGS=config.py make run
+*Requires Python 3.*
 
-To start the app in debug mode, use:
+# Using
 
-    JARVIS_SETTINGS=config.py make debug
+Let's start with something basic:
 
-Run a job standalone and pretty-print output (useful for debugging):
+```
+$ fierce --domain google.com --subdomains accounts admin ads
+```
 
-    JARVIS_SETTINGS=config.py make run-job
+Traverse IPs near discovered domains to search for contiguous blocks with the
+`--traverse` flag:
 
-Create Google API credentials (required for calendar and gmail widget):
+```
+$ fierce --domain facebook.com --subdomains admin --traverse 10
+```
 
-    JARVIS_SETTINGS=config.py make google-api-auth
+Limit nearby IP traversal to certain domains with the `--search` flag:
 
-Create a new widget:
+```
+$ fierce --domain facebook.com --subdomains admin --search fb.com fb.net
+```
 
-    make widget
+Attempt an `HTTP` connection on domains discovered with the `--connect` flag:
 
-Create a new dashboard:
+```
+$ fierce --domain stackoverflow.com --subdomains mail --connect
+```
 
-    make dashboard
+Exchange speed for breadth with the `--wide` flag, which looks for nearby
+domains on all IPs of the [/24](https://en.wikipedia.org/wiki/Classless_Inter-Domain_Routing#IPv4_CIDR_blocks)
+of a discovered domain:
 
-Widgets
--------
-See [WIDGETS.md](docs/WIDGETS.md) for documentation on available widgets.
+```
+$ fierce --domain facebook.com --wide
+```
 
-Deployment
-----------
-See [INSTALL.md](docs/INSTALL.md) for a basic deployment guide.
+Zone transfers are rare these days, but they give us the keys to the DNS castle.
+[zonetransfer.me](https://digi.ninja/projects/zonetransferme.php) is a very
+useful service for testing for and learning about zone transfers:
 
-License
--------
-Licensed under the MIT license. See the [LICENSE](LICENSE) file if you've never
-seen it before.
+```
+$ fierce --domain zonetransfer.me
+```
+
+To save the results to a file for later use we can simply redirect output:
+
+```
+$ fierce --domain zonetransfer.me > output.txt
+```
+
+Internal networks will often have large blocks of contiguous IP space assigned.
+We can scan those as well:
+
+```
+$ fierce --dns-servers 10.0.0.1 --range 10.0.0.0/24
+```
+
+Check out `--help` for further information:
+
+```
+$ fierce --help
+```
+
+# Developing
+
+First, install development packages:
+
+```
+$ python -m pip install -r requirements.txt
+$ python -m pip install -r requirements-dev.txt
+$ python -m pip install -e .
+```
+
+## Testing
+
+```
+$ pytest
+```
+
+## Linting
+
+```
+$ flake8
+```
+
+## Coverage
+
+```
+$ pytest --cov
+```
