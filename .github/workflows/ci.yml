@@ -1,0 +1,30 @@
+name: CI
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python: [3.9]
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set environment variables
+        run: |
+          export LANG=
+      - name: Install dependencies
+        run: python setup.py --quiet install
+      - name: Run tests and formatting
+        run: |
+          python test_docformatter.py
+          docformatter setup.py
+      - name: Run coverage and upload
+        run: |
+          pip install --quiet coverage
+          make coverage
+          pip install --quiet coveralls
+          coveralls
