@@ -64,3 +64,11 @@ jobs:
         cp test.yaml test.old.yaml && niet -f yaml .list test.yaml -i && ! diff test.old.yaml
         niet -f yaml .project tests/samples/sample.yaml --output test2.yaml && test -f test2.yaml && ! grep '^project:$' test2.yaml
         cp test2.yaml test2.old.yaml && niet -f yaml .list test2.yaml --in-place && ! diff test2.old.yaml
+    - name: Deploy to PyPI
+
+      run: |
+        python setup.py sdist bdist_wheel
+        twine upload dist/*
+      env:
+        TWINE_USERNAME: ${{ secrets.PYPI_USER }}
+        TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
