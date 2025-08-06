@@ -29,7 +29,7 @@ jobs:
           poetry install
       - run: make tests
       - name: Upload coverage
-        if: ${{ success }}
+
         run: bash <(curl -s https://codecov.io/bash)
       - name: Notify Gitter on success
 
