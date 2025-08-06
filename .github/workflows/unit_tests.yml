@@ -1,0 +1,38 @@
+name: CI/CD Pipeline
+on:
+  push:
+    branches:
+      - main
+  tags:
+    branches:
+      - '*'
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: [3.6, 3.7, 3.8]
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install dependencies
+      run: |
+        pip install -r dev-requirements.txt
+        pip install -e .
+    - name: Run tests
+      run: |
+        pytest --vcr-record=none --cov=tenable tests
+    - name: Deploy to PyPI
+      if: ${{ github.event_name == 'push' && github.ref_type == 'tag' }}
+      run: |
+        python setup.py sdist bdist_wheel
+        twine upload dist/* --skip-existing
+      env:
+        TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
+        TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
