@@ -4,7 +4,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     strategy:
-      failk-fast: false
+      fail-fast: false
       matrix:
         python: [3.6, 3.7, 3.8]
     steps:
