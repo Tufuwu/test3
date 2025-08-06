@@ -37,7 +37,6 @@ jobs:
             pip-
       - name: Install dependencies
         run: |
-          pip install -r requirements.txt
           pip install tox-travis
       - name: Run tests
         run: tox
