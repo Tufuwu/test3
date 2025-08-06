@@ -16,7 +16,7 @@ jobs:
       - name: Install dependencies
         run: |
           pip install --upgrade pip
-          pip install numpy scipy matplotlib pandas sympy nose statsmodels tabulate
+          pip install numpy pytest scipy matplotlib pandas sympy nose statsmodels tabulate
           pip install .
       - name: Run tests
         run: nosetests
