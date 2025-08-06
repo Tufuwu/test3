@@ -30,7 +30,7 @@ jobs:
         make unittest
     - name: Upload coverage
       run: coveralls
-      env:
-        COVERALLS_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
+      env: 
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - name: Notifications
       run: echo "Email notifications to eosplus-dev@arista.com"
