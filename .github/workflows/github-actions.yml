@@ -21,11 +21,11 @@ jobs:
       matrix:
         ros_distro: [kinetic, melodic, noetic]
         python_version: [python, python, python3]
-      exclude:
-        - ros_distro: kinetic
-          python_version: python3
-        - ros_distro: melodic
-          python_version: python3
+        exclude:
+          - ros_distro: kinetic
+            python_version: python3
+          - ros_distro: melodic
+            python_version: python3
 
     steps:
     - name: Checkout code
