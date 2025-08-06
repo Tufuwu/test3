@@ -17,7 +17,3 @@ jobs:
       run: flake8
     - name: Run tests
       run: pytest --cov
-    - name: Upload coverage
-      uses: coverallsapp/coveralls-action@v1
-      with:
-        coveralls_token: ${{ secrets.COVERALLS_TOKEN }}
