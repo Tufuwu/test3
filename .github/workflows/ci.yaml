@@ -12,7 +12,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ['3.5', '3.6', '3.7', '3.8']
+        python-version: ['3.5', '3.9', '3.7', '3.8']
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python ${{ matrix.python-version }}
@@ -23,7 +23,7 @@ jobs:
       run: |
         pip install --requirement dev-requirements.txt
     - name: Run pre-commit (if Python 3.7)
-      if: ${{ matrix.python-version == '3.7' }}
+      if: ${{ matrix.python-version == '3.9' }}
       run: |
         pre-commit run --all-files
     - name: Develop package
@@ -43,6 +43,6 @@ jobs:
         pygount pygount *.cfg *.yaml
         pygount --format=summary pygount *.cfg *.yaml
     - name: Upload coverage (if Python 3.7)
-      if: ${{ matrix.python-version == '3.7' }}
+      if: ${{ matrix.python-version == '3.9' }}
       run: |
         coveralls
