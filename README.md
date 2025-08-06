@@ -1,132 +1,144 @@
-# tableone 
+# Welcome!
 
-tableone is a package for creating "Table 1" summary statistics for a patient 
-population. It was inspired by the R package of the same name by Yoshida and 
-Bohn.
+Tramcar is a _multi-site_, _self-hosted_ __job board__ built using
+[Django](https://www.djangoproject.com/).  This project is still in its infancy,
+but we welcome your involvement to help us get Tramcar ready for production
+installs.
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.837898.svg)](https://doi.org/10.5281/zenodo.837898) [![Documentation Status](https://readthedocs.org/projects/tableone/badge/?version=latest)](https://tableone.readthedocs.io/en/latest/?badge=latest) [![Anaconda-Server Badge](https://anaconda.org/conda-forge/tableone/badges/installer/conda.svg)](https://conda.anaconda.org/conda-forge) [![PyPI version](https://badge.fury.io/py/tableone.svg)](https://badge.fury.io/py/tableone)
+## Features
 
-## Suggested citation
-
-If you use tableone in your study, please cite the following paper:
-
-> Tom J Pollard, Alistair E W Johnson, Jesse D Raffa, Roger G Mark; tableone: An open source Python package for producing summary statistics for research papers, JAMIA Open, [https://doi.org/10.1093/jamiaopen/ooy012](https://doi.org/10.1093/jamiaopen/ooy012)
-
-## Documentation
-
-For documentation, see: [http://tableone.readthedocs.io/en/latest/](http://tableone.readthedocs.io/en/latest/). An executable demonstration of the package is available [on GitHub](https://github.com/tompollard/tableone/blob/master/tableone.ipynb) as a Jupyter Notebook. The easiest way to try out this notebook is to [open it in Google Colaboratory](https://colab.research.google.com/github/tompollard/tableone/blob/master/tableone.ipynb). A paper describing our motivations for creating the package is available at: [https://doi.org/10.1093/jamiaopen/ooy012](https://doi.org/10.1093/jamiaopen/ooy012).
-
-## A note for users of `tableone`
-
-While we have tried to use best practices in creating this package, automation of even basic statistical tasks can be unsound if done without supervision. We encourage use of `tableone` alongside other methods of descriptive statistics and, in particular, visualization to ensure appropriate data handling. 
-
-It is beyond the scope of our documentation to provide detailed guidance on summary statistics, but as a primer we provide some considerations for choosing parameters when creating a summary table at: [http://tableone.readthedocs.io/en/latest/bestpractice.html](http://tableone.readthedocs.io/en/latest/bestpractice.html). 
-
-*Guidance should be sought from a statistician when using `tableone` for a research study, especially prior to submitting the study for publication*.
-
-## Overview
-
-At a high level, you can use the package as follows:
-
-- Import the data into a pandas DataFrame
-
-![Starting DataFrame ](https://raw.githubusercontent.com/tompollard/tableone/master/docs/images/input_data.png "Starting DataFrame")
-
-- Run tableone on this dataframe to output summary statistics
-  
-![Table 1](https://raw.githubusercontent.com/tompollard/tableone/master/docs/images/table1.png "Table 1")
-
-- Specify your desired output format: text, latex, markdown, etc.
-  
-![Export to LaTex](https://raw.githubusercontent.com/tompollard/tableone/master/docs/images/table1_latex.png "Export to LaTex")
-
-Additional options include:
-
-- Select a subset of columns.
-- Specify the data type (e.g. `categorical`, `numerical`, `nonnormal`).
-- Compute p-values, and adjust for multiple testing (e.g. with the Bonferroni correction).
-- Compute standardized mean differences (SMDs).
-- Provide a list of alternative labels for variables
-- Limit the output of categorical variables to the top N rows.
-- Display remarks relating to the appopriateness of summary measures (for example, computing tests for multimodality and normality).
+* Host multiple job boards on the same instance using Django's "sites" framework
+* Allow free or paid job postings, with paid postings using Stripe Checkout for payment processing
+* Automatically tweet job details when a post is activated
+* Automatically expire jobs after an admin-defined period
+* E-mail notifications alert the admin when a post is made and the job owner when their job has expired
+* Job posts support Markdown for creating rich text descriptions and application information
+* Send weekly Mailchimp e-mail containing list of jobs posted in last 7 days
 
 ## Installation
 
-To install the package with pip, run:
+First, clone and install dependencies.  This requires python 3.5, pip, and
+virtualenv to already be installed.
 
-```pip install tableone```
-
-To install this package with conda, run:
-    
-```conda install -c conda-forge tableone```
-
-## Example usage
-
-1. Import libraries:
-
-```python
-from tableone import TableOne, load_dataset
-import pandas as pd
+```
+$ git clone https://github.com/tramcar/tramcar
+$ cd tramcar
+$ virtualenv .venv
+$ source .venv/bin/activate
+(.venv) $ pip install -r requirements.txt
 ```
 
-2. Load sample data into a pandas dataframe:
+Tramcar defaults `SECRET_KEY` in `tramcar/settings.py` to an empty string
+which will prevent Django from starting up.  This is done to ensure that
+deployers do not accidentally deploy with a default value.  Before proceeding,
+set a unique value for `SECRET_KEY` in `tramcar/settings.py`.  If you have `pwgen`
+installed, simply do this:
 
-```python
-data=load_dataset('pn2012')
+```
+$ RANDOM_PWD=$(pwgen -s 50 1)
+$ sed -i.bak "s/^SECRET_KEY = ''$/SECRET_KEY = '$RANDOM_PWD'/g" tramcar/settings.py
 ```
 
-3. Optionally, a list of columns to be included in Table 1:
+Now, apply database migrations, create an admin user, and start the
+development server:
 
-```python
-columns = ['Age', 'SysABP', 'Height', 'Weight', 'ICU', 'death']
+```
+(.venv) $ python manage.py migrate
+(.venv) $ python manage.py createsuperuser
+Username (leave blank to use 'root'): admin
+Email address: admin@tramcar.org
+Password:
+Password (again):
+Superuser created successfully.
 ```
 
-4. Optionally, a list of columns containing categorical variables:
+The default site has a domain of `example.com`, this will need to be changed to
+`localhost` for development testing or to whatever live domain you will be
+using in production.  For example, to test Tramcar locally, issue the following
+command:
 
-```python
-categorical = ['ICU', 'death']
+```
+(.venv) $ sqlite3 db.sqlite3 "UPDATE django_site SET domain='localhost' WHERE name='example.com';"
 ```
 
-5. Optionally, a categorical variable for stratification, a list of non-normal variables, and a dictionary of alternative labels:
+## Fixtures
 
-```python
-groupby = ['death']
-nonnormal = ['Age']
-labels={'death': 'mortality'}
+We have a fixtures file in `job_board/fixtures/countries.json`, which you can
+load into your database by running the following:
+
+```
+(.venv) $ python manage.py loaddata countries.json
 ```
 
-6. Create an instance of TableOne with the input arguments:
+This will save you having to import your own list of countries.  However, be
+aware that any changes made to the `job_board_country` table will be lost if
+you re-run the above.
 
-```python
-mytable = TableOne(data, columns=columns, categorical=categorical, groupby=groupby, nonnormal=nonnormal, rename=labels, pval=False)
+## Start Tramcar
+
+To run Tramcar in a development environment, you can now start it using the
+light-weight development web server:
+
+```
+(.venv) $ python manage.py runserver
 ```
 
-7. Display the table using the `tabulate` method. The `tablefmt` argument allows the table to be displayed in multiple formats, including "github", "grid", "fancy_grid", "rst", "html", and "latex".
+To run Tramcar using Apache2 and mod_wsgi, see the
+[following](https://github.com/tramcar/tramcar/wiki/Production-Deployment-Notes)
+for more information.
 
-```python
-print(mytable.tabulate(tablefmt = "fancy_grid"))
+## Final Steps
+
+At this point, Tramcar should be up and running and ready to be used.  Before
+you can create a company and job, log into <http://localhost:8000/admin> using
+the username and password defined above.  Once in, click Categories under
+JOB_BOARD and add an appropriate category for the localhost site.
+
+That's it!  With those steps completed, you can now browse
+<http://localhost:8000> to create a new company, and then post a job with that
+newly created company.
+
+(If deploying with a non-localhost domain, replace `localhost` above with
+the domain you are using)
+
+## Job Expiration
+
+Jobs can be expired manually by logging in as an admin user and then clicking
+the `Expire` button under `Job Admin` when viewing a given job.  A simpler
+solution is to run this instead:
+
+```
+(.venv) $ python manage.py expire
 ```
 
-8. ...which prints the following table to screen:
+The above will scan through all jobs across all sites and expire out any jobs
+older than the site's `expire_after` value.  Ideally, the above should be
+scheduled with cron so that jobs are expired in a consistent manner.
 
-Grouped by mortality:
+## Mailshot Automation
 
-|           |        | Missing  |        0       |        1       | 
-| --------- | ------ | -------- | -------------- | -------------- | 
-| n         |        |          | 864            | 136            |
-| Age       |        |  0       | 66 [52,78]     | 75 [62,83]     |
-| SysABP    |        | 291      | 115.36 (38.34) | 107.57 (49.43) |
-| Height    |        | 475      | 170.33 (23.22) | 168.51 (11.31) |
-| Weight    |        | 302      | 83.04 (23.58)  | 82.29 (25.40)  | 
-| ICU       |  CCU   | 0        | 137 (15.86)    | 25 (18.38)     |
-|           |  CSRU  |          | 194 (22.45)    | 8 (5.88)       |  
-|           |  MICU  |          | 318 (36.81)    | 62 (45.59)     | 
-|           |  SICU  |          | 215 (24.88)    | 41 (30.15)     | 
-| mortality |  0     | 0        | 864 (100.0)    |                | 
-|           |  1     |          |                | 136 (100.0)    | 
+If a site has `mailchimp_username`, `mailchimp_api_key`, and `mailchimp_list_id`
+set, run the following to create and send a Mailchimp campaign containing a list
+of all jobs posted in the last 7 days:
 
-9. Tables can be exported to file in various formats, including LaTeX, CSV, and HTML. Files are exported by calling the ``to_format`` method on the tableone object. For example, mytable can be exported to an Excel spreadsheet named 'mytable.xlsx' with the following command:
-
-```python
-mytable.to_excel('mytable.xlsx')
 ```
+(.venv) $ python manage.py send_mailshot
+```
+
+Again, cron the above to run once a week so that these campaigns are built and
+sent automatically.
+
+If you're unsure what the `mailchimp_list_id` is for the list in question,
+populate `mailchimp_username` and `mailchimp_api_key` for the site and then run
+the following command to display all lists on this site's MailChimp account:
+
+```
+(.venv) $ python manage.py display_lists <site_domain>
+```
+
+The value under the ID column for the associated list is what should get
+assigned to `mailchimp_list_id`.
+
+## Support
+
+Found a bug or need help with installation?  Please feel free to create an [issue](https://github.com/tramcar/tramcar/issues/new) and we will assist as soon as possible.
