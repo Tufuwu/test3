@@ -40,6 +40,8 @@ jobs:
     - name: Upload coverage to coveralls
       run: |
         coveralls
+      env: 
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - name: Upload coverage to codecov
       run: |
         codecov
