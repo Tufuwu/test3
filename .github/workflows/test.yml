@@ -8,9 +8,10 @@ jobs:
   build:
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
-        python: [3.6, 3.7, 3.8, 3.9, pypy3]
-      fast_finish: true
+        python: [ 3.8, 3.9]
+
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v2
