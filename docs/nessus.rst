@@ -1,4 +1,0 @@
-Nessus
-======
-
-.. automodule:: tenable.nessus

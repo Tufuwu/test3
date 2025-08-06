@@ -1,1 +1,5 @@
-recursive-exclude tests *
+# Include the license file
+include LICENSE
+
+# Include readme file
+include README.md
