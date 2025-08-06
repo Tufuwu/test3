@@ -14,9 +14,6 @@ description = "A command-line tool to work with YAML, JSON, and TOML files."
 readme = "README.md"
 requires-python = ">=3.9"
 license = {text = "MIT"}
-url.Homepage = "https://github.com/openuado/niet"
-url.Source = "https://github.com/openuado/niet"
-url.Tracker = "https://github.com/openuado/niet/issues"
 classifiers = [
     "Environment :: Console",
     "Intended Audience :: Developers",
@@ -36,6 +33,11 @@ dependencies = [
     "jmespath>=0.9.4",
     "pytoml", # (hberaud) Remove it when support of python < 3.11 are removed
 ]
+
+[project.urls]
+Homepage = "https://github.com/openuado/niet"
+Source = "https://github.com/openuado/niet"
+Tracker = "https://github.com/openuado/niet/issues"
 
 [project.optional-dependencies]
 dev = ["black", "isort", "pip-tools", "build", "twine", "pre-commit", "commitizen"]
