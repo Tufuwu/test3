@@ -1,0 +1,36 @@
+name: Python CI
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ['3.8', '3.9']
+        arch: ['amd64', 'ppc64le']
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python }}
+    - name: Install dependencies
+      run: pip install -r dev-requirements.txt
+    - name: Run tests
+      run: |
+        make clean
+        make pep8
+        make flake8
+        make check
+        make unittest
+    - name: Upload coverage
+      run: coveralls
+      env:
+        COVERALLS_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
+    - name: Notifications
+      run: echo "Email notifications to eosplus-dev@arista.com"
