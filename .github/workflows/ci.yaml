@@ -1,0 +1,48 @@
+name: Build and Test
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ['3.5', '3.6', '3.7', '3.8']
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install dependencies
+      run: |
+        pip install --requirement dev-requirements.txt
+    - name: Run pre-commit (if Python 3.7)
+      if: ${{ matrix.python-version == '3.7' }}
+      run: |
+        pre-commit run --all-files
+    - name: Develop package
+      run: |
+        python setup.py develop
+    - name: Run tests
+      run: |
+        pytest --verbose
+    - name: Build and install package
+      run: |
+        python setup.py bdist_wheel
+        python setup.py install
+    - name: Test pygount commands
+      run: |
+        pygount --version
+        pygount --help
+        pygount pygount *.cfg *.yaml
+        pygount --format=summary pygount *.cfg *.yaml
+    - name: Upload coverage (if Python 3.7)
+      if: ${{ matrix.python-version == '3.7' }}
+      run: |
+        coveralls
