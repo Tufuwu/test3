@@ -9,7 +9,6 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' && (github.ref == 'refs/heads/master' || github.ref_type == 'tag') || github.event_name == 'pull_request'
     strategy:
       fail-fast: false
       matrix:
@@ -41,14 +40,13 @@ jobs:
           python pydot_unittest.py
   black:
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' && (github.ref == 'refs/heads/master' || github.ref_type == 'tag') || github.event_name == 'pull_request'
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
       - name: Setup Python
         uses: actions/setup-python@v2
         with:
-          python-version: 3.6
+          python-version: 3.9
       - name: Install dependencies
         run: |
           pip install -e .[dev]
