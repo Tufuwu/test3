@@ -1,0 +1,25 @@
+name: CI
+on: [push]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      failk-fast: false
+      matrix:
+        python: [3.6, 3.7, 3.8]
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: 14.x
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python }}
+    - name: Install dependencies
+      run: |
+        npm install -g jshint
+        pip install -r requirements.txt
+    - name: Run script
+      run: make
