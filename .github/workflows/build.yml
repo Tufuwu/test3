@@ -1,0 +1,30 @@
+name: CI
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - '*'
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python: ['3.9']
+    steps:
+    - name: Install dependencies
+      run: |
+        sudo apt-get -qq update
+        sudo apt-get install -y libicu-dev
+    - name: Install Python packages
+      run: |
+        pip install -e .
+        pip install pyicu coverage nose twine
+    - name: Run tests
+      run: |
+        nosetests --with-coverage --cover-package=fingerprints --cover-erase
+    - name: Upload to PyPI
+      if: ${{ github.ref_type == 'tag' }}
+      run: |
+        python setup.py sdist bdist_wheel
+        twine upload dist/*
