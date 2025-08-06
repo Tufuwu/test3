@@ -1,0 +1,31 @@
+name: Python CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python: [2.7, 3.6, 3.7, 3.8, 3.9]
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python }}
+    - name: Install dependencies
+      run: |
+        pip install -r requirements.txt
+        python setup.py install
+        pip install coveralls
+    - name: Run tests
+      run: |
+        coverage run --source=nvd3 setup.py test
+    - name: Upload coverage
+      run: coveralls

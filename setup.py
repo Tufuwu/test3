@@ -1,50 +1,67 @@
-#!/usr/bin/env python3
+#! /usr/bin/env python
+# coding=utf-8
 
-from setuptools import setup
+try:
+    from setuptools import setup
+except ImportError:
+    from distutils.core import setup
 
 
-INSTALL_REQUIRES = [
-    'celery>=5.0,<5.3',
-    'mail-parser',
-    'pytz',
+with open('README.rst') as readme_file:
+    readme = readme_file.read()
+
+with open('CHANGELOG.rst') as history_file:
+    history = history_file.read().replace('.. :changelog:', '')
+
+requirements = [
 ]
 
-
-with open('README.rst') as docs_index:
-    long_description = docs_index.read()
-
+test_requirements = [
+    # TODO: put package test requirements here
+]
 
 setup(
-    name='django-yubin',
-    version='2.0.0',
-    description=("A reusable Django app for composing and queueing emails "
-                 "django-mailviews + Celery + others"),
-    long_description=long_description,
-    author='Antoni Aloy',
-    author_email='aaloy@apsl.net',
-    maintainer='APSL',
-    maintainer_email='info@apsl.net',
-    url='http://github.com/APSL/django-yubin',
-    install_requires=INSTALL_REQUIRES,
+    name='python-nvd3',
+    version='0.14.2',
+    description="Python NVD3 - Chart Library for d3.js",
+    long_description=readme + '\n\n' + history,
+    keywords='plot, graph, nvd3, d3',
+    author='Belaid Arezqui',
+    author_email='areski@gmail.com',
+    url='http://github.com/areski/python-nvd3',
+    license="MIT",
+    py_modules=['nvd3'],
+    namespace_packages=[],
+    test_suite='tests',
     packages=[
-        'django_yubin',
-        'django_yubin.management',
-        'django_yubin.management.commands',
-        'django_yubin.migrations',
+        'nvd3',
     ],
     include_package_data=True,
+    zip_safe=False,
+    install_requires=[
+        'python-slugify>=1.2.5',
+        'Jinja2>=2.8'
+        # -*- Extra requirements: -*-
+    ],
+    entry_points={
+        'console_scripts': [
+            'nvd3 = nvd3.NVD3Chart:_main',
+        ],
+    },
     classifiers=[
         'Development Status :: 5 - Production/Stable',
-        'Environment :: Web Environment',
+        'Environment :: Console',
         'Intended Audience :: Developers',
-        'License :: OSI Approved :: Apache Software License',
+        'License :: OSI Approved :: MIT License',
         'Operating System :: OS Independent',
         'Programming Language :: Python',
-        'Programming Language :: Python :: 3.7',
-        'Programming Language :: Python :: 3.8',
-        'Programming Language :: Python :: 3.9',
-        'Programming Language :: Python :: 3.10',
-        'Framework :: Django',
-        'Framework :: Django :: 3.2',
-    ]
+        'Programming Language :: Python :: 2',
+        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.3',
+        'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3.5',
+        'Topic :: Multimedia :: Graphics :: Presentation',
+        'Topic :: Software Development :: Libraries :: Python Modules',
+    ],
 )
