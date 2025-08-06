@@ -12,7 +12,7 @@ authors = [
 ]
 description = "A command-line tool to work with YAML, JSON, and TOML files."
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.7"
 license = {text = "MIT"}
 classifiers = [
     "Environment :: Console",
