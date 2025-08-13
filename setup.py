@@ -1,57 +1,70 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-try:
-    from setuptools import setup
-except ImportError:
-    from ez_setup import use_setuptools
-    use_setuptools()
-    from setuptools import setup
+from pathlib import Path
 
+from setuptools import find_packages, setup
 
-from tastypie import __version__
+# Read the contents of README file
+source_root = Path(".")
+with (source_root / "README.rst").open(encoding="utf-8") as f:
+    long_description = f.read()
+
+# Read the requirements
+with (source_root / "requirements.txt").open(encoding="utf8") as f:
+    requirements = f.readlines()
+
+with (source_root / "requirements_dev.txt").open(encoding="utf8") as f:
+    dev_requirements = f.readlines()
+
+with (source_root / "requirements_test.txt").open(encoding="utf8") as f:
+    test_requirements = f.readlines()
+
+type_geometry_requires = ["shapely"]
+type_image_path_requires = ["imagehash", "Pillow"]
+
+extras_requires = {
+    "type_geometry": type_geometry_requires,
+    "type_image_path": type_image_path_requires,
+    "plotting": ["pydot", "pygraphviz", "matplotlib"],
+    "dev": dev_requirements,
+    "test": test_requirements,
+}
+
+extras_requires["all"] = requirements + [
+    dependency
+    for name, dependencies in extras_requires.items()
+    if name.startswith("type_") or name == "plotting"
+    for dependency in dependencies
+]
+
+__version__ = None
+with (source_root / "src/visions/version.py").open(encoding="utf8") as f:
+    exec(f.read())
 
 
 setup(
-    name='django-tastypie',
+    name="visions",
     version=__version__,
-    description='A flexible & capable API layer for Django.',
-    author='Daniel Lindsley',
-    author_email='daniel@toastdriven.com',
-    url='https://github.com/django-tastypie/django-tastypie',
-    long_description=open('README.rst', 'r').read(),
-    packages=[
-        'tastypie',
-        'tastypie.utils',
-        'tastypie.management',
-        'tastypie.management.commands',
-        'tastypie.migrations',
-        'tastypie.contrib',
-        'tastypie.contrib.gis',
-        'tastypie.contrib.contenttypes',
-    ],
-    package_data={
-        'tastypie': ['templates/tastypie/*'],
-    },
+    url="https://github.com/dylan-profiler/visions",
+    description="Visions",
+    license="BSD License",
+    author="Dylan Profiler",
+    author_email="visions@ictopzee.nl",
+    package_data={"vision": ["py.typed"]},
+    packages=find_packages("src"),
+    package_dir={"": "src"},
+    install_requires=requirements,
+    include_package_data=True,
+    extras_require=extras_requires,
+    tests_require=test_requirements,
+    python_requires=">=3.6",
+    long_description=long_description,
+    long_description_content_type="text/x-rst",
     zip_safe=False,
-    requires=[
-        'python_mimeparse(>=0.1.4, !=1.5)',
-        'dateutil(>=1.5, !=2.0)',
-    ],
-    install_requires=[
-        'python-mimeparse >= 0.1.4, != 1.5',
-        'python-dateutil >= 1.5, != 2.0',
-    ],
-    tests_require=['mock', 'PyYAML', 'lxml', 'defusedxml'],
     classifiers=[
-        'Development Status :: 4 - Beta',
-        'Environment :: Web Environment',
-        'Framework :: Django',
-        'Intended Audience :: Developers',
-        'License :: OSI Approved :: BSD License',
-        'Operating System :: OS Independent',
-        'Programming Language :: Python',
-        'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 3',
-        'Topic :: Utilities'
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
     ],
 )

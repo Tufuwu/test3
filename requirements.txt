@@ -1,2 +1,6 @@
-python-dateutil>=2.1
-python-mimeparse>=0.1.4
+numpy
+pandas>=0.25.3
+attrs>=19.3.0
+networkx>=2.4
+tangled_up_in_unicode>=0.0.4
+multimethod>=1.4
