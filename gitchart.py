@@ -54,7 +54,8 @@ import pygal
 VERSION = "1.5-dev"
 
 ISSUES_REGEX_DEFAULT = re.compile(
-    r"(?:close|closes|closed|fix|fixes|fixed|resolve|resolves|resolved)" r" *#([0-9]+)"
+    r"(?:close|closes|closed|fix|fixes|fixed|resolve|resolves|resolved)"
+    r" *#([0-9]+)"
 )
 
 
@@ -75,8 +76,12 @@ class GitChart(object):
         "commits_version": "Commits by version",
         "files_type": "Files by extension",
     }
-    weekdays = [datetime.date(2001, 1, day).strftime("%a") for day in range(1, 8)]
-    months = [datetime.date(2001, month, 1).strftime("%b") for month in range(1, 13)]
+    weekdays = [
+        datetime.date(2001, 1, day).strftime("%a") for day in range(1, 8)
+    ]
+    months = [
+        datetime.date(2001, month, 1).strftime("%b") for month in range(1, 13)
+    ]
     # Pygal style with transparent background and custom colors
     style = pygal.style.Style(
         background="transparent",
@@ -151,9 +156,14 @@ class GitChart(object):
             )
 
         # execute a single git cmd and return output
-        proc = subprocess.Popen(command1, stdout=subprocess.PIPE, cwd=self.repository)
+        proc = subprocess.Popen(
+            command1, stdout=subprocess.PIPE, cwd=self.repository
+        )
         return (
-            proc.communicate()[0].decode("utf-8", errors="ignore").strip().split("\n")
+            proc.communicate()[0]
+            .decode("utf-8", errors="ignore")
+            .strip()
+            .split("\n")
         )
 
     def _git_command_log(self, arguments, command2=None):
@@ -171,7 +181,12 @@ class GitChart(object):
 
     # pylint: disable=too-many-arguments
     def _generate_bar_chart(
-        self, data, sorted_keys=None, max_keys=0, max_x_labels=0, x_label_rotation=0
+        self,
+        data,
+        sorted_keys=None,
+        max_keys=0,
+        max_x_labels=0,
+        x_label_rotation=0,
     ):
         """Generate a bar chart."""
         bar_chart = pygal.Bar(
@@ -210,7 +225,9 @@ class GitChart(object):
     def _chart_authors(self):
         """Generate pie chart with git authors."""
         # format of lines in stdout:   278  John Doe
-        stdout = self._git_command_log("--pretty=short", ["git", "shortlog", "-sn"])
+        stdout = self._git_command_log(
+            "--pretty=short", ["git", "shortlog", "-sn"]
+        )
         pie_chart = pygal.Pie(
             style=self.style,
             truncate_legend=100,
@@ -311,7 +328,9 @@ class GitChart(object):
         commits = {}
         for line in stdout:
             commits[line] = commits.get(line, 0) + 1
-        self._generate_bar_chart(commits, max_keys=self.max_diff, x_label_rotation=45)
+        self._generate_bar_chart(
+            commits, max_keys=self.max_diff, x_label_rotation=45
+        )
         return True
 
     def _chart_commits_day_week(self):
@@ -406,7 +425,9 @@ class GitChart(object):
     def _chart_files_type(self):
         """Generate pie chart with files by extension."""
         # format of lines in stdout: path/to/file.c
-        stdout = self._git_command(["git", "ls-tree", "-r", "--name-only", "HEAD"])
+        stdout = self._git_command(
+            ["git", "ls-tree", "-r", "--name-only", "HEAD"]
+        )
         extensions = {}
         for line in stdout:
             ext = os.path.splitext(line)[1]
@@ -426,7 +447,9 @@ class GitChart(object):
         for ext in sorted(extensions, key=extensions.get, reverse=True):
             count += 1
             if self.max_diff <= 0 or count <= self.max_diff:
-                pie_chart.add(ext + " ({0})".format(extensions[ext]), extensions[ext])
+                pie_chart.add(
+                    ext + " ({0})".format(extensions[ext]), extensions[ext]
+                )
             else:
                 count_others += 1
                 sum_others += extensions[ext]
@@ -468,7 +491,9 @@ def main():
         description="Generate statistic charts for a git repository.",
         epilog="Return value: 0 = success, 1 = error.",
     )
-    parser.add_argument("-t", "--title", help="override the default chart title")
+    parser.add_argument(
+        "-t", "--title", help="override the default chart title"
+    )
     parser.add_argument(
         "-r", "--repo", default=".", help="directory with git repository"
     )
