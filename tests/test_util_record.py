@@ -17,31 +17,28 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-from setuptools import setup, find_packages
+import pytest
+
+from amazon.ion.util import record
 
 
-setup(
-    name='amazon.ion',
-    version='0.7.0',
-    description='A Python implementation of Amazon Ion.',
-    url='http://github.com/amzn/ion-python',
-    author='Amazon Ion Team',
-    author_email='ion-team@amazon.com',
-    license='Apache License 2.0',
+def test_default_fields():
+    class TestRecord(record('a', 'b', ('c', 5))):
+        pass
 
-    packages=find_packages(exclude=['tests*']),
-    namespace_packages=['amazon'],
+    a = TestRecord(1, 2)
+    assert a.a == 1
+    assert a.b == 2
+    assert a.c == 5
 
-    install_requires=[
-        'six',
-        'jsonconversion'
-    ],
 
-    setup_requires=[
-        'pytest-runner',
-    ],
+def test_missing_default():
+    with pytest.raises(ValueError):
+        class TestRecord(record(('a', 1), 'b')):
+            pass
 
-    tests_require=[
-        'pytest',
-    ],
-)
+
+def test_bad_parameter():
+    with pytest.raises(ValueError):
+        class TestRecord(record(True)):
+            pass
