@@ -1,4 +1,0 @@
-Django<3.1
-django-oscar<=2.1
-sphinx
-sphinx_rtd_theme
