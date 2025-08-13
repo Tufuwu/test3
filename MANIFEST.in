@@ -1,1 +1,1 @@
-include LICENSE LONG_DESCRIPTION.rst setup.cfg
+include README.rst *.txt LICENSE
