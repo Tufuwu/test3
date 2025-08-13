@@ -1,36 +1,204 @@
-django-comments-xtd |gha-tests-badge|_
-===================
+Result
+======
 
-.. |gha-tests-badge| image:: https://github.com/danirus/django-comments-xtd/workflows/tests/badge.svg
-.. _gha-tests-badge: https://travis-ci.org/danirus/django-comments-xtd/actions
+.. image:: https://img.shields.io/github/workflow/status/dbrgn/result/CI/master
+    :alt: GitHub Workflow Status (branch)
+    :target: https://github.com/dbrgn/result/actions?query=workflow%3ACI+branch%3Amaster
 
-A Django pluggable application that adds comments to your project.
+.. image:: https://codecov.io/gh/dbrgn/result/branch/master/graph/badge.svg
+    :alt: Coverage
+    :target: https://codecov.io/gh/dbrgn/result
 
-.. image:: https://github.com/danirus/django-comments-xtd/blob/master/docs/images/cover.png
+A simple Result type for Python 3 `inspired by Rust
+<https://doc.rust-lang.org/std/result/>`__, fully type annotated.
 
-It extends the once official `django-contrib-comments <https://pypi.python.org/pypi/django-contrib-comments>`_ with the following features:
+The idea is that a ``Result`` value can be either ``Ok(value)`` or ``Err(error)``,
+with a way to differentiate between the two. It will change code like this:
 
-#. Thread support, so comments can be nested.
-#. Customizable maximum thread level, either for all models or on a per app.model basis.
-#. Optional notifications on follow-up comments via email.
-#. Mute links to allow cancellation of follow-up notifications.
-#. Comment confirmation via email when users are not authenticated.
-#. Comments hit the database only after they have been confirmed.
-#. Registered users can like/dislike comments and can suggest comments removal.
-#. Template tags to list/render the last N comments posted to any given list of app.model pairs.
-#. Emails sent through threads (can be disable to allow other solutions, like a Celery app).
-#. Fully functional JavaScript plugin using ReactJS, jQuery, Bootstrap, Remarkable and MD5.
+.. sourcecode:: python
 
-Example sites and tests work under officially Django `supported versions <https://www.djangoproject.com/download/#supported-versions>`_:
+    def get_user_by_email(email):
+        """
+        Return the user instance or an error message.
+        """
+        if not user_exists(email):
+            return None, 'User does not exist'
+        if not user_active(email):
+            return None, 'User is inactive'
+        user = get_user(email)
+        return user, None
 
-* Django 3.1, 3.0, 2.2
-* Python 3.8, 3.7, 3.6
+    user, reason = get_user_by_email('ueli@example.com')
+    if user is None:
+        raise RuntimeError('Could not fetch user: %s' % reason)
+    else:
+        do_something(user)
 
-Additional Dependencies:
+To something like this:
 
-* django-contrib-comments >=1.8
-* djangorestframework >=3.9
+.. sourcecode:: python
 
-Checkout the Docker image `danirus/django-comments-xtd-demo <https://hub.docker.com/r/danirus/django-comments-xtd-demo/>`_.
+    from result import Ok, Err
 
-`Read The Docs <http://readthedocs.org/docs/django-comments-xtd/>`_.
+    def get_user_by_email(email):
+        """
+        Return the user instance or an error message.
+        """
+        if not user_exists(email):
+            return Err('User does not exist')
+        if not user_active(email):
+            return Err('User is inactive')
+        user = get_user(email)
+        return Ok(user)
+
+    user_result = get_user_by_email(email)
+    if user_result.is_ok():
+        do_something(user_result.value)
+    else:
+        raise RuntimeError('Could not fetch user: %s' user_result.value)
+
+As this is Python and not Rust, you will lose some of the advantages that it
+brings, like elegant combinations with the ``match`` statement. On the other
+side, you don't have to return semantically unclear tuples anymore.
+
+Not all methods (https://doc.rust-lang.org/std/result/enum.Result.html) have
+been implemented, only the ones that make sense in the Python context. You still
+don't get any type safety at runtime, but some easier handling of types that can
+be OK or not, without resorting to custom exceptions.
+
+
+API
+---
+
+Creating an instance::
+
+    >>> from result import Ok, Err
+    >>> res1 = Ok('yay')
+    >>> res2 = Err('nay')
+
+Or through the class methods::
+
+    >>> from result import Result
+    >>> res1 = Result.Ok('yay')
+    >>> res2 = Result.Err('nay')
+
+Checking whether a result is ``Ok`` or not::
+
+    >>> res = Ok('yay')
+    >>> res.is_ok()
+    True
+    >>> res.is_err()
+    False
+
+Convert a ``Result`` to the value or ``None``::
+
+    >>> res1 = Ok('yay')
+    >>> res2 = Err('nay')
+    >>> res1.ok()
+    'yay'
+    >>> res2.ok()
+    None
+
+Convert a ``Result`` to the error or ``None``::
+
+    >>> res1 = Ok('yay')
+    >>> res2 = Err('nay')
+    >>> res1.err()
+    None
+    >>> res2.err()
+    'nay'
+
+Access the value directly, without any other checks::
+
+    >>> res1 = Ok('yay')
+    >>> res2 = Err('nay')
+    >>> res1.value
+    'yay'
+    >>> res2.value
+    'nay'
+
+Note that this is a property, you cannot assign to it. Results are immutable.
+
+For your convenience, simply creating an ``Ok`` result without value is the same as using ``True``::
+
+    >>> res1 = Result.Ok()
+    >>> res1.value
+    True
+    >>> res2 = Ok()
+    >>> res2.value
+    True
+
+The ``unwrap`` method returns the value if ``Ok`` and ``unwrap_err`` method
+returns the error value if ``Err``, otherwise it raises an ``UnwrapError``::
+
+    >>> res1 = Ok('yay')
+    >>> res2 = Err('nay')
+    >>> res1.unwrap()
+    'yay'
+    >>> res2.unwrap()
+    Traceback (most recent call last):
+    File "<stdin>", line 1, in <module>
+    File "C:\project\result\result.py", line 107, in unwrap
+        return self.expect("Called `Result.unwrap()` on an `Err` value")
+    File "C:\project\result\result.py", line 101, in expect
+        raise UnwrapError(message)
+    result.result.UnwrapError: Called `Result.unwrap()` on an `Err` value
+    >>> res1.unwrap_err()
+    Traceback (most recent call last):
+    ...
+    >>>res2.unwrap_err()
+    'nay'
+
+
+A custom error message can be displayed instead by using ``expect`` and ``expect_err``::
+
+    >>> res1 = Ok('yay')
+    >>> res2 = Err('nay')
+    >>> res1.expect('not ok')
+    'yay'
+    >>> res2.expect('not ok')
+    Traceback (most recent call last):
+    File "<stdin>", line 1, in <module>
+    File "C:\project\result\result.py", line 101, in expect
+        raise UnwrapError(message)
+    result.result.UnwrapError: not ok
+    >>> res1.expect_err('not err')
+    Traceback (most recent call last):
+    ...
+    >>> res2.expect_err('not err')
+    'nay'
+
+A default value can be returned instead by using ``unwrap_or``::
+
+    >>> res1 = Ok('yay')
+    >>> res2 = Err('nay')
+    >>> res1.unwrap_or('default')
+    'yay'
+    >>> res2.unwrap_or('default')
+    'default'
+
+Values and errors can be mapped using ``map``, ``map_or``, ``map_or_else`` and
+``map_err``::
+
+   >>> Ok(1).map(lambda x: x + 1)
+   Ok(2)
+   >>> Err('nay').map(lambda x: x + 1)
+   Err('nay')
+   >>> Ok(1).map_or(-1, lambda x: x + 1)
+   2
+   >>> Err(1).map_or(-1, lambda x: x + 1)
+   -1
+   >>> Ok(1).map_or_else(lambda: 3, lambda x: x + 1)
+   2
+   >>> Err('nay').map_or_else(lambda: 3, lambda x: x + 1)
+   3
+   >>> Ok(1).map_err(lambda x: x + 1)
+   Ok(1)
+   >>> Err(1).map_err(lambda x: x + 1)
+   Err(2)
+
+
+License
+-------
+
+MIT License
