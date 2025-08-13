@@ -102,7 +102,7 @@ class BooleanField(SimpleField):
 
 class IntegerField(SimpleField):
     def deserialize(self, value):
-        if value is not None and type(value) != int:
+        if value is not None and type(value) is not int:
             raise TembaSerializationException("Value '%s' field is not an integer" % str(value))
         return value
 
