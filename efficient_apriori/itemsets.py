@@ -43,7 +43,9 @@ class _ItemsetCounter(ABC):
         pass
 
     @abstractmethod
-    def candidate_itemset_counts(self, C_k, C_k_sets, counter, counts, row, transaction):
+    def candidate_itemset_counts(
+        self, C_k, C_k_sets, counter, counts, row, transaction
+    ):
         pass
 
 
@@ -64,9 +66,13 @@ class _Counter(_ItemsetCounter):
         return counts, num_transactions
 
     def large_itemsets(self, counts, min_support, num_transactions):
-        return [(i, c) for (i, c) in counts.items() if (c / num_transactions) >= min_support]
+        return [
+            (i, c) for (i, c) in counts.items() if (c / num_transactions) >= min_support
+        ]
 
-    def candidate_itemset_counts(self, C_k, C_k_sets, counter, counts, row, transaction):
+    def candidate_itemset_counts(
+        self, C_k, C_k_sets, counter, counts, row, transaction
+    ):
         # Assert that no items were found in this row
         found_any = False
         issubset = set.issubset  # Micro-optimization
@@ -96,9 +102,15 @@ class _CounterWithIds(_ItemsetCounter):
         return counts, num_transactions
 
     def large_itemsets(self, counts, min_support, num_transactions):
-        return [(i, count) for (i, count) in counts.items() if (count.itemset_count / num_transactions) >= min_support]
+        return [
+            (i, count)
+            for (i, count) in counts.items()
+            if (count.itemset_count / num_transactions) >= min_support
+        ]
 
-    def candidate_itemset_counts(self, C_k, C_k_sets, counter, counts, row, transaction):
+    def candidate_itemset_counts(
+        self, C_k, C_k_sets, counter, counts, row, transaction
+    ):
         # Assert that no items were found in this row
         found_any = False
         issubset = set.issubset  # Micro-optimization
@@ -302,9 +314,13 @@ def itemsets_from_transactions(
         raise ValueError("`min_support` must be a number between 0 and 1.")
 
     counter: typing.Union[_CounterWithIds, _Counter]  # Type info for mypy
-    counter = _CounterWithIds() if (transactions and output_transaction_ids) else _Counter()
+    counter = (
+        _CounterWithIds() if (transactions and output_transaction_ids) else _Counter()
+    )
 
-    wrong_transaction_type_msg = "`transactions` must be an iterable or a " "callable returning an iterable."
+    wrong_transaction_type_msg = (
+        "`transactions` must be an iterable or a " "callable returning an iterable."
+    )
 
     if not transactions:
         return dict(), 0  # large_itemsets, num_transactions
@@ -393,7 +409,9 @@ def itemsets_from_transactions(
             if not use_transaction[row]:
                 continue
 
-            counts, found_any = counter.candidate_itemset_counts(C_k, C_k_sets, counter, counts, row, transaction)
+            counts, found_any = counter.candidate_itemset_counts(
+                C_k, C_k_sets, counter, counts, row, transaction
+            )
 
             # If no candidate sets were found in this row, skip this row of
             # transactions in the future

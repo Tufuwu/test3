@@ -50,7 +50,9 @@ def test_adult_dataset():
 
     # Test that the rules found in R were also found using this implementation
     rules_set = set(rules)
-    assert Rule(("Married-civ-spouse", "Husband", "middle-aged"), ("Male",)) in rules_set
+    assert (
+        Rule(("Married-civ-spouse", "Husband", "middle-aged"), ("Male",)) in rules_set
+    )
     assert (
         Rule(
             ("Married-civ-spouse", "White", "middle-aged", "Male"),

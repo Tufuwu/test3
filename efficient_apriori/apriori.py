@@ -74,7 +74,9 @@ def apriori(
     else:
         itemsets_for_rules = itemsets
 
-    rules = generate_rules_apriori(itemsets_for_rules, min_confidence, num_trans, verbosity)
+    rules = generate_rules_apriori(
+        itemsets_for_rules, min_confidence, num_trans, verbosity
+    )
     return itemsets, list(rules)
 
 

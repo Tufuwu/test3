@@ -12,7 +12,9 @@ import random
 from efficient_apriori.itemsets import itemsets_from_transactions, ItemsetCount
 
 
-def generate_transactions(num_transactions, unique_items, items_row=(1, 100), seed=None):
+def generate_transactions(
+    num_transactions, unique_items, items_row=(1, 100), seed=None
+):
     """
     Generate synthetic transactions.
     """
@@ -92,7 +94,9 @@ def test_itemsets_from_transactions_stochastic(transactions, min_support):
     """
     Test 50 random inputs.
     """
-    result, _ = itemsets_from_transactions(list(transactions), min_support, output_transaction_ids=True)
+    result, _ = itemsets_from_transactions(
+        list(transactions), min_support, output_transaction_ids=True
+    )
     naive_result, _ = itemsets_from_transactions_naive(list(transactions), min_support)
 
     for key in set.union(set(result.keys()), set(naive_result.keys())):
@@ -131,7 +135,9 @@ def test_itemsets_from_a_generator_callable():
             transactions = tuple(j + i for j in range(5))
             yield transactions
 
-    itemsets, _ = itemsets_from_transactions(generator, min_support=3 / 4, output_transaction_ids=True)
+    itemsets, _ = itemsets_from_transactions(
+        generator, min_support=3 / 4, output_transaction_ids=True
+    )
     assert itemsets[3] == {
         (2, 3, 4): ItemsetCount(itemset_count=3, members={0, 1, 2}),
         (3, 4, 5): ItemsetCount(itemset_count=3, members={1, 2, 3}),
@@ -158,8 +164,12 @@ def test_itemsets_from_a_file():
 
     base, filename = os.path.split(__file__)
     gen_obj = file_generator(os.path.join(base, "transactions.txt"))
-    result, _ = itemsets_from_transactions(gen_obj, min_support=4 / 4, output_transaction_ids=True)
-    assert result[2] == {("A", "C"): ItemsetCount(itemset_count=4, members={0, 1, 2, 3})}
+    result, _ = itemsets_from_transactions(
+        gen_obj, min_support=4 / 4, output_transaction_ids=True
+    )
+    assert result[2] == {
+        ("A", "C"): ItemsetCount(itemset_count=4, members={0, 1, 2, 3})
+    }
 
 
 if __name__ == "__main__":

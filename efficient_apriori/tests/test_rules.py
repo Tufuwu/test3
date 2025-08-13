@@ -37,7 +37,11 @@ def generate_rules_naively(itemsets, min_confidence, num_transactions):
         return itemsets[len(itemset)][itemset]
 
     # For every itemset size greater than 1, yield every itemset of that size
-    itemsets_gen = (iset for size in filter(lambda x: x > 1, itemsets.keys()) for iset in itemsets[size].keys())
+    itemsets_gen = (
+        iset
+        for size in filter(lambda x: x > 1, itemsets.keys())
+        for iset in itemsets[size].keys()
+    )
 
     for itemset in itemsets_gen:
         count_full = count(itemset)
@@ -63,7 +67,9 @@ def test_generate_rules_apriori_large():
     for this test to pass.
     """
 
-    transactions = generate_transactions(num_transactions=100, unique_items=30, items_row=(1, 20), seed=123)
+    transactions = generate_transactions(
+        num_transactions=100, unique_items=30, items_row=(1, 20), seed=123
+    )
 
     itemsets, num_transactions = itemsets_from_transactions(transactions, 0.1)
 

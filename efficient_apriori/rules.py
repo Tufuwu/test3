@@ -104,7 +104,7 @@ class Rule(object):
         try:
             observed_support = self.count_full / self.num_transactions
             prod_counts = self.count_lhs * self.count_rhs
-            expected_support = prod_counts / self.num_transactions ** 2
+            expected_support = prod_counts / self.num_transactions**2
             return observed_support / expected_support
         except ZeroDivisionError:
             return None
@@ -163,7 +163,9 @@ class Rule(object):
         lift = "lift: {0:.3f}".format(self.lift)
         conv = "conv: {0:.3f}".format(self.conviction)
 
-        return "{} -> {} ({}, {}, {}, {})".format(self._pf(self.lhs), self._pf(self.rhs), conf, supp, lift, conv)
+        return "{} -> {} ({}, {}, {}, {})".format(
+            self._pf(self.lhs), self._pf(self.rhs), conf, supp, lift, conv
+        )
 
     def __eq__(self, other):
         """
@@ -215,7 +217,9 @@ def generate_rules_simple(
         for itemset in itemsets[size].keys():
 
             # Generate rules
-            for result in _genrules(itemset, itemset, itemsets, min_confidence, num_transactions):
+            for result in _genrules(
+                itemset, itemset, itemsets, min_confidence, num_transactions
+            ):
 
                 # If the rule has been yieded, keep going, else add and yield
                 if result in yielded:
@@ -358,7 +362,9 @@ def generate_rules_apriori(
             # Generate combinations to start off of. These 1-combinations will
             # be merged to 2-combinations in the function `_ap_genrules`
             H_1 = list(itertools.combinations(itemset, 1))
-            yield from _ap_genrules(itemset, H_1, itemsets, min_confidence, num_transactions)
+            yield from _ap_genrules(
+                itemset, H_1, itemsets, min_confidence, num_transactions
+            )
 
     if verbosity > 0:
         print("Rule generation terminated.\n")
