@@ -10,7 +10,6 @@ Since the OFX schema is highly nested, some of these class attributes
 (e.g. ``SubAggregate``) express parent/child relationships between ``Aggregates``.
 """
 
-
 __all__ = [
     "OFXTypeWarning",
     "OFXTypeError",
@@ -346,7 +345,7 @@ class Integer(Element):
     def enforce_length(self, value: int) -> int:
         # Mypy doesn't understand that ``length`` gets set by ``__init__()``
         length = self.length  # type: ignore
-        if length is not None and value >= 10 ** length:
+        if length is not None and value >= 10**length:
             msg = f"'{value}' has too many digits; max digits={length}"
             raise OFXSpecError(msg)
         return value
