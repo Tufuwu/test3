@@ -1,1 +1,2 @@
-mizani/_version.py export-subst
+archey.1    -linguist-detectable
+packaging/* -linguist-detectable

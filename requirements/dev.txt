@@ -1,7 +1,0 @@
-sphinx
-pytest-cov
-tox
-wheel
-pep8
-flake8
-scipy
