@@ -1,30 +1,44 @@
 ---
 name: Bug report
-about: Create a report to help us improve Archey4
-title: "[BUG] "
-labels: 'bug'
+about: Create a report to help us improve
+title: ''
+labels: ''
 assignees: ''
 
 ---
+**Before posting** 
+Make sure your environment is fully up-to-date by running 
+```
+conda activate iblenv
+conda env update --file iblenv.yaml --prune
+```
 
 **Describe the bug**
-<!-- A clear and concise description of what the bug is. -->
+A clear and concise description of what the bug is.
+
+**To Reproduce**
+Steps to reproduce the behavior:
+1. Go to '...'
+2. Click on '....'
+3. Scroll down to '....'
+4. See error
 
 **Expected behavior**
-<!-- A clear and concise description of what you expected to happen. -->
+A clear and concise description of what you expected to happen.
 
 **Screenshots**
-<!-- If applicable, add screenshots to help explain your problem. -->
+If applicable, add screenshots to help explain your problem.
 
-**Environment**
-<!-- Please complete the following information: -->
- - Version used (4.Y.Z) : 
- - Method of installation (distribution package, PyPI, sources) : 
- - Hardware type (laptop, server, Raspberry, hyper-visor) : 
- - Python version (3.Y.Z) : 
- - Operating system and version : 
- - Graphical environment name and version : 
- - Connectivity (off-line, LAN only, Internet access) : 
+**Desktop (please complete the following information):**
+ - OS: [e.g. iOS]
+ - Browser [e.g. chrome, safari]
+ - Version [e.g. 22]
+
+**Smartphone (please complete the following information):**
+ - Device: [e.g. iPhone6]
+ - OS: [e.g. iOS8.1]
+ - Browser [e.g. stock browser, safari]
+ - Version [e.g. 22]
 
 **Additional context**
-<!-- If applicable, add any other context about the problem here. -->
+Add any other context about the problem here.
