@@ -1,5 +1,4 @@
-include LICENSE
 include README.rst
-
-recursive-exclude * __pycache__
-recursive-exclude * *.py[co]
+include LICENSE
+recursive-include ofxtools/config *
+recursive-include ofxtools/tests *
