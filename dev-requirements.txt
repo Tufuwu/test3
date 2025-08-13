@@ -1,8 +1,0 @@
-# Optional packages
-matplotlib
-pyreadline
-pre-commit
-black[d]
-wheel
-hypothesis
-commitizen

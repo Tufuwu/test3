@@ -1,0 +1,54 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: [2.7, 3.5, 3.6, 3.7, 3.8]
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Set up toolchain environment
+      run: |
+        TOOLCHAIN_DIR="${HOME}/toolchain"
+        ESP8266_BINDIR="${TOOLCHAIN_DIR}/xtensa-lx106-elf/bin"
+        ESP32_BINDIR="${TOOLCHAIN_DIR}/xtensa-esp32-elf/bin"
+        ESP32S2_BINDIR="${TOOLCHAIN_DIR}/xtensa-esp32s2-elf/bin"
+        ESP32S3_BINDIR="${TOOLCHAIN_DIR}/xtensa-esp32s3-elf/bin"
+        ESP32C3_BINDIR="${TOOLCHAIN_DIR}/riscv32-esp-elf/bin"
+        echo "PATH=${PATH}:${ESP8266_BINDIR}:${ESP32_BINDIR}:${ESP32S2_BINDIR}:${ESP32S3_BINDIR}:${ESP32C3_BINDIR}" >> $GITHUB_ENV
+
+    - name: Install dependencies
+      run: |
+        if [ "${{ matrix.python-version }}" == "3.7" ]; then ./test/ci/setup_ci_build_env.sh; fi
+        python -m pip install --upgrade pip
+        pip install -e .[dev]
+
+    - name: Run tests
+      run: |
+        python setup.py build
+        python test/test_imagegen.py
+        python test/test_espsecure.py
+        python -m flake8
+        python setup.py install
+        ( cd / && esptool.py --help )
+        ( cd / && espefuse.py --help )
+        ( cd / && espsecure.py --help )
+        if [ "${{ matrix.python-version }}" == "3.7" ]; then make -C flasher_stub V=1; fi
+        if [ "${{ matrix.python-version }}" == "3.7" ]; then cd flasher_stub && python ./compare_stubs.py; fi
