@@ -1,200 +1,93 @@
-# Debspawn
+# Interop Test Runner
 
-![Build & Test](https://github.com/lkorigin/debspawn/workflows/Build%20&%20Test/badge.svg)
+The Interop Test Runner aims to automatically generate an interop matrix by running multiple **test cases** using different QUIC implementations.
 
-Debspawn is a tool to build Debian packages in an isolated environment. Unlike similar tools like `sbuild`
-or `pbuilder`, `debspawn` uses `systemd-nspawn` instead of plain chroots to manage the isolated environment.
-This allows Debspawn to isolate builds from the host system much further via container technology. It also allows
-for more advanced features to manage builds, for example setting resource limits for individual builds.
+## Requirements
 
-Please keep in mind that Debspawn is *not* a security feature! While it provides a lot of isolation from the
-host system, you should not run arbitrary untrusted code with it. The usual warnings for all container technology
-apply here.
+The Interop Runner is written in Python 3. You'll need to install the
+following softwares to run the interop test:
 
-Debspawn also allows one to run arbitrary custom commands in its environment. This is used by the Laniakea[1] Spark workers
-to execute a variety of non-package builds and QA actions in the same environment in which we usually build packages.
+- Python3 modules. Run the following command:
 
-Debspawn was built with simplicity in mind. It should both be usable in an automated environment on large build farms,
-as well as on a personal workstation by a human user.
-Due to that, the most common operations are as easily accessible as possible. Additionally, `debspawn` will always try
-to do the right thing automatically before resorting to a flag that the user has to set.
-Options which change the build environment are - with one exception - not made available intentionally, so
-achieving reproducible builds is easier.
-See the FAQ below for more details.
-
-[1]: https://github.com/lkorigin/laniakea
-
-## Usage
-
-### Installing Debspawn
-
-#### Via the Debian package
-
-On Debian/Ubuntu, simply run
 ```bash
-sudo apt install debspawn
-```
-to start using Debspawn.
-
-#### Via the Git repository
-
-Clone the Git repository, install the (build and runtime) dependencies of `debspawn`:
-```bash
-sudo apt install xsltproc docbook-xsl python3-setuptools zstd systemd-container debootstrap
+pip3 install -r requirements.txt
 ```
 
-You can the run `debspawn.py` directly from the Git repository, or choose to install it:
+- [Docker](https://docs.docker.com/engine/install/) and [docker-compose](https://docs.docker.com/compose/install/other/#install-compose-standalone). Note that the Interop Runner doesn't support [docker compose v2](https://docs.docker.com/compose/install/) yet.
+
+- [Development version of Wireshark](https://www.wireshark.org/download.html) (version 3.4.2 or newer).
+
+## Running the Interop Runner
+
+Run the interop tests:
 ```bash
-sudo pip3 install --no-binary debspawn .
-```
-(or use `sudo python3 setup.py install --single-version-externally-managed --root=/` to install without pip)
-
-Debspawn requires at least Python 3.5. We try to keep the dependency footprint of this tool as
-small as possible, so it is not planned to raise that requirement or add any more dependencies
-anytime soon.
-
-### On superuser permission
-
-If `sudo` is available on the system, `debspawn` will automatically request root permission
-when it needs it, there is no need to run it as root explicitly.
-If it can not obtain privileges, `debspawn` will exit with the appropriate error message.
-
-### Creating a new image
-
-You can easily create images for any suite that has a script in `debootstrap`. For Debian Unstable for example:
-```bash
-$ debspawn create sid
-```
-This will create a Debian Sid (unstable) image for the current system architecture.
-
-To create an image for testing Ubuntu builds:
-```bash
-$ debspawn create --arch=i386 cosmic
-```
-This creates an `i386` image for Ubuntu 18.10. If you want to use a different mirror than set by default, pass it with the `--mirror` option.
-
-### Refreshing an image
-
-Just run `debspawn update` and give the details of the base image that should be updated:
-```bash
-$ debspawn update sid
-$ debspawn update --arch=i386 cosmic
+python3 run.py
 ```
 
-This will update the base image contents and perform other maintenance actions.
+## IPv6 support
 
-### Building a package
+To enable IPv6 support for the simulator on Linux, the `ip6table_filter` kernel module needs to be loaded on the host. If it isn't loaded on your machine, you'll need to run `sudo modprobe ip6table_filter`.
 
-You can build a package from its source directory, or just by passing a plain `.dsc` file to `debspawn`. If the result should
-be automatically signed, the `--sign` flag needs to be passed too:
-```bash
-$ cd ~/packages/hello
-$ debspawn build sid --sign
+## Building a QUIC endpoint
 
-$ debspawn build --arch=i386 cosmic ./hello_2.10-1.dsc
-```
+To include your QUIC implementation in the Interop Runner, create a Docker image following the instructions for [setting up an endpoint in the quic-network-simulator](https://github.com/marten-seemann/quic-network-simulator), publish it on [Docker Hub](https://hub.docker.com) and add it to [implementations.json](implementations.json). Once your implementation is ready to interop, please send us a PR with this addition. Read on for more instructions on what to do within the Docker image.
 
-Build results are by default returned in `/var/lib/debspawn/results/`
+Typically, a test case will require a server to serve files from a directory, and a client to download files. Different test cases will specify the behavior to be tested. For example, the Retry test case expects the server to use a Retry before accepting the connection from the client. All configuration information from the test framework to your implementation is fed into the Docker image using environment variables. The test case is passed into your Docker container using the `TESTCASE` environment variable. If your implementation doesn't support a test case, it MUST exit with status code 127. This will allow us to add new test cases in the future, and correctly report test failures und successes, even if some implementations have not yet implented support for this new test case.
 
-If you need to inject other local packages as build dependencies, place `deb` files in `/var/lib/debspawn/injected-pkgs` (or other location set in the config file).
+The Interop Runner mounts the directory `/www` into your server Docker container. This directory will contain one or more randomly generated files. Your server implementation is expected to run on port 443 and serve files from this directory.
+Equivalently, the Interop Runner mounts `/downloads` into your client Docker container. The directory is initially empty, and your client implementation is expected to store downloaded files into this directory. The URLs of the files to download are passed to the client using the environment variable `REQUESTS`, which contains one or more URLs, separated by a space.
 
-### Building a package - with git-buildpackage
+After the transfer is completed, the client container is expected to exit with exit status 0. If an error occurred during the transfer, the client is expected to exit with exit status 1.
+After completion of the test case, the Interop Runner will verify that the client downloaded the files it was expected to transfer, and that the file contents match. Additionally, for certain test cases, the Interop Runner will use the pcap of the transfer to verify that the implementations fulfilled the requirements of the test (for example, for the Retry test case, the pcap should show that a Retry packet was sent, and that the client used the Token provided in that packet).
 
-You can use a command like this to build your project with gbp and Debspawn:
-```bash
-$ gbp buildpackage --git-builder='debspawn build sid --sign'
-```
+The Interop Runner generates a key and a certificate chain and mounts it into `/certs`. The server needs to load its private key from `priv.key`, and the certificate chain from `cert.pem`.
 
-You might also want to add `--results-dir ..` to the debspawn arguments to get the resulting artifacts in the directory to which the package repository was originally exported.
+### Examples
 
-### Manual interactive-shell action
+If you're not familiar with Docker, it might be helpful to have a look at the Dockerfiles and scripts that other implementations use:
 
-If you want to, you can log into the container environment and either play around in
-ephemeral mode with no persistent changes, or pass `--persistent` to `debspawn` so all changes are permanently saved:
-```bash
-$ debspawn login sid
+* quic-go: [Dockerfile](https://github.com/lucas-clemente/quic-go/blob/master/interop/Dockerfile), [run_endpoint.sh](https://github.com/lucas-clemente/quic-go/blob/master/interop/run_endpoint.sh) and [CI config](https://github.com/lucas-clemente/quic-go/blob/master/.github/workflows/build-interop-docker.yml)
+* quicly: [Dockerfile](https://github.com/h2o/quicly/blob/master/misc/quic-interop-runner/Dockerfile) and [run_endpoint.sh](https://github.com/h2o/quicly/blob/master/misc/quic-interop-runner/run_endpoint.sh) and [run_endpoint.sh](https://github.com/cloudflare/quiche/blob/master/tools/qns/run_endpoint.sh)
+* quant: [Dockerfile](https://github.com/NTAP/quant/blob/master/Dockerfile.interop) and [run_endpoint.sh](https://github.com/NTAP/quant/blob/master/test/interop.sh), built on [DockerHub](https://hub.docker.com/r/ntap/quant)
+* quiche: [Dockerfile](https://github.com/cloudflare/quiche/blob/master/Dockerfile)
+* neqo: [Dockerfile](https://github.com/mozilla/neqo/blob/main/neqo-qns/Dockerfile) and [run_endpoint.sh](https://github.com/mozilla/neqo/blob/main/neqo-qns/run_endpoint.sh)
+* msquic: [Dockerfile](https://github.com/microsoft/msquic/blob/master/Dockerfile), [run_endpoint.sh](https://github.com/microsoft/msquic/blob/master/scripts/run_endpoint.sh) and [CI config](https://github.com/microsoft/msquic/blob/master/.azure/azure-pipelines.docker.yml)
 
-# Attention! This may alter the build environment!
-$ debspawn login --persistent sid
-```
+Implementers: Please feel free to add links to your implementation here!
 
-### Deleting a container image
+## Logs
 
-At some point, you may want to permanently remove a container image again, for example because the
-release it was built for went end of life.
-This is easily done as well:
-```bash
-$ debspawn delete sid
-$ debspawn delete --arch=i386 cosmic
-```
+To facilitate debugging, the Interop Runner saves the log files to the logs directory. This directory is overwritten every time the Interop Runner is executed.
 
-### Running arbitrary commands
+The log files are saved to a directory named `#server_#client/#testcase`. `output.txt` contains the console output of the interop test runner (which might contain information why a test case failed). The server and client logs are saved in the `server` and `client` directory, respectively. The `sim` directory contains pcaps recorded by the simulator.
 
-This is achieved with the `debspawn run` command and is a bit more involved. Refer to the manual page
-and help output for more information.
+If implementations wish to export the TLS secrets, they are encouraged to do so in the format in the [NSS Key Log format](https://developer.mozilla.org/en-US/docs/Mozilla/Projects/NSS/Key_Log_Format). The interop runner sets the SSLKEYLOGFILE environment variable to a file in the logs directory. In the future, the interop runner might use those files to decode the traces.
 
-### Global configuration
+Implementations that implement [qlog](https://github.com/quiclog/internet-drafts) should export the log files to the directory specified by the `QLOGDIR` environment variable.
 
-Debspawn will read a global configuration file from `/etc/debspawn/config.json`, or a configuration file in a location specified by the `--config` flag. If a config file is specified on the command line, the global file is ignored rather than merged.
+## Test cases
 
-The config is a JSON file containing any of the following (all optional) keys:
+The Interop Runner implements the following test cases. Unless noted otherwise, test cases use HTTP/0.9 for file transfers. More test cases will be added in the future, to test more protocol features. The name in parentheses is the value of the `TESTCASE` environment variable passed into your Docker container.
 
-* `OSRootsDir`: directory for os images (`/var/lib/debspawn/containers/`)
-* `ResultsDir`: directory for build artifacts (`/var/lib/debspawn/results/`)
-* `APTCacheDir`: directory for debspawn's own package cache (`/var/lib/debspawn/aptcache/`)
-* `InjectedPkgsDir`: packages placed in this directory will be available as dependencies for builds (`/var/lib/debspawn/injected-pkgs/`)
-* `TempDir`: temporary directory used for running containers (`/var/tmp/debspawn/`)
-* `AllowUnsafePermissions`: allow usage of risker container permissions, such as binding the host `/dev` and `/proc` into the container (`false`)
+* **Version Negotiation** (`versionnegotiation`): Tests that a server sends a Version Negotiation packet in response to an unknown QUIC version number. The client should start a connection using an unsupported version number (it can use a reserved version number to do so), and should abort the connection attempt when receiving the Version Negotiation packet.
+Currently disabled due to #20.
 
-## FAQ
+* **Handshake** (`handshake`): Tests the successful completion of the handshake. The client is expected to establish a single QUIC connection to the server and download one or multiple small files. Servers should not send a Retry packet in this test case.
 
-#### Why use systemd-nspawn? Why not $other_container?
+* **Transfer** (`transfer`): Tests both flow control and stream multiplexing. The client should use small initial flow control windows for both stream- and connection-level flow control, such that the during the transfer of files on the order of 1 MB the flow control window needs to be increased. The client is exepcted to establish a single QUIC connection, and use multiple streams to concurrently download the files.
 
-Systemd-nspawn is a very lightweight container solution readily available without much (or any) setup on all Linux systems
-that are running systemd. It does not need any background daemon and while it is light on features, it
-fits the relatively simple usecase of building in an isolated environment perfectly.
+* **ChaCha20** (`chacha20`): In this test, client and server are expected to offer **only** ChaCha20 as a ciphersuite. The client then downloads the files.
 
+* **KeyUpdate** (`keyupdate`, only for the client): The client is expected to make sure that a key update happens early in the connection (during the first MB transferred). It doesn't matter which peer actually initiated the update.
 
-#### Do I need to set up apt-cacher-ng to use this efficiently?
+* **Retry** (`retry`): Tests that the server can generate a Retry, and that the client can act upon it (i.e. use the Token provided in the Retry packet in the Initial packet).
 
-No - while `apt-cacher-ng` is generally a useful tool, it is not required for efficient use of `debspawn`. `debspawn` will cache
-downloaded packages between runs fully automatically, so packages only get downloaded when they have not been retrieved before.
+* **Resumption** (`resumption`): Tests QUIC session resumption (without 0-RTT). The client is expected to establish a connection and download the first file. The server is expected to provide the client with a session ticket that allows it to resume the connection. After downloading the first file, the client has to close the connection, establish a resumed connection using the session ticket, and use this connection to download the remaining file(s).
 
+* **0-RTT** (`zerortt`): Tests QUIC 0-RTT. The client is expected to establish a connection and download the first file. The server is expected to provide the client with a session ticket that allows it establish a 0-RTT connection on the next connection attempt. After downloading the first file, the client has to close the connection, establish and request the remaining file(s) in 0-RTT.
 
-#### Is the build environment the same as sbuild?
+* **HTTP3** (`http3`): Tests a simple HTTP/3 connection. The client is expected to download multiple files using HTTP/3. Files should be requested and transfered in parallel.
 
-No, unfortunately. Due to the different technology used, there are subtle differences between sbuild chroots and `debspawn` containers.
-The differences should not have any impact on package builds, and any such occurrence is highly likely a bug in the package's
-build process. If you think it is not, please file a bug against Debspawn. We try to be as close to sbuild's default environment
-as possible.
+* **Handshake Loss** (`multiconnect`): Tests resilience of the handshake to high loss. The client is expected to establish multiple connections, sequential or in parallel, and use each connection to download a single file.
 
-One way the build environment differs from Debian's default sbuild setup intentionally is in its consistent use of unicode.
-By default, `debspawn` will ensure that unicode is always available and default. If you do not want this behavior, you can pass
-the `--no-unicode` flag to `debspawn` to disable unicode in the tool itself and in the build environment.
-
-
-#### Will this replace sbuild?
-
-Not in the foreseeable future on Debian itself.
-Sbuild is a proven tool that works well for Debian and supports other OSes than Linux, while `debspawn` is Linux-only,
-a thing that will not change.
-However, Laniakea-using derivatives such as PureOS use the tool for building all packages and for constructing other build
-environments to e.g. build disk images.
-
-
-#### What is the relation of this project with Laniakea?
-
-The Laniakea job runner uses `debspawn` for a bunch of tasks and the integration with the Laniakea system is generally quite tight.
-Of course you can use `debspawn` without Laniakea and integrate it with any tool you want. Debspawn will always be usable
-without Laniakea automation.
-
-
-#### This tool is really fast! What is the secret?
-
-Surprisingly, building packages with `debspawn` is often a bit faster than using `pbuilder` and `sbuild` with their default settings.
-The speed gain comes in large part from the internal use of the Zstandard compression algorithm for base images. Zstd allows for fast
-decompression of the tarballs, which is exactly why it was chosen (LZ4 would be even faster, but Zstd actually is a good compromise between
-compression ration and speed). This shaves off a few seconds of time for each build that is used on base image decompression.
-Additionally, Debspawn uses `eatmydata` to disable fsync & co. by default in a few places, improving the time it takes to set up the build environment
-by quite a bit as well.
-If you want, you can configure other tools to make use of the same methods (eatmydata & zstd) as well and see if they run faster.
+* **V2** (`v2`): In this test, client starts connecting server in QUIC v1 with `version_information` transport parameter that includes QUIC v2 (`0x6b3343cf`) in `other_versions` field.  Server should select QUIC v2 in compatible version negotiation.  Client is expected to download one small file in QUIC v2.
