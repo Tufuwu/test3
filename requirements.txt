@@ -1,4 +1,1 @@
-pycryptodome
-termcolor
-prettytable
-pyshark
+lxml

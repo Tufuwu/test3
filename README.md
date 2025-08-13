@@ -1,93 +1,183 @@
-# Interop Test Runner
+# pyang #
 
-The Interop Test Runner aims to automatically generate an interop matrix by running multiple **test cases** using different QUIC implementations.
+[![Release](https://img.shields.io/github/v/release/mbj4668/pyang)](https://github.com/mbj4668/pyang/releases) [![Build Status](https://github.com/mbj4668/pyang/actions/workflows/run-tests/badge.svg)](https://github.com/mbj4668/pyang/actions)
 
-## Requirements
+## Overview ##
 
-The Interop Runner is written in Python 3. You'll need to install the
-following softwares to run the interop test:
+pyang is a YANG validator, transformator and code generator, written
+in python. It can be used to validate YANG modules for correctness, to
+transform YANG modules into other formats, and to write plugins to
+generate code from the modules.
 
-- Python3 modules. Run the following command:
+YANG ([RFC 7950](http://tools.ietf.org/html/rfc7950)) is a data modeling language for NETCONF ([RFC 6241](http://tools.ietf.org/html/rfc6241)), developed by the IETF [NETMOD](http://www.ietf.org/html.charters/netmod-charter.html) WG.
 
-```bash
-pip3 install -r requirements.txt
+## Documentation ##
+
+See [Documentation](https://github.com/mbj4668/pyang/wiki/Documentation).
+
+## Installation ##
+
+- **1 PyPI**
+
+Pyang can be installed from [PyPI](https://pypi.python.org/pypi):
+
+```sh
+# pip install pyang
 ```
 
-- [Docker](https://docs.docker.com/engine/install/) and [docker-compose](https://docs.docker.com/compose/install/other/#install-compose-standalone). Note that the Interop Runner doesn't support [docker compose v2](https://docs.docker.com/compose/install/) yet.
+- **2 Source**
 
-- [Development version of Wireshark](https://www.wireshark.org/download.html) (version 3.4.2 or newer).
-
-## Running the Interop Runner
-
-Run the interop tests:
-```bash
-python3 run.py
+```sh
+  git clone https://github.com/mbj4668/pyang.git
+  cd pyang
+  python setup.py install
+  (this might require root access)
 ```
 
-## IPv6 support
 
-To enable IPv6 support for the simulator on Linux, the `ip6table_filter` kernel module needs to be loaded on the host. If it isn't loaded on your machine, you'll need to run `sudo modprobe ip6table_filter`.
+To install in a different location, run:
 
-## Building a QUIC endpoint
+```sh
+  python setup.py install --prefix=/usr/local
+```
 
-To include your QUIC implementation in the Interop Runner, create a Docker image following the instructions for [setting up an endpoint in the quic-network-simulator](https://github.com/marten-seemann/quic-network-simulator), publish it on [Docker Hub](https://hub.docker.com) and add it to [implementations.json](implementations.json). Once your implementation is ready to interop, please send us a PR with this addition. Read on for more instructions on what to do within the Docker image.
+If you do this, it is recommended to set the environment variable
+**YANG_INSTALL** to the prefix directory.  This ensures that pyang will
+find standard YANG modules. In addition, make sure that **PYTHONPATH** is set
+to something as follows:
 
-Typically, a test case will require a server to serve files from a directory, and a client to download files. Different test cases will specify the behavior to be tested. For example, the Retry test case expects the server to use a Retry before accepting the connection from the client. All configuration information from the test framework to your implementation is fed into the Docker image using environment variables. The test case is passed into your Docker container using the `TESTCASE` environment variable. If your implementation doesn't support a test case, it MUST exit with status code 127. This will allow us to add new test cases in the future, and correctly report test failures und successes, even if some implementations have not yet implented support for this new test case.
+```sh
+export PYTHONPATH=/usr/local/lib/python2.7/site-packages
+```
 
-The Interop Runner mounts the directory `/www` into your server Docker container. This directory will contain one or more randomly generated files. Your server implementation is expected to run on port 443 and serve files from this directory.
-Equivalently, the Interop Runner mounts `/downloads` into your client Docker container. The directory is initially empty, and your client implementation is expected to store downloaded files into this directory. The URLs of the files to download are passed to the client using the environment variable `REQUESTS`, which contains one or more URLs, separated by a space.
+or whatever version of python you are running.
 
-After the transfer is completed, the client container is expected to exit with exit status 0. If an error occurred during the transfer, the client is expected to exit with exit status 1.
-After completion of the test case, the Interop Runner will verify that the client downloaded the files it was expected to transfer, and that the file contents match. Additionally, for certain test cases, the Interop Runner will use the pcap of the transfer to verify that the implementations fulfilled the requirements of the test (for example, for the Retry test case, the pcap should show that a Retry packet was sent, and that the client used the Token provided in that packet).
 
-The Interop Runner generates a key and a certificate chain and mounts it into `/certs`. The server needs to load its private key from `priv.key`, and the certificate chain from `cert.pem`.
+Run locally without installing
 
-### Examples
+```sh
+export PATH=`pwd`/bin:$PATH
+export MANPATH=`pwd`/man:$MANPATH
+export PYTHONPATH=`pwd`:$PYTHONPATH
+export YANG_MODPATH=`pwd`/modules:$YANG_MODPATH
+export PYANG_XSLT_DIR=`pwd`/xslt
+export PYANG_RNG_LIBDIR=`pwd`/schema
+```
 
-If you're not familiar with Docker, it might be helpful to have a look at the Dockerfiles and scripts that other implementations use:
+or:
 
-* quic-go: [Dockerfile](https://github.com/lucas-clemente/quic-go/blob/master/interop/Dockerfile), [run_endpoint.sh](https://github.com/lucas-clemente/quic-go/blob/master/interop/run_endpoint.sh) and [CI config](https://github.com/lucas-clemente/quic-go/blob/master/.github/workflows/build-interop-docker.yml)
-* quicly: [Dockerfile](https://github.com/h2o/quicly/blob/master/misc/quic-interop-runner/Dockerfile) and [run_endpoint.sh](https://github.com/h2o/quicly/blob/master/misc/quic-interop-runner/run_endpoint.sh) and [run_endpoint.sh](https://github.com/cloudflare/quiche/blob/master/tools/qns/run_endpoint.sh)
-* quant: [Dockerfile](https://github.com/NTAP/quant/blob/master/Dockerfile.interop) and [run_endpoint.sh](https://github.com/NTAP/quant/blob/master/test/interop.sh), built on [DockerHub](https://hub.docker.com/r/ntap/quant)
-* quiche: [Dockerfile](https://github.com/cloudflare/quiche/blob/master/Dockerfile)
-* neqo: [Dockerfile](https://github.com/mozilla/neqo/blob/main/neqo-qns/Dockerfile) and [run_endpoint.sh](https://github.com/mozilla/neqo/blob/main/neqo-qns/run_endpoint.sh)
-* msquic: [Dockerfile](https://github.com/microsoft/msquic/blob/master/Dockerfile), [run_endpoint.sh](https://github.com/microsoft/msquic/blob/master/scripts/run_endpoint.sh) and [CI config](https://github.com/microsoft/msquic/blob/master/.azure/azure-pipelines.docker.yml)
+```sh
+source ./env.sh
+```
 
-Implementers: Please feel free to add links to your implementation here!
+## Compatibility ##
 
-## Logs
+pyang is compatible with the following IETF RFCs:
 
-To facilitate debugging, the Interop Runner saves the log files to the logs directory. This directory is overwritten every time the Interop Runner is executed.
+  * [RFC 6020: YANG - A Data Modeling Language for the Network Configuration Protocol (NETCONF)](https://tools.ietf.org/html/rfc6020)
+  * [RFC 6087: Guidelines for Authors and Reviewers of YANG Data Model Documents](https://tools.ietf.org/html/rfc6087)
+  * [RFC 6110: Mapping YANG to Document Schema Definition Languages and Validating NETCONF Content](https://tools.ietf.org/html/rfc6110)
+  * [RFC 6643: Translation of Structure of Management Information Version 2 (SMIv2) MIB Modules to YANG Modules](https://tools.ietf.org/html/rfc6643)
+  * [RFC 7950: The YANG 1.1 Data Modeling Languages](https://tools.ietf.org/html/rfc7950)
+  * [RFC 7952: Defining and Using Metadata with YANGs](https://tools.ietf.org/html/rfc7952)
+  * [RFC 8040: RESTCONF Protocols](https://tools.ietf.org/html/rfc8040)
+  * [RFC 8407: Guidelines for Authors and Reviewers of Documents Containing YANG Data Models](https://tools.ietf.org/html/rfc8407)
+  * [RFC 8791: YANG Data Structure Extensions](https://tools.ietf.org/html/rfc8791)
 
-The log files are saved to a directory named `#server_#client/#testcase`. `output.txt` contains the console output of the interop test runner (which might contain information why a test case failed). The server and client logs are saved in the `server` and `client` directory, respectively. The `sim` directory contains pcaps recorded by the simulator.
+## Features ##
 
-If implementations wish to export the TLS secrets, they are encouraged to do so in the format in the [NSS Key Log format](https://developer.mozilla.org/en-US/docs/Mozilla/Projects/NSS/Key_Log_Format). The interop runner sets the SSLKEYLOGFILE environment variable to a file in the logs directory. In the future, the interop runner might use those files to decode the traces.
+  * Validate YANG modules.
+  * Convert YANG modules to YIN, and YIN to YANG.
+  * Translate YANG data models to DSDL schemas, which can be used for
+    validating various XML instance documents. See
+    [InstanceValidation](https://github.com/mbj4668/pyang/wiki/InstanceValidation).
+  * Translate YANG data models to XSD.
+  * Generate UML diagrams from YANG models. See
+    [UMLOutput](https://github.com/mbj4668/pyang/wiki/UMLOutput) for
+    an example.
+  * Generate compact tree representation of YANG models for quick
+    visualization. See
+    [TreeOutput](https://github.com/mbj4668/pyang/wiki/TreeOutput) for
+    an example.
+  * Generate a skeleton XML instance document from the data model.
+  * Schema-aware translation of instance documents encoded in XML to
+    JSON and vice-versa. See
+    [XmlJson](https://github.com/mbj4668/pyang/wiki/XmlJson).
+  * Plugin framework for simple development of other outputs, such as
+    code generation.
 
-Implementations that implement [qlog](https://github.com/quiclog/internet-drafts) should export the log files to the directory specified by the `QLOGDIR` environment variable.
+## Usage ##
 
-## Test cases
+```sh
+pyang -h
+```
 
-The Interop Runner implements the following test cases. Unless noted otherwise, test cases use HTTP/0.9 for file transfers. More test cases will be added in the future, to test more protocol features. The name in parentheses is the value of the `TESTCASE` environment variable passed into your Docker container.
+or
 
-* **Version Negotiation** (`versionnegotiation`): Tests that a server sends a Version Negotiation packet in response to an unknown QUIC version number. The client should start a connection using an unsupported version number (it can use a reserved version number to do so), and should abort the connection attempt when receiving the Version Negotiation packet.
-Currently disabled due to #20.
+```sh
+man pyang
+```
 
-* **Handshake** (`handshake`): Tests the successful completion of the handshake. The client is expected to establish a single QUIC connection to the server and download one or multiple small files. Servers should not send a Retry packet in this test case.
+## Code structure ##
 
-* **Transfer** (`transfer`): Tests both flow control and stream multiplexing. The client should use small initial flow control windows for both stream- and connection-level flow control, such that the during the transfer of files on the order of 1 MB the flow control window needs to be increased. The client is exepcted to establish a single QUIC connection, and use multiple streams to concurrently download the files.
+* **bin/**
+  Executable scripts.
 
-* **ChaCha20** (`chacha20`): In this test, client and server are expected to offer **only** ChaCha20 as a ciphersuite. The client then downloads the files.
+* **pyang/**
+  Contains the pyang library code.
 
-* **KeyUpdate** (`keyupdate`, only for the client): The client is expected to make sure that a key update happens early in the connection (during the first MB transferred). It doesn't matter which peer actually initiated the update.
+* **pyang/__init__.py**
+  Initialization code for the pyang library.
 
-* **Retry** (`retry`): Tests that the server can generate a Retry, and that the client can act upon it (i.e. use the Token provided in the Retry packet in the Initial packet).
+* **pyang/context.py**
+  Defines the Context class, which represents a parsing session
 
-* **Resumption** (`resumption`): Tests QUIC session resumption (without 0-RTT). The client is expected to establish a connection and download the first file. The server is expected to provide the client with a session ticket that allows it to resume the connection. After downloading the first file, the client has to close the connection, establish a resumed connection using the session ticket, and use this connection to download the remaining file(s).
+* **pyang/repository.py**
+  Defines the Repository class, which is used to access modules.
 
-* **0-RTT** (`zerortt`): Tests QUIC 0-RTT. The client is expected to establish a connection and download the first file. The server is expected to provide the client with a session ticket that allows it establish a 0-RTT connection on the next connection attempt. After downloading the first file, the client has to close the connection, establish and request the remaining file(s) in 0-RTT.
+* **pyang/syntax.py**
+  Generic syntax checking for YANG and YIN statements.
+  Defines regular expressions for argument checking of core
+  statements.
 
-* **HTTP3** (`http3`): Tests a simple HTTP/3 connection. The client is expected to download multiple files using HTTP/3. Files should be requested and transfered in parallel.
+* **pyang/grammar.py**
+  Generic grammar for YANG and YIN.
+  Defines chk_module_statements() which validates a parse tree
+  according to the grammar.
 
-* **Handshake Loss** (`multiconnect`): Tests resilience of the handshake to high loss. The client is expected to establish multiple connections, sequential or in parallel, and use each connection to download a single file.
+* **pyang/statements.py**
+  Defines the generic Statement class and all validation code.
 
-* **V2** (`v2`): In this test, client starts connecting server in QUIC v1 with `version_information` transport parameter that includes QUIC v2 (`0x6b3343cf`) in `other_versions` field.  Server should select QUIC v2 in compatible version negotiation.  Client is expected to download one small file in QUIC v2.
+* **pyang/yang_parser.py**
+  YANG tokenizer and parser.
+
+* **pyang/yin_parser.py**
+  YIN parser.  Uses the expat library for XML parsing.
+
+* **pyang/types.py**
+  Contains code for checking built-in types.
+
+* **pyang/plugin.py**
+  Plugin API.  Defines the class PyangPlugin which all plugins
+  inherits from. All output handlers are written as plugins.
+
+* **pyang/plugins/**
+  Directory where plugins can be installed.  All plugins in this
+  directory are automatically initialized when the library is
+  initialized.
+
+* **pyang/translators/**
+  Contains output plugins for YANG, YIN, XSD, and DSDL translation.
+
+* **xslt**
+  Contains XSLT style sheets for generating RELAX NG, Schematron and
+  DSRL schemas and validating instance documents. Also included is the
+  free implementation of ISO Schematron by Rick Jelliffe from
+  http://www.schematron.com/ (files iso_schematron_skeleton_for_xslt1.xsl,
+  iso_abstract_expand.xsl and iso_svrl_for_xslt1.xsl).
+
+* **schema**
+  Contains RELAX NG schemas and pattern libraries.
+
+
+
