@@ -5,7 +5,7 @@ __Addon = xbmcaddon.Addon(__addon_id__)
 
 
 def check_data_dir():
-    if(not xbmcvfs.exists(xbmcvfs.translatePath(data_dir()))):
+    if (not xbmcvfs.exists(xbmcvfs.translatePath(data_dir()))):
         xbmcvfs.mkdir(xbmcvfs.translatePath(data_dir()))
 
 
@@ -18,11 +18,24 @@ def addon_dir():
 
 
 def log(message, loglevel=xbmc.LOGDEBUG):
-    xbmc.log(__addon_id__ + "-" + __Addon.getAddonInfo('version') + " : " + message, level=loglevel)
+    xbmc.log(
+        __addon_id__ +
+        "-" +
+        __Addon.getAddonInfo('version') +
+        " : " +
+        message,
+        level=loglevel)
 
 
 def showNotification(title, message):
-    xbmcgui.Dialog().notification(getString(30000), message, time=5000, icon=xbmcvfs.translatePath(__Addon.getAddonInfo('path') + "/resources/media/icon.png"), sound=False)
+    xbmcgui.Dialog().notification(
+        getString(30000),
+        message,
+        time=5000,
+        icon=xbmcvfs.translatePath(
+            __Addon.getAddonInfo('path') +
+            "/resources/media/icon.png"),
+        sound=False)
 
 
 def setSetting(name, value):
