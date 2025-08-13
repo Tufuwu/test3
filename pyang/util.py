@@ -4,7 +4,7 @@ from numbers import Integral as int_types
 
 from .error import err_add
 
-str_types = str if isinstance(u'', str) else (str, type(u''))
+str_types = str if isinstance("", str) else (str, type(""))
 
 
 def attrsearch(tag, attr, in_list):
@@ -40,11 +40,11 @@ def split_identifier(identifier):
     idx = identifier.find(":")
     if idx == -1:
         return None, identifier
-    return identifier[:idx], identifier[idx + 1:]
+    return identifier[:idx], identifier[idx + 1 :]
 
 
 def keyword_to_str(keyword):
-    if keyword == '__tmp_augment__':
+    if keyword == "__tmp_augment__":
         return "undefined"
     elif is_prefixed(keyword):
         (prefix, keyword) = keyword
@@ -60,19 +60,19 @@ def guess_format(text):
     Return 'yang' or 'yin'"""
     for char in text:
         if not char.isspace():
-            if char == '<':
-                return 'yin'
+            if char == "<":
+                return "yin"
             break
-    return 'yang'
+    return "yang"
 
 
 def get_latest_revision(module):
-    revisions = [revision.arg for revision in module.search('revision')]
-    return max(revisions) if revisions else 'unknown'
+    revisions = [revision.arg for revision in module.search("revision")]
+    return max(revisions) if revisions else "unknown"
 
 
 def prefix_to_modulename_and_revision(module, prefix, pos, errors):
-    if prefix == '':
+    if prefix == "":
         return module.arg, None
     if prefix == module.i_prefix:
         return module.arg, None
@@ -80,7 +80,7 @@ def prefix_to_modulename_and_revision(module, prefix, pos, errors):
         (modulename, revision) = module.i_prefixes[prefix]
     except KeyError:
         if prefix not in module.i_missing_prefixes:
-            err_add(errors, pos, 'PREFIX_NOT_DEFINED', prefix)
+            err_add(errors, pos, "PREFIX_NOT_DEFINED", prefix)
         module.i_missing_prefixes[prefix] = True
         return None, None
     # remove the prefix from the unused
@@ -90,12 +90,13 @@ def prefix_to_modulename_and_revision(module, prefix, pos, errors):
 
 
 def prefix_to_module(module, prefix, pos, errors):
-    if prefix == '':
+    if prefix == "":
         return module
     if prefix == module.i_prefix:
         return module
-    modulename, revision = \
-        prefix_to_modulename_and_revision(module, prefix, pos, errors)
+    modulename, revision = prefix_to_modulename_and_revision(
+        module, prefix, pos, errors
+    )
     if modulename is None:
         return None
     return module.i_ctx.get_module(modulename, revision)
@@ -138,6 +139,7 @@ def unique_prefixes(context):
 
 files_read = {}
 
+
 def report_file_read(filename, extra=None):
     realpath = os.path.realpath(filename)
     read = "READ" if realpath in files_read else "read"
@@ -146,30 +148,28 @@ def report_file_read(filename, extra=None):
     files_read[realpath] = True
 
 
-def search_data_node(children, modulename, identifier, last_skipped = None):
-    skip = ['choice', 'case', 'input', 'output']
+def search_data_node(children, modulename, identifier, last_skipped=None):
+    skip = ["choice", "case", "input", "output"]
     if last_skipped is not None:
         skip.append(last_skipped)
     for child in children:
         if child.keyword in skip:
-            r = search_data_node(child.i_children,
-                                 modulename, identifier)
+            r = search_data_node(child.i_children, modulename, identifier)
             if r is not None:
                 return r
-        elif ((child.arg == identifier) and
-              (child.i_module.i_modulename == modulename)):
+        elif (child.arg == identifier) and (child.i_module.i_modulename == modulename):
             return child
     return None
 
 
 def closest_ancestor_data_node(node):
-    if node.keyword in ['choice', 'case']:
+    if node.keyword in ["choice", "case"]:
         return closest_ancestor_data_node(node.parent)
     return node
 
 
 def data_node_up(node):
-    skip = ['choice', 'case', 'input', 'output']
+    skip = ["choice", "case", "input", "output"]
     p = node.parent
     if node.keyword in skip:
         return data_node_up(p)

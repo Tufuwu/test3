@@ -8,6 +8,7 @@ from . import util
 
 yin_namespace = "urn:ietf:params:xml:ns:yang:yin:1"
 
+
 # We're using expat to parse to our own primitive dom-like
 # structure, because we need to keep track of the linenumber per
 # statement.  And expat is easier to work with than minidom.
@@ -18,7 +19,7 @@ class Element(object):
         self.attrs = attrs
         self.pos = copy.copy(pos)
         self.children = []
-        self.data = ''
+        self.data = ""
 
     def find_child(self, ns, local_name):
         for ch in self.children:
@@ -38,6 +39,7 @@ class Element(object):
     def remove_attribute(self, name):
         del self.attrs[name]
 
+
 class YinParser(object):
 
     ns_sep = "}"
@@ -56,7 +58,7 @@ class YinParser(object):
 
         Return namespace and local name as a tuple."""
         res = qname.split(YinParser.ns_sep)
-        if len(res) == 1:       # no namespace
+        if len(res) == 1:  # no namespace
             return None, res[0]
         else:
             return res
@@ -78,17 +80,18 @@ class YinParser(object):
         self.included = []
         self.extensions = {}
 
-        self.data = ''
+        self.data = ""
         self.element_stack = []
 
         try:
-            self.parser.Parse(text.encode('utf-8'), True)
+            self.parser.Parse(text.encode("utf-8"), True)
         except error.Abort:
             return None
         except expat.ExpatError as ex:
             self.pos.line = ex.lineno
-            error.err_add(self.ctx.errors, self.pos, 'SYNTAX_ERROR',
-                          str(ex).split(":")[0])
+            error.err_add(
+                self.ctx.errors, self.pos, "SYNTAX_ERROR", str(ex).split(":")[0]
+            )
             return None
 
         self.look_ahead()
@@ -99,19 +102,24 @@ class YinParser(object):
         """Return current line of the parser."""
 
         return self.parser.CurrentLineNumber
+
     lineno = property(get_lineno, doc="parser position")
 
     # Handlers for Expat events
 
     def start_element(self, name, attrs):
-        name = str(name) # convert from unicode strings
+        name = str(name)  # convert from unicode strings
         self.pos.line = self.lineno
         (ns, local_name) = self.split_qname(name)
         e = Element(ns, local_name, attrs, self.pos)
-        if self.data.lstrip() != '':
-            error.err_add(self.ctx.errors, self.pos, 'SYNTAX_ERROR',
-                          "unexpected element - mixed content")
-        self.data = ''
+        if self.data.lstrip() != "":
+            error.err_add(
+                self.ctx.errors,
+                self.pos,
+                "SYNTAX_ERROR",
+                "unexpected element - mixed content",
+            )
+        self.data = ""
         if not self.element_stack:
             # this is the top-level element
             self.top_element = e
@@ -123,8 +131,7 @@ class YinParser(object):
                 arg = e.find_attribute(argname)
                 # create and save the top-level statement here, so
                 # we get a correct Statement in pos.
-                stmt = statements.new_statement(None, None,
-                                                e.pos, e.local_name, arg)
+                stmt = statements.new_statement(None, None, e.pos, e.local_name, arg)
                 self.top = stmt
                 self.pos.top = stmt
             except:
@@ -142,7 +149,7 @@ class YinParser(object):
         self.pos.line = self.lineno
         e = self.element_stack[-1]
         e.data = self.data
-        self.data = ''
+        self.data = ""
         # end of statement, pop from stack
         del self.element_stack[-1]
 
@@ -154,27 +161,24 @@ class YinParser(object):
             try:
                 (argname, arg_is_elem) = syntax.yin_map[keywd]
             except KeyError:
-                error.err_add(self.ctx.errors, e.pos,
-                              'UNKNOWN_KEYWORD', keywd)
+                error.err_add(self.ctx.errors, e.pos, "UNKNOWN_KEYWORD", keywd)
                 return None
         else:
             # extension
             try:
                 prefix = self.prefixmap[e.ns]
             except KeyError:
-                error.err_add(self.ctx.errors, e.pos,
-                              'MODULE_NOT_IMPORTED', e.ns)
+                error.err_add(self.ctx.errors, e.pos, "MODULE_NOT_IMPORTED", e.ns)
                 return None
             keywd = (prefix, e.local_name)
             keywdstr = util.keyword_to_str(keywd)
-            if 'no_extensions' in self.extra:
+            if "no_extensions" in self.extra:
                 return None
             res = self.find_extension(e.ns, e.local_name)
             if res is None:
-                error.err_add(self.ctx.errors, e.pos,
-                              'UNKNOWN_KEYWORD', keywdstr)
+                error.err_add(self.ctx.errors, e.pos, "UNKNOWN_KEYWORD", keywdstr)
                 return None
-            (arg_is_elem, argname)  = res
+            (arg_is_elem, argname) = res
 
         keywdstr = util.keyword_to_str(keywd)
         if arg_is_elem is True:
@@ -182,21 +186,30 @@ class YinParser(object):
             arg_elem = e.find_child(e.ns, argname)
             if arg_elem is None:
                 arg = None
-                error.err_add(self.ctx.errors, e.pos,
-                              'MISSING_ARGUMENT_ELEMENT', (argname, keywdstr))
+                error.err_add(
+                    self.ctx.errors,
+                    e.pos,
+                    "MISSING_ARGUMENT_ELEMENT",
+                    (argname, keywdstr),
+                )
 
             else:
                 if self.ctx.trim_yin:
-                    arg = "\n".join([x.strip() for x in
-                                     arg_elem.data.strip().splitlines()])
+                    arg = "\n".join(
+                        [x.strip() for x in arg_elem.data.strip().splitlines()]
+                    )
                 else:
                     arg = arg_elem.data
                 e.remove_child(arg_elem)
         elif arg_is_elem is False:
             arg = e.find_attribute(argname)
             if arg is None:
-                error.err_add(self.ctx.errors, e.pos,
-                              'MISSING_ARGUMENT_ATTRIBUTE', (argname, keywdstr))
+                error.err_add(
+                    self.ctx.errors,
+                    e.pos,
+                    "MISSING_ARGUMENT_ATTRIBUTE",
+                    (argname, keywdstr),
+                )
             else:
                 e.remove_attribute(argname)
         else:
@@ -220,11 +233,9 @@ class YinParser(object):
         for at in attrs:
             (ns, local_name) = self.split_qname(at)
             if ns is None:
-                error.err_add(self.ctx.errors, pos,
-                              'UNEXPECTED_ATTRIBUTE', local_name)
+                error.err_add(self.ctx.errors, pos, "UNEXPECTED_ATTRIBUTE", local_name)
             elif ns == yin_namespace:
-                error.err_add(self.ctx.errors, pos,
-                              'UNEXPECTED_ATTRIBUTE', "{"+at)
+                error.err_add(self.ctx.errors, pos, "UNEXPECTED_ATTRIBUTE", "{" + at)
             # allow foreign attributes
             # FIXME: hmm... is this the right thing to do?
             # these things are supposed to be handled with extensions...
@@ -241,28 +252,28 @@ class YinParser(object):
         # namespace, so we need to parse the module :(
 
         # 1.  find our own namespace URI
-        if self.top_element.local_name == 'module':
-            p = self.top_element.find_child(yin_namespace, 'namespace')
+        if self.top_element.local_name == "module":
+            p = self.top_element.find_child(yin_namespace, "namespace")
             if p is not None:
-                self.uri = p.find_attribute('uri')
-            p = self.top_element.find_child(yin_namespace, 'prefix')
+                self.uri = p.find_attribute("uri")
+            p = self.top_element.find_child(yin_namespace, "prefix")
             if p is not None:
-                self.prefixmap[self.uri] = p.find_attribute('value')
-        elif self.top_element.local_name == 'submodule':
-            p = self.top_element.find_child(yin_namespace, 'belongs-to')
-            modname = p.find_attribute('module')
+                self.prefixmap[self.uri] = p.find_attribute("value")
+        elif self.top_element.local_name == "submodule":
+            p = self.top_element.find_child(yin_namespace, "belongs-to")
+            modname = p.find_attribute("module")
             # read the parent module in order to find the namespace uri
-            res = self.ctx.read_module(modname, extra={'no_include':True,
-                                                       'no_extensions':True})
+            res = self.ctx.read_module(
+                modname, extra={"no_include": True, "no_extensions": True}
+            )
             if not res:
                 pass
-            elif res == 'not_found':
-                error.err_add(self.ctx.errors, p.pos,
-                              'MODULE_NOT_FOUND', modname)
-            elif isinstance(res, tuple) and res[0] == 'read_error':
-                error.err_add(self.ctx.errors, p.pos, 'READ_ERROR', res[1])
+            elif res == "not_found":
+                error.err_add(self.ctx.errors, p.pos, "MODULE_NOT_FOUND", modname)
+            elif isinstance(res, tuple) and res[0] == "read_error":
+                error.err_add(self.ctx.errors, p.pos, "READ_ERROR", res[1])
             else:
-                namespace = res.search_one('namespace')
+                namespace = res.search_one("namespace")
                 if namespace is None or namespace.arg is None:
                     pass
                 else:
@@ -273,10 +284,10 @@ class YinParser(object):
 
         # 2.  read all imports and includes and add the modules to the context
         #     and to the nsmap.
-        if not hasattr(self.ctx, 'yin_module_map'):
+        if not hasattr(self.ctx, "yin_module_map"):
             self.ctx.yin_module_map = {}
 
-        if self.top.keyword == 'module':
+        if self.top.keyword == "module":
             if self.top.arg not in self.ctx.yin_module_map:
                 self.ctx.yin_module_map[self.top.arg] = []
             mymodules = self.ctx.yin_module_map[self.top.arg]
@@ -284,8 +295,8 @@ class YinParser(object):
             mymodules = []
 
         for ch in self.top_element.children:
-            if ch.ns == yin_namespace and ch.local_name == 'import':
-                modname = ch.find_attribute('module')
+            if ch.ns == yin_namespace and ch.local_name == "import":
+                modname = ch.find_attribute("module")
                 if modname is not None:
                     if modname in mymodules:
                         # circular import; ignore here and detect in validation
@@ -294,22 +305,25 @@ class YinParser(object):
                         mymodules.append(modname)
                         mod = self.ctx.search_module(ch.pos, modname)
                         if mod is not None:
-                            ns = mod.search_one('namespace')
+                            ns = mod.search_one("namespace")
                             if ns is not None and ns.arg is not None:
                                 # record the uri->mod mapping
                                 self.nsmap[ns.arg] = mod
                                 # also record uri->prefix, where prefix
                                 # is the *yang* prefix, *not* the XML prefix
                                 # (it can be different in theory...)
-                                p = ch.find_child(yin_namespace, 'prefix')
+                                p = ch.find_child(yin_namespace, "prefix")
                                 if p is not None:
-                                    prefix = p.find_attribute('value')
+                                    prefix = p.find_attribute("value")
                                     if prefix is not None:
                                         self.prefixmap[ns.arg] = prefix
 
-            elif (ch.ns == yin_namespace and ch.local_name == 'include' and
-                  'no_include' not in self.extra):
-                modname = ch.find_attribute('module')
+            elif (
+                ch.ns == yin_namespace
+                and ch.local_name == "include"
+                and "no_include" not in self.extra
+            ):
+                modname = ch.find_attribute("module")
                 if modname is not None:
                     mod = self.ctx.search_module(ch.pos, modname)
                     if mod is not None:
@@ -317,37 +331,37 @@ class YinParser(object):
 
         # 3.  find all extensions defined locally
         for ch in self.top_element.children:
-            if ch.ns == yin_namespace and ch.local_name == 'extension':
-                extname = ch.find_attribute('name')
+            if ch.ns == yin_namespace and ch.local_name == "extension":
+                extname = ch.find_attribute("name")
                 if extname is None:
                     continue
-                arg = ch.find_child(yin_namespace, 'argument')
+                arg = ch.find_child(yin_namespace, "argument")
                 if arg is None:
                     self.extensions[extname] = (None, None)
                 else:
-                    argname = arg.find_attribute('name')
+                    argname = arg.find_attribute("name")
                     if argname is None:
                         continue
-                    arg_is_elem = arg.find_child(yin_namespace, 'yin-element')
+                    arg_is_elem = arg.find_child(yin_namespace, "yin-element")
                     if arg_is_elem is None:
                         self.extensions[extname] = (False, argname)
                         continue
-                    val = arg_is_elem.find_attribute('value')
-                    if val == 'false':
+                    val = arg_is_elem.find_attribute("value")
+                    if val == "false":
                         self.extensions[extname] = (False, argname)
-                    elif val == 'true':
+                    elif val == "true":
                         self.extensions[extname] = (True, argname)
 
     def find_extension(self, uri, extname):
         def find_in_mod(mod):
-            ext = self.search_definition(mod, 'extension', extname)
+            ext = self.search_definition(mod, "extension", extname)
             if ext is None:
                 return None
-            ext_arg = ext.search_one('argument')
+            ext_arg = ext.search_one("argument")
             if ext_arg is None:
                 return (None, None)
-            arg_is_elem = ext_arg.search_one('yin-element')
-            if arg_is_elem is None or arg_is_elem.arg == 'false':
+            arg_is_elem = ext_arg.search_one("yin-element")
+            if arg_is_elem is None or arg_is_elem.arg == "false":
                 return (False, ext_arg.arg)
             else:
                 return (True, ext_arg.arg)
@@ -377,7 +391,7 @@ class YinParser(object):
         r = module.search_one(keyword, arg)
         if r is not None:
             return r
-        for i in module.search('include'):
+        for i in module.search("include"):
             modulename = i.arg
             m = self.ctx.search_module(i.pos, modulename)
             if m is not None:

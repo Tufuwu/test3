@@ -7,7 +7,7 @@ def pyang_plugin_init():
 
 class Null(plugin.PyangPlugin):
     def add_transform(self, xforms):
-        xforms['null'] = self
+        xforms["null"] = self
 
     def transform(self, ctx, modules):
         pass

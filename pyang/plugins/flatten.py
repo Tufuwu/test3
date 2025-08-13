@@ -79,7 +79,7 @@ def pyang_plugin_init():
 class FlattenPlugin(plugin.PyangPlugin):
     def __init__(self):
         plugin.PyangPlugin.__init__(self, "flatten")
-        csv.register_dialect('excel-semicolon', delimiter=';')
+        csv.register_dialect("excel-semicolon", delimiter=";")
 
     def add_output_format(self, fmts):
         self.multiple_modules = True
@@ -306,9 +306,7 @@ class FlattenPlugin(plugin.PyangPlugin):
         override_flag=None,
         known_keys=None,
     ):
-        deviated = (
-            getattr(child, "i_this_not_supported", False) or parent_deviated
-        )
+        deviated = getattr(child, "i_this_not_supported", False) or parent_deviated
         # Keys map to self.__field_names for CSV output
         output_content = {
             "xpath": statements.get_xpath(
@@ -330,18 +328,14 @@ class FlattenPlugin(plugin.PyangPlugin):
         # To handle inputs and outputs we're going to have an override flag.
         # input children should flag as w all the way through.
         flag, override_flag = (
-            (override_flag, override_flag)
-            if override_flag
-            else self.get_flag(child)
+            (override_flag, override_flag) if override_flag else self.get_flag(child)
         )
         child_keys = set(statements.get_keys(child))
         # Set the output content based on the options specified
         if ctx.opts.flatten_keyword:
             output_content["keyword"] = child.keyword
         if ctx.opts.flatten_type:
-            output_content["type"] = (
-                statements.get_qualified_type(child) or "nil"
-            )
+            output_content["type"] = statements.get_qualified_type(child) or "nil"
         if ctx.opts.flatten_primitive_type:
             output_content["primitive_type"] = primitive_type
         if ctx.opts.flatten_flag:
@@ -353,9 +347,7 @@ class FlattenPlugin(plugin.PyangPlugin):
                 output_content["key"] = None
             else:
                 child_name = child.arg
-                output_content["key"] = (
-                    "key" if child_name in known_keys else None
-                )
+                output_content["key"] = "key" if child_name in known_keys else None
         if ctx.opts.flatten_deviated:
             output_content["deviated"] = "deviated" if deviated else "present"
         if ctx.opts.flatten_qualified_module_and_prefix_path:
@@ -390,8 +382,7 @@ class FlattenPlugin(plugin.PyangPlugin):
                 and child.keyword not in ctx.opts.flatten_filter_keyword,
                 ctx.opts.flatten_filter_primitive
                 and primitive_type not in ctx.opts.flatten_filter_primitive,
-                ctx.opts.flatten_filter_flag
-                and flag != ctx.opts.flatten_filter_flag,
+                ctx.opts.flatten_filter_flag and flag != ctx.opts.flatten_filter_flag,
                 child.keyword in {"input", "output"},
             ]
         )

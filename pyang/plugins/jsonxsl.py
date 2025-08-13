@@ -28,35 +28,43 @@ import xml.etree.ElementTree as ET
 from pyang import plugin, error
 from pyang.util import unique_prefixes
 
-ss = ET.Element("stylesheet",
-                {"version": "1.0",
-                 "xmlns": "http://www.w3.org/1999/XSL/Transform",
-                 "xmlns:nc": "urn:ietf:params:xml:ns:netconf:base:1.0",
-                 "xmlns:en": "urn:ietf:params:xml:ns:netconf:notification:1.0"})
+ss = ET.Element(
+    "stylesheet",
+    {
+        "version": "1.0",
+        "xmlns": "http://www.w3.org/1999/XSL/Transform",
+        "xmlns:nc": "urn:ietf:params:xml:ns:netconf:base:1.0",
+        "xmlns:en": "urn:ietf:params:xml:ns:netconf:notification:1.0",
+    },
+)
 """Root element of the output XSLT stylesheet."""
 
-type_class = dict((t,"unquoted") for t in
-                  ("boolean", "int8", "int16", "int32",
-                   "uint8", "uint16", "uint32"))
+type_class = dict(
+    (t, "unquoted")
+    for t in ("boolean", "int8", "int16", "int32", "uint8", "uint16", "uint32")
+)
 """Classification of types suited for JSON translation."""
 
-type_class.update((t,t) for t in
-                  ("empty", "instance-identifier", "identityref", "string"))
+type_class.update(
+    (t, t) for t in ("empty", "instance-identifier", "identityref", "string")
+)
 
-union_class = dict((t,"integer") for t in
-                   ("int8", "int16", "int32",
-                   "uint8", "uint16", "uint32"))
+union_class = dict(
+    (t, "integer") for t in ("int8", "int16", "int32", "uint8", "uint16", "uint32")
+)
 """Classification of types needed for resolving union-typed values."""
 
 union_class.update({"boolean": "boolean"})
 
+
 def pyang_plugin_init():
     plugin.register_plugin(JsonXslPlugin())
+
 
 class JsonXslPlugin(plugin.PyangPlugin):
     def add_output_format(self, fmts):
         self.multiple_modules = True
-        fmts['jsonxsl'] = self
+        fmts["jsonxsl"] = self
 
     def setup_fmt(self, ctx):
         ctx.implicit_errors = False
@@ -74,12 +82,16 @@ class JsonXslPlugin(plugin.PyangPlugin):
         self.real_prefix = unique_prefixes(ctx)
         self.top_names = []
         for m in modules:
-            self.top_names.extend([c.arg for c in m.i_children if
-                                   c.keyword not in ("rpc", "notification")])
+            self.top_names.extend(
+                [
+                    c.arg
+                    for c in m.i_children
+                    if c.keyword not in ("rpc", "notification")
+                ]
+            )
         tree = ET.ElementTree(ss)
         ET.SubElement(ss, "output", method="text")
-        xsltdir = os.environ.get("PYANG_XSLT_DIR",
-                                 "/usr/local/share/yang/xslt")
+        xsltdir = os.environ.get("PYANG_XSLT_DIR", "/usr/local/share/yang/xslt")
         ET.SubElement(ss, "include", href=xsltdir + "/jsonxsl-templates.xsl")
         ET.SubElement(ss, "strip-space", elements="*")
         nsmap = ET.SubElement(ss, "template", name="nsuri-to-module")
@@ -140,7 +152,7 @@ class JsonXslPlugin(plugin.PyangPlugin):
         tmpl = self.xsl_template(p)
         ct = self.xsl_calltemplate("container", tmpl)
         self.xsl_withparam("level", "1", ct)
-        if ntf.arg == "eventTime":            # local name collision
+        if ntf.arg == "eventTime":  # local name collision
             self.xsl_withparam("nsid", ntf.i_module.i_modulename + ":", ct)
         self.process_children(ntf, p, 2)
 
@@ -160,8 +172,10 @@ class JsonXslPlugin(plugin.PyangPlugin):
             tmpl = self.xsl_template(p)
             ct = self.xsl_calltemplate(ch.keyword, tmpl)
             self.xsl_withparam("level", "%d" % level, ct)
-            if (data_parent.i_module is None or
-                ch.i_module.i_modulename != data_parent.i_module.i_modulename):
+            if (
+                data_parent.i_module is None
+                or ch.i_module.i_modulename != data_parent.i_module.i_modulename
+            ):
                 self.xsl_withparam("nsid", ch.i_module.i_modulename + ":", ct)
             if ch.keyword in ["leaf", "leaf-list"]:
                 self.type_param(ch, ct)
@@ -170,8 +184,7 @@ class JsonXslPlugin(plugin.PyangPlugin):
                 self.process_children(ch, p, level + offset)
 
     def type_param(self, node, ct):
-        """Resolve the type of a leaf or leaf-list node for JSON.
-        """
+        """Resolve the type of a leaf or leaf-list node for JSON."""
         types = self.get_types(node)
         ftyp = types[0]
         if len(types) == 1:
@@ -180,8 +193,14 @@ class JsonXslPlugin(plugin.PyangPlugin):
             else:
                 jtyp = "other"
             self.xsl_withparam("type", jtyp, ct)
-        elif ftyp in ["string", "enumeration", "bits", "binary",
-                      "identityref", "instance-identifier"]:
+        elif ftyp in [
+            "string",
+            "enumeration",
+            "bits",
+            "binary",
+            "identityref",
+            "instance-identifier",
+        ]:
             self.xsl_withparam("type", "string", ct)
         else:
             opts = []
@@ -203,17 +222,18 @@ class JsonXslPlugin(plugin.PyangPlugin):
 
     def get_types(self, node):
         res = []
+
         def resolve(typ):
             if typ.arg == "union":
                 for ut in typ.i_type_spec.types:
                     resolve(ut)
             elif typ.arg == "decimal64":
-                res.append("decimal@" +
-                           typ.search_one("fraction-digits").arg)
+                res.append("decimal@" + typ.search_one("fraction-digits").arg)
             elif typ.i_typedef is not None:
                 resolve(typ.i_typedef.search_one("type"))
             else:
                 res.append(typ.arg)
+
         typ = node.search_one("type")
         if typ.arg == "leafref":
             resolve(node.i_leafref_ptr[0].search_one("type"))
@@ -230,7 +250,7 @@ class JsonXslPlugin(plugin.PyangPlugin):
 
     def xsl_template(self, name):
         """Construct an XSLT 'template' element matching `name`."""
-        return ET.SubElement(ss, "template" , match = name)
+        return ET.SubElement(ss, "template", match=name)
 
     def xsl_text(self, text, parent):
         """Construct an XSLT 'text' element containing `text`.

@@ -7,6 +7,7 @@ import io
 from . import util
 from . import syntax
 
+
 class Repository(object):
     """Abstract base class that represents a module repository"""
 
@@ -35,8 +36,7 @@ class Repository(object):
 
 
 class FileRepository(Repository):
-    def __init__(self, path="", use_env=True, no_path_recurse=False,
-                 verbose=False):
+    def __init__(self, path="", use_env=True, no_path_recurse=False, verbose=False):
         """Create a Repository which searches the filesystem for modules
 
         `path` is a `os.pathsep`-separated string of directories
@@ -53,22 +53,21 @@ class FileRepository(Repository):
 
         while use_env:
             use_env = False
-            modpath = os.getenv('YANG_MODPATH')
+            modpath = os.getenv("YANG_MODPATH")
             if modpath is not None:
                 for directory in modpath.split(os.pathsep):
                     self._add_directory(directory)
 
-            home = os.getenv('HOME')
+            home = os.getenv("HOME")
             if home is not None:
-                self._add_directory(os.path.join(home, 'yang', 'modules'))
+                self._add_directory(os.path.join(home, "yang", "modules"))
 
-            inst = os.getenv('YANG_INSTALL')
+            inst = os.getenv("YANG_INSTALL")
             if inst is not None:
-                self._add_directory(os.path.join(inst, 'yang', 'modules'))
+                self._add_directory(os.path.join(inst, "yang", "modules"))
                 break  # skip search if install location is indicated
 
-            default_install = os.path.join(
-                sys.prefix, 'share', 'yang', 'modules')
+            default_install = os.path.join(sys.prefix, "share", "yang", "modules")
             if os.path.exists(default_install):
                 self._add_directory(default_install)
                 break  # end search if default location exists
@@ -78,7 +77,8 @@ class FileRepository(Repository):
             # if the package is installed with pip
             # this information can be easily retrieved
             import pkgutil
-            if not pkgutil.find_loader('pip'):
+
+            if not pkgutil.find_loader("pip"):
                 break  # abort search if pip is not installed
 
             # hack below to handle pip 10 internals
@@ -86,25 +86,25 @@ class FileRepository(Repository):
             location = None
             try:
                 import pip.locations as locations
-                location = locations.distutils_scheme('pyang')
+
+                location = locations.distutils_scheme("pyang")
             except:
                 try:
                     import pip._internal.locations as locations
-                    location = locations.distutils_scheme('pyang')
+
+                    location = locations.distutils_scheme("pyang")
                 except:
                     pass
             if location is not None:
                 self._add_directory(
-                    os.path.join(location['data'], 'share', 'yang', 'modules'))
+                    os.path.join(location["data"], "share", "yang", "modules")
+                )
 
         if verbose:
-            sys.stderr.write('# module search path: %s\n'
-                             % os.pathsep.join(self.dirs))
+            sys.stderr.write("# module search path: %s\n" % os.pathsep.join(self.dirs))
 
     def _add_directory(self, directory):
-        if (not directory
-            or directory in self.dirs
-            or not os.path.isdir(directory)):
+        if not directory or directory in self.dirs or not os.path.isdir(directory):
             return False
         self.dirs.append(directory)
         return True
@@ -112,6 +112,7 @@ class FileRepository(Repository):
     def _setup(self, ctx):
         # check all dirs for yang and yin files
         self.modules = []
+
         def add_files_from_dir(d):
             try:
                 files = os.listdir(d)
@@ -129,9 +130,11 @@ class FileRepository(Repository):
                             absfilename = absfilename[2:]
                         handle = in_format, absfilename
                         self.modules.append((name, rev, handle))
-                elif (not self.no_path_recurse
-                      and d != '.' and os.path.isdir(absfilename)):
+                elif (
+                    not self.no_path_recurse and d != "." and os.path.isdir(absfilename)
+                ):
                     add_files_from_dir(absfilename)
+
         for d in self.dirs:
             add_files_from_dir(d)
 
@@ -151,7 +154,7 @@ class FileRepository(Repository):
         except IOError as ex:
             raise self.ReadError("%s: %s" % (absfilename, ex))
         except UnicodeDecodeError as ex:
-            s = str(ex).replace('utf-8', 'utf8')
+            s = str(ex).replace("utf-8", "utf8")
             raise self.ReadError("%s: unicode error: %s" % (absfilename, s))
         finally:
             if fd is not None:

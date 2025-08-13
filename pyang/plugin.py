@@ -7,29 +7,31 @@ import pkg_resources
 plugins = []
 """List of registered PyangPlugin instances"""
 
+
 def init(plugindirs=None):
     """Initialize the plugin framework"""
     if plugindirs is None:
         plugindirs = []
 
     # initialize the builtin plugins
-    from .translators import yang,yin,dsdl
+    from .translators import yang, yin, dsdl
+
     yang.pyang_plugin_init()
     yin.pyang_plugin_init()
     dsdl.pyang_plugin_init()
 
     # initialize installed plugins
-    for ep in pkg_resources.iter_entry_points(group='pyang.plugin'):
+    for ep in pkg_resources.iter_entry_points(group="pyang.plugin"):
         plugin_init = ep.load()
         plugin_init()
 
     # search for plugins in std directories (plugins directory first)
-    basedir = os.path.split(sys.modules['pyang'].__file__)[0]
+    basedir = os.path.split(sys.modules["pyang"].__file__)[0]
     plugindirs.insert(0, basedir + "/transforms")
     plugindirs.insert(0, basedir + "/plugins")
 
     # add paths from env
-    pluginpath = os.getenv('PYANG_PLUGINPATH')
+    pluginpath = os.getenv("PYANG_PLUGINPATH")
     if pluginpath is not None:
         plugindirs.extend(pluginpath.split(os.pathsep))
 
@@ -42,10 +44,12 @@ def init(plugindirs=None):
             continue
         modnames = []
         for fname in fnames:
-            if (fname.startswith(".#") or
-                fname.startswith("__init__.py") or
-                fname.endswith("_flymake.py") or
-                fname.endswith("_flymake.pyc")):
+            if (
+                fname.startswith(".#")
+                or fname.startswith("__init__.py")
+                or fname.endswith("_flymake.py")
+                or fname.endswith("_flymake.pyc")
+            ):
                 pass
             elif fname.endswith(".py"):
                 modname = fname[:-3]
@@ -61,8 +65,9 @@ def init(plugindirs=None):
                 pluginmod.pyang_plugin_init()
             except AttributeError as s:
                 print(pluginmod.__dict__)
-                raise AttributeError(pluginmod.__file__ + ': ' + str(s))
+                raise AttributeError(pluginmod.__file__ + ": " + str(s))
         sys.path = syspath
+
 
 def register_plugin(plugin):
     """Call this to register a pyang plugin. See class PyangPlugin
@@ -70,11 +75,13 @@ def register_plugin(plugin):
     """
     plugins.append(plugin)
 
+
 def is_plugin_registered(name):
     for plugin in plugins:
         if plugin.name == name:
             return True
     return False
+
 
 class PyangPlugin(object):
     """Abstract base class for pyang plugins

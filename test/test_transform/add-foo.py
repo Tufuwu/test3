@@ -9,25 +9,25 @@ def pyang_plugin_init():
 
 class AddFoo(plugin.PyangPlugin):
     def add_transform(self, xforms):
-        xforms['add-foo'] = self
+        xforms["add-foo"] = self
 
     def transform(self, ctx, modules):
         for module in modules:
             for stmt in module.substmts:
-                if stmt.keyword == 'container':
-                    foo = stmt.search_one('foo')
+                if stmt.keyword == "container":
+                    foo = stmt.search_one("foo")
                     if not foo:
-                        foo = add_leaf(stmt, 'foo', 'string')
+                        foo = add_leaf(stmt, "foo", "string")
 
 
 def add_leaf(parent, name, type_name):
-    leaf = statements.Statement(parent.top, parent, parent.pos, 'leaf', name)
+    leaf = statements.Statement(parent.top, parent, parent.pos, "leaf", name)
     parent.substmts.append(leaf)
     add_type(leaf, type_name)
     return leaf
 
 
 def add_type(leaf, type_name):
-    type_ = statements.Statement(leaf.top, leaf, leaf.pos, 'type', type_name)
+    type_ = statements.Statement(leaf.top, leaf, leaf.pos, "type", type_name)
     leaf.substmts.append(type_)
     return type_

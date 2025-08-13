@@ -1,17 +1,18 @@
 import xml.parsers.expat
 
-NC_NS_URI ="urn:ietf:params:xml:ns:netconf:base:1.0"
+NC_NS_URI = "urn:ietf:params:xml:ns:netconf:base:1.0"
 CAPABILITIES = {
-    "urn:ietf:params:xml:ns:netconf:base:1.0" : "base",
-    "urn:ietf:params:netconf:base:1.1" : "base",
-    "urn:ietf:params:netconf:capability:writable-running:1.0" : "writable-running",
-    "urn:ietf:params:netconf:capability:candidate:1.0" : "candidate",
-    "urn:ietf:params:netconf:capability:startup:1.0" : "startup",
-    "urn:ietf:params:netconf:capability:url:1.0" : "url",
-    "urn:ietf:params:netconf:capability:xpath:1.0" : "xpath",
-    "urn:ietf:params:netconf:capability:notification:1.0" : "notification",
-    "urn:ietf:params:netconf:capability:with-defaults:1.0" : "with-defaults",
-    }
+    "urn:ietf:params:xml:ns:netconf:base:1.0": "base",
+    "urn:ietf:params:netconf:base:1.1": "base",
+    "urn:ietf:params:netconf:capability:writable-running:1.0": "writable-running",
+    "urn:ietf:params:netconf:capability:candidate:1.0": "candidate",
+    "urn:ietf:params:netconf:capability:startup:1.0": "startup",
+    "urn:ietf:params:netconf:capability:url:1.0": "url",
+    "urn:ietf:params:netconf:capability:xpath:1.0": "xpath",
+    "urn:ietf:params:netconf:capability:notification:1.0": "notification",
+    "urn:ietf:params:netconf:capability:with-defaults:1.0": "with-defaults",
+}
+
 
 class Capability:
 
@@ -24,10 +25,11 @@ class Capability:
             id_ = uri
         self.id = id_
 
-    def parse_pars(self,pars):
+    def parse_pars(self, pars):
         for p in pars.split("&"):
-            name, value=p.split("=")
+            name, value = p.split("=")
             self.parameters[name] = value
+
 
 class HelloParser:
 
@@ -35,7 +37,7 @@ class HelloParser:
         self.capabilities = []
         self.depth = self.state = 0
         self.buffer = ""
-        self.parser = xml.parsers.expat.ParserCreate(namespace_separator=' ')
+        self.parser = xml.parsers.expat.ParserCreate(namespace_separator=" ")
         self.parser.CharacterDataHandler = self.handleCharData
         self.parser.StartElementHandler = self.handleStartElement
         self.parser.EndElementHandler = self.handleEndElement
@@ -85,7 +87,7 @@ class HelloParser:
                 continue
             res[m] = c.parameters.get("revision")
         return res.items()
-    
+
     def yang_implicit_deviation_modules(self):
         """
         Return an iterable of deviations to YANG modules which are referenced
@@ -105,8 +107,9 @@ class HelloParser:
 
     def get_features(self, yam):
         """Return list of features declared for module `yam`."""
-        mcap = [ c for c in self.capabilities
-                 if c.parameters.get("module", None) == yam ][0]
+        mcap = [
+            c for c in self.capabilities if c.parameters.get("module", None) == yam
+        ][0]
         features = mcap.parameters.get("features")
         return features.split(",") if features else []
 
@@ -116,5 +119,6 @@ class HelloParser:
         Only capabilities from the `CAPABILITIES` dictionary are taken
         into account.
         """
-        return dict ([ (CAPABILITIES[c.id],c) for c in self.capabilities
-                 if c.id in CAPABILITIES ])
+        return dict(
+            [(CAPABILITIES[c.id], c) for c in self.capabilities if c.id in CAPABILITIES]
+        )

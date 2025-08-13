@@ -26,40 +26,41 @@ import json
 from pyang import plugin, error
 from pyang.util import unique_prefixes
 
+
 def pyang_plugin_init():
     plugin.register_plugin(JtoXPlugin())
+
 
 class JtoXPlugin(plugin.PyangPlugin):
     def add_output_format(self, fmts):
         self.multiple_modules = True
-        fmts['jtox'] = self
+        fmts["jtox"] = self
 
     def setup_fmt(self, ctx):
         ctx.implicit_errors = False
 
     def emit(self, ctx, modules, fd):
-        """Main control function.
-        """
+        """Main control function."""
         for epos, etag, eargs in ctx.errors:
             if error.is_error(error.err_level(etag)):
                 raise error.EmitError("JTOX plugin needs a valid module")
         tree = {}
         mods = {}
         annots = {}
-        for m,p in unique_prefixes(ctx).items():
+        for m, p in unique_prefixes(ctx).items():
             mods[m.i_modulename] = [p, m.search_one("namespace").arg]
         for module in modules:
             for ann in module.search(("ietf-yang-metadata", "annotation")):
                 typ = ann.search_one("type")
                 annots[module.arg + ":" + ann.arg] = (
-                    "string" if typ is None else self.base_type(ann, typ))
+                    "string" if typ is None else self.base_type(ann, typ)
+                )
         for module in modules:
             self.process_children(module, tree, None)
         json.dump({"modules": mods, "tree": tree, "annotations": annots}, fd)
 
     def process_children(self, node, parent, pmod):
-        """Process all children of `node`, except "rpc" and "notification".
-        """
+        """Process all children of `node`, except "rpc" and "notification"."""
         for ch in node.i_children:
             if ch.keyword in ["rpc", "notification"]:
                 continue
@@ -79,8 +80,7 @@ class JtoXPlugin(plugin.PyangPlugin):
             elif ch.keyword == "list":
                 ndata.append({})
                 self.process_children(ch, ndata[1], nmod)
-                ndata.append([(k.i_module.i_modulename, k.arg)
-                              for k in ch.i_key])
+                ndata.append([(k.i_module.i_modulename, k.arg) for k in ch.i_key])
             elif ch.keyword in ["leaf", "leaf-list"]:
                 ndata.append(self.base_type(ch, ch.search_one("type")))
             modname = ch.i_module.i_modulename
@@ -102,6 +102,9 @@ class JtoXPlugin(plugin.PyangPlugin):
         if of_type.arg == "decimal64":
             return [of_type.arg, int(of_type.search_one("fraction-digits").arg)]
         elif of_type.arg == "union":
-            return [of_type.arg, [self.base_type(ch, x) for x in of_type.i_type_spec.types]]
+            return [
+                of_type.arg,
+                [self.base_type(ch, x) for x in of_type.i_type_spec.types],
+            ]
         else:
             return of_type.arg

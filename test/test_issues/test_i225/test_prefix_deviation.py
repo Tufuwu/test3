@@ -16,20 +16,20 @@ except ImportError:
 from pyang.context import Context
 from pyang.repository import FileRepository
 
-EXISTING_MODULE = 'ietf-yang-types'
+EXISTING_MODULE = "ietf-yang-types"
 
 DEFAULT_OPTIONS = {
-    'format': 'yang',
-    'verbose': True,
-    'list_errors': True,
-    'print_error_code': True,
-    'yang_remove_unused_imports': True,
-    'yang_canonical': True,
-    'trim_yin': False,
-    'keep_comments': True,
-    'features': [],
-    'deviations': [],
-    'path': []
+    "format": "yang",
+    "verbose": True,
+    "list_errors": True,
+    "print_error_code": True,
+    "yang_remove_unused_imports": True,
+    "yang_canonical": True,
+    "trim_yin": False,
+    "keep_comments": True,
+    "features": [],
+    "deviations": [],
+    "path": [],
 }
 """Default options for pyang command line"""
 
@@ -50,7 +50,7 @@ class objectify(object):
         self.__dict__[attr] = value
 
 
-def create_context(path='.', *options, **kwargs):
+def create_context(path=".", *options, **kwargs):
     """Generates a pyang context
 
     Arguments:
@@ -77,11 +77,11 @@ def test_can_find_modules_with_pip_install():
     """
 
     # remove obfuscation from env vars
-    if os.environ.get('YANG_INSTALL'):
-        del os.environ['YANG_INSTALL']
+    if os.environ.get("YANG_INSTALL"):
+        del os.environ["YANG_INSTALL"]
 
-    if os.environ.get('YANG_MODPATH'):
-        del os.environ['YANG_MODPATH']
+    if os.environ.get("YANG_MODPATH"):
+        del os.environ["YANG_MODPATH"]
 
     ctx = create_context()
     module = ctx.search_module(None, EXISTING_MODULE)
@@ -98,22 +98,21 @@ def test_can_find_modules_when_prefix_differ(monkeypatch):
     # store pip location.
     # monkeypatching sys.prefix will side_effect scheme.
     try:
-        scheme = locations.distutils_scheme('pyang')
-        monkeypatch.setattr(
-            locations, 'distutils_scheme', lambda *_: scheme)
+        scheme = locations.distutils_scheme("pyang")
+        monkeypatch.setattr(locations, "distutils_scheme", lambda *_: scheme)
     except:
         print("cannot get scheme from pip, skipping")
         return
 
     # simulate #225 description
-    monkeypatch.setattr(sys, 'prefix', '/usr')
+    monkeypatch.setattr(sys, "prefix", "/usr")
 
     # remove obfuscation from env vars
-    if os.environ.get('YANG_INSTALL'):
-        del os.environ['YANG_INSTALL']
+    if os.environ.get("YANG_INSTALL"):
+        del os.environ["YANG_INSTALL"]
 
-    if os.environ.get('YANG_MODPATH'):
-        del os.environ['YANG_MODPATH']
+    if os.environ.get("YANG_MODPATH"):
+        del os.environ["YANG_MODPATH"]
 
     ctx = create_context()
     module = ctx.search_module(None, EXISTING_MODULE)

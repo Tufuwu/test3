@@ -7,23 +7,26 @@ import optparse
 from pyang import plugin
 from pyang.plugins import lint
 
+
 def pyang_plugin_init():
     plugin.register_plugin(MEFPlugin())
+
 
 class MEFPlugin(lint.LintPlugin):
     def __init__(self):
         lint.LintPlugin.__init__(self)
-        self.namespace_prefixes = ['urn:mef:yang:', 'urn:mef:xid:']
-        self.modulename_prefixes = ['mef']
+        self.namespace_prefixes = ["urn:mef:yang:", "urn:mef:xid:"]
+        self.modulename_prefixes = ["mef"]
 
     def add_opts(self, optparser):
         optlist = [
-            optparse.make_option("--mef",
-                                 dest="mef",
-                                 action="store_true",
-                                 help="Validate the module(s) according to " \
-                                 "MEF rules."),
-            ]
+            optparse.make_option(
+                "--mef",
+                dest="mef",
+                action="store_true",
+                help="Validate the module(s) according to " "MEF rules.",
+            ),
+        ]
         optparser.add_options(optlist)
 
     def setup_ctx(self, ctx):
