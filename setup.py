@@ -1,47 +1,35 @@
-from setuptools import find_packages, setup
+from setuptools import setup
 
-with open("README.rst") as readme_file:
-    readme = readme_file.read()
+with open("README.md") as f:
+    readme = f.read()
 
-with open("HISTORY.rst") as history_file:
-    history = history_file.read()
+with open("aioitertools/__init__.py") as f:
+    for line in f:
+        if line.startswith("__version__"):
+            version = line.split('"')[1]
 
 setup(
-    # Project information
-    name="mixsea",
-    version="0.1.0",
-    author="mixsea Developers",
-    author_email="",
-    url="https://github.com/modscripps/mixsea",
-    license="MIT License",
-    # Description
-    description="Ocean mixing parameterizations",
-    long_description=f"{readme}\n\n{history}",
-    long_description_content_type="text/x-rst",
-    # Requirements
-    python_requires=">=3.6",
-    install_requires=["numpy", "gsw", "scipy"],
-    extras_require={
-        "test": ["pytest"],  # install these with: pip install mixsea[test]
-    },
-    # Packaging
-    packages=find_packages(include=["mixsea", "mixsea.*"], exclude=["*.tests"]),
-    package_data={"mixsea": ["tests/data/*.csv"]},
-    include_package_data=True,
-    zip_safe=False,
-    platforms=["any"],  # or more specific, e.g. "win32", "cygwin", "osx"
-    # Metadata
-    project_urls={"Documentation": "https://mixsea.readthedocs.io"},
+    name="aioitertools",
+    description="asyncio version of the standard multiprocessing module",
+    long_description=readme,
+    long_description_content_type="text/markdown",
+    version=version,
+    author="John Reese",
+    author_email="john@noswap.com",
+    url="https://github.com/jreese/aioitertools",
     classifiers=[
         "Development Status :: 4 - Beta",
-        "Intended Audience :: Science/Research",
-        "Topic :: Scientific/Engineering :: Physics",
+        "Framework :: AsyncIO",
+        "Intended Audience :: Developers",
         "License :: OSI Approved :: MIT License",
-        "Natural Language :: English",
-        "Programming Language :: Python :: 3 :: Only",
+        "Programming Language :: Python",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.6",
-        "Programming Language :: Python :: 3.7",
-        "Programming Language :: Python :: 3.8",
+        "Topic :: Software Development :: Libraries",
     ],
+    license="MIT",
+    packages=["aioitertools", "aioitertools.tests"],
+    package_data={"aioitertools": ["py.typed"]},
+    python_requires=">=3.6",
+    setup_requires=["setuptools>=38.6.0"],
+    install_requires=[],
 )
