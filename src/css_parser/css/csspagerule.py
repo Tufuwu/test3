@@ -5,13 +5,15 @@ from . import cssrule
 from .marginrule import MarginRule
 from .cssstyledeclaration import CSSStyleDeclaration
 from itertools import chain
+
 """CSSPageRule implements DOM Level 2 CSS CSSPageRule."""
 
-__all__ = ['CSSPageRule']
-__docformat__ = 'restructuredtext'
-__version__ = '$Id$'
+__all__ = ["CSSPageRule"]
+__docformat__ = "restructuredtext"
+__version__ = "$Id$"
 
 import sys
+
 if sys.version_info[0] >= 3:
     string_type = str
 else:
@@ -67,8 +69,14 @@ class CSSPageRule(cssrule.CSSRuleRules):
     `cssRules` contains a list of `MarginRule` objects.
     """
 
-    def __init__(self, selectorText=None, style=None, parentRule=None,
-                 parentStyleSheet=None, readonly=False):
+    def __init__(
+        self,
+        selectorText=None,
+        style=None,
+        parentRule=None,
+        parentStyleSheet=None,
+        readonly=False,
+    ):
         """
         If readonly allows setting of properties in constructor only.
 
@@ -77,16 +85,17 @@ class CSSPageRule(cssrule.CSSRuleRules):
         :param style:
             CSSStyleDeclaration for this CSSStyleRule
         """
-        super(CSSPageRule, self).__init__(parentRule=parentRule,
-                                          parentStyleSheet=parentStyleSheet)
-        self._atkeyword = '@page'
+        super(CSSPageRule, self).__init__(
+            parentRule=parentRule, parentStyleSheet=parentStyleSheet
+        )
+        self._atkeyword = "@page"
         self._specificity = (0, 0, 0)
 
         tempseq = self._tempSeq()
 
         if selectorText:
             self.selectorText = selectorText
-            tempseq.append(self.selectorText, 'selectorText')
+            tempseq.append(self.selectorText, "selectorText")
         else:
             self._selectorText = self._tempSeq()
 
@@ -95,7 +104,7 @@ class CSSPageRule(cssrule.CSSRuleRules):
         else:
             self.style = CSSStyleDeclaration()
 
-        tempseq.append(self.style, 'style')
+        tempseq.append(self.style, "style")
 
         self._setSeq(tempseq)
         self._readonly = readonly
@@ -104,17 +113,21 @@ class CSSPageRule(cssrule.CSSRuleRules):
         return "css_parser.css.%s(selectorText=%r, style=%r)" % (
             self.__class__.__name__,
             self.selectorText,
-            self.style.cssText)
+            self.style.cssText,
+        )
 
     def __str__(self):
-        return ("<css_parser.css.%s object selectorText=%r specificity=%r " +
-                "style=%r cssRules=%r at 0x%x>") % (
+        return (
+            "<css_parser.css.%s object selectorText=%r specificity=%r "
+            + "style=%r cssRules=%r at 0x%x>"
+        ) % (
             self.__class__.__name__,
             self.selectorText,
             self.specificity,
             self.style.cssText,
             len(self.cssRules),
-            id(self))
+            id(self),
+        )
 
     def __contains__(self, margin):
         """Check if margin is set in the rule."""
@@ -159,90 +172,95 @@ class CSSPageRule(cssrule.CSSRuleRules):
         see _setSelectorText for details
         """
         # for closures: must be a mutable
-        new = {'wellformed': True, 'last-S': False,
-               'name': 0, 'first': 0, 'lr': 0}
+        new = {"wellformed": True, "last-S": False, "name": 0, "first": 0, "lr": 0}
 
         def _char(expected, seq, token, tokenizer=None):
             # pseudo_page, :left, :right or :first
             val = self._tokenvalue(token)
-            if not new['last-S'] and expected in ['page', ': or EOF']\
-               and ':' == val:
+            if not new["last-S"] and expected in ["page", ": or EOF"] and ":" == val:
                 try:
                     identtoken = next(tokenizer)
                 except StopIteration:
-                    self._log.error(
-                        'CSSPageRule selectorText: No IDENT found.', token)
+                    self._log.error("CSSPageRule selectorText: No IDENT found.", token)
                 else:
-                    ival, ityp = self._tokenvalue(identtoken),\
-                        self._type(identtoken)
+                    ival, ityp = self._tokenvalue(identtoken), self._type(identtoken)
                     if self._prods.IDENT != ityp:
-                        self._log.error('CSSPageRule selectorText: Expected '
-                                        'IDENT but found: %r' % ival, token)
+                        self._log.error(
+                            "CSSPageRule selectorText: Expected "
+                            "IDENT but found: %r" % ival,
+                            token,
+                        )
                     else:
-                        if ival not in ('first', 'left', 'right'):
-                            self._log.warn('CSSPageRule: Unknown @page '
-                                           'selector: %r'
-                                           % (':'+ival,), neverraise=True)
-                        if ival == 'first':
-                            new['first'] = 1
+                        if ival not in ("first", "left", "right"):
+                            self._log.warn(
+                                "CSSPageRule: Unknown @page "
+                                "selector: %r" % (":" + ival,),
+                                neverraise=True,
+                            )
+                        if ival == "first":
+                            new["first"] = 1
                         else:
-                            new['lr'] = 1
-                        seq.append(val + ival, 'pseudo')
-                        return 'EOF'
+                            new["lr"] = 1
+                        seq.append(val + ival, "pseudo")
+                        return "EOF"
                 return expected
             else:
-                new['wellformed'] = False
-                self._log.error('CSSPageRule selectorText: Unexpected CHAR: %r'
-                                % val, token)
+                new["wellformed"] = False
+                self._log.error(
+                    "CSSPageRule selectorText: Unexpected CHAR: %r" % val, token
+                )
                 return expected
 
         def S(expected, seq, token, tokenizer=None):
             "Does not raise if EOF is found."
-            if expected == ': or EOF':
+            if expected == ": or EOF":
                 # pseudo must directly follow IDENT if given
-                new['last-S'] = True
+                new["last-S"] = True
             return expected
 
         def IDENT(expected, seq, token, tokenizer=None):
-            ""
+            """"""
             val = self._tokenvalue(token)
-            if 'page' == expected:
-                if self._normalize(val) == 'auto':
-                    self._log.error('CSSPageRule selectorText: Invalid pagename.',
-                                    token)
+            if "page" == expected:
+                if self._normalize(val) == "auto":
+                    self._log.error(
+                        "CSSPageRule selectorText: Invalid pagename.", token
+                    )
                 else:
-                    new['name'] = 1
-                    seq.append(val, 'IDENT')
+                    new["name"] = 1
+                    seq.append(val, "IDENT")
 
-                return ': or EOF'
+                return ": or EOF"
             else:
-                new['wellformed'] = False
-                self._log.error('CSSPageRule selectorText: Unexpected IDENT: '
-                                '%r' % val, token)
+                new["wellformed"] = False
+                self._log.error(
+                    "CSSPageRule selectorText: Unexpected IDENT: " "%r" % val, token
+                )
                 return expected
 
         def COMMENT(expected, seq, token, tokenizer=None):
             "Does not raise if EOF is found."
-            seq.append(css_parser.css.CSSComment([token]), 'COMMENT')
+            seq.append(css_parser.css.CSSComment([token]), "COMMENT")
             return expected
 
         newseq = self._tempSeq()
-        wellformed, expected = self._parse(expected='page',
-                                           seq=newseq, tokenizer=self._tokenize2(selectorText),
-                                           productions={'CHAR': _char,
-                                                        'IDENT': IDENT,
-                                                        'COMMENT': COMMENT,
-                                                        'S': S},
-                                           new=new)
-        wellformed = wellformed and new['wellformed']
+        wellformed, expected = self._parse(
+            expected="page",
+            seq=newseq,
+            tokenizer=self._tokenize2(selectorText),
+            productions={"CHAR": _char, "IDENT": IDENT, "COMMENT": COMMENT, "S": S},
+            new=new,
+        )
+        wellformed = wellformed and new["wellformed"]
 
         # post conditions
-        if expected == 'ident':
+        if expected == "ident":
             self._log.error(
-                'CSSPageRule selectorText: No valid selector: %r' %
-                self._valuestr(selectorText))
+                "CSSPageRule selectorText: No valid selector: %r"
+                % self._valuestr(selectorText)
+            )
 
-        return wellformed, newseq, (new['name'], new['first'], new['lr'])
+        return wellformed, newseq, (new["name"], new["first"], new["lr"])
 
     def __parseMarginAndStyle(self, tokens):
         "tokens is a list, no generator (yet)"
@@ -253,12 +271,13 @@ class CSSPageRule(cssrule.CSSRuleRules):
         cssRules = []
 
         for token in g:
-            if token[0] == 'ATKEYWORD' and \
-               self._normalize(token[1]) in MarginRule.margins:
+            if (
+                token[0] == "ATKEYWORD"
+                and self._normalize(token[1]) in MarginRule.margins
+            ):
 
                 # MarginRule
-                m = MarginRule(parentRule=self,
-                               parentStyleSheet=self.parentStyleSheet)
+                m = MarginRule(parentRule=self, parentStyleSheet=self.parentStyleSheet)
                 m.cssText = chain([token], g)
 
                 # merge if margin set more than once
@@ -300,43 +319,45 @@ class CSSPageRule(cssrule.CSSRuleRules):
 
         tokenizer = self._tokenize2(cssText)
         if self._type(self._nexttoken(tokenizer)) != self._prods.PAGE_SYM:
-            self._log.error('CSSPageRule: No CSSPageRule found: %s' %
-                            self._valuestr(cssText),
-                            error=xml.dom.InvalidModificationErr)
+            self._log.error(
+                "CSSPageRule: No CSSPageRule found: %s" % self._valuestr(cssText),
+                error=xml.dom.InvalidModificationErr,
+            )
         else:
             newStyle = CSSStyleDeclaration(parentRule=self)
             ok = True
 
-            selectortokens, startbrace = self._tokensupto2(tokenizer,
-                                                           blockstartonly=True,
-                                                           separateEnd=True)
-            styletokens, braceorEOFtoken = self._tokensupto2(tokenizer,
-                                                             blockendonly=True,
-                                                             separateEnd=True)
+            selectortokens, startbrace = self._tokensupto2(
+                tokenizer, blockstartonly=True, separateEnd=True
+            )
+            styletokens, braceorEOFtoken = self._tokensupto2(
+                tokenizer, blockendonly=True, separateEnd=True
+            )
             nonetoken = self._nexttoken(tokenizer)
-            if self._tokenvalue(startbrace) != '{':
+            if self._tokenvalue(startbrace) != "{":
                 ok = False
-                self._log.error('CSSPageRule: No start { of style declaration '
-                                'found: %r' %
-                                self._valuestr(cssText), startbrace)
+                self._log.error(
+                    "CSSPageRule: No start { of style declaration "
+                    "found: %r" % self._valuestr(cssText),
+                    startbrace,
+                )
             elif nonetoken:
                 ok = False
-                self._log.error('CSSPageRule: Trailing content found.',
-                                token=nonetoken)
+                self._log.error("CSSPageRule: Trailing content found.", token=nonetoken)
 
             selok, newselseq, specificity = self.__parseSelectorText(selectortokens)
             ok = ok and selok
 
-            val, type_ = self._tokenvalue(braceorEOFtoken),\
-                self._type(braceorEOFtoken)
+            val, type_ = self._tokenvalue(braceorEOFtoken), self._type(braceorEOFtoken)
 
-            if val != '}' and type_ != 'EOF':
+            if val != "}" and type_ != "EOF":
                 ok = False
                 self._log.error(
-                    'CSSPageRule: No "}" after style declaration found: %r' %
-                    self._valuestr(cssText))
+                    'CSSPageRule: No "}" after style declaration found: %r'
+                    % self._valuestr(cssText)
+                )
             else:
-                if 'EOF' == type_:
+                if "EOF" == type_:
                     # add again as style needs it
                     styletokens.append(braceorEOFtoken)
 
@@ -354,8 +375,11 @@ class CSSPageRule(cssrule.CSSRuleRules):
                 for r in cssRules:
                     self.cssRules.append(r)
 
-    cssText = property(_getCssText, _setCssText,
-                       doc="(DOM) The parsable textual representation of this rule.")
+    cssText = property(
+        _getCssText,
+        _setCssText,
+        doc="(DOM) The parsable textual representation of this rule.",
+    )
 
     def _getSelectorText(self):
         """Wrapper for css_parser Selector object."""
@@ -387,9 +411,12 @@ class CSSPageRule(cssrule.CSSRuleRules):
             self._selectorText = newseq
             self._specificity = specificity
 
-    selectorText = property(_getSelectorText, _setSelectorText,
-                            doc="(DOM) The parsable textual representation of "
-                                "the page selector for the rule.")
+    selectorText = property(
+        _getSelectorText,
+        _setSelectorText,
+        doc="(DOM) The parsable textual representation of "
+        "the page selector for the rule.",
+    )
 
     def _setStyle(self, style):
         """
@@ -404,9 +431,12 @@ class CSSPageRule(cssrule.CSSRuleRules):
             style._parentRule = self
             self._style = style
 
-    style = property(lambda self: self._style, _setStyle,
-                     doc="(DOM) The declaration-block of this rule set, "
-                         "a :class:`~css_parser.css.CSSStyleDeclaration`.")
+    style = property(
+        lambda self: self._style,
+        _setStyle,
+        doc="(DOM) The declaration-block of this rule set, "
+        "a :class:`~css_parser.css.CSSStyleDeclaration`.",
+    )
 
     def insertRule(self, rule, index=None):
         """Implements base ``insertRule``."""
@@ -417,31 +447,38 @@ class CSSPageRule(cssrule.CSSRuleRules):
             return
 
         # check hierarchy
-        if isinstance(rule, css_parser.css.CSSCharsetRule) or \
-           isinstance(rule, css_parser.css.CSSFontFaceRule) or \
-           isinstance(rule, css_parser.css.CSSImportRule) or \
-           isinstance(rule, css_parser.css.CSSNamespaceRule) or \
-           isinstance(rule, CSSPageRule) or \
-           isinstance(rule, css_parser.css.CSSMediaRule):
-            self._log.error('%s: This type of rule is not allowed here: %s'
-                            % (self.__class__.__name__, rule.cssText),
-                            error=xml.dom.HierarchyRequestErr)
+        if (
+            isinstance(rule, css_parser.css.CSSCharsetRule)
+            or isinstance(rule, css_parser.css.CSSFontFaceRule)
+            or isinstance(rule, css_parser.css.CSSImportRule)
+            or isinstance(rule, css_parser.css.CSSNamespaceRule)
+            or isinstance(rule, CSSPageRule)
+            or isinstance(rule, css_parser.css.CSSMediaRule)
+        ):
+            self._log.error(
+                "%s: This type of rule is not allowed here: %s"
+                % (self.__class__.__name__, rule.cssText),
+                error=xml.dom.HierarchyRequestErr,
+            )
             return
 
         return self._finishInsertRule(rule, index)
 
-    specificity = property(lambda self: self._specificity,
-                           doc="""Specificity of this page rule (READONLY).
+    specificity = property(
+        lambda self: self._specificity,
+        doc="""Specificity of this page rule (READONLY).
 Tuple of (f, g, h) where:
 
  - if the page selector has a named page, f=1; else f=0
  - if the page selector has a ':first' pseudo-class, g=1; else g=0
  - if the page selector has a ':left' or ':right' pseudo-class, h=1; else h=0
-""")
+""",
+    )
 
-    type = property(lambda self: self.PAGE_RULE,
-                    doc="The type of this rule, as defined by a CSSRule "
-                        "type constant.")
+    type = property(
+        lambda self: self.PAGE_RULE,
+        doc="The type of this rule, as defined by a CSSRule " "type constant.",
+    )
 
     # constant but needed:
     wellformed = property(lambda self: True)

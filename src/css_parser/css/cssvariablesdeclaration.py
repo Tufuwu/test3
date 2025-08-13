@@ -1,11 +1,12 @@
 """CSSVariablesDeclaration
 http://disruptive-innovations.com/zoo/cssvariables/#mozTocId496530
 """
+
 from __future__ import unicode_literals, division, absolute_import, print_function
 
-__all__ = ['CSSVariablesDeclaration']
-__docformat__ = 'restructuredtext'
-__version__ = '$Id: cssstyledeclaration.py 1819 2009-08-01 20:52:43Z cthedot $'
+__all__ = ["CSSVariablesDeclaration"]
+__docformat__ = "restructuredtext"
+__version__ = "$Id: cssstyledeclaration.py 1819 2009-08-01 20:52:43Z cthedot $"
 
 from css_parser.prodparser import Prod, Sequence, PreDef, ProdParser
 from css_parser.helper import normalize
@@ -25,7 +26,7 @@ class CSSVariablesDeclaration(css_parser.util._NewBase):
     variable declarations.
     """
 
-    def __init__(self, cssText='', parentRule=None, readonly=False):
+    def __init__(self, cssText="", parentRule=None, readonly=False):
         """
         :param cssText:
             Shortcut, sets CSSVariablesDeclaration.cssText
@@ -64,7 +65,8 @@ class CSSVariablesDeclaration(css_parser.util._NewBase):
         return "<css_parser.css.%s object length=%r at 0x%x>" % (
             self.__class__.__name__,
             self.length,
-            id(self))
+            id(self),
+        )
 
     def __contains__(self, variableName):
         """Check if a variable is in variable declaration block.
@@ -135,31 +137,33 @@ class CSSVariablesDeclaration(css_parser.util._NewBase):
 
         vardeclaration = Sequence(
             PreDef.ident(),
-            PreDef.char(':', ':', toSeq=False, optional=True),
+            PreDef.char(":", ":", toSeq=False, optional=True),
             # PreDef.S(toSeq=False, optional=True),
-            Prod(name='term', match=lambda t, v: True,
-                 toSeq=lambda t, tokens: ('value',
-                                          PropertyValue(itertools.chain([t],
-                                                                        tokens),
-                                                        parent=self)
-                                          )
-                 )
+            Prod(
+                name="term",
+                match=lambda t, v: True,
+                toSeq=lambda t, tokens: (
+                    "value",
+                    PropertyValue(itertools.chain([t], tokens), parent=self),
+                ),
+            ),
         )
-        prods = Sequence(vardeclaration,
-                         Sequence(PreDef.S(optional=True),
-                                  PreDef.char(';', ';', toSeq=False, optional=True),
-                                  PreDef.S(optional=True),
-                                  vardeclaration,
-                                  minmax=lambda: (0, None)),
-                         PreDef.S(optional=True),
-                         PreDef.char(';', ';', toSeq=False, optional=True)
-                         )
+        prods = Sequence(
+            vardeclaration,
+            Sequence(
+                PreDef.S(optional=True),
+                PreDef.char(";", ";", toSeq=False, optional=True),
+                PreDef.S(optional=True),
+                vardeclaration,
+                minmax=lambda: (0, None),
+            ),
+            PreDef.S(optional=True),
+            PreDef.char(";", ";", toSeq=False, optional=True),
+        )
         # parse
-        wellformed, seq, store, notused = \
-            ProdParser().parse(cssText,
-                               'CSSVariableDeclaration',
-                               prods,
-                               emptyOk=True)
+        wellformed, seq, store, notused = ProdParser().parse(
+            cssText, "CSSVariableDeclaration", prods, emptyOk=True
+        )
         if wellformed:
             newseq = self._tempSeq()
             newvars = {}
@@ -167,27 +171,33 @@ class CSSVariablesDeclaration(css_parser.util._NewBase):
             # seq contains only name: value pairs plus comments etc
             nameitem = None
             for item in seq:
-                if 'IDENT' == item.type:
+                if "IDENT" == item.type:
                     nameitem = item
-                elif 'value' == item.type:
+                elif "value" == item.type:
                     nname = normalize(nameitem.value)
                     if nname in newvars:
                         # replace var with same name
                         for i, it in enumerate(newseq):
                             if normalize(it.value[0]) == nname:
-                                newseq.replace(i,
-                                               (nameitem.value, item.value),
-                                               'var',
-                                               nameitem.line, nameitem.col)
+                                newseq.replace(
+                                    i,
+                                    (nameitem.value, item.value),
+                                    "var",
+                                    nameitem.line,
+                                    nameitem.col,
+                                )
                     else:
                         # saved non normalized name for reserialization
-                        newseq.append((nameitem.value, item.value),
-                                      'var',
-                                      nameitem.line, nameitem.col)
+                        newseq.append(
+                            (nameitem.value, item.value),
+                            "var",
+                            nameitem.line,
+                            nameitem.col,
+                        )
 
-#                    newseq.append((nameitem.value, item.value),
-#                                  'var',
-#                                  nameitem.line, nameitem.col)
+                    #                    newseq.append((nameitem.value, item.value),
+                    #                                  'var',
+                    #                                  nameitem.line, nameitem.col)
 
                     newvars[nname] = item.value
 
@@ -198,17 +208,23 @@ class CSSVariablesDeclaration(css_parser.util._NewBase):
             self._vars = newvars
             self.wellformed = True
 
-    cssText = property(_getCssText, _setCssText,
-                       doc="(DOM) A parsable textual representation of the declaration "
-                       "block excluding the surrounding curly braces.")
+    cssText = property(
+        _getCssText,
+        _setCssText,
+        doc="(DOM) A parsable textual representation of the declaration "
+        "block excluding the surrounding curly braces.",
+    )
 
     def _setParentRule(self, parentRule):
         self._parentRule = parentRule
 
-    parentRule = property(lambda self: self._parentRule, _setParentRule,
-                          doc="(DOM) The CSS rule that contains this"
-                              " declaration block or None if this block"
-                              " is not attached to a CSSRule.")
+    parentRule = property(
+        lambda self: self._parentRule,
+        _setParentRule,
+        doc="(DOM) The CSS rule that contains this"
+        " declaration block or None if this block"
+        " is not attached to a CSSRule.",
+    )
 
     def getVariableValue(self, variableName):
         """Used to retrieve the value of a variable if it has been explicitly
@@ -224,7 +240,7 @@ class CSSVariablesDeclaration(css_parser.util._NewBase):
         try:
             return self._vars[normalize(variableName)].cssText
         except KeyError:
-            return ''
+            return ""
 
     def removeVariable(self, variableName):
         """Used to remove a variable if it has been explicitly set within this
@@ -245,7 +261,7 @@ class CSSVariablesDeclaration(css_parser.util._NewBase):
         try:
             r = self._vars[normalname]
         except KeyError:
-            return ''
+            return ""
         else:
             self.seq._readonly = False
             if normalname in self._vars:
@@ -276,13 +292,11 @@ class CSSVariablesDeclaration(css_parser.util._NewBase):
         self._checkReadonly()
 
         # check name
-        wellformed, seq, store, unused = \
-            ProdParser().parse(normalize(variableName),
-                               'variableName',
-                               Sequence(PreDef.ident()))
+        wellformed, seq, store, unused = ProdParser().parse(
+            normalize(variableName), "variableName", Sequence(PreDef.ident())
+        )
         if not wellformed:
-            self._log.error('Invalid variableName: %r: %r'
-                            % (variableName, value))
+            self._log.error("Invalid variableName: %r: %r" % (variableName, value))
         else:
             # check value
             if isinstance(value, PropertyValue):
@@ -291,8 +305,9 @@ class CSSVariablesDeclaration(css_parser.util._NewBase):
                 v = PropertyValue(cssText=value, parent=self)
 
             if not v.wellformed:
-                self._log.error('Invalid variable value: %r: %r'
-                                % (variableName, value))
+                self._log.error(
+                    "Invalid variable value: %r: %r" % (variableName, value)
+                )
             else:
                 # update seq
                 self.seq._readonly = False
@@ -302,14 +317,12 @@ class CSSVariablesDeclaration(css_parser.util._NewBase):
                 if variableName in self._vars:
                     for i, x in enumerate(self.seq):
                         if x.value[0] == variableName:
-                            self.seq.replace(i,
-                                             [variableName, v],
-                                             x.type,
-                                             x.line,
-                                             x.col)
+                            self.seq.replace(
+                                i, [variableName, v], x.type, x.line, x.col
+                            )
                             break
                 else:
-                    self.seq.append([variableName, v], 'var')
+                    self.seq.append([variableName, v], "var")
                 self.seq._readonly = True
                 self._vars[variableName] = v
 
@@ -331,9 +344,11 @@ class CSSVariablesDeclaration(css_parser.util._NewBase):
         try:
             return as_list(self.keys())[index]
         except IndexError:
-            return ''
+            return ""
 
-    length = property(lambda self: len(self._vars),
-                      doc="The number of variables that have been explicitly set in this"
-                      " variable declaration block. The range of valid indices is 0"
-                      " to length-1 inclusive.")
+    length = property(
+        lambda self: len(self._vars),
+        doc="The number of variables that have been explicitly set in this"
+        " variable declaration block. The range of valid indices is 0"
+        " to length-1 inclusive.",
+    )

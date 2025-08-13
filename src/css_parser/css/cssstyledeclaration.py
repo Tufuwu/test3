@@ -49,11 +49,12 @@ TODO:
       background: no-repeat left url()  #fff
       -> background: #fff url() no-repeat left
 """
+
 from __future__ import unicode_literals, division, absolute_import, print_function
 
-__all__ = ['CSSStyleDeclaration', 'Property']
-__docformat__ = 'restructuredtext'
-__version__ = '$Id$'
+__all__ = ["CSSStyleDeclaration", "Property"]
+__docformat__ = "restructuredtext"
+__version__ = "$Id$"
 
 from .cssproperties import CSS2Properties
 from .property import Property
@@ -97,8 +98,7 @@ class CSSStyleDeclaration(CSS2Properties, css_parser.util.Base2):
         [Property: Value Priority?;]* [Property: Value Priority?]?
     """
 
-    def __init__(self, cssText='', parentRule=None, readonly=False,
-                 validating=None):
+    def __init__(self, cssText="", parentRule=None, readonly=False, validating=None):
         """
         :param cssText:
             Shortcut, sets CSSStyleDeclaration.cssText
@@ -131,9 +131,11 @@ class CSSStyleDeclaration(CSS2Properties, css_parser.util.Base2):
 
     def __iter__(self):
         """Iterator of set Property objects with different normalized names."""
+
         def properties():
             for name in self.__nnames():
                 yield self.getProperty(name)
+
         return properties()
 
     def keys(self):
@@ -177,29 +179,45 @@ class CSSStyleDeclaration(CSS2Properties, css_parser.util.Base2):
         TODO:
             implementation of known is not really nice, any alternative?
         """
-        known = ['_tokenizer', '_log', '_ttypes',
-                 '_seq', 'seq', 'parentRule', '_parentRule', 'cssText',
-                 'valid', 'wellformed', 'validating',
-                 '_readonly', '_profiles', '_validating']
+        known = [
+            "_tokenizer",
+            "_log",
+            "_ttypes",
+            "_seq",
+            "seq",
+            "parentRule",
+            "_parentRule",
+            "cssText",
+            "valid",
+            "wellformed",
+            "validating",
+            "_readonly",
+            "_profiles",
+            "_validating",
+        ]
         known.extend(CSS2Properties._properties)
         if n in known:
             super(CSSStyleDeclaration, self).__setattr__(n, v)
         else:
-            raise AttributeError('Unknown CSS Property, '
-                                 '``CSSStyleDeclaration.setProperty("%s", '
-                                 '...)`` MUST be used.' % n)
+            raise AttributeError(
+                "Unknown CSS Property, "
+                '``CSSStyleDeclaration.setProperty("%s", '
+                "...)`` MUST be used." % n
+            )
 
     def __repr__(self):
         return "css_parser.css.%s(cssText=%r)" % (
             self.__class__.__name__,
-            self.getCssText(separator=' '))
+            self.getCssText(separator=" "),
+        )
 
     def __str__(self):
         return "<css_parser.css.%s object length=%r (all: %r) at 0x%x>" % (
             self.__class__.__name__,
             self.length,
             len(self.getProperties(all=True)),
-            id(self))
+            id(self),
+        )
 
     def __nnames(self):
         """Return iterator for all different names in order as set
@@ -265,7 +283,7 @@ class CSSStyleDeclaration(CSS2Properties, css_parser.util.Base2):
 
     def children(self):
         """Generator yielding any known child in this declaration including
-         *all* properties, comments or CSSUnknownrules.
+        *all* properties, comments or CSSUnknownrules.
         """
         for item in self._seq:
             yield item.value
@@ -292,45 +310,54 @@ class CSSStyleDeclaration(CSS2Properties, css_parser.util.Base2):
         def ident(expected, seq, token, tokenizer=None):
             # a property
 
-            tokens = self._tokensupto2(tokenizer, starttoken=token,
-                                       semicolon=True)
-            if self._tokenvalue(tokens[-1]) == ';':
+            tokens = self._tokensupto2(tokenizer, starttoken=token, semicolon=True)
+            if self._tokenvalue(tokens[-1]) == ";":
                 tokens.pop()
             property = Property(parent=self)
             property.cssText = tokens
             if property.wellformed:
-                seq.append(property, 'Property')
+                seq.append(property, "Property")
             else:
-                self._log.error('CSSStyleDeclaration: Syntax Error in '
-                                'Property: %s' % self._valuestr(tokens))
+                self._log.error(
+                    "CSSStyleDeclaration: Syntax Error in "
+                    "Property: %s" % self._valuestr(tokens)
+                )
             # does not matter in this case
             return expected
 
         def unexpected(expected, seq, token, tokenizer=None):
             # error, find next ; or } to omit upto next property
             ignored = self._tokenvalue(token) + self._valuestr(
-                self._tokensupto2(tokenizer,
-                                  propertyvalueendonly=True))
-            self._log.error('CSSStyleDeclaration: Unexpected token, ignoring '
-                            'upto %r.' % ignored, token)
+                self._tokensupto2(tokenizer, propertyvalueendonly=True)
+            )
+            self._log.error(
+                "CSSStyleDeclaration: Unexpected token, ignoring " "upto %r." % ignored,
+                token,
+            )
             # does not matter in this case
             return expected
 
         def char(expected, seq, token, tokenizer=None):
             # a standalone ; or error...
-            if self._tokenvalue(token) == ';':
-                self._log.info('CSSStyleDeclaration: Stripped standalone semicolon'
-                               ': %s' % self._valuestr([token]), neverraise=True)
+            if self._tokenvalue(token) == ";":
+                self._log.info(
+                    "CSSStyleDeclaration: Stripped standalone semicolon"
+                    ": %s" % self._valuestr([token]),
+                    neverraise=True,
+                )
                 return expected
             else:
                 return unexpected(expected, seq, token, tokenizer)
 
         # [Property: Value;]* Property: Value?
         newseq = self._tempSeq()
-        wellformed, expected = self._parse(expected=None,
-                                           seq=newseq, tokenizer=tokenizer,
-                                           productions={'IDENT': ident, 'CHAR': char},
-                                           default=unexpected)
+        wellformed, expected = self._parse(
+            expected=None,
+            seq=newseq,
+            tokenizer=tokenizer,
+            productions={"IDENT": ident, "CHAR": char},
+            default=unexpected,
+        )
         # wellformed set by parse
 
         for item in newseq:
@@ -339,10 +366,13 @@ class CSSStyleDeclaration(CSS2Properties, css_parser.util.Base2):
         # do not check wellformed as invalid things are removed anyway
         self._setSeq(newseq)
 
-    cssText = property(_getCssText, _setCssText,
-                       doc="(DOM) A parsable textual representation of the "
-                           "declaration block excluding the surrounding curly "
-                           "braces.")
+    cssText = property(
+        _getCssText,
+        _setCssText,
+        doc="(DOM) A parsable textual representation of the "
+        "declaration block excluding the surrounding curly "
+        "braces.",
+    )
 
     def getCssText(self, separator=None):
         """
@@ -357,12 +387,16 @@ class CSSStyleDeclaration(CSS2Properties, css_parser.util.Base2):
 
     def _setParentRule(self, parentRule):
         self._parentRule = parentRule
-#        for x in self.children():
-#            x.parent = self
 
-    parentRule = property(lambda self: self._parentRule, _setParentRule,
-                          doc="(DOM) The CSS rule that contains this declaration block or "
-                          "None if this CSSStyleDeclaration is not attached to a CSSRule.")
+    #        for x in self.children():
+    #            x.parent = self
+
+    parentRule = property(
+        lambda self: self._parentRule,
+        _setParentRule,
+        doc="(DOM) The CSS rule that contains this declaration block or "
+        "None if this CSSStyleDeclaration is not attached to a CSSRule.",
+    )
 
     def getProperties(self, name=None, all=False):
         """
@@ -400,7 +434,8 @@ class CSSStyleDeclaration(CSS2Properties, css_parser.util.Base2):
             for item in self.seq:
                 val = item.value
                 if isinstance(val, Property) and (
-                   (bool(nname) is False) or (val.name == nname)):
+                    (bool(nname) is False) or (val.name == nname)
+                ):
                     properties.append(val)
             return properties
 
@@ -461,9 +496,11 @@ class CSSStyleDeclaration(CSS2Properties, css_parser.util.Base2):
         """
         nname = self._normalize(name)
         if nname in self._SHORTHANDPROPERTIES:
-            self._log.info('CSSValue for shorthand property "%s" should be '
-                           'None, this may be implemented later.' %
-                           nname, neverraise=True)
+            self._log.info(
+                'CSSValue for shorthand property "%s" should be '
+                "None, this may be implemented later." % nname,
+                neverraise=True,
+            )
 
         p = self.getProperty(name, normalize)
         if p:
@@ -490,7 +527,7 @@ class CSSStyleDeclaration(CSS2Properties, css_parser.util.Base2):
         if p:
             return p.value
         else:
-            return ''
+            return ""
 
     def getPropertyPriority(self, name, normalize=True):
         r"""
@@ -511,7 +548,7 @@ class CSSStyleDeclaration(CSS2Properties, css_parser.util.Base2):
         if p:
             return p.priority
         else:
-            return ''
+            return ""
 
     def removeProperty(self, name, normalize=True):
         r"""
@@ -549,20 +586,19 @@ class CSSStyleDeclaration(CSS2Properties, css_parser.util.Base2):
             # remove all properties with name == nname
             nname = self._normalize(name)
             for item in self.seq:
-                if not (isinstance(item.value, Property)
-                        and item.value.name == nname):
+                if not (isinstance(item.value, Property) and item.value.name == nname):
                     newseq.appendItem(item)
         else:
             # remove all properties with literalname == name
             for item in self.seq:
-                if not (isinstance(item.value, Property)
-                        and item.value.literalname == name):
+                if not (
+                    isinstance(item.value, Property) and item.value.literalname == name
+                ):
                     newseq.appendItem(item)
         self._setSeq(newseq)
         return r
 
-    def setProperty(self, name, value=None, priority='',
-                    normalize=True, replace=True):
+    def setProperty(self, name, value=None, priority="", normalize=True, replace=True):
         r"""(DOM) Set a property value and priority within this declaration
         block.
 
@@ -633,12 +669,11 @@ class CSSStyleDeclaration(CSS2Properties, css_parser.util.Base2):
             # not yet set or forced omit replace
             newp.parent = self
             self.seq._readonly = False
-            self.seq.append(newp, 'Property')
+            self.seq.append(newp, "Property")
             self.seq._readonly = True
 
         else:
-            self._log.warn('Invalid Property: %s: %s %s'
-                           % (name, value, priority))
+            self._log.warn("Invalid Property: %s: %s %s" % (name, value, priority))
 
     def item(self, index):
         r"""(DOM) Retrieve the properties that have been explicitly set in
@@ -666,15 +701,17 @@ class CSSStyleDeclaration(CSS2Properties, css_parser.util.Base2):
         try:
             return names[index]
         except IndexError:
-            return ''
+            return ""
 
-    length = property(lambda self: len(list(self.__nnames())),
-                      doc="(DOM) The number of distinct properties that have "
-                          "been explicitly in this declaration block. The "
-                          "range of valid indices is 0 to length-1 inclusive. "
-                          "These are properties with a different ``name`` "
-                          "only. :meth:`item` and :attr:`length` work on the "
-                          "same set here.")
+    length = property(
+        lambda self: len(list(self.__nnames())),
+        doc="(DOM) The number of distinct properties that have "
+        "been explicitly in this declaration block. The "
+        "range of valid indices is 0 to length-1 inclusive. "
+        "These are properties with a different ``name`` "
+        "only. :meth:`item` and :attr:`length` work on the "
+        "same set here.",
+    )
 
     def _getValidating(self):
         try:
@@ -690,16 +727,18 @@ class CSSStyleDeclaration(CSS2Properties, css_parser.util.Base2):
     def _setValidating(self, validating):
         self._validating = validating
 
-    validating = property(_getValidating, _setValidating,
-                          doc="If ``True`` this declaration validates "
-                          "contained properties. The parent StyleSheet "
-                          "validation setting does *always* win though so "
-                          "even if validating is True it may not validate "
-                          "if the StyleSheet defines else!")
+    validating = property(
+        _getValidating,
+        _setValidating,
+        doc="If ``True`` this declaration validates "
+        "contained properties. The parent StyleSheet "
+        "validation setting does *always* win though so "
+        "even if validating is True it may not validate "
+        "if the StyleSheet defines else!",
+    )
 
     def _getValid(self):
         """Check each contained property for validity."""
         return all(prop.valid for prop in self.getProperties())
 
-    valid = property(_getValid,
-                     doc='``True`` if each property is valid.')
+    valid = property(_getValid, doc="``True`` if each property is valid.")

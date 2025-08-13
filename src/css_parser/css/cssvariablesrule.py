@@ -3,15 +3,17 @@ import xml.dom
 import css_parser
 from . import cssrule
 from .cssvariablesdeclaration import CSSVariablesDeclaration
+
 """CSSVariables implements (and only partly) experimental
 `CSS Variables <http://disruptive-innovations.com/zoo/cssvariables/>`_
 """
 
-__all__ = ['CSSVariablesRule']
-__docformat__ = 'restructuredtext'
-__version__ = '$Id: cssfontfacerule.py 1818 2009-07-30 21:39:00Z cthedot $'
+__all__ = ["CSSVariablesRule"]
+__docformat__ = "restructuredtext"
+__version__ = "$Id: cssfontfacerule.py 1818 2009-07-30 21:39:00Z cthedot $"
 
 import sys
+
 if sys.version_info[0] >= 3:
     string_type = str
 else:
@@ -50,14 +52,21 @@ class CSSVariablesRule(cssrule.CSSRule):
         }
     """
 
-    def __init__(self, mediaText=None, variables=None, parentRule=None,
-                 parentStyleSheet=None, readonly=False):
+    def __init__(
+        self,
+        mediaText=None,
+        variables=None,
+        parentRule=None,
+        parentStyleSheet=None,
+        readonly=False,
+    ):
         """
         If readonly allows setting of properties in constructor only.
         """
-        super(CSSVariablesRule, self).__init__(parentRule=parentRule,
-                                               parentStyleSheet=parentStyleSheet)
-        self._atkeyword = '@variables'
+        super(CSSVariablesRule, self).__init__(
+            parentRule=parentRule, parentStyleSheet=parentStyleSheet
+        )
+        self._atkeyword = "@variables"
 
         # dummy
         self._media = css_parser.stylesheets.MediaList(mediaText, readonly=readonly)
@@ -73,15 +82,21 @@ class CSSVariablesRule(cssrule.CSSRule):
         return "css_parser.css.%s(mediaText=%r, variables=%r)" % (
             self.__class__.__name__,
             self._media.mediaText,
-            self.variables.cssText)
+            self.variables.cssText,
+        )
 
     def __str__(self):
-        return "<css_parser.css.%s object mediaText=%r variables=%r valid=%r " \
-               "at 0x%x>" % (self.__class__.__name__,
-                             self._media.mediaText,
-                             self.variables.cssText,
-                             self.valid,
-                             id(self))
+        return (
+            "<css_parser.css.%s object mediaText=%r variables=%r valid=%r "
+            "at 0x%x>"
+            % (
+                self.__class__.__name__,
+                self._media.mediaText,
+                self.variables.cssText,
+                self.valid,
+                id(self),
+            )
+        )
 
     def _getCssText(self):
         """Return serialized property cssText."""
@@ -118,50 +133,58 @@ class CSSVariablesRule(cssrule.CSSRule):
         tokenizer = self._tokenize2(cssText)
         attoken = self._nexttoken(tokenizer, None)
         if self._type(attoken) != self._prods.VARIABLES_SYM:
-            self._log.error('CSSVariablesRule: No CSSVariablesRule found: %s' %
-                            self._valuestr(cssText),
-                            error=xml.dom.InvalidModificationErr)
+            self._log.error(
+                "CSSVariablesRule: No CSSVariablesRule found: %s"
+                % self._valuestr(cssText),
+                error=xml.dom.InvalidModificationErr,
+            )
         else:
             newVariables = CSSVariablesDeclaration(parentRule=self)
             ok = True
 
-            beforetokens, brace = self._tokensupto2(tokenizer,
-                                                    blockstartonly=True,
-                                                    separateEnd=True)
-            if self._tokenvalue(brace) != '{':
+            beforetokens, brace = self._tokensupto2(
+                tokenizer, blockstartonly=True, separateEnd=True
+            )
+            if self._tokenvalue(brace) != "{":
                 ok = False
-                self._log.error('CSSVariablesRule: No start { of variable '
-                                'declaration found: %r'
-                                % self._valuestr(cssText), brace)
+                self._log.error(
+                    "CSSVariablesRule: No start { of variable "
+                    "declaration found: %r" % self._valuestr(cssText),
+                    brace,
+                )
 
             # parse stuff before { which should be comments and S only
-            new = {'wellformed': True}
+            new = {"wellformed": True}
             newseq = self._tempSeq()  # []
 
-            beforewellformed, expected = self._parse(expected=':',
-                                                     seq=newseq, tokenizer=self._tokenize2(beforetokens),
-                                                     productions={})
-            ok = ok and beforewellformed and new['wellformed']
+            beforewellformed, expected = self._parse(
+                expected=":",
+                seq=newseq,
+                tokenizer=self._tokenize2(beforetokens),
+                productions={},
+            )
+            ok = ok and beforewellformed and new["wellformed"]
 
-            variablestokens, braceorEOFtoken = self._tokensupto2(tokenizer,
-                                                                 blockendonly=True,
-                                                                 separateEnd=True)
+            variablestokens, braceorEOFtoken = self._tokensupto2(
+                tokenizer, blockendonly=True, separateEnd=True
+            )
 
-            val, type_ = self._tokenvalue(braceorEOFtoken), \
-                self._type(braceorEOFtoken)
-            if val != '}' and type_ != 'EOF':
+            val, type_ = self._tokenvalue(braceorEOFtoken), self._type(braceorEOFtoken)
+            if val != "}" and type_ != "EOF":
                 ok = False
-                self._log.error('CSSVariablesRule: No "}" after variables '
-                                'declaration found: %r'
-                                % self._valuestr(cssText))
+                self._log.error(
+                    'CSSVariablesRule: No "}" after variables '
+                    "declaration found: %r" % self._valuestr(cssText)
+                )
 
             nonetoken = self._nexttoken(tokenizer)
             if nonetoken:
                 ok = False
-                self._log.error('CSSVariablesRule: Trailing content found.',
-                                token=nonetoken)
+                self._log.error(
+                    "CSSVariablesRule: Trailing content found.", token=nonetoken
+                )
 
-            if 'EOF' == type_:
+            if "EOF" == type_:
                 # add again as variables needs it
                 variablestokens.append(braceorEOFtoken)
             # SET but may raise:
@@ -172,12 +195,16 @@ class CSSVariablesRule(cssrule.CSSRule):
                 self._setSeq(newseq)
                 self.variables = newVariables
 
-    cssText = property(_getCssText, _setCssText,
-                       doc="(DOM) The parsable textual representation of this "
-                           "rule.")
+    cssText = property(
+        _getCssText,
+        _setCssText,
+        doc="(DOM) The parsable textual representation of this " "rule.",
+    )
 
-    media = property(doc="NOT IMPLEMENTED! As css_parser resolves variables "
-                         "during serializing media information is lost.")
+    media = property(
+        doc="NOT IMPLEMENTED! As css_parser resolves variables "
+        "during serializing media information is lost."
+    )
 
     def _setVariables(self, variables):
         """
@@ -187,21 +214,26 @@ class CSSVariablesRule(cssrule.CSSRule):
         self._checkReadonly()
         # Under Pythoin 2.x this was basestring but ...
         if isinstance(variables, string_type):
-            self._variables = CSSVariablesDeclaration(cssText=variables,
-                                                      parentRule=self)
+            self._variables = CSSVariablesDeclaration(
+                cssText=variables, parentRule=self
+            )
         else:
             variables._parentRule = self
             self._variables = variables
 
-    variables = property(lambda self: self._variables, _setVariables,
-                         doc="(DOM) The variables of this rule set, a "
-                             ":class:`css_parser.css.CSSVariablesDeclaration`.")
+    variables = property(
+        lambda self: self._variables,
+        _setVariables,
+        doc="(DOM) The variables of this rule set, a "
+        ":class:`css_parser.css.CSSVariablesDeclaration`.",
+    )
 
-    type = property(lambda self: self.VARIABLES_RULE,
-                    doc="The type of this rule, as defined by a CSSRule "
-                        "type constant.")
+    type = property(
+        lambda self: self.VARIABLES_RULE,
+        doc="The type of this rule, as defined by a CSSRule " "type constant.",
+    )
 
-    valid = property(lambda self: True, doc='NOT IMPLEMTED REALLY (TODO)')
+    valid = property(lambda self: True, doc="NOT IMPLEMTED REALLY (TODO)")
 
     # constant but needed:
     wellformed = property(lambda self: True)

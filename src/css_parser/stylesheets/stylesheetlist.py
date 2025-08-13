@@ -1,9 +1,10 @@
 """StyleSheetList implements DOM Level 2 Style Sheets StyleSheetList."""
+
 from __future__ import unicode_literals, division, absolute_import, print_function
 
-__all__ = ['StyleSheetList']
-__docformat__ = 'restructuredtext'
-__version__ = '$Id$'
+__all__ = ["StyleSheetList"]
+__docformat__ = "restructuredtext"
+__version__ = "$Id$"
 
 
 class StyleSheetList(list):
@@ -30,6 +31,8 @@ class StyleSheetList(list):
         except IndexError:
             return None
 
-    length = property(lambda self: len(self),
-                      doc="The number of :class:`StyleSheet` objects in the list. The range"
-                      "  of valid child stylesheet indices is 0 to length-1 inclusive.")
+    length = property(
+        lambda self: len(self),
+        doc="The number of :class:`StyleSheet` objects in the list. The range"
+        "  of valid child stylesheet indices is 0 to length-1 inclusive.",
+    )

@@ -1,13 +1,15 @@
 from __future__ import unicode_literals, division, absolute_import, print_function
 import xml.dom
 import css_parser
+
 """CSSRule implements DOM Level 2 CSS CSSRule."""
 
-__all__ = ['CSSRule']
-__docformat__ = 'restructuredtext'
-__version__ = '$Id$'
+__all__ = ["CSSRule"]
+__docformat__ = "restructuredtext"
+__version__ = "$Id$"
 
 import sys
+
 if sys.version_info[0] >= 3:
     string_type = str
 else:
@@ -54,18 +56,19 @@ class CSSRule(css_parser.util.Base2):
     """:class:`css_parser.css.MarginRule` - experimental rule
     not in the offical spec"""
 
-    _typestrings = {UNKNOWN_RULE: 'UNKNOWN_RULE',
-                    STYLE_RULE: 'STYLE_RULE',
-                    CHARSET_RULE: 'CHARSET_RULE',
-                    IMPORT_RULE: 'IMPORT_RULE',
-                    MEDIA_RULE: 'MEDIA_RULE',
-                    FONT_FACE_RULE: 'FONT_FACE_RULE',
-                    PAGE_RULE: 'PAGE_RULE',
-                    NAMESPACE_RULE: 'NAMESPACE_RULE',
-                    COMMENT: 'COMMENT',
-                    VARIABLES_RULE: 'VARIABLES_RULE',
-                    MARGIN_RULE: 'MARGIN_RULE'
-                    }
+    _typestrings = {
+        UNKNOWN_RULE: "UNKNOWN_RULE",
+        STYLE_RULE: "STYLE_RULE",
+        CHARSET_RULE: "CHARSET_RULE",
+        IMPORT_RULE: "IMPORT_RULE",
+        MEDIA_RULE: "MEDIA_RULE",
+        FONT_FACE_RULE: "FONT_FACE_RULE",
+        PAGE_RULE: "PAGE_RULE",
+        NAMESPACE_RULE: "NAMESPACE_RULE",
+        COMMENT: "COMMENT",
+        VARIABLES_RULE: "VARIABLES_RULE",
+        MARGIN_RULE: "MARGIN_RULE",
+    }
 
     def __init__(self, parentRule=None, parentStyleSheet=None, readonly=False):
         """Set common attributes for all rules."""
@@ -85,12 +88,16 @@ class CSSRule(css_parser.util.Base2):
             self._atkeyword = atkeyword
             self._keyword = keyword
         else:
-            self._log.error('%s: Invalid atkeyword for this rule: %r' %
-                            (self.atkeyword, keyword),
-                            error=xml.dom.InvalidModificationErr)
+            self._log.error(
+                "%s: Invalid atkeyword for this rule: %r" % (self.atkeyword, keyword),
+                error=xml.dom.InvalidModificationErr,
+            )
 
-    atkeyword = property(lambda self: self._atkeyword, _setAtkeyword,
-                         doc="Normalized  keyword of an @rule (e.g. ``@import``).")
+    atkeyword = property(
+        lambda self: self._atkeyword,
+        _setAtkeyword,
+        doc="Normalized  keyword of an @rule (e.g. ``@import``).",
+    )
 
     def _setCssText(self, cssText):
         """
@@ -111,39 +118,48 @@ class CSSRule(css_parser.util.Base2):
         """
         self._checkReadonly()
 
-    cssText = property(lambda self: '', _setCssText,
-                       doc="(DOM) The parsable textual representation of the "
-                           "rule. This reflects the current state of the rule "
-                           "and not its initial value.")
+    cssText = property(
+        lambda self: "",
+        _setCssText,
+        doc="(DOM) The parsable textual representation of the "
+        "rule. This reflects the current state of the rule "
+        "and not its initial value.",
+    )
 
-    parent = property(lambda self: self._parent,
-                      doc="The Parent Node of this CSSRule or None.")
+    parent = property(
+        lambda self: self._parent, doc="The Parent Node of this CSSRule or None."
+    )
 
-    parentRule = property(lambda self: self._parentRule,
-                          doc="If this rule is contained inside another rule "
-                          "(e.g. a style rule inside an @media block), this "
-                          "is the containing rule. If this rule is not nested "
-                          "inside any other rules, this returns None.")
+    parentRule = property(
+        lambda self: self._parentRule,
+        doc="If this rule is contained inside another rule "
+        "(e.g. a style rule inside an @media block), this "
+        "is the containing rule. If this rule is not nested "
+        "inside any other rules, this returns None.",
+    )
 
     def _getParentStyleSheet(self):
         # rules contained in other rules (@media) use that rules parent
-        if (self.parentRule):
+        if self.parentRule:
             return self.parentRule._parentStyleSheet
         else:
             return self._parentStyleSheet
 
-    parentStyleSheet = property(_getParentStyleSheet,
-                                doc="The style sheet that contains this rule.")
+    parentStyleSheet = property(
+        _getParentStyleSheet, doc="The style sheet that contains this rule."
+    )
 
-    type = property(lambda self: self.UNKNOWN_RULE,
-                    doc="The type of this rule, as defined by a CSSRule "
-                        "type constant.")
+    type = property(
+        lambda self: self.UNKNOWN_RULE,
+        doc="The type of this rule, as defined by a CSSRule " "type constant.",
+    )
 
-    typeString = property(lambda self: CSSRule._typestrings[self.type],
-                          doc="Descriptive name of this rule's type.")
+    typeString = property(
+        lambda self: CSSRule._typestrings[self.type],
+        doc="Descriptive name of this rule's type.",
+    )
 
-    wellformed = property(lambda self: False,
-                          doc="If the rule is wellformed.")
+    wellformed = property(lambda self: False, doc="If the rule is wellformed.")
 
 
 class CSSRuleRules(CSSRule):
@@ -155,8 +171,9 @@ class CSSRuleRules(CSSRule):
 
     def __init__(self, parentRule=None, parentStyleSheet=None):
 
-        super(CSSRuleRules, self).__init__(parentRule=parentRule,
-                                           parentStyleSheet=parentStyleSheet)
+        super(CSSRuleRules, self).__init__(
+            parentRule=parentRule, parentStyleSheet=parentStyleSheet
+        )
 
         self.cssRules = css_parser.css.CSSRuleList()
 
@@ -177,9 +194,11 @@ class CSSRuleRules(CSSRule):
 
         self._cssRules = cssRules
 
-    cssRules = property(lambda self: self._cssRules, _setCssRules,
-                        "All Rules in this style sheet, a "
-                        ":class:`~css_parser.css.CSSRuleList`.")
+    cssRules = property(
+        lambda self: self._cssRules,
+        _setCssRules,
+        "All Rules in this style sheet, a " ":class:`~css_parser.css.CSSRuleList`.",
+    )
 
     def deleteRule(self, index):
         """
@@ -208,9 +227,10 @@ class CSSRuleRules(CSSRule):
                     index = i
                     break
             else:
-                raise xml.dom.IndexSizeErr("%s: Not a rule in "
-                                           "this rule'a cssRules list: %s"
-                                           % (self.__class__.__name__, index))
+                raise xml.dom.IndexSizeErr(
+                    "%s: Not a rule in "
+                    "this rule'a cssRules list: %s" % (self.__class__.__name__, index)
+                )
 
         try:
             # detach
@@ -218,10 +238,11 @@ class CSSRuleRules(CSSRule):
             del self._cssRules[index]
 
         except IndexError:
-            raise xml.dom.IndexSizeErr('%s: %s is not a valid index '
-                                       'in the rulelist of length %i'
-                                       % (self.__class__.__name__,
-                                          index, self._cssRules.length))
+            raise xml.dom.IndexSizeErr(
+                "%s: %s is not a valid index "
+                "in the rulelist of length %i"
+                % (self.__class__.__name__, index, self._cssRules.length)
+            )
 
     def _prepareInsertRule(self, rule, index=None):
         "return checked `index` and optional parsed `rule`"
@@ -232,20 +253,24 @@ class CSSRuleRules(CSSRule):
             index = len(self._cssRules)
 
         elif index < 0 or index > self._cssRules.length:
-            raise xml.dom.IndexSizeErr('%s: Invalid index %s for '
-                                       'CSSRuleList with a length of %s.'
-                                       % (self.__class__.__name__,
-                                          index, self._cssRules.length))
+            raise xml.dom.IndexSizeErr(
+                "%s: Invalid index %s for "
+                "CSSRuleList with a length of %s."
+                % (self.__class__.__name__, index, self._cssRules.length)
+            )
 
         # check and optionally parse rule
         # Under Python 2.x this was basestring but ...
         if isinstance(rule, string_type):
             tempsheet = css_parser.css.CSSStyleSheet()
             tempsheet.cssText = rule
-            if len(tempsheet.cssRules) != 1 or (tempsheet.cssRules and
-                                                not isinstance(tempsheet.cssRules[0], css_parser.css.CSSRule)):
-                self._log.error('%s: Invalid Rule: %s' % (self.__class__.__name__,
-                                                          rule))
+            if len(tempsheet.cssRules) != 1 or (
+                tempsheet.cssRules
+                and not isinstance(tempsheet.cssRules[0], css_parser.css.CSSRule)
+            ):
+                self._log.error(
+                    "%s: Invalid Rule: %s" % (self.__class__.__name__, rule)
+                )
                 return False, False
             rule = tempsheet.cssRules[0]
 
@@ -256,8 +281,7 @@ class CSSRuleRules(CSSRule):
             return True, True
 
         elif not isinstance(rule, css_parser.css.CSSRule):
-            self._log.error('%s: Not a CSSRule: %s' % (rule,
-                                                       self.__class__.__name__))
+            self._log.error("%s: Not a CSSRule: %s" % (rule, self.__class__.__name__))
             return False, False
 
         return rule, index

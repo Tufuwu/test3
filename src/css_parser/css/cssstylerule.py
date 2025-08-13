@@ -4,13 +4,15 @@ import css_parser
 from . import cssrule
 from .selectorlist import SelectorList
 from .cssstyledeclaration import CSSStyleDeclaration
+
 """CSSStyleRule implements DOM Level 2 CSS CSSStyleRule."""
 
-__all__ = ['CSSStyleRule']
-__docformat__ = 'restructuredtext'
-__version__ = '$Id$'
+__all__ = ["CSSStyleRule"]
+__docformat__ = "restructuredtext"
+__version__ = "$Id$"
 
 import sys
+
 if sys.version_info[0] >= 3:
     string_type = str
 else:
@@ -29,8 +31,14 @@ class CSSStyleRule(cssrule.CSSRule):
         ;
     """
 
-    def __init__(self, selectorText=None, style=None, parentRule=None,
-                 parentStyleSheet=None, readonly=False):
+    def __init__(
+        self,
+        selectorText=None,
+        style=None,
+        parentRule=None,
+        parentStyleSheet=None,
+        readonly=False,
+    ):
         """
         :Parameters:
             selectorText
@@ -40,8 +48,9 @@ class CSSStyleRule(cssrule.CSSRule):
             readonly
                 if True allows setting of properties in constructor only
         """
-        super(CSSStyleRule, self).__init__(parentRule=parentRule,
-                                           parentStyleSheet=parentStyleSheet)
+        super(CSSStyleRule, self).__init__(
+            parentRule=parentRule, parentStyleSheet=parentStyleSheet
+        )
 
         self.selectorList = SelectorList()
         if selectorText:
@@ -60,15 +69,23 @@ class CSSStyleRule(cssrule.CSSRule):
         else:
             st = self.selectorText
         return "css_parser.css.%s(selectorText=%r, style=%r)" % (
-            self.__class__.__name__, st, self.style.cssText)
+            self.__class__.__name__,
+            st,
+            self.style.cssText,
+        )
 
     def __str__(self):
-        return "<css_parser.css.%s object selectorText=%r style=%r _namespaces=%r "\
-               "at 0x%x>" % (self.__class__.__name__,
-                             self.selectorText,
-                             self.style.cssText,
-                             self._namespaces,
-                             id(self))
+        return (
+            "<css_parser.css.%s object selectorText=%r style=%r _namespaces=%r "
+            "at 0x%x>"
+            % (
+                self.__class__.__name__,
+                self.selectorText,
+                self.style.cssText,
+                self._namespaces,
+                id(self),
+            )
+        )
 
     def _getCssText(self):
         """Return serialized property cssText."""
@@ -109,50 +126,60 @@ class CSSStyleRule(cssrule.CSSRule):
         styletokens = self._tokensupto2(tokenizer, blockendonly=True)
         trail = self._nexttoken(tokenizer)
         if trail:
-            self._log.error('CSSStyleRule: Trailing content: %s' %
-                            self._valuestr(cssText), token=trail)
+            self._log.error(
+                "CSSStyleRule: Trailing content: %s" % self._valuestr(cssText),
+                token=trail,
+            )
         elif not selectortokens:
-            self._log.error('CSSStyleRule: No selector found: %r' %
-                            self._valuestr(cssText))
-        elif self._tokenvalue(selectortokens[0]).startswith('@'):
-            self._log.error('CSSStyleRule: No style rule: %r' %
-                            self._valuestr(cssText),
-                            error=xml.dom.InvalidModificationErr)
+            self._log.error(
+                "CSSStyleRule: No selector found: %r" % self._valuestr(cssText)
+            )
+        elif self._tokenvalue(selectortokens[0]).startswith("@"):
+            self._log.error(
+                "CSSStyleRule: No style rule: %r" % self._valuestr(cssText),
+                error=xml.dom.InvalidModificationErr,
+            )
         else:
             newSelectorList = SelectorList(parentRule=self)
             newStyle = CSSStyleDeclaration(parentRule=self)
             ok = True
 
             bracetoken = selectortokens.pop()
-            if self._tokenvalue(bracetoken) != '{':
+            if self._tokenvalue(bracetoken) != "{":
                 ok = False
                 self._log.error(
-                    'CSSStyleRule: No start { of style declaration found: %r' %
-                    self._valuestr(cssText), bracetoken)
+                    "CSSStyleRule: No start { of style declaration found: %r"
+                    % self._valuestr(cssText),
+                    bracetoken,
+                )
             elif not selectortokens:
                 ok = False
-                self._log.error('CSSStyleRule: No selector found: %r.' %
-                                self._valuestr(cssText), bracetoken)
+                self._log.error(
+                    "CSSStyleRule: No selector found: %r." % self._valuestr(cssText),
+                    bracetoken,
+                )
             # SET
-            newSelectorList.selectorText = (selectortokens,
-                                            namespaces)
+            newSelectorList.selectorText = (selectortokens, namespaces)
 
             if not styletokens:
                 ok = False
                 self._log.error(
-                    'CSSStyleRule: No style declaration or "}" found: %r' %
-                    self._valuestr(cssText))
+                    'CSSStyleRule: No style declaration or "}" found: %r'
+                    % self._valuestr(cssText)
+                )
             else:
                 braceorEOFtoken = styletokens.pop()
-                val, typ = self._tokenvalue(braceorEOFtoken),\
-                    self._type(braceorEOFtoken)
-                if val != '}' and typ != 'EOF':
+                val, typ = self._tokenvalue(braceorEOFtoken), self._type(
+                    braceorEOFtoken
+                )
+                if val != "}" and typ != "EOF":
                     ok = False
-                    self._log.error('CSSStyleRule: No "}" after style '
-                                    'declaration found: %r'
-                                    % self._valuestr(cssText))
+                    self._log.error(
+                        'CSSStyleRule: No "}" after style '
+                        "declaration found: %r" % self._valuestr(cssText)
+                    )
                 else:
-                    if 'EOF' == typ:
+                    if "EOF" == typ:
                         # add again as style needs it
                         styletokens.append(braceorEOFtoken)
                     # SET, may raise:
@@ -162,9 +189,11 @@ class CSSStyleRule(cssrule.CSSRule):
                 self.selectorList = newSelectorList
                 self.style = newStyle
 
-    cssText = property(_getCssText, _setCssText,
-                       doc="(DOM) The parsable textual representation of this "
-                       "rule.")
+    cssText = property(
+        _getCssText,
+        _setCssText,
+        doc="(DOM) The parsable textual representation of this " "rule.",
+    )
 
     def __getNamespaces(self):
         """Uses children namespaces if not attached to a sheet, else the sheet's
@@ -174,11 +203,14 @@ class CSSStyleRule(cssrule.CSSRule):
         except AttributeError:
             return self.selectorList._namespaces
 
-    _namespaces = property(__getNamespaces,
-                           doc="If this Rule is attached to a CSSStyleSheet "
-                               "the namespaces of that sheet are mirrored "
-                               "here. While the Rule is not attached the "
-                               "namespaces of selectorList are used.""")
+    _namespaces = property(
+        __getNamespaces,
+        doc="If this Rule is attached to a CSSStyleSheet "
+        "the namespaces of that sheet are mirrored "
+        "here. While the Rule is not attached the "
+        "namespaces of selectorList are used."
+        "",
+    )
 
     def _setSelectorList(self, selectorList):
         """
@@ -190,8 +222,11 @@ class CSSStyleRule(cssrule.CSSRule):
         self._selectorList = selectorList
 
     _selectorList = None
-    selectorList = property(lambda self: self._selectorList, _setSelectorList,
-                            doc="The SelectorList of this rule.")
+    selectorList = property(
+        lambda self: self._selectorList,
+        _setSelectorList,
+        doc="The SelectorList of this rule.",
+    )
 
     def _setSelectorText(self, selectorText):
         """
@@ -216,10 +251,11 @@ class CSSStyleRule(cssrule.CSSRule):
         if sl.wellformed:
             self._selectorList = sl
 
-    selectorText = property(lambda self: self._selectorList.selectorText,
-                            _setSelectorText,
-                            doc="(DOM) The textual representation of the "
-                                "selector for the rule set.")
+    selectorText = property(
+        lambda self: self._selectorList.selectorText,
+        _setSelectorText,
+        doc="(DOM) The textual representation of the " "selector for the rule set.",
+    )
 
     def _setStyle(self, style):
         """
@@ -233,12 +269,16 @@ class CSSStyleRule(cssrule.CSSRule):
             style._parentRule = self
             self._style = style
 
-    style = property(lambda self: self._style, _setStyle,
-                     doc="(DOM) The declaration-block of this rule set.")
+    style = property(
+        lambda self: self._style,
+        _setStyle,
+        doc="(DOM) The declaration-block of this rule set.",
+    )
 
-    type = property(lambda self: self.STYLE_RULE,
-                    doc="The type of this rule, as defined by a CSSRule "
-                        "type constant.")
+    type = property(
+        lambda self: self.STYLE_RULE,
+        doc="The type of this rule, as defined by a CSSRule " "type constant.",
+    )
 
     wellformed = property(lambda self: self.selectorList.wellformed)
 
@@ -246,5 +286,4 @@ class CSSStyleRule(cssrule.CSSRule):
         """Return whether the style declaration is valid."""
         return self.style.valid
 
-    valid = property(_getValid,
-                     doc='``True`` when the style declaration is true.')
+    valid = property(_getValid, doc="``True`` when the style declaration is true.")

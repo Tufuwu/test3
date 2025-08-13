@@ -1,9 +1,9 @@
-"""css_parser helper TEST
-"""
+"""css_parser helper TEST"""
+
 from __future__ import unicode_literals, division, absolute_import, print_function
 
-__docformat__ = 'restructuredtext'
-__version__ = '$Id: errorhandler.py 1234 2008-05-22 20:26:12Z cthedot $'
+__docformat__ = "restructuredtext"
+__version__ = "$Id: errorhandler.py 1234 2008-05-22 20:26:12Z cthedot $"
 
 import os
 import re
@@ -30,11 +30,14 @@ class Deprecated(object):
     def __call__(self, func):
         def newFunc(*args, **kwargs):
             import warnings
-            warnings.warn("Call to deprecated method %r. %s" %
-                          (func.__name__, self.msg),
-                          category=DeprecationWarning,
-                          stacklevel=2)
+
+            warnings.warn(
+                "Call to deprecated method %r. %s" % (func.__name__, self.msg),
+                category=DeprecationWarning,
+                stacklevel=2,
+            )
             return func(*args, **kwargs)
+
         newFunc.__name__ = func.__name__
         newFunc.__doc__ = func.__doc__
         newFunc.__dict__.update(func.__dict__)
@@ -42,7 +45,7 @@ class Deprecated(object):
 
 
 # simple escapes, all non unicodes
-_simpleescapes = re.compile(r'(\\[^0-9a-fA-F])').sub
+_simpleescapes = re.compile(r"(\\[^0-9a-fA-F])").sub
 
 
 def normalize(x):
@@ -55,8 +58,10 @@ def normalize(x):
     - lowercase
     """
     if x:
+
         def removeescape(matchobj):
             return matchobj.group(0)[1:]
+
         x = _simpleescapes(removeescape, x)
         return x.lower()
     else:
@@ -65,7 +70,7 @@ def normalize(x):
 
 def path2url(path):
     """Return file URL of `path`"""
-    return 'file:' + urllib_pathname2url(os.path.abspath(path))
+    return "file:" + urllib_pathname2url(os.path.abspath(path))
 
 
 def pushtoken(token, tokens):
@@ -84,13 +89,15 @@ def string(value):
         ``a \'string`` => ``'a \'string'``
     """
     # \n = 0xa, \r = 0xd, \f = 0xc
-    value = value.replace('\n', '\\a ').replace(
-        '\r', '\\d ').replace(
-        '\f', '\\c ').replace(
-        '"', '\\"')
+    value = (
+        value.replace("\n", "\\a ")
+        .replace("\r", "\\d ")
+        .replace("\f", "\\c ")
+        .replace('"', '\\"')
+    )
 
-    if value.endswith('\\'):
-        value = value[:-1] + '\\\\'
+    if value.endswith("\\"):
+        value = value[:-1] + "\\\\"
 
     return '"%s"' % value
 
@@ -102,10 +109,10 @@ def stringvalue(string):
 
         ``'a \'string'`` => ``a 'string``
     """
-    return string.replace('\\'+string[0], string[0])[1:-1]
+    return string.replace("\\" + string[0], string[0])[1:-1]
 
 
-_match_forbidden_in_uri = re.compile(r'''.*?[\(\)\s\;,'"]''', re.U).match
+_match_forbidden_in_uri = re.compile(r""".*?[\(\)\s\;,'"]""", re.U).match
 
 
 def uri(value):
@@ -116,7 +123,7 @@ def uri(value):
     """
     if _match_forbidden_in_uri(value):
         value = string(value)
-    return 'url(%s)' % value
+    return "url(%s)" % value
 
 
 def urivalue(uri):
@@ -127,11 +134,12 @@ def urivalue(uri):
 
          ``url("\"")`` => ``"``
     """
-    uri = uri[uri.find('(')+1:-1].strip()
-    if uri and (uri[0] in '\'"') and (uri[0] == uri[-1]):
+    uri = uri[uri.find("(") + 1 : -1].strip()
+    if uri and (uri[0] in "'\"") and (uri[0] == uri[-1]):
         return stringvalue(uri)
     else:
         return uri
+
 
 # def normalnumber(num):
 #    """

@@ -1,10 +1,11 @@
 """CSSRuleList implements DOM Level 2 CSS CSSRuleList.
 Partly also http://dev.w3.org/csswg/cssom/#the-cssrulelist."""
+
 from __future__ import unicode_literals, division, absolute_import, print_function
 
-__all__ = ['CSSRuleList']
-__docformat__ = 'restructuredtext'
-__version__ = '$Id$'
+__all__ = ["CSSRuleList"]
+__docformat__ = "restructuredtext"
+__version__ = "$Id$"
 
 
 class CSSRuleList(list):
@@ -28,7 +29,8 @@ class CSSRuleList(list):
     def __notimplemented(self, *ignored):
         "Implemented in class using a CSSRuleList only."
         raise NotImplementedError(
-            'Must be implemented by class using an instance of this class.')
+            "Must be implemented by class using an instance of this class."
+        )
 
     append = extend = __setitem__ = __setslice__ = __notimplemented
 
@@ -46,8 +48,9 @@ class CSSRuleList(list):
         except IndexError:
             return None
 
-    length = property(lambda self: len(self),
-                      doc="(DOM) The number of CSSRules in the list.")
+    length = property(
+        lambda self: len(self), doc="(DOM) The number of CSSRules in the list."
+    )
 
     def rulesOfType(self, type):
         """Yield the rules which have the given `type` only, one of the

@@ -9,9 +9,9 @@ TODO:
 """
 from __future__ import unicode_literals, division, absolute_import, print_function
 
-__all__ = ['CSSCapture']
-__docformat__ = 'restructuredtext'
-__version__ = '$Id$'
+__all__ = ["CSSCapture"]
+__docformat__ = "restructuredtext"
+__version__ = "$Id$"
 
 from css_parser.script import CSSCapture
 import logging
@@ -22,25 +22,50 @@ import sys
 def main(args=None):
     usage = "usage: %prog [options] URL"
     parser = optparse.OptionParser(usage=usage)
-    parser.add_option('-d', '--debug', action='store_true', dest='debug',
-                      help='show debug messages during capturing')
-    parser.add_option('-m', '--minified', action='store_true', dest='minified',
-                      help='saves minified version of captured files')
-    parser.add_option('-n', '--notsave', action='store_true', dest='notsave',
-                      help='if given files are NOT saved, only log is written')
-#    parser.add_option('-r', '--saveraw', action='store_true', dest='saveraw',
-#        help='if given saves raw css otherwise css_parser\' parsed files')
-    parser.add_option('-s', '--saveto', action='store', dest='saveto',
-                      help='saving retrieved files to "saveto", defaults to "_CSSCapture_SAVED"')
-    parser.add_option('-u', '--useragent', action='store', dest='ua',
-                      help='useragent to use for request of URL, default is urllib2s default')
+    parser.add_option(
+        "-d",
+        "--debug",
+        action="store_true",
+        dest="debug",
+        help="show debug messages during capturing",
+    )
+    parser.add_option(
+        "-m",
+        "--minified",
+        action="store_true",
+        dest="minified",
+        help="saves minified version of captured files",
+    )
+    parser.add_option(
+        "-n",
+        "--notsave",
+        action="store_true",
+        dest="notsave",
+        help="if given files are NOT saved, only log is written",
+    )
+    #    parser.add_option('-r', '--saveraw', action='store_true', dest='saveraw',
+    #        help='if given saves raw css otherwise css_parser\' parsed files')
+    parser.add_option(
+        "-s",
+        "--saveto",
+        action="store",
+        dest="saveto",
+        help='saving retrieved files to "saveto", defaults to "_CSSCapture_SAVED"',
+    )
+    parser.add_option(
+        "-u",
+        "--useragent",
+        action="store",
+        dest="ua",
+        help="useragent to use for request of URL, default is urllib2s default",
+    )
     options, url = parser.parse_args()
 
     # TODO:
     options.saveraw = False
 
     if not url:
-        parser.error('no URL given')
+        parser.error("no URL given")
     else:
         url = url[0]
 
@@ -58,14 +83,17 @@ def main(args=None):
         if options.saveto:
             saveto = options.saveto
         else:
-            saveto = '_CSSCapture_SAVED'
+            saveto = "_CSSCapture_SAVED"
         c.saveto(saveto, saveraw=options.saveraw, minified=options.minified)
     else:
         for i, s in enumerate(stylesheetlist):
-            print('''%s.
+            print(
+                """%s.
     encoding: %r
     title: %r
-    href: %r''' % (i + 1, s.encoding, s.title, s.href))
+    href: %r"""
+                % (i + 1, s.encoding, s.title, s.href)
+            )
 
 
 if __name__ == "__main__":

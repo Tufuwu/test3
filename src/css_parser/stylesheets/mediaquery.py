@@ -3,17 +3,19 @@ import xml.dom
 import css_parser
 from css_parser.helper import normalize
 from css_parser.prodparser import Sequence, PreDef, Prod, Choice, ProdParser
+
 """Implements a DOM for MediaQuery, see
 http://www.w3.org/TR/css3-mediaqueries/.
 
 A css_parser implementation, not defined in official DOM.
 """
 
-__all__ = ['MediaQuery']
-__docformat__ = 'restructuredtext'
-__version__ = '$Id$'
+__all__ = ["MediaQuery"]
+__docformat__ = "restructuredtext"
+__version__ = "$Id$"
 
 import sys
+
 if sys.version_info[0] >= 3:
     string_type = str
 else:
@@ -46,10 +48,21 @@ class MediaQuery(css_parser.util._NewBase):  # css_parser.util.Base):
          ;
 
     """
-    MEDIA_TYPES = ['all', 'braille', 'handheld', 'print', 'projection',
-                   'speech', 'screen', 'tty', 'tv', 'embossed',
-                   'amzn-mobi', 'amzn-kf8'  # ebooks (not in w3 spec)
-                   ]
+
+    MEDIA_TYPES = [
+        "all",
+        "braille",
+        "handheld",
+        "print",
+        "projection",
+        "speech",
+        "screen",
+        "tty",
+        "tv",
+        "embossed",
+        "amzn-mobi",
+        "amzn-kf8",  # ebooks (not in w3 spec)
+    ]
 
     def __init__(self, mediaText=None, readonly=False, _partof=False):
         """
@@ -61,7 +74,7 @@ class MediaQuery(css_parser.util._NewBase):  # css_parser.util.Base):
         super(MediaQuery, self).__init__()
 
         self._wellformed = False
-        self._mediaType = ''
+        self._mediaType = ""
         self._partof = _partof
         if mediaText:
             self.mediaText = mediaText  # sets self._mediaType too
@@ -71,11 +84,16 @@ class MediaQuery(css_parser.util._NewBase):  # css_parser.util.Base):
 
     def __repr__(self):
         return "css_parser.stylesheets.%s(mediaText=%r)" % (
-            self.__class__.__name__, self.mediaText)
+            self.__class__.__name__,
+            self.mediaText,
+        )
 
     def __str__(self):
         return "<css_parser.stylesheets.%s object mediaText=%r at 0x%x>" % (
-            self.__class__.__name__, self.mediaText, id(self))
+            self.__class__.__name__,
+            self.mediaText,
+            id(self),
+        )
 
     def _getMediaText(self):
         return css_parser.ser.do_stylesheets_mediaquery(self)
@@ -111,89 +129,105 @@ class MediaQuery(css_parser.util._NewBase):  # css_parser.util.Base):
         """
         self._checkReadonly()
 
-        def expression(): return Sequence(PreDef.char(name='expression', char='('),
-                                          Prod(name='media_feature',
-                                               match=lambda t, v: t == PreDef.types.IDENT
-                                               ),
-                                          Sequence(PreDef.char(name='colon', char=':'),
-                                                   css_parser.css.value.MediaQueryValueProd(self),
-                                                   minmax=lambda: (0, 1)  # optional
-                                                   ),
-                                          PreDef.char(name='expression END', char=')',
-                                                      stopIfNoMoreMatch=self._partof
-                                                      )
-                                          )
+        def expression():
+            return Sequence(
+                PreDef.char(name="expression", char="("),
+                Prod(name="media_feature", match=lambda t, v: t == PreDef.types.IDENT),
+                Sequence(
+                    PreDef.char(name="colon", char=":"),
+                    css_parser.css.value.MediaQueryValueProd(self),
+                    minmax=lambda: (0, 1),  # optional
+                ),
+                PreDef.char(
+                    name="expression END", char=")", stopIfNoMoreMatch=self._partof
+                ),
+            )
 
-        prods = Choice(Sequence(Prod(name='ONLY|NOT',  # media_query
-                                     match=lambda t, v: t == PreDef.types.IDENT and
-                                     normalize(v) in ('only', 'not'),
-                                     optional=True,
-                                     toStore='not simple'
-                                     ),
-                                Prod(name='media_type',
-                                     match=lambda t, v: t == PreDef.types.IDENT and
-                                     normalize(v) in self.MEDIA_TYPES,
-                                     stopIfNoMoreMatch=True,
-                                     toStore='media_type'
-                                     ),
-                                Sequence(Prod(name='AND',
-                                              match=lambda t, v: t == PreDef.types.IDENT and
-                                              normalize(v) == 'and',
-                                              toStore='not simple'
-                                              ),
-                                         expression(),
-                                         minmax=lambda: (0, None)
-                                         )
-                                ),
-                       Sequence(expression(),
-                                Sequence(Prod(name='AND',
-                                              match=lambda t, v: t == PreDef.types.IDENT and
-                                              normalize(v) == 'and'
-                                              ),
-                                         expression(),
-                                         minmax=lambda: (0, None)
-                                         )
-                                ),
-                       Sequence(Prod(name='ONLY|NOT',  # media_query
-                                     match=lambda t, v: t == PreDef.types.IDENT and
-                                     normalize(v) in ('only', 'not'),
-                                     optional=True,
-                                     toStore='not simple'
-                                     ),
-                                Prod(name='media_type',
-                                     match=lambda t, v: t == PreDef.types.IDENT,
-                                     toStore='media_type'
-                                     ),
-                                Sequence(Prod(name='AND',
-                                              match=lambda t, v: t == PreDef.types.IDENT and
-                                              normalize(v) == 'and',
-                                              toStore='not simple'
-                                              ),
-                                         expression(),
-                                         minmax=lambda: (0, None)
-                                         )
-                                )
-                       )
+        prods = Choice(
+            Sequence(
+                Prod(
+                    name="ONLY|NOT",  # media_query
+                    match=lambda t, v: t == PreDef.types.IDENT
+                    and normalize(v) in ("only", "not"),
+                    optional=True,
+                    toStore="not simple",
+                ),
+                Prod(
+                    name="media_type",
+                    match=lambda t, v: t == PreDef.types.IDENT
+                    and normalize(v) in self.MEDIA_TYPES,
+                    stopIfNoMoreMatch=True,
+                    toStore="media_type",
+                ),
+                Sequence(
+                    Prod(
+                        name="AND",
+                        match=lambda t, v: t == PreDef.types.IDENT
+                        and normalize(v) == "and",
+                        toStore="not simple",
+                    ),
+                    expression(),
+                    minmax=lambda: (0, None),
+                ),
+            ),
+            Sequence(
+                expression(),
+                Sequence(
+                    Prod(
+                        name="AND",
+                        match=lambda t, v: t == PreDef.types.IDENT
+                        and normalize(v) == "and",
+                    ),
+                    expression(),
+                    minmax=lambda: (0, None),
+                ),
+            ),
+            Sequence(
+                Prod(
+                    name="ONLY|NOT",  # media_query
+                    match=lambda t, v: t == PreDef.types.IDENT
+                    and normalize(v) in ("only", "not"),
+                    optional=True,
+                    toStore="not simple",
+                ),
+                Prod(
+                    name="media_type",
+                    match=lambda t, v: t == PreDef.types.IDENT,
+                    toStore="media_type",
+                ),
+                Sequence(
+                    Prod(
+                        name="AND",
+                        match=lambda t, v: t == PreDef.types.IDENT
+                        and normalize(v) == "and",
+                        toStore="not simple",
+                    ),
+                    expression(),
+                    minmax=lambda: (0, None),
+                ),
+            ),
+        )
 
         # parse
-        ok, seq, store, unused = ProdParser().parse(mediaText,
-                                                    'MediaQuery',
-                                                    prods)
+        ok, seq, store, unused = ProdParser().parse(mediaText, "MediaQuery", prods)
         self._wellformed = ok
         if ok:
             try:
-                media_type = store['media_type']
+                media_type = store["media_type"]
             except KeyError:
                 pass
             else:
-                if 'not simple' not in store:
+                if "not simple" not in store:
                     self.mediaType = media_type.value
 
             # TODO: filter doubles!
             self._setSeq(seq)
 
-    mediaText = property(_getMediaText, _setMediaText,
-                         doc="The parsable textual representation of the media list.")
+    mediaText = property(
+        _getMediaText,
+        _setMediaText,
+        doc="The parsable textual representation of the media list.",
+    )
 
     def _setMediaType(self, mediaType):
         """
@@ -215,7 +249,9 @@ class MediaQuery(css_parser.util._NewBase):  # css_parser.util.Base):
         if nmediaType not in self.MEDIA_TYPES:
             self._log.warn(
                 'MediaQuery: Unknown media type: "%s".' % mediaType,
-                error=UnknownMediaType, neverraise=True)
+                error=UnknownMediaType,
+                neverraise=True,
+            )
 
         # set
         self._mediaType = mediaType
@@ -223,17 +259,20 @@ class MediaQuery(css_parser.util._NewBase):  # css_parser.util.Base):
         # update seq
         for i, x in enumerate(self._seq):
             if isinstance(x.value, string_type):
-                if normalize(x.value) in ('only', 'not'):
+                if normalize(x.value) in ("only", "not"):
                     continue
                 else:
                     # TODO: simplify!
-                    self._seq[i] = (mediaType, 'IDENT', None, None)
+                    self._seq[i] = (mediaType, "IDENT", None, None)
                     break
         else:
-            self._seq.insert(0, mediaType, 'IDENT')
+            self._seq.insert(0, mediaType, "IDENT")
 
-    mediaType = property(lambda self: self._mediaType, _setMediaType,
-                         doc="The media type of this MediaQuery (usually one of "
-                             ":attr:`MEDIA_TYPES`) but only if it is a simple MediaType!")
+    mediaType = property(
+        lambda self: self._mediaType,
+        _setMediaType,
+        doc="The media type of this MediaQuery (usually one of "
+        ":attr:`MEDIA_TYPES`) but only if it is a simple MediaType!",
+    )
 
     wellformed = property(lambda self: self._wellformed)

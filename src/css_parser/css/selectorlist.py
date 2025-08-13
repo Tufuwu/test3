@@ -15,11 +15,12 @@ TODO
         a CSS2 user agent must ignore the whole second line, and not set
         the color of H3 to red:
 """
+
 from __future__ import unicode_literals, division, absolute_import, print_function
 
-__all__ = ['SelectorList']
-__docformat__ = 'restructuredtext'
-__version__ = '$Id$'
+__all__ = ["SelectorList"]
+__docformat__ = "restructuredtext"
+__version__ = "$Id$"
 
 from .selector import Selector
 import css_parser
@@ -29,8 +30,7 @@ class SelectorList(css_parser.util.Base, css_parser.util.ListSeq):
     """A list of :class:`~css_parser.css.Selector` objects
     of a :class:`~css_parser.css.CSSStyleRule`."""
 
-    def __init__(self, selectorText=None, parentRule=None,
-                 readonly=False):
+    def __init__(self, selectorText=None, parentRule=None, readonly=False):
         """
         :Parameters:
             selectorText
@@ -55,11 +55,11 @@ class SelectorList(css_parser.util.Base, css_parser.util.ListSeq):
         return "css_parser.css.%s(selectorText=%r)" % (self.__class__.__name__, st)
 
     def __str__(self):
-        return "<css_parser.css.%s object selectorText=%r _namespaces=%r at " \
-               "0x%x>" % (self.__class__.__name__,
-                          self.selectorText,
-                          self._namespaces,
-                          id(self))
+        return (
+            "<css_parser.css.%s object selectorText=%r _namespaces=%r at "
+            "0x%x>"
+            % (self.__class__.__name__, self.selectorText, self._namespaces, id(self))
+        )
 
     def __setitem__(self, index, newSelector):
         """Overwrite ListSeq.__setitem__
@@ -76,8 +76,7 @@ class SelectorList(css_parser.util.Base, css_parser.util.ListSeq):
             namespaces = {}
         self._checkReadonly()
         if not isinstance(newSelector, Selector):
-            newSelector = Selector((newSelector, namespaces),
-                                   parent=self)
+            newSelector = Selector((newSelector, namespaces), parent=self)
         if newSelector.wellformed:
             newSelector._parent = self  # maybe set twice but must be!
             return newSelector
@@ -101,10 +100,13 @@ class SelectorList(css_parser.util.Base, css_parser.util.ListSeq):
             uris.update(s._getUsedUris())
         return uris
 
-    _namespaces = property(__getNamespaces, doc="""If this SelectorList is
+    _namespaces = property(
+        __getNamespaces,
+        doc="""If this SelectorList is
         attached to a CSSStyleSheet the namespaces of that sheet are mirrored
         here. While the SelectorList (or parentRule(s) are
-        not attached the namespaces of all children Selectors are used.""")
+        not attached the namespaces of all children Selectors are used.""",
+    )
 
     def append(self, newSelector):
         "Same as :meth:`appendSelector`."
@@ -191,45 +193,54 @@ class SelectorList(css_parser.util.Base, css_parser.util.ListSeq):
             # find all upto and including next ",", EOF or nothing
             selectortokens = self._tokensupto2(tokenizer, listseponly=True)
             if selectortokens:
-                if self._tokenvalue(selectortokens[-1]) == ',':
+                if self._tokenvalue(selectortokens[-1]) == ",":
                     expected = selectortokens.pop()
                 else:
                     expected = None
 
-                selector = Selector((selectortokens, namespaces),
-                                    parent=self)
+                selector = Selector((selectortokens, namespaces), parent=self)
                 if selector.wellformed:
                     newseq.append(selector)
                 else:
                     wellformed = False
-                    self._log.error('SelectorList: Invalid Selector: %s' %
-                                    self._valuestr(selectortokens))
+                    self._log.error(
+                        "SelectorList: Invalid Selector: %s"
+                        % self._valuestr(selectortokens)
+                    )
             else:
                 break
 
         # post condition
-        if ',' == expected:
+        if "," == expected:
             wellformed = False
-            self._log.error('SelectorList: Cannot end with ",": %r' %
-                            self._valuestr(selectorText))
+            self._log.error(
+                'SelectorList: Cannot end with ",": %r' % self._valuestr(selectorText)
+            )
         elif expected:
             wellformed = False
-            self._log.error('SelectorList: Unknown Syntax: %r' %
-                            self._valuestr(selectorText))
+            self._log.error(
+                "SelectorList: Unknown Syntax: %r" % self._valuestr(selectorText)
+            )
         if wellformed:
             self.seq = newseq
 
-    selectorText = property(_getSelectorText, _setSelectorText,
-                            doc="(css_parser) The textual representation of the "
-                                "selector for a rule set.")
+    selectorText = property(
+        _getSelectorText,
+        _setSelectorText,
+        doc="(css_parser) The textual representation of the "
+        "selector for a rule set.",
+    )
 
-    length = property(lambda self: len(self),
-                      doc="The number of :class:`~css_parser.css.Selector` "
-                          "objects in the list.")
+    length = property(
+        lambda self: len(self),
+        doc="The number of :class:`~css_parser.css.Selector` " "objects in the list.",
+    )
 
-    parentRule = property(lambda self: self._parentRule,
-                          doc="(DOM) The CSS rule that contains this "
-                              "SelectorList or ``None`` if this SelectorList "
-                              "is not attached to a CSSRule.")
+    parentRule = property(
+        lambda self: self._parentRule,
+        doc="(DOM) The CSS rule that contains this "
+        "SelectorList or ``None`` if this SelectorList "
+        "is not attached to a CSSRule.",
+    )
 
     wellformed = property(lambda self: bool(len(self.seq)))

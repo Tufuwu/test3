@@ -3,9 +3,9 @@
 
 from __future__ import unicode_literals, division, absolute_import, print_function
 
-__all__ = ['CSSParser']
-__docformat__ = 'restructuredtext'
-__version__ = '$Id$'
+__all__ = ["CSSParser"]
+__docformat__ = "restructuredtext"
+__version__ = "$Id$"
 
 from .helper import path2url
 import codecs
@@ -32,9 +32,15 @@ class CSSParser(object):
         print sheet.cssText
     """
 
-    def __init__(self, log=None, loglevel=None, raiseExceptions=None,
-                 fetcher=None, parseComments=True,
-                 validate=True):
+    def __init__(
+        self,
+        log=None,
+        loglevel=None,
+        raiseExceptions=None,
+        fetcher=None,
+        parseComments=True,
+        validate=True,
+    ):
         """
         :param log:
             logging object
@@ -78,7 +84,7 @@ class CSSParser(object):
         else:
             css_parser.log.raiseExceptions = self.__globalRaising
 
-    def parseStyle(self, cssText, encoding='utf-8', validate=None):
+    def parseStyle(self, cssText, encoding="utf-8", validate=None):
         """Parse given `cssText` which is assumed to be the content of
         a HTML style attribute.
 
@@ -103,9 +109,9 @@ class CSSParser(object):
         self.__parseSetting(False)
         return style
 
-    def parseString(self, cssText, encoding=None, href=None, media=None,
-                    title=None,
-                    validate=None):
+    def parseString(
+        self, cssText, encoding=None, href=None, media=None, title=None, validate=None
+    ):
         """Parse `cssText` as :class:`~css_parser.css.CSSStyleSheet`.
         Errors may be raised (e.g. UnicodeDecodeError).
 
@@ -135,27 +141,29 @@ class CSSParser(object):
         self.__parseSetting(True)
         # TODO: py3 needs bytes here!
         if isinstance(cssText, bytes):
-            cssText = codecs.getdecoder('css')(cssText, encoding=encoding)[0]
+            cssText = codecs.getdecoder("css")(cssText, encoding=encoding)[0]
 
         if validate is None:
             validate = self._validate
 
         sheet = css_parser.css.CSSStyleSheet(
-                href=href,
-                media=css_parser.stylesheets.MediaList(media),
-                title=title,
-                validating=validate)
+            href=href,
+            media=css_parser.stylesheets.MediaList(media),
+            title=title,
+            validating=validate,
+        )
         sheet._setFetcher(self.__fetcher)
         # tokenizing this ways closes open constructs and adds EOF
-        sheet._setCssTextWithEncodingOverride(self.__tokenizer.tokenize(cssText,
-                                                                        fullsheet=True),
-                                              encodingOverride=encoding)
+        sheet._setCssTextWithEncodingOverride(
+            self.__tokenizer.tokenize(cssText, fullsheet=True),
+            encodingOverride=encoding,
+        )
         self.__parseSetting(False)
         return sheet
 
-    def parseFile(self, filename, encoding=None,
-                  href=None, media=None, title=None,
-                  validate=None):
+    def parseFile(
+        self, filename, encoding=None, href=None, media=None, title=None, validate=None
+    ):
         """Retrieve content from `filename` and parse it. Errors may be raised
         (e.g. IOError).
 
@@ -177,17 +185,20 @@ class CSSParser(object):
         if not href:
             href = path2url(filename)
 
-        f = open(filename, 'rb')
+        f = open(filename, "rb")
         css = f.read()
         f.close()
 
-        return self.parseString(css,
-                                encoding=encoding,  # read returns a str
-                                href=href, media=media, title=title,
-                                validate=validate)
+        return self.parseString(
+            css,
+            encoding=encoding,  # read returns a str
+            href=href,
+            media=media,
+            title=title,
+            validate=validate,
+        )
 
-    def parseUrl(self, href, encoding=None, media=None, title=None,
-                 validate=None):
+    def parseUrl(self, href, encoding=None, media=None, title=None, validate=None):
         """Retrieve content from URL `href` and parse it. Errors may be raised
         (e.g. URLError).
 
@@ -203,17 +214,21 @@ class CSSParser(object):
             :class:`~css_parser.css.CSSStyleSheet`.
         """
         encoding, enctype, text = css_parser.util._readUrl(
-                href,
-                fetcher=self.__fetcher,
-                overrideEncoding=encoding)
+            href, fetcher=self.__fetcher, overrideEncoding=encoding
+        )
         if enctype == 5:
             # do not use if defaulting to UTF-8
             encoding = None
 
         if text is not None:
-            return self.parseString(text, encoding=encoding,
-                                    href=href, media=media, title=title,
-                                    validate=validate)
+            return self.parseString(
+                text,
+                encoding=encoding,
+                href=href,
+                media=media,
+                title=title,
+                validate=validate,
+            )
 
     def setFetcher(self, fetcher=None):
         """Replace the default URL fetch function with a custom one.

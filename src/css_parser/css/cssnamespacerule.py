@@ -1,10 +1,10 @@
-"""CSSNamespaceRule currently implements http://dev.w3.org/csswg/css3-namespace/
-"""
+"""CSSNamespaceRule currently implements http://dev.w3.org/csswg/css3-namespace/"""
+
 from __future__ import unicode_literals, division, absolute_import, print_function
 
-__all__ = ['CSSNamespaceRule']
-__docformat__ = 'restructuredtext'
-__version__ = '$Id$'
+__all__ = ["CSSNamespaceRule"]
+__docformat__ = "restructuredtext"
+__version__ = "$Id$"
 
 from . import cssrule
 import css_parser
@@ -33,8 +33,15 @@ class CSSNamespaceRule(cssrule.CSSRule):
           ;
     """
 
-    def __init__(self, namespaceURI=None, prefix=None, cssText=None,
-                 parentRule=None, parentStyleSheet=None, readonly=False):
+    def __init__(
+        self,
+        namespaceURI=None,
+        prefix=None,
+        cssText=None,
+        parentRule=None,
+        parentStyleSheet=None,
+        readonly=False,
+    ):
         """
         :Parameters:
             namespaceURI
@@ -64,18 +71,19 @@ class CSSNamespaceRule(cssrule.CSSRule):
               : IDENT
               ;
         """
-        super(CSSNamespaceRule, self).__init__(parentRule=parentRule,
-                                               parentStyleSheet=parentStyleSheet)
-        self._atkeyword = '@namespace'
-        self._prefix = ''
+        super(CSSNamespaceRule, self).__init__(
+            parentRule=parentRule, parentStyleSheet=parentStyleSheet
+        )
+        self._atkeyword = "@namespace"
+        self._prefix = ""
         self._namespaceURI = None
 
         if namespaceURI:
             self.namespaceURI = namespaceURI
             self.prefix = prefix
             tempseq = self._tempSeq()
-            tempseq.append(self.prefix, 'prefix')
-            tempseq.append(self.namespaceURI, 'namespaceURI')
+            tempseq.append(self.prefix, "prefix")
+            tempseq.append(self.namespaceURI, "namespaceURI")
             self._setSeq(tempseq)
 
         elif cssText is not None:
@@ -90,14 +98,16 @@ class CSSNamespaceRule(cssrule.CSSRule):
         return "css_parser.css.%s(namespaceURI=%r, prefix=%r)" % (
             self.__class__.__name__,
             self.namespaceURI,
-            self.prefix)
+            self.prefix,
+        )
 
     def __str__(self):
         return "<css_parser.css.%s object namespaceURI=%r prefix=%r at 0x%x>" % (
             self.__class__.__name__,
             self.namespaceURI,
             self.prefix,
-            id(self))
+            id(self),
+        )
 
     def _getCssText(self):
         """Return serialized property cssText"""
@@ -123,100 +133,109 @@ class CSSNamespaceRule(cssrule.CSSRule):
         tokenizer = self._tokenize2(cssText)
         attoken = self._nexttoken(tokenizer, None)
         if self._type(attoken) != self._prods.NAMESPACE_SYM:
-            self._log.error('CSSNamespaceRule: No CSSNamespaceRule found: %s' %
-                            self._valuestr(cssText),
-                            error=xml.dom.InvalidModificationErr)
+            self._log.error(
+                "CSSNamespaceRule: No CSSNamespaceRule found: %s"
+                % self._valuestr(cssText),
+                error=xml.dom.InvalidModificationErr,
+            )
         else:
             # for closures: must be a mutable
-            new = {'keyword': self._tokenvalue(attoken),
-                   'prefix': '',
-                   'uri': None,
-                   'wellformed': True
-                   }
+            new = {
+                "keyword": self._tokenvalue(attoken),
+                "prefix": "",
+                "uri": None,
+                "wellformed": True,
+            }
 
             def _ident(expected, seq, token, tokenizer=None):
                 # the namespace prefix, optional
-                if 'prefix or uri' == expected:
-                    new['prefix'] = self._tokenvalue(token)
-                    seq.append(new['prefix'], 'prefix')
-                    return 'uri'
+                if "prefix or uri" == expected:
+                    new["prefix"] = self._tokenvalue(token)
+                    seq.append(new["prefix"], "prefix")
+                    return "uri"
                 else:
-                    new['wellformed'] = False
-                    self._log.error(
-                        'CSSNamespaceRule: Unexpected ident.', token)
+                    new["wellformed"] = False
+                    self._log.error("CSSNamespaceRule: Unexpected ident.", token)
                     return expected
 
             def _string(expected, seq, token, tokenizer=None):
                 # the namespace URI as a STRING
-                if expected.endswith('uri'):
-                    new['uri'] = self._stringtokenvalue(token)
-                    seq.append(new['uri'], 'namespaceURI')
-                    return ';'
+                if expected.endswith("uri"):
+                    new["uri"] = self._stringtokenvalue(token)
+                    seq.append(new["uri"], "namespaceURI")
+                    return ";"
 
                 else:
-                    new['wellformed'] = False
-                    self._log.error(
-                        'CSSNamespaceRule: Unexpected string.', token)
+                    new["wellformed"] = False
+                    self._log.error("CSSNamespaceRule: Unexpected string.", token)
                     return expected
 
             def _uri(expected, seq, token, tokenizer=None):
                 # the namespace URI as URI which is DEPRECATED
-                if expected.endswith('uri'):
+                if expected.endswith("uri"):
                     uri = self._uritokenvalue(token)
-                    new['uri'] = uri
-                    seq.append(new['uri'], 'namespaceURI')
-                    return ';'
+                    new["uri"] = uri
+                    seq.append(new["uri"], "namespaceURI")
+                    return ";"
                 else:
-                    new['wellformed'] = False
-                    self._log.error(
-                        'CSSNamespaceRule: Unexpected URI.', token)
+                    new["wellformed"] = False
+                    self._log.error("CSSNamespaceRule: Unexpected URI.", token)
                     return expected
 
             def _char(expected, seq, token, tokenizer=None):
                 # final ;
                 val = self._tokenvalue(token)
-                if ';' == expected and ';' == val:
-                    return 'EOF'
+                if ";" == expected and ";" == val:
+                    return "EOF"
                 else:
-                    new['wellformed'] = False
-                    self._log.error(
-                        'CSSNamespaceRule: Unexpected char.', token)
+                    new["wellformed"] = False
+                    self._log.error("CSSNamespaceRule: Unexpected char.", token)
                     return expected
 
             # "NAMESPACE_SYM S* [namespace_prefix S*]? [STRING|URI] S* ';' S*"
             newseq = self._tempSeq()
-            wellformed, expected = self._parse(expected='prefix or uri',
-                                               seq=newseq, tokenizer=tokenizer,
-                                               productions={'IDENT': _ident,
-                                                            'STRING': _string,
-                                                            'URI': _uri,
-                                                            'CHAR': _char},
-                                               new=new)
+            wellformed, expected = self._parse(
+                expected="prefix or uri",
+                seq=newseq,
+                tokenizer=tokenizer,
+                productions={
+                    "IDENT": _ident,
+                    "STRING": _string,
+                    "URI": _uri,
+                    "CHAR": _char,
+                },
+                new=new,
+            )
 
             # wellformed set by parse
-            wellformed = wellformed and new['wellformed']
+            wellformed = wellformed and new["wellformed"]
 
             # post conditions
-            if new['uri'] is None:
+            if new["uri"] is None:
                 wellformed = False
-                self._log.error('CSSNamespaceRule: No namespace URI found: %s'
-                                % self._valuestr(cssText))
+                self._log.error(
+                    "CSSNamespaceRule: No namespace URI found: %s"
+                    % self._valuestr(cssText)
+                )
 
-            if expected != 'EOF':
+            if expected != "EOF":
                 wellformed = False
-                self._log.error('CSSNamespaceRule: No ";" found: %s' %
-                                self._valuestr(cssText))
+                self._log.error(
+                    'CSSNamespaceRule: No ";" found: %s' % self._valuestr(cssText)
+                )
 
             # set all
             if wellformed:
-                self.atkeyword = new['keyword']
-                self._prefix = new['prefix']
-                self.namespaceURI = new['uri']
+                self.atkeyword = new["keyword"]
+                self._prefix = new["prefix"]
+                self.namespaceURI = new["uri"]
                 self._setSeq(newseq)
 
-    cssText = property(fget=_getCssText, fset=_setCssText,
-                       doc="(DOM) The parsable textual representation of this "
-                           "rule.")
+    cssText = property(
+        fget=_getCssText,
+        fset=_setCssText,
+        doc="(DOM) The parsable textual representation of this " "rule.",
+    )
 
     def _setNamespaceURI(self, namespaceURI):
         """
@@ -231,14 +250,19 @@ class CSSNamespaceRule(cssrule.CSSRule):
             # initial setting
             self._namespaceURI = namespaceURI
             tempseq = self._tempSeq()
-            tempseq.append(namespaceURI, 'namespaceURI')
+            tempseq.append(namespaceURI, "namespaceURI")
             self._setSeq(tempseq)  # makes seq readonly!
         elif self._namespaceURI != namespaceURI:
-            self._log.error('CSSNamespaceRule: namespaceURI is readonly.',
-                            error=xml.dom.NoModificationAllowedErr)
+            self._log.error(
+                "CSSNamespaceRule: namespaceURI is readonly.",
+                error=xml.dom.NoModificationAllowedErr,
+            )
 
-    namespaceURI = property(lambda self: self._namespaceURI, _setNamespaceURI,
-                            doc="URI (handled as simple string) of the defined namespace.")
+    namespaceURI = property(
+        lambda self: self._namespaceURI,
+        _setNamespaceURI,
+        doc="URI (handled as simple string) of the defined namespace.",
+    )
 
     def _replaceNamespaceURI(self, namespaceURI):
         """Used during parse of new sheet only!
@@ -247,9 +271,9 @@ class CSSNamespaceRule(cssrule.CSSRule):
         """
         self._namespaceURI = namespaceURI
         for i, x in enumerate(self._seq):
-            if 'namespaceURI' == x.type:
+            if "namespaceURI" == x.type:
                 self._seq._readonly = False
-                self._seq.replace(i, namespaceURI, 'namespaceURI')
+                self._seq.replace(i, namespaceURI, "namespaceURI")
                 self._seq._readonly = True
                 break
 
@@ -265,34 +289,39 @@ class CSSNamespaceRule(cssrule.CSSRule):
         """
         self._checkReadonly()
         if not prefix:
-            prefix = ''
+            prefix = ""
         else:
             tokenizer = self._tokenize2(prefix)
             prefixtoken = self._nexttoken(tokenizer, None)
             if not prefixtoken or self._type(prefixtoken) != self._prods.IDENT:
-                self._log.error('CSSNamespaceRule: No valid prefix "%s".' %
-                                self._valuestr(prefix),
-                                error=xml.dom.SyntaxErr)
+                self._log.error(
+                    'CSSNamespaceRule: No valid prefix "%s".' % self._valuestr(prefix),
+                    error=xml.dom.SyntaxErr,
+                )
                 return
             else:
                 prefix = self._tokenvalue(prefixtoken)
         # update seq
         for i, x in enumerate(self._seq):
             if x == self._prefix:
-                self._seq[i] = (prefix, 'prefix', None, None)
+                self._seq[i] = (prefix, "prefix", None, None)
                 break
         else:
             # put prefix at the beginning!
-            self._seq[0] = (prefix, 'prefix', None, None)
+            self._seq[0] = (prefix, "prefix", None, None)
 
         # set new prefix
         self._prefix = prefix
 
-    prefix = property(lambda self: self._prefix, _setPrefix,
-                      doc="Prefix used for the defined namespace.")
+    prefix = property(
+        lambda self: self._prefix,
+        _setPrefix,
+        doc="Prefix used for the defined namespace.",
+    )
 
-    type = property(lambda self: self.NAMESPACE_RULE,
-                    doc="The type of this rule, as defined by a CSSRule "
-                        "type constant.")
+    type = property(
+        lambda self: self.NAMESPACE_RULE,
+        doc="The type of this rule, as defined by a CSSRule " "type constant.",
+    )
 
     wellformed = property(lambda self: self.namespaceURI is not None)

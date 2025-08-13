@@ -1,12 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-"""New CSS Tokenizer (a generator)
-"""
+"""New CSS Tokenizer (a generator)"""
 from __future__ import unicode_literals, division, absolute_import, print_function
 
-__all__ = ['Tokenizer', 'CSSProductions']
-__docformat__ = 'restructuredtext'
-__version__ = '$Id$'
+__all__ = ["Tokenizer", "CSSProductions"]
+__docformat__ = "restructuredtext"
+__version__ = "$Id$"
 
 from .cssproductions import CSSProductions, MACROS, PRODUCTIONS
 from .helper import normalize
@@ -25,17 +24,18 @@ class Tokenizer(object):
     generates a list of Token tuples:
         (Tokenname, value, startline, startcolumn)
     """
+
     _atkeywords = {
-        '@font-face': CSSProductions.FONT_FACE_SYM,
-        '@import': CSSProductions.IMPORT_SYM,
-        '@media': CSSProductions.MEDIA_SYM,
-        '@namespace': CSSProductions.NAMESPACE_SYM,
-        '@page': CSSProductions.PAGE_SYM,
-        '@variables': CSSProductions.VARIABLES_SYM
+        "@font-face": CSSProductions.FONT_FACE_SYM,
+        "@import": CSSProductions.IMPORT_SYM,
+        "@media": CSSProductions.MEDIA_SYM,
+        "@namespace": CSSProductions.NAMESPACE_SYM,
+        "@page": CSSProductions.PAGE_SYM,
+        "@variables": CSSProductions.VARIABLES_SYM,
     }
-    _linesep = '\n'
-    unicodesub = re.compile(r'\\[0-9a-fA-F]{1,6}(?:\r\n|[\t\r\n\f\x20])?').sub
-    cleanstring = re.compile(r'\\((\r\n)|[\n\r\f])').sub
+    _linesep = "\n"
+    unicodesub = re.compile(r"\\[0-9a-fA-F]{1,6}(?:\r\n|[\t\r\n\f\x20])?").sub
+    cleanstring = re.compile(r"\\((\r\n)|[\n\r\f])").sub
 
     def __init__(self, macros=None, productions=None, doComments=True):
         """
@@ -54,10 +54,11 @@ class Tokenizer(object):
                 macros = MACROS
             if not productions:
                 productions = PRODUCTIONS
-            tokenmatches = self._compile_productions(self._expand_macros(macros,
-                                                                         productions))
-            commentmatcher = [x[1] for x in tokenmatches if x[0] == 'COMMENT'][0]
-            urimatcher = [x[1] for x in tokenmatches if x[0] == 'URI'][0]
+            tokenmatches = self._compile_productions(
+                self._expand_macros(macros, productions)
+            )
+            commentmatcher = [x[1] for x in tokenmatches if x[0] == "COMMENT"][0]
+            urimatcher = [x[1] for x in tokenmatches if x[0] == "URI"][0]
             _TOKENIZER_CACHE[hash_key] = (tokenmatches, commentmatcher, urimatcher)
 
         self.tokenmatches = tokenmatches
@@ -69,13 +70,16 @@ class Tokenizer(object):
 
     def _expand_macros(self, macros, productions):
         """returns macro expanded productions, order of productions is kept"""
+
         def macro_value(m):
-            return '(?:%s)' % macros[m.groupdict()['macro']]
+            return "(?:%s)" % macros[m.groupdict()["macro"]]
+
         expanded = []
         for key, value in productions:
-            while re.search(r'{[a-zA-Z][a-zA-Z0-9-]*}', value):
-                value = re.sub(r'{(?P<macro>[a-zA-Z][a-zA-Z0-9-]*)}',
-                               macro_value, value)
+            while re.search(r"{[a-zA-Z][a-zA-Z0-9-]*}", value):
+                value = re.sub(
+                    r"{(?P<macro>[a-zA-Z][a-zA-Z0-9-]*)}", macro_value, value
+                )
             expanded.append((key, value))
         return expanded
 
@@ -83,7 +87,7 @@ class Tokenizer(object):
         """compile productions into callable match objects, order is kept"""
         compiled = []
         for key, value in expanded_productions:
-            compiled.append((key, re.compile('(?:%s)' % value, re.U).match))
+            compiled.append((key, re.compile("(?:%s)" % value, re.U).match))
         return compiled
 
     def push(self, *tokens):
@@ -110,6 +114,7 @@ class Tokenizer(object):
             if ``True`` appends EOF token as last one and completes incomplete
             COMMENT or INVALID (to STRING) tokens
         """
+
         def _repl(m):
             "used by unicodesub"
             num = int(m.group(0)[1:], 16)
@@ -136,8 +141,8 @@ class Tokenizer(object):
             pos += len(found)
 
         # check for @charset which is valid only at start of CSS
-        if has_at(text, pos, '@charset '):
-            found = '@charset '  # production has trailing S!
+        if has_at(text, pos, "@charset "):
+            found = "@charset "  # production has trailing S!
             yield (CSSProductions.CHARSET_SYM, found, line, col)
             pos += len(found)
             col += len(found)
@@ -152,8 +157,8 @@ class Tokenizer(object):
 
             # speed test for most used CHARs, sadly . not possible :(
             c = text[pos]
-            if c in ',:;{}>[]':  # + but in num!
-                yield ('CHAR', c, line, col)
+            if c in ",:;{}>[]":  # + but in num!
+                yield ("CHAR", c, line, col)
                 col += 1
                 pos += 1
 
@@ -162,13 +167,12 @@ class Tokenizer(object):
                 for name, matcher in productions:
 
                     # TODO: USE bad comment?
-                    if (fullsheet and name == 'CHAR' and
-                            has_at(text, pos, '/*')):
+                    if fullsheet and name == "CHAR" and has_at(text, pos, "/*"):
                         # before CHAR production test for incomplete comment
-                        possiblecomment = '%s*/' % text[pos:]
+                        possiblecomment = "%s*/" % text[pos:]
                         match = self.commentmatcher(possiblecomment)
                         if match and self._doComments:
-                            yield ('COMMENT', possiblecomment, line, col)
+                            yield ("COMMENT", possiblecomment, line, col)
                             pos = _len_text  # ate all remaining text
                             break
 
@@ -183,65 +187,75 @@ class Tokenizer(object):
                         # character is a open parenthesis, we instead skip and
                         # let the FUNCTION production take over - except if the
                         # ident is "and"
-                        if (name == 'IDENT' and
-                                found.lower() != "and" and
-                                match.end(0) < len(text) and
-                                text[match.end(0)] == '('):
+                        if (
+                            name == "IDENT"
+                            and found.lower() != "and"
+                            and match.end(0) < len(text)
+                            and text[match.end(0)] == "("
+                        ):
                             continue
                         if fullsheet:
                             # check if found may be completed into a full token
-                            if ('INVALID' == name and
-                                    suffix_eq(text, pos, found)):
+                            if "INVALID" == name and suffix_eq(text, pos, found):
                                 # complete INVALID to STRING with start char " or '
-                                name, found = 'STRING', '%s%s' % (found, found[0])
+                                name, found = "STRING", "%s%s" % (found, found[0])
 
-                            elif 'FUNCTION' == name and\
-                                 'url(' == _normalize(found):
+                            elif "FUNCTION" == name and "url(" == _normalize(found):
                                 # url( is a FUNCTION if incomplete sheet
                                 # FUNCTION production MUST BE after URI production
-                                for end in ("')", '")', ')'):
-                                    possibleuri = '%s%s' % (text[pos:], end)
+                                for end in ("')", '")', ")"):
+                                    possibleuri = "%s%s" % (text[pos:], end)
                                     match = self.urimatcher(possibleuri)
                                     if match:
-                                        name, found = 'URI', match.group(0)
+                                        name, found = "URI", match.group(0)
                                         break
 
-                        if name in ('DIMENSION', 'IDENT', 'STRING', 'URI',
-                                    'HASH', 'COMMENT', 'FUNCTION', 'INVALID',
-                                    'UNICODE-RANGE'):
+                        if name in (
+                            "DIMENSION",
+                            "IDENT",
+                            "STRING",
+                            "URI",
+                            "HASH",
+                            "COMMENT",
+                            "FUNCTION",
+                            "INVALID",
+                            "UNICODE-RANGE",
+                        ):
                             # may contain unicode escape, replace with normal
                             # char but do not _normalize (?)
                             value = self.unicodesub(_repl, found)
-                            if name in ('STRING', 'INVALID'):  # 'URI'?
+                            if name in ("STRING", "INVALID"):  # 'URI'?
                                 # remove \ followed by nl (so escaped) from string
-                                value = self.cleanstring('', value)
+                                value = self.cleanstring("", value)
 
                         else:
-                            if 'ATKEYWORD' == name:
+                            if "ATKEYWORD" == name:
                                 try:
                                     # get actual ATKEYWORD SYM
                                     name = self._atkeywords[_normalize(found)]
                                 except KeyError:
                                     # might also be misplace @charset...
-                                    if ('@charset' == found and
-                                            has_at(text, pos + len(found), ' ')):
+                                    if "@charset" == found and has_at(
+                                        text, pos + len(found), " "
+                                    ):
                                         # @charset needs tailing S!
                                         name = CSSProductions.CHARSET_SYM
-                                        found += ' '
+                                        found += " "
                                     else:
-                                        name = 'ATKEYWORD'
+                                        name = "ATKEYWORD"
 
                             value = found  # should not contain unicode escape (?)
 
-                        if self._doComments or (not self._doComments and
-                                                name != 'COMMENT'):
+                        if self._doComments or (
+                            not self._doComments and name != "COMMENT"
+                        ):
                             yield (name, value, line, col)
 
                         pos += len(found)
                         nls = found.count(self._linesep)
                         line += nls
                         if nls:
-                            col = len(found[found.rfind(self._linesep):])
+                            col = len(found[found.rfind(self._linesep) :])
                         else:
                             col += len(found)
 
@@ -250,7 +264,7 @@ class Tokenizer(object):
             assert text is _orig_text
 
         if fullsheet:
-            yield ('EOF', '', line, col)
+            yield ("EOF", "", line, col)
 
 
 def has_at(text, pos, string):
@@ -265,7 +279,7 @@ def has_at(text, pos, string):
                     searched.
     :param str string: The string to search.
     """
-    return text[pos:pos+len(string)] == string
+    return text[pos : pos + len(string)] == string
 
 
 def suffix_eq(text, pos, expected):
@@ -282,5 +296,6 @@ def suffix_eq(text, pos, expected):
     """
     if not pos:
         return text == expected
-    return (len(text) - pos == len(expected) and
-            all(text[i + pos] == expected[i] for i in range(len(expected))))
+    return len(text) - pos == len(expected) and all(
+        text[i + pos] == expected[i] for i in range(len(expected))
+    )

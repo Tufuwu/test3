@@ -26,38 +26,41 @@ currently implemented
 todo
     - RGBColor, Rect, Counter
 """
+
 from __future__ import division, absolute_import, print_function
 
 __all__ = [
-    'CSSStyleSheet',
-    'CSSRuleList',
-    'CSSRule',
-    'CSSComment',
-    'CSSCharsetRule',
-    'CSSFontFaceRule',
-    'CSSImportRule',
-    'CSSMediaRule',
-    'CSSNamespaceRule',
-    'CSSPageRule',
-    'MarginRule',
-    'CSSStyleRule',
-    'CSSUnknownRule',
-    'CSSVariablesRule',
-    'CSSVariablesDeclaration',
-    'Selector', 'SelectorList',
-    'CSSStyleDeclaration', 'Property',
+    "CSSStyleSheet",
+    "CSSRuleList",
+    "CSSRule",
+    "CSSComment",
+    "CSSCharsetRule",
+    "CSSFontFaceRule",
+    "CSSImportRule",
+    "CSSMediaRule",
+    "CSSNamespaceRule",
+    "CSSPageRule",
+    "MarginRule",
+    "CSSStyleRule",
+    "CSSUnknownRule",
+    "CSSVariablesRule",
+    "CSSVariablesDeclaration",
+    "Selector",
+    "SelectorList",
+    "CSSStyleDeclaration",
+    "Property",
     # 'CSSValue', 'CSSPrimitiveValue', 'CSSValueList'
-    'PropertyValue',
-    'Value',
-    'ColorValue',
-    'DimensionValue',
-    'URIValue',
-    'CSSFunction',
-    'CSSVariable',
-    'MSValue',
+    "PropertyValue",
+    "Value",
+    "ColorValue",
+    "DimensionValue",
+    "URIValue",
+    "CSSFunction",
+    "CSSVariable",
+    "MSValue",
 ]
-__docformat__ = 'restructuredtext'
-__version__ = '$Id$'
+__docformat__ = "restructuredtext"
+__version__ = "$Id$"
 
 from .cssstylesheet import CSSStyleSheet
 from .cssrulelist import CSSRuleList
@@ -78,4 +81,13 @@ from .selectorlist import SelectorList
 from .cssstyledeclaration import CSSStyleDeclaration
 from .cssvariablesdeclaration import CSSVariablesDeclaration
 from .property import Property
-from .value import PropertyValue, Value, ColorValue, DimensionValue, URIValue, CSSFunction, CSSVariable, MSValue
+from .value import (
+    PropertyValue,
+    Value,
+    ColorValue,
+    DimensionValue,
+    URIValue,
+    CSSFunction,
+    CSSVariable,
+    MSValue,
+)

@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 """Python codec for CSS."""
-__docformat__ = 'restructuredtext'
-__author__ = 'Walter Doerwald'
-__version__ = '$Id: util.py 1114 2008-03-05 13:22:59Z cthedot $'
+__docformat__ = "restructuredtext"
+__author__ = "Walter Doerwald"
+__version__ = "$Id: util.py 1114 2008-03-05 13:22:59Z cthedot $"
 
 import codecs
 import marshal
@@ -25,7 +25,7 @@ import marshal
 
 
 def chars(bytestring):
-    return ''.join(chr(byte) for byte in bytestring)
+    return "".join(chr(byte) for byte in bytestring)
 
 
 def detectencoding_str(input, final=False):
@@ -70,9 +70,13 @@ def detectencoding_str(input, final=False):
         if c != b"\xfe"[0]:
             candidates &= ~CANDIDATE_UTF_16_AS_BE
         if c != b"@"[0]:
-            candidates &= ~(CANDIDATE_UTF_32_LE | CANDIDATE_UTF_16_LE | CANDIDATE_CHARSET)
+            candidates &= ~(
+                CANDIDATE_UTF_32_LE | CANDIDATE_UTF_16_LE | CANDIDATE_CHARSET
+            )
         if c != b"\x00"[0]:
-            candidates &= ~(CANDIDATE_UTF_32_AS_BE | CANDIDATE_UTF_32_BE | CANDIDATE_UTF_16_BE)
+            candidates &= ~(
+                CANDIDATE_UTF_32_AS_BE | CANDIDATE_UTF_32_BE | CANDIDATE_UTF_16_BE
+            )
         if li >= 2:
             # Check second byte
             c = input[1]
@@ -83,8 +87,12 @@ def detectencoding_str(input, final=False):
             if c != b"\xff"[0]:
                 candidates &= ~CANDIDATE_UTF_16_AS_BE
             if c != b"\x00"[0]:
-                candidates &= ~(CANDIDATE_UTF_16_LE | CANDIDATE_UTF_32_AS_BE |
-                                CANDIDATE_UTF_32_LE | CANDIDATE_UTF_32_BE)
+                candidates &= ~(
+                    CANDIDATE_UTF_16_LE
+                    | CANDIDATE_UTF_32_AS_BE
+                    | CANDIDATE_UTF_32_LE
+                    | CANDIDATE_UTF_32_BE
+                )
             if c != b"@"[0]:
                 candidates &= ~CANDIDATE_UTF_16_BE
             if c != b"c"[0]:
@@ -97,7 +105,11 @@ def detectencoding_str(input, final=False):
                 if c != b"c"[0]:
                     candidates &= ~CANDIDATE_UTF_16_LE
                 if c != b"\x00"[0]:
-                    candidates &= ~(CANDIDATE_UTF_32_AS_LE | CANDIDATE_UTF_32_LE | CANDIDATE_UTF_32_BE)
+                    candidates &= ~(
+                        CANDIDATE_UTF_32_AS_LE
+                        | CANDIDATE_UTF_32_LE
+                        | CANDIDATE_UTF_32_BE
+                    )
                 if c != b"\xfe"[0]:
                     candidates &= ~CANDIDATE_UTF_32_AS_BE
                 if c != b"h"[0]:
@@ -108,7 +120,11 @@ def detectencoding_str(input, final=False):
                     if input[2:4] == b"\x00\x00"[0:2]:
                         candidates &= ~CANDIDATE_UTF_16_AS_LE
                     if c != b"\x00"[0]:
-                        candidates &= ~(CANDIDATE_UTF_16_LE | CANDIDATE_UTF_32_AS_LE | CANDIDATE_UTF_32_LE)
+                        candidates &= ~(
+                            CANDIDATE_UTF_16_LE
+                            | CANDIDATE_UTF_32_AS_LE
+                            | CANDIDATE_UTF_32_LE
+                        )
                     if c != b"\xff"[0]:
                         candidates &= ~CANDIDATE_UTF_32_AS_BE
                     if c != b"@"[0]:
@@ -117,7 +133,7 @@ def detectencoding_str(input, final=False):
                         candidates &= ~CANDIDATE_CHARSET
     if candidates == 0:
         return ("utf-8", False)
-    if not (candidates & (candidates-1)):  # only one candidate remaining
+    if not (candidates & (candidates - 1)):  # only one candidate remaining
         if candidates == CANDIDATE_UTF_8_SIG and li >= 3:
             return ("utf-8-sig", True)
         elif candidates == CANDIDATE_UTF_16_AS_LE and li >= 2:
@@ -139,11 +155,11 @@ def detectencoding_str(input, final=False):
         elif candidates == CANDIDATE_CHARSET and li >= 4:
             prefix = '@charset "'
             charsinput = chars(input)
-            if charsinput[:len(prefix)] == prefix:
+            if charsinput[: len(prefix)] == prefix:
                 pos = charsinput.find('"', len(prefix))
                 if pos >= 0:
                     # TODO: return str and not bytes!
-                    return (charsinput[len(prefix):pos], True)
+                    return (charsinput[len(prefix) : pos], True)
     # if this is the last call, and we haven't determined an encoding yet,
     # we default to UTF-8
     if final:
@@ -166,7 +182,7 @@ def detectencoding_unicode(input, final=False):
     if input.startswith(prefix):
         pos = input.find('"', len(prefix))
         if pos >= 0:
-            return (input[len(prefix):pos], True)
+            return (input[len(prefix) : pos], True)
     elif final or not prefix.startswith(input):
         # if this is the last call, and we haven't determined an encoding yet,
         # (or the string definitely doesn't start with prefix) we default to UTF-8
@@ -214,7 +230,9 @@ def decode(input, errors="strict", encoding=None, force=True):
         (_encoding, explicit) = detectencoding_str(input, True)
         if _encoding == "css":
             raise ValueError("css not allowed as encoding name")
-        if (explicit and not force) or encoding is None:  # Take the encoding from the input
+        if (
+            explicit and not force
+        ) or encoding is None:  # Take the encoding from the input
             encoding = _encoding
 
     # NEEDS: change in parse.py (str to bytes!)
@@ -248,12 +266,13 @@ def _int2bytes(i):
     # Helper: convert an ``int`` into an 8-bit string.
     v = []
     while i:
-        v.insert(0, chr(i & 0xff))
+        v.insert(0, chr(i & 0xFF))
         i >>= 8
     return "".join(v)
 
 
 if hasattr(codecs, "IncrementalDecoder"):
+
     class IncrementalDecoder(codecs.IncrementalDecoder):
         def __init__(self, errors="strict", encoding=None, force=True):
             self.decoder = None
@@ -291,7 +310,9 @@ if hasattr(codecs, "IncrementalDecoder"):
                         return ""  # no encoding determined yet, so no output
                     elif encoding == "css":
                         raise ValueError("css not allowed as encoding name")
-                    if (explicit and not self.force) or self.encoding is None:  # Take the encoding from the input
+                    if (
+                        explicit and not self.force
+                    ) or self.encoding is None:  # Take the encoding from the input
                         self.encoding = encoding
                 self.buffer = ""  # drop buffer, as the decoder might keep its own
                 decoder = codecs.getincrementaldecoder(self.encoding)
@@ -326,11 +347,18 @@ if hasattr(codecs, "IncrementalDecoder"):
             if self.decoder is not None:
                 self.decoder.errors = errors
             self._errors = errors
+
         errors = property(_geterrors, _seterrors)
 
         def getstate(self):
             if self.decoder is not None:
-                state = (self.encoding, self.buffer, self.headerfixed, True, self.decoder.getstate())
+                state = (
+                    self.encoding,
+                    self.buffer,
+                    self.headerfixed,
+                    True,
+                    self.decoder.getstate(),
+                )
             else:
                 state = (self.encoding, self.buffer, self.headerfixed, False, None)
             return ("", _bytes2int(marshal.dumps(state)))
@@ -348,6 +376,7 @@ if hasattr(codecs, "IncrementalDecoder"):
 
 
 if hasattr(codecs, "IncrementalEncoder"):
+
     class IncrementalEncoder(codecs.IncrementalEncoder):
         def __init__(self, errors="strict", encoding=None):
             self.encoder = None
@@ -410,6 +439,7 @@ if hasattr(codecs, "IncrementalEncoder"):
             if self.encoder is not None:
                 self.encoder.errors = errors
             self._errors = errors
+
         errors = property(_geterrors, _seterrors)
 
         def getstate(self):
@@ -438,7 +468,7 @@ class StreamWriter(codecs.StreamWriter):
         self._errors = errors
         self.buffer = ""
 
-    def encode(self, input, errors='strict'):
+    def encode(self, input, errors="strict"):
         li = len(input)
         if self.streamwriter is None:
             input = self.buffer + input
@@ -459,7 +489,9 @@ class StreamWriter(codecs.StreamWriter):
             if self.encoding is not None:
                 if self.encoding == "css":
                     raise ValueError("css not allowed as encoding name")
-                self.streamwriter = codecs.getwriter(self.encoding)(self.stream, self._errors)
+                self.streamwriter = codecs.getwriter(self.encoding)(
+                    self.stream, self._errors
+                )
                 encoding = self.encoding
                 if self.encoding.replace("_", "-").lower() == "utf-8-sig":
                     input = _fixencoding(input, "utf-8", True)
@@ -482,6 +514,7 @@ class StreamWriter(codecs.StreamWriter):
             pass
 
         self._errors = errors
+
     errors = property(_geterrors, _seterrors)
 
 
@@ -493,7 +526,7 @@ class StreamReader(codecs.StreamReader):
         self.force = force
         self._errors = errors
 
-    def decode(self, input, errors='strict'):
+    def decode(self, input, errors="strict"):
         if self.streamreader is None:
             if self.encoding is None or not self.force:
                 (encoding, explicit) = detectencoding_str(input, False)
@@ -501,7 +534,9 @@ class StreamReader(codecs.StreamReader):
                     return ("", 0)  # no encoding determined yet, so no output
                 elif encoding == "css":
                     raise ValueError("css not allowed as encoding name")
-                if (explicit and not self.force) or self.encoding is None:  # Take the encoding from the input
+                if (
+                    explicit and not self.force
+                ) or self.encoding is None:  # Take the encoding from the input
                     self.encoding = encoding
             streamreader = codecs.getreader(self.encoding)
             streamreader = streamreader(self.stream, self._errors)
@@ -529,6 +564,7 @@ class StreamReader(codecs.StreamReader):
             pass
 
         self._errors = errors
+
     errors = property(_geterrors, _seterrors)
 
 
@@ -545,18 +581,19 @@ if hasattr(codecs, "CodecInfo"):
                 streamwriter=StreamWriter,
                 streamreader=StreamReader,
             )
+
 else:
     # If we're running on Python 2.4, define the utf-8-sig codec here
-    def utf8sig_encode(input, errors='strict'):
+    def utf8sig_encode(input, errors="strict"):
         return (codecs.BOM_UTF8 + codecs.utf_8_encode(input, errors)[0], len(input))
 
-    def utf8sig_decode(input, errors='strict'):
+    def utf8sig_decode(input, errors="strict"):
         prefix = 0
         if input[:3] == codecs.BOM_UTF8:
             input = input[3:]
             prefix = 3
         (output, consumed) = codecs.utf_8_decode(input, errors, True)
-        return (output, consumed+prefix)
+        return (output, consumed + prefix)
 
     class UTF8SigStreamWriter(codecs.StreamWriter):
         def reset(self):
@@ -566,7 +603,7 @@ else:
             except AttributeError:
                 pass
 
-        def encode(self, input, errors='strict'):
+        def encode(self, input, errors="strict"):
             self.encode = codecs.utf_8_encode
             return utf8sig_encode(input, errors)
 
@@ -578,7 +615,7 @@ else:
             except AttributeError:
                 pass
 
-        def decode(self, input, errors='strict'):
+        def decode(self, input, errors="strict"):
             if len(input) < 3 and codecs.BOM_UTF8.startswith(input):
                 # not enough data to decide if this is a BOM
                 # => try again on the next call
@@ -588,11 +625,17 @@ else:
 
     def search_function(name):
         import encodings
+
         name = encodings.normalize_encoding(name)
         if name == "css":
             return (encode, decode, StreamReader, StreamWriter)
         elif name == "utf_8_sig":
-            return (utf8sig_encode, utf8sig_decode, UTF8SigStreamReader, UTF8SigStreamWriter)
+            return (
+                utf8sig_encode,
+                utf8sig_decode,
+                UTF8SigStreamReader,
+                UTF8SigStreamWriter,
+            )
 
 
 codecs.register(search_function)
@@ -600,10 +643,14 @@ codecs.register(search_function)
 
 # Error handler for CSS escaping
 
+
 def cssescape(exc):
     if not isinstance(exc, UnicodeEncodeError):
         raise TypeError("don't know how to handle %r" % exc)
-    return ("".join("\\%06x" % ord(c) for c in exc.object[exc.start:exc.end]), exc.end)
+    return (
+        "".join("\\%06x" % ord(c) for c in exc.object[exc.start : exc.end]),
+        exc.end,
+    )
 
 
 codecs.register_error("cssescape", cssescape)

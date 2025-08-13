@@ -2,6 +2,7 @@
 from __future__ import unicode_literals, division, absolute_import, print_function
 import xml.dom
 import logging
+
 """css_parser ErrorHandler
 
 ErrorHandler
@@ -18,9 +19,9 @@ log
     - setloglevel(loglevel)
 """
 
-__all__ = ['ErrorHandler']
-__docformat__ = 'restructuredtext'
-__version__ = '$Id$'
+__all__ = ["ErrorHandler"]
+__docformat__ = "restructuredtext"
+__version__ = "$Id$"
 
 import sys
 
@@ -37,8 +38,7 @@ class _ErrorHandler(object):
     handles all errors and log messages
     """
 
-    def __init__(self, log, defaultloglevel=logging.INFO,
-                 raiseExceptions=True):
+    def __init__(self, log, defaultloglevel=logging.INFO, raiseExceptions=True):
         """
         inits log if none given
 
@@ -58,9 +58,10 @@ class _ErrorHandler(object):
             self._log = log
         else:
             import sys
-            self._log = logging.getLogger('CSSUTILS')
+
+            self._log = logging.getLogger("CSSUTILS")
             hdlr = logging.StreamHandler(sys.stderr)
-            formatter = logging.Formatter('%(levelname)s\t%(message)s')
+            formatter = logging.Formatter("%(levelname)s\t%(message)s")
             hdlr.setFormatter(formatter)
             self._log.addHandler(hdlr)
             self._log.setLevel(defaultloglevel)
@@ -69,22 +70,22 @@ class _ErrorHandler(object):
 
     def __getattr__(self, name):
         "use self._log items"
-        calls = ('debug', 'info', 'warn', 'error', 'critical', 'fatal')
-        other = ('setLevel', 'getEffectiveLevel', 'addHandler', 'removeHandler')
+        calls = ("debug", "info", "warn", "error", "critical", "fatal")
+        other = ("setLevel", "getEffectiveLevel", "addHandler", "removeHandler")
 
         if name in calls:
-            if name == 'warn':
-                name = 'warning'
+            if name == "warn":
+                name = "warning"
             self._logcall = getattr(self._log, name)
             return self.__handle
         elif name in other:
             return getattr(self._log, name)
         else:
-            raise AttributeError(
-                '(errorhandler) No Attribute %r found' % name)
+            raise AttributeError("(errorhandler) No Attribute %r found" % name)
 
-    def __handle(self, msg='', token=None, error=xml.dom.SyntaxErr,
-                 neverraise=False, args=None):
+    def __handle(
+        self, msg="", token=None, error=xml.dom.SyntaxErr, neverraise=False, args=None
+    ):
         """
         handles all calls
         logs or raises exception
@@ -99,11 +100,12 @@ class _ErrorHandler(object):
                     value, line, col = token[1], token[2], token[3]
                 else:
                     value, line, col = token.value, token.line, token.col
-                msg = '%s [%s:%s: %s]' % (
-                    msg, line, col, value)
+                msg = "%s [%s:%s: %s]" % (msg, line, col, value)
 
             if error and self.raiseExceptions and not neverraise:
-                if isinstance(error, urllib_HTTPError) or isinstance(error, urllib_URLError):
+                if isinstance(error, urllib_HTTPError) or isinstance(
+                    error, urllib_URLError
+                ):
                     raise
                 elif issubclass(error, xml.dom.DOMException):
                     error.line = line
@@ -119,13 +121,15 @@ class _ErrorHandler(object):
 
 class ErrorHandler(_ErrorHandler):
     "Singleton, see _ErrorHandler"
+
     instance = None
 
-    def __init__(self,
-                 log=None, defaultloglevel=logging.INFO, raiseExceptions=True):
+    def __init__(self, log=None, defaultloglevel=logging.INFO, raiseExceptions=True):
 
         if ErrorHandler.instance is None:
-            ErrorHandler.instance = _ErrorHandler(log=log,
-                                                  defaultloglevel=defaultloglevel,
-                                                  raiseExceptions=raiseExceptions)
+            ErrorHandler.instance = _ErrorHandler(
+                log=log,
+                defaultloglevel=defaultloglevel,
+                raiseExceptions=raiseExceptions,
+            )
         self.__dict__ = ErrorHandler.instance.__dict__

@@ -2,15 +2,17 @@ from __future__ import unicode_literals, division, absolute_import, print_functi
 from . import errorhandler
 import cgi
 from google.appengine.api import urlfetch
+
 """GAE specific URL reading functions"""
 
 
 import sys
+
 PY3 = sys.version_info[0] >= 3
 
-__all__ = ['_defaultFetcher']
-__docformat__ = 'restructuredtext'
-__version__ = '$Id: tokenize2.py 1547 2008-12-10 20:42:26Z cthedot $'
+__all__ = ["_defaultFetcher"]
+__docformat__ = "restructuredtext"
+__version__ = "$Id: tokenize2.py 1547 2008-12-10 20:42:26Z cthedot $"
 
 # raises ImportError of not on GAE
 
@@ -53,22 +55,26 @@ def _defaultFetcher(url):
     try:
         r = urlfetch.fetch(url, method=urlfetch.GET)
     except urlfetch.Error as e:
-        log.warn('Error opening url=%r: %s' % (url, e),
-                 error=IOError)
+        log.warn("Error opening url=%r: %s" % (url, e), error=IOError)
     else:
         if r.status_code == 200:
             # find mimetype and encoding
-            mimetype = 'application/octet-stream'
+            mimetype = "application/octet-stream"
             try:
-                mimetype, params = cgi.parse_header(r.headers['content-type'])
-                encoding = params['charset']
+                mimetype, params = cgi.parse_header(r.headers["content-type"])
+                encoding = params["charset"]
             except KeyError:
                 encoding = None
-            if mimetype != 'text/css':
-                log.error('Expected "text/css" mime type for url %r but found: %r' %
-                          (url, mimetype), error=ValueError)
+            if mimetype != "text/css":
+                log.error(
+                    'Expected "text/css" mime type for url %r but found: %r'
+                    % (url, mimetype),
+                    error=ValueError,
+                )
             return encoding, r.content
         else:
             # TODO: 301 etc
-            log.warn('Error opening url=%r: HTTP status %s' %
-                     (url, r.status_code), error=IOError)
+            log.warn(
+                "Error opening url=%r: HTTP status %s" % (url, r.status_code),
+                error=IOError,
+            )

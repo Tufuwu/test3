@@ -1,9 +1,10 @@
 """CSSCharsetRule implements DOM Level 2 CSS CSSCharsetRule."""
+
 from __future__ import unicode_literals, division, absolute_import, print_function
 
-__all__ = ['CSSCharsetRule']
-__docformat__ = 'restructuredtext'
-__version__ = '$Id$'
+__all__ = ["CSSCharsetRule"]
+__docformat__ = "restructuredtext"
+__version__ = "$Id$"
 
 import codecs
 from . import cssrule
@@ -41,17 +42,19 @@ class CSSCharsetRule(cssrule.CSSRule):
         @charset "ENCODING";
     """
 
-    def __init__(self, encoding=None, parentRule=None,
-                 parentStyleSheet=None, readonly=False):
+    def __init__(
+        self, encoding=None, parentRule=None, parentStyleSheet=None, readonly=False
+    ):
         """
         :param encoding:
             a valid character encoding
         :param readonly:
             defaults to False, not used yet
         """
-        super(CSSCharsetRule, self).__init__(parentRule=parentRule,
-                                             parentStyleSheet=parentStyleSheet)
-        self._atkeyword = '@charset'
+        super(CSSCharsetRule, self).__init__(
+            parentRule=parentRule, parentStyleSheet=parentStyleSheet
+        )
+        self._atkeyword = "@charset"
 
         if encoding:
             self.encoding = encoding
@@ -63,13 +66,15 @@ class CSSCharsetRule(cssrule.CSSRule):
     def __repr__(self):
         return "css_parser.css.%s(encoding=%r)" % (
             self.__class__.__name__,
-            self.encoding)
+            self.encoding,
+        )
 
     def __str__(self):
         return "<css_parser.css.%s object encoding=%r at 0x%x>" % (
             self.__class__.__name__,
             self.encoding,
-            id(self))
+            id(self),
+        )
 
     def _getCssText(self):
         """The parsable textual representation."""
@@ -99,29 +104,36 @@ class CSSCharsetRule(cssrule.CSSRule):
 
         if self._type(self._nexttoken(tokenizer)) != self._prods.CHARSET_SYM:
             wellformed = False
-            self._log.error('CSSCharsetRule must start with "@charset "',
-                            error=xml.dom.InvalidModificationErr)
+            self._log.error(
+                'CSSCharsetRule must start with "@charset "',
+                error=xml.dom.InvalidModificationErr,
+            )
 
         encodingtoken = self._nexttoken(tokenizer)
         encodingtype = self._type(encodingtoken)
         encoding = self._stringtokenvalue(encodingtoken)
         if self._prods.STRING != encodingtype or not encoding:
             wellformed = False
-            self._log.error('CSSCharsetRule: no encoding found; %r.' %
-                            self._valuestr(cssText))
+            self._log.error(
+                "CSSCharsetRule: no encoding found; %r." % self._valuestr(cssText)
+            )
 
         semicolon = self._tokenvalue(self._nexttoken(tokenizer))
         EOFtype = self._type(self._nexttoken(tokenizer))
-        if ';' != semicolon or EOFtype not in ('EOF', None):
+        if ";" != semicolon or EOFtype not in ("EOF", None):
             wellformed = False
-            self._log.error('CSSCharsetRule: Syntax Error: %r.' %
-                            self._valuestr(cssText))
+            self._log.error(
+                "CSSCharsetRule: Syntax Error: %r." % self._valuestr(cssText)
+            )
 
         if wellformed:
             self.encoding = encoding
 
-    cssText = property(fget=_getCssText, fset=_setCssText,
-                       doc="(DOM) The parsable textual representation.")
+    cssText = property(
+        fget=_getCssText,
+        fset=_setCssText,
+        doc="(DOM) The parsable textual representation.",
+    )
 
     def _setEncoding(self, encoding):
         """
@@ -140,24 +152,33 @@ class CSSCharsetRule(cssrule.CSSRule):
         encodingtoken = self._nexttoken(tokenizer)
         unexpected = self._nexttoken(tokenizer)
 
-        if not encodingtoken or unexpected or\
-           self._prods.IDENT != self._type(encodingtoken):
-            self._log.error('CSSCharsetRule: Syntax Error in encoding value '
-                            '%r.' % encoding)
+        if (
+            not encodingtoken
+            or unexpected
+            or self._prods.IDENT != self._type(encodingtoken)
+        ):
+            self._log.error(
+                "CSSCharsetRule: Syntax Error in encoding value " "%r." % encoding
+            )
         else:
             try:
                 codecs.lookup(encoding)
             except LookupError:
-                self._log.error('CSSCharsetRule: Unknown (Python) encoding %r.'
-                                % encoding)
+                self._log.error(
+                    "CSSCharsetRule: Unknown (Python) encoding %r." % encoding
+                )
             else:
                 self._encoding = encoding.lower()
 
-    encoding = property(lambda self: self._encoding, _setEncoding,
-                        doc="(DOM)The encoding information used in this @charset rule.")
+    encoding = property(
+        lambda self: self._encoding,
+        _setEncoding,
+        doc="(DOM)The encoding information used in this @charset rule.",
+    )
 
-    type = property(lambda self: self.CHARSET_RULE,
-                    doc="The type of this rule, as defined by a CSSRule "
-                        "type constant.")
+    type = property(
+        lambda self: self.CHARSET_RULE,
+        doc="The type of this rule, as defined by a CSSRule " "type constant.",
+    )
 
     wellformed = property(lambda self: bool(self.encoding))

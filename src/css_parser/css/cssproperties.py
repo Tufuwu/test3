@@ -46,9 +46,10 @@ TODO: CSS2Properties DOMImplementation
     and the version is "2.0".
 
 """
-__all__ = ['CSS2Properties']
-__docformat__ = 'restructuredtext'
-__version__ = '$Id$'
+
+__all__ = ["CSS2Properties"]
+__docformat__ = "restructuredtext"
+__version__ = "$Id$"
 
 import css_parser.profiles
 import re
@@ -74,34 +75,44 @@ class CSS2Properties(object):
     - ``_setP``
     - ``_delP``
     """
+
     # actual properties are set after the class definition!
 
-    def _getP(self, CSSname): pass
+    def _getP(self, CSSname):
+        pass
 
-    def _setP(self, CSSname, value): pass
+    def _setP(self, CSSname, value):
+        pass
 
-    def _delP(self, CSSname): pass
+    def _delP(self, CSSname):
+        pass
 
 
-_reCSStoDOMname = re.compile('-[a-z]', re.I)
+_reCSStoDOMname = re.compile("-[a-z]", re.I)
 
 
 def _toDOMname(CSSname):
     """Returns DOMname for given CSSname e.g. for CSSname 'font-style' returns
     'fontStyle'.
     """
-    def _doCSStoDOMname2(m): return m.group(0)[1].capitalize()
+
+    def _doCSStoDOMname2(m):
+        return m.group(0)[1].capitalize()
+
     return _reCSStoDOMname.sub(_doCSStoDOMname2, CSSname)
 
 
-_reDOMtoCSSname = re.compile('([A-Z])[a-z]+')
+_reDOMtoCSSname = re.compile("([A-Z])[a-z]+")
 
 
 def _toCSSname(DOMname):
     """Return CSSname for given DOMname e.g. for DOMname 'fontStyle' returns
     'font-style'.
     """
-    def _doDOMtoCSSname2(m): return '-' + m.group(0).lower()
+
+    def _doDOMtoCSSname2(m):
+        return "-" + m.group(0).lower()
+
     return _reDOMtoCSSname.sub(_doDOMtoCSSname2, DOMname)
 
 
@@ -122,15 +133,18 @@ def __named_property_def(DOMname):
     """
     CSSname = _toCSSname(DOMname)
 
-    def _get(self): return self._getP(CSSname)
+    def _get(self):
+        return self._getP(CSSname)
 
-    def _set(self, value): self._setP(CSSname, value)
+    def _set(self, value):
+        self._setP(CSSname, value)
 
-    def _del(self): self._delP(CSSname)
+    def _del(self):
+        self._delP(CSSname)
+
     return _get, _set, _del
 
 
 # add all CSS2Properties to CSSStyleDeclaration
 for DOMname in CSS2Properties._properties:
-    setattr(CSS2Properties, DOMname,
-            property(*__named_property_def(DOMname)))
+    setattr(CSS2Properties, DOMname, property(*__named_property_def(DOMname)))

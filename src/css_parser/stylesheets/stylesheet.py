@@ -1,9 +1,10 @@
 """StyleSheet implements DOM Level 2 Style Sheets StyleSheet."""
+
 from __future__ import unicode_literals, division, absolute_import, print_function
 
-__all__ = ['StyleSheet']
-__docformat__ = 'restructuredtext'
-__version__ = '$Id$'
+__all__ = ["StyleSheet"]
+__docformat__ = "restructuredtext"
+__version__ = "$Id$"
 
 import css_parser
 
@@ -23,15 +24,18 @@ class StyleSheet(css_parser.util.Base2):
     processing instruction.
     """
 
-    def __init__(self, type='text/css',
-                 href=None,
-                 media=None,
-                 title='',
-                 ownerNode=None,
-                 parentStyleSheet=None,
-                 alternate=False,
-                 disabled=None,
-                 validating=True):
+    def __init__(
+        self,
+        type="text/css",
+        href=None,
+        media=None,
+        title="",
+        ownerNode=None,
+        parentStyleSheet=None,
+        alternate=False,
+        disabled=None,
+        validating=True,
+    ):
         """
         type
             readonly
@@ -93,34 +97,42 @@ class StyleSheet(css_parser.util.Base2):
         self.media = media
         self.title = title
 
-    alternate = property(lambda self: self._alternate,
-                         doc="Not used in css_parser yet.")
+    alternate = property(
+        lambda self: self._alternate, doc="Not used in css_parser yet."
+    )
 
-    href = property(lambda self: self._href,
-                    doc="If the style sheet is a linked style sheet, the value "
-                    "of this attribute is its location. For inline style "
-                    "sheets, the value of this attribute is None. See the "
-                    "href attribute definition for the LINK element in HTML "
-                    "4.0, and the href pseudo-attribute for the XML style "
-                    "sheet processing instruction.")
+    href = property(
+        lambda self: self._href,
+        doc="If the style sheet is a linked style sheet, the value "
+        "of this attribute is its location. For inline style "
+        "sheets, the value of this attribute is None. See the "
+        "href attribute definition for the LINK element in HTML "
+        "4.0, and the href pseudo-attribute for the XML style "
+        "sheet processing instruction.",
+    )
 
-    ownerNode = property(lambda self: self._ownerNode,
-                         doc="Not used in css_parser yet.")
+    ownerNode = property(
+        lambda self: self._ownerNode, doc="Not used in css_parser yet."
+    )
 
-    parentStyleSheet = property(lambda self: self._parentStyleSheet,
-                                doc="For style sheet languages that support the concept "
-                                "of style sheet inclusion, this attribute represents "
-                                "the including style sheet, if one exists. If the style "
-                                "sheet is a top-level style sheet, or the style sheet "
-                                "language does not support inclusion, the value of this "
-                                "attribute is None.")
+    parentStyleSheet = property(
+        lambda self: self._parentStyleSheet,
+        doc="For style sheet languages that support the concept "
+        "of style sheet inclusion, this attribute represents "
+        "the including style sheet, if one exists. If the style "
+        "sheet is a top-level style sheet, or the style sheet "
+        "language does not support inclusion, the value of this "
+        "attribute is None.",
+    )
 
-    type = property(lambda self: self._type,
-                    doc="This specifies the style sheet language for this "
-                    "style sheet. The style sheet language is specified "
-                    "as a content type (e.g. ``text/css``). The content "
-                    "type is often specified in the ownerNode. Also see "
-                    "the type attribute definition for the LINK element "
-                    "in HTML 4.0, and the type pseudo-attribute for the "
-                    "XML style sheet processing instruction. "
-                    "For CSS this is always ``text/css``.")
+    type = property(
+        lambda self: self._type,
+        doc="This specifies the style sheet language for this "
+        "style sheet. The style sheet language is specified "
+        "as a content type (e.g. ``text/css``). The content "
+        "type is often specified in the ownerNode. Also see "
+        "the type attribute definition for the LINK element "
+        "in HTML 4.0, and the type pseudo-attribute for the "
+        "XML style sheet processing instruction. "
+        "For CSS this is always ``text/css``.",
+    )
