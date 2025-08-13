@@ -28,7 +28,7 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install -y graphviz libgraphviz-dev
-        pip install tox codecov
+        pip install tox-gh-actions codecov
 
     - name: Run tests
       run: tox
