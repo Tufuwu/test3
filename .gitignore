@@ -1,11 +1,26 @@
-\.vs/
+# Byte-compiled / optimized / DLL files
 __pycache__/
-*.pyc
-*.log
-ApplyPEP8\.bat
-custom_mappings.yaml
-failed_matches\.txt
-logo\.psd
-settings\.ini
-update_anilist\.bat
-update_anilist_test\.bat
+
+# Distribution / packaging
+dist/
+poetry.lock
+.venv
+*.egg-info
+pip-wheel-metadata
+requirements.txt
+
+# MacOS
+.DS_Store
+
+# pytest
+.pytest_cache
+.env
+*.json
+
+# pycharm
+.idea
+
+# windows
+.vs
+*.pyproj
+*.sln
