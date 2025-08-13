@@ -1,9 +1,4 @@
-include *.rst
-include *.txt
-include test_*.py
-
-exclude .travis.yml
-prune docs/_build
-recursive-exclude .github  *
-
-global-exclude *.py[cod] __pycache__ *.so *.dylib
+include LICENSE
+include README.md
+recursive-include requirements *.txt
+recursive-include temba_client *.py
