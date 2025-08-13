@@ -50,7 +50,13 @@ def generate_rules_naively(itemsets, min_confidence, num_transactions):
         for lhs in proper_subsets(itemset):
             rhs = set(itemset).difference(set(lhs))
             rhs = tuple(sorted(list(rhs)))
-            rule = Rule(lhs, rhs, count_full, count(lhs), count(rhs), num_transactions)
+            rule = Rule(
+                lhs,
+                rhs,
+                count_full,
+                count(lhs),
+                count(rhs),
+                num_transactions)
 
             # If the confidence of the rule is high enough, yield it
             if rule.confidence >= min_confidence:

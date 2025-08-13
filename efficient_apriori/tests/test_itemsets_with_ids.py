@@ -97,7 +97,8 @@ def test_itemsets_from_transactions_stochastic(transactions, min_support):
     result, _ = itemsets_from_transactions(
         list(transactions), min_support, output_transaction_ids=True
     )
-    naive_result, _ = itemsets_from_transactions_naive(list(transactions), min_support)
+    naive_result, _ = itemsets_from_transactions_naive(
+        list(transactions), min_support)
 
     for key in set.union(set(result.keys()), set(naive_result.keys())):
         assert result[key] == naive_result[key]
