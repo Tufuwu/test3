@@ -1,1 +1,2 @@
-include README.md LICENSE
+recursive-include opencivicdata/core/templates *
+recursive-include opencivicdata/legislative/templates *
