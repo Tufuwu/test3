@@ -208,7 +208,7 @@ class GitChart(object):
         elif not sorted_keys:
             sorted_keys = sorted(data)
         if max_keys != 0:
-            sorted_keys = sorted_keys[-1 * max_keys :]
+            sorted_keys = sorted_keys[-1 * max_keys:]
         bar_chart.x_labels = sorted_keys[:]
         if len(bar_chart.x_labels) > max_x_labels > 0:
             # reduce number of x labels for readability: keep only one label
