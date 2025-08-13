@@ -1,10 +1,39 @@
-Welcome to Pytest-BDD's documentation!
-======================================
+Semver |version| -- Semantic Versioning
+=======================================
 
-.. contents::
+.. include:: readme.rst
 
-.. include:: ../README.rst
 
-.. include:: ../AUTHORS.rst
+.. toctree::
+   :maxdepth: 2
+   :caption: Contents
+   :hidden:
 
-.. include:: ../CHANGES.rst
+   install
+   usage
+   migratetosemver3
+   development
+   api
+
+.. toctree::
+   :maxdepth: 2
+   :caption: CLI
+   :hidden:
+
+   pysemver
+
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Changelogs
+   :hidden:
+
+   changelog
+   changelog-semver2
+
+Indices and Tables
+==================
+
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`

@@ -1,3 +1,4 @@
-from setuptools import setup
+#!/usr/bin/env python3
+import setuptools
 
-setup()
+setuptools.setup()  # For compatibility with python 3.6

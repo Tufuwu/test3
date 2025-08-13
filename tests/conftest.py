@@ -1,23 +1,31 @@
-from __future__ import absolute_import, unicode_literals
+import sys
+
 import pytest
 
-from tests.utils import PYTEST_6
+import semver
 
-pytest_plugins = "pytester"
+sys.path.insert(0, "docs")
+
+from coerce import coerce  # noqa:E402
+from semverwithvprefix import SemVerWithVPrefix  # noqa:E402
 
 
-def pytest_generate_tests(metafunc):
-    if "pytest_params" in metafunc.fixturenames:
-        if PYTEST_6:
-            parametrizations = [
-                pytest.param([], id="no-import-mode"),
-                pytest.param(["--import-mode=prepend"], id="--import-mode=prepend"),
-                pytest.param(["--import-mode=append"], id="--import-mode=append"),
-                pytest.param(["--import-mode=importlib"], id="--import-mode=importlib"),
-            ]
-        else:
-            parametrizations = [[]]
-        metafunc.parametrize(
-            "pytest_params",
-            parametrizations,
-        )
+@pytest.fixture(autouse=True)
+def add_semver(doctest_namespace):
+    doctest_namespace["Version"] = semver.version.Version
+    doctest_namespace["semver"] = semver
+    doctest_namespace["coerce"] = coerce
+    doctest_namespace["SemVerWithVPrefix"] = SemVerWithVPrefix
+
+
+@pytest.fixture
+def version():
+    """
+    Creates a version
+
+    :return: a version type
+    :rtype: Version
+    """
+    return semver.Version(
+        major=1, minor=2, patch=3, prerelease="alpha.1.2", build="build.11.e0f985a"
+    )

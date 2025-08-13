@@ -1,4 +1,9 @@
 include *.rst
 include *.txt
-include setup.py
-include pytest_bdd/templates/*.mak
+include test_*.py
+
+exclude .travis.yml
+prune docs/_build
+recursive-exclude .github  *
+
+global-exclude *.py[cod] __pycache__ *.so *.dylib
