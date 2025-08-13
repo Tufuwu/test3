@@ -1,38 +1,44 @@
-import tempfile
-from contextlib import contextmanager
-from pathlib import Path
-from unittest.mock import patch
+import json
+import os
 
 import pytest
+import pytest_filedata
 
-from afancontrol.exec import exec_shell_command
+import rdap
+
+
+def _this_dir():
+    """
+    returns dirname for location of this file
+    py.test no longer allows fixtures to be called
+    directly so we provide a private function that can be
+    """
+    return os.path.dirname(__file__)
 
 
 @pytest.fixture
-def temp_path():
-    with tempfile.TemporaryDirectory() as tmpdirname:
-        yield Path(tmpdirname).resolve()
+def this_dir():
+    return _this_dir()
+
+
+pytest_filedata.setup(_this_dir())
+
+
+def pytest_generate_tests(metafunc):
+    for fixture in metafunc.fixturenames:
+        if fixture.startswith("data_"):
+            data = pytest_filedata.get_data(fixture)
+            metafunc.parametrize(fixture, list(data.values()), ids=list(data.keys()))
 
 
 @pytest.fixture
-def sense_exec_shell_command():
-    exec_shell_command_stdout = []
+def iana_asn():
+    asn_file = os.path.join(_this_dir(), "data/iana/asn.json")
+    with open(asn_file) as fh:
+        data = json.load(fh)
+        return data
 
-    def sensed_exec_shell_command(*args, **kwargs):
-        exec_shell_command_stdout.append(exec_shell_command(*args, **kwargs))
-        return exec_shell_command_stdout[-1]
 
-    def get_stdout():
-        try:
-            return exec_shell_command_stdout[:]
-        finally:
-            exec_shell_command_stdout.clear()
-
-    @contextmanager
-    def _sense_exec_shell_command(module):
-        with patch.object(
-            module, "exec_shell_command", wraps=sensed_exec_shell_command
-        ) as mock_exec_shell_command:
-            yield mock_exec_shell_command, get_stdout
-
-    return _sense_exec_shell_command
+@pytest.fixture
+def rdapc():
+    return rdap.RdapClient({"timeout": 10})

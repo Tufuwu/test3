@@ -1,5 +1,5 @@
-graft pkg
-graft tests
-recursive-exclude * *.py[co]
-recursive-exclude * .DS_Store
-recursive-exclude * __pycache__
+include LICENSE
+recursive-include rdap *.py
+include Ctl/VERSION
+include Ctl/requirements.txt
+include Ctl/requirements-test.txt
