@@ -56,8 +56,8 @@ Accepted parameters:
 """
 
 MESSAGE_HIGHLIGHT_REGEX = re.compile(r"(\{[^\{\}]+\})")
-message_highlight = (
-    lambda s: "\n" + MESSAGE_HIGHLIGHT_REGEX.sub(r"`\1`", s) if s else "(none)"
+message_highlight = lambda s: (
+    "\n" + MESSAGE_HIGHLIGHT_REGEX.sub(r"`\1`", s) if s else "(none)"
 )
 
 
