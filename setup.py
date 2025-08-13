@@ -1,68 +1,40 @@
-# -*- coding: utf-8 -*-
-#
-# Copyright (C) 2013-2020 Sébastien Helleu <flashcode@flashtux.org>
-#
-# This file is part of gitchart.
-#
-# Gitchart is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 3 of the License, or
-# (at your option) any later version.
-#
-# Gitchart is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with gitchart.  If not, see <https://www.gnu.org/licenses/>.
-#
+#!/usr/bin/env python
 
-from setuptools import setup
+import os
 
-DESCRIPTION = 'Generate statistic charts on Git repositories.'
-LONG_DESCRIPTION = """
-Gitchart can generate following charts:
+from setuptools import setup, find_packages
 
-* authors,
-* processed tickets by author,
-* commits by hour of day,
-* commits by hour of week,
-* commits by day,
-* commits by day of week,
-* commits by month of year,
-* commits by year,
-* commits by year/month,
-* commits by tag/version,
-* files by type (extension).
-"""
+
+long_description = ""
+if os.path.isfile("README.rst"):
+    long_description = open("README.rst", "r").read()
+
 
 setup(
-    name='gitchart',
-    version='1.4-dev',
-    description=DESCRIPTION,
-    long_description=LONG_DESCRIPTION,
-    author='Sébastien Helleu',
-    author_email='flashcode@flashtux.org',
-    url='https://github.com/flashcode/gitchart',
-    license='GPL3',
-    keywords='git chart pygal',
-    classifiers=[
-        'Development Status :: 5 - Production/Stable',
-        'Environment :: Console',
-        'Intended Audience :: Developers',
-        'License :: OSI Approved :: GNU General Public License v3 '
-        'or later (GPLv3+)',
-        'Natural Language :: English',
-        'Operating System :: OS Independent',
-        'Programming Language :: Python',
-        'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 3',
-        'Topic :: Software Development :: Version Control',
+    name="img2gb",
+    version="1.1.0",
+    description="Converts images to GameBoy tileset",
+    url="",
+    license="BSD-3-Clause",
+    long_description=long_description,
+    keywords="gb gameboy image tile tileset tilemap",
+    author="Fabien LOISON",
+    packages=find_packages(),
+    setup_requires=["cffi>=1.0.0"],
+    install_requires=[
+        "pillow>=5.0.0",
     ],
-    packages=['.'],
-    install_requires=['pygal'],
+    extras_require={
+        "dev": [
+            "nox",
+            "flake8",
+            "pytest",
+            "black",
+        ]
+    },
     entry_points={
-        'console_scripts': ['gitchart=gitchart:main'],
-    }
+        "console_scripts": [
+            "img2gb = img2gb.__main__:main",
+        ],
+    },
 )

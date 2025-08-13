@@ -1,5 +1,7 @@
+__env__
 *.pyc
-*.pyo
-build/
-dist/
-gitchart.egg-info/
+*.egg*
+__pycache__
+dist
+build
+*.spec
