@@ -1,11 +1,9 @@
+# This is an example .flake8 config, used when developing flake8-pyi itself.
+
 [flake8]
-# Rule definitions: http://flake8.pycqa.org/en/latest/user/error-codes.html
-# D203: 1 blank line required before class docstring
-# E402: module level import not at top of file
-# W503: line break before binary operator
-exclude = venv*,__pycache__,node_modules,bower_components
-ignore = D203,W503
+ignore = E302, E501, E701, W503, E203
+max-line-length = 80
 max-complexity = 12
-max-line-length = 120
+select = B,C,E,F,W,Y,B9
 per-file-ignores =
-    scripts/* : E402
+  tests/imports.pyi: F401, F811

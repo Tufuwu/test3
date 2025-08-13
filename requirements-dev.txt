@@ -1,8 +1,4 @@
--r requirements.txt
-flake8==3.7.7
-hypothesis==4.48.0
-jsonschema==3.0.0
-deepmerge==0.1.0
-mock==2.0.0
-pytest==4.6.3
-PyYAML==5.1.2
+black==21.12b0
+pytest==6.2.5
+mypy==0.931
+isort==5.10.1
