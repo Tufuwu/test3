@@ -1,7 +1,1 @@
-include README.rst        
-include abcEconomics/contracts/*        
-include unittest/*        
-include abcEconomics/agents/*        
-include abcEconomics/gui/*
-include abcEconomics/logger/*
-include abcEconomics/scheduler/*
+include LICENSE LONG_DESCRIPTION.rst setup.cfg

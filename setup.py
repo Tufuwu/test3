@@ -1,50 +1,37 @@
+from setuptools import setup
 
-import os
-try:
-    from setuptools import setup
-except ImportError:
-    from distutils.core import setup
-import platform
+with open('LONG_DESCRIPTION.rst') as f:
+    long_description = f.read()
 
-
-cmdclass = {}
-
-install_requires = ['flexx >= 0.4.1',
-                    'future',
-                    'normality == 0.6.1',
-                    'dataset == 0.8']
-
-
-readthedocs = os.environ.get('READTHEDOCS') == 'True'
-
-if not readthedocs:
-    if not platform.python_implementation() == "PyPy":
-        install_requires += ['numpy ']
-        if ('APPVEYOR' not in os.environ) or ('TRAVIS' not in os.environ):
-            install_requires += ['pandas >= 0.17.1',
-                                 'bokeh == 0.12.16',
-                                 'tornado == 4.3']
-
-
-version = '0.9.7b0'
-
-
-setup(name='abcEconomics',
-      version=version,
-      author='Davoud Taghawi-Nejad',
-      author_email='Davoud@Taghawi-Nejad.de',
-      description='Agent-Based Complete Economy modelling platform',
-      url='https://github.com/AB-CE/abce.git',
-      package_dir={'abcEconomics': 'abcEconomics',
-                   'abcEconomics.gui': 'abcEconomics/gui',
-                   'abcEconomics.agents': 'abcEconomics/agents',
-                   'abcEconomics.contracts': 'abcEconomics/contracts',
-                   'abcEconomics.logger': 'abcEconomics/logger',
-                   'abcEconomics.scheduler': 'abcEconomics/scheduler'
-                   },
-      packages=['abcEconomics'],
-      long_description=open('README.rst').read(),
-      setup_requires=['setuptools>=18.0', 'cython'],
-      install_requires=install_requires,
-      include_package_data=True,
-      cmdclass=cmdclass)
+setup(
+    name='ably',
+    version='1.1.1',
+    classifiers=[
+        'Development Status :: 6 - Mature',
+        'Intended Audience :: Developers',
+        'License :: OSI Approved :: Apache Software License',
+        'Operating System :: OS Independent',
+        'Programming Language :: Python',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
+        'Topic :: Software Development :: Libraries :: Python Modules',
+    ],
+    packages=['ably', 'ably.http', 'ably.rest', 'ably.transport',
+              'ably.types', 'ably.util'],
+    install_requires=['methoddispatch>=3.0.2,<4',
+                      'msgpack>=1.0.0,<2',
+                      'requests>=2.7.0,<3'],
+    extras_require={
+        'oldcrypto': ['pycrypto>=2.6.1'],
+        'crypto': ['pycryptodome'],
+    },
+    author="Ably",
+    author_email='support@ably.io',
+    url='https://github.com/ably/ably-python',
+    description="A Python client library for ably.io realtime messaging",
+    long_description=long_description,
+)
