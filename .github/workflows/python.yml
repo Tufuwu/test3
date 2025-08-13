@@ -1,0 +1,43 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+
+    env:
+      PACKAGE: OpenUri
+      SUBLIME_TEXT_VERSION: "3"
+
+    strategy:
+      matrix:
+        python-version: ["3.8"]
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install dependencies
+      run: |
+        python -m pip install -U pip
+        pip install -U -r requirements.txt
+
+    - name: Run mypy
+      run: mypy -p plugin
+
+    - name: Run flake8
+      run: flake8 plugin
+
+    - name: Check code style with black
+      run: black --check .
