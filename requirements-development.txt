@@ -10,6 +10,6 @@ pylint
 ipdb
 ipdbplugin
 coveralls
-mypy
+mypy==0.971
 black
 types-pytz
