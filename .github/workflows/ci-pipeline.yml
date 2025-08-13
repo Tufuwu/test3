@@ -37,7 +37,7 @@ jobs:
       run: |
         sudo apt-get update -qq
         pip install pip wheel
-        pip install tox-travis
+        pip install tox-gh-actions
         pip install -q coveralls flake8 tox
 
     - name: Run tests with tox
