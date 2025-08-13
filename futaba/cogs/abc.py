@@ -10,7 +10,7 @@
 # WITHOUT ANY WARRANTY. See the LICENSE file for more details.
 #
 
-""" Abstract base class for all cog classes. """
+"""Abstract base class for all cog classes."""
 
 from abc import abstractmethod
 

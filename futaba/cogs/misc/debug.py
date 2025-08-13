@@ -10,7 +10,7 @@
 # WITHOUT ANY WARRANTY. See the LICENSE file for more details.
 #
 
-""" Cog for miscellaneous owner-only debugging commands. """
+"""Cog for miscellaneous owner-only debugging commands."""
 
 import asyncio
 import logging

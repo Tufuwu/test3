@@ -10,7 +10,7 @@
 # WITHOUT ANY WARRANTY. See the LICENSE file for more details.
 #
 
-""" Abstract class for Navi tasks. """
+"""Abstract class for Navi tasks."""
 
 import asyncio
 import logging

@@ -10,7 +10,7 @@
 # WITHOUT ANY WARRANTY. See the LICENSE file for more details.
 #
 
-""" Converts discord objects to JSON-safe dictionaries. """
+"""Converts discord objects to JSON-safe dictionaries."""
 
 import discord
 
