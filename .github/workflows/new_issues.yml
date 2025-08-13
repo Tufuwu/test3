@@ -41,6 +41,8 @@ jobs:
         pip install -e .[dev]
 
     - name: Run tests
+      env: 
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}"
       run: |
         python setup.py build
         python test/test_imagegen.py
