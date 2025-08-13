@@ -1,4 +1,5 @@
 black==19.3b0
+aioitertools
 codecov
 coverage
 isort==4.3.20
