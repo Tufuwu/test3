@@ -30,14 +30,14 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install -y xsltproc docbook-xsl docbook-xml zstd systemd-container debootstrap
-        pip install flake8 pytest toml
+        python3 pip install flake8 pytest toml
 
     - name: Build
       run: |
         chmod +x ./setup.py
         ./setup.py build
         ./setup.py install --single-version-externally-managed --root=/tmp
-
+        
     - name: Test
       run: sudo python3 -m pytest
 

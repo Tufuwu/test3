@@ -82,7 +82,7 @@ cmdclass = {
 packages = [
     'debspawn',
     'debspawn.utils',
-    'pytest'
+    
 ]
 
 package_data = {'': ['debspawn/dsrun']}
