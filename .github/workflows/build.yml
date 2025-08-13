@@ -1,4 +1,4 @@
-name: CI
+name: Python package
 
 on:
   push:
@@ -7,38 +7,36 @@ on:
   pull_request:
     branches:
       - main
-  release:
-    types: [created]
 
 jobs:
-  test:
+  build:
     runs-on: ubuntu-latest
+    services:
+      xvfb:
+        image: "xvfb"
+
     strategy:
-      fail-fast: false
       matrix:
-        python-version: [3.5, 3.6, 3.7, 3.8]
+        python-version: [3.9]
+
     steps:
     - uses: actions/checkout@v2
+
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python-version }}
-    - name: Cache pip
-      uses: actions/cache@v4
-      with:
-        path: ~/.cache/pip
-        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
-        restore-keys: |
-          ${{ runner.os }}-pip-
+
     - name: Install dependencies
       run: |
-        python -m pip install --upgrade pip
-        pip install tox-travis codecov
+        pip install --upgrade pip
+        pip install -U matplotlib==2.2.3
+        pip install -U scipy==1.1.0
+        pip install -U rectpack
+        pip install -U freetype-py
+        python setup.py install
+
     - name: Run tests
       run: |
-        python --version
-        tox -a
-        tox -v
-    - name: Upload coverage to Codecov
-      if: success()
-      run: codecov
+        python ./phidl/phidl_tutorial_example.py
+        pytest

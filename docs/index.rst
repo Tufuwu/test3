@@ -1,75 +1,31 @@
-django-simple-history
-=====================
+Welcome to phidl's documentation!
+=================================
 
-.. image:: https://secure.travis-ci.org/jazzband/django-simple-history.svg?branch=master
-   :target: http://travis-ci.org/jazzband/django-simple-history
-   :alt: Build Status
+Documentation for `PHIDL <https://github.com/amccaugh/phidl>`_, an open-source Python GDS (GDSII) layout and CAD geometry creation tool.
 
-.. image:: https://readthedocs.org/projects/django-simple-history/badge/?version=latest
-   :target: https://django-simple-history.readthedocs.io/en/latest/?badge=latest
-   :alt: Documentation Status
+**New user?  Start here:**
 
-.. image:: https://img.shields.io/codecov/c/github/jazzband/django-simple-history/master.svg
-   :target: http://codecov.io/github/jazzband/django-simple-history?branch=master
-   :alt: Test Coverage
-
-.. image:: https://img.shields.io/pypi/v/django-simple-history.svg
-   :target: https://pypi.python.org/pypi/django-simple-history
-   :alt: PyPI Version
-
-.. image:: https://api.codeclimate.com/v1/badges/66cfd94e2db991f2d28a/maintainability
-   :target: https://codeclimate.com/github/treyhunner/django-simple-history/maintainability
-   :alt: Maintainability
-
-.. image:: https://pepy.tech/badge/django-simple-history
-   :target: https://pepy.tech/project/django-simple-history
-   :alt: Downloads
-
-.. image:: https://img.shields.io/badge/code%20style-black-000000.svg
-   :target: https://github.com/ambv/black
-   :alt: Code Style
-
-.. image:: https://jazzband.co/static/img/badge.svg
-   :target: https://jazzband.co/
-   :alt: Jazzband
-
-
-django-simple-history stores Django model state on every create/update/delete.
-
-This app supports the following combinations of Django and Python:
-
-==========  =======================
-  Django      Python
-==========  =======================
-2.2         3.5, 3.6, 3.7, 3.8, 3.9
-3.0         3.6, 3.7, 3.8, 3.9
-==========  =======================
-
-Contribute
-----------
-
-- Issue Tracker: https://github.com/jazzband/django-simple-history/issues
-- Source Code: https://github.com/jazzband/django-simple-history
-
-Pull requests are welcome.
-
-
-Documentation
--------------
+* :doc:`Installing PHIDL </install>`
+* :doc:`Quick start tutorial </tutorials/quickstart>`
+* :doc:`More tutorials + examples </tutorials/>`
+* :doc:`Geometry library </geometry_reference>`
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 3
+   :caption: Contents:
+   :hidden:
 
-   quick_start
-   querying_history
-   admin
-   historical_model
-   user_tracking
-   signals
-   history_diffing
-   multiple_dbs
-   utils
-   common_issues
+   tutorials
+   geometry_reference
+   API
+
+**Citation**
+
+If you found PHIDL useful, please consider citing it in (just one!) of your publications -- we appreciate it greatly. (`BibTeX cite <https://raw.githubusercontent.com/amccaugh/phidl/master/CITATION.bib>`_)
+
+- McCaughan, A. N., et. al. PHIDL: Python-based layout and geometry creation for nanolithography. J. Vac. Sci. Technol. B 39, 062601 (2021). http://dx.doi.org/10.1116/6.0001203
 
 
-.. include:: ../CHANGES.rst
+.. * :ref:``genindex``
+.. * :ref:``modindex``
+.. * :ref:``search``

@@ -1,39 +1,34 @@
+#!/usr/bin/env python
+
+from io import open
+from os import path
+
 from setuptools import setup
 
-with open("README.rst") as readme, open("CHANGES.rst") as changes:
-    setup(
-        name="django-simple-history",
-        use_scm_version={"version_scheme": "post-release"},
-        setup_requires=["setuptools_scm"],
-        description="Store model history and view/revert changes from admin site.",
-        long_description="\n".join((readme.read(), changes.read())),
-        author="Corey Bertram",
-        author_email="corey@qr7.com",
-        maintainer="Trey Hunner",
-        url="https://github.com/jazzband/django-simple-history",
-        packages=[
-            "simple_history",
-            "simple_history.management",
-            "simple_history.management.commands",
-            "simple_history.templatetags",
-        ],
-        classifiers=[
-            "Development Status :: 5 - Production/Stable",
-            "Framework :: Django",
-            "Environment :: Web Environment",
-            "Intended Audience :: Developers",
-            "Framework :: Django",
-            "Framework :: Django :: 2.2",
-            "Framework :: Django :: 3.0",
-            "Framework :: Django :: 3.1",
-            "Programming Language :: Python",
-            "Programming Language :: Python :: 3.5",
-            "Programming Language :: Python :: 3.6",
-            "Programming Language :: Python :: 3.7",
-            "Programming Language :: Python :: 3.8",
-            "Programming Language :: Python :: 3.9",
-            "License :: OSI Approved :: BSD License",
-        ],
-        python_requires=">=3.5",
-        include_package_data=True,
-    )
+install_requires = [
+    "six",
+    "gdspy>=1.5",
+    "numpy",
+    "matplotlib",
+]
+
+# read the contents of your README file
+
+this_directory = path.abspath(path.dirname(__file__))
+with open(path.join(this_directory, "README.md"), encoding="utf-8") as f:
+    long_description = f.read()
+
+
+setup(
+    name="phidl",
+    version="1.6.0",
+    description="PHIDL",
+    long_description=long_description,
+    long_description_content_type="text/markdown",
+    install_requires=install_requires,
+    author="Adam McCaughan",
+    author_email="amccaugh@gmail.com",
+    packages=["phidl"],
+    py_modules=["phidl.geometry", "phidl.routing", "phidl.utilities", "phidl.path"],
+    package_dir={"phidl": "phidl"},
+)
