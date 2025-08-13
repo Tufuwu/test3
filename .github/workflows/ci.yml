@@ -22,7 +22,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Install dependencies
         run: |
-          pip install Django>=2.2,<3 django-oscar>=2.1,<2.2
+          pip install 'Django>=2.2,<3' 'django-oscar>=2.1,<2.2'
           make install
           pip freeze
       - name: Lint
@@ -61,7 +61,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Install dependencies
         run: |
-          pip install ${{ matrix.oscar-version }} ${{ matrix.django-version }}
+          pip install '${{ matrix.oscar-version }}' '${{ matrix.django-version }}'
           make install
           pip freeze
       - name: Run tests
