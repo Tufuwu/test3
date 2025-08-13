@@ -1,3 +1,12 @@
-[tool.isort]
-profile = "black"
-combine_as_imports = true
+[tool.coverage.run]
+parallel = true
+branch = true
+source = ["simple_history"]
+
+[tool.coverage.paths]
+source = ["simple_history", ".tox/*/site-packages"]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true
+omit = ["requirements/*"]

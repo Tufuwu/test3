@@ -1,61 +1,39 @@
-# Copyright (C) 2016 Łukasz Langa
-
-import ast
-import os
-import re
 from setuptools import setup
-import sys
 
-
-assert sys.version_info >= (3, 7, 0), "flake8-pyi requires Python 3.7+"
-
-
-current_dir = os.path.abspath(os.path.dirname(__file__))
-with open(os.path.join(current_dir, "README.rst"), encoding="utf8") as ld_file:
-    long_description = ld_file.read()
-
-
-_version_re = re.compile(r"__version__\s+=\s+(?P<version>.*)")
-
-
-with open(os.path.join(current_dir, "pyi.py"), "r") as f:
-    version = _version_re.search(f.read()).group("version")
-    version = str(ast.literal_eval(version))
-
-
-setup(
-    name="flake8-pyi",
-    version=version,
-    description="A plugin for flake8 to enable linting .pyi files.",
-    long_description=long_description,
-    keywords="flake8 pyi bugs pyflakes pylint linter qa",
-    author="Łukasz Langa",
-    author_email="lukasz@langa.pl",
-    url="https://github.com/ambv/flake8-pyi",
-    license="MIT",
-    py_modules=["pyi"],
-    zip_safe=False,
-    python_requires=">=3.7",
-    install_requires=[
-        "flake8 >= 3.2.1",
-        "pyflakes >= 2.1.1",
-        'ast-decompiler >= 0.4.0, <0.5.0; python_version < "3.9"',
-    ],
-    test_suite="tests.test_pyi",
-    classifiers=[
-        "Development Status :: 3 - Alpha",
-        "Environment :: Console",
-        "Framework :: Flake8",
-        "Intended Audience :: Developers",
-        "License :: OSI Approved :: MIT License",
-        "Operating System :: OS Independent",
-        "Programming Language :: Python",
-        "Programming Language :: Python :: 3.7",
-        "Programming Language :: Python :: 3.8",
-        "Programming Language :: Python :: 3.9",
-        "Programming Language :: Python :: 3.10",
-        "Topic :: Software Development :: Libraries :: Python Modules",
-        "Topic :: Software Development :: Quality Assurance",
-    ],
-    entry_points={"flake8.extension": ["Y0 = pyi:PyiTreeChecker"]},
-)
+with open("README.rst") as readme, open("CHANGES.rst") as changes:
+    setup(
+        name="django-simple-history",
+        use_scm_version={"version_scheme": "post-release"},
+        setup_requires=["setuptools_scm"],
+        description="Store model history and view/revert changes from admin site.",
+        long_description="\n".join((readme.read(), changes.read())),
+        author="Corey Bertram",
+        author_email="corey@qr7.com",
+        maintainer="Trey Hunner",
+        url="https://github.com/jazzband/django-simple-history",
+        packages=[
+            "simple_history",
+            "simple_history.management",
+            "simple_history.management.commands",
+            "simple_history.templatetags",
+        ],
+        classifiers=[
+            "Development Status :: 5 - Production/Stable",
+            "Framework :: Django",
+            "Environment :: Web Environment",
+            "Intended Audience :: Developers",
+            "Framework :: Django",
+            "Framework :: Django :: 2.2",
+            "Framework :: Django :: 3.0",
+            "Framework :: Django :: 3.1",
+            "Programming Language :: Python",
+            "Programming Language :: Python :: 3.5",
+            "Programming Language :: Python :: 3.6",
+            "Programming Language :: Python :: 3.7",
+            "Programming Language :: Python :: 3.8",
+            "Programming Language :: Python :: 3.9",
+            "License :: OSI Approved :: BSD License",
+        ],
+        python_requires=">=3.5",
+        include_package_data=True,
+    )

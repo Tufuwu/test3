@@ -1,8 +1,8 @@
 django-simple-history
 =====================
 
-.. image:: https://github.com/jazzband/django-simple-history/workflows/build/badge.svg?branch=master
-   :target: https://github.com/jazzband/django-simple-history/actions?workflow=build
+.. image:: https://secure.travis-ci.org/jazzband/django-simple-history.svg?branch=master
+   :target: http://travis-ci.org/jazzband/django-simple-history
    :alt: Build Status
 
 .. image:: https://readthedocs.org/projects/django-simple-history/badge/?version=latest
@@ -43,21 +43,33 @@ This app supports the following combinations of Django and Python:
 ==========  =======================
 2.2         3.5, 3.6, 3.7, 3.8, 3.9
 3.0         3.6, 3.7, 3.8, 3.9
-3.1         3.6, 3.7, 3.8, 3.9
 ==========  =======================
 
-Getting Help
-------------
+Contribute
+----------
 
-Documentation is available at https://django-simple-history.readthedocs.io/
+- Issue Tracker: https://github.com/jazzband/django-simple-history/issues
+- Source Code: https://github.com/jazzband/django-simple-history
 
-Pull requests are welcome.  Read the `CONTRIBUTING`_ file for tips on
-submitting a pull request.
+Pull requests are welcome.
 
-.. _CONTRIBUTING: https://github.com/jazzband/django-simple-history/blob/master/CONTRIBUTING.rst
 
-License
--------
+Documentation
+-------------
 
-This project is licensed under the
-`BSD 3-Clause license <https://choosealicense.com/licenses/bsd-3-clause/>`_.
+.. toctree::
+   :maxdepth: 2
+
+   quick_start
+   querying_history
+   admin
+   historical_model
+   user_tracking
+   signals
+   history_diffing
+   multiple_dbs
+   utils
+   common_issues
+
+
+.. include:: ../CHANGES.rst
