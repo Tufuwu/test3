@@ -28,7 +28,7 @@ jobs:
         poetry install --with dev
     - name: Lint with pylint
       run: |
-        pylint --load-plugins pylint_quotes fs/googledrivefs/ tests/
+        poetry run pylint --load-plugins pylint_quotes fs/googledrivefs/ tests/
     - name: Test with pytest
       run: |
         pytest --timeout=2700
