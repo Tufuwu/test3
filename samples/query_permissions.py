@@ -14,17 +14,33 @@ import tableauserverclient as TSC
 
 
 def main():
-    parser = argparse.ArgumentParser(description='Query permissions of a given resource.')
-    parser.add_argument('--server', '-s', required=True, help='Server address')
-    parser.add_argument('--username', '-u', required=True, help='Username to sign into server')
-    parser.add_argument('--site', '-S', default=None, help='Site to sign into - default site if not provided')
-    parser.add_argument('-p', default=None, help='Password to sign into server')
+    parser = argparse.ArgumentParser(
+        description="Query permissions of a given resource."
+    )
+    parser.add_argument("--server", "-s", required=True, help="Server address")
+    parser.add_argument(
+        "--username", "-u", required=True, help="Username to sign into server"
+    )
+    parser.add_argument(
+        "--site",
+        "-S",
+        default=None,
+        help="Site to sign into - default site if not provided",
+    )
+    parser.add_argument("-p", default=None, help="Password to sign into server")
 
-    parser.add_argument('--logging-level', '-l', choices=['debug', 'info', 'error'], default='error',
-                        help='desired logging level (set to error by default)')
+    parser.add_argument(
+        "--logging-level",
+        "-l",
+        choices=["debug", "info", "error"],
+        default="error",
+        help="desired logging level (set to error by default)",
+    )
 
-    parser.add_argument('resource_type', choices=['workbook', 'datasource', 'flow', 'table', 'database'])
-    parser.add_argument('resource_id')
+    parser.add_argument(
+        "resource_type", choices=["workbook", "datasource", "flow", "table", "database"]
+    )
+    parser.add_argument("resource_id")
 
     args = parser.parse_args()
 
@@ -44,11 +60,11 @@ def main():
 
         # Mapping to grab the handler for the user-inputted resource type
         endpoint = {
-            'workbook': server.workbooks,
-            'datasource': server.datasources,
-            'flow': server.flows,
-            'table': server.tables,
-            'database': server.databases
+            "workbook": server.workbooks,
+            "datasource": server.datasources,
+            "flow": server.flows,
+            "table": server.tables,
+            "database": server.databases,
         }.get(args.resource_type)
 
         # Get the resource by its ID
@@ -59,8 +75,11 @@ def main():
         permissions = resource.permissions
 
         # Print result
-        print("\n{0} permission rule(s) found for {1} {2}."
-              .format(len(permissions), args.resource_type, args.resource_id))
+        print(
+            "\n{0} permission rule(s) found for {1} {2}.".format(
+                len(permissions), args.resource_type, args.resource_id
+            )
+        )
 
         for permission in permissions:
             grantee = permission.grantee
@@ -71,5 +90,5 @@ def main():
                 print("\t{0} - {1}".format(capability, capabilities[capability]))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

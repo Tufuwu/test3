@@ -19,15 +19,32 @@ import tableauserverclient as TSC
 
 def main():
 
-    parser = argparse.ArgumentParser(description='Explore workbook functions supported by the Server API.')
-    parser.add_argument('--server', '-s', required=True, help='server address')
-    parser.add_argument('--username', '-u', required=True, help='username to sign into server')
-    parser.add_argument('--publish', '-p', metavar='FILEPATH', help='path to workbook to publish')
-    parser.add_argument('--download', '-d', metavar='FILEPATH', help='path to save downloaded workbook')
-    parser.add_argument('--preview-image', '-i', metavar='FILENAME',
-                        help='filename (a .png file) to save the preview image')
-    parser.add_argument('--logging-level', '-l', choices=['debug', 'info', 'error'], default='error',
-                        help='desired logging level (set to error by default)')
+    parser = argparse.ArgumentParser(
+        description="Explore workbook functions supported by the Server API."
+    )
+    parser.add_argument("--server", "-s", required=True, help="server address")
+    parser.add_argument(
+        "--username", "-u", required=True, help="username to sign into server"
+    )
+    parser.add_argument(
+        "--publish", "-p", metavar="FILEPATH", help="path to workbook to publish"
+    )
+    parser.add_argument(
+        "--download", "-d", metavar="FILEPATH", help="path to save downloaded workbook"
+    )
+    parser.add_argument(
+        "--preview-image",
+        "-i",
+        metavar="FILENAME",
+        help="filename (a .png file) to save the preview image",
+    )
+    parser.add_argument(
+        "--logging-level",
+        "-l",
+        choices=["debug", "info", "error"],
+        default="error",
+        help="desired logging level (set to error by default)",
+    )
 
     args = parser.parse_args()
 
@@ -49,18 +66,24 @@ def main():
         # Publish workbook if publish flag is set (-publish, -p)
         if args.publish:
             all_projects, pagination_item = server.projects.get()
-            default_project = next((project for project in all_projects if project.is_default()), None)
+            default_project = next(
+                (project for project in all_projects if project.is_default()), None
+            )
 
             if default_project is not None:
                 new_workbook = TSC.WorkbookItem(default_project.id)
-                new_workbook = server.workbooks.publish(new_workbook, args.publish, overwrite_true)
+                new_workbook = server.workbooks.publish(
+                    new_workbook, args.publish, overwrite_true
+                )
                 print("Workbook published. ID: {}".format(new_workbook.id))
             else:
-                print('Publish failed. Could not find the default project.')
+                print("Publish failed. Could not find the default project.")
 
         # Gets all workbook items
         all_workbooks, pagination_item = server.workbooks.get()
-        print("\nThere are {} workbooks on site: ".format(pagination_item.total_available))
+        print(
+            "\nThere are {} workbooks on site: ".format(pagination_item.total_available)
+        )
         print([workbook.name for workbook in all_workbooks])
 
         if all_workbooks:
@@ -75,12 +98,16 @@ def main():
             # Populate connections
             server.workbooks.populate_connections(sample_workbook)
             print("\nConnections for {}: ".format(sample_workbook.name))
-            print(["{0}({1})".format(connection.id, connection.datasource_name)
-                   for connection in sample_workbook.connections])
+            print(
+                [
+                    "{0}({1})".format(connection.id, connection.datasource_name)
+                    for connection in sample_workbook.connections
+                ]
+            )
 
             # Update tags and show_tabs flag
             original_tag_set = set(sample_workbook.tags)
-            sample_workbook.tags.update('a', 'b', 'c', 'd')
+            sample_workbook.tags.update("a", "b", "c", "d")
             sample_workbook.show_tabs = True
             server.workbooks.update(sample_workbook)
             print("\nWorkbook's old tag set: {}".format(original_tag_set))
@@ -111,10 +138,14 @@ def main():
             if args.preview_image:
                 # Populate workbook preview image
                 server.workbooks.populate_preview_image(sample_workbook)
-                with open(args.preview_image, 'wb') as f:
+                with open(args.preview_image, "wb") as f:
                     f.write(sample_workbook.preview_image)
-                print("\nDownloaded preview image of workbook to {}".format(os.path.abspath(args.preview_image)))
+                print(
+                    "\nDownloaded preview image of workbook to {}".format(
+                        os.path.abspath(args.preview_image)
+                    )
+                )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

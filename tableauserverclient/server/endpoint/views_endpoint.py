@@ -7,7 +7,7 @@ from .. import ViewItem, PaginationItem
 from contextlib import closing
 import logging
 
-logger = logging.getLogger('tableau.endpoint.views')
+logger = logging.getLogger("tableau.endpoint.views")
 
 
 class Views(QuerysetEndpoint):
@@ -27,13 +27,17 @@ class Views(QuerysetEndpoint):
 
     @api(version="2.2")
     def get(self, req_options=None, usage=False):
-        logger.info('Querying all views on site')
+        logger.info("Querying all views on site")
         url = self.baseurl
         if usage:
             url += "?includeUsageStatistics=true"
         server_response = self.get_request(url, req_options)
-        pagination_item = PaginationItem.from_response(server_response.content, self.parent_srv.namespace)
-        all_view_items = ViewItem.from_response(server_response.content, self.parent_srv.namespace)
+        pagination_item = PaginationItem.from_response(
+            server_response.content, self.parent_srv.namespace
+        )
+        all_view_items = ViewItem.from_response(
+            server_response.content, self.parent_srv.namespace
+        )
         return all_view_items, pagination_item
 
     @api(version="3.1")
@@ -41,10 +45,12 @@ class Views(QuerysetEndpoint):
         if not view_id:
             error = "View item missing ID."
             raise MissingRequiredFieldError(error)
-        logger.info('Querying single view (ID: {0})'.format(view_id))
+        logger.info("Querying single view (ID: {0})".format(view_id))
         url = "{0}/{1}".format(self.baseurl, view_id)
         server_response = self.get_request(url)
-        return ViewItem.from_response(server_response.content, self.parent_srv.namespace)[0]
+        return ViewItem.from_response(
+            server_response.content, self.parent_srv.namespace
+        )[0]
 
     @api(version="2.0")
     def populate_preview_image(self, view_item):
@@ -56,12 +62,12 @@ class Views(QuerysetEndpoint):
             return self._get_preview_for_view(view_item)
 
         view_item._set_preview_image(image_fetcher)
-        logger.info('Populated preview image for view (ID: {0})'.format(view_item.id))
+        logger.info("Populated preview image for view (ID: {0})".format(view_item.id))
 
     def _get_preview_for_view(self, view_item):
-        url = "{0}/workbooks/{1}/views/{2}/previewImage".format(self.siteurl,
-                                                                view_item.workbook_id,
-                                                                view_item.id)
+        url = "{0}/workbooks/{1}/views/{2}/previewImage".format(
+            self.siteurl, view_item.workbook_id, view_item.id
+        )
         server_response = self.get_request(url)
         image = server_response.content
         return image
@@ -117,19 +123,23 @@ class Views(QuerysetEndpoint):
     def _get_view_csv(self, view_item, req_options):
         url = "{0}/{1}/data".format(self.baseurl, view_item.id)
 
-        with closing(self.get_request(url, request_object=req_options, parameters={"stream": True})) as server_response:
+        with closing(
+            self.get_request(
+                url, request_object=req_options, parameters={"stream": True}
+            )
+        ) as server_response:
             csv = server_response.iter_content(1024)
         return csv
 
-    @api(version='3.2')
+    @api(version="3.2")
     def populate_permissions(self, item):
         self._permissions.populate(item)
 
-    @api(version='3.2')
+    @api(version="3.2")
     def update_permissions(self, resource, rules):
         return self._permissions.update(resource, rules)
 
-    @api(version='3.2')
+    @api(version="3.2")
     def delete_permission(self, item, capability_item):
         return self._permissions.delete(item, capability_item)
 

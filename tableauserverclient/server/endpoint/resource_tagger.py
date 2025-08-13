@@ -6,7 +6,7 @@ import logging
 import copy
 import urllib.parse
 
-logger = logging.getLogger('tableau.endpoint.resource_tagger')
+logger = logging.getLogger("tableau.endpoint.resource_tagger")
 
 
 class _ResourceTagger(Endpoint):
@@ -17,7 +17,9 @@ class _ResourceTagger(Endpoint):
 
         try:
             server_response = self.put_request(url, add_req)
-            return TagItem.from_response(server_response.content, self.parent_srv.namespace)
+            return TagItem.from_response(
+                server_response.content, self.parent_srv.namespace
+            )
         except ServerResponseError as e:
             if e.code == "404008":
                 error = "Adding tags to this resource type is only available with REST API version 2.6 and later."
@@ -47,4 +49,4 @@ class _ResourceTagger(Endpoint):
             if add_set:
                 resource_item.tags = self._add_tags(baseurl, resource_item.id, add_set)
             resource_item._initial_tags = copy.copy(resource_item.tags)
-        logger.info('Updated tags to {0}'.format(resource_item.tags))
+        logger.info("Updated tags to {0}".format(resource_item.tags))

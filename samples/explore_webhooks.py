@@ -19,15 +19,24 @@ import tableauserverclient as TSC
 
 def main():
 
-    parser = argparse.ArgumentParser(description='Explore webhook functions supported by the Server API.')
-    parser.add_argument('--server', '-s', required=True, help='server address')
-    parser.add_argument('--username', '-u', required=True, help='username to sign into server')
-    parser.add_argument('--site', '-S', default=None)
-    parser.add_argument('-p', default=None, help='password')
-    parser.add_argument('--create', '-c', help='create a webhook')
-    parser.add_argument('--delete', '-d', help='delete a webhook', action='store_true')
-    parser.add_argument('--logging-level', '-l', choices=['debug', 'info', 'error'], default='error',
-                        help='desired logging level (set to error by default)')
+    parser = argparse.ArgumentParser(
+        description="Explore webhook functions supported by the Server API."
+    )
+    parser.add_argument("--server", "-s", required=True, help="server address")
+    parser.add_argument(
+        "--username", "-u", required=True, help="username to sign into server"
+    )
+    parser.add_argument("--site", "-S", default=None)
+    parser.add_argument("-p", default=None, help="password")
+    parser.add_argument("--create", "-c", help="create a webhook")
+    parser.add_argument("--delete", "-d", help="delete a webhook", action="store_true")
+    parser.add_argument(
+        "--logging-level",
+        "-l",
+        choices=["debug", "info", "error"],
+        default="error",
+        help="desired logging level (set to error by default)",
+    )
 
     args = parser.parse_args()
     if args.p is None:
@@ -45,7 +54,7 @@ def main():
     server = TSC.Server(args.server)
 
     # Set http options to disable verifying SSL
-    server.add_http_options({'verify': False})
+    server.add_http_options({"verify": False})
 
     server.use_server_version()
 
@@ -64,19 +73,21 @@ def main():
 
         # Gets all webhook items
         all_webhooks, pagination_item = server.webhooks.get()
-        print("\nThere are {} webhooks on site: ".format(pagination_item.total_available))
+        print(
+            "\nThere are {} webhooks on site: ".format(pagination_item.total_available)
+        )
         print([webhook.name for webhook in all_webhooks])
 
         if all_webhooks:
             # Pick one webhook from the list and delete it
             sample_webhook = all_webhooks[0]
             # sample_webhook.delete()
-            print("+++"+sample_webhook.name)
+            print("+++" + sample_webhook.name)
 
-            if (args.delete):
+            if args.delete:
                 print("Deleting webhook " + sample_webhook.name)
                 server.webhooks.delete(sample_webhook.id)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

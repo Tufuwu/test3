@@ -29,26 +29,35 @@ def handle_info(server, args):
 
 
 def main():
-    parser = argparse.ArgumentParser(description='Get all of the refresh tasks available on a server')
-    parser.add_argument('--server', '-s', required=True, help='server address')
-    parser.add_argument('--username', '-u', required=True, help='username to sign into server')
-    parser.add_argument('--site', '-S', default=None)
-    parser.add_argument('-p', default=None)
+    parser = argparse.ArgumentParser(
+        description="Get all of the refresh tasks available on a server"
+    )
+    parser.add_argument("--server", "-s", required=True, help="server address")
+    parser.add_argument(
+        "--username", "-u", required=True, help="username to sign into server"
+    )
+    parser.add_argument("--site", "-S", default=None)
+    parser.add_argument("-p", default=None)
 
-    parser.add_argument('--logging-level', '-l', choices=['debug', 'info', 'error'], default='error',
-                        help='desired logging level (set to error by default)')
+    parser.add_argument(
+        "--logging-level",
+        "-l",
+        choices=["debug", "info", "error"],
+        default="error",
+        help="desired logging level (set to error by default)",
+    )
 
     subcommands = parser.add_subparsers()
 
-    list_arguments = subcommands.add_parser('list')
+    list_arguments = subcommands.add_parser("list")
     list_arguments.set_defaults(func=handle_list)
 
-    run_arguments = subcommands.add_parser('run')
-    run_arguments.add_argument('id', default=None)
+    run_arguments = subcommands.add_parser("run")
+    run_arguments.add_argument("id", default=None)
     run_arguments.set_defaults(func=handle_run)
 
-    info_arguments = subcommands.add_parser('info')
-    info_arguments.add_argument('id', default=None)
+    info_arguments = subcommands.add_parser("info")
+    info_arguments.add_argument("id", default=None)
     info_arguments.set_defaults(func=handle_info)
 
     args = parser.parse_args()
@@ -65,10 +74,10 @@ def main():
     # SIGN IN
     tableau_auth = TSC.TableauAuth(args.username, password, args.site)
     server = TSC.Server(args.server)
-    server.version = '2.6'
+    server.version = "2.6"
     with server.auth.sign_in(tableau_auth):
         args.func(server, args)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

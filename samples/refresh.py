@@ -12,17 +12,28 @@ import tableauserverclient as TSC
 
 
 def main():
-    parser = argparse.ArgumentParser(description='Trigger a refresh task on a workbook or datasource.')
-    parser.add_argument('--server', '-s', required=True, help='server address')
-    parser.add_argument('--username', '-u', required=True, help='username to sign into server')
-    parser.add_argument('--site', '-S', default=None)
-    parser.add_argument('--password', '-p', default=None, help='if not specified, you will be prompted')
+    parser = argparse.ArgumentParser(
+        description="Trigger a refresh task on a workbook or datasource."
+    )
+    parser.add_argument("--server", "-s", required=True, help="server address")
+    parser.add_argument(
+        "--username", "-u", required=True, help="username to sign into server"
+    )
+    parser.add_argument("--site", "-S", default=None)
+    parser.add_argument(
+        "--password", "-p", default=None, help="if not specified, you will be prompted"
+    )
 
-    parser.add_argument('--logging-level', '-l', choices=['debug', 'info', 'error'], default='error',
-                        help='desired logging level (set to error by default)')
+    parser.add_argument(
+        "--logging-level",
+        "-l",
+        choices=["debug", "info", "error"],
+        default="error",
+        help="desired logging level (set to error by default)",
+    )
 
-    parser.add_argument('resource_type', choices=['workbook', 'datasource'])
-    parser.add_argument('resource_id')
+    parser.add_argument("resource_type", choices=["workbook", "datasource"])
+    parser.add_argument("resource_id")
 
     args = parser.parse_args()
 
@@ -56,5 +67,5 @@ def main():
         # TODO: Add a flag that will poll and wait for the returned job to be done
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

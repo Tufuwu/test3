@@ -12,27 +12,39 @@ import logging
 import tableauserverclient as TSC
 
 
-def create_example_project(name='Example Project', content_permissions='LockedToProject',
-                           description='Project created for testing', server=None):
+def create_example_project(
+    name="Example Project",
+    content_permissions="LockedToProject",
+    description="Project created for testing",
+    server=None,
+):
 
-    new_project = TSC.ProjectItem(name=name, content_permissions=content_permissions,
-                                  description=description)
+    new_project = TSC.ProjectItem(
+        name=name, content_permissions=content_permissions, description=description
+    )
     try:
         server.projects.create(new_project)
-        print('Created a new project called: %s' % name)
+        print("Created a new project called: %s" % name)
     except TSC.ServerResponseError:
-        print('We have already created this resource: %s' % name)
+        print("We have already created this resource: %s" % name)
 
 
 def main():
-    parser = argparse.ArgumentParser(description='Filter and sort projects.')
-    parser.add_argument('--server', '-s', required=True, help='server address')
-    parser.add_argument('--username', '-u', required=True, help='username to sign into server')
-    parser.add_argument('--site', '-S', default=None)
-    parser.add_argument('-p', default=None)
+    parser = argparse.ArgumentParser(description="Filter and sort projects.")
+    parser.add_argument("--server", "-s", required=True, help="server address")
+    parser.add_argument(
+        "--username", "-u", required=True, help="username to sign into server"
+    )
+    parser.add_argument("--site", "-S", default=None)
+    parser.add_argument("-p", default=None)
 
-    parser.add_argument('--logging-level', '-l', choices=['debug', 'info', 'error'], default='error',
-                        help='desired logging level (set to error by default)')
+    parser.add_argument(
+        "--logging-level",
+        "-l",
+        choices=["debug", "info", "error"],
+        default="error",
+        help="desired logging level (set to error by default)",
+    )
 
     args = parser.parse_args()
 
@@ -52,12 +64,16 @@ def main():
         # Use highest Server REST API version available
         server.use_server_version()
 
-        filter_project_name = 'default'
+        filter_project_name = "default"
         options = TSC.RequestOptions()
 
-        options.filter.add(TSC.Filter(TSC.RequestOptions.Field.Name,
-                                      TSC.RequestOptions.Operator.Equals,
-                                      filter_project_name))
+        options.filter.add(
+            TSC.Filter(
+                TSC.RequestOptions.Field.Name,
+                TSC.RequestOptions.Operator.Equals,
+                filter_project_name,
+            )
+        )
 
         filtered_projects, _ = server.projects.get(req_options=options)
         # Result can either be a matching project or an empty list
@@ -68,26 +84,31 @@ def main():
             error = "No project named '{}' found".format(filter_project_name)
             print(error)
 
-        create_example_project(name='Example 1', server=server)
-        create_example_project(name='Example 2', server=server)
-        create_example_project(name='Example 3', server=server)
-        create_example_project(name='Proiect ca Exemplu', server=server)
+        create_example_project(name="Example 1", server=server)
+        create_example_project(name="Example 2", server=server)
+        create_example_project(name="Example 3", server=server)
+        create_example_project(name="Proiect ca Exemplu", server=server)
 
         options = TSC.RequestOptions()
 
         # don't forget to URL encode the query names
-        options.filter.add(TSC.Filter(TSC.RequestOptions.Field.Name,
-                                      TSC.RequestOptions.Operator.In,
-                                      ['Example+1', 'Example+2', 'Example+3']))
+        options.filter.add(
+            TSC.Filter(
+                TSC.RequestOptions.Field.Name,
+                TSC.RequestOptions.Operator.In,
+                ["Example+1", "Example+2", "Example+3"],
+            )
+        )
 
-        options.sort.add(TSC.Sort(TSC.RequestOptions.Field.Name,
-                                  TSC.RequestOptions.Direction.Desc))
+        options.sort.add(
+            TSC.Sort(TSC.RequestOptions.Field.Name, TSC.RequestOptions.Direction.Desc)
+        )
 
         matching_projects, pagination_item = server.projects.get(req_options=options)
-        print('Filtered projects are:')
+        print("Filtered projects are:")
         for project in matching_projects:
             print(project.name, project.id)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

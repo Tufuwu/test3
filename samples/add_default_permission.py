@@ -17,14 +17,28 @@ import tableauserverclient as TSC
 
 
 def main():
-    parser = argparse.ArgumentParser(description='Add workbook default permissions for a given project.')
-    parser.add_argument('--server', '-s', required=True, help='Server address')
-    parser.add_argument('--username', '-u', required=True, help='Username to sign into server')
-    parser.add_argument('--site', '-S', default=None, help='Site to sign into - default site if not provided')
-    parser.add_argument('-p', default=None, help='Password to sign into server')
+    parser = argparse.ArgumentParser(
+        description="Add workbook default permissions for a given project."
+    )
+    parser.add_argument("--server", "-s", required=True, help="Server address")
+    parser.add_argument(
+        "--username", "-u", required=True, help="Username to sign into server"
+    )
+    parser.add_argument(
+        "--site",
+        "-S",
+        default=None,
+        help="Site to sign into - default site if not provided",
+    )
+    parser.add_argument("-p", default=None, help="Password to sign into server")
 
-    parser.add_argument('--logging-level', '-l', choices=['debug', 'info', 'error'], default='error',
-                        help='desired logging level (set to error by default)')
+    parser.add_argument(
+        "--logging-level",
+        "-l",
+        choices=["debug", "info", "error"],
+        default="error",
+        help="desired logging level (set to error by default)",
+    )
 
     args = parser.parse_args()
 
@@ -48,25 +62,34 @@ def main():
 
         # Query for existing workbook default-permissions
         server.projects.populate_workbook_default_permissions(project)
-        default_permissions = project.default_workbook_permissions[0]  # new projects have 1 grantee group
+        default_permissions = project.default_workbook_permissions[
+            0
+        ]  # new projects have 1 grantee group
 
         # Add "ExportXml (Allow)" workbook capability to "All Users" default group if it does not already exist
         if TSC.Permission.Capability.ExportXml not in default_permissions.capabilities:
-            new_capabilities = {TSC.Permission.Capability.ExportXml: TSC.Permission.Mode.Allow}
+            new_capabilities = {
+                TSC.Permission.Capability.ExportXml: TSC.Permission.Mode.Allow
+            }
 
             # Each PermissionRule in the list contains a grantee and a dict of capabilities
-            new_rules = [TSC.PermissionsRule(
-                grantee=default_permissions.grantee,
-                capabilities=new_capabilities
-            )]
+            new_rules = [
+                TSC.PermissionsRule(
+                    grantee=default_permissions.grantee, capabilities=new_capabilities
+                )
+            ]
 
-            new_default_permissions = server.projects.update_workbook_default_permissions(project, new_rules)
+            new_default_permissions = (
+                server.projects.update_workbook_default_permissions(project, new_rules)
+            )
 
             # Print result from adding a new default permission
             for permission in new_default_permissions:
                 grantee = permission.grantee
                 capabilities = permission.capabilities
-                print("\nCapabilities for {0} {1}:".format(grantee.tag_name, grantee.id))
+                print(
+                    "\nCapabilities for {0} {1}:".format(grantee.tag_name, grantee.id)
+                )
 
                 for capability in capabilities:
                     print("\t{0} - {1}".format(capability, capabilities[capability]))
@@ -80,5 +103,5 @@ def main():
         # server.projects.delete(project.id)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

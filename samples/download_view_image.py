@@ -17,17 +17,33 @@ import tableauserverclient as TSC
 
 def main():
 
-    parser = argparse.ArgumentParser(description='Download image of a specified view.')
-    parser.add_argument('--server', '-s', required=True, help='server address')
-    parser.add_argument('--site-id', '-si', required=False,
-                        help='content url for site the view is on')
-    parser.add_argument('--username', '-u', required=True, help='username to sign into server')
-    parser.add_argument('--view-name', '-v', required=True,
-                        help='name of view to download an image of')
-    parser.add_argument('--filepath', '-f', required=True, help='filepath to save the image returned')
-    parser.add_argument('--maxage', '-m', required=False, help='max age of the image in the cache in minutes.')
-    parser.add_argument('--logging-level', '-l', choices=['debug', 'info', 'error'], default='error',
-                        help='desired logging level (set to error by default)')
+    parser = argparse.ArgumentParser(description="Download image of a specified view.")
+    parser.add_argument("--server", "-s", required=True, help="server address")
+    parser.add_argument(
+        "--site-id", "-si", required=False, help="content url for site the view is on"
+    )
+    parser.add_argument(
+        "--username", "-u", required=True, help="username to sign into server"
+    )
+    parser.add_argument(
+        "--view-name", "-v", required=True, help="name of view to download an image of"
+    )
+    parser.add_argument(
+        "--filepath", "-f", required=True, help="filepath to save the image returned"
+    )
+    parser.add_argument(
+        "--maxage",
+        "-m",
+        required=False,
+        help="max age of the image in the cache in minutes.",
+    )
+    parser.add_argument(
+        "--logging-level",
+        "-l",
+        choices=["debug", "info", "error"],
+        default="error",
+        help="desired logging level (set to error by default)",
+    )
 
     args = parser.parse_args()
 
@@ -49,8 +65,13 @@ def main():
     with server.auth.sign_in(tableau_auth):
         # Step 2: Query for the view that we want an image of
         req_option = TSC.RequestOptions()
-        req_option.filter.add(TSC.Filter(TSC.RequestOptions.Field.Name,
-                                         TSC.RequestOptions.Operator.Equals, args.view_name))
+        req_option.filter.add(
+            TSC.Filter(
+                TSC.RequestOptions.Field.Name,
+                TSC.RequestOptions.Operator.Equals,
+                args.view_name,
+            )
+        )
         all_views, pagination_item = server.views.get(req_option)
         if not all_views:
             raise LookupError("View with the specified name was not found.")
@@ -60,8 +81,9 @@ def main():
         if not max_age:
             max_age = 1
 
-        image_req_option = TSC.ImageRequestOptions(imageresolution=TSC.ImageRequestOptions.Resolution.High,
-                                                   maxage=max_age)
+        image_req_option = TSC.ImageRequestOptions(
+            imageresolution=TSC.ImageRequestOptions.Resolution.High, maxage=max_age
+        )
         server.views.populate_image(view_item, image_req_option)
 
         with open(args.filepath, "wb") as image_file:
@@ -70,5 +92,5 @@ def main():
         print("View image saved to {0}".format(args.filepath))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
