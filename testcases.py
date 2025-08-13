@@ -10,7 +10,14 @@ import sys
 import tempfile
 from datetime import timedelta
 from enum import Enum, IntEnum
-from trace import QUIC_V2, Direction, PacketType, TraceAnalyzer, get_direction, get_packet_type
+from trace import (
+    QUIC_V2,
+    Direction,
+    PacketType,
+    TraceAnalyzer,
+    get_direction,
+    get_packet_type,
+)
 from typing import List
 
 from Crypto.Cipher import AES
@@ -1215,9 +1222,11 @@ class TestCasePortRebinding(TestCaseTransfer):
         num_migrations = 0
         for p in tr_server:
             cur = (
-                getattr(p["ipv6"], "dst")
-                if "IPV6" in str(p.layers)
-                else getattr(p["ip"], "dst"),
+                (
+                    getattr(p["ipv6"], "dst")
+                    if "IPV6" in str(p.layers)
+                    else getattr(p["ip"], "dst")
+                ),
                 int(getattr(p["udp"], "dstport")),
             )
             if last is None:
@@ -1410,9 +1419,11 @@ class TestCaseConnectionMigration(TestCaseAddressRebinding):
         dcid = None
         for p in tr_client:
             cur = (
-                getattr(p["ipv6"], "src")
-                if "IPV6" in str(p.layers)
-                else getattr(p["ip"], "src"),
+                (
+                    getattr(p["ipv6"], "src")
+                    if "IPV6" in str(p.layers)
+                    else getattr(p["ip"], "src")
+                ),
                 int(getattr(p["udp"], "srcport")),
             )
             if last is None:
