@@ -1,113 +1,94 @@
-# Amazon Ion Python
-An implementation of [Amazon Ion](https://amzn.github.io/ion-docs/)
-for Python.
+[![Build Status](https://travis-ci.com/andhus/dirhash-python.svg?branch=master)](https://travis-ci.com/andhus/dirhash-python)
+[![codecov](https://codecov.io/gh/andhus/dirhash-python/branch/master/graph/badge.svg)](https://codecov.io/gh/andhus/dirhash-python)
 
-[![Build Status](https://travis-ci.org/amzn/ion-python.svg?branch=master)](https://travis-ci.org/amzn/ion-python)
-[![Documentation Status](https://readthedocs.org/projects/ion-python/badge/?version=latest)](https://ion-python.readthedocs.io/en/latest/?badge=latest)
+# dirhash
+A lightweight python module and CLI for computing the hash of any
+directory based on its files' structure and content.
+- Supports all hashing algorithms of Python's built-in `hashlib` module.
+- Glob/wildcard (".gitignore style") path matching for expressive filtering of files to include/exclude.
+- Multiprocessing for up to [6x speed-up](#performance)
 
-This package is designed to work with **Python 3.6+**
+The hash is computed according to the [Dirhash Standard](https://github.com/andhus/dirhash), which is designed to allow for consistent and collision resistant generation/verification of directory hashes across implementations.
 
-## Getting Started
-
-Start with the [simpleion](https://ion-python.readthedocs.io/en/latest/amazon.ion.html#module-amazon.ion.simpleion)
-module, which provides four APIs (`dump`, `dumps`, `load`, `loads`) that will be familiar to users of Python's
-built-in JSON parsing module.
-
-For example:
-
+## Installation
+From PyPI:
+```commandline
+pip install dirhash
 ```
->>> import amazon.ion.simpleion as ion
->>> obj = ion.loads('{abc: 123}')
->>> obj['abc']
-123
->>> ion.dumps(obj, binary=False)
-'$ion_1_0 {abc:123}'
+Or directly from source:
+```commandline
+git clone git@github.com:andhus/dirhash-python.git
+pip install dirhash/
 ```
 
-For additional examples, consult the [cookbook](http://amzn.github.io/ion-docs/guides/cookbook.html).
+## Usage
+Python module:
+```python
+from dirhash import dirhash
 
-## Git Setup
-This repository contains a [git submodule](https://git-scm.com/docs/git-submodule)
-called `ion-tests`, which holds test data used by `ion-python`'s unit tests.
-
-The easiest way to clone the `ion-python` repository and initialize its `ion-tests`
-submodule is to run the following command.
-
+dirpath = "path/to/directory"
+dir_md5 = dirhash(dirpath, "md5")
+pyfiles_md5 = dirhash(dirpath, "md5", match=["*.py"])
+no_hidden_sha1 = dirhash(dirpath, "sha1", ignore=[".*", ".*/"])
 ```
-$ git clone --recursive https://github.com/amzn/ion-python.git ion-python
-```
-
-Alternatively, the submodule may be initialized independently from the clone
-by running the following commands.
-
-```
-$ git submodule init
-$ git submodule update
+CLI:
+```commandline
+dirhash path/to/directory -a md5
+dirhash path/to/directory -a md5 --match "*.py"
+dirhash path/to/directory -a sha1 --ignore ".*"  ".*/"
 ```
 
-## Development
-It is recommended to use `venv` to create a clean environment to build/test Ion Python.
+## Why?
+If you (or your application) need to verify the integrity of a set of files as well
+as their name and location, you might find this useful. Use-cases range from 
+verification of your image classification dataset (before spending GPU-$$$ on 
+training your fancy Deep Learning model) to validation of generated files in
+regression-testing.
 
-```
-$ python3 -m venv ./venv
-...
-$ . venv/bin/activate
-$ pip install -U pip
-$ pip install -U setuptools
-$ pip install -r requirements.txt
-$ pip install -e .
-```
+There isn't really a standard way of doing this. There are plenty of recipes out 
+there (see e.g. these SO-questions for [linux](https://stackoverflow.com/questions/545387/linux-compute-a-single-hash-for-a-given-folder-contents)
+and [python](https://stackoverflow.com/questions/24937495/how-can-i-calculate-a-hash-for-a-filesystem-directory-using-python))
+but I couldn't find one that is properly tested (there are some gotcha:s to cover!) 
+and documented with a compelling user interface. `dirhash` was created with this as 
+the goal.
 
-You can also run the tests through `setup.py` or `py.test` directly.
+[checksumdir](https://github.com/cakepietoast/checksumdir) is another python 
+module/tool with similar intent (that inspired this project) but it lacks much of the
+functionality offered here (most notably including file names/structure in the hash)
+and lacks tests.
 
-```
-$ python setup.py test
-```
+## Performance
+The python `hashlib` implementation of common hashing algorithms are highly
+optimised. `dirhash` mainly parses the file tree, pipes data to `hashlib` and 
+combines the output. Reasonable measures have been taken to minimize the overhead 
+and for common use-cases, the majority of time is spent reading data from disk 
+and executing `hashlib` code.
 
-### Tox Setup
-In order to verify that all platforms we support work with Ion Python, we use a combination
-of [tox](http://tox.readthedocs.io/en/latest/) with [pyenv](https://github.com/yyuu/pyenv).
+The main effort to boost performance is support for multiprocessing, where the
+reading and hashing is parallelized over individual files.
 
-We recommend that you use tox within a virtual environment to isolate from whatever is in the system
-installed Python (`requirements.txt` installs `tox`).
+As a reference, let's compare the performance of the `dirhash` [CLI](https://github.com/andhus/dirhash-python/blob/master/src/dirhash/cli.py) 
+with the shell command:
 
-Install relevant versions of Python:
+`find path/to/folder -type f -print0 | sort -z | xargs -0 md5 | md5` 
 
-```
-$ for V in 3.6.13 3.7.10 3.8.10 3.9.5 pypy3.7-7.3.5; do pyenv install $V; done
-```
+which is the top answer for the SO-question: 
+[Linux: compute a single hash for a given folder & contents?](https://stackoverflow.com/questions/545387/linux-compute-a-single-hash-for-a-given-folder-contents)
+Results for two test cases are shown below. Both have 1 GiB of random data: in 
+"flat_1k_1MB", split into 1k files (1 MiB each) in a flat structure, and in 
+"nested_32k_32kB", into 32k files (32 KiB each) spread over the 256 leaf directories 
+in a binary tree of depth 8.
 
-Once you have these installations, add them as a local `pyenv` configuration
+Implementation      | Test Case       | Time (s) | Speed up
+------------------- | --------------- | -------: | -------:
+shell reference     | flat_1k_1MB     | 2.29     | -> 1.0
+`dirhash`           | flat_1k_1MB     | 1.67     | 1.36
+`dirhash`(8 workers)| flat_1k_1MB     | 0.48     | **4.73**
+shell reference     | nested_32k_32kB | 6.82     | -> 1.0
+`dirhash`           | nested_32k_32kB | 3.43     | 2.00
+`dirhash`(8 workers)| nested_32k_32kB | 1.14     | **6.00**
 
-```
-$ pyenv local 3.6.13 3.7.10 3.8.10 3.9.5 pypy3.7-7.3.5
-```
+The benchmark was run a MacBook Pro (2018), further details and source code [here](https://github.com/andhus/dirhash-python/tree/master/benchmark).
 
-Assuming you have `pyenv` properly set up (making sure `pyenv init` is evaluated into your shell),
-you can now run `tox`:
-
-```
-# Run tox for all versions of python which executes py.test.
-$ tox
-
-# Run tox for just Python 3.8 and 3.9.
-$ tox -e py38,py39
-
-# Run tox for a specific version and run py.test with high verbosity
-$ tox -e py39 -- py.test -vv
-
-# Run tox for a specific version and just the virtual env REPL.
-$ tox -e py39 -- python
-```
-
-## TODO
-The following build, deployment, or release tasks are required:
-
-* Add support for [code coverage](http://coverage.readthedocs.io/en/latest/) reporting.
-    * Publish coverage to something like [Coverage.io](https://coveralls.io/)
-* Consider using something like [PyPy.js](https://github.com/pypyjs/pypyjs) to build an interactive shell for playing
-  with Ion python and provide a client-side Ion playground.
-  
-## Known Issues
-[tests/test_vectors.py](https://github.com/amzn/ion-python/blob/master/tests/test_vectors.py#L95) defines skipList variables
-referencing test vectors that are not expected to work at this time.
+## Documentation
+Please refer to `dirhash -h`, the python [source code](https://github.com/andhus/dirhash-python/blob/master/src/dirhash/__init__.py) and the [Dirhash Standard](https://github.com/andhus/dirhash).
