@@ -1,35 +1,59 @@
-MANIFEST
-TAGS
-build
-dist
-# created during build:
-pyang.egg-info
+# Misc
+scratch/
+
+# IDEs
+.DS_Store
+.vscode
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
 .cache
-# created during test:
-xpath_parsetab.py
-.pytest_cache
-.python-version
-*.rnc
-schemas.xml
-*.pyc
-*.egg-info
-*.idea
-.coverage*
-.profile*
-venv/
-/test/test_*/*.dsrl
-/test/test_*/*.rng
-/test/test_*/*.sch
-/test/test_*/*.out
-/test/test_*/*.log
-/test/test_*/*.dsdl
-/test/test_*/*.capa
-/test/test_*/*.gen.*
-/test/test_good/*.yang.yin
-/test/test_good/*.xsd
-/test/test_json/*.jtox
-/test/test_json/*.xsl
-/test/test_json/test-data-new.json
-/test/test_json/test-data.xml
-/test/test_xsd/*.xsd
-/test/test_*/out/
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+cover/
+
+# Sphinx documentation
+docs/_build/
+docs/generated/
+
+# Jupyter Notebook
+.ipynb_checkpoints

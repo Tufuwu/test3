@@ -1,8 +1,13 @@
-include etc/bash_completion.d/pyang
-recursive-include modules *
-recursive-include xslt *
-recursive-include schema *
-recursive-include tools/images *
-recursive-include man *
+include AUTHORS.rst
+include CONTRIBUTING.rst
+include HISTORY.rst
 include LICENSE
-include env.sh
+include README.rst
+
+include mixsea/tests/data/*.csv
+
+recursive-include tests *
+recursive-exclude * __pycache__
+recursive-exclude * *.py[co]
+
+recursive-include docs *.rst conf.py Makefile *.jpg *.png *.gif
