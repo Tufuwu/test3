@@ -1,77 +1,51 @@
-"""setup.py
-   Installation script for payu
+#!/usr/bin/env python
+from setuptools import setup, find_packages
+from os import path
 
-   Additional configuration settings are in ``setup.cfg``.
-"""
+this_directory = path.abspath(path.dirname(__file__))
 
-import os
-try:
-    from setuptools import setup
-except ImportError:
-    from distutils.core import setup
+with open(path.join(this_directory, 'clifford', '_version.py'), encoding='utf-8') as f:
+    exec(f.read())
 
-PKG_NAME = 'payu'
-PKG_VERSION = __import__(PKG_NAME).__version__
-PKG_PKGS = [path for (path, dirs, files) in os.walk(PKG_NAME)
-            if '__init__.py' in files]
-
-with open('README.rst') as f:
-    README_RST = f.read()
+with open(path.join(this_directory, 'README.md'), encoding='utf-8') as f:
+    long_description = f.read()
 
 setup(
-    name=PKG_NAME,
-    version=PKG_VERSION,
-    description='A climate model workflow manager for supercomputing '
-                'environments.',
-    long_description=README_RST,
-    author='Marshall Ward',
-    author_email='python@marshallward.org',
-    url='http://github.com/marshallward/payu',
-
-    packages=PKG_PKGS,
-    requires=[
-        'f90nml',
-        'PyYAML',
-        'requests',
-        'yamanifest',
-        'dateutil',
-        'tenacity',
-    ],
+    name='clifford',
+    version=__version__,
+    license='bsd',
+    description='Numerical Geometric Algebra Module',
+    long_description=long_description,
+    long_description_content_type='text/markdown',
+    author='Robert Kern',
+    maintainer='Alex Arsenovic',
+    maintainer_email='alexarsenovic@gmail.com',
+    url='http://clifford.readthedocs.io',
+    packages=find_packages(),
     install_requires=[
-        'f90nml >= 0.16',
-        'yamanifest >= 0.3.4',
-        'PyYAML',
-        'requests[security]',
-        'python-dateutil',
-        'tenacity',
+        'numpy >= 1.17',
+        'scipy',
+        'numba > 0.46',
+        'h5py',
+        'sparse',
     ],
-    tests_require=[
-        'pytest',
-        'pylint',
-        'Sphinx',
-    ],
-    entry_points={
-        'console_scripts': [
-            'payu = payu.cli:parse',
-            'payu-run = payu.subcommands.run_cmd:runscript',
-            'payu-collate = payu.subcommands.collate_cmd:runscript',
-            'payu-profile = payu.subcommands.profile_cmd:runscript',
-        ]
-    },
+    package_dir={'clifford':'clifford'},
+
     classifiers=[
-        'Development Status :: 3 - Alpha',
-        'License :: OSI Approved :: Apache Software License',
-        'Operating System :: POSIX :: Linux',
-        'Programming Language :: Python',
-        'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 2.6',
-        'Programming Language :: Python :: 2.7',
+        'Intended Audience :: Science/Research',
+        'Topic :: Scientific/Engineering :: Mathematics',
+
+        'License :: OSI Approved :: BSD License',
         'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
-        'Topic :: Utilities',
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
     ],
-    extras_require={
-        'mitgcm': ['mnctools>=0.2']
+    project_urls={
+        "Bug Tracker": "https://github.com/pygae/clifford/issues",
+        "Source Code": "https://github.com/pygae/clifford",
     },
-    keywords='{0} supercomputer model climate workflow'.format(PKG_NAME)
+
+    python_requires='>=3.5',
 )
