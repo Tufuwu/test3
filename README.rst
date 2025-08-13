@@ -1,96 +1,36 @@
-Open Financial Exchange (OFX) Tools for Python
-==============================================
+django-comments-xtd |gha-tests-badge|_
+===================
 
-.. image:: https://travis-ci.org/csingley/ofxtools.svg?branch=master
-    :target: https://travis-ci.org/csingley/ofxtools
+.. |gha-tests-badge| image:: https://github.com/danirus/django-comments-xtd/workflows/tests/badge.svg
+.. _gha-tests-badge: https://travis-ci.org/danirus/django-comments-xtd/actions
 
-.. image:: https://github.com/csingley/ofxtools/actions/workflows/commit-ofxtools.yml/badge.svg
-    :target: https://github.com/csingley/ofxtools/actions/workflows/commit-ofxtools.yml
+A Django pluggable application that adds comments to your project.
 
-.. image:: https://coveralls.io/repos/github/csingley/ofxtools/badge.svg?branch=master
-    :target: https://coveralls.io/github/csingley/ofxtools?branch=master
+.. image:: https://github.com/danirus/django-comments-xtd/blob/master/docs/images/cover.png
 
-.. image:: https://img.shields.io/badge/dependencies-None-green.svg
-    :target: https://github.com/csingley/ofxtools/blob/master/requirements.txt 
+It extends the once official `django-contrib-comments <https://pypi.python.org/pypi/django-contrib-comments>`_ with the following features:
 
-.. image:: https://badge.fury.io/py/ofxtools.svg
-    :target: https://badge.fury.io/py/ofxtools
+#. Thread support, so comments can be nested.
+#. Customizable maximum thread level, either for all models or on a per app.model basis.
+#. Optional notifications on follow-up comments via email.
+#. Mute links to allow cancellation of follow-up notifications.
+#. Comment confirmation via email when users are not authenticated.
+#. Comments hit the database only after they have been confirmed.
+#. Registered users can like/dislike comments and can suggest comments removal.
+#. Template tags to list/render the last N comments posted to any given list of app.model pairs.
+#. Emails sent through threads (can be disable to allow other solutions, like a Celery app).
+#. Fully functional JavaScript plugin using ReactJS, jQuery, Bootstrap, Remarkable and MD5.
 
-``ofxtools`` is a Python library for working with Open Financial Exchange (OFX)
-data - the standard format for downloading financial information from banks
-and stockbrokers.  OFX data is widely provided by financial institutions so
-that their customers can import transactions into financial management
-software such as Quicken, Microsoft Money, or GnuCash.
+Example sites and tests work under officially Django `supported versions <https://www.djangoproject.com/download/#supported-versions>`_:
 
-If you want to download your transaction data outside of one of these
-programs - if you wish to develop a Python application to use this data -
-if you need to generate your own OFX-formatted data... ``ofxtools`` is for you!
+* Django 3.1, 3.0, 2.2
+* Python 3.8, 3.7, 3.6
 
-What is it?
------------
-``ofxtools`` requests, consumes and
-produces both OFXv1 (SGML) and OFXv2 (XML) formats.
-It converts serialized markup to/from native Python objects of
-the appropriate data type, while preserving structure.
-It also handles Quicken's QFX format, although it ignores Intuit's proprietary
-extension tags.
+Additional Dependencies:
 
-In a nutshell, ``ofxtools`` makes it simple to get OFX data and extract it,
-or export your data in OFX format.
+* django-contrib-comments >=1.8
+* djangorestframework >=3.9
 
-``ofxtools`` takes a comprehensive, standards-based approach to processing OFX.
-It targets compliance with the `OFX specification`_, specifically OFX versions
-1.6 and 2.03.
+Checkout the Docker image `danirus/django-comments-xtd-demo <https://hub.docker.com/r/danirus/django-comments-xtd-demo/>`_.
 
-``ofxtools`` Coverage of the OFX Specification
-    * Section 7 (financial institution profile)
-    * Section 8 (service activation; account information)
-    * Section 9 (email over OFX)
-    * Section 10 (recurring bank transfers)
-    * Section 11 (banking)
-    * Section 12 (bill pay)
-    * Section 13 (investments)
-
-This should cover the great majority of real-world OFX use cases.  A particular
-focus of ``ofxtools`` is full support of the OFX investment message set,
-which has been somewhat neglected by the Python community.
-
-The major item remaining on the ``ofxtools`` "to do" list is to implement the
-tax schemas.  It's currently a low priority to implement Section 14 (bill
-presentment) or the extensions contained in OFX versions beyond 2.03, but
-you're welcome to contribute code if you need these.
-
-Some care has been taken with the data model to make it easily maintainable
-and extensible.  The ``ofxtools.models`` subpackage contains simple, direct
-translations of the relevant sections of the OFX specification.  Using existing
-models as templates, it's quite straightforward to define new models and
-cover more of the spec as needed (the odd corner case notwithstanding).
-
-More than 10 years' worth of OFX data from various financial institutions
-has been run through the ``ofxtools`` parser, with the results checked.  Test
-coverage is high.
-
-Where is it?
-------------
-Full documentation is available at `Read the Docs`_.
-
-For ease of installation, ``ofxtools`` is released on `PyPI`_.
-
-Development of ``ofxtools`` is centralized at `GitHub`_, where you will find
-a `bug tracker`_.
-
-Installation Dependencies
--------------------------
-``ofxtools`` requires Python version 3.8+, and depends only on the standard
-libary (no external dependencies).
-
-**NOTE: As of version 0.6, ofxtools no longer supports Python version 2,
-which went EOL 2020-01-01.**
-
-
-.. _OFX specification: http://www.ofx.net/downloads.html
-.. _Requests: http://docs.python-requests.org/en/master/
-.. _Read the Docs: https://ofxtools.readthedocs.io/
-.. _GitHub: https://github.com/csingley/ofxtools
-.. _bug tracker: https://github.com/csingley/ofxtools/issues
-.. _PyPI: https://pypi.python.org/pypi/ofxtools
+`Read The Docs <http://readthedocs.org/docs/django-comments-xtd/>`_.
