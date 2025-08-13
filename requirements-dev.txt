@@ -1,2 +1,7 @@
-black
-pylint>=2.5
+pytest>=4.0.0
+pytest-cov
+codecov
+pylint>=2.2.0
+twine
+requests-mock
+pillow<=8.3.1
