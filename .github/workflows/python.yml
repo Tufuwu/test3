@@ -34,6 +34,7 @@ jobs:
 
     - name: Build
       run: |
+        chmod +x ./setup.py
         ./setup.py build
         ./setup.py install --single-version-externally-managed --root=/tmp
 
