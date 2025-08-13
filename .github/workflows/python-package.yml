@@ -32,12 +32,9 @@ jobs:
 
       - name: Run tests
         run: |
-          if [[ "${{ matrix.python-version }}" == "3.5" && ("${{ matrix.mode }}" == "flake8" || "${{ matrix.mode }}" == "flake8-strict" || "${{ matrix.mode }}" == "docs" || "${{ matrix.django-version }}" == "dj30" || "${{ matrix.django-version }}" == "dj31" || "${{ matrix.django-version }}" == "dj32" || "${{ matrix.django-version }}" == "djdev") ]]; then
-            echo "Skipping tests for Python 3.5 with this configuration."
-            exit 0
-          fi
+
           coverage erase
-          tox -e py${{ matrix.python-version//./ }}-${{ matrix.django-version }}${{ matrix.mode }}
+          tox 
 
       - name: Upload coverage
         if: success()
