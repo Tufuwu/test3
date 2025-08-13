@@ -1,70 +1,72 @@
-from pathlib import Path
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+# License: LGPLv3 Copyright: 2019, Kovid Goyal <kovid at kovidgoyal.net>
+
+import ast
+import re
+import sys
+import os
 
 from setuptools import find_packages, setup
+from setuptools.command.test import test
 
-# Read the contents of README file
-source_root = Path(".")
-with (source_root / "README.rst").open(encoding="utf-8") as f:
-    long_description = f.read()
+# extract the version without importing the module
+VERSION = open('src/css_parser/version.py', 'rb').read().decode('utf-8')
+VERSION = '.'.join(map(str, ast.literal_eval(re.search(r'^version\s+=\s+(.+)', VERSION, flags=re.M).group(1))))
+long_description = '\n' + open('README.md', 'rb').read().decode('utf-8') + '\n'  # + read('CHANGELOG.txt')
 
-# Read the requirements
-with (source_root / "requirements.txt").open(encoding="utf8") as f:
-    requirements = f.readlines()
 
-with (source_root / "requirements_dev.txt").open(encoding="utf8") as f:
-    dev_requirements = f.readlines()
+class Test(test):
 
-with (source_root / "requirements_test.txt").open(encoding="utf8") as f:
-    test_requirements = f.readlines()
+    user_options = [
+        ('which-test=', 'w', "Specify which test to run as either"
+            " the test method name (without the leading test_)"
+            " or a module name with a trailing period"),
+    ]
 
-type_geometry_requires = ["shapely"]
-type_image_path_requires = ["imagehash", "Pillow"]
+    def initialize_options(self):
+        self.which_test = None
 
-extras_requires = {
-    "type_geometry": type_geometry_requires,
-    "type_image_path": type_image_path_requires,
-    "plotting": ["pydot", "pygraphviz", "matplotlib"],
-    "dev": dev_requirements,
-    "test": test_requirements,
-}
+    def finalize_options(self):
+        pass
 
-extras_requires["all"] = requirements + [
-    dependency
-    for name, dependencies in extras_requires.items()
-    if name.startswith("type_") or name == "plotting"
-    for dependency in dependencies
-]
-
-__version__ = None
-with (source_root / "src/visions/version.py").open(encoding="utf8") as f:
-    exec(f.read())
+    def run(self):
+        import importlib
+        orig = sys.path[:]
+        try:
+            sys.path.insert(0, os.getcwd())
+            m = importlib.import_module('run_tests')
+            which_test = (self.which_test,) if self.which_test else ()
+            m.run_tests(which_test)
+        finally:
+            sys.path = orig
 
 
 setup(
-    name="visions",
-    version=__version__,
-    url="https://github.com/dylan-profiler/visions",
-    description="Visions",
-    license="BSD License",
-    author="Dylan Profiler",
-    author_email="visions@ictopzee.nl",
-    package_data={"vision": ["py.typed"]},
-    packages=find_packages("src"),
-    package_dir={"": "src"},
-    install_requires=requirements,
-    include_package_data=True,
-    extras_require=extras_requires,
-    tests_require=test_requirements,
-    python_requires=">=3.6",
+    name='css-parser',
+    version=VERSION,
+    package_dir={'': 'src'},
+    packages=find_packages('src'),
+    description='A CSS Cascading Style Sheets library for Python',
     long_description=long_description,
-    long_description_content_type="text/x-rst",
-    zip_safe=False,
+    long_description_content_type='text/markdown',
+    cmdclass={'test': Test},
+    author='Various People',
+    author_email='redacted@anonymous.net',
+    url='https://github.com/ebook-utils/css-parser',
+    license='LGPL 3.0 or later',
+    keywords='CSS, Cascading Style Sheets, CSSParser, DOM Level 2 Stylesheets, DOM Level 2 CSS',
     classifiers=[
-        "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.6",
-        "Programming Language :: Python :: 3.7",
-        "Programming Language :: Python :: 3.8",
-        "Programming Language :: Python :: 3.9",
-        "Programming Language :: Python :: 3.10",
-    ],
+        'Development Status :: 5 - Production/Stable',
+        'Environment :: Web Environment',
+        'Intended Audience :: Developers',
+        'License :: OSI Approved :: GNU Library or Lesser General Public License (LGPL)',
+        'Operating System :: OS Independent',
+        'Programming Language :: Python',
+        'Programming Language :: Python :: 2',
+        'Programming Language :: Python :: 3',
+        'Topic :: Internet',
+        'Topic :: Software Development :: Libraries :: Python Modules',
+        'Topic :: Text Processing :: Markup :: HTML'
+    ]
 )
