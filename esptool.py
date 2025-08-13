@@ -526,7 +526,7 @@ class ESPLoader(object):
                 "Failed to %s. Only got %d byte status response."
                 % (op_description, len(data))
             )
-        status_bytes = data[-self.STATUS_BYTES_LENGTH :]
+        status_bytes = data[-self.STATUS_BYTES_LENGTH:]
         # we only care if the first one is non-zero. If it is, the second byte is a reason.
         if byte(status_bytes, 0) != 0:
             raise FatalError.WithResult("Failed to %s" % op_description, status_bytes)
@@ -2454,7 +2454,7 @@ class BaseFirmwareImage(object):
             # offset relative to the data part
             patch_offset -= self.SEG_HEADER_LEN
             if (
-                segment_data[patch_offset : patch_offset + self.SHA256_DIGEST_LEN]
+                segment_data[patch_offset: patch_offset + self.SHA256_DIGEST_LEN]
                 != b"\x00" * self.SHA256_DIGEST_LEN
             ):
                 raise FatalError(
@@ -2465,7 +2465,7 @@ class BaseFirmwareImage(object):
             segment_data = (
                 segment_data[0:patch_offset]
                 + self.elf_sha256
-                + segment_data[patch_offset + self.SHA256_DIGEST_LEN :]
+                + segment_data[patch_offset + self.SHA256_DIGEST_LEN:]
             )
         return segment_data
 
@@ -3439,8 +3439,8 @@ def load_ram(esp, args):
 
         seq = 0
         while len(seg.data) > 0:
-            esp.mem_block(seg.data[0 : esp.ESP_RAM_BLOCK], seq)
-            seg.data = seg.data[esp.ESP_RAM_BLOCK :]
+            esp.mem_block(seg.data[0: esp.ESP_RAM_BLOCK], seq)
+            seg.data = seg.data[esp.ESP_RAM_BLOCK:]
             seq += 1
         print("done!")
 
@@ -3675,7 +3675,7 @@ def write_flash(esp, args):
                 % (address + bytes_written, 100 * (seq + 1) // blocks)
             )
             sys.stdout.flush()
-            block = image[0 : esp.FLASH_WRITE_SIZE]
+            block = image[0: esp.FLASH_WRITE_SIZE]
             if compress:
                 # feeding each compressed block into the decompressor lets us see block-by-block how much will be written
                 block_uncompressed = len(decompress.decompress(block))
@@ -3700,7 +3700,7 @@ def write_flash(esp, args):
                     esp.flash_block(block, seq)
                 bytes_written += len(block)
             bytes_sent += len(block)
-            image = image[esp.FLASH_WRITE_SIZE :]
+            image = image[esp.FLASH_WRITE_SIZE:]
             seq += 1
 
         if esp.IS_STUB:

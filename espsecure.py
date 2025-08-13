@@ -49,7 +49,7 @@ except NameError:
 
 def get_chunks(source, chunk_len):
     """Returns an iterator over 'chunk_len' chunks of 'source'"""
-    return (source[i : i + chunk_len] for i in range(0, len(source), chunk_len))
+    return (source[i: i + chunk_len] for i in range(0, len(source), chunk_len))
 
 
 def endian_swap_words(source):
@@ -463,7 +463,7 @@ def validate_signature_block(image_content, sig_blk_num):
     )
 
     offset = -SECTOR_SIZE + sig_blk_num * SIG_BLOCK_SIZE
-    sig_blk = image_content[offset : offset + SIG_BLOCK_SIZE]
+    sig_blk = image_content[offset: offset + SIG_BLOCK_SIZE]
     assert len(sig_blk) == SIG_BLOCK_SIZE
 
     sig_data = struct.unpack("<BBxx32s384sI384sI384sI16x", sig_blk)
@@ -593,7 +593,7 @@ def signature_info_v2(args):
             )
 
         offset = -SECTOR_SIZE + sig_blk_num * SIG_BLOCK_SIZE
-        sig_blk = image_content[offset : offset + SIG_BLOCK_SIZE]
+        sig_blk = image_content[offset: offset + SIG_BLOCK_SIZE]
         key_digest = _sha256_digest(sig_blk[36:812])
 
         print(
