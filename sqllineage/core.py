@@ -1,5 +1,5 @@
 import re
-from typing import Set, TYPE_CHECKING, Tuple
+from typing import Set, Tuple
 
 from sqlparse.sql import (
     Comment,
