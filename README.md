@@ -1,78 +1,138 @@
-# Library Updater
-![Kodi Version](https://img.shields.io/endpoint?url=https%3A%2F%2Fweberjr.com%2Fkodi-shield%2Fversion%2Frobweber%2Fxbmclibraryautoupdate%2Fmatrix%2Ftrue%2Ftrue) ![Total Downloads](https://img.shields.io/endpoint?url=https%3A%2F%2Fweberjr.com%2Fkodi-shield%2Fdownloads%2Fmatrix%2Fservice.libraryautoupdate%2F1.2.4) [![Build Status](https://img.shields.io/github/actions/workflow/status/robweber/xbmclibraryautoupdate/addon-checker.yml)](https://github.com/robweber/xbmclibraryautoupdate/actions/workflows/addon-checker.yml) [![License](https://img.shields.io/github/license/robweber/xbmclibraryautoupdate)](https://github.com/robweber/xbmclibraryautoupdate/blob/master/LICENSE.txt) [![PEP8](https://img.shields.io/badge/code%20style-pep8-orange.svg)](https://www.python.org/dev/peps/pep-0008/)
+# Homu
 
-The Library Updater will update your music and/or video libraries according to times specified by you. Please note that this is just a fancy timer that calls out to the normal Kodi Library Scanning functions. All of the processes associated with scanning are all handed off to Kodi.
+[![Hommando]][Akemi Homura]
 
-_Thanks to pkscuot for several small tweaks to this addon!_
+Homu is a bot that integrates with GitHub and your favorite continuous
+integration service such as [Travis CI], [Appveyor] or [Buildbot].
 
-## Settings
+[Hommando]: https://i.imgur.com/j0jNvHF.png
+[Akemi Homura]: https://wiki.puella-magi.net/Homura_Akemi
+[Buildbot]: http://buildbot.net/
+[Travis CI]: https://travis-ci.org/
+[Appveyor]: https://www.appveyor.com/
 
-Be aware that settings are visible based on the [Kodi Settings Level](https://kodi.wiki/view/Settings) set. Levels higher than Standard (Advanced or Expert) are designated next to that setting.
+## Why is it needed?
 
-### General Settings:
+Let's take Travis CI as an example. If you send a pull request to a repository,
+Travis CI instantly shows you the test result, which is great. However, after
+several other pull requests are merged into the `master` branch, your pull
+request can *still* break things after being merged into `master`. The
+traditional continuous integration solutions don't protect you from this.
 
-* Startup Delay - if an update should run on startup (dependent on the time the last update has ran) this will delay it from running for a few minutes to allow other XBMC process to function.
-* Show Notifications - shows notifications when the updater will run again
-* Run During Playback - should the addon run a scheduled scan when you are playing media (yes/no)
-* Only run when idle - restricts the scanning process to when the screensaver is active
-* Check if sources exist before scan - checks if the sources are online before starting the scan process. For single source scans it will check only that source. ![Settings Level Advanced](https://img.shields.io/badge/-advanced-blue)
-* Disable Manual Run Prompt - disables the dialog box when selecting Manual Run and just goes right to the library update ![Settings Level Advanced](https://img.shields.io/badge/-advanced-blue)
+In fact, that's why they provide the build status badges. If anything pushed to
+`master` is completely free from any breakage, those badges will **not** be
+necessary, as they will always be green. The badges themselves prove that there
+can still be some breakages, even when continuous integration services are used.
 
-### Video Settings:
+To solve this problem, the test procedure should be executed *just before the
+merge*, not just after the pull request is received. You can manually click the
+"restart build" button each time before you merge a pull request, but Homu can
+automate this process. It listens to the pull request comments, waiting for an
+approval comment from one of the configured reviewers. When the pull request is
+approved, Homu tests it using your favorite continuous integration service, and
+only when it passes all the tests, it is merged into `master`.
 
-Enabling this will turn on scanning for the Video Library. This is the same as calling "Update Library" from within the Video menus of Kodi. There are a few options you can tweak regarding how often you want the scanner to run. Read the section on Timer Options for more information.
+Note that Homu is **not** a replacement of Travis CI, Buildbot or Appveyor. It
+works on top of them. Homu itself doesn't have the ability to test pull
+requests.
 
-__Custom Paths__ ![Settings Level Expert](https://img.shields.io/badge/-expert-blue)
+## Influences of bors
 
-Custom paths are a special advanced feature for the Video library. It allows you to specify different schedules for individual paths in your library. This editor is limited to the Cron style syntax for scheduling. The path you select must already be in the video database and have content selected. The path must also match your source path exactly.
+Homu is largely inspired by [bors]. The concept of "tests should be done just
+before the merge" came from bors. However, there are also some differences:
 
-### Music Settings
+1. Stateful: Unlike bors, which intends to be stateless, Homu is stateful. It
+   means that Homu does not need to retrieve all the information again and again
+   from GitHub at every run. This is essential because of the GitHub's rate
+   limiting. Once it downloads the initial state, the following changes are
+   delivered with the [Webhooks] API.
+2. Pushing over polling: Homu prefers pushing wherever possible. The pull
+   requests from GitHub are retrieved using Webhooks, as stated above. The test
+   results from Buildbot are pushed back to Homu with the [HttpStatusPush]
+   feature. This approach improves the overall performance and the response
+   time, because the bot is informed about the status changes immediately.
 
-Enabled this will turn on scanning for the Music Library. This is the same as calling "Update Library" from within the Music menus of Kodi. The options here are identical to the Video Settings above. Read the section on Timer Options for more information.
+And also, Homu has more features, such as `rollup`, `try`, and the Travis CI &
+Appveyor support.
 
-### Timer Options:
+[bors]: https://github.com/graydon/bors
+[Webhooks]: https://developer.github.com/webhooks/
+[HttpStatusPush]: http://docs.buildbot.net/current/manual/cfg-statustargets.html#httpstatuspush
 
-For both Video and Music library scanning there are two types of timers to choose from.
+## Usage
 
-__Standard Timer__
+### How to install
 
-Specify an interval to run the library update process. It will be launched every X hours within the interval unless on of the conditions specified by you as been met (don't run during media playback, etc) in which case it will be run at the next earliest convenience.
-
-__Advanced Timer__ ![Settings Level Advanced](https://img.shields.io/badge/-advanced-blue)
-
-Specify a cron expression to use as an interval for the update process. By default the expression will run at the top of every hour. More advanced expressions can be configured such as:
-
+```sh
+$ sudo apt-get install python3-venv python3-wheel
+$ python3 -m venv .venv
+$ . .venv/bin/activate
+$ pip install -U pip
+$ git clone https://github.com/rust-ops/homu.git
+$ pip install -e homu
 ```
 
-    .--------------- minute (0 - 59)
-    |   .------------ hour (0 - 23)
-    |   |   .--------- day of month (1 - 31)
-    |   |   |   .------ month (1 - 12) or Jan, Feb ... Dec
-    |   |   |   |  .---- day of week (0 - 6) or Sun(0 or 7)
-    V   V   V   V  V
-    *   *   *   *  *
+### How to configure
+
+In the following instructions, `HOST` refers to the hostname (or IP address)
+where you are running your custom homu instance. `PORT` is the port the service
+is listening to and is configured in `web.port` in `cfg.toml`. `NAME` refers to
+the name of the repository you are configuring homu for.
+
+1. Copy `cfg.sample.toml` to `cfg.toml`. You'll need to edit this file to set up
+   your configuration. The following steps explain where you can find important
+   config values. 
+
+2. Create a GitHub account that will be used by Homu. You can also use an
+   existing account. In the [account settings][settings], go to "OAuth
+   applications" and create a new application:
+   - Make note of the "Client ID" and "Client Secret"; you will need to put them in
+   your `cgf.toml`.
+   - The OAuth Callback URL should be `http://HOST:PORT/callback`.
+   - The homepage URL isn't necessary; you could set `http://HOST:PORT/`.
+   
+3. Go to the user settings of the GitHub account you created/used in the
+   previous step. Go to "Personal access tokens". Click "Generate new token" and
+   choose the "repo" and "user" scopes. Put the token value in your `cfg.toml`.
+   
+4. Add your new GitHub account as a Collaborator to the GitHub repo you are
+   setting up homu for. This can be done in repo (NOT user) "Settings", then
+   "Collaborators".
+   
+     4.1. Make sure you login as the new GitHub account and that you **accept 
+          the collaborator invitation** you just sent! 
+
+5. Add a Webhook to your repository. This is done under repo (NOT user)
+   "Settings", then "Webhooks". Click "Add webhook", the set:
+   - Payload URL: `http://HOST:PORT/github`
+   - Content type: `application/json`
+   - Secret: The same as `repo.NAME.github.secret` in `cfg.toml`
+   - Events: `Issue Comment`, `Pull Request`, `Push`, `Status`, `Check runs`
+
+6. Add a Webhook to your continuous integration service, if necessary. You don't
+   need this if using Travis/Appveyor.
+   - Buildbot 
+
+     Insert the following code to the `master.cfg` file:
+
+     ```python
+     from buildbot.status.status_push import HttpStatusPush
+
+     c['status'].append(HttpStatusPush(
+        serverUrl='http://HOST:PORT/buildbot',
+        extra_post_params={'secret': 'repo.NAME.buildbot.secret in cfg.toml'},
+     ))
+     ```
+
+7. Go through the rest of your `cfg.toml` and uncomment (and change, if needed)
+   parts of the config you'll need.
+
+[settings]: https://github.com/settings/applications
+[travis]: https://travis-ci.org/profile/info
+
+### How to run
+
+```sh
+$ . .venv/bin/activate
+$ homu
 ```
-
-Example:
-1. 0 */5 ** 1-5 - runs update every five hours Monday - Friday
-2. 0,15,30,45 0,15-18 * * * - runs update every quarter hour during midnight hour and 3pm-6pm
-
-
-Read up on cron (http://en.wikipedia.org/wiki/Cron) for more information on how to create these expressions
-
-### Cleaning the Library:
-
-Cleaning the Music/Video Libraries is not enabled by default. If you choose to do this you can select from a few options to try and reduce the likelyhood that a DB clean wile hose your database.
-
-* Library to Clean - You can clean your video library, music library, or both.
-* Prompt User Before Cleaning - you must confirm that you want to clean the library before it will happen. Really only useful for "After Update" as a condition. ![Settings Level Advanced](https://img.shields.io/badge/-advanced-blue)
-* Frequency - There are several frequency options.
-  * "After Update" will run a clean immediately following a scan on the selected library.
-  * The Day/Week/Month options will schedule a clean task to happen. Cleaning the Video Library is hardcoded for midnight and the music library at 2am. Weekly updates occur on Sunday and Monthly updates occur on the first of each month - these values are hardcoded.
-  * You can also choose to enter a custom cron timer for video and music library cleaning. These work the same as any of the other cron timers for the other schedules.
-
-## Contributing
-
-If you're having issues with this addon there are two main places to look. The first is the addon thread on [the Kodi Forums](https://forum.kodi.tv/showthread.php?tid=119520). This is where you can ask general questions regarding functionality. If you're having a legitimate issue, such as an error message, you can [create an Issue](https://github.com/robweber/xbmclibraryautoupdate/issues) for it in this repository.
-
-Pull Requests are welcome if you want to dig around in the code to fix issues or add functionality. Please submit them using [the usual workflow](https://guides.github.com/introduction/flow/index.html). Additionally you can help keep languages files up to date by visiting [the Weblate page](https://kodi.weblate.cloud/projects/kodi-add-ons-services/service-xbmclibraryautoupdate/) for this addon and updating untranslated strings. Changes to Weblate will automatically create PRs to this repository. This is a great way to contribute if you're not a coder!
