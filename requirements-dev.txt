@@ -1,4 +1,4 @@
 cython >= 0.23.5
-numpy >= 1.10.2p
+numpy 
 normality == 0.6.1
 dataset == 0.8
