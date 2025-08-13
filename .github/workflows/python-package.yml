@@ -1,54 +1,44 @@
 name: CI
 
-on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
+on: [push, pull_request]
 
 jobs:
-  test:
+  build:
     runs-on: ubuntu-22.04
     strategy:
-      fail-fast: false
       matrix:
-        python-version: [ "3.8"]
-        env:
-          - MODE=flake8
-          - MODE=flake8-strict
-          - MODE=docs
-          - DJANGO_VERSION=dj22
-          - DJANGO_VERSION=dj30
-          - DJANGO_VERSION=dj31
-          - DJANGO_VERSION=dj32
-          - DJANGO_VERSION=djdev
+        python-version: [3.5, 3.6, 3.7, 3.8]
+        mode: [flake8, flake8-strict, docs]
+        django-version: [dj22, dj30, dj31, dj32, djdev]
+      fail-fast: false
 
     steps:
-    - uses: actions/checkout@v2
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
-      with:
-        python-version: ${{ matrix.python-version }}
-    - name: Install dependencies
-      run: |
-        sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 762E3157
-        sudo apt-get update
-        sudo apt-get install -y binutils libproj-dev gdal-bin libsqlite3-mod-spatialite
-        pip install -U pip
-        pip install -U wheel virtualenv
-        pip install tox coveralls
-    - name: Run tests
-      env:
-        MODE: ${{ matrix.env.MODE }}
-        DJANGO_VERSION: ${{ matrix.env.DJANGO_VERSION }}
-      run: |
-        apt list --installed
-        coverage erase
-        tox -e py${{ matrix.python-version }}-${{ matrix.env.DJANGO_VERSION }}${{ matrix.env.MODE }}
-    - name: Coveralls
-      if: success()
-      run: coveralls
-      env: 
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: |
+          sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 762E3157
+          sudo apt-get update
+          sudo apt-get install -y binutils libproj-dev gdal-bin libsqlite3-mod-spatialite
+          pip install -U pip
+          pip install -U wheel virtualenv
+          pip install tox coveralls
+
+      - name: Run tests
+        run: |
+          if [[ "${{ matrix.python-version }}" == "3.5" && ("${{ matrix.mode }}" == "flake8" || "${{ matrix.mode }}" == "flake8-strict" || "${{ matrix.mode }}" == "docs" || "${{ matrix.django-version }}" == "dj30" || "${{ matrix.django-version }}" == "dj31" || "${{ matrix.django-version }}" == "dj32" || "${{ matrix.django-version }}" == "djdev") ]]; then
+            echo "Skipping tests for Python 3.5 with this configuration."
+            exit 0
+          fi
+          coverage erase
+          tox -e py${{ matrix.python-version//./ }}-${{ matrix.django-version }}${{ matrix.mode }}
+
+      - name: Upload coverage
+        if: success()
+        run: coveralls
