@@ -1,4 +1,2 @@
 [run]
-omit =  opencivicdata/tests/*
-        opencivicdata/*/migrations/*
-        opencivicdata/*/admin/*
+relative_files = True
