@@ -34,8 +34,8 @@ jobs:
 
     - name: Upload coverage to Coveralls
       if: success()
-      env:
-        COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
+      env: 
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
         pip install coveralls
         coverage run --source circlify tests.py
