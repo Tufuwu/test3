@@ -1,7 +1,24 @@
-__env__
-*.pyc
-*.egg*
-__pycache__
-dist
-build
-*.spec
+# Python
+__pycache__/
+*.py[cod]
+.Python
+*.egg-info
+build/
+dist/
+.pytest_cache
+venv/
+
+# Codecov
+.coverage
+coverage.xml
+
+# Mac
+.DS_Store
+
+# Misc
+tests/
+
+# Legacy migration
+src/unittest/assets/migration/legacy-config2
+src/unittest/assets/migration/legacy-vault2
+src/unittest/assets/migration/legacy-vault.db

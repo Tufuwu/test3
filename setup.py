@@ -1,40 +1,47 @@
-#!/usr/bin/env python
+from setuptools import setup
 
-import os
-
-from setuptools import setup, find_packages
-
-
-long_description = ""
-if os.path.isfile("README.rst"):
-    long_description = open("README.rst", "r").read()
-
+try:
+    import pypandoc
+    long_description = pypandoc.convert_file('README.md', 'rst')
+except(IOError, ImportError):
+    long_description = open('README.md').read()
 
 setup(
-    name="img2gb",
-    version="1.1.0",
-    description="Converts images to GameBoy tileset",
-    url="",
-    license="BSD-3-Clause",
+    name='pyvault',
+    version='2.4.1',
+    description='Python password manager',
     long_description=long_description,
-    keywords="gb gameboy image tile tileset tilemap",
-    author="Fabien LOISON",
-    packages=find_packages(),
-    setup_requires=["cffi>=1.0.0"],
+    author='Gabriel Bordeaux',
+    author_email='pypi@gab.lc',
+    url='https://github.com/gabfl/vault',
+    license='MIT',
+    packages=['vault', 'vault.lib', 'vault.models',
+              'vault.modules', 'vault.views'],
+    package_dir={'vault': 'src'},
     install_requires=[
-        "pillow>=5.0.0",
-    ],
-    extras_require={
-        "dev": [
-            "nox",
-            "flake8",
-            "pytest",
-            "black",
-        ]
-    },
+        'pycryptodome==3.12.0',
+        'pyperclip',
+        'tabulate',
+        'passwordgenerator',
+        'SQLAlchemy==1.4.28',
+        'sqlcipher3==0.4.5'
+    ],  # external dependencies
     entry_points={
-        "console_scripts": [
-            "img2gb = img2gb.__main__:main",
+        'console_scripts': [
+            'vault = vault.vault:main',
         ],
     },
+    classifiers=[  # see https://pypi.org/pypi?%3Aaction=list_classifiers
+        'Topic :: Security',
+        'Topic :: Security :: Cryptography',
+        'License :: OSI Approved :: MIT License',
+        'Operating System :: MacOS',
+        'Operating System :: POSIX :: Linux',
+        'Natural Language :: English',
+        #  'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python',
+        'Development Status :: 4 - Beta',
+        #  'Development Status :: 5 - Production/Stable',
+    ],
 )
