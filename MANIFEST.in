@@ -1,3 +1,5 @@
-# Include tests files and data
-include mss/tests/*.py
-recursive-include mss/tests/res *
+include MANIFEST.in
+include CHANGES.rst INSTALL.rst LICENSE.txt README.rst
+include logo/logo-220x200.png
+recursive-include lupa *.py *.pyx *.pxd *.pxi *.c
+recursive-include third-party *.c *.h
