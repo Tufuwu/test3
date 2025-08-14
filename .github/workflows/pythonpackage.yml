@@ -22,7 +22,7 @@ jobs:
         else
           OS=MacOSX-x86_64
         fi
-        wget -O miniconda.sh https://repo.continuum.io/miniconda/Miniconda${{ matrix.conda:0:1 }}-latest-$OS.sh
+        wget -O miniconda.sh https://repo.continuum.io/miniconda/Miniconda3-latest-$OS.sh
         bash miniconda.sh -b -p $HOME/miniconda
         echo "$HOME/miniconda/bin" >> $GITHUB_PATH
         conda config --set always_yes yes --set changeps1 no
