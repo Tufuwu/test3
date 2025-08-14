@@ -1,6 +1,11 @@
 from flask import Flask, jsonify, render_template
 from flask.views import MethodView
-from flask_simplelogin import SimpleLogin, get_username, login_required, Message
+from flask_simplelogin import (
+    SimpleLogin,
+    get_username,
+    login_required,
+    Message,
+)
 
 my_users = {
     "chuck": {"password": "norris", "roles": ["admin"]},
@@ -39,9 +44,8 @@ messages = {
 
 # I'm not sure what the appropriate naming convention is here.
 simple_login = SimpleLogin(
-    app,
-    login_checker=check_my_users,
-    messages=messages)
+    app, login_checker=check_my_users, messages=messages
+)
 simple_login.disable_messages("login_success", "logout")
 
 
