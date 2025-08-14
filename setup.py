@@ -1,39 +1,72 @@
-from setuptools import setup
+# -*- coding: utf-8 -*-
+import sys
 
-with open("README.rst") as readme, open("CHANGES.rst") as changes:
-    setup(
-        name="django-simple-history",
-        use_scm_version={"version_scheme": "post-release"},
-        setup_requires=["setuptools_scm"],
-        description="Store model history and view/revert changes from admin site.",
-        long_description="\n".join((readme.read(), changes.read())),
-        author="Corey Bertram",
-        author_email="corey@qr7.com",
-        maintainer="Trey Hunner",
-        url="https://github.com/jazzband/django-simple-history",
-        packages=[
-            "simple_history",
-            "simple_history.management",
-            "simple_history.management.commands",
-            "simple_history.templatetags",
-        ],
-        classifiers=[
-            "Development Status :: 5 - Production/Stable",
-            "Framework :: Django",
-            "Environment :: Web Environment",
-            "Intended Audience :: Developers",
-            "Framework :: Django",
-            "Framework :: Django :: 2.2",
-            "Framework :: Django :: 3.0",
-            "Framework :: Django :: 3.1",
-            "Programming Language :: Python",
-            "Programming Language :: Python :: 3.5",
-            "Programming Language :: Python :: 3.6",
-            "Programming Language :: Python :: 3.7",
-            "Programming Language :: Python :: 3.8",
-            "Programming Language :: Python :: 3.9",
-            "License :: OSI Approved :: BSD License",
-        ],
-        python_requires=">=3.5",
-        include_package_data=True,
-    )
+from setuptools import setup, find_packages
+
+if (sys.version_info[:3] < (3, 0)):
+    with open('README.rst') as f:
+        readme = f.read()
+else:
+    with open('README.rst', encoding='utf-8') as f:
+        readme = f.read()
+with open('HISTORY.rst') as f:
+    history = f.read()
+
+test_deps = [
+    "pytest",
+    "mock",
+]
+
+extras = {
+    'test': test_deps,
+}
+
+setup(
+    name='marabunta',
+    use_scm_version=True,
+    description='Migration tool for Odoo',
+    long_description=readme + '\n\n' + history,
+    author='Camptocamp (Guewen Baconnier)',
+    author_email='guewen.baconnier@camptocamp.com',
+    url='https://github.com/camptocamp/marabunta',
+    license='AGPLv3+',
+    packages=find_packages(exclude=('tests', 'docs')),
+    install_requires=[
+        "psycopg2",
+        "ruamel.yaml>=0.15.1",
+        "pexpect",
+        "werkzeug",
+        "future",
+    ],
+    setup_requires=[
+        'setuptools_scm',
+    ],
+    tests_require=test_deps,
+    extras_require=extras,
+    include_package_data=True,
+    package_data={
+        'marabunta': ['html/*.html'],
+    },
+    classifiers=(
+        'Development Status :: 3 - Alpha',
+        'Intended Audience :: Developers',
+        'Natural Language :: English',
+        'License :: OSI Approved :: '
+        'GNU Affero General Public License v3 or later (AGPLv3+)',
+        'Programming Language :: Python',
+        'Programming Language :: Python :: 2',
+        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: Implementation :: CPython',
+        'Programming Language :: Python :: Implementation :: PyPy',
+    ),
+    entry_points={
+        'console_scripts': ['marabunta = marabunta.core:main']
+    },
+)

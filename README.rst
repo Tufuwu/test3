@@ -1,63 +1,140 @@
-django-simple-history
+🐜🐜🐜 Marabunta 🐜🐜🐜
+=======================
+
+.. image:: https://travis-ci.org/camptocamp/marabunta.svg?branch=master
+    :target: https://travis-ci.org/camptocamp/marabunta
+
+*Marabunta is a name given to the migration of the legionary ants or to the ants
+themselves. Restless, they eat and digest everything in their way.*
+
+Marabunta is used to provide an easy way to create Updates for Odoo fast and run easily. It also allows to differentiate between different environment to provide for instance demodata.
+
+
+Usage
+=====
+After installing marabunta, it will be available as a console command. To run properly it requires a migration file (which defines what has to updated/executed) and odoos connection parameters (view options in the options section.
+
+At each run marabunta verifies the versions from the migration file and and processes new ones.
+It is very much recommended to configure it, so that marabunta is ran automatically if odoo is started.
+For instance adding it to your docker entrypoint.
+
+Features
+========
+
+* backup: Marabunta allows for a backup command to be executed before the migration.
+* addon upgrades: Marabunta is able to install or upgrade odoo addons.
+* operations: Allows to execute commands before or after upgrading modules.
+* modes: Modes allow the user to execute commands only on a certain environment. e.g. creation of demodata on a dev system.
+* maintenance page: publish an html page during the migration.
+
+Versioning systems
+------------------
+Currently Marabunta allows for two different Versioning systems:
+The classic Major.Minor.Bugfix and the Five digits long versions for OdooMajor.OdooMinor.Major.Minor.Bugfix.
+Although the first marabunta version must be **setup** for the initial setup of your instance. (Find out more about the rationale here <https://github.com/camptocamp/marabunta/commit/9b96acaff8e7eecbf82ff592b7bb927b4cd82f02>)
+
+
+Options
+=======
+    +-------------------+----------+---------------------------+-------------------------------------------------------------------+
+    | option            | shortcut | envvar                    | purpose                                                           |
+    +===================+==========+===========================+===================================================================+
+    | --migration-file  | -f       | MARABUNTA_MIGRATION_FILE  | Definition file for the migration.                                |
+    +-------------------+----------+---------------------------+-------------------------------------------------------------------+
+    | --database        | -d       | MARABUNTA_DATABASE        | Database we want to run the migration on.                         |
+    +-------------------+----------+---------------------------+-------------------------------------------------------------------+
+    | --db-user         | -u       | MARABUNTA_DB_USER         | Database user.                                                    |
+    +-------------------+----------+---------------------------+-------------------------------------------------------------------+
+    | --db-password     | -w       | MARABUNTA_DB_PASSWORD     | Database password.                                                |
+    +-------------------+----------+---------------------------+-------------------------------------------------------------------+
+    | --db-port         | -p       | MARABUNTA_DB_PORT         | Database port (defaults to 5432).                                 |
+    +-------------------+----------+---------------------------+-------------------------------------------------------------------+
+    | --db-host         | -H       | MARABUNTA_DB_HOST         | Database port (defaults to localhost).                            |
+    +-------------------+----------+---------------------------+-------------------------------------------------------------------+
+    | --mode            |          | MARABUNTA_MODE            | Mode marabunta runs in for different envs.                        |
+    +-------------------+----------+---------------------------+-------------------------------------------------------------------+
+    | --allow-serie     |          | MARABUNTA_ALLOW_SERIE     | Allow multiple versions to be upgraded at once.                   |
+    +-------------------+----------+---------------------------+-------------------------------------------------------------------+
+    | --force-version   |          | MARABUNTA_FORCE_VERSION   | Force the upgrade to a version no matter what.                    |
+    +-------------------+----------+---------------------------+-------------------------------------------------------------------+
+    | --web-host        |          | MARABUNTA_WEB_HOST        | Interface to bind for the maintenance page. (defaults to 0.0.0.0).|
+    +-------------------+----------+---------------------------+-------------------------------------------------------------------+
+    | --web-port        |          | MARABUNTA_WEB_PORT        | Port for the maintenance page. (defaults to 8069).                |
+    +-------------------+----------+---------------------------+-------------------------------------------------------------------+
+    | --web-custom-html |          | MARABUNTA_WEB_CUSTOM_HTML | Path to custom maintenance html page to serve.                    |
+    +-------------------+----------+---------------------------+-------------------------------------------------------------------+
+                                                          
+YAML layout & Example
 =====================
+Here is an Example migration file::
 
-.. image:: https://github.com/jazzband/django-simple-history/workflows/build/badge.svg?branch=master
-   :target: https://github.com/jazzband/django-simple-history/actions?workflow=build
-   :alt: Build Status
+    migration:
+      options:
+        # This includes general options which are used everytime marabunta is called.
+        # --workers=0 --stop-after-init are automatically added
+        install_command: odoo #Command which starts odoo
+        install_args: --log-level=debug # additional Arguments
+        backup: # Defines how the backup should be done before the migration.
+          command: echo "backup command on ${DB_NAME}"
+          stop_on_failure: true
+          ignore_if: test "${RUNNING_ENV}" != "prod"
+      versions:
+        - version: setup # Setup is always the initia. version<
+          operations:
+            pre:  # executed before 'addons'
+              - echo 'pre-operation'
+            post:  # executed after 'addons'
+              - anthem songs::install
+          addons:
+            upgrade:  # executed as odoo --stop-after-init -i/-u ...
+              - base
+              - document
+          modes:
+            prod:
+              operations:
+                pre:
+                  - echo 'pre-operation executed only when the mode is prod'
+                post:
+                  - anthem songs::load_production_data
+            demo:
+              operations:
+                post:
+                  - anthem songs::load_demo_data
+              addons:
+                upgrade:
+                  - demo_addon
 
-.. image:: https://readthedocs.org/projects/django-simple-history/badge/?version=latest
-   :target: https://django-simple-history.readthedocs.io/en/latest/?badge=latest
-   :alt: Documentation Status
+        - version: 0.0.2
+          backup: false
+          # nothing to do this can be used to keep marabunta and gittag in sync
 
-.. image:: https://img.shields.io/codecov/c/github/jazzband/django-simple-history/master.svg
-   :target: http://codecov.io/github/jazzband/django-simple-history?branch=master
-   :alt: Test Coverage
+        - version: 0.0.3
+          operations:
+            pre: # we also can execute os commands
+              - echo 'foobar'
+              - ls
+              - bin/script_test.sh
+            post:
+              - echo 'post-op'
 
-.. image:: https://img.shields.io/pypi/v/django-simple-history.svg
-   :target: https://pypi.python.org/pypi/django-simple-history
-   :alt: PyPI Version
-
-.. image:: https://api.codeclimate.com/v1/badges/66cfd94e2db991f2d28a/maintainability
-   :target: https://codeclimate.com/github/treyhunner/django-simple-history/maintainability
-   :alt: Maintainability
-
-.. image:: https://pepy.tech/badge/django-simple-history
-   :target: https://pepy.tech/project/django-simple-history
-   :alt: Downloads
-
-.. image:: https://img.shields.io/badge/code%20style-black-000000.svg
-   :target: https://github.com/ambv/black
-   :alt: Code Style
-
-.. image:: https://jazzband.co/static/img/badge.svg
-   :target: https://jazzband.co/
-   :alt: Jazzband
+        - version: 0.0.4
+          backup: false
+          addons:
+            upgrade:
+              - popeye
 
 
-django-simple-history stores Django model state on every create/update/delete.
+Run the tests
+-------------
 
-This app supports the following combinations of Django and Python:
+To run ``marabunta`` tests, it is a good idea to do an *editable*
+install of it in a virtualenv, and then intall and run ``pytest`` as
+follows::
 
-==========  =======================
-  Django      Python
-==========  =======================
-2.2         3.5, 3.6, 3.7, 3.8, 3.9
-3.0         3.6, 3.7, 3.8, 3.9
-3.1         3.6, 3.7, 3.8, 3.9
-==========  =======================
-
-Getting Help
-------------
-
-Documentation is available at https://django-simple-history.readthedocs.io/
-
-Pull requests are welcome.  Read the `CONTRIBUTING`_ file for tips on
-submitting a pull request.
-
-.. _CONTRIBUTING: https://github.com/jazzband/django-simple-history/blob/master/CONTRIBUTING.rst
-
-License
--------
-
-This project is licensed under the
-`BSD 3-Clause license <https://choosealicense.com/licenses/bsd-3-clause/>`_.
+  $ git clone https://github.com/camptocamp/marabunta.git
+  Cloning into 'marabunta'...
+  $ cd marabunta
+  $ virtualenv -p YOUR_PYTHON env
+  $ source env/bin/activate
+  $ pip install '.[test]'
+  $ py.test tests
