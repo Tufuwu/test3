@@ -1,8 +1,5 @@
-rdflib
-owlrl
-sqlalchemy
-pytest
-docker
-Sphinx==2.3.1
-readthedocs-sphinx-ext
-pyshacl
+cython>=0.28
+numpy>=1.14
+scipy
+matplotlib
+raysect==0.7
