@@ -1,113 +1,61 @@
-from setuptools import setup, find_packages, Extension
 import sys
-import numpy
-import os
-import os.path as path
-import multiprocessing
+from setuptools import setup, find_packages
+from circus import __version__
 
-use_cython = True
-force = False
-profile = False
-line_profile = False
-install_rates = False
+if not hasattr(sys, 'version_info') or sys.version_info < (3, 5, 0, 'final'):
+    raise SystemExit("Circus requires Python 3.5 or higher.")
 
-if "--skip-cython" in sys.argv:
-    use_cython = False
-    del sys.argv[sys.argv.index("--skip-cython")]
 
-if "--force" in sys.argv:
-    force = True
-    del sys.argv[sys.argv.index("--force")]
+install_requires = ['psutil', 'pyzmq>=17.0', 'tornado>=5.0.2']
 
-if "--profile" in sys.argv:
-    profile = True
-    del sys.argv[sys.argv.index("--profile")]
+try:
+    import argparse     # NOQA
+except ImportError:
+    install_requires.append('argparse')
 
-if "--line-profile" in sys.argv:
-    line_profile = True
-    del sys.argv[sys.argv.index("--line-profile")]
+with open("README.md") as f:
+    README = f.read()
 
-if "--install-rates" in sys.argv:
-    install_rates = True
-    del sys.argv[sys.argv.index("--install-rates")]
 
-source_paths = ['cherab', 'demos']
-compilation_includes = [".", numpy.get_include()]
-compilation_args = []
-cython_directives = {
-    'language_level': 3
-}
-setup_path = path.dirname(path.abspath(__file__))
-
-if line_profile:
-    compilation_args.append("-DCYTHON_TRACE=1")
-    compilation_args.append("-DCYTHON_TRACE_NOGIL=1")
-    cython_directives["linetrace"] = True
-
-if use_cython:
-
-    from Cython.Build import cythonize
-
-    # build .pyx extension list
-    extensions = []
-    for package in source_paths:
-        for root, dirs, files in os.walk(path.join(setup_path, package)):
-            for file in files:
-                if path.splitext(file)[1] == ".pyx":
-                    pyx_file = path.relpath(path.join(root, file), setup_path)
-                    module = path.splitext(pyx_file)[0].replace("/", ".")
-                    extensions.append(Extension(module, [pyx_file], include_dirs=compilation_includes, extra_compile_args=compilation_args),)
-
-    if profile:
-        cython_directives["profile"] = True
-
-    # generate .c files from .pyx
-    extensions = cythonize(extensions, nthreads=multiprocessing.cpu_count(), force=force, compiler_directives=cython_directives)
-
-else:
-
-    # build .c extension list
-    extensions = []
-    for package in source_paths:
-        for root, dirs, files in os.walk(path.join(setup_path, package)):
-            for file in files:
-                if path.splitext(file)[1] == ".c":
-                    c_file = path.relpath(path.join(root, file), setup_path)
-                    module = path.splitext(c_file)[0].replace("/", ".")
-                    extensions.append(Extension(module, [c_file], include_dirs=compilation_includes, extra_compile_args=compilation_args),)
-
-# parse the package version number
-with open(path.join(path.dirname(__file__), 'cherab/core/VERSION')) as version_file:
-    version = version_file.read().strip()
-
-setup(
-    name="cherab",
-    version=version,
-    license="EUPL 1.1",
-    namespace_packages=['cherab'],
-    description='Cherab spectroscopy framework',
-    classifiers=[
-        "Development Status :: 5 - Production/Stable",
-        "Intended Audience :: Science/Research",
-        "Intended Audience :: Education",
-        "Intended Audience :: Developers",
-        "Natural Language :: English",
-        "Operating System :: POSIX :: Linux",
-        "Programming Language :: Cython",
-        "Programming Language :: Python :: 3",
-        "Topic :: Scientific/Engineering :: Physics"
-    ],
-    install_requires=['numpy>=1.14', 'scipy', 'matplotlib', 'raysect>=0.7.1', 'cython>=0.28'],
-    packages=find_packages(),
-    include_package_data=True,
-    zip_safe=False,
-    ext_modules=extensions
-)
-
-# setup a rate repository with common rates
-if install_rates:
-    try:
-        from cherab.openadas import repository
-        repository.populate()
-    except ImportError:
-        pass
+setup(name='circus',
+      version=__version__,
+      packages=find_packages(exclude=["docs", "examples"]),
+      description=("Circus is a program that will let you run and watch "
+                   " multiple processes and sockets."),
+      long_description=README,
+      author="Mozilla Foundation & contributors",
+      author_email="services-dev@lists.mozila.org",
+      include_package_data=True,
+      zip_safe=False,
+      classifiers=[
+          "Programming Language :: Python",
+          "Programming Language :: Python :: 3.5",
+          "Programming Language :: Python :: 3.6",
+          "Programming Language :: Python :: 3.7",
+          "Programming Language :: Python :: 3.8",
+          "License :: OSI Approved :: Apache Software License"
+      ],
+      install_requires=install_requires,
+      extras_require={
+        'test': [
+            'nose',
+            'nose-cov',
+            'coverage',
+            'mock',
+            'circus-web',
+            'gevent',
+            'papa',
+            'PyYAML',
+            'pyzmq>=17.0',
+            'flake8==2.1.0',
+        ],
+      },
+      test_suite='circus.tests',
+      entry_points="""
+      [console_scripts]
+      circusd = circus.circusd:main
+      circusd-stats = circus.stats:main
+      circusctl = circus.circusctl:main
+      circus-top = circus.stats.client:main
+      circus-plugin = circus.plugins:main
+      """)

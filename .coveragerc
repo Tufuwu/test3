@@ -1,4 +1,9 @@
 [run]
-plugins = Cython.Coverage
-source = cherab
-omit = *tests*
+omit = *_patch*,circus/tests/*
+source = circus
+include = circus/*
+parallel = true
+
+[html]
+directory = html
+
