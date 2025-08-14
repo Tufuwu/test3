@@ -1,46 +1,104 @@
-# riskparity.py
+rospy_message_converter
+=======================
 
-[![PyPI version](https://badge.fury.io/py/riskparityportfolio.svg)](https://badge.fury.io/py/riskparityportfolio)
-[![Downloads](https://pepy.tech/badge/riskparityportfolio)](https://pepy.tech/project/riskparityportfolio)
-[![codecov](https://codecov.io/gh/mirca/riskparity.py/branch/master/graph/badge.svg)](https://codecov.io/gh/mirca/riskparity.py)
+Rospy_message_converter is a lightweight ROS package and Python library to
+convert from Python dictionaries and JSON messages to rospy messages, and vice
+versa.
 
+ROS 1 and ROS 2 branches
+------------------------
 
-**riskparityportfolio** provides tools to design risk parity portfolios.
-In its simplest form, we consider the convex formulation with a unique solution proposed by
-[Spinu (2013)](https://dx.doi.org/10.2139/ssrn.2297383) and use a cyclical method inspired by
-[Griveau-Billion (2013)](https://arxiv.org/pdf/1311.4057.pdf). For more general formulations,
-which are usually nonconvex, we implement the successive convex approximation
-method proposed by [Feng & Palomar (2015)](https://doi.org/10.1109/TSP.2015.2452219).
+ROS 1 users should use the `master` branch. ROS 2 users should use the appropriate
+branch for their distro (`foxy`/`galactic`/`humble`/`rolling`/...).
 
-**Documentation:** [**https://mirca.github.io/riskparity.py**](https://mirca.github.io/riskparity.py)
+Usage
+-----
 
-**R version:** [**https://mirca.github.io/riskParityPortfolio**](https://mirca.github.io/riskParityPortfolio)
+Convert a dictionary to a ROS message
 
-**Talks**: [**slides HKML meetup 2020**](https://speakerdeck.com/mirca/breaking-down-risk-parity-portfolios-a-practical-open-source-implementation),
-[**tutorial - Data-driven Portfolio Optimization Course (HKUST)**](https://www.youtube.com/watch?v=xb1Xxf5LQks)
-
-## Installation
-
-```
-$ git clone https://github.com/dppalomar/riskparity.py.git
-$ cd riskparity.py
-$ pip install -e .
+```python
+from rospy_message_converter import message_converter
+from std_msgs.msg import String
+dictionary = { 'data': 'Howdy' }
+message = message_converter.convert_dictionary_to_ros_message('std_msgs/String', dictionary)
 ```
 
+Convert a ROS message to a dictionary
 
-## License
+```python
+from rospy_message_converter import message_converter
+from std_msgs.msg import String
+message = String(data = 'Howdy')
+dictionary = message_converter.convert_ros_message_to_dictionary(message)
+```
 
-Copyright 2019 Ze Vinicius and Daniel Palomar
+Convert JSON to a ROS message
 
-This project is licensed under the terms of the MIT License.
+```python
+from rospy_message_converter import json_message_converter
+from std_msgs.msg import String
+json_str = '{"data": "Hello"}'
+message = json_message_converter.convert_json_to_ros_message('std_msgs/String', json_str)
+```
 
-## Disclaimer
+Convert a ROS message to JSON
 
-The information, software, and any additional resources contained in this repository are not intended as,
-and shall not be understood or construed as, financial advice. Past performance is not a reliable indicator
-of future results and investors may not recover the full amount invested.
-The [authors](https://github.com/dppalomar/riskParityPortfolio/blob/master/AUTHORS.md) of this repository
-accept no liability whatsoever for any loss or damage you may incur.  Any opinions expressed in this repository
-are from the personal research and experience of the
-[authors](https://github.com/dppalomar/riskParityPortfolio/blob/master/AUTHORS.md) and are intended as
-educational material.
+```python
+from rospy_message_converter import json_message_converter
+from std_msgs.msg import String
+message = String(data = 'Hello')
+json_str = json_message_converter.convert_ros_message_to_json(message)
+```
+
+Test
+----
+
+To run the tests:
+
+```bash
+catkin_make test
+```
+
+pre-commit Formatting Checks
+----------------------------
+
+This repo has a [pre-commit](https://pre-commit.com/) check that runs in CI.
+You can use this locally and set it up to run automatically before you commit
+something. To install, use pip:
+
+```bash
+pip3 install --user pre-commit
+```
+
+To run over all the files in the repo manually:
+
+```bash
+pre-commit run -a
+```
+
+To run pre-commit automatically before committing in the local repo, install the git hooks:
+
+```bash
+pre-commit install
+```
+
+
+License
+-------
+
+Project is released under the BSD license.
+
+GitHub actions - Continuous Integration
+---------------------------------------
+
+[![Build Status](https://github.com/DFKI-NI/rospy_message_converter/actions/workflows/github-actions.yml/badge.svg)](https://github.com/DFKI-NI/rospy_message_converter/actions/workflows/github-actions.yml/)
+
+
+ROS Buildfarm
+-------------
+
+|           | binary deb | source deb | devel | doc |
+|-----------|------------|------------|-------|-----|
+| kinetic | [![Build Status](http://build.ros.org/buildStatus/icon?job=Kbin_uX64__rospy_message_converter__ubuntu_xenial_amd64__binary)](http://build.ros.org/job/Kbin_uX64__rospy_message_converter__ubuntu_xenial_amd64__binary/) | [![Build Status](http://build.ros.org/buildStatus/icon?job=Ksrc_uX__rospy_message_converter__ubuntu_xenial__source)](http://build.ros.org/job/Ksrc_uX__rospy_message_converter__ubuntu_xenial__source/) | [![Build Status](http://build.ros.org/buildStatus/icon?job=Kdev__rospy_message_converter__ubuntu_xenial_amd64)](http://build.ros.org/job/Kdev__rospy_message_converter__ubuntu_xenial_amd64) | [![Build Status](http://build.ros.org/buildStatus/icon?job=Kdoc__rospy_message_converter__ubuntu_xenial_amd64)](http://build.ros.org/job/Kdoc__rospy_message_converter__ubuntu_xenial_amd64) |
+| melodic | [![Build Status](http://build.ros.org/buildStatus/icon?job=Mbin_uB64__rospy_message_converter__ubuntu_bionic_amd64__binary)](http://build.ros.org/job/Mbin_uB64__rospy_message_converter__ubuntu_bionic_amd64__binary) | [![Build Status](http://build.ros.org/buildStatus/icon?job=Msrc_uB__rospy_message_converter__ubuntu_bionic__source)](http://build.ros.org/job/Msrc_uB__rospy_message_converter__ubuntu_bionic__source/) | [![Build Status](http://build.ros.org/buildStatus/icon?job=Mdev__rospy_message_converter__ubuntu_bionic_amd64)](http://build.ros.org/job/Mdev__rospy_message_converter__ubuntu_bionic_amd64) | [![Build Status](http://build.ros.org/buildStatus/icon?job=Mdoc__rospy_message_converter__ubuntu_bionic_amd64)](http://build.ros.org/job/Mdoc__rospy_message_converter__ubuntu_bionic_amd64) |
+| noetic  | [![Build Status](http://build.ros.org/buildStatus/icon?job=Nbin_uF64__rospy_message_converter__ubuntu_focal_amd64__binary)](http://build.ros.org/job/Nbin_uF64__rospy_message_converter__ubuntu_focal_amd64__binary/) | [![Build Status](http://build.ros.org/buildStatus/icon?job=Nsrc_uF__rospy_message_converter__ubuntu_focal__source)](http://build.ros.org/job/Nsrc_uF__rospy_message_converter__ubuntu_focal__source/) | [![Build Status](http://build.ros.org/buildStatus/icon?job=Ndev__rospy_message_converter__ubuntu_focal_amd64)](http://build.ros.org/job/Ndev__rospy_message_converter__ubuntu_focal_amd64/) | [![Build Status](http://build.ros.org/buildStatus/icon?job=Ndoc__rospy_message_converter__ubuntu_focal_amd64)](http://build.ros.org/job/Ndoc__rospy_message_converter__ubuntu_focal_amd64/) |
