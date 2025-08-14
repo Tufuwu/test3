@@ -1,13 +1,21 @@
-[tool.ruff]
-line-length = 120
-
 [tool.black]
-line-length = 120
-target-version = ["py37", "py38", "py39", "py310", "py311"]
-
-[tool.isort]
-profile = "black"
-
-[tool.bandit]
-exclude_dirs = ["/tests", "/examples", "/venv", "/build"]
-skips = ["B404"]
+line-length = 88
+target_version = ["py36"]
+exclude = '''
+(
+    /(
+          \.git
+        | build
+        | curtsies.egg-info
+        | dist
+        | examples
+        | notes
+        | stubs
+    )/
+    | bootstrap.py
+    | curtsies/formatstring.py
+    | curtsies/formatstringarray.py
+    | docs/conf.py
+    
+)
+'''

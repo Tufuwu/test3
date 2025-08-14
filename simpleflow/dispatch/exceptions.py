@@ -1,2 +1,0 @@
-class DispatchError(Exception):
-    pass

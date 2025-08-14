@@ -1,61 +1,18 @@
-*.py[cod]
-
-# C extensions
-*.so
-
-# Packages
-*.egg
-*.egg-info
-dist
-build
-eggs
-parts
-bin
-var
-sdist
-develop-eggs
-.installed.cfg
-lib
-lib64
-
-# Installer logs
-pip-log.txt
-
-# Virtualenv
-/venv/
-
-# Unit test / coverage reports
-.coverage*
-nosetests.xml
-/.pytest_cache/
-
-# Translations
-*.mo
-
-# Mr Developer
-.mr.developer.cfg
-.project
-.pydevproject
-
-# Vim swap files
+venv*
+*.pyc
 *.swp
+*.swo
+*.egg-info
+*.log
+.tox
+.coverage
+cover
+tox.ini
+.mypy_cache
 
-# Jetbrains
-.idea/
+keylog
 
-# Complexity
-output/*.html
-output/*/index.html
-
-# Mkdocs
-docs/site
-
-# Coverage
-htmlcov/
-
-# Temporary files
-.cache/
-/tmp/
-
-# Not to be ignored
-!docs/script/build
+.DS_Store
+build
+dist
+docs/_build

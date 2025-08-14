@@ -1,58 +1,91 @@
-Simpleflow
-==========
+[![Documentation Status](https://readthedocs.org/projects/curtsies/badge/?version=latest)](https://readthedocs.org/projects/curtsies/?badge=latest)
+![Curtsies Logo](http://ballingt.com/assets/curtsiestitle.png)
 
-<p class=badges>
-[![Pypi Status](https://badge.fury.io/py/simpleflow.png)](https://badge.fury.io/py/simpleflow) [![Build Status](https://travis-ci.org/botify-labs/simpleflow.svg?branch=main)](https://travis-ci.org/botify-labs/simpleflow)
-</p>
+Curtsies is a Python 3.6+ compatible library for interacting with the terminal.
+This is what using (nearly every feature of) curtsies looks like:
 
-Simpleflow is a Python library that provides abstractions to write programs in
-the [distributed dataflow paradigm](https://en.wikipedia.org/wiki/Distributed_data_flow).
-It coordinates the execution of distributed tasks with [Amazon SWF](https://aws.amazon.com/swf/).
+```python
+import random
+import sys
 
-It relies on *futures* to describe the dependencies between tasks. A `Future` object
-models the asynchronous execution of a computation that may end.  It tries to mimic
-the interface of the Python [concurrent.futures](http://docs.python.org/3/library/concurrent.futures) library.
+from curtsies import FullscreenWindow, Input, FSArray
+from curtsies.fmtfuncs import red, bold, green, on_blue, yellow
 
+print(yellow('this prints normally, not to the alternate screen'))
 
-Features
+with FullscreenWindow() as window:
+    a = FSArray(window.height, window.width)
+    msg = red(on_blue(bold('Press escape to exit, space to clear.')))
+    a[0:1, 0:msg.width] = [msg]
+    window.render_to_terminal(a)
+    with Input() as input_generator:
+        for c in input_generator:
+            if c == '<ESC>':
+                break
+            elif c == '<SPACE>':
+                a = FSArray(window.height, window.width)
+            else:
+                s = repr(c)
+                row = random.choice(range(window.height))
+                column = random.choice(range(window.width-len(s)))
+                color = random.choice([red, green, on_blue, yellow])
+                a[row, column:column+len(s)] = [color(s)]
+            window.render_to_terminal(a)
+```
+
+Paste it in a `something.py` file and try it out!
+
+Installation: `pip install curtsies`
+
+[Documentation](http://curtsies.readthedocs.org/en/latest/)
+
+Primer
+------
+
+[FmtStr](http://curtsies.readthedocs.org/en/latest/FmtStr.html) objects are strings formatted with
+colors and styles displayable in a terminal with [ANSI escape sequences](http://en.wikipedia.org/wiki/ANSI_escape_code>`_).
+
+![](https://i.imgur.com/bRLI134.png)
+
+[FSArray](http://curtsies.readthedocs.org/en/latest/FSArray.html) objects contain multiple such strings
+with each formatted string on its own row, and FSArray
+objects can be superimposed on each other
+to build complex grids of colored and styled characters through composition.
+
+(the import statement shown below is outdated)
+
+![](http://i.imgur.com/rvTRPv1.png)
+
+Such grids of characters can be rendered to the terminal in alternate screen mode
+(no history, like `Vim`, `top` etc.) by [FullscreenWindow](http://curtsies.readthedocs.org/en/latest/window.html#curtsies.window.FullscreenWindow) objects
+or normal history-preserving screen by [CursorAwareWindow](http://curtsies.readthedocs.org/en/latest/window.html#curtsies.window.CursorAwareWindow) objects.
+User keyboard input events like pressing the up arrow key are detected by an
+[Input](http://curtsies.readthedocs.org/en/latest/input.html) object.
+
+Examples
 --------
 
-- Provides a `Future` abstraction to define dependencies between tasks.
-- Define asynchronous tasks from callables.
-- Handle workflows with Amazon SWF.
-- Implement replay behavior like the Amazon Flow framework.
-- Handle retry of tasks that failed.
-- Automatically register decorated tasks.
-- Encodes/decodes large fields to S3 objects transparently (aka "jumbo fields").
-- Handle the completion of a decision with more than 100 tasks.
-- Provides a local executor to check a workflow without Amazon SWF (see
-  `simpleflow --local` command).
-- Provides decider and activity worker process for execution with Amazon SWF.
-- Ships with the `simpleflow` command. `simpleflow --help` for more information
-  about the commands it supports.
+* [Tic-Tac-Toe](/examples/tictactoeexample.py)
 
-You can read more in the **Features** section of the documentation.
+![](http://i.imgur.com/AucB55B.png)
 
+* [Avoid the X's game](/examples/gameexample.py)
 
-Overview
---------
+![](http://i.imgur.com/nv1RQd3.png)
 
-Please read and even run the `demo` script to have a quick glance of
-`simpleflow` commands. To run the `demo`  you will need to start decider
-and activity worker processes.
+* [Bpython-curtsies uses curtsies](http://ballingt.com/2013/12/21/bpython-curtsies.html)
 
-Start a decider with:
+[![](http://i.imgur.com/r7rZiBS.png)](http://www.youtube.com/watch?v=lwbpC4IJlyA)
 
-    $ simpleflow decider.start --domain TestDomain --task-list test examples.basic.BasicWorkflow
+* [More examples](/examples)
 
-Start an activity worker with:
+About
+-----
 
-    $ simpleflow worker.start --domain TestDomain --task-list quickstart
-
-Then execute `./extras/demo`.
-
-
-More information
-----------------
-
-Read the main documentation at https://botify-labs.github.io/simpleflow/.
+* [Curtsies Documentation](http://curtsies.readthedocs.org/en/latest/)
+* Curtsies was written to for [bpython-curtsies](http://ballingt.com/2013/12/21/bpython-curtsies.html)
+* `#bpython` on irc is a good place to talk about Curtsies, but feel free
+  to open an issue if you're having a problem!
+* Thanks to the many contributors!
+* If all you need are colored strings, consider one of these [other
+  libraries](http://curtsies.readthedocs.io/en/latest/FmtStr.html#fmtstr-rationale)!

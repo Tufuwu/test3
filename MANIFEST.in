@@ -1,6 +1,4 @@
-include *.md
-include MANIFEST.in
 include LICENSE
-include setup.py
-include docs/*
-include tests/*
+include tests/*.py
+include examples/*.py
+include readme.md
