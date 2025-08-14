@@ -30,11 +30,11 @@ jobs:
         pip install cython>=0.28
         pip install numpy=="${{ matrix.numpy-version }}"
         pip install scipy matplotlib
-        if [ "${{ github.ref }}" = "refs/heads/master" ]; then
-          pip install raysect
-        else
-          pip install git+https://github.com/raysect/source@development
-        fi
+
+        pip install raysect
+
+        pip install git+https://github.com/raysect/source@development
+
         dev/build.sh
 
     - name: Run tests
