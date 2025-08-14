@@ -1,11 +1,16 @@
-# ! DO NOT MANUALLY INVOKE THIS setup.py, USE CATKIN INSTEAD
+#!/usr/bin/env python3
 
-from distutils.core import setup
-from catkin_pkg.python_setup import generate_distutils_setup
+import re
 
-d = generate_distutils_setup(
-    packages=['rospy_message_converter'],
-    package_dir={'': 'src'},
+from setuptools import setup
+
+with open("src/afancontrol/__init__.py", "rt") as f:
+    version = re.search(r'^__version__ = "(.*?)"$', f.read()).group(1)
+
+setup(
+    version=version,
+    data_files=[
+        ("etc/afancontrol", ["pkg/afancontrol.conf"]),
+        ("etc/systemd/system", ["pkg/afancontrol.service"]),
+    ],
 )
-
-setup(**d)
