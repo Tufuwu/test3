@@ -12,6 +12,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         python-version: [3.8, 3.9]
         numpy-version: ["1.15.0", "1.16.6", "1.19.2"]
