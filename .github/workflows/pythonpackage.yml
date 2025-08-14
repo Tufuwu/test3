@@ -16,7 +16,7 @@ jobs:
 
     - name: Set up Miniconda
       run: |
-        if [[ "${{ matrix.os }}" == "ubuntu-20.04" ]]; then
+        if [[ "${{ matrix.os }}" == "ubuntu-22.04" ]]; then
           export CXX=g++-4.8 CC=gcc-4.8
           OS=Linux-x86_64
         else
