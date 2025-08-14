@@ -11,10 +11,8 @@ def test_get_login(client):
 
 def test_post_requires_token(client):
     response = client.post(
-        url_for("simplelogin.login"),
-        data={
-            "username": "admin",
-            "password": "secret"})
+        url_for("simplelogin.login"), data={"username": "admin", "password": "secret"}
+    )
     assert response.status_code == 200
     assert "csrf_token The CSRF token is missing" in str(response.data)
 
@@ -24,10 +22,7 @@ def test_post_with_token(client):
     session["csrf_token"] = "123456"
     response = client.post(
         url_for("simplelogin.login"),
-        data={
-            "username": "admin",
-            "password": "secret",
-            "csrf_token": "123456"},
+        data={"username": "admin", "password": "secret", "csrf_token": "123456"},
     )
     assert response.status_code == 200
     assert "csrf_token The CSRF token is missing" not in str(response.data)

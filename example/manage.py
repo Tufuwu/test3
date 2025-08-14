@@ -102,8 +102,9 @@ def main():
 
 @main.command()
 @click.option("--username", required=True, prompt=True)
-@click.option("--password", required=True, prompt=True,
-              hide_input=True, confirmation_prompt=True)
+@click.option(
+    "--password", required=True, prompt=True, hide_input=True, confirmation_prompt=True
+)
 @with_app
 def adduser(app, username, password):
     """Add new user with admin access"""
