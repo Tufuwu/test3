@@ -1,4 +1,4 @@
-include CONTRIBUTORS.txt
-include README.md
+include README.rst
 include LICENSE
-include pip-requirements.txt
+recursive-include ofxtools/config *
+recursive-include ofxtools/tests *
