@@ -13,7 +13,8 @@ def compute_control_digit(clabe: Union[str, List[int]]) -> str:
     https://es.wikipedia.org/wiki/CLABE#D.C3.ADgito_control
     """
     clabe = [int(i) for i in clabe]
-    weighted = [c * w % 10 for c, w in zip(clabe[: CLABE_LENGTH - 1], CLABE_WEIGHTS)]
+    weighted = [c * w %
+                10 for c, w in zip(clabe[: CLABE_LENGTH - 1], CLABE_WEIGHTS)]
     summed = sum(weighted) % 10
     control_digit = (10 - summed) % 10
     return str(control_digit)
