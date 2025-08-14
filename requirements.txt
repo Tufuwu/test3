@@ -4,3 +4,4 @@ nose>1.2
 six>=1.10
 numpydoc
 vtk
+coverage
