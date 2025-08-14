@@ -1,67 +1,12 @@
-# CLABE
+Welcome to WMQL's source code!
+=========================================
 
-[![test](https://github.com/cuenca-mx/clabe-python/workflows/test/badge.svg)](https://github.com/cuenca-mx/clabe-python/actions?query=workflow%3Atest)
-[![codecov](https://codecov.io/gh/cuenca-mx/clabe-python/branch/master/graph/badge.svg)](https://codecov.io/gh/cuenca-mx/clabe-python)
-[![PyPI](https://img.shields.io/pypi/v/clabe.svg)](https://pypi.org/project/clabe/)
+The White Matter Query Language (WMQL) is a technique to formally describe white matter tracts and to automatically extract them from diffusion MRI volumes. This query language allows us to construct a dictionary of anatomical definitions describing white matter tracts. The definitions include adjacent gray and white matter regions, and rules for spatial relations. This enables the encoding of anatomical knowledge of the human brain white matter as well as the automated coherent labeling of white matter anatomy across subjects.
 
-Librería para validar y calcular un número CLABE basado en
-https://es.wikipedia.org/wiki/CLABE
+This is an implementation of the WMQL language presented in ["The white matter query language: a novel approach for describing human white matter anatomy", Wassermann et al. Brain Structure and Function 2016](http://link.springer.com/article/10.1007%2Fs00429-015-1179-4)
 
-## Requerimientos
+ [WMQL Documentation](http://demianw.github.io/tract_querier "WMQL Documentation")
 
-Python 3.6 o superior.
-
-## Instalación
-
-Se puede instalar desde Pypi usando
-
-```
-pip install clabe
-```
-
-## Pruebas
-
-Para ejecutar las pruebas
-
-```
-$ make test
-```
-
-## Uso básico
-
-Obtener el dígito de control de un número CLABE
-
-```python
-import clabe
-clabe.compute_control_digit('00200000000000000')
-```
-
-Para validar si un número CLABE es válido
-
-```python
-import clabe
-clabe.validate_clabe('002000000000000008')
-```
-
-Para obtener el banco a partir de 3 dígitos
-
-```python
-import clabe
-clabe.get_bank_name('002')
-```
-
-Para generar nuevo válido CLABES
-
-```python
-import clabe
-clabe.generate_new_clabes(10, '002123456')
-```
-
-## Subir a PyPi
-
-1. Actualizar version en `setup.py`
-1. Commit cambios a `setup.py` y empujarlos a `origin/master`
-1. `git tag -a <version> -m <release message>`
-1. `git push origin --tags`
-
-TravisCI subirá la version actualizada a PyPi despues de verificar que las pruebas pasen.
+Automated testing status: 
+[![travis-ci build status](https://secure.travis-ci.org/demianw/tract_querier.png?branch=master)](http://travis-ci.org/demianw/tract_querier)
+    

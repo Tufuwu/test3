@@ -1,51 +1,62 @@
-SHELL := bash
-PATH := ./venv/bin:${PATH}
-PYTHON = python3.7
-PROJECT = clabe
-isort = isort -rc -ac $(PROJECT) tests setup.py
-black = black -S -l 79 --target-version py38 $(PROJECT) tests setup.py
+# simple makefile to simplify repetetive build env management tasks under posix
 
+# caution: testing won't work on windows, see README
 
-all: test
+PYTHON ?= python
+CYTHON ?= cython
+NOSETESTS ?= nosetests
+CTAGS ?= ctags
 
-venv:
-	$(PYTHON) -m venv --prompt $(PROJECT) venv
-	pip install -qU pip
+all: clean inplace test
 
-install-test:
-	pip install -q .[test]
+clean-pyc:
+	find tract_querier -name "*.pyc" | xargs rm -f
 
-test: clean install-test lint
-	python setup.py test
+clean-so:
+	find tract_querier -name "*.so" | xargs rm -f
+	find tract_querier -name "*.pyd" | xargs rm -f
 
-format:
-	$(isort)
-	$(black)
-
-lint:
-	flake8 $(PROJECT) tests setup.py
-	$(isort) --check-only
-	$(black) --check
-	mypy $(PROJECT) tests
-
-clean:
-	rm -rf `find . -name __pycache__`
-	rm -f `find . -type f -name '*.py[co]' `
-	rm -f `find . -type f -name '*~' `
-	rm -f `find . -type f -name '.*~' `
-	rm -rf .cache
-	rm -rf .pytest_cache
-	rm -rf .mypy_cache
-	rm -rf htmlcov
-	rm -rf *.egg-info
-	rm -f .coverage
-	rm -f .coverage.*
+clean-build:
 	rm -rf build
-	rm -rf dist
 
-release: clean
-	python setup.py sdist bdist_wheel
-	twine upload dist/*
+clean-ctags:
+	rm -f tags
 
+clean-doc:
+	rm -rf doc/_build
 
-.PHONY: all install-test test format lint clean release
+clean: clean-build clean-pyc clean-so clean-ctags clean-doc
+
+in: inplace # just a shortcut
+inplace:
+	$(PYTHON) setup.py build_ext -i
+
+test-code: in
+	$(NOSETESTS) -s tract_querier
+test-doc:
+	$(NOSETESTS) -s --with-doctest --doctest-tests --doctest-extension=rst \
+	--doctest-extension=inc --doctest-fixtures=_fixture doc/ 
+
+test-coverage:
+	rm -rf coverage .coverage
+	$(NOSETESTS) -s --with-coverage --cover-html --cover-html-dir=coverage \
+	--cover-package=tract_querier tract_querier
+
+test: test-code
+
+trailing-spaces:
+	find tract_querier -name "*.py" | xargs perl -pi -e 's/[ \t]*$$//'
+
+cython:
+	find tract_querier -name "*.pyx" | xargs $(CYTHON)
+
+ctags:
+	# make tags for symbol based navigation in emacs and vim
+	# Install with: sudo apt-get install exuberant-ctags
+	$(CTAGS) -R *
+
+doc: inplace
+	make -C doc html
+
+doc-noplot: inplace
+	make -C doc html-noplot

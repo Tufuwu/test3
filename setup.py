@@ -1,43 +1,60 @@
-from importlib.machinery import SourceFileLoader
+#!/usr/bin/env python
+from setuptools import setup, find_packages
 
-import setuptools
-
-version = SourceFileLoader("version", "clabe/version.py").load_module()
-
-
-test_requires = [
-    "pytest<5.2",
-    "coverage<5",
-    "pytest-cov",
-    "black",
-    "isort[pipfile]",
-    "flake8",
-    "mypy",
-]
-
-with open("README.md", "r") as f:
-    long_description = f.read()
+DISTNAME = 'tract_querier'
+DESCRIPTION = \
+    'WMQL: Query language for automatic tract extraction from '\
+    'full-brain tractographies with '\
+    'a registered template on top of them'
+LONG_DESCRIPTION = open('README.md').read()
+MAINTAINER = 'Demian Wassermann'
+MAINTAINER_EMAIL = 'demian@bwh.harvard.edu'
+URL = 'http://demianw.github.io/tract_querier'
+LICENSE = open('license.rst').read()
+DOWNLOAD_URL = 'https://github.com/demianw/tract_querier'
+VERSION = '0.1'
 
 
-setuptools.setup(
-    name="clabe",
-    version=version.__version__,
-    author="Cuenca",
-    author_email="dev@cuenca.com",
-    description="Validate and generate the control digit of a CLABE in Mexico",
-    long_description=long_description,
-    long_description_content_type="text/markdown",
-    url="https://github.com/cuenca-mx/clabe",
-    packages=setuptools.find_packages(),
-    include_package_data=True,
-    package_data=dict(mati=["py.typed"]),
-    install_requires=["pydantic>=1.4,<2.0"],
-    setup_requires=["pytest-runner"],
-    tests_require=test_requires,
-    extras_require=dict(test=test_requires),
-    classifiers=[
-        "Programming Language :: Python :: 3",
-        "License :: OSI Approved :: MIT License",
-        "Operating System :: OS Independent",
-    ],
-)
+if __name__ == "__main__":
+    setup(
+        name=DISTNAME,
+        maintainer=MAINTAINER,
+        maintainer_email=MAINTAINER_EMAIL,
+        description=DESCRIPTION,
+        license=LICENSE,
+        url=URL,
+        version=VERSION,
+        download_url=DOWNLOAD_URL,
+        long_description=LONG_DESCRIPTION,
+        requires=[
+            'numpy(>=1.6)',
+            'nibabel(>=1.3)'
+        ],
+        classifiers=[
+            'Intended Audience :: Science/Research',
+            'Programming Language :: Python',
+            'Topic :: Scientific/Engineering',
+            'Operating System :: Microsoft :: Windows',
+            'Operating System :: POSIX',
+            'Operating System :: Unix',
+            'Operating System :: MacOS'
+        ],
+        scripts=[
+            'scripts/tract_querier',
+            'scripts/tract_math'
+        ],
+        test_suite='nose.collector',
+        data_files=[
+            ('data',
+             [
+                 'data/FreeSurfer.qry',
+                 'data/JHU_MNI_SS_WMPM_Type_I.qry',
+                 'data/JHU_MNI_SS_WMPM_Type_II.qry',
+                 'data/freesurfer_queries.qry',
+                 'data/mori_queries.qry',
+             ]
+             )
+        ],
+        include_package_data=True,
+        packages=find_packages(),
+    )
