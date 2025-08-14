@@ -1,62 +1,47 @@
-# simple makefile to simplify repetetive build env management tasks under posix
+all: init docs clean test
 
-# caution: testing won't work on windows, see README
-
-PYTHON ?= python
-CYTHON ?= cython
-NOSETESTS ?= nosetests
-CTAGS ?= ctags
-
-all: clean inplace test
-
-clean-pyc:
-	find tract_querier -name "*.pyc" | xargs rm -f
-
-clean-so:
-	find tract_querier -name "*.so" | xargs rm -f
-	find tract_querier -name "*.pyd" | xargs rm -f
+clean: clean-build clean-pyc
+	rm -fr htmlcov/
 
 clean-build:
-	rm -rf build
+	rm -fr build/
+	rm -fr dist/
+	rm -fr *.egg-info
 
-clean-ctags:
-	rm -f tags
+clean-pyc:
+	find . -name '*.pyc' -exec rm -f {} +
+	find . -name '*.pyo' -exec rm -f {} +
+	find . -name '*~' -exec rm -f {} +
 
-clean-doc:
-	rm -rf doc/_build
+init:
+	pip install "tox>=1.8" coverage Sphinx
 
-clean: clean-build clean-pyc clean-so clean-ctags clean-doc
+test:
+	coverage erase
+	tox
+	coverage html
 
-in: inplace # just a shortcut
-inplace:
-	$(PYTHON) setup.py build_ext -i
+docs: documentation
 
-test-code: in
-	$(NOSETESTS) -s tract_querier
-test-doc:
-	$(NOSETESTS) -s --with-doctest --doctest-tests --doctest-extension=rst \
-	--doctest-extension=inc --doctest-fixtures=_fixture doc/ 
+documentation:
+	sphinx-build -b html -d docs/_build/doctrees docs docs/_build/html
 
-test-coverage:
-	rm -rf coverage .coverage
-	$(NOSETESTS) -s --with-coverage --cover-html --cover-html-dir=coverage \
-	--cover-package=tract_querier tract_querier
+dist: clean
+	pip install -U wheel
+	python setup.py sdist
+	python setup.py bdist_wheel
+	for file in dist/* ; do gpg --detach-sign -a "$$file" ; done
+	ls -l dist
 
-test: test-code
+test-release: dist
+	pip install -U twine
+	gpg --detach-sign -a dist/*
+	twine upload -r pypitest dist/*
 
-trailing-spaces:
-	find tract_querier -name "*.py" | xargs perl -pi -e 's/[ \t]*$$//'
+release: dist
+	pip install -U twine
+	gpg --detach-sign -a dist/*
+	twine upload dist/*
 
-cython:
-	find tract_querier -name "*.pyx" | xargs $(CYTHON)
-
-ctags:
-	# make tags for symbol based navigation in emacs and vim
-	# Install with: sudo apt-get install exuberant-ctags
-	$(CTAGS) -R *
-
-doc: inplace
-	make -C doc html
-
-doc-noplot: inplace
-	make -C doc html-noplot
+format:
+	black simple_history setup.py runtests.py
