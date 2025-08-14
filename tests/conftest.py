@@ -3,9 +3,13 @@ import pytest
 from dramatiq import Worker
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture
 def broker():
-    return dramatiq.get_broker()
+    broker = dramatiq.get_broker()
+    middleware = broker.middleware[:]
+    yield broker
+    broker.middleware = middleware
+    broker.flush_all()
 
 
 @pytest.fixture
