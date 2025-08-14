@@ -46,10 +46,12 @@ def default_login_checker(user):
     username = user.get("username")
     password = user.get("password")
     the_username = os.environ.get(
-        "SIMPLELOGIN_USERNAME", current_app.config.get("SIMPLELOGIN_USERNAME", "admin")
+        "SIMPLELOGIN_USERNAME",
+        current_app.config.get("SIMPLELOGIN_USERNAME", "admin"),
     )
     the_password = os.environ.get(
-        "SIMPLELOGIN_PASSWORD", current_app.config.get("SIMPLELOGIN_PASSWORD", "secret")
+        "SIMPLELOGIN_PASSWORD",
+        current_app.config.get("SIMPLELOGIN_PASSWORD", "secret"),
     )
     if username == the_username and password == the_password:
         return True
@@ -98,7 +100,9 @@ def login_required(function=None, username=None, basic=False, must=None):
             error = validator(get_username())
             if error is not None:
                 return (
-                    SimpleLogin.get_message("auth_error", error).return_message(),
+                    SimpleLogin.get_message(
+                        "auth_error", error
+                    ).return_message(),
                     403,
                 )
 
@@ -109,7 +113,10 @@ def login_required(function=None, username=None, basic=False, must=None):
         if is_logged_in(username=username):
             return check(must) or fun(*args, **kwargs)
         elif is_logged_in():
-            return SimpleLogin.get_message("access_denied").return_message(), 403
+            return (
+                SimpleLogin.get_message("access_denied").return_message(),
+                403,
+            )
         else:
             SimpleLogin.get_message("login_required").flash()
             return redirect(url_for("simplelogin.login", next=request.path))
@@ -166,7 +173,9 @@ class SimpleLogin(object):
         "login_failure": Message("invalid credentials", category="danger"),
         "is_logged_in": Message("already logged in"),
         "logout": Message("Logged out!"),
-        "login_required": Message("You need to login first", category="warning"),
+        "login_required": Message(
+            "You need to login first", category="warning"
+        ),
         "access_denied": Message("Access Denied"),
         "auth_error": Message("Authentication Error: {0}"),
     }
@@ -185,7 +194,9 @@ class SimpleLogin(object):
         for i in args:
             self.messages[i].enabled = False
 
-    def __init__(self, app=None, login_checker=None, login_form=None, messages=None):
+    def __init__(
+        self, app=None, login_checker=None, login_form=None, messages=None
+    ):
         self.config = {
             "blueprint": "simplelogin",
             "login_url": "/login/",
@@ -211,7 +222,9 @@ class SimpleLogin(object):
         self._login_checker = f
         return f
 
-    def init_app(self, app, login_checker=None, login_form=None, messages=None):
+    def init_app(
+        self, app, login_checker=None, login_form=None, messages=None
+    ):
         if login_checker:
             self._login_checker = login_checker
 
@@ -263,7 +276,9 @@ class SimpleLogin(object):
             warn(msg, FutureWarning)
             self.config.update(old_config)
 
-        self.config.update(dict((key, value) for key, value in config.items() if value))
+        self.config.update(
+            dict((key, value) for key, value in config.items() if value)
+        )
 
     def _set_default_secret(self):
         if self.app.config.get("SECRET_KEY") is None:
@@ -318,7 +333,9 @@ class SimpleLogin(object):
     def login(self):
         destiny = request.args.get(
             "next",
-            default=request.form.get("next", default=self.config.get("home_url", "/")),
+            default=request.form.get(
+                "next", default=self.config.get("home_url", "/")
+            ),
         )
 
         if is_logged_in():
