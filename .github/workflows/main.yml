@@ -14,7 +14,7 @@ jobs:
     strategy:
       matrix:
         python-version: [3.8]
-        env: [py38,lint]
+
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python ${{ matrix.python-version }}
@@ -24,8 +24,7 @@ jobs:
     - name: Install dependencies
       run: pip install tox
     - name: Run Tox
-      env:
-        TOXENV: ${{ matrix.env }}
+
       run: tox
 
   deploy:
