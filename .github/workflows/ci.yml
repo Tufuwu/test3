@@ -32,4 +32,6 @@ jobs:
         pip install -r requirements-dev.txt
         rm -rf build/
     - name: Run tests
-      run: ./script/test -vv
+      run: |
+        chmod +x ./script/test
+        ./script/test -vv
