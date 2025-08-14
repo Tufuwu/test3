@@ -197,7 +197,8 @@ def do_get_s3_archive(profile, region, bucket, table, archive):
         sys.exit(1)
 
     # Script will always overwrite older backup.  Bucket versioning stores multiple backups.
-    # Therefore, just get item from bucket based on table name since that's what we name the files.
+    # Therefore, just get item from bucket based on table name since that's
+    # what we name the files.
     filename = None
     for d in contents["Contents"]:
         if d["Key"] == "{}/{}.{}".format(args.dumpPath, table, archive_type):
@@ -227,7 +228,8 @@ def do_get_s3_archive(profile, region, bucket, table, archive):
             # ExtractError is raised for non-fatal errors on extract method
             logging.error("Error during extraction: " + str(e))
 
-    # Assuming zip file here since we're only supporting tar and zip at this time
+    # Assuming zip file here since we're only supporting tar and zip at this
+    # time
     else:
         try:
             logging.info("Extracting zip file...")
@@ -797,7 +799,8 @@ def do_restore(
     )
 
     # create table using schema
-    # restore source_table from dump directory if it exists else try current working directory
+    # restore source_table from dump directory if it exists else try current
+    # working directory
     if os.path.exists("%s/%s" % (args.dumpPath, source_table)):
         dump_data_path = args.dumpPath
     else:
@@ -984,7 +987,8 @@ def do_restore(
                     False,
                 )
 
-            # loop through each GSI to check if it has changed and update if necessary
+            # loop through each GSI to check if it has changed and update if
+            # necessary
             if table_global_secondary_indexes is not None:
                 gsi_data = []
                 for gsi in table_global_secondary_indexes:
@@ -1201,7 +1205,8 @@ def main():
         log_level = args.log.upper()
     logging.basicConfig(level=getattr(logging, log_level))
 
-    # Check to make sure that --dataOnly and --schemaOnly weren't simultaneously specified
+    # Check to make sure that --dataOnly and --schemaOnly weren't
+    # simultaneously specified
     if args.schemaOnly and args.dataOnly:
         logging.info(
             "Options --schemaOnly and --dataOnly are mutually exclusive."
@@ -1249,7 +1254,8 @@ def main():
     if args.mode == "backup":
         matching_backup_tables = []
         if args.tag:
-            # Use Boto3 to find tags.  Boto3 provides a paginator that makes searching ta
+            # Use Boto3 to find tags.  Boto3 provides a paginator that makes
+            # searching ta
             matching_backup_tables = get_table_name_by_tag(
                 args.profile, args.region, args.tag
             )
@@ -1343,7 +1349,8 @@ def main():
         else:
             dest_table = args.srcTable
 
-        # If backups are in S3 download and extract the backup to use during restoration
+        # If backups are in S3 download and extract the backup to use during
+        # restoration
         if args.bucket:
             do_get_s3_archive(
                 args.profile,
