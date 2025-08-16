@@ -1,43 +1,13 @@
-# simple Makefile for some common tasks
-.PHONY: clean test dist release pypi tagv docs
+# Make file to generate documentation
 
-clean:
-	find . -name "*.pyc" |xargs rm || true
-	rm -r dist || true
-	rm -r build || true
-	rm -rf .tox || true
-	rm -r .testrepository || true
-	rm -r cover .coverage || true
-	rm -r .eggs || true
-	rm -r gabbi.egg-info || true
+SOURCE     = source
+OUT        = build
+BUILD      = python3 -m sphinx
+OPTS       =-c .
 
-tagv:
-	git tag -s \
-		-m `python -c 'import gabbi; print gabbi.__version__'` \
-		`python -c 'import gabbi; print gabbi.__version__'`
-	git push origin main --tags
+help:
+	@$(BUILD) -M help "$(SOURCE)" "$(OUT)" $(OPTS)
 
-cleanagain:
-	find . -name "*.pyc" |xargs rm || true
-	rm -r dist || true
-	rm -r build || true
-	rm -r .tox || true
-	rm -r .testrepository || true
-	rm -r cover .coverage || true
-	rm -r .eggs || true
-	rm -r gabbi.egg-info || true
-
-docs:
-	cd docs ; $(MAKE) html
-
-test:
-	tox --skip-missing-interpreters
-
-dist: test
-	python3 setup.py sdist bdist_wheel
-
-release: clean test cleanagain tagv pypi
-
-pypi:
-	python3 setup.py sdist bdist_wheel
-	twine upload -s dist/*
+.PHONY: help Makefile
+%: Makefile
+	@$(BUILD) -M $@ "$(SOURCE)" "$(OUT)" $(OPTS)

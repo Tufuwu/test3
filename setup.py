@@ -1,21 +1,30 @@
-#!/usr/bin/env python
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#    http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
-# implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+import os.path
+from setuptools import setup
 
-import setuptools
+with open(os.path.join(os.path.dirname(__file__), "README.md")) as f:
+    readme = f.read()
 
-
-setuptools.setup(
-    setup_requires=['pbr'],
-    pbr=True)
+setup(
+    name="sphinx-multiversion",
+    description="Add support for multiple versions to sphinx",
+    long_description=readme,
+    long_description_content_type="text/markdown",
+    classifiers=[
+        "License :: OSI Approved :: BSD License",
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
+    ],
+    author="Jan Holthuis",
+    author_email="holthuis.jan@googlemail.com",
+    url="https://holzhaus.github.io/sphinx-multiversion/",
+    version="0.2.4",
+    install_requires=["sphinx >= 2.1"],
+    license="BSD",
+    packages=["sphinx_multiversion"],
+    entry_points={
+        "console_scripts": ["sphinx-multiversion=sphinx_multiversion:main",],
+    },
+)
