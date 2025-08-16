@@ -1,35 +1,29 @@
-ROS Documentation
-=================
+BundleWrap is a decentralized configuration management system that is designed to be powerful, easy to extend and extremely versatile.
 
+For more information, have a look at [bundlewrap.org](http://bundlewrap.org) and [docs.bundlewrap.org](http://docs.bundlewrap.org).
 
-This is the ROS 2 documentation site.
+------------------------------------------------------------------------
 
+<a href="https://pypi.python.org/pypi/bundlewrap/">
+    <img src="http://img.shields.io/pypi/v/bundlewrap.svg" alt="Latest Version">
+</a>
+&nbsp;
+<a href="https://github.com/bundlewrap/bundlewrap/actions">
+    <img src="https://github.com/bundlewrap/bundlewrap/workflows/Tests/badge.svg" alt="Build status">
+</a>
+&nbsp;
+<a href="https://pypi.python.org/pypi/bundlewrap/">
+    <img src="http://img.shields.io/pypi/pyversions/bundlewrap.svg" alt="Python compatibility">
+</a>
 
-## Project structure
+------------------------------------------------------------------------
 
-Under /source are the source files for the site.
-In the root directory are the files required to locally build the site for testing.
+Donations appreciated:
 
+Bitcoin `13AJYksqncZromPF8HvDUXsmHChAm3Y7W7`
 
-## Build the site locally
+Ethereum `0x5Eb3037e197d3C0d2E014bcfC2e027EB0AD42812`
 
-### Prerequisites
+------------------------------------------------------------------------
 
-You must have sphinx and the sphinx-tabs extension installed, preferably using pip:
-
-```
-pip3 install sphinx sphinx-tabs
-```
-
-For other distributions please refer to http://www.sphinx-doc.org/en/master/usage/installation.html
-
-
-### Build the site
-
-To build the site just execute:
-
-```
-make html
-```
-
-The site will be generated in the build/html directory. The main page is index.html
+BundleWrap is © 2013 - 2021 [Torsten Rehn](mailto:torsten@rehn.email)

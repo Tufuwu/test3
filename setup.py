@@ -1,30 +1,48 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-import os.path
-from setuptools import setup
+from setuptools import find_packages, setup
 
-with open(os.path.join(os.path.dirname(__file__), "README.md")) as f:
-    readme = f.read()
 
 setup(
-    name="sphinx-multiversion",
-    description="Add support for multiple versions to sphinx",
-    long_description=readme,
-    long_description_content_type="text/markdown",
+    name="bundlewrap",
+    version="4.3.0",
+    description="Config management with Python",
+    long_description=(
+        "By allowing for easy and low-overhead config management, BundleWrap fills the gap between complex deployments using Chef or Puppet and old school system administration over SSH.\n"
+        "While most other config management systems rely on a client-server architecture, BundleWrap works off a repository cloned to your local machine. It then automates the process of SSHing into your servers and making sure everything is configured the way it's supposed to be. You won't have to install anything on managed servers."
+    ),
+    author="Torsten Rehn",
+    author_email="torsten@rehn.email",
+    license="GPLv3",
+    url="http://bundlewrap.org",
+    packages=find_packages(),
+    entry_points={
+        'console_scripts': [
+            "bw=bundlewrap.cmdline:main",
+        ],
+    },
+    keywords=["configuration", "config", "management"],
     classifiers=[
-        "License :: OSI Approved :: BSD License",
-        "Programming Language :: Python :: 3",
+        "Development Status :: 5 - Production/Stable",
+        "Environment :: Console",
+        "Intended Audience :: System Administrators",
+        "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+        "Natural Language :: English",
+        "Operating System :: POSIX :: Linux",
+        "Programming Language :: Python",
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+        "Topic :: System :: Installation/Setup",
+        "Topic :: System :: Systems Administration",
     ],
-    author="Jan Holthuis",
-    author_email="holthuis.jan@googlemail.com",
-    url="https://holzhaus.github.io/sphinx-multiversion/",
-    version="0.2.4",
-    install_requires=["sphinx >= 2.1"],
-    license="BSD",
-    packages=["sphinx_multiversion"],
-    entry_points={
-        "console_scripts": ["sphinx-multiversion=sphinx_multiversion:main",],
-    },
+    install_requires=[
+        "cryptography",
+        "Jinja2",
+        "Mako",
+        "passlib",
+        "pyyaml",
+        "requests >= 1.0.0",
+        "tomlkit",
+    ],
+    zip_safe=False,
 )

@@ -1,4 +1,2 @@
-build/
-_build/
-.idea/
-.vscode/
+/dist/
+/docs/build/
