@@ -17,7 +17,7 @@ tests:
 
 # Explicit hosts
 - name: google full url
-  url: https://google.com/
+  url: https://www.google.ru/
   status: 302 || 301
 
 - name: google russia
