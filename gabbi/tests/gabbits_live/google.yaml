@@ -2,30 +2,31 @@ fixtures:
   - LiveSkipFixture
 
 defaults:
-    ssl: True
+  ssl: True
 
 tests:
 - name: google
   url: /
-  status: 302 || 301
+  status: [301, 302]
 
 - name: follow redirects
   desc: Confirm redirects are followed when we ask
   url: /
-  redirects: True
+  follow_redirects: true
   status: 200
 
 # Explicit hosts
 - name: google full url
   url: http://www.google.ru/
-  status: 302 || 301
+  status: [301, 302]
 
 - name: google russia
   desc: Test handling of non-utf-8 encoding
   url: http://www.google.ru/
+  status: [301, 302]
 
 - name: follow redirects full url
   desc: Confirm redirects are followed when we ask
   url: http://www.google.ru/
-  redirects: True
+  follow_redirects: true
   status: 200
