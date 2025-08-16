@@ -27,6 +27,6 @@ tests:
 
 - name: follow redirects full url
   desc: Confirm redirects are followed when we ask
-  url: https://google.com
+  url: http://www.google.ru/
   redirects: false
   status: 200
