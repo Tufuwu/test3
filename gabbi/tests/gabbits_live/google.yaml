@@ -11,8 +11,8 @@ tests:
 
 - name: follow redirects
   desc: Confirm redirects are followed when we ask
-  url: /
-  redirects: false
+  url: http://www.google.ru/
+
   status: 200
 
 # Explicit hosts
