@@ -11,13 +11,13 @@ tests:
 
 - name: follow redirects
   desc: Confirm redirects are followed when we ask
-  url: http://google.ru/
+  url: /
   redirects: True
   status: 200
 
 # Explicit hosts
 - name: google full url
-  url: https://google.com/
+  url: http://google.ru/
   status: 302 || 301
 
 - name: google russia
