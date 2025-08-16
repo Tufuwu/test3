@@ -2,48 +2,30 @@ fixtures:
   - LiveSkipFixture
 
 defaults:
-  ssl: True
+    ssl: True
 
 tests:
-# Google 根路径，单独测试 301 和 302
-- name: google 301
+- name: google
   url: /
-  status: 301
+  status: 302 || 301
 
-- name: google 302
-  url: /
-  status: 302
-
-# 跟随重定向测试
 - name: follow redirects
   desc: Confirm redirects are followed when we ask
   url: /
-  follow_redirects: "true"
+  redirects: True
   status: 200
 
-# 指定完整 URL，单独测试 301 和 302
-- name: google full url 301
-  url: http://www.google.ru/
-  status: 301
+# Explicit hosts
+- name: google full url
+  url: https://google.com/
+  status: 302 || 301
 
-- name: google full url 302
-  url: http://www.google.ru/
-  status: 302
-
-# Google Russia 页面，单独测试 301 和 302
-- name: google russia 301
+- name: google russia
   desc: Test handling of non-utf-8 encoding
-  url: http://www.google.ru/
-  status: 301
+  url: https://www.google.ru/
 
-- name: google russia 302
-  desc: Test handling of non-utf-8 encoding
-  url: http://www.google.ru/
-  status: 302
-
-# 跟随重定向测试（完整 URL）
 - name: follow redirects full url
   desc: Confirm redirects are followed when we ask
-  url: http://www.google.ru/
-  follow_redirects: "true"
+  url: https://google.com
+  redirects: True
   status: 200
