@@ -13,7 +13,7 @@ tests:
   desc: Confirm redirects are followed when we ask
   url: /
   redirects: True
-  status: 302 || 301 ||200
+  status: 200
 
 # Explicit hosts
 - name: google full url
@@ -28,4 +28,4 @@ tests:
   desc: Confirm redirects are followed when we ask
   url: https://google.com
   redirects: True
-  status: 302 || 301 ||200
+  status: 200 || 301
