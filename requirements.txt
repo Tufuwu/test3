@@ -1,2 +1,9 @@
-boto>=2.38.0
-boto3
+pbr
+pytest
+six
+PyYAML
+urllib3<2.0
+certifi
+jsonpath-rw-ext>=1.0.0
+wsgi-intercept>=1.8.1
+colorama
