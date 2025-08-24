@@ -1,48 +1,58 @@
-from setuptools import find_packages, setup
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+import io
 
+try:
+    from setuptools import setup
+except ImportError:
+    from distutils.core import setup
+
+from logya import __version__
+
+# Use io.open to be able to set encoding to utf-8.
+with io.open('README.rst', encoding='utf-8') as f:
+    readme = f.read()
+
+with io.open('requirements.txt', encoding='utf-8') as f:
+    requirements = f.read().splitlines()
 
 setup(
-    name="bundlewrap",
-    version="4.3.0",
-    description="Config management with Python",
-    long_description=(
-        "By allowing for easy and low-overhead config management, BundleWrap fills the gap between complex deployments using Chef or Puppet and old school system administration over SSH.\n"
-        "While most other config management systems rely on a client-server architecture, BundleWrap works off a repository cloned to your local machine. It then automates the process of SSHing into your servers and making sure everything is configured the way it's supposed to be. You won't have to install anything on managed servers."
-    ),
-    author="Torsten Rehn",
-    author_email="torsten@rehn.email",
-    license="GPLv3",
-    url="http://bundlewrap.org",
-    packages=find_packages(),
+    name='logya',
+    version=__version__,
+    description='Logya: easy to use and flexible static Web site generator.',
+    long_description=readme,
+    url='https://ramiro.org/logya/',
+    author='Ramiro Gómez',
+    author_email='code@ramiro.org',
+    maintainer='Ramiro Gómez',
+    maintainer_email='code@ramiro.org',
+    keywords=['Website Generator'],
+    license='MIT',
+    packages=['logya'],
+    package_data={'': ['LICENSE']},
+    include_package_data=True,
+    exclude_package_data={'': ['*.pyc']},
+    install_requires=requirements,
+    classifiers=[
+        'Development Status :: 5 - Production/Stable',
+        'Environment :: Console',
+        'Intended Audience :: Developers',
+        'License :: OSI Approved :: MIT License',
+        'Operating System :: POSIX :: Linux',
+        'Programming Language :: Python',
+        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
+        'Topic :: Internet :: WWW/HTTP :: Dynamic Content :: News/Diary',
+        'Topic :: Internet :: WWW/HTTP :: Site Management',
+        'Topic :: Text Processing :: Markup :: HTML'
+    ],
     entry_points={
         'console_scripts': [
-            "bw=bundlewrap.cmdline:main",
-        ],
+            'logya = logya.main:main'
+        ]
     },
-    keywords=["configuration", "config", "management"],
-    classifiers=[
-        "Development Status :: 5 - Production/Stable",
-        "Environment :: Console",
-        "Intended Audience :: System Administrators",
-        "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
-        "Natural Language :: English",
-        "Operating System :: POSIX :: Linux",
-        "Programming Language :: Python",
-        "Programming Language :: Python :: 3.6",
-        "Programming Language :: Python :: 3.7",
-        "Programming Language :: Python :: 3.8",
-        "Programming Language :: Python :: 3.9",
-        "Topic :: System :: Installation/Setup",
-        "Topic :: System :: Systems Administration",
-    ],
-    install_requires=[
-        "cryptography",
-        "Jinja2",
-        "Mako",
-        "passlib",
-        "pyyaml",
-        "requests >= 1.0.0",
-        "tomlkit",
-    ],
-    zip_safe=False,
+    test_suite='tests',
+    tests_require=['tox'],
 )
