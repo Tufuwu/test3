@@ -1,18 +1,16 @@
-*.egg
-*.egg-info
-*.orig
-*.pyc
-*.swp
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
 
-.tox/
+# Distribution / packaging
 build/
-__pycache__
-.coverage
-.cache
-
-.idea/
-.pytest_cache/
-venv/
-
 dist/
-docs/_build
+*.egg-info/
+.eggs/
+
+# Dev tools
+.idea
+
+# Environments
+/.venv
