@@ -1,7 +1,7 @@
-/doc/_build
-__pycache__
+**/.idea/
 *.pyc
-docs/
-*~
-*#
-/.coverage
+*.egg-info/
+/build/
+/dist/
+.tox
+.coverage
