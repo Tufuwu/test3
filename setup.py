@@ -1,40 +1,46 @@
-import random_word
-import setuptools
+#!/usr/bin/env python
+from setuptools import setup, find_packages
+from entangled import __version__
 
-with open("README.md", "r") as fh:
+
+with open('README.md') as fh:
     long_description = fh.read()
 
-setuptools.setup(
-    name=random_word.__name__,
-    version=random_word.__version__,
-    author=random_word.__author__,
-    author_email="hi@vaibhavsingh97.com",
-    description="This is a simple python package to generate random english words",
+
+CLASSIFIERS = [
+    'Development Status :: 5 - Production/Stable',
+    'Environment :: Web Environment',
+    'Framework :: Django',
+    'Intended Audience :: Developers',
+    'License :: OSI Approved :: MIT License',
+    'Operating System :: OS Independent',
+    'Programming Language :: Python',
+    'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
+    'Programming Language :: Python :: 3.7',
+    'Programming Language :: Python :: 3.8',
+    'Programming Language :: Python :: 3.9',
+    'Programming Language :: Python :: 3.10',
+    'Framework :: Django :: 3.2',
+    'Framework :: Django :: 4.0',
+]
+
+setup(
+    name='django-entangled',
+    version=__version__,
+    description='Edit JSON field using Django Model Form',
+    author='Jacob Rief',
+    author_email='jacob.rief@gmail.com',
+    url='https://github.com/jrief/django-entangled',
+    packages=find_packages(),
+    install_requires=[
+        'django>=2.1',
+    ],
+    license='MIT',
+    platforms=['OS Independent'],
+    keywords=['Django Forms', 'JSON'],
+    classifiers=CLASSIFIERS,
     long_description=long_description,
-    long_description_content_type="text/markdown",
-    license="MIT",
-    keywords="package random words word of the day random word generator",
-    url="https://github.com/vaibhavsingh97/random-word",
-    packages=setuptools.find_packages(),
-    classifiers=(
-        "Programming Language :: Python",
-        "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.1",
-        "Programming Language :: Python :: 3.10",
-        "Programming Language :: Python :: 3.2",
-        "Programming Language :: Python :: 3.3",
-        "Programming Language :: Python :: 3.4",
-        "Programming Language :: Python :: 3.5",
-        "Programming Language :: Python :: 3.6",
-        "Programming Language :: Python :: 3.7",
-        "Programming Language :: Python :: 3.8",
-        "Programming Language :: Python :: 3.9",
-        "License :: OSI Approved :: MIT License",
-        "Operating System :: OS Independent",
-    ),
-    test_suite="nose.collector",
-    tests_require=["nose"],
-    install_requires=["requests", "nose"],
+    long_description_content_type='text/markdown',
     include_package_data=True,
-    zip_safe=False,
+    zip_safe=False
 )

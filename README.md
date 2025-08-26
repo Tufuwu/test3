@@ -1,130 +1,195 @@
-# random-word
+# django-entangled
 
-![Build](https://github.com/vaibhavsingh97/random-word/workflows/Build/badge.svg)
-[![PyPI version](https://badge.fury.io/py/Random-Word.svg)](https://badge.fury.io/py/Random-Word)
-[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/Django.svg)](https://pypi.org/project/random-word/)
-[![PyPI - Status](https://img.shields.io/pypi/status/Django.svg)](https://pypi.org/project/random-word/)
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/d6ff0d51be474f1bb8b031c2c418b541)](https://www.codacy.com/app/vaibhavsingh97/random-word?utm_source=github.com&utm_medium=referral&utm_content=vaibhavsingh97/random-word&utm_campaign=Badge_Grade)
-[![Downloads](http://pepy.tech/badge/random-word)](http://pepy.tech/project/random-word)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://vaibhavsingh97.mit-license.org/)
+Edit JSON-Model Fields using a Standard Django Form.
 
-This is a simple python package to generate random english words.
-If you need help after reading the below, please find me at [@vaibhavsingh97](https://twitter.com/vaibhavsingh97) on Twitter.
+[![Build Status](https://travis-ci.org/jrief/django-entangled.svg?branch=master)](https://travis-ci.org/jrief/django-entangled)
+[![Coverage](https://codecov.io/github/jrief/django-entangled/coverage.svg?branch=master)](https://codecov.io/github/jrief/django-entangled?branch=master)
+[![PyPI](https://img.shields.io/pypi/pyversions/django-entangled.svg)]()
+[![PyPI version](https://img.shields.io/pypi/v/django-entangled.svg)](https://https://pypi.python.org/pypi/django-entangled)
+[![PyPI](https://img.shields.io/pypi/l/django-entangled.svg)]()
 
-If you love the package, please :star2: the repo.
+
+## Use-Case
+
+A Django Model may contain fields which accept arbitrary data stored as JSON. Django itself, provides a
+[JSON field](https://docs.djangoproject.com/en/stable/ref/models/fields/#django.db.models.JSONField) (it was
+[specific to Postgres before Django-3.1](https://docs.djangoproject.com/en/3.1/ref/contrib/postgres/fields/#jsonfield)).
+
+When creating a form from a model, the input field associated with a JSON field, typically is a `<textarea ...></textarea>`.
+This textarea widget is very inpracticable for editing, because it just contains a textual representation of that
+object notation. One possibility is to use a generic [JSON editor](https://github.com/josdejong/jsoneditor),
+which with some JavaScript, transforms the widget into an attribute-value-pair editor. This approach however requires
+to manage the field keys ourself. It furthermore prevents us from utilizing all the nice features provided by the Django
+form framework, such as field validation, normalization of data and the usage of foreign keys.
+
+By using **django-entangled**, one can use a Django `ModelForm`, and store all,
+or a subset of that form fields in one or more JSON fields inside of the associated model.
+
 
 ## Installation
 
-You should be able to install using `easy_install` or `pip` in the usual ways:
+Simply install this Django app, for instance by invoking:
 
-```sh
-$ easy_install random-word
-$ pip install random-word
+```bash
+pip install django-entangled
 ```
 
-Or just clone this repository and run:
+There is no need to add any configuration directives to the project's `settings.py`.
 
-```sh
-$ python3 setup.py install
-```
 
-Or place the `random-word` folder that you downloaded somewhere where it can be accessed by your scripts.
+## Example
 
-## Basic Usage
+Say, we have a Django model to describe a bunch of different products. The name and the price fields are common to all
+products, whereas the properties can vary depending on its product type. Since we don't want to create a different
+product model for each product type, we use a JSON field to store these arbitrary properties.
 
 ```python
-from random_word import RandomWords
-r = RandomWords()
+from django.db import models
 
-# Return a single random word
-r.get_random_word()
-# Return list of Random words
-r.get_random_words()
-# Return Word of the day
-r.word_of_the_day()
+class Product(models.Model):
+    name = models.CharField(max_length=50)
+
+    price = models.DecimalField(max_digits=5, decimal_places=2)
+
+    properties = models.JSONField()
 ```
 
-## Advance Usage
+In a typical form editing view, we would create a form inheriting from
+[ModelForm](https://docs.djangoproject.com/en/stable/topics/forms/modelforms/#modelform) and refer to this model using
+the `model` attribute in its `Meta`-class. Then the `properties`-field would show up as unstructured JSON, rendered
+inside a `<textarea ...></textarea>`. This definitely is not what we want! Instead we create a typical Django Form using
+the alternative class `EntangledModelForm`.
 
-1.  To generate single random word we can use these optional parameters
+```python
+from django.contrib.auth import get_user_model
+from django.forms import fields, models
+from entangled.forms import EntangledModelForm
+from .models import Product
 
-    - `hasDictionaryDef (string)` - Only return words with dictionary definitions (optional)
-    - `includePartOfSpeech (string)` - CSV part-of-speech values to include (optional)
-    - `excludePartOfSpeech (string)` - CSV part-of-speech values to exclude (optional)
-    - `minCorpusCount (integer)` - Minimum corpus frequency for terms (optional)
-    - `maxCorpusCount (integer)` - Maximum corpus frequency for terms (optional)
-    - `minDictionaryCount (integer)` - Minimum dictionary count (optional)
-    - `maxDictionaryCount (integer)` - Maximum dictionary count (optional)
-    - `minLength (integer)` - Minimum word length (optional)
-    - `maxLength (integer)` - Maximum word length (optional)
+class ProductForm(EntangledModelForm):
+    color = fields.RegexField(
+        regex=r'^#[0-9a-f]{6}$',
+    )
 
-    ```python
-    r.get_random_word(hasDictionaryDef="true", includePartOfSpeech="noun,verb", minCorpusCount=1, maxCorpusCount=10, minDictionaryCount=1, maxDictionaryCount=10, minLength=5, maxLength=10)
+    size = fields.ChoiceField(
+        choices=[('s', "small"), ('m', "medium"), ('l', "large"), ('xl', "extra large")],
+    )
 
-    # Output: pediophobia
-    ```
+    tenant = models.ModelChoiceField(
+        queryset=get_user_model().objects.filter(is_staff=True),
+    )
 
-2.  To generate list of random word we can use these optional parameters
-
-    - `hasDictionaryDef (string)` - Only return words with dictionary definitions (optional)
-    - `includePartOfSpeech (string)` - CSV part-of-speech values to include (optional)
-    - `excludePartOfSpeech (string)` - CSV part-of-speech values to exclude (optional)
-    - `minCorpusCount (integer)` - Minimum corpus frequency for terms (optional)
-    - `maxCorpusCount (integer)` - Maximum corpus frequency for terms (optional)
-    - `minDictionaryCount (integer)` - Minimum dictionary count (optional)
-    - `maxDictionaryCount (integer)` - Maximum dictionary count (optional)
-    - `minLength (integer)` - Minimum word length (optional)
-    - `maxLength (integer)` - Maximum word length (optional)
-    - `sortBy (string)` - Attribute to sort by `alpha` or `count` (optional)
-    - `sortOrder (string)` - Sort direction by `asc` or `desc` (optional)
-    - `limit (integer)` - Maximum number of results to return (optional)
-
-    ```python
-    r.get_random_words(hasDictionaryDef="true", includePartOfSpeech="noun,verb", minCorpusCount=1, maxCorpusCount=10, minDictionaryCount=1, maxDictionaryCount=10, minLength=5, maxLength=10, sortBy="alpha", sortOrder="asc", limit=15)
-
-    # Output: ['ambivert', 'calcspar', 'deaness', 'entrete', 'gades', 'monkeydom', 'outclimbed', 'outdared', 'pistoleers', 'redbugs', 'snake-line', 'subrules', 'subtrends', 'torenia', 'unhides']
-    ```
-
-3.  To get word of the day we can use these optional parameters
-
-    - `date (string)` - Fetches by date in yyyy-MM-dd (optional)
-
-    ```python
-    r.word_of_the_day(date="2018-01-01")
-
-    # Output: {"word": "qualtagh", "definations": [{"text": "The first person one encounters, either after leaving one\'s home or (sometimes) outside one\'s home, especially on New Year\'s Day.", "source": "wiktionary", "partOfSpeech": "noun"}, {"text": "A Christmas or New Year\'s ceremony, in the Isle of Man; one who takes part in the ceremony. See the first extract.", "source": "century", "partOfSpeech": "noun"}]}
-    ```
-
-## Development
-
-Assuming that you have [`Python`](https://www.python.org/) and [`pipenv`](https://docs.pipenv.org) installed, set up your environment and install the required dependencies like this instead of the `pip install random-word` defined above:
-
-```sh
-$ git clone https://github.com/vaibhavsingh97/random-word.git
-$ cd random-word
-$ pipenv install
-...
-$ pipenv shell
+    class Meta:
+        model = Product
+        entangled_fields = {'properties': ['color', 'size', 'tenant']}  # fields provided by this form
+        untangled_fields = ['name', 'price']  # these fields are provided by the Product model
 ```
 
-Add API Key in `random_word` directory defining API Key in `config.py`. If you don't have an API key than request your API key [here](https://developer.wordnik.com)
+In case our form inherits from another `ModelForm`, rewrite the class declarartion as:
 
-```sh
-API_KEY = "<API KEY>"
+```python
+class ProductForm(EntangledModelFormMixin, BaseProductForm):
+    ...
 ```
 
-After that, install your package locally
+In addition we add a special dictionary named `entangled_fields` to our `Meta`-options. In this dictionary, the key
+(here `'properties'`) refers to the JSON-field in our model `Product`. The value (here `['color', 'size', 'tenant']`)
+is a list of named form fields, declared in our form- or base-class of thereof. This allows us to assign all standard
+Django form fields to arbitrary JSON fields declared in our Django model. Moreover, we can even use a `ModelChoiceField`
+or a `ModelMultipleChoiceField` to refer to another model object using a
+[generic relation](https://docs.djangoproject.com/en/stable/ref/contrib/contenttypes/#generic-relations)
 
-```sh
-$ pip install -e .
+Since in this form we also want to access the non-JSON fields from our Django model, we add a list named
+`untangled_fields` to our `Meta`-options. In this list, (here `['name', 'price']`) we refer to the non-JSON fields
+in our model `Product`. From both of these iterables, `entangled_fields` and `untangled_fields`, the parent class
+`EntangledModelForm` then builds the `Meta`-option `fields`, otherwise required. Therefore you should not
+use `fields` to declare this list, but rather rely on `entangled_fields` and `untangled_fields`.
+
+We can use this form in any Django form view. A typical use-case, is the built-in Django `ModelAdmin`:
+
+```python
+from django.contrib import admin
+from .models import Product
+from .forms import ProductForm
+
+@admin.register(Product)
+class ProductAdmin(admin.ModelAdmin):
+    form = ProductForm
 ```
 
-## Issues
+Since the form used by this `ModelAdmin`-class
+[can not be created dynamically](https://docs.djangoproject.com/en/stable/ref/contrib/admin/#django.contrib.admin.ModelAdmin.form),
+we have to declare it explicitly using the `form`-attribute. This is the only change which has to be performed, in
+order to store arbitrary content inside our JSON model-fields.
 
-You can report the bugs at the [issue tracker](https://github.com/vaibhavsingh97/random-word/issues)
 
-## License
+## Nested Data Structures
 
-Built with ♥ by Vaibhav Singh([@vaibhavsingh97](https://github.com/vaibhavsingh97)) under [MIT License](https://vaibhavsingh97.mit-license.org/)
+Sometimes it can be desirable to store the data in a nested hierarchie of dictionaries, rather than having all
+attribute-value-pairs in the first level of our JSON field. This can for instance be handy when merging more than one
+form, all themselves ineriting from `EntangledModelFormMixin`.
 
-You can find a copy of the License at <https://vaibhavsingh97.mit-license.org/>
+Say that we have different types of products, all of which share the same base product form:
+
+```python
+from django.contrib.auth import get_user_model
+from django.forms import models
+from entangled.forms import EntangledModelFormMixin
+from .models import Product
+
+class BaseProductForm(EntangledModelFormMixin):
+    tenant = models.ModelChoiceField(
+        queryset=get_user_model().objects.filter(is_staff=True),
+    )
+
+    class Meta:
+        model = Product
+        entangled_fields = {'properties': ['tenant']}
+        untangled_fields = ['name', 'price']
+```
+
+In order to specialize our base product towards, say clothing, we typically would inherit from the base form
+and add some additional fields, here `color` and `size`:
+
+```python
+from django.forms import fields
+from .forms import BaseProductForm
+from .models import Product
+
+class ClothingProductForm(BaseProductForm):
+    color = fields.RegexField(
+        regex=r'^#[0-9a-f]{6}$',
+    )
+
+    size = fields.ChoiceField(
+        choices=[('s', "small"), ('m', "medium"), ('l', "large"), ('xl', "extra large")],
+    )
+
+    class Meta:
+        model = Product
+        entangled_fields = {'properties': ['color', 'size']}
+        retangled_fields = {'color': 'variants.color', 'size': 'variants.size'}
+```
+
+By adding a name mapping from our existing field names, we can group the fields `color` and `size`
+into a sub-dictionary named `variants` inside our `properties` fields. Such a field mapping is
+declared through the optional Meta-option `retangled_fields`. In this dictionary, all entries are
+optional; if a field name is missing, it just maps to itself.
+
+This mapping table can also be used to map field names to other keys inside the resulting JSON
+datastructure. This for instance is handy to map fields containg an underscore into field-names
+containing instead a dash. 
+
+
+## Caveats
+
+Due to the nature of JSON, indexing and thus building filters or sorting rules based on the fields content is not as
+simple, as with standard model fields. Therefore, this approach is best suited, if the main focus is to store data,
+rather than digging through data.
+
+Foreign keys are stored as `"fieldname": {"model": "appname.modelname", "pk": 1234}` in our JSON field, meaning that
+we have no database constraints. If a target object is deleted, that foreign key points to nowhere. Therefore always
+keep in mind, that we don't have any referential integrity and hence must write our code in a defensive manner.
+
+
+[![Twitter Follow](https://img.shields.io/twitter/follow/jacobrief?style=social)](https://twitter.com/jacobrief)
