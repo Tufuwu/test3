@@ -1,58 +1,71 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
-import io
+# Generic setup script for single-package Python projects
+# by Thomas Perl <thp.io/about>
 
-try:
-    from setuptools import setup
-except ImportError:
-    from distutils.core import setup
+from distutils.core import setup
 
-from logya import __version__
+import re
+import os
+import glob
 
-# Use io.open to be able to set encoding to utf-8.
-with io.open('README.rst', encoding='utf-8') as f:
-    readme = f.read()
+PACKAGE = 'mygpoclient'
+SCRIPT_FILE = os.path.join(PACKAGE, '__init__.py')
 
-with io.open('requirements.txt', encoding='utf-8') as f:
-    requirements = f.read().splitlines()
+main_py = open(SCRIPT_FILE).read()
+metadata = dict(re.findall("__([a-z]+)__ = '([^']+)'", main_py))
+docstrings = re.findall('"""(.*?)"""', main_py, re.DOTALL)
 
-setup(
-    name='logya',
-    version=__version__,
-    description='Logya: easy to use and flexible static Web site generator.',
-    long_description=readme,
-    url='https://ramiro.org/logya/',
-    author='Ramiro Gómez',
-    author_email='code@ramiro.org',
-    maintainer='Ramiro Gómez',
-    maintainer_email='code@ramiro.org',
-    keywords=['Website Generator'],
-    license='MIT',
-    packages=['logya'],
-    package_data={'': ['LICENSE']},
-    include_package_data=True,
-    exclude_package_data={'': ['*.pyc']},
-    install_requires=requirements,
-    classifiers=[
-        'Development Status :: 5 - Production/Stable',
-        'Environment :: Console',
-        'Intended Audience :: Developers',
-        'License :: OSI Approved :: MIT License',
-        'Operating System :: POSIX :: Linux',
-        'Programming Language :: Python',
-        'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3.5',
-        'Programming Language :: Python :: 3.6',
-        'Programming Language :: Python :: 3.7',
-        'Topic :: Internet :: WWW/HTTP :: Dynamic Content :: News/Diary',
-        'Topic :: Internet :: WWW/HTTP :: Site Management',
-        'Topic :: Text Processing :: Markup :: HTML'
-    ],
-    entry_points={
-        'console_scripts': [
-            'logya = logya.main:main'
-        ]
-    },
-    test_suite='tests',
-    tests_require=['tox'],
+# List the packages that need to be installed/packaged
+PACKAGES = (
+        PACKAGE,
 )
+
+SCRIPTS = glob.glob('bin/*')
+
+# Metadata fields extracted from SCRIPT_FILE
+AUTHOR_EMAIL = metadata['author']
+VERSION = metadata['version']
+WEBSITE = metadata['website']
+LICENSE = metadata['license']
+DESCRIPTION = docstrings[0].strip()
+if '\n\n' in DESCRIPTION:
+    DESCRIPTION, LONG_DESCRIPTION = DESCRIPTION.split('\n\n', 1)
+else:
+    LONG_DESCRIPTION = None
+
+# Extract name and e-mail ("Firstname Lastname <mail@example.org>")
+AUTHOR, EMAIL = re.match(r'(.*) <(.*)>', AUTHOR_EMAIL).groups()
+
+DATA_FILES = [
+    ('share/man/man1', glob.glob('man/*')),
+]
+
+CLASSIFIERS = [
+    'Development Status :: 5 - Production/Stable',
+    'Intended Audience :: Developers',
+    'License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)',
+    'Operating System :: OS Independent',
+    'Programming Language :: Python',
+    'Programming Language :: Python :: 2',
+    'Programming Language :: Python :: 2.6',
+    'Programming Language :: Python :: 2.7',
+    'Programming Language :: Python :: 3',
+    'Programming Language :: Python :: 3.3',
+    'Programming Language :: Python :: 3.4',
+]
+
+setup(name=PACKAGE,
+      version=VERSION,
+      description=DESCRIPTION,
+      long_description=LONG_DESCRIPTION,
+      author=AUTHOR,
+      author_email=EMAIL,
+      license=LICENSE,
+      url=WEBSITE,
+      packages=PACKAGES,
+      scripts=SCRIPTS,
+      data_files=DATA_FILES,
+      download_url=WEBSITE+PACKAGE+'-'+VERSION+'.tar.gz',
+      classifiers=CLASSIFIERS,
+    )
+

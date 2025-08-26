@@ -1,76 +1,45 @@
-.PHONY: clean-pyc clean-build docs clean install uninstall
+# gpodder.net API Client
+# Copyright (C) 2009-2013 Thomas Perl and the gPodder Team
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+PACKAGE := mygpoclient
+
+PYTHON ?= python
+FIND ?= find
+PYTEST ?= $(PYTHON) -m pytest
 
 help:
-	@echo "clean - remove all build, test, coverage and Python artifacts"
-	@echo "clean-build - remove build artifacts"
-	@echo "clean-pyc - remove Python file artifacts"
-	@echo "clean-sites - remove deploy directory from starter site"
-	@echo "clean-test - remove test and coverage artifacts"
-	@echo "lint - check style with flake8"
-	@echo "test - run tests quickly with the default Python"
-	@echo "test-all - run tests on every Python version with tox"
-	@echo "coverage - check code coverage quickly with the default Python"
-	@echo "docs - generate Sphinx HTML documentation, including API docs"
-	@echo "docs-release - generate and upload docs to PyPI"
-	@echo "release - package and upload a release"
-	@echo "dist - package"
-
-clean: clean-build clean-pyc clean-sites clean-test
-
-clean-build:
-	rm -fr build/
-	rm -fr dist/
-	rm -fr .eggs/
-	rm -fr *.egg-info
-
-clean-pyc:
-	find . -name '*.pyc' -exec rm -f {} +
-	find . -name '*.pyo' -exec rm -f {} +
-	find . -name '*~' -exec rm -f {} +
-	find . -name '__pycache__' -exec rm -fr {} +
-
-clean-sites:
-	find logya/sites/ -type d -name deploy -exec rm -rf {} +
-
-clean-test:
-	rm -fr t/
-	rm -fr .tox/
-	rm -f .coverage
-	rm -fr htmlcov/
-
-install: clean
-	python setup.py install
-
-uninstall:
-	pip uninstall -y logya
-
-reinstall: uninstall install
-
-lint:
-	flake8 logya tests
+	@echo ""
+	@echo "$(MAKE) test ......... Run unit tests"
+	@echo "$(MAKE) clean ........ Clean build directory"
+	@echo "$(MAKE) distclean .... $(MAKE) clean + remove 'dist/'"
+	@echo ""
 
 test:
-	python setup.py test
-
-coverage:
-	coverage run --source logya setup.py test
-	coverage report -m
+	$(PYTEST)
 
 docs:
-	rm -f docs/logya.rst
-	rm -f docs/modules.rst
-	sphinx-apidoc -o docs/ logya
-	$(MAKE) -C docs clean
-	$(MAKE) -C docs html
-	firefox docs/_build/html/index.html
+	epydoc -n 'gpodder.net API Client Library' -o docs/ mygpoclient -v --exclude='.*_test'
 
-dist: clean
-	python setup.py sdist
-	python setup.py bdist_wheel
-	ls -l dist
+clean:
+	$(FIND) . -name '*.pyc' -o -name __pycache__ -exec $(RM) -r '{}' +
+	$(RM) -r build
+	$(RM) .coverage MANIFEST
 
-# Call example: make release version=4.7.1
-release: dist
-	git tag -a $(version) -m 'Create version $(version)'
-	git push --tags
-	twine upload dist/*
+distclean: clean
+	$(RM) -r dist
+
+.PHONY: help test docs clean distclean
+.DEFAULT: help
