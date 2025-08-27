@@ -1,45 +1,50 @@
-from distutils.core import setup
+#!/usr/bin/env python
+from itertools import chain
+from setuptools import setup, find_packages
+from pyinaturalist import __version__
 
-with open('requirements.txt') as f:
-    required = f.read().splitlines()
+# These package categories allow tox and build environments to install only what they need
+extras_require = {
+    # Packages used for CI jobs
+    "build": ["coveralls", "twine", "wheel"],
+    # Packages used for documentation builds
+    "docs": [
+        "m2r2",
+        "Sphinx~=3.2.1",
+        "sphinx-autodoc-typehints",
+        "sphinx-automodapi",
+        "sphinx-rtd-theme",
+        "sphinxcontrib-apidoc",
+    ],
+    # Packages used for testing both locally and in CI jobs
+    "test": [
+        "black==20.8b1",
+        "flake8",
+        "mypy",
+        "pytest>=5.0",
+        "pytest-cov",
+        "requests-mock>=1.7",
+        "tox>=3.15",
+    ],
+}
+# All development/testing packages combined
+extras_require["dev"] = list(chain.from_iterable(extras_require.values()))
+
 
 setup(
-    name='moira-client',
-    version='2.4',
-    description='Client for Moira - Alerting system based on Graphite data',
-    keywords='moira monitoring client metrics alerting',
-    long_description="""
-        Moira is a real-time alerting tool, based on Graphite data.
-        moira-client is a python client for Moira API.
-        Key features:
-        - create, update, delete, manage triggers
-        - create, delete, update subscriptions
-        - manage tags, patterns, notifications, events, contacts
-    """,
-    author = 'Alexander Lukyanchenko',
-    author_email = 'al.lukyanchenko@gmail.com',
-    packages=[
-        'moira_client',
-        'moira_client.models'
+    name="pyinaturalist",
+    version=__version__,
+    author="Nicolas Noé",
+    author_email="nicolas@niconoe.eu",
+    url="https://github.com/niconoe/pyinaturalist",
+    packages=find_packages(),
+    include_package_data=True,
+    install_requires=[
+        "keyring~=21.4.0",
+        "python-dateutil>=2.0",
+        "python-forge",
+        "requests>=2.24.0",
     ],
-    classifiers=[
-        'Development Status :: 4 - Beta',
-
-        'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.6',
-        'Programming Language :: Python :: 3.7',
-        'Programming Language :: Python :: 3.8',
-        'Programming Language :: Python :: 3.9',
-
-        'Operating System :: OS Independent',
-        'Intended Audience :: Developers',
-
-        'Topic :: Software Development :: Libraries',
-        'Topic :: Utilities',
-        'Topic :: System :: Monitoring',
-
-        "License :: OSI Approved :: MIT License"
-    ],
-    url='https://github.com/moira-alert/python-moira-client',
-    install_requires=required
+    extras_require=extras_require,
+    zip_safe=False,
 )
