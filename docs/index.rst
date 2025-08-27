@@ -1,31 +1,29 @@
-.. _index-page:
+.. django-cas-server documentation master file, created by
+   sphinx-quickstart on Tue Jul  5 12:11:50 2016.
+   You can adapt this file completely to your liking, but it should at least
+   contain the root `toctree` directive.
 
-.. Omit README link to ReadTheDocs, since we're already on ReadTheDocs!
-.. mdinclude:: ../README.md
-    :end-line: 11
+django-cas-server documentation
+===============================
 
-.. mdinclude:: ../README.md
-    :start-line: 13
+Contents:
 
+.. toctree::
+   :maxdepth: 3
 
-Contents
-========
+   README
+   package/cas_server
 
 .. toctree::
    :maxdepth: 2
 
-   general_usage
-   endpoints
-   reference
-   contributing
-   authors
-   history
+   CHANGELOG
 
-Feedback
-========
+Indices and tables
+==================
 
-If you have any suggestions or questions about **pyinaturalist** feel free to email me
-at nicolas@niconoe.eu.
+* :ref:`genindex`
 
-If you encounter any errors or problems with **pyinaturalist**, please let me know!
-Open an Issue at the GitHub http://github.com/niconoe/pyinaturalist main repository.
+.. * :ref:`modindex`
+.. * :ref:`search`
+
