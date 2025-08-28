@@ -26,6 +26,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade setuptools pip
+        chmod +x ./setup.py
         ./setup.py develop
         pip install -e '.[tests]'
 
