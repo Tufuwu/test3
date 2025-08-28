@@ -1,68 +1,78 @@
-# To increment version
-# Check you have ~/.pypirc filled in
-# git tag x.y.z
-# git push && git push --tags
-# rm -rf dist; python setup.py sdist bdist_wheel
-# TEST: twine upload --repository-url https://test.pypi.org/legacy/ dist/*
-# twine upload dist/*
+#!/usr/bin/env python
 
-from codecs import open
-import re
+# Prepare a release:
+#
+#  - git pull --rebase  # check that there is no incoming changesets
+#  - check version in ptrace/version.py and doc/conf.py
+#  - set release date in doc/changelog.rst
+#  - check that "python3 setup.py sdist" contains all files tracked by
+#    the SCM (Git): update MANIFEST.in if needed
+#  - git commit -a -m "prepare release VERSION"
+#  - Remove untracked files/dirs: git clean -fdx
+#  - run tests, type: tox --parallel auto
+#  - git push
+#  - check GitHub Actions status:
+#    https://github.com/vstinner/python-ptrace/actions
+#
+# Release a new version:
+#
+#  - git tag VERSION
+#  - Remove untracked files/dirs: git clean -fdx
+#  - python3 setup.py sdist bdist_wheel
+#  - git push --tags
+#  - twine upload dist/*
+#
+# After the release:
+#
+#  - increment version in  ptrace/version.py and doc/conf.py
+#  - git commit -a -m "post-release"
+#  - git push
 
-from setuptools import setup, find_packages
-import sys
+from imp import load_source
+from os import path
+try:
+    # setuptools supports bdist_wheel
+    from setuptools import setup
+except ImportError:
+    from distutils.core import setup
 
-author = "Danny Price, Ellert van der Velden and contributors"
 
-with open("README.md", "r") as fh:
-    long_description = fh.read()
+MODULES = ["ptrace", "ptrace.binding", "ptrace.syscall", "ptrace.syscall.linux", "ptrace.debugger"]
 
-with open("requirements.txt", 'r') as fh:
-    requirements = fh.read().splitlines()
+SCRIPTS = ("strace.py", "gdb.py")
 
-with open("requirements_test.txt", 'r') as fh:
-    test_requirements = fh.read().splitlines()
+CLASSIFIERS = [
+    'Intended Audience :: Developers',
+    'Development Status :: 4 - Beta',
+    'Environment :: Console',
+    'License :: OSI Approved :: GNU General Public License (GPL)',
+    'Operating System :: OS Independent',
+    'Natural Language :: English',
+    'Programming Language :: Python',
+    'Programming Language :: Python :: 3',
+]
 
-# Read the __version__.py file
-with open('hickle/__version__.py', 'r') as f:
-    vf = f.read()
+with open('README.rst') as fp:
+    LONG_DESCRIPTION = fp.read()
 
-# Obtain version from read-in __version__.py file
-version = re.search(r"^_*version_* = ['\"]([^'\"]*)['\"]", vf, re.M).group(1)
+ptrace = load_source("version", path.join("ptrace", "version.py"))
+PACKAGES = {}
+for name in MODULES:
+    PACKAGES[name] = name.replace(".", "/")
 
-setup(name='hickle',
-      version=version,
-      description='Hickle - an HDF5 based version of pickle',
-      long_description=long_description,
-      long_description_content_type='text/markdown',
-      author=author,
-      author_email='dan@thetelegraphic.com',
-      url='http://github.com/telegraphic/hickle',
-      download_url=('https://github.com/telegraphic/hickle/archive/v%s.zip'
-                    % (version)),
-      platforms='Cross platform (Linux, Mac OSX, Windows)',
-      classifiers=[
-          'Development Status :: 5 - Production/Stable',
-          'Intended Audience :: Developers',
-          'Intended Audience :: Science/Research',
-          'License :: OSI Approved',
-          'Natural Language :: English',
-          'Operating System :: MacOS',
-          'Operating System :: Microsoft :: Windows',
-          'Operating System :: Unix',
-          'Programming Language :: Python',
-          'Programming Language :: Python :: 3',
-          'Programming Language :: Python :: 3.5',
-          'Programming Language :: Python :: 3.6',
-          'Programming Language :: Python :: 3.7',
-          'Programming Language :: Python :: 3.8',
-          'Topic :: Software Development :: Libraries :: Python Modules',
-          'Topic :: Utilities',
-          ],
-      keywords=['pickle', 'hdf5', 'data storage', 'data export'],
-      install_requires=requirements,
-      tests_require=test_requirements,
-      python_requires='>=3.5',
-      packages=find_packages(),
-      zip_safe=False,
-)
+install_options = {
+    "name": ptrace.PACKAGE,
+    "version": ptrace.__version__,
+    "url": ptrace.WEBSITE,
+    "download_url": ptrace.WEBSITE,
+    "author": "Victor Stinner",
+    "description": "python binding of ptrace",
+    "long_description": LONG_DESCRIPTION,
+    "classifiers": CLASSIFIERS,
+    "license": ptrace.LICENSE,
+    "packages": list(PACKAGES.keys()),
+    "package_dir": PACKAGES,
+    "scripts": SCRIPTS,
+}
+
+setup(**install_options)
