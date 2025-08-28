@@ -1,41 +1,29 @@
 name: Python package
 
-on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
+on: [push, pull_request]
 
 jobs:
   build:
-    strategy:
-      matrix:
-        include:
 
-          - python-version: '3.8'
-          - python-version: '3.9'
-            arch: arm64
-          - python-version: '3.9'
-            arch: amd64
-
-
-    runs-on: ${{ matrix.arch || 'ubuntu-latest' }}
+    runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
+    - uses: actions/checkout@v2
 
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v2
-        with:
-          python-version: ${{ matrix.python-version }}
-          architecture: ${{ matrix.arch || 'x64' }}
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.8'
 
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install mock
+    - name: Install dependencies
+      run: |
+        sudo apt-get update -qq
+        sudo apt-get install -qq libhdf5-serial-dev
+        python -m pip install --upgrade pip setuptools wheel virtualenv
+        pip install tox tox-gh-actions codecov
 
-      - name: Run tests
-        run: python -m unittest discover -p '*_test.py'
+    - name: Run tests
+      run: tox
+
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v1
