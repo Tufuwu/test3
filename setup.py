@@ -1,27 +1,58 @@
-# -*- coding: utf-8 -*-
-import os
-import sys
+#!/usr/bin/env python
+"""
+Standard build script.
+"""
 
-from setuptools import setup
+__docformat__ = 'restructuredtext'
 
-setup(name="setconf",
-      version="0.7.7",
-      description="Change configuration settings in text files",
-      url="https://setconf.roboticoverlords.org/",
-      author="Alexander F. Rødseth",
-      author_email="xyproto@archlinux.org",
-      license="GPLv2",
-      py_modules=["setconf"],
-      entry_points={
-          "console_scripts": [
-              "setconf = setconf:main",
-          ]
-      },
-      classifiers=[
-          "Environment :: Console",
-          "License :: OSI Approved :: GNU General Public License v2 (GPLv2)",
-          "Programming Language :: Python",
-          "Topic :: System :: Shells",
-          "Topic :: Utilities",
-      ]
-      )
+
+try:
+    from setuptools import setup, find_packages
+except ImportError:
+    print('You must have setuptools installed to use setup.py. Exiting...')
+    raise SystemExit(1)
+
+
+install_dependencies = (
+    'requests',
+    'six'
+)
+test_requirements = (
+    'mock',
+    'pyhamcrest',
+    'pylama',
+    'pytest',
+    'requests_mock',
+    'urllib3<2.0'
+)
+setup(
+    name="python-owasp-zap-v2.4",
+    version="0.0.19",
+    description="OWASP ZAP 2.10 API client",
+    long_description="OWASP Zed Attack Proxy 2.10 API Python client (the 2.4 package name has been kept to make it easier to upgrade)",
+    author="ZAP development team",
+    author_email='',
+    url="https://www.zaproxy.org/",
+    download_url="https://github.com/zaproxy/zap-api-python/releases/tag/0.0.19",
+    platforms=['any'],
+    license="ASL2.0",
+    package_dir={
+        '': 'src',
+    },
+    packages=find_packages('src'),
+    classifiers=[
+        'License :: OSI Approved :: Apache Software License',
+        'Development Status :: 5 - Production/Stable',
+        'Topic :: Security',
+        'Topic :: Software Development :: Libraries :: Python Modules',
+        'Intended Audience :: Developers',
+        'Intended Audience :: Information Technology',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
+    ],
+    install_requires=install_dependencies,
+    tests_require=test_requirements,
+    extras_require={'tests': test_requirements}
+)
