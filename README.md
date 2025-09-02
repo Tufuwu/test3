@@ -1,75 +1,45 @@
-[![Build Status](https://travis-ci.org/roverdotcom/django-inlinecss.svg?branch=master)](https://travis-ci.org/roverdotcom/django-inlinecss)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.1341346.svg)](https://doi.org/10.5281/zenodo.1341346)
+[![Build Status](https://travis-ci.com/raysect/source.svg?branch=master)](https://travis-ci.com/raysect/source)
 
-## About
+<a name="logo"/>
+<a href="https://www.raysect.org/" target="_blank">
+<img src="https://raysect.github.io/documentation/_images/RaysectLogo_small.png" alt="Raysect Logo"></img>
+</a>
 
-Inlining CSS is necessary for email generation and sending
-but is currently a surprisingly large hassle.
+Raysect Python Raytracing Package
+=================================
 
-This library aims to make it a breeze in the Django
-template language.
+A ray-tracing framework for optical/non-optical physics simulations.
 
-## Usage
+The aims of the Raysect project are as follows:
 
-#### Step 1: Dependencies
+* develop a ray-tracer that is easy for scientists and engineers to use and extend
 
-- BeautifulSoup
-- cssutils
-- Python 3.8+
-- Django 3.2+
+* the raytracer must be robust and high precision
+
+The general development philosophy is ease of use trumps performance, but performance is not to be ignored.
+
+For more information, see the [documentation pages](http://www.raysect.org/).
 
 
-#### Step 2: Install django_inlinecss
+![Dispersion of light passing through a prism](docs/source/demonstrations/optics/prism_720x405.png)
 
-Add ```django_inlinecss``` to your ```settings.py```:
+*Caption: a simulation of Newton's classic experiment, white light being dispersed by a glass prism.*
 
-```python
-INSTALLED_APPS = (
-        'django.contrib.auth',
-        'django.contrib.webdesign',
-        'django.contrib.contenttypes',
-        '...',
-        '...',
-        '...',
-        'django_inlinecss')
-```
 
-#### Step 3: Use the templatetag
+Please note, this code is currently under heavy development and subject to change.
 
-1. Place your CSS file somewhere staticfiles can find it
-2. Create your template:
+Raysect currently only supports Linux. Windows support will come at a later stage.
 
-```html
-{% load inlinecss %}
-{% inlinecss "css/extra-padding.css" %}
-    <html>
-        <body>
-            <div class='lots-o-padding'>
-                Something in need of styling.
-            </div>
-        </body>
-    </html>
-{% endinlinecss %}
-```
+Please note, for legal reasons we require the copyright to any contributed code to be passed to the Raysect project. Please see CONTRIBUTING.txt in the repository.
 
-#### Step 4: Prepare to be Wowed
+Development Team
+----------------
 
-```html
-<html>
-    <body>
-        <div style="padding-left: 10px; padding-right: 10px; padding-top: 10px;" class="lots-o-padding">
-            Something in need of styling.
-        </div>
-    </body>
-</html>
-```
+* Dr Alex Meakins
+* Dr Matthew Carr
 
-## Acknowledgements
+Citing the Code
+---------------
 
-Thanks to Tanner Netterville for his efforts on [Pynliner](https://github.com/rennat/pynliner).
-
-Thanks to Thomas Yip for his unit tests on the `soupselect` module. These tests
-helped on getting the core CSS2 selectors to work.
-
-## License
-
-MIT license. See LICENSE.md for more detail.
+* Dr Alex Meakins, & Matthew Carr. (2018, August 7). raysect/source: v0.5.2 Release (Version v0.5.2). Zenodo. http://doi.org/10.5281/zenodo.1341376

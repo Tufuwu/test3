@@ -1,145 +1,112 @@
-import os
+from setuptools import setup, find_packages, Extension
 import sys
-from shutil import rmtree
+import numpy
+import os
+import os.path as path
+import multiprocessing
 
-from setuptools import Command
-from setuptools import find_packages
-from setuptools import setup
+multiprocessing.set_start_method('fork')
 
-# Package meta-data.
-NAME = "django-inlinecss"
-SRC_DIR = "django_inlinecss"
-DESCRIPTION = (
-    "A Django app useful for inlining CSS (primarily for e-mails)"
-)
-URL = "https://github.com/roverdotcom/django-inlinecss"
-EMAIL = "philip@rover.com"
-AUTHOR = "Philip Kimmey"
-REQUIRES_PYTHON = ">=3.8"
-VERSION = None
+use_cython = True
+force = False
+profile = False
+line_profile = False
+annotate = False
 
-# What packages are required for this module to be executed?
-REQUIRED = [
-    "Django>=3.2",
-    "pynliner",
-    "future>=0.16.0",
-]
+if "--skip-cython" in sys.argv:
+    use_cython = False
+    del sys.argv[sys.argv.index("--skip-cython")]
 
-# What packages are required only for tests?
-TESTS = [
-    "mock==5.1.0",
-    "pytest==8.0.1",
-    "pytest-django==4.8.0",
-]
+if "--force" in sys.argv:
+    force = True
+    del sys.argv[sys.argv.index("--force")]
 
-# What packages are optional?
-EXTRAS = {
-    "flake8": [
-        "flake8==7.0.0",
-        "flake8-isort==6.1.1",
-        "isort==5.13.2",
-        "testfixtures==8.0.0",
-    ],
-    "tests": TESTS,
+if "--profile" in sys.argv:
+    profile = True
+    del sys.argv[sys.argv.index("--profile")]
+
+if "--line-profile" in sys.argv:
+    line_profile = True
+    del sys.argv[sys.argv.index("--line-profile")]
+
+if "--annotate" in sys.argv:
+    annotate = True
+    sys.argv.remove("--annotate")
+
+source_paths = ['raysect', 'demos']
+compilation_includes = [".", numpy.get_include()]
+compilation_args = ['-O3']
+cython_directives = {
+    # 'auto_pickle': True,
+    'language_level': 3
 }
+setup_path = path.dirname(path.abspath(__file__))
 
-here = os.path.abspath(os.path.dirname(__file__))
+if line_profile:
+    compilation_args.append("-DCYTHON_TRACE=1")
+    compilation_args.append("-DCYTHON_TRACE_NOGIL=1")
+    cython_directives["linetrace"] = True
 
+if use_cython:
 
-# Import the README and use it as the long-description.
-# Note: this will only work if 'README.md' is present in your MANIFEST.in file!
+    from Cython.Build import cythonize
 
-try:
-    with open(
-        os.path.join(here, "README.md"), encoding="utf-8"
-    ) as f:
-        long_description = "\n" + f.read()
-except FileNotFoundError:
-    long_description = DESCRIPTION
+    # build .pyx extension list
+    extensions = []
+    for package in source_paths:
+        for root, dirs, files in os.walk(path.join(setup_path, package)):
+            for file in files:
+                if path.splitext(file)[1] == ".pyx":
+                    pyx_file = path.relpath(path.join(root, file), setup_path)
+                    module = path.splitext(pyx_file)[0].replace("/", ".")
+                    extensions.append(Extension(module, [pyx_file], include_dirs=compilation_includes, extra_compile_args=compilation_args),)
 
-# Load the package's __version__.py module as a dictionary.
-about = {}
-if not VERSION:
-    with open(os.path.join(here, SRC_DIR, "__version__.py")) as f:
-        exec(f.read(), about)
+    if profile:
+        cython_directives["profile"] = True
+
+    # generate .c files from .pyx
+    extensions = cythonize(extensions, nthreads=multiprocessing.cpu_count(), force=force, compiler_directives=cython_directives, annotate=annotate)
+
 else:
-    about["__version__"] = VERSION
 
+    # build .c extension list
+    extensions = []
+    for package in source_paths:
+        for root, dirs, files in os.walk(path.join(setup_path, package)):
+            for file in files:
+                if path.splitext(file)[1] == ".c":
+                    c_file = path.relpath(path.join(root, file), setup_path)
+                    module = path.splitext(c_file)[0].replace("/", ".")
+                    extensions.append(Extension(module, [c_file], include_dirs=compilation_includes, extra_compile_args=compilation_args),)
 
-class UploadCommand(Command):
-    """Support setup.py upload."""
-
-    description = "Build and publish the package."
-    user_options = []
-
-    @staticmethod
-    def status(s):
-        """Prints things in bold."""
-        print(f"\033[1m{s}\033[0m")
-
-    def initialize_options(self):
-        pass
-
-    def finalize_options(self):
-        pass
-
-    def run(self):
-        try:
-            self.status("Removing previous builds…")
-            rmtree(os.path.join(here, "dist"))
-        except OSError:
-            pass
-
-        self.status(
-            "Building Source and Wheel (universal) distribution…"
-        )
-        os.system(
-            f"{sys.executable} setup.py sdist bdist_wheel --universal"
-        )
-
-        self.status("Uploading the package to PyPI via Twine…")
-        os.system("twine upload dist/*")
-
-        self.status("Pushing git tags…")
-        os.system("git tag v{}".format(about["__version__"]))
-        os.system("git push --tags")
-
-        sys.exit()
-
+# parse the package version number
+with open(path.join(path.dirname(__file__), 'raysect/VERSION')) as version_file:
+    version = version_file.read().strip()
 
 setup(
-    name=NAME,
-    version=about["__version__"],
-    description=DESCRIPTION,
-    long_description=long_description,
-    long_description_content_type="text/markdown",
-    author=AUTHOR,
-    author_email=EMAIL,
-    license="MIT",
-    url=URL,
+    name="raysect",
+    version=version,
+    url="http://www.raysect.org",
+    author="Dr Alex Meakins et al.",
+    author_email="developers@raysect.org",
+    description='A Ray-tracing Framework for Science and Engineering',
+    license="BSD",
+    classifiers=[
+        "Development Status :: 5 - Production/Stable",
+        "Intended Audience :: Science/Research",
+        "Intended Audience :: Education",
+        "Intended Audience :: Developers",
+        "License :: OSI Approved :: BSD License",
+        "Natural Language :: English",
+        "Operating System :: POSIX :: Linux",
+        "Programming Language :: Cython",
+        "Programming Language :: Python :: 3",
+        "Topic :: Multimedia :: Graphics :: 3D Rendering",
+        "Topic :: Scientific/Engineering :: Physics"
+    ],
+    install_requires=['numpy', 'matplotlib'],
     packages=find_packages(),
     include_package_data=True,
     zip_safe=False,
-    keywords=["html", "css", "inline", "style", "email"],
-    classifiers=[
-        "Environment :: Other Environment",
-        "Environment :: Web Environment",
-        "Intended Audience :: Developers",
-        "License :: OSI Approved :: MIT License",
-        "Operating System :: OS Independent",
-        "Programming Language :: Python",
-        "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.8",
-        "Programming Language :: Python :: 3.9",
-        "Programming Language :: Python :: 3.10",
-        "Topic :: Communications :: Email",
-        "Topic :: Text Processing :: Markup :: HTML",
-    ],
-    install_requires=REQUIRED,
-    tests_require=TESTS,
-    extras_require=EXTRAS,
-    # $ setup.py upload support.
-    cmdclass={
-        "upload": UploadCommand,
-    },
+    ext_modules=extensions
 )
