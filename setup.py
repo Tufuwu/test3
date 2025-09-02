@@ -1,49 +1,74 @@
 #!/usr/bin/env python
-# -*- test-case-name: ampoule -*-
 
-# Copyright (c) 2008 Valentino Volonghi.
-# See LICENSE for details.
+import os
+import re
+import sys
 
-"""
-Distutils/Setuptools installer for AMPoule.
-"""
+from setuptools import find_packages, setup
+from setuptools.command.test import test as TestCommand
 
-from setuptools import setup
 
-install_requires = ["Twisted[tls]>=17"]
+def read(fname):
+    with open(os.path.join(os.path.dirname(__file__), fname)) as fp:
+        return fp.read()
 
-description = """A process pool built on Twisted and AMP."""
-long_description = open('README.md').read()
+
+m = re.search(
+    r"^__version__ *= *\"([^\"]*)\" *$", read("tdclient/version.py"), re.MULTILINE
+)
+
+if m is None:
+    raise (RuntimeError("could not read tdclient/version.py"))
+else:
+    version = m.group(1)
+
+
+class PyTest(TestCommand):
+    user_options = [("pytest-args=", "a", "Arguments to pass to py.test")]
+
+    def initialize_options(self):
+        TestCommand.initialize_options(self)
+        self.pytest_args = []
+
+    def run_tests(self):
+        import pytest
+
+        errno = pytest.main(self.pytest_args)
+        sys.exit(errno)
+
 
 setup(
-    name = "ampoule",
-    author = "Valentino Volonghi",
-    author_email = "dialtone@gmail.com",
-    maintainer = "Glyph Lefkowitz",
-    maintainer_email = "glyph@twistedmatrix.com",
-    description = description,
-    description_content_type='text/markdown',
-    long_description = long_description,
-    long_description_content_type='text/markdown',
-    license = "MIT License",
-    install_requires=install_requires + ['incremental'],
-    url="https://github.com/glyph/ampoule",
-    classifiers = [
-        'Development Status :: 4 - Beta',
-        'Environment :: Console',
-        'Intended Audience :: Developers',
-        'License :: OSI Approved :: MIT License',
-        'Natural Language :: English',
-        'Programming Language :: Python',
-        'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.6',
-        'Topic :: System',
+    name="td-client",
+    version=version,
+    description="Treasure Data API library for Python",
+    long_description=read("README.rst"),
+    long_description_content_type="text/x-rst; charset=UTF-8;",
+    author="Treasure Data, Inc.",
+    author_email="support@treasure-data.com",
+    url="http://treasuredata.com/",
+    python_requires=">=3.5",
+    install_requires=["msgpack>=0.6.2", "python-dateutil", "urllib3"],
+    tests_require=["coveralls", "mock", "pytest", "pytest-cov", "tox"],
+    extras_require={
+        "dev": ["black==19.3b0", "isort", "flake8"],
+        "docs": ["sphinx", "sphinx_rtd_theme"],
+    },
+    packages=find_packages(),
+    cmdclass={"test": PyTest},
+    license="Apache Software License",
+    platforms="Posix; MacOS X; Windows",
+    classifiers=[
+        "Development Status :: 4 - Beta",
+        "Environment :: Web Environment",
+        "Intended Audience :: Developers",
+        "License :: OSI Approved :: Apache Software License",
+        "Operating System :: OS Independent",
+        "Topic :: Internet",
+        "Programming Language :: Python :: 3.5",
+        "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: Implementation :: CPython",
+        "Programming Language :: Python :: Implementation :: PyPy",
     ],
-    packages=["ampoule", "ampoule.test"],
-    package_data={'twisted': ['plugins/ampoule_plugin.py']},
-    use_incremental=True,
-    setup_requires=['incremental'],
-    include_package_data = True,
-    zip_safe=False
 )

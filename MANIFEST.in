@@ -1,3 +1,2 @@
-include *.txt
-recursive-include examples *
-recursive-include twisted *.py
+include requirements.txt
+include test-requirements.txt
