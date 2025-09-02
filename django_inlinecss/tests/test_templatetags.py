@@ -69,7 +69,9 @@ class InlinecssTests(TestCase):
         Test that we can mix and match variable-defined CSS files &
         those defined quoted in the templatetag.
         """
-        template = get_template("variable_and_string_defined_staticfiles_css.html")
+        template = get_template(
+            "variable_and_string_defined_staticfiles_css.html"
+        )
         context = {"foo_css": "foo.css"}
         rendered = template.render(context)
         self.assert_foo_and_bar_rendered(rendered)
@@ -132,8 +134,12 @@ class InlinecssTests(TestCase):
         template = get_template("comments_are_ignored.html")
 
         rendered = template.render({})
-        self.assertRegex(rendered, r"<body>\s+<!-- Here is comment one -->\s+<div")
-        self.assertRegex(rendered, r'This is the "foo" div.\s+<!-- comment two -->\s+')
+        self.assertRegex(
+            rendered, r"<body>\s+<!-- Here is comment one -->\s+<div"
+        )
+        self.assertRegex(
+            rendered, r'This is the "foo" div.\s+<!-- comment two -->\s+'
+        )
         self.assertRegex(
             rendered, r'This is the "bar" div.\s+<!-- comment three -->\s+'
         )

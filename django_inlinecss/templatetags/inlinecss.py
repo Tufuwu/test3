@@ -35,4 +35,6 @@ def inlinecss(parser, token):
 
     args = token.split_contents()[1:]
 
-    return InlineCssNode(nodelist, [parser.compile_filter(arg) for arg in args])
+    return InlineCssNode(
+        nodelist, [parser.compile_filter(arg) for arg in args]
+    )
