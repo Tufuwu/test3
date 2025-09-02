@@ -11,7 +11,7 @@ DEFAULT_CSS_LOADER = (
 
 def load_class_by_path(path):
     i = path.rfind(".")
-    module_path, class_name = path[:i], path[i + 1 :]
+    module_path, class_name = path[:i], path[i + 1:]
     module = importlib.import_module(module_path)
     return getattr(module, class_name)
 
