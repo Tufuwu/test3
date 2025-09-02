@@ -9,7 +9,9 @@ from setuptools import setup
 # Package meta-data.
 NAME = "django-inlinecss"
 SRC_DIR = "django_inlinecss"
-DESCRIPTION = "A Django app useful for inlining CSS (primarily for e-mails)"
+DESCRIPTION = (
+    "A Django app useful for inlining CSS (primarily for e-mails)"
+)
 URL = "https://github.com/roverdotcom/django-inlinecss"
 EMAIL = "philip@rover.com"
 AUTHOR = "Philip Kimmey"
@@ -48,7 +50,9 @@ here = os.path.abspath(os.path.dirname(__file__))
 # Note: this will only work if 'README.md' is present in your MANIFEST.in file!
 
 try:
-    with open(os.path.join(here, "README.md"), encoding="utf-8") as f:
+    with open(
+        os.path.join(here, "README.md"), encoding="utf-8"
+    ) as f:
         long_description = "\n" + f.read()
 except FileNotFoundError:
     long_description = DESCRIPTION
@@ -86,8 +90,12 @@ class UploadCommand(Command):
         except OSError:
             pass
 
-        self.status("Building Source and Wheel (universal) distribution…")
-        os.system(f"{sys.executable} setup.py sdist bdist_wheel --universal")
+        self.status(
+            "Building Source and Wheel (universal) distribution…"
+        )
+        os.system(
+            f"{sys.executable} setup.py sdist bdist_wheel --universal"
+        )
 
         self.status("Uploading the package to PyPI via Twine…")
         os.system("twine upload dist/*")

@@ -4,7 +4,9 @@ except ImportError:
     from django.utils import importlib
 
 DEFAULT_ENGINE = "django_inlinecss.engines.PynlinerEngine"
-DEFAULT_CSS_LOADER = "django_inlinecss.css_loaders.StaticfilesStorageCSSLoader"
+DEFAULT_CSS_LOADER = (
+    "django_inlinecss.css_loaders.StaticfilesStorageCSSLoader"
+)
 
 
 def load_class_by_path(path):
@@ -17,12 +19,16 @@ def load_class_by_path(path):
 def get_engine():
     from django.conf import settings
 
-    engine_path = getattr(settings, "INLINECSS_ENGINE", DEFAULT_ENGINE)
+    engine_path = getattr(
+        settings, "INLINECSS_ENGINE", DEFAULT_ENGINE
+    )
     return load_class_by_path(engine_path)
 
 
 def get_css_loader():
     from django.conf import settings
 
-    engine_path = getattr(settings, "INLINECSS_CSS_LOADER", DEFAULT_CSS_LOADER)
+    engine_path = getattr(
+        settings, "INLINECSS_CSS_LOADER", DEFAULT_CSS_LOADER
+    )
     return load_class_by_path(engine_path)

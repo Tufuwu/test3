@@ -58,7 +58,9 @@ class InlinecssTests(TestCase):
         Test that the staticfiles paths passed to the templatetag
         may be defined as variables instead of strings.
         """
-        template = get_template("variable_defined_staticfiles_css.html")
+        template = get_template(
+            "variable_defined_staticfiles_css.html"
+        )
         context = {"foo_css": "foo.css", "bar_css": "bar.css"}
 
         rendered = template.render(context)
@@ -118,9 +120,12 @@ class InlinecssTests(TestCase):
             {"unicode_string": "I love playing with my pi\xf1ata"}
         )
         self.assertRegex(
-            rendered, '<div class="bar" style="padding: 10px 15px 20px 25px">'
+            rendered,
+            '<div class="bar" style="padding: 10px 15px 20px 25px">',
         )
-        self.assertRegex(rendered, "I love playing with my pi\xf1ata")
+        self.assertRegex(
+            rendered, "I love playing with my pi\xf1ata"
+        )
 
     def test_comments_are_ignored(self):
         """
@@ -138,15 +143,19 @@ class InlinecssTests(TestCase):
             rendered, r"<body>\s+<!-- Here is comment one -->\s+<div"
         )
         self.assertRegex(
-            rendered, r'This is the "foo" div.\s+<!-- comment two -->\s+'
+            rendered,
+            r'This is the "foo" div.\s+<!-- comment two -->\s+',
         )
         self.assertRegex(
-            rendered, r'This is the "bar" div.\s+<!-- comment three -->\s+'
+            rendered,
+            r'This is the "bar" div.\s+<!-- comment three -->\s+',
         )
 
 
 class GetLoaderStaticfilesTests(TestCase):
-    @patch("django.contrib.staticfiles.storage.staticfiles_storage.path")
+    @patch(
+        "django.contrib.staticfiles.storage.staticfiles_storage.path"
+    )
     def test_default_uses_staticfiles_storage(self, path):
         full_path = os.path.join(
             settings.STATIC_ROOT,
