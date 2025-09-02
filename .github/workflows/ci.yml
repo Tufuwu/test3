@@ -1,4 +1,5 @@
-name: Python package
+
+name: CI
 
 on:
   push:
@@ -10,17 +11,21 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
-        python-version: [3.8, 3.9]
-        numpy-version: [1.15.4, 1.19.4]
-        include:
-          - python-version: 3.8
-            numpy-version: 1.15.4
-          - python-version: 3.9
-            numpy-version: 1.19.4
+        python-version: [3.8]
+        env:
+          - TOXENV=flake8
+          - TOXENV=black
+          - TOXENV=elasticsearch
 
+    services:
+      elasticsearch:
+        image: elasticsearch:7.3.2
+        options: -e "discovery.type=single-node"
+        ports:
+          - 9200:9200
     steps:
     - uses: actions/checkout@v2
 
@@ -31,10 +36,27 @@ jobs:
 
     - name: Install dependencies
       run: |
-        python -m pip install --upgrade pip
-        pip install setuptools wheel
-        pip install numpy==${{ matrix.numpy-version }} scipy "cython>=0.28,<3.0" "matplotlib>=3,<4"
-        bash dev/build.sh
-
+        pip install tox
+        pip install codecov
     - name: Run tests
-      run: bash dev/test.sh
+      run: |
+        if [ "${{ matrix.env }}" == "TOXENV=elasticsearch" ]; then
+          sleep 60
+        fi
+        tox
+    - name: Upload coverage to Codecov
+      if: success()
+      run: codecov
+
+  cleanup:
+    runs-on: ubuntu-22.04
+    needs: build
+    if: always()
+    steps:
+    - name: Stop and remove Elasticsearch container
+      run: |
+        docker ps -q --filter "name=elasticsearch" | grep -q . && docker stop elasticsearch || true
+        docker ps -a -q --filter "name=elasticsearch" | grep -q . && docker rm elasticsearch || true
+    - name: Free up port 9200
+      run: |
+        sudo lsof -t -i:9200 | xargs -r sudo kill -9 || true
