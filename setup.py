@@ -1,83 +1,51 @@
 #!/usr/bin/env python
-"""
-Copyright 2014-2020 Parsely, Inc.
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-"""
-import re
-
+from itertools import chain
 from setuptools import setup, find_packages
+from pyinaturalist import __version__
 
-# Get version without importing, which avoids dependency issues
-def get_version():
-    with open("streamparse/version.py") as version_file:
-        return re.search(
-            r"""__version__\s+=\s+(['"])(?P<version>.+?)\1""", version_file.read()
-        ).group("version")
+# These package categories allow tox and build environments to install only what they need
+extras_require = {
+    # Packages used for CI jobs
+    "build": ["coveralls", "twine", "wheel"],
+    # Packages used for documentation builds
+    "docs": [
+        "m2r2",
+        "Sphinx~=3.2.1",
+        "sphinx-autodoc-typehints",
+        "sphinx-automodapi",
+        "sphinx-rtd-theme",
+        "sphinxcontrib-apidoc",
+    ],
+    # Packages used for testing both locally and in CI jobs
+    "test": [
+        "black==20.8b1",
+        "flake8",
+        "mypy",
+        "pytest>=5.0",
+        "pytest-cov",
+        "requests-mock>=1.7",
+        "tox>=3.15",
+        "click<8.1",
+    ],
+}
+# All development/testing packages combined
+extras_require["dev"] = list(chain.from_iterable(extras_require.values()))
 
-
-def readme():
-    """ Returns README.rst contents as str """
-    with open("README.rst") as f:
-        return f.read()
-
-
-install_requires = [
-    l.split("#")[0].strip()
-    for l in open("requirements.txt").readlines()
-    if not l.startswith(("#", "-"))
-]
-
-tests_require = ["graphviz", "pytest"]
 
 setup(
-    name="streamparse",
-    version=get_version(),
-    author="Parsely, Inc.",
-    author_email="hello@parsely.com",
-    url="https://github.com/Parsely/streamparse",
-    description=(
-        "streamparse lets you run Python code against real-time "
-        "streams of data. Integrates with Apache Storm."
-    ),
-    long_description=readme(),
-    license="Apache License 2.0",
+    name="pyinaturalist",
+    version=__version__,
+    author="Nicolas Noé",
+    author_email="nicolas@niconoe.eu",
+    url="https://github.com/niconoe/pyinaturalist",
     packages=find_packages(),
-    entry_points={
-        "console_scripts": [
-            "sparse = streamparse.cli.sparse:main",
-            "streamparse = streamparse.cli.sparse:main",
-            "streamparse_run = streamparse.run:main",
-        ]
-    },
-    install_requires=install_requires,
-    tests_require=tests_require,
-    extras_require={
-        "test": tests_require,
-        "all": install_requires + tests_require,
-        "docs": ["sphinx"] + tests_require,
-    },
-    zip_safe=False,
     include_package_data=True,
-    classifiers=[
-        "License :: OSI Approved :: Apache Software License",
-        "Programming Language :: Python",
-        "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.6",
-        "Programming Language :: Python :: 3.7",
-        "Programming Language :: Python :: 3.8",
-        "Programming Language :: Python :: 3.9",
-        "Programming Language :: Python :: Implementation :: CPython",
-        "Programming Language :: Python :: Implementation :: PyPy",
+    install_requires=[
+        "keyring~=21.4.0",
+        "python-dateutil>=2.0",
+        "python-forge",
+        "requests>=2.24.0",
     ],
+    extras_require=extras_require,
+    zip_safe=False,
 )
