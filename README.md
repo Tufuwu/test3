@@ -1,46 +1,82 @@
-# python-lora
+# SoundCloud Add-on for [Kodi](https://github.com/xbmc/xbmc)
 
-Python wrapper for LoRa payloads from Thingpark/Actility, allowing decryption of the payload.
+<img align="right" src="https://github.com/xbmc/xbmc/raw/master/addons/webinterface.default/icon-128.png" alt="Kodi logo">
 
-- Depends on [cryptography]
-- Based on crypto code in [Lora-net/LoRaMac-node]
-- Tested with python 2.7, 3.5, 3.6, 3.7, 3.8, 3.9
-- Available on [pypi]
+[![GitHub tag (latest SemVer)](https://img.shields.io/github/tag/jaylinski/kodi-addon-soundcloud.svg)](https://github.com/jaylinski/kodi-addon-soundcloud/releases)
+[![Build Status](https://img.shields.io/github/workflow/status/jaylinski/kodi-addon-soundcloud/Continuous%20Integration/master.svg)](https://github.com/jaylinski/kodi-addon-soundcloud/actions)
+[![Link to Kodi forum](https://img.shields.io/badge/Kodi-Forum-informational.svg)](https://forum.kodi.tv/showthread.php?tid=206635)
+[![Link to Kodi wiki](https://img.shields.io/badge/Kodi-Wiki-informational.svg)](https://kodi.wiki/view/Add-on:SoundCloud)
+[![Link to Kodi releases](https://img.shields.io/badge/Kodi-v19%20%22Matrix%22-green.svg)](https://kodi.wiki/view/Releases)
+[![Link to Kodi releases](https://img.shields.io/badge/Kodi-v18%20%22Leia%22-green.svg)](https://kodi.wiki/view/Releases)
+[![Link to Kodi releases](https://img.shields.io/badge/Kodi-v17%20%22Krypton%22-green.svg)](https://kodi.wiki/view/Releases)
 
-## Usage
+This [Kodi](https://github.com/xbmc/xbmc) Add-on provides a minimal interface for SoundCloud.
 
-`pip install python-lora`
+## Features
 
-[cryptography] requires [cffi] which in turn requires `libffi-dev` and `python-dev`.
+* Search
+* Discover new music
+* Play tracks, albums and playlists
 
-```python
-from lora.payload import LoRaPayload
+## Installation
 
-xmlstr = '''<?xml version="1.0" encoding="UTF-8"?>
-<DevEUI_uplink xmlns="http://uri.actility.com/lora">[...]
-<FCntUp>2</FCntUp>[...]
-<payload_hex>[...]</payload_hex>[...]
-</DevEUI_uplink>'''
+### Kodi Repository
 
-payload = LoRaPayload(xmlstr)
+Follow the instructions on [https://kodi.wiki/view/Add-on:SoundCloud](https://kodi.wiki/view/Add-on:SoundCloud).
 
-key = 'AABBCCDDEEFFAABBCCDDEEFFAABBCCDD'
-dev_addr = '00112233'
-plaintext = payload.decrypt(key, dev_addr)
-```
+### Manual
 
-You can also use `loramac_decrypt` without the XML wrapper to decode a hex-encoded `FRMPayload`:
-```python
->>> from lora.crypto import loramac_decrypt
->>> payload = '11daf7a44d5e2bbe557176e9e6c8da'
->>> sequence_counter = 2
->>> key = 'AABBCCDDEEFFAABBCCDDEEFFAABBCCDD'
->>> dev_addr = '00112233'
->>> loramac_decrypt(payload, sequence_counter, key, dev_addr)
-[222, 59, 24, 8, 7, 155, 237, 158, 103, 125, 93, 34, 161, 204, 33]
-```
+* [Download the latest release](https://github.com/jaylinski/kodi-addon-soundcloud/releases) (`plugin.audio.soundcloud.zip`)
+* Copy the zip file to your Kodi system
+* Open Kodi, go to Add-ons and select "Install from zip file"
+* Select the file `plugin.audio.soundcloud.zip`
 
-[cryptography]: https://cryptography.io/
-[cffi]: https://cffi.readthedocs.org/en/latest/
-[pypi]: https://pypi.python.org/pypi/python-lora
-[Lora-net/LoRaMac-node]: https://github.com/Lora-net/LoRaMac-node/blob/master/src/mac/LoRaMacCrypto.c#L108
+## API
+
+Documentation of the **public** interface.
+
+### plugin://plugin.audio.soundcloud/play/?[track_id|playlist_id|url]
+
+Examples:
+
+* `plugin://plugin.audio.soundcloud/play/?track_id=1`
+* `plugin://plugin.audio.soundcloud/play/?playlist_id=1`
+* `plugin://plugin.audio.soundcloud/play/?url=https%3A%2F%2Fsoundcloud.com%2Fpslwave%2Fallwithit`
+
+Legacy (will be removed in v5.0):
+
+* `plugin://plugin.audio.soundcloud/play/?audio_id=1` Use `track_id=1` instead.
+
+## Development
+
+This add-on uses [Pipenv](https://pypi.org/project/pipenv/) to manage its dependencies.
+
+### Setup
+
+[Install Pipenv](https://pipenv.readthedocs.io/en/latest/install/#installing-pipenv) and run `pipenv install --dev`.
+
+### Build
+
+Run `pipenv run build`.
+
+### Lint
+
+Run `pipenv run lint`.
+
+### Test
+
+Run `pipenv run test`.
+
+## Roadmap
+
+* Re-implement all features from original add-on
+* Implement [enhancements](https://github.com/jaylinski/kodi-addon-soundcloud/issues?q=is%3Aopen+is%3Aissue+label%3Aenhancement)
+
+## Attributions
+
+This add-on is strongly inspired by the [original add-on](https://github.com/SLiX69/plugin.audio.soundcloud)
+developed by [bromix](https://kodi.tv/addon-author/bromix) and [SLiX](https://github.com/SLiX69).
+
+## Copyright and license
+
+This add-on is licensed under the MIT License - see `LICENSE.txt` for details.
