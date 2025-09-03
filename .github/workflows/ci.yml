@@ -33,8 +33,11 @@ jobs:
         pip install pipenv
         pipenv install --dev
 
+    - name: Install Linting Tools
+      run: pipenv install pycodestyle
+
     - name: Lint
-      run: pipenv run lint
+      run: pipenv run pycodestyle .
 
     - name: Test
       run: pipenv run test
