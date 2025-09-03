@@ -35,7 +35,7 @@ jobs:
       run: |
         python -m pip install --upgrade pip wheel setuptools
         pip install codecov
-        pip install ${{ matrix.django-version }} -e .[tests]
+        pip install "${{ matrix.django-version }}" -e .[tests]
     - name: Run tests
       run: coverage run --rcfile=.coveragerc runtests.py
     - name: Upload coverage to Codecov
@@ -50,4 +50,3 @@ jobs:
       run: |
         echo "Sending notifications..."
         # Add your notification logic here
-
