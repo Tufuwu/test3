@@ -34,7 +34,7 @@ pytest-flask = "^1.2.0"
 tox = "^3.24.2"
 
 [tool.flake8]
-ignore = ["E501", "W503"]
+flake8-ignore = ["E501", "W503"]
 max-line-length = 79
 
 [tool.pytest.ini_options]
