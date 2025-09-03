@@ -26,18 +26,16 @@ click = "^8.0.1"
 Flask = ">=0.12"
 Flask-WTF = "^0.15.1"
 
-[tool.poetry.group.dev.dependencies]
+[tool.poetry.dev-dependencies]
 pytest = "^6.2.4"
 pytest-black = "^0.3.12"
 pytest-flake8 = "^1.0.7"
 pytest-flask = "^1.2.0"
 tox = "^3.24.2"
-black = "^23.9"
-flake8 = "^6.1.0"
 
 [tool.pytest.ini_options]
-addopts = "--flake8 --black --max-line-length=88"
-flake8-ignore = ["E501","W503"]
+flake8-ignore = ["E501", "W503"]
+addopts = "--flake8 --black"
 
 [tool.tox]
 legacy_tox_ini = """
@@ -49,15 +47,15 @@ envlist = py39, py38, py37, py36
 whitelist_externals = poetry
 commands =
     poetry install -v
-    poetry run flake8 --max-line-length=88 --ignore=E203,W503 example/
-    poetry run flake8 --max-line-length=88 --ignore=E203,W503 tests/
+    poetry run flake8 --ignore E501,W503 example/
+    poetry run flake8 --ignore E501,W503 tests/
     poetry run pytest
 """
-
-[tool.flake8]
-max-line-length = 88
-extend-ignore = ["E203","W503"]
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.flake8]
+max-line-length = 88
+extend-ignore = E203,W503
