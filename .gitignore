@@ -1,3 +1,12 @@
+*~
 *.pyc
 *.egg-info
-.DS_Store
+*.eggs/
+*.pybuild/
+__pycache__/
+/build
+/dist
+/deb_dist
+/debian/stcgal*
+/debian/files
+/.vscode
