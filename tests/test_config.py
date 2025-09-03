@@ -79,8 +79,7 @@ def test_messages_customized(app):
     sl = SimpleLogin(app, messages=custom_message_dict)
     # Assert that custom messages and categories have been changed.
     assert (
-        custom_message_dict["login_success"].text
-        == sl.messages["login_success"].text
+        custom_message_dict["login_success"].text == sl.messages["login_success"].text
     )
     assert (
         custom_message_dict["login_success"].category

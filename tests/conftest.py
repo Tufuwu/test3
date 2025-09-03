@@ -48,8 +48,6 @@ def app():
         def get(self):
             return "You are logged in as <b>{0}</b>".format(get_username())
 
-    myapp.add_url_rule(
-        "/protected", view_func=ProtectedView.as_view("protected")
-    )
+    myapp.add_url_rule("/protected", view_func=ProtectedView.as_view("protected"))
 
     return myapp
