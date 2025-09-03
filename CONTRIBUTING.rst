@@ -1,104 +1,47 @@
-============
-Contributing
-============
+How can I contribute to streamparse?
+------------------------------------
+Thanks for your interest in contributing to streamparse. We think
+you'll find the core maintainers great to work with and will help you along the
+way when contributing pull requests.
 
-Contributions are welcome, and they are greatly appreciated! Every
-little bit helps, and credit will always be given.
+If you already know what you'd like to add to streamparse then by all means,
+feel free to submit a pull request and we'll review it.
 
-You can contribute in many ways:
+If you're unsure about how to contribute, check out our `open issues`_ and find
+one that looks interesting to you (we particularly need help on all issues
+marked with the "help wanted" label).
 
-Types of contributions
-----------------------
+If you're not sure how to start or have some questions, shoot us an email in
+the `streamparse user group`_ and we'll give you a hand.
 
-Report bugs
-~~~~~~~~~~~
+From there, get to work on your improvement and submit a pull request when ready which
+we'll review.
 
-Report bugs at https://github.com/Polyconseil/django-cid/issues.
-
-If you are reporting a bug, please include:
-
-* the versions of ``django-cid``, Django and Python;
-* any details about your local setup that might be helpful in troubleshooting;
-* detailed steps to reproduce the bug.
-
-
-Write documentation
-~~~~~~~~~~~~~~~~~~~
-
-``django-cid`` could always use more documentation. Don't hesitate to
-report typos or grammar correction.
+.. _open issues: https://github.com/Parsely/streamparse/issues?state=open
+.. _streamparse user group: https://groups.google.com/forum/#!forum/streamparse
 
 
-Submit feedback
-~~~~~~~~~~~~~~~
+Environment Setup
+-----------------
 
-The best way to send feedback is to file an issue at
-https://github.com/Polyconseil/django-cid/issues.
-
-If you are proposing a feature:
-
-* Explain in detail how it would work.
-* Keep the scope as narrow as possible, to make it easier to implement.
-* Remember that this is a volunteer-driven project, and that contributions
-  are welcome. :)
+Please see `Developing Streamparse <http://streamparse.readthedocs.io/en/master/develop.html>`_
+in the docs for environment setup. Python and Leiningen are required.
 
 
-Get started!
-------------
+Style Guidelines
+----------------
+We'll work with you to get pull requests merged into streamparse. But to help us out, generally
+following PEP8 guidelines will result in less back and forth.
 
-Ready to contribute? Here's how to set up ``django-cid`` for local development.
-
-1. Fork the ``django-cid`` repo on GitHub.
-2. Clone your fork locally::
-
-    $ git clone git@github.com:your_name_here/django-cid.git
-
-3. Set up a virtual environment and install the dependencies::
-
-    $ pip install -e .
-    $ pip install -r requirement/tests.txt
-
-4. Create a branch for local development::
-
-    $ git checkout -b name-of-your-bugfix-or-feature
-
-Now you can make your changes locally.
-
-5. Test your changes locally by running ``make test``.
-
-5. Commit your changes and push your branch to GitHub::
-
-    $ git add .
-    $ git commit -m "Your detailed description of your changes."
-    $ git push origin name-of-your-bugfix-or-feature
-
-6. Submit a pull request through the GitHub website.
+Parse.ly's CTO, Andrew Montalenti, has published on Github an `Elements of Python Style`_ with 
+style suggestions for Python beyond PEP8.
 
 
-Sandbox project
----------------
-
-The repository has a ``sandbox`` directory that contains a Django
-project that showcases features and may help in testing and
-debugging. It does not replace automated tests, though.
-
-Install ``django-cid`` and you can run the server::
-
-    $ cd sandbox
-    $ ./manage.py runserver
-    [...]
-    Starting development server at http://127.0.0.1:8000/
-
-The home page at `http://127.0.0.1:8000/ <http://127.0.0.1:8000/>`_ is self-documented.
+.. _Elements of Python Style: https://github.com/amontalenti/elements-of-python-style
 
 
-Pull request guidelines
------------------------
+Contributor License Agreement
+-----------------------------
+No contributor license agreement is needed for streamparse. All pull requests are understood 
+to be acceptable to release under streamparse's license, Apache 2.0.
 
-Before you submit a pull request, check that it meets these guidelines:
-
-1. The pull request should include tests.
-2. If the pull request adds functionality, the docs should be updated.
-3. The pull request should work for all supported versions of Python and Django.
-   Check https://travis-ci.org/Polyconseil/django-cid/pull_requests
-   and make sure that the tests pass for all supported Python versions.
