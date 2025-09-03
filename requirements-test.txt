@@ -1,0 +1,14 @@
+Django (>=1.7)
+pytz
+six
+typing
+psycopg2
+infi.clickhouse-orm
+celery
+statsd
+django-pg-returning
+django-pg-bulk-update
+redis
+
+# Linter
+flake8

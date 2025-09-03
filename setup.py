@@ -1,21 +1,27 @@
-#!/usr/bin/env python
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#    http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
-# implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+from setuptools import setup
 
-import setuptools
+with open("README.md", "r") as fh:
+    long_description = fh.read()
 
+requires = []
+with open('requirements.txt') as f:
+    for line in f.readlines():
+        line = line.strip()  # Remove spaces
+        line = line.split('#')[0]  # Remove comments
+        if line:  # Remove empty lines
+            requires.append(line)
 
-setuptools.setup(
-    setup_requires=['pbr'],
-    pbr=True)
+setup(
+    name='django-clickhouse',
+    version='1.0.3',
+    packages=['django_clickhouse'],
+    package_dir={'': 'src'},
+    url='https://github.com/carrotquest/django-clickhouse',
+    license='BSD 3-clause "New" or "Revised" License',
+    author='Carrot quest',
+    author_email='m1ha@carrotquest.io',
+    description='Django extension to integrate with ClickHouse database',
+    long_description=long_description,
+    long_description_content_type="text/markdown",
+    install_requires=requires
+)
