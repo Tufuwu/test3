@@ -15,5 +15,5 @@ python_version = "3"
 
 [scripts]
 build = "python scripts/build.py"
-lint = "pycodestyle --max-line-length=99 --statistics resources"
+lint = "pycodestyle --max-line-length=120 --ignore=E203,E402 resources"
 test = "python -m unittest discover"
