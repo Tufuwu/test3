@@ -15,20 +15,28 @@ jobs:
       matrix:
         include:
           - python-version: 3.8
-            env: TOXENV: placement
+            env: 
+              TOXENV: placement
           - python-version: pypy-3.8
-            env: TOXENV: pypy-3.8
+            env: 
+              TOXENV: pypy-3.8
           - python-version: 3.8
-            env: TOXENV: py38
+            env: 
+              TOXENV: py38
           - python-version: 3.8
-            env: TOXENV: py38-pytest
+            env: 
+              TOXENV: py38-pytest
           - python-version: 3.8
-            env: TOXENV: py38-failskip
+            env: 
+              TOXENV: py38-failskip
           - python-version: 3.8
-            env: TOXENV: py38-limit
+            env: 
+              TOXENV: py38-limit
           - python-version: 3.8
-            env: TOXENV: py38-prefix
-          - env: TOXENV: pep8
+            env: 
+              TOXENV: py38-prefix
+          - env: 
+              TOXENV: pep8
 
     steps:
     - uses: actions/checkout@v2
