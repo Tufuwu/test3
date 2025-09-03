@@ -59,26 +59,28 @@ jobs:
 
     - name: Wait for PostgreSQL to be ready
       run: |
-        until pg_isready -h localhost -p 5432; do
+        until pg_isready -h 127.0.0.1 -p 5432; do
           echo "Waiting for PostgreSQL to be ready..."
           sleep 1
         done
 
     - name: Set up PostgreSQL
+      env:
+        PGPASSWORD: postgres
       run: |
-        psql -c 'CREATE ROLE test;' -U postgres
-        psql -c 'ALTER ROLE test WITH SUPERUSER;' -U postgres
-        psql -c 'ALTER ROLE test WITH LOGIN;' -U postgres
-        psql -c "ALTER ROLE test PASSWORD 'test';" -U postgres
-        psql -c 'CREATE DATABASE test OWNER test;' -U postgres
-        psql -c 'CREATE DATABASE test2 OWNER test;' -U postgres
+        psql -h 127.0.0.1 -U postgres -c 'CREATE ROLE test;'
+        psql -h 127.0.0.1 -U postgres -c 'ALTER ROLE test WITH SUPERUSER;'
+        psql -h 127.0.0.1 -U postgres -c 'ALTER ROLE test WITH LOGIN;'
+        psql -h 127.0.0.1 -U postgres -c "ALTER ROLE test PASSWORD 'test';"
+        psql -h 127.0.0.1 -U postgres -c 'CREATE DATABASE test OWNER test;'
+        psql -h 127.0.0.1 -U postgres -c 'CREATE DATABASE test2 OWNER test;'
 
     - name: Output software versions
       run: |
         erl -eval 'erlang:display(erlang:system_info(otp_release)), halt().'  -noshell
         rabbitmqctl status | grep "RabbitMQ"
         clickhouse-client --query "SELECT version();"
-        psql -tc 'SHOW server_version' -U postgres
+        psql -h 127.0.0.1 -U postgres -tc 'SHOW server_version'
 
     - name: Run tests
       run: python runtests.py
