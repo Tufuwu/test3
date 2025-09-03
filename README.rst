@@ -1,108 +1,104 @@
-Incremental
-===========
+.. image:: https://github.com/cdent/gabbi/workflows/tests/badge.svg
+    :target: https://github.com/cdent/gabbi/actions
+.. image:: https://readthedocs.org/projects/gabbi/badge/?version=latest
+    :target: https://gabbi.readthedocs.io/en/latest/
+    :alt: Documentation Status
 
-|travis|
-|pypi|
-|coverage|
+Gabbi
+=====
 
-Incremental is a small library that versions your Python projects.
+`Release Notes`_
 
-API documentation can be found `here <https://twisted.github.io/incremental/docs/>`_.
+Gabbi is a tool for running HTTP tests where requests and responses
+are represented in a declarative YAML-based form. The simplest test
+looks like this::
 
+    tests:
+    - name: A test
+      GET: /api/resources/id
 
-Quick Start
------------
+See the docs_ for more details on the many features and formats for
+setting request headers and bodies and evaluating responses.
 
-Add this to your ``setup.py``\ 's ``setup()`` call, removing any other versioning arguments:
+Gabbi is tested with Python 3.6, 3.7, 3.8, 3.9 and pypy3.
 
-.. code::
+Tests can be run using `unittest`_ style test runners, `pytest`_
+or from the command line with a `gabbi-run`_ script.
 
-   setup(
-       use_incremental=True,
-       setup_requires=['incremental'],
-       install_requires=['incremental'], # along with any other install dependencies
-       ...
-   }
+There is a `gabbi-demo`_ repository which provides a tutorial via
+its commit history. The demo builds a simple API using gabbi to
+facilitate test driven development.
 
+.. _Release Notes: https://gabbi.readthedocs.io/en/latest/release.html
+.. _docs: https://gabbi.readthedocs.io/
+.. _gabbi-demo: https://github.com/cdent/gabbi-demo
+.. _unittest: https://gabbi.readthedocs.io/en/latest/example.html#loader
+.. _pytest: http://pytest.org/
+.. _loader docs: https://gabbi.readthedocs.io/en/latest/example.html#pytest
+.. _gabbi-run: https://gabbi.readthedocs.io/en/latest/runner.html
 
-Install Incremental to your local environment with ``pip install incremental[scripts]``.
-Then run ``python -m incremental.update <projectname> --create``.
-It will create a file in your package named ``_version.py`` and look like this:
+Purpose
+-------
 
-.. code::
+Gabbi works to bridge the gap between human readable YAML files that
+represent HTTP requests and expected responses and the obscured realm of
+Python-based, object-oriented unit tests in the style of the unittest
+module and its derivatives.
 
-   from incremental import Version
+Each YAML file represents an ordered list of HTTP requests along with
+the expected responses. This allows a single file to represent a
+process in the API being tested. For example:
 
-   __version__ = Version("widgetbox", 17, 1, 0)
-   __all__ = ["__version__"]
+* Create a resource.
+* Retrieve a resource.
+* Delete a resource.
+* Retrieve a resource again to confirm it is gone.
 
+At the same time it is still possible to ask gabbi to run just one
+request. If it is in a sequence of tests, those tests prior to it in
+the YAML file will be run (in order). In any single process any test
+will only be run once. Concurrency is handled such that one file
+runs in one process.
 
-Then, so users of your project can find your version, in your root package's ``__init__.py`` add:
+These features mean that it is possible to create tests that are
+useful for both humans (as tools for improving and developing APIs)
+and automated CI systems.
 
-.. code::
+Testing and Developing Gabbi
+----------------------------
 
-   from ._version import __version__
+To get started, after cloning the `repository`_, you should install the
+development dependencies::
 
+    $ pip install -r requirements-dev.txt
 
-Subsequent installations of your project will then use Incremental for versioning.
+If you prefer to keep things isolated you can create a virtual
+environment::
 
+    $ virtualenv gabbi-venv
+    $ . gabbi-venv/bin/activate
+    $ pip install -r requirements-dev.txt
 
-Incremental Versions
---------------------
+Gabbi is set up to be developed and tested using `tox`_ (installed via
+``requirements-dev.txt``). To run the built-in tests (the YAML files
+are in the directories ``gabbi/tests/gabbits_*`` and loaded by the file
+``gabbi/test_*.py``), you call ``tox``::
 
-``incremental.Version`` is a class that represents a version of a given project.
-It is made up of the following elements (which are given during instantiation):
+    tox -epep8,py37
 
-- ``package`` (required), the name of the package this ``Version`` represents.
-- ``major``, ``minor``, ``micro`` (all required), the X.Y.Z of your project's ``Version``.
-- ``release_candidate`` (optional), set to 0 or higher to mark this ``Version`` being of a release candidate (also sometimes called a "prerelease").
-- ``post`` (optional), set to 0 or higher to mark this ``Version`` as a postrelease.
-- ``dev`` (optional), set to 0 or higher to mark this ``Version`` as a development release.
+If you have the dependencies installed (or a warmed up
+virtualenv) you can run the tests by hand and exit on the first
+failure::
 
-You can extract a PEP-440 compatible version string by using the ``.public()`` method, which returns a ``str`` containing the full version. This is the version you should provide to users, or publicly use. An example output would be ``"13.2.0"``, ``"17.1.2dev1"``, or ``"18.8.0rc2"``.
+    python -m subunit.run discover -f gabbi | subunit2pyunit
 
-Calling ``repr()`` with a ``Version`` will give a Python-source-code representation of it, and calling ``str()`` with a ``Version`` will provide a string similar to ``'[Incremental, version 16.10.1]'``.
+Testing can be limited to individual modules by specifying them
+after the tox invocation::
 
+    tox -epep8,py37 -- test_driver test_handlers
 
-Updating
---------
+If you wish to avoid running tests that connect to internet hosts,
+set ``GABBI_SKIP_NETWORK`` to ``True``.
 
-Incremental includes a tool to automate updating your Incremental-using project's version called ``incremental.update``.
-It updates the ``_version.py`` file and automatically updates some uses of Incremental versions from an indeterminate version to the current one.
-It requires ``click`` from PyPI.
-
-``python -m incremental.update <projectname>`` will perform updates on that package.
-The commands that can be given after that will determine what the next version is.
-
-- ``--newversion=<version>``, to set the project version to a fully-specified version (like 1.2.3, or 17.1.0dev1).
-- ``--rc``, to set the project version to ``<year-2000>.<month>.0rc1`` if the current version is not a release candidate, or bump the release candidate number by 1 if it is.
-- ``--dev``, to set the project development release number to 0 if it is not a development release, or bump the development release number by 1 if it is.
-- ``--patch``, to increment the patch number of the release. This will also reset the release candidate number, pass ``--rc`` at the same time to increment the patch number and make it a release candidate.
-- ``--post``, to set the project postrelease number to 0 if it is not a postrelease, or bump the postrelease number by 1 if it is. This will also reset the release candidate and development release numbers.
-
-If you give no arguments, it will strip the release candidate number, making it a "full release".
-
-Incremental supports "indeterminate" versions, as a stand-in for the next "full" version. This can be used when the version which will be displayed to the end-user is unknown (for example "introduced in" or "deprecated in"). Incremental supports the following indeterminate versions:
-
-- ``Version("<projectname>", "NEXT", 0, 0)``
-- ``<projectname> NEXT``
-
-When you run ``python -m incremental.update <projectname> --rc``, these will be updated to real versions (assuming the target final version is 17.1.0):
-
-- ``Version("<projectname>", 17, 1, 0, release_candidate=1)``
-- ``<projectname> 17.1.0rc1``
-
-Once the final version is made, it will become:
-
-- ``Version("<projectname>", 17, 1, 0)``
-- ``<projectname> 17.1.0``
-
-
-.. |coverage| image:: https://codecov.io/github/twisted/incremental/coverage.svg?branch=master
-.. _coverage: https://codecov.io/github/twisted/incremental
-
-.. |travis| image:: https://travis-ci.org/twisted/incremental.svg?branch=master
-.. _travis: https://travis-ci.org/twisted/incremental
-
-.. |pypi| image:: http://img.shields.io/pypi/v/incremental.svg
-.. _pypi: https://pypi.python.org/pypi/incremental
+.. _tox: https://tox.readthedocs.io/
+.. _repository: https://github.com/cdent/gabbi
