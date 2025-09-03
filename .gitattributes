@@ -1,9 +1,6 @@
-# Set default behaviour, in case users don't have core.autocrlf set.
+# Auto detect text files and perform LF normalization
 * text=auto
 
-# Explicitly declare text files we want to always be normalized and converted 
-# to native line endings on checkout.
-*.py text
-*.txt text eol=crlf
-*.cfg text
-*.toml text
+# Do not count FullCalendar and Octicons in the Github statistics
+activity_calendar/static/fullcalendar/* linguist-vendored
+activity_calendar/static/octicons/* linguist-vendored
