@@ -40,10 +40,12 @@ jobs:
 
     - name: Install package
       run: |
-        source activate $CONDA_ENV_NAME
+        source $(conda info --base)/etc/profile.d/conda.sh
+        conda activate $CONDA_ENV_NAME
         python setup.py install
 
     - name: Run tests
       run: |
-        source activate $CONDA_ENV_NAME
+        source $(conda info --base)/etc/profile.d/conda.sh
+        conda activate $CONDA_ENV_NAME
         pytest
