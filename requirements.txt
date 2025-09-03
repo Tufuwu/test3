@@ -1,4 +1,3 @@
 setuptools
-Cython
 numpy
-h5py
+h5py>=2.3
