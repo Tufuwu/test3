@@ -35,8 +35,17 @@ jobs:
     - name: Activate conda environment
       run: echo "CONDA_ENV_NAME=test" >> $GITHUB_ENV
 
+    - name: Verify conda environment activation
+      run: |
+        source $(conda info --base)/etc/profile.d/conda.sh
+        conda activate $CONDA_ENV_NAME
+        conda info --envs
+
     - name: Install dependencies
-      run: conda install altair matplotlib numba numpy pandas pyteomics pytest -c defaults -c bioconda -c conda-forge
+      run: |
+        source $(conda info --base)/etc/profile.d/conda.sh
+        conda activate $CONDA_ENV_NAME
+        conda install altair matplotlib numba numpy pandas pyteomics pytest -c defaults -c bioconda -c conda-forge
 
     - name: Install package
       run: |
