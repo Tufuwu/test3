@@ -1,6 +1,0 @@
-mock ; python_version < '3.3'
-stestr
-coverage>=4.4.1
-pytest-cov
-hacking
-sphinx
