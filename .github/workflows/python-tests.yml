@@ -51,7 +51,7 @@ jobs:
         sudo apt-get install -y dirmngr apt-transport-https unzip
         sudo apt-get install -y postgresql-client
         sudo apt-get install -y rabbitmq-server
-        sudo apt-get install -y clickhouse-client clickhouse-server clickhouse-common-static
+        sudo apt-get install -y clickhouse-client
         sudo service clickhouse-server restart
         pip install -r requirements-test.txt
         pip install Django==${{ matrix.django-version }}.*
