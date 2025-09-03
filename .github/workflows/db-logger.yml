@@ -37,4 +37,5 @@ jobs:
         pip install Django==${{ matrix.django-version }}
 
     - name: Run tests
-      run: python test_manage.py test
+      run: |
+        python test_manage.py test || exit 1
