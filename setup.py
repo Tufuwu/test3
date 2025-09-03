@@ -1,51 +1,66 @@
 #!/usr/bin/env python
-from itertools import chain
-from setuptools import setup, find_packages
-from pyinaturalist import __version__
+#-----------------------------------------------------------------------------
+# Copyright (c) 2013-2020, NeXpy Development Team.
+#
+# Distributed under the terms of the Modified BSD License.
+#
+# The full license is in the file COPYING, distributed with this software.
+#-----------------------------------------------------------------------------
 
-# These package categories allow tox and build environments to install only what they need
-extras_require = {
-    # Packages used for CI jobs
-    "build": ["coveralls", "twine", "wheel"],
-    # Packages used for documentation builds
-    "docs": [
-        "m2r2",
-        "Sphinx~=3.2.1",
-        "sphinx-autodoc-typehints",
-        "sphinx-automodapi",
-        "sphinx-rtd-theme",
-        "sphinxcontrib-apidoc",
-    ],
-    # Packages used for testing both locally and in CI jobs
-    "test": [
-        "black==20.8b1",
-        "flake8",
-        "mypy",
-        "pytest>=5.0",
-        "pytest-cov",
-        "requests-mock>=1.7",
-        "tox>=3.15",
-        "click<8.1",
-    ],
-}
-# All development/testing packages combined
-extras_require["dev"] = list(chain.from_iterable(extras_require.values()))
+from setuptools import setup, find_packages, Extension
 
+import os, sys
+import versioneer
 
-setup(
-    name="pyinaturalist",
-    version=__version__,
-    author="Nicolas Noé",
-    author_email="nicolas@niconoe.eu",
-    url="https://github.com/niconoe/pyinaturalist",
-    packages=find_packages(),
-    include_package_data=True,
-    install_requires=[
-        "keyring~=21.4.0",
-        "python-dateutil>=2.0",
-        "python-forge",
-        "requests>=2.24.0",
-    ],
-    extras_require=extras_require,
-    zip_safe=False,
-)
+# pull in some definitions from the package's __init__.py file
+sys.path.insert(0, os.path.join('src', ))
+import nexpy
+import nexpy.requires
+
+verbose=1
+
+setup (name =  nexpy.__package_name__,        # NeXpy
+       version=versioneer.get_version(),
+       cmdclass=versioneer.get_cmdclass(),
+       license = nexpy.__license__,
+       description = nexpy.__description__,
+       long_description = nexpy.__long_description__,
+       author=nexpy.__author_name__,
+       author_email=nexpy.__author_email__,
+       url=nexpy.__url__,
+       download_url=nexpy.__download_url__,
+       platforms='any',
+       python_requires='>=3.7',
+       install_requires = nexpy.requires.pkg_requirements,
+       extras_require = nexpy.requires.extra_requirements,
+       package_dir = {'': 'src'},
+       packages = find_packages('src'),
+       include_package_data = True,
+       package_data = {
+                       'nexpy.gui': ['resources/icon/*.svg',
+                                     'resources/icon/*.png',
+                                     'resources/*.png',
+                                    ],
+                       'nexpy.definitions': ['base_classes/*.xml'],
+                       'nexpy': [
+                           'examples/*.*',
+                           'examples/*/*.*',
+                           'examples/*/*/*.*',
+                       ],
+                   },
+       entry_points={
+            # create & install scripts in <python>/bin
+            'gui_scripts': ['nexpy = nexpy.nexpygui:main',],
+       },
+       classifiers= ['Development Status :: 4 - Beta',
+                     'Intended Audience :: Developers',
+                     'Intended Audience :: Science/Research',
+                     'License :: OSI Approved :: BSD License',
+                     'Programming Language :: Python',
+                     'Programming Language :: Python :: 3',
+                     'Programming Language :: Python :: 3.7',
+                     'Programming Language :: Python :: 3.8',
+                     'Programming Language :: Python :: 3.9',
+                     'Topic :: Scientific/Engineering',
+                     'Topic :: Scientific/Engineering :: Visualization'],
+      )
