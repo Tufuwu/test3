@@ -1,6 +1,6 @@
 mock ; python_version < '3.3'
 stestr
-coverage
+coverage==7.10.1
 pytest-cov
 hacking
 sphinx
