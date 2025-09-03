@@ -17,7 +17,9 @@ import xbmcvfs
 addon = xbmcaddon.Addon()
 addon_id = addon.getAddonInfo("id")
 addon_base = "plugin://" + addon_id
-addon_profile_path = xbmcvfs.translatePath(addon.getAddonInfo("profile"))
+addon_profile_path = xbmcvfs.translatePath(
+    addon.getAddonInfo("profile")
+)
 vfs = VFS(addon_profile_path)
 vfs_cache = VFS(os.path.join(addon_profile_path, "cache"))
 settings = Settings(addon)
@@ -41,8 +43,12 @@ def run():
             xbmcplugin.addDirectoryItems(handle, items, len(items))
             xbmcplugin.endOfDirectory(handle)
         elif "call" in action:
-            collection = listItems.from_collection(api.call(args.get("call")[0]))
-            xbmcplugin.addDirectoryItems(handle, collection, len(collection))
+            collection = listItems.from_collection(
+                api.call(args.get("call")[0])
+            )
+            xbmcplugin.addDirectoryItems(
+                handle, collection, len(collection)
+            )
             xbmcplugin.endOfDirectory(handle)
         elif "settings" in action:
             addon.openSettings()
@@ -57,15 +63,23 @@ def run():
             xbmcplugin.addDirectoryItems(handle, items, len(items))
             xbmcplugin.endOfDirectory(handle)
         else:
-            api_result = api.charts({"kind": action, "genre": genre, "limit": 50})
+            api_result = api.charts(
+                {"kind": action, "genre": genre, "limit": 50}
+            )
             collection = listItems.from_collection(api_result)
-            xbmcplugin.addDirectoryItems(handle, collection, len(collection))
+            xbmcplugin.addDirectoryItems(
+                handle, collection, len(collection)
+            )
             xbmcplugin.endOfDirectory(handle)
 
     elif path == PATH_DISCOVER:
         selection = args.get("selection", [None])[0]
-        collection = listItems.from_collection(api.discover(selection))
-        xbmcplugin.addDirectoryItems(handle, collection, len(collection))
+        collection = listItems.from_collection(
+            api.discover(selection)
+        )
+        xbmcplugin.addDirectoryItems(
+            handle, collection, len(collection)
+        )
         xbmcplugin.endOfDirectory(handle)
 
     elif path == PATH_PLAY:
@@ -84,12 +98,18 @@ def run():
         if media_url:
             resolved_url = api.resolve_media_url(media_url)
             item = xbmcgui.ListItem(path=resolved_url)
-            xbmcplugin.setResolvedUrl(handle, succeeded=True, listitem=item)
+            xbmcplugin.setResolvedUrl(
+                handle, succeeded=True, listitem=item
+            )
         elif track_id:
-            collection = listItems.from_collection(api.resolve_id(track_id))
+            collection = listItems.from_collection(
+                api.resolve_id(track_id)
+            )
             playlist = xbmc.PlayList(xbmc.PLAYLIST_MUSIC)
             resolve_list_item(handle, collection[0][1])
-            playlist.add(url=collection[0][0], listitem=collection[0][1])
+            playlist.add(
+                url=collection[0][0], listitem=collection[0][1]
+            )
         elif playlist_id:
             call = "/playlists/{id}".format(id=playlist_id)
             collection = listItems.from_collection(api.call(call))
@@ -98,7 +118,9 @@ def run():
                 resolve_list_item(handle, item[1])
                 playlist.add(url=item[0], listitem=item[1])
         elif url:
-            collection = listItems.from_collection(api.resolve_url(url))
+            collection = listItems.from_collection(
+                api.resolve_url(url)
+            )
             playlist = xbmc.PlayList(xbmc.PLAYLIST_MUSIC)
             for item in collection:
                 resolve_list_item(handle, item[1])
@@ -114,30 +136,44 @@ def run():
                 search(handle, query)
             elif "people" in action:
                 xbmcplugin.setContent(handle, "artists")
-                collection = listItems.from_collection(api.search(query, "users"))
-                xbmcplugin.addDirectoryItems(handle, collection, len(collection))
+                collection = listItems.from_collection(
+                    api.search(query, "users")
+                )
+                xbmcplugin.addDirectoryItems(
+                    handle, collection, len(collection)
+                )
                 xbmcplugin.endOfDirectory(handle)
             elif "albums" in action:
                 xbmcplugin.setContent(handle, "albums")
-                collection = listItems.from_collection(api.search(query, "albums"))
-                xbmcplugin.addDirectoryItems(handle, collection, len(collection))
+                collection = listItems.from_collection(
+                    api.search(query, "albums")
+                )
+                xbmcplugin.addDirectoryItems(
+                    handle, collection, len(collection)
+                )
                 xbmcplugin.endOfDirectory(handle)
             elif "playlists" in action:
                 xbmcplugin.setContent(handle, "albums")
                 collection = listItems.from_collection(
                     api.search(query, "playlists_without_albums")
                 )
-                xbmcplugin.addDirectoryItems(handle, collection, len(collection))
+                xbmcplugin.addDirectoryItems(
+                    handle, collection, len(collection)
+                )
                 xbmcplugin.endOfDirectory(handle)
             else:
                 xbmc.log("Invalid search action", xbmc.LOGERROR)
         else:
             if action is None:
                 items = listItems.search()
-                xbmcplugin.addDirectoryItems(handle, items, len(items))
+                xbmcplugin.addDirectoryItems(
+                    handle, items, len(items)
+                )
                 xbmcplugin.endOfDirectory(handle)
             elif "new" in action:
-                query = xbmcgui.Dialog().input(addon.getLocalizedString(30101))
+                query = xbmcgui.Dialog().input(
+                    addon.getLocalizedString(30101)
+                )
                 search_history.add(query)
                 search(handle, query)
             else:
@@ -147,7 +183,9 @@ def run():
     elif path == PATH_SEARCH_LEGACY:
         query = args.get("q", [""])[0]
         collection = listItems.from_collection(api.search(query))
-        xbmcplugin.addDirectoryItems(handle, collection, len(collection))
+        xbmcplugin.addDirectoryItems(
+            handle, collection, len(collection)
+        )
         xbmcplugin.endOfDirectory(handle)
 
     elif path == PATH_USER:
@@ -155,9 +193,13 @@ def run():
         default_action = args.get("call")[0]
         if user_id:
             items = listItems.user(user_id)
-            collection = listItems.from_collection(api.call(default_action))
+            collection = listItems.from_collection(
+                api.call(default_action)
+            )
             xbmcplugin.addDirectoryItems(handle, items, len(items))
-            xbmcplugin.addDirectoryItems(handle, collection, len(collection))
+            xbmcplugin.addDirectoryItems(
+                handle, collection, len(collection)
+            )
             xbmcplugin.endOfDirectory(handle)
         else:
             xbmc.log("Invalid user action", xbmc.LOGERROR)
@@ -172,14 +214,20 @@ def run():
 
 
 def resolve_list_item(handle, list_item):
-    resolved_url = api.resolve_media_url(list_item.getProperty("mediaUrl"))
+    resolved_url = api.resolve_media_url(
+        list_item.getProperty("mediaUrl")
+    )
     list_item.setPath(resolved_url)
-    xbmcplugin.setResolvedUrl(handle, succeeded=True, listitem=list_item)
+    xbmcplugin.setResolvedUrl(
+        handle, succeeded=True, listitem=list_item
+    )
 
 
 def search(handle, query):
     search_options = listItems.search_sub(query)
     collection = listItems.from_collection(api.search(query))
-    xbmcplugin.addDirectoryItems(handle, search_options, len(collection))
+    xbmcplugin.addDirectoryItems(
+        handle, search_options, len(collection)
+    )
     xbmcplugin.addDirectoryItems(handle, collection, len(collection))
     xbmcplugin.endOfDirectory(handle)

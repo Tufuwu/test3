@@ -21,4 +21,7 @@ class SearchHistory:
         self.vfs.save_obj_to_json(self.filename, search)
 
     def _reduce(self, search):
-        return {k: search[k] for k in sorted(list(search), reverse=True)[: self.size]}
+        return {
+            k: search[k]
+            for k in sorted(list(search), reverse=True)[: self.size]
+        }

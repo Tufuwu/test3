@@ -15,22 +15,30 @@ class Items:
         items = []
 
         # Search
-        list_item = xbmcgui.ListItem(label=self.addon.getLocalizedString(30101))
+        list_item = xbmcgui.ListItem(
+            label=self.addon.getLocalizedString(30101)
+        )
         url = self.addon_base + PATH_SEARCH
         items.append((url, list_item, True))
 
         # Charts
-        list_item = xbmcgui.ListItem(label=self.addon.getLocalizedString(30102))
+        list_item = xbmcgui.ListItem(
+            label=self.addon.getLocalizedString(30102)
+        )
         url = self.addon_base + PATH_CHARTS
         items.append((url, list_item, True))
 
         # Discover
-        list_item = xbmcgui.ListItem(label=self.addon.getLocalizedString(30103))
+        list_item = xbmcgui.ListItem(
+            label=self.addon.getLocalizedString(30103)
+        )
         url = self.addon_base + PATH_DISCOVER
         items.append((url, list_item, True))
 
         # Settings
-        list_item = xbmcgui.ListItem(label=self.addon.getLocalizedString(30108))
+        list_item = xbmcgui.ListItem(
+            label=self.addon.getLocalizedString(30108)
+        )
         url = self.addon_base + "/?action=settings"
         items.append((url, list_item, False))
 
@@ -54,12 +62,16 @@ class Items:
         # Search history
         history = self.search_history.get()
         for k in sorted(list(history), reverse=True):
-            list_item = xbmcgui.ListItem(label=history[k].get("query"))
+            list_item = xbmcgui.ListItem(
+                label=history[k].get("query")
+            )
             url = (
                 self.addon_base
                 + PATH_SEARCH
                 + "?"
-                + urllib.parse.urlencode({"query": history[k].get("query")})
+                + urllib.parse.urlencode(
+                    {"query": history[k].get("query")}
+                )
             )
             items.append((url, list_item, True))
 
@@ -76,7 +88,9 @@ class Items:
             self.addon_base
             + PATH_SEARCH
             + "?"
-            + urllib.parse.urlencode({"action": "people", "query": query})
+            + urllib.parse.urlencode(
+                {"action": "people", "query": query}
+            )
         )
         items.append((url, list_item, True))
 
@@ -88,7 +102,9 @@ class Items:
             self.addon_base
             + PATH_SEARCH
             + "?"
-            + urllib.parse.urlencode({"action": "albums", "query": query})
+            + urllib.parse.urlencode(
+                {"action": "albums", "query": query}
+            )
         )
         items.append((url, list_item, True))
 
@@ -100,7 +116,9 @@ class Items:
             self.addon_base
             + PATH_SEARCH
             + "?"
-            + urllib.parse.urlencode({"action": "playlists", "query": query})
+            + urllib.parse.urlencode(
+                {"action": "playlists", "query": query}
+            )
         )
         items.append((url, list_item, True))
 
@@ -117,7 +135,10 @@ class Items:
             self.addon_base
             + "/?"
             + urllib.parse.urlencode(
-                {"action": "call", "call": "/users/{id}/albums".format(id=id)}
+                {
+                    "action": "call",
+                    "call": "/users/{id}/albums".format(id=id),
+                }
             )
         )
         items.append((url, list_item, True))
@@ -132,7 +153,9 @@ class Items:
             + urllib.parse.urlencode(
                 {
                     "action": "call",
-                    "call": "/users/{id}/playlists_without_albums".format(id=id),
+                    "call": "/users/{id}/playlists_without_albums".format(
+                        id=id
+                    ),
                 }
             )
         )
@@ -146,7 +169,10 @@ class Items:
             self.addon_base
             + "/?"
             + urllib.parse.urlencode(
-                {"action": "call", "call": "/users/{id}/spotlight".format(id=id)}
+                {
+                    "action": "call",
+                    "call": "/users/{id}/spotlight".format(id=id),
+                }
             )
         )
         items.append((url, list_item, True))
@@ -189,7 +215,9 @@ class Items:
             items.append(item.to_list_item(self.addon_base))
 
         if collection.next_href:
-            next_item = xbmcgui.ListItem(label=self.addon.getLocalizedString(30901))
+            next_item = xbmcgui.ListItem(
+                label=self.addon.getLocalizedString(30901)
+            )
             url = (
                 self.addon_base
                 + "/?"

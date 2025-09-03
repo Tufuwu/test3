@@ -30,7 +30,10 @@ class ApiV2(ApiInterface):
         self.settings = settings
         self.api_limit = int(self.settings.get("search.items.size"))
 
-        if self.settings.get("apiv2.locale") == self.settings.APIV2_LOCALE["auto"]:
+        if (
+            self.settings.get("apiv2.locale")
+            == self.settings.APIV2_LOCALE["auto"]
+        ):
             self.api_lang = lang
 
     @property
@@ -39,47 +42,65 @@ class ApiV2(ApiInterface):
         client_id_settings = self.settings.get("apiv2.client_id")
         if client_id_settings:
             xbmc.log(
-                "plugin.audio.soundcloud::ApiV2() Using custom client ID", xbmc.LOGDEBUG
+                "plugin.audio.soundcloud::ApiV2() Using custom client ID",
+                xbmc.LOGDEBUG,
             )
             return client_id_settings
 
         # Check if there is a cached client ID
         client_id_cached = self.cache.get(
-            self.api_client_id_cache_key, self.api_client_id_cache_duration
+            self.api_client_id_cache_key,
+            self.api_client_id_cache_duration,
         )
         if client_id_cached:
             xbmc.log(
-                "plugin.audio.soundcloud::ApiV2() Using cached client ID", xbmc.LOGDEBUG
+                "plugin.audio.soundcloud::ApiV2() Using cached client ID",
+                xbmc.LOGDEBUG,
             )
             return client_id_cached
 
         # Extract client ID from website and cache it
         client_id = self.fetch_client_id()
         self.cache.add(self.api_client_id_cache_key, str(client_id))
-        xbmc.log("plugin.audio.soundcloud::ApiV2() Using new client ID", xbmc.LOGDEBUG)
+        xbmc.log(
+            "plugin.audio.soundcloud::ApiV2() Using new client ID",
+            xbmc.LOGDEBUG,
+        )
 
         return client_id
 
     def search(self, query, kind="tracks"):
-        res = self._do_request("/search/" + kind, {"q": query, "limit": self.api_limit})
+        res = self._do_request(
+            "/search/" + kind, {"q": query, "limit": self.api_limit}
+        )
         return self._map_json_to_collection(res)
 
     def discover(self, selection_id=None):
-        res = self._do_request("/mixed-selections", {}, self.api_cache["discover"])
+        res = self._do_request(
+            "/mixed-selections", {}, self.api_cache["discover"]
+        )
 
         if selection_id and "collection" in res:
-            res = self._find_id_in_selection(res["collection"], selection_id)
+            res = self._find_id_in_selection(
+                res["collection"], selection_id
+            )
 
         return self._map_json_to_collection(res)
 
     def charts(self, filters):
         res = self._do_request("/charts", filters)
-        res = {"collection": [item["track"] for item in res["collection"]]}
+        res = {
+            "collection": [
+                item["track"] for item in res["collection"]
+            ]
+        }
         return self._map_json_to_collection(res)
 
     def call(self, url):
         url = urllib.parse.urlparse(url)
-        res = self._do_request(url.path, urllib.parse.parse_qs(url.query))
+        res = self._do_request(
+            url.path, urllib.parse.parse_qs(url.query)
+        )
         return self._map_json_to_collection(res)
 
     def resolve_id(self, id):
@@ -93,7 +114,9 @@ class ApiV2(ApiInterface):
 
     def resolve_media_url(self, url):
         url = urllib.parse.urlparse(url)
-        res = self._do_request(url.path, urllib.parse.parse_qs(url.query))
+        res = self._do_request(
+            url.path, urllib.parse.parse_qs(url.query)
+        )
         return res.get("url")
 
     def _do_request(self, path, payload, cache=0):
@@ -101,7 +124,9 @@ class ApiV2(ApiInterface):
         payload["app_locale"] = self.api_lang
         headers = {"Accept-Encoding": "gzip"}
         path = self.api_host + path
-        cache_key = hashlib.sha1((path + str(payload)).encode()).hexdigest()
+        cache_key = hashlib.sha1(
+            (path + str(payload)).encode()
+        ).hexdigest()
 
         xbmc.log(
             "plugin.audio.soundcloud::ApiV2() Calling %s with header %s and payload %s"
@@ -116,7 +141,9 @@ class ApiV2(ApiInterface):
                 return json.loads(cached_response)
 
         # Send the request.
-        response = requests.get(path, headers=headers, params=payload).json()
+        response = requests.get(
+            path, headers=headers, params=payload
+        ).json()
 
         # If caching is active, cache the response.
         if cache:
@@ -151,7 +178,9 @@ class ApiV2(ApiInterface):
 
     def _map_json_to_collection(self, json_obj):
         collection = ApiCollection()
-        collection.items = []  # Reset list in order to resolve problems in unit tests.
+        collection.items = (
+            []
+        )  # Reset list in order to resolve problems in unit tests.
         collection.load = []
         collection.next_href = json_obj.get("next_href", None)
 
@@ -176,26 +205,42 @@ class ApiV2(ApiInterface):
                 elif kind == "user":
                     user = User(id=item["id"], label=item["username"])
                     user.label2 = item.get("full_name", "")
-                    user.thumb = self._get_thumbnail(item, self.thumbnail_size)
-                    user.info = {"artist": item.get("description", None)}
+                    user.thumb = self._get_thumbnail(
+                        item, self.thumbnail_size
+                    )
+                    user.info = {
+                        "artist": item.get("description", None)
+                    }
                     collection.items.append(user)
 
                 elif kind == "playlist":
-                    playlist = Playlist(id=item["id"], label=item.get("title"))
+                    playlist = Playlist(
+                        id=item["id"], label=item.get("title")
+                    )
                     playlist.is_album = item.get("is_album", False)
                     playlist.label2 = item.get("label_name", "")
-                    playlist.thumb = self._get_thumbnail(item, self.thumbnail_size)
-                    playlist.info = {"artist": item["user"]["username"]}
+                    playlist.thumb = self._get_thumbnail(
+                        item, self.thumbnail_size
+                    )
+                    playlist.info = {
+                        "artist": item["user"]["username"]
+                    }
                     collection.items.append(playlist)
 
                 elif kind == "system-playlist":
                     # System playlists only appear inside selections
-                    playlist = Selection(id=item["id"], label=item.get("title"))
-                    playlist.thumb = self._get_thumbnail(item, self.thumbnail_size)
+                    playlist = Selection(
+                        id=item["id"], label=item.get("title")
+                    )
+                    playlist.thumb = self._get_thumbnail(
+                        item, self.thumbnail_size
+                    )
                     collection.items.append(playlist)
 
                 elif kind == "selection":
-                    selection = Selection(id=item["id"], label=item.get("title"))
+                    selection = Selection(
+                        id=item["id"], label=item.get("title")
+                    )
                     selection.label2 = item.get("description", "")
                     collection.items.append(selection)
 
@@ -224,13 +269,23 @@ class ApiV2(ApiInterface):
         # Load unresolved tracks
         if collection.load:
             # The API only supports a max of 50 track IDs per request:
-            for chunk in self._chunks(collection.load, self.api_limit_tracks):
+            for chunk in self._chunks(
+                collection.load, self.api_limit_tracks
+            ):
                 track_ids = ",".join(str(x) for x in chunk)
-                loaded_tracks = self._do_request("/tracks", {"ids": track_ids})
+                loaded_tracks = self._do_request(
+                    "/tracks", {"ids": track_ids}
+                )
                 # Because returned tracks are not sorted, we have to manually match them
                 for track_id in chunk:
-                    loaded_track = [lt for lt in loaded_tracks if lt["id"] == track_id]
-                    if len(loaded_track):  # Sometimes a track cannot be resolved
+                    loaded_track = [
+                        lt
+                        for lt in loaded_tracks
+                        if lt["id"] == track_id
+                    ]
+                    if len(
+                        loaded_track
+                    ):  # Sometimes a track cannot be resolved
                         track = self._build_track(loaded_track[0])
                         collection.items.append(track)
 
@@ -238,15 +293,23 @@ class ApiV2(ApiInterface):
 
     def _build_track(self, item):
         if type(item.get("publisher_metadata")) is dict:
-            artist = item["publisher_metadata"].get("artist", item["user"]["username"])
+            artist = item["publisher_metadata"].get(
+                "artist", item["user"]["username"]
+            )
         else:
             artist = item["user"]["username"]
 
         track = Track(id=item["id"], label=item["title"])
-        track.blocked = True if item.get("policy") == "BLOCK" else False
-        track.preview = True if item.get("policy") == "SNIP" else False
+        track.blocked = (
+            True if item.get("policy") == "BLOCK" else False
+        )
+        track.preview = (
+            True if item.get("policy") == "SNIP" else False
+        )
         track.thumb = self._get_thumbnail(item, self.thumbnail_size)
-        track.media = self._extract_media_url(item["media"]["transcodings"])
+        track.media = self._extract_media_url(
+            item["media"]["transcodings"]
+        )
         track.info = {
             "artist": artist,
             "genre": item.get("genre", None),
@@ -262,22 +325,25 @@ class ApiV2(ApiInterface):
         headers = {"Accept-Encoding": "gzip"}
 
         # Get the HTML (includes a reference to the JS file we need)
-        html = requests.get("https://soundcloud.com/", headers=headers).text
+        html = requests.get(
+            "https://soundcloud.com/", headers=headers
+        ).text
 
         # Extract the HREF to the JS file (which contains the API key)
-        matches = re.findall(r"=\"(https://a-v2\.sndcdn\.com/assets/.*.js)\"", html)
+        matches = re.findall(
+            r"=\"(https://a-v2\.sndcdn\.com/assets/.*.js)\"", html
+        )
 
         if matches:
             for match in matches:
                 # Get the JS
                 response = requests.get(match, headers=headers)
-                response.encoding = (
-                    "utf-8"  # This speeds up `response.text` by 3 seconds
-                )
+                response.encoding = "utf-8"  # This speeds up `response.text` by 3 seconds
 
                 # Extract the API key
                 key = re.search(
-                    r"exports={\"api-v2\".*client_id:\"(\w*)\"", response.text
+                    r"exports={\"api-v2\".*client_id:\"(\w*)\"",
+                    response.text,
                 )
 
                 if key:
@@ -311,7 +377,10 @@ class ApiV2(ApiInterface):
         """
         url = item.get(
             "artwork_url",
-            item.get("avatar_url", item.get("calculated_artwork_url", False)),
+            item.get(
+                "avatar_url",
+                item.get("calculated_artwork_url", False),
+            ),
         )
 
         return (
