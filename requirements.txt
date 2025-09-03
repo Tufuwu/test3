@@ -1,0 +1,4 @@
+lxml>=4.2.5
+python_dateutil>=2.8.0
+coverage<6
+coveralls
