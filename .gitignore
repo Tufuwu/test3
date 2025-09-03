@@ -1,60 +1,116 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
 *.py[cod]
-.pydevproject
+*$py.class
 
 # C extensions
 *.so
 
-# Packages
-*.egg
-*.egg-info
-dist
-build
-eggs
-parts
-bin
-var
-sdist
-develop-eggs
+# Distribution / packaging
+.Python
+.vscode/
+p2/
+p3/
+env/
+venv/
+python2.7/
+build/
+develop-eggs/
+dist/
+# The doc directory is currently only used for temporary stuff
+doc/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
 .installed.cfg
-lib
-lib64
-MANIFEST
+*.egg
+
+# PyInstaller
+#  Usually these files are written by a python script from a template
+#  before PyInstaller builds the exe, so as to inject date/other infos into it.
+*.manifest
+*.spec
+
+# Sublime and VSCode
+*.sublime-project
+*.sublime-workspace
+*.code-workspace
 
 # Installer logs
 pip-log.txt
+pip-delete-this-directory.txt
 
 # Unit test / coverage reports
+htmlcov/
+.tox/
 .coverage
-.tox
+.coverage.*
+.cache
+.pytest_cache/
 nosetests.xml
-
-# Patch files
-*.patch
+coverage.xml
+*.cover
+.hypothesis/
+tokout.txt
 
 # Translations
 *.mo
+*.pot
 
-# Mr Developer
-.mr.developer.cfg
+# Django stuff:
+*.log
+local_settings.py
 
-# OSX files
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-Icon?
+# Flask stuff:
+instance/
+.webassets-cache
 
-# PyCharm Files
-.idea
+# Scrapy stuff:
+.scrapy
 
-# eclipse
-.settings
-.project
-.pydevproject
+# Sphinx documentation
+docs/_build/
 
-# emacs
-*~
+# PyBuilder
+target/
 
-# Virtual Studio Code
-.vscode
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# pyenv
+.python-version
+
+# celery beat schedule file
+celerybeat-schedule
+
+# SageMath parsed files
+*.sage.py
+
+# dotenv
+.env
+
+# virtualenv
+.venv
+venv/
+ENV/
+
+# Spyder project settings
+.spyderproject
+.spyproject
+
+# Rope project settings
+.ropeproject
+
+# mkdocs documentation
+/site
+
+# mypy
+.mypy_cache/
+mypy.ini
