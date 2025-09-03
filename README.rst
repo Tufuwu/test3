@@ -1,184 +1,187 @@
-=============
-Feedgenerator
-=============
+.. image:: https://github.com/liminspace/django-mjml/actions/workflows/test.yml/badge.svg?branch=master
+ :target: https://github.com/liminspace/django-mjml/actions/workflows/test.yml
+ :alt: test
 
-This module can be used to generate web feeds in both ATOM and RSS format. It
-has support for extensions. Included is for example an extension to produce
-Podcasts.
+.. image:: https://img.shields.io/pypi/v/django-mjml.svg
+ :target: https://pypi.org/project/django-mjml/
+ :alt: pypi
 
-It is licensed under the terms of both, the FreeBSD license and the LGPLv3+.
-Choose the one which is more convenient for you. For more details have a look
-at license.bsd and license.lgpl.
+|
 
-More details about the project:
+.. image:: https://cloud.githubusercontent.com/assets/5173158/14615647/5fc03bf8-05af-11e6-8cdd-f87bf432c4a2.png
+  :target: #
+  :alt: Django + MJML
 
-- `Repository <https://github.com/lkiesow/python-feedgen>`_
-- `Documentation <https://lkiesow.github.io/python-feedgen/>`_
-- `Python Package Index <https://pypi.python.org/pypi/feedgen/>`_
+django-mjml
+===========
 
+The simplest way to use `MJML <https://mjml.io/>`_ in `Django <https://www.djangoproject.com/>`_ templates.
 
-------------
+|
+
 Installation
 ------------
 
-**Prebuild packages**
+Requirements:
+^^^^^^^^^^^^^
 
-If your distribution includes this project as package, like Fedora Linux does,
-you can simply use your package manager to install the package. For example::
+* ``Django`` from 1.8 to 3.2
+* ``requests`` from 2.20.0 (only if you are going to use API HTTP-server for rendering)
+* ``mjml`` from 2.3 to 4.10.1
 
-    $ dnf install python3-feedgen
+**\1\. Install** ``mjml``.
 
+See https://github.com/mjmlio/mjml#installation and https://mjml.io/documentation/#installation
 
-**Using pip**
+**\2\. Install** ``django-mjml``. ::
 
-You can also use pip to install the feedgen module. Simply run::
+  $ pip install django-mjml
 
-    $ pip install feedgen
+If you want to use API HTTP-server you also need ``requests`` (at least version 2.20)::
 
+    $ pip install django-mjml[requests]
 
--------------
-Create a Feed
--------------
+To install development version use ``git+https://github.com/liminspace/django-mjml.git@master`` instead ``django-mjml``.
 
-To create a feed simply instantiate the FeedGenerator class and insert some
-data:
+**\3\. Set up** ``settings.py`` **in your django project.** ::
 
-.. code-block:: python
+  INSTALLED_APPS = (
+    ...,
+    'mjml',
+  )
 
-    from feedgen.feed import FeedGenerator
-    fg = FeedGenerator()
-    fg.id('http://lernfunk.de/media/654321')
-    fg.title('Some Testfeed')
-    fg.author( {'name':'John Doe','email':'john@example.de'} )
-    fg.link( href='http://example.com', rel='alternate' )
-    fg.logo('http://ex.com/logo.jpg')
-    fg.subtitle('This is a cool feed!')
-    fg.link( href='http://larskiesow.de/test.atom', rel='self' )
-    fg.language('en')
+|
 
-Note that for the methods which set fields that can occur more than once in a
-feed you can use all of the following ways to provide data:
+Usage
+-----
 
-- Provide the data for that element as keyword arguments
-- Provide the data for that element as dictionary
-- Provide a list of dictionaries with the data for several elements
+Load ``mjml`` in your django template and use ``mjml`` tag that will compile MJML to HTML::
 
-Example:
+  {% load mjml %}
 
-.. code-block:: python
+  {% mjml %}
+      <mjml>
+      <mj-body>
+      <mj-container>
+          <mj-section>
+              <mj-column>
+                  <mj-text>Hello world!</mj-text>
+              </mj-column>
+          </mj-section>
+      </mj-container>
+      </mj-body>
+      </mjml>
+  {% endmjml %}
 
-    fg.contributor( name='John Doe', email='jdoe@example.com' )
-    fg.contributor({'name':'John Doe', 'email':'jdoe@example.com'})
-    fg.contributor([{'name':'John Doe', 'email':'jdoe@example.com'}, ...])
+|
 
+Advanced settings
 -----------------
-Generate the Feed
------------------
 
-After that you can generate both RSS or ATOM by calling the respective method:
+There are three backend modes for compiling: ``cmd``, ``tcpserver`` and ``httpserver``.
 
-.. code-block:: python
+cmd mode
+^^^^^^^^
 
-    atomfeed = fg.atom_str(pretty=True) # Get the ATOM feed as string
-    rssfeed  = fg.rss_str(pretty=True) # Get the RSS feed as string
-    fg.atom_file('atom.xml') # Write the ATOM feed to a file
-    fg.rss_file('rss.xml') # Write the RSS feed to a file
+This mode is very simple, slow and used by default. ::
 
+  MJML_BACKEND_MODE = 'cmd'
+  MJML_EXEC_CMD = 'mjml'
 
-----------------
-Add Feed Entries
-----------------
+You can change ``MJML_EXEC_CMD`` and set path to executable ``mjml`` file, for example::
 
-To add entries (items) to a feed you need to create new FeedEntry objects and
-append them to the list of entries in the FeedGenerator. The most convenient
-way to go is to use the FeedGenerator itself for the instantiation of the
-FeedEntry object:
+  MJML_EXEC_CMD = '/home/user/node_modules/.bin/mjml'
 
-.. code-block:: python
+Also you can pass addition cmd arguments, for example::
 
-    fe = fg.add_entry()
-    fe.id('http://lernfunk.de/media/654321/1')
-    fe.title('The First Episode')
-    fe.link(href="http://lernfunk.de/feed")
+  MJML_EXEC_CMD = ['node_modules/.bin/mjml', '--config.minify', 'true', '--config.validationLevel', 'strict']
 
-The FeedGenerator's method `add_entry(...)` will generate a new FeedEntry
-object, automatically append it to the feeds internal list of entries and
-return it, so that additional data can be added.
+Once you have a working installation, you can skip the sanity check on startup to speed things up::
 
-----------
-Extensions
-----------
+  MJML_CHECK_CMD_ON_STARTUP = False
 
-The FeedGenerator supports extensions to include additional data into the XML
-structure of the feeds. Extensions can be loaded like this:
+tcpserver mode
+^^^^^^^^^^^^^^
 
-.. code-block:: python
+This mode is faster than ``cmd`` but it needs run a separated server process which will render templates. ::
 
-    fg.load_extension('someext', atom=True, rss=True)
+  MJML_BACKEND_MODE = 'tcpserver'
+  MJML_TCPSERVERS = [
+      ('127.0.0.1', 28101),  # host and port
+  ]
 
-This example would try to load the extension “someext” from the file
-`ext/someext.py`.  It is required that `someext.py` contains a class named
-“SomextExtension” which is required to have at least the two methods
-`extend_rss(...)` and `extend_atom(...)`. Although not required, it is strongly
-suggested to use `BaseExtension` from `ext/base.py` as superclass.
+You can set several servers and a random one will be used::
 
-`load_extension('someext', ...)` will also try to load a class named
-“SomextEntryExtension” for every entry of the feed. This class can be located
-either in the same file as SomextExtension or in `ext/someext_entry.py` which
-is suggested especially for large extensions.
+  MJML_TCPSERVERS = [
+      ('127.0.0.1', 28101),
+      ('127.0.0.1', 28102),
+      ('127.0.0.1', 28103),
+  ]
 
-The parameters `atom` and `rss` control if the extension is used for ATOM and
-RSS feeds respectively. The default value for both parameters is `True`,
-meaning the extension is used for both kinds of feeds.
+You can run servers by commands::
 
-**Example: Producing a Podcast**
+  # NODE_PATH=/home/user/node_modules node /home/user/.virtualenv/default/lib/python2.7/site-packages/mjml/node/tcpserver.js --port=28101 --host=127.0.0.1 --touchstop=/tmp/mjmltcpserver.stop
 
-One extension already provided is the podcast extension. A podcast is an RSS
-feed with some additional elements for ITunes.
+``28101`` - port, ``127.0.0.1`` - host, ``/tmp/mjmltcpserver.stop`` - file that will stop server after touch.
 
-To produce a podcast simply load the `podcast` extension:
+For daemonize server process you can use, for example, supervisor::
 
-.. code-block:: python
+  /etc/supervisor/conf.d/mjml.conf
 
-    from feedgen.feed import FeedGenerator
-    fg = FeedGenerator()
-    fg.load_extension('podcast')
-    ...
-    fg.podcast.itunes_category('Technology', 'Podcasting')
-    ...
-    fe = fg.add_entry()
-    fe.id('http://lernfunk.de/media/654321/1/file.mp3')
-    fe.title('The First Episode')
-    fe.description('Enjoy our first episode.')
-    fe.enclosure('http://lernfunk.de/media/654321/1/file.mp3', 0, 'audio/mpeg')
-    ...
-    fg.rss_str(pretty=True)
-    fg.rss_file('podcast.xml')
+  [program:mjmltcpserver]
+  user=user
+  environment=NODE_PATH=/home/user/node_modules
+  command=node
+      /home/user/.virtualenv/default/lib/python2.7/site-packages/mjml/node/tcpserver.js
+      --port=28101 --host=127.0.0.1 --touchstop=/tmp/mjmltcpserver.stop --mjml.minify=true --mjml.validationLevel=strict
+  stdout_logfile=/home/user/project/var/log/supervisor/mjml.log
+  autostart=true
+  autorestart=true
+  redirect_stderr=true
+  stopwaitsecs=10
+  stopsignal=INT
 
-If the FeedGenerator class is used to load an extension, it is automatically
-loaded for every feed entry as well.  You can, however, load an extension for a
-specific FeedEntry only by calling `load_extension(...)` on that entry.
+Or you can use docker-compose::
 
-Even if extensions are loaded, they can be temporarily disabled during the feed
-generation by calling the generating method with the keyword argument
-`extensions` set to `False`.
+  services:
+    mjml-1:
+      image: liminspace/mjml-tcpserver:latest
+      restart: always
+      ports:
+        - "28101:28101"
 
-**Custom Extensions**
+    mjml-2:
+      image: liminspace/mjml-tcpserver:latest
+      restart: always
+      environment:
+        HOST: "0.0.0.0"
+        PORT: "28102"
+        MJML_ARGS: "--mjml.minify=true --mjml.validationLevel=strict"
+      expose:
+        - "28102"
+      ports:
+        - "28102:28102"
 
-If you want to load custom extensions which are not part of the feedgen
-package, you can use the method `register_extension` instead. You can directly
-pass the classes for the feed and the entry extension to this method meaning
-that you can define them everywhere.
+You also can build your own tcpserver with other versions of ``MJML`` by using
+``docker/mjml-tcpserver`` file and editing arguments.
 
+httpserver mode
+^^^^^^^^^^^^^^^
 
----------------------
-Testing the Generator
----------------------
+  don't forget to install ``requests`` to use this mode.
 
-You can test the module by simply executing::
+This mode is faster than ``cmd`` and similar to ``tcpserver`` but you can use official MJML API https://mjml.io/api
+or run your own HTTP-server (for example https://github.com/danihodovic/mjml-server) to render templates. ::
 
-    $ python -m feedgen
+  MJML_BACKEND_MODE = 'httpserver'
+  MJML_HTTPSERVERS = [
+      {
+          'URL': 'https://api.mjml.io/v1/render',  # official MJML API
+          'HTTP_AUTH': ('<Application ID>', '<Secret Key>'),
+      },
+      {
+          'URL': 'http://127.0.0.1:38101/v1/render',  # your own HTTP-server
+      },
+  ]
 
-If you want to have a look at the code for this test to have a working code
-example for a whole feed generation process, you can find it in the
-`__main__.py <https://github.com/lkiesow/python-feedgen/blob/master/feedgen/__main__.py>`_.
+You can set one or more servers and a random one will be used.
