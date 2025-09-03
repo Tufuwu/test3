@@ -13,7 +13,11 @@ jobs:
     strategy:
       matrix:
         python-version: [3.8]
-        toxenv: [py38, flake8, isort, black]
+        env:
+          - TOXENV=py38
+          - TOXENV=flake8
+          - TOXENV=isort
+          - TOXENV=black
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -28,4 +32,4 @@ jobs:
       - name: Run tests
         run: tox
         env:
-          TOXENV: ${{ matrix.toxenv }}
+          TOXENV: ${{ matrix.env }}
