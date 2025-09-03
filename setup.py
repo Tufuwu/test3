@@ -1,31 +1,45 @@
 #!/usr/bin/env python
 
+import os
+import sys
+
 from setuptools import setup
 
+from lora import VERSION
+
+package_name = "python-lora"
+
+if sys.argv[-1] == "publish":
+    os.system("python setup.py sdist")
+    os.system("twine upload -r pypi dist/%s-%s.tar.gz" % (package_name, VERSION))
+    sys.exit()
+
+if sys.argv[-1] == "tag":
+    os.system("git tag -a v{} -m 'tagging v{}'".format(VERSION, VERSION))
+    os.system("git push && git push --tags")
+    sys.exit()
+
+
 setup(
-        name='python3-discogs-client',
-        version='2.3.5',
-        description='Python API client for Discogs',
-        long_description='This is an active fork of the official "Discogs API client for Python", which was deprecated by discogs.com as of June 2020. We think it is a very useful Python module and decided to continue maintaining it. Please visit: https://github.com/joalla/discogs_client for more information.',
-        url='https://github.com/joalla/discogs_client',
-        author='joalla',
-        author_email='jt@peek-a-boo.at',
-        test_suite='discogs_client.tests',
-        classifiers=[
-            'Development Status :: 5 - Production/Stable',
-            'Environment :: Console',
-            'License :: OSI Approved :: BSD License',
-            'Natural Language :: English',
-            'Operating System :: OS Independent',
-            'Programming Language :: Python',
-            'Topic :: Communications',
-            'Topic :: Utilities',
-            ],
-        install_requires=[
-            'requests',
-            'oauthlib',
-            ],
-        packages=[
-            'discogs_client',
-            ],
-        )
+    name="python-lora",
+    version=VERSION,
+    description="Decrypt LoRa payloads",
+    url="https://github.com/jieter/python-lora",
+    author="Jan Pieter Waagmeester",
+    author_email="jieter@jieter.nl",
+    license="MIT",
+    classifiers=[
+        "Intended Audience :: Developers",
+        "License :: OSI Approved :: MIT License",
+        "Programming Language :: Python :: 2",
+        "Programming Language :: Python :: 2.7",
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.4",
+        "Programming Language :: Python :: 3.5",
+        "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
+    ],
+    keywords="LoRa decrypt",
+    packages=["lora"],
+    install_requires=["cryptography==3.2"],
+)
