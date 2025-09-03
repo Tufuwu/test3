@@ -1,4 +1,4 @@
 # `readme_renderer` is needed to check for `setup.py check --restructuredtext`
 isort
-pylint<2.14
+pylint==2.13.9
 readme_renderer
