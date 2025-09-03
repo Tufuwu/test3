@@ -31,8 +31,8 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y gcc libhdf5-serial-dev libblas-dev liblapack-dev libatlas-base-dev libquadmath0
         python -m pip install --upgrade pip
-        pip install h5py${{ matrix.h5py-version }}
         pip install -U numpy Cython
+        pip install h5py${{ matrix.h5py-version }}
         pip install -r requirements_tests.txt
         pip install .
         pip install -e examples/example_hdf5storage_marshaller_plugin
