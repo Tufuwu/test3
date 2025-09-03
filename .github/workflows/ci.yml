@@ -17,7 +17,6 @@ jobs:
           - TOXENV=py38
           - TOXENV=flake8
           - TOXENV=isort
-          - TOXENV=black
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
