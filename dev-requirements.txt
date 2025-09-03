@@ -1,4 +1,0 @@
-django
-six
-twine
-wheel

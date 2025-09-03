@@ -1,102 +1,104 @@
-================
-django-db-logger
-================
+.. image:: https://github.com/cdent/gabbi/workflows/tests/badge.svg
+    :target: https://github.com/cdent/gabbi/actions
+.. image:: https://readthedocs.org/projects/gabbi/badge/?version=latest
+    :target: https://gabbi.readthedocs.io/en/latest/
+    :alt: Documentation Status
 
-.. image:: https://travis-ci.org/CiCiUi/django-db-logger.svg?branch=master
-    :target: https://travis-ci.org/CiCiUi/django-db-logger
+Gabbi
+=====
 
-Django logging in database.
-For large projects please use `Sentry <https://github.com/getsentry/sentry>`_
+`Release Notes`_
 
-Screenshot
-----------
-.. image:: https://ciciui.github.io/django-db-logger/static/img/django-db-logger.png
-    :target: https://travis-ci.org/CiCiUi/django-db-logger
+Gabbi is a tool for running HTTP tests where requests and responses
+are represented in a declarative YAML-based form. The simplest test
+looks like this::
 
-Dependency
-----------
-* Django>=1.9
-* Python 2.7+/3.6+
+    tests:
+    - name: A test
+      GET: /api/resources/id
 
-License
+See the docs_ for more details on the many features and formats for
+setting request headers and bodies and evaluating responses.
+
+Gabbi is tested with Python 3.6, 3.7, 3.8, 3.9 and pypy3.
+
+Tests can be run using `unittest`_ style test runners, `pytest`_
+or from the command line with a `gabbi-run`_ script.
+
+There is a `gabbi-demo`_ repository which provides a tutorial via
+its commit history. The demo builds a simple API using gabbi to
+facilitate test driven development.
+
+.. _Release Notes: https://gabbi.readthedocs.io/en/latest/release.html
+.. _docs: https://gabbi.readthedocs.io/
+.. _gabbi-demo: https://github.com/cdent/gabbi-demo
+.. _unittest: https://gabbi.readthedocs.io/en/latest/example.html#loader
+.. _pytest: http://pytest.org/
+.. _loader docs: https://gabbi.readthedocs.io/en/latest/example.html#pytest
+.. _gabbi-run: https://gabbi.readthedocs.io/en/latest/runner.html
+
+Purpose
 -------
-WTFPL
 
-Quick start
------------
+Gabbi works to bridge the gap between human readable YAML files that
+represent HTTP requests and expected responses and the obscured realm of
+Python-based, object-oriented unit tests in the style of the unittest
+module and its derivatives.
 
-1. Install
+Each YAML file represents an ordered list of HTTP requests along with
+the expected responses. This allows a single file to represent a
+process in the API being tested. For example:
 
-.. code-block:: bash
+* Create a resource.
+* Retrieve a resource.
+* Delete a resource.
+* Retrieve a resource again to confirm it is gone.
 
-    pip install django-db-logger
+At the same time it is still possible to ask gabbi to run just one
+request. If it is in a sequence of tests, those tests prior to it in
+the YAML file will be run (in order). In any single process any test
+will only be run once. Concurrency is handled such that one file
+runs in one process.
 
-2. Add "django_db_logger" to your ``INSTALLED_APPS`` setting like this
+These features mean that it is possible to create tests that are
+useful for both humans (as tools for improving and developing APIs)
+and automated CI systems.
 
-.. code-block:: python
+Testing and Developing Gabbi
+----------------------------
 
-    INSTALLED_APPS = (
-        ...
-        'django_db_logger',
-    )
+To get started, after cloning the `repository`_, you should install the
+development dependencies::
 
-3. Add handler and logger to ``LOGGING`` setting like this
+    $ pip install -r requirements-dev.txt
 
-.. code-block:: python
+If you prefer to keep things isolated you can create a virtual
+environment::
 
-    LOGGING = {
-        'version': 1,
-        'disable_existing_loggers': False,
-        'formatters': {
-            'verbose': {
-                'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
-            },
-            'simple': {
-                'format': '%(levelname)s %(asctime)s %(message)s'
-            },
-        },
-        'handlers': {
-            'db_log': {
-                'level': 'DEBUG',
-                'class': 'django_db_logger.db_log_handler.DatabaseLogHandler'
-            },
-        },
-        'loggers': {
-            'db': {
-                'handlers': ['db_log'],
-                'level': 'DEBUG'
-            }
-        }
-    }
+    $ virtualenv gabbi-venv
+    $ . gabbi-venv/bin/activate
+    $ pip install -r requirements-dev.txt
 
-4. Run ``python manage.py migrate`` to create django-db-logger models.
-5. Use ``django-db-logger`` like this
+Gabbi is set up to be developed and tested using `tox`_ (installed via
+``requirements-dev.txt``). To run the built-in tests (the YAML files
+are in the directories ``gabbi/tests/gabbits_*`` and loaded by the file
+``gabbi/test_*.py``), you call ``tox``::
 
-.. code-block:: python
+    tox -epep8,py37
 
-    import logging
-    db_logger = logging.getLogger('db')
+If you have the dependencies installed (or a warmed up
+virtualenv) you can run the tests by hand and exit on the first
+failure::
 
-    db_logger.info('info message')
-    db_logger.warning('warning message')
+    python -m subunit.run discover -f gabbi | subunit2pyunit
 
-    try:
-        1/0
-    except Exception as e:
-        db_logger.exception(e)
+Testing can be limited to individual modules by specifying them
+after the tox invocation::
 
+    tox -epep8,py37 -- test_driver test_handlers
 
+If you wish to avoid running tests that connect to internet hosts,
+set ``GABBI_SKIP_NETWORK`` to ``True``.
 
-Options
--------
-1. DJANGO_DB_LOGGER_ADMIN_LIST_PER_PAGE: integer. list per page in admin view. default ``10``
-2. DJANGO_DB_LOGGER_ENABLE_FORMATTER: boolean. Using ``formatter`` options to format message. ``True`` or ``False``, default ``False``
-
-Build your own database logger :hammer:
----------------------------------------
-1. Create a new app and add it to ``INSTALLED_APPS``
-2. Copy files ``django-db-logger/models.py``, ``django-db-logger/admin.py``, ``django-db-logger/db_log_handler.py`` to the app folder
-3. Replace ``DJANGO_DB_LOGGER_ADMIN_LIST_PER_PAGE`` in ``admin.py`` with an integer
-4. Replace ``DJANGO_DB_LOGGER_ENABLE_FORMATTER`` in `db_log_handler.py` with ``True`` or ``False``. Remove ``MSG_STYLE_SIMPLE``, it was not used.
-5. Replace logger class ``django_db_logger.db_log_handler.DatabaseLogHandler`` in your Settings with the new logger class
-6. Customize the looger to meet your needs. :beer:
+.. _tox: https://tox.readthedocs.io/
+.. _repository: https://github.com/cdent/gabbi
