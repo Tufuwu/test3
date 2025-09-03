@@ -3,22 +3,29 @@ from abc import ABCMeta, abstractmethod
 
 class ApiInterface(metaclass=ABCMeta):
     @abstractmethod
-    def search(self, query, kind): pass
+    def search(self, query, kind):
+        pass
 
     @abstractmethod
-    def charts(self, filters): pass
+    def charts(self, filters):
+        pass
 
     @abstractmethod
-    def call(self, url): pass
+    def call(self, url):
+        pass
 
     @abstractmethod
-    def discover(self, selection): pass
+    def discover(self, selection):
+        pass
 
     @abstractmethod
-    def resolve_id(self, id): pass
+    def resolve_id(self, id):
+        pass
 
     @abstractmethod
-    def resolve_url(self, url): pass
+    def resolve_url(self, url):
+        pass
 
     @abstractmethod
-    def resolve_media_url(self, url): pass
+    def resolve_media_url(self, url):
+        pass

@@ -16,18 +16,23 @@ class Track(ListItem):
 
     def to_list_item(self, addon_base):
         list_item_label = "[%s] " % blocked + self.label if self.blocked else self.label
-        list_item_label = "[%s] " % preview + self.label if self.preview else list_item_label
+        list_item_label = (
+            "[%s] " % preview + self.label if self.preview else list_item_label
+        )
         list_item = xbmcgui.ListItem(label=list_item_label)
         url = addon_base + "/play/?" + urllib.parse.urlencode({"media_url": self.media})
         list_item.setArt({"thumb": self.thumb})
-        list_item.setInfo("music", {
-            "artist": self.info.get("artist"),
-            "duration": self.info.get("duration"),
-            "genre": self.info.get("genre"),
-            "title": self.label,
-            "year": self.info.get("date")[:4],
-            "comment": self.info.get("description")
-        })
+        list_item.setInfo(
+            "music",
+            {
+                "artist": self.info.get("artist"),
+                "duration": self.info.get("duration"),
+                "genre": self.info.get("genre"),
+                "title": self.label,
+                "year": self.info.get("date")[:4],
+                "comment": self.info.get("description"),
+            },
+        )
         list_item.setProperty("isPlayable", "true")
         list_item.setProperty("mediaUrl", self.media)
 

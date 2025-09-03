@@ -10,4 +10,3 @@ class ApiPublicTestCase(TestCase):
     @skip("Not implemented")
     def test_search(self):
         self.api.search("test", "tracks")
-

@@ -22,9 +22,7 @@ class ApiV2(ApiInterface):
     api_limit = 20
     api_limit_tracks = 50
     api_lang = "en"
-    api_cache = {
-        "discover": 120  # 2 hours
-    }
+    api_cache = {"discover": 120}  # 2 hours
     thumbnail_size = 500
 
     def __init__(self, settings, lang, cache):
@@ -40,16 +38,19 @@ class ApiV2(ApiInterface):
         # It is possible to set a custom client ID in the settings
         client_id_settings = self.settings.get("apiv2.client_id")
         if client_id_settings:
-            xbmc.log("plugin.audio.soundcloud::ApiV2() Using custom client ID", xbmc.LOGDEBUG)
+            xbmc.log(
+                "plugin.audio.soundcloud::ApiV2() Using custom client ID", xbmc.LOGDEBUG
+            )
             return client_id_settings
 
         # Check if there is a cached client ID
         client_id_cached = self.cache.get(
-            self.api_client_id_cache_key,
-            self.api_client_id_cache_duration
+            self.api_client_id_cache_key, self.api_client_id_cache_duration
         )
         if client_id_cached:
-            xbmc.log("plugin.audio.soundcloud::ApiV2() Using cached client ID", xbmc.LOGDEBUG)
+            xbmc.log(
+                "plugin.audio.soundcloud::ApiV2() Using cached client ID", xbmc.LOGDEBUG
+            )
             return client_id_cached
 
         # Extract client ID from website and cache it
@@ -103,9 +104,9 @@ class ApiV2(ApiInterface):
         cache_key = hashlib.sha1((path + str(payload)).encode()).hexdigest()
 
         xbmc.log(
-            "plugin.audio.soundcloud::ApiV2() Calling %s with header %s and payload %s" %
-            (path, str(headers), str(payload)),
-            xbmc.LOGDEBUG
+            "plugin.audio.soundcloud::ApiV2() Calling %s with header %s and payload %s"
+            % (path, str(headers), str(payload)),
+            xbmc.LOGDEBUG,
         )
 
         # If caching is active, check for an existing cached file.
@@ -126,7 +127,9 @@ class ApiV2(ApiInterface):
     def _extract_media_url(self, transcodings):
         setting = self.settings.get("audio.format")
         for codec in transcodings:
-            if self._is_preferred_codec(codec["format"], self.settings.AUDIO_FORMATS[setting]):
+            if self._is_preferred_codec(
+                codec["format"], self.settings.AUDIO_FORMATS[setting]
+            ):
                 return codec["url"]
 
         # Fallback
@@ -140,7 +143,9 @@ class ApiV2(ApiInterface):
                 elif "tracks" in category:
                     return {"collection": category["tracks"]}
             elif "items" in category:
-                res = self._find_id_in_selection(category["items"]["collection"], selection_id)
+                res = self._find_id_in_selection(
+                    category["items"]["collection"], selection_id
+                )
                 if res:
                     return res
 
@@ -172,9 +177,7 @@ class ApiV2(ApiInterface):
                     user = User(id=item["id"], label=item["username"])
                     user.label2 = item.get("full_name", "")
                     user.thumb = self._get_thumbnail(item, self.thumbnail_size)
-                    user.info = {
-                        "artist": item.get("description", None)
-                    }
+                    user.info = {"artist": item.get("description", None)}
                     collection.items.append(user)
 
                 elif kind == "playlist":
@@ -182,9 +185,7 @@ class ApiV2(ApiInterface):
                     playlist.is_album = item.get("is_album", False)
                     playlist.label2 = item.get("label_name", "")
                     playlist.thumb = self._get_thumbnail(item, self.thumbnail_size)
-                    playlist.info = {
-                        "artist": item["user"]["username"]
-                    }
+                    playlist.info = {"artist": item["user"]["username"]}
                     collection.items.append(playlist)
 
                 elif kind == "system-playlist":
@@ -199,9 +200,11 @@ class ApiV2(ApiInterface):
                     collection.items.append(selection)
 
                 else:
-                    xbmc.log("plugin.audio.soundcloud::ApiV2() "
-                             "Could not convert JSON kind to model...",
-                             xbmc.LOGWARNING)
+                    xbmc.log(
+                        "plugin.audio.soundcloud::ApiV2() "
+                        "Could not convert JSON kind to model...",
+                        xbmc.LOGWARNING,
+                    )
 
         elif "tracks" in json_obj:
 
@@ -249,7 +252,7 @@ class ApiV2(ApiInterface):
             "genre": item.get("genre", None),
             "date": item.get("display_date", None),
             "description": item.get("description", None),
-            "duration": int(item["duration"]) / 1000
+            "duration": int(item["duration"]) / 1000,
         }
 
         return track
@@ -268,10 +271,14 @@ class ApiV2(ApiInterface):
             for match in matches:
                 # Get the JS
                 response = requests.get(match, headers=headers)
-                response.encoding = "utf-8"  # This speeds up `response.text` by 3 seconds
+                response.encoding = (
+                    "utf-8"  # This speeds up `response.text` by 3 seconds
+                )
 
                 # Extract the API key
-                key = re.search(r"exports={\"api-v2\".*client_id:\"(\w*)\"", response.text)
+                key = re.search(
+                    r"exports={\"api-v2\".*client_id:\"(\w*)\"", response.text
+                )
 
                 if key:
                     return key.group(1)
@@ -282,8 +289,10 @@ class ApiV2(ApiInterface):
 
     @staticmethod
     def _is_preferred_codec(codec, setting):
-        return codec["mime_type"] == setting["mime_type"] and \
-               codec["protocol"] == setting["protocol"]
+        return (
+            codec["mime_type"] == setting["mime_type"]
+            and codec["protocol"] == setting["protocol"]
+        )
 
     @staticmethod
     def _sanitize_url(url):
@@ -301,16 +310,21 @@ class ApiV2(ApiInterface):
         ]
         """
         url = item.get(
-            "artwork_url", item.get("avatar_url", item.get("calculated_artwork_url", False))
+            "artwork_url",
+            item.get("avatar_url", item.get("calculated_artwork_url", False)),
         )
 
-        return re.sub(
-            r"^(.*/)(\w+)-([-a-zA-Z0-9]+)-([a-z0-9]+)\.(jpg|png|gif).*$",
-            r"\1\2-\3-t{x}x{y}.\5".format(x=size, y=size),
-            url
-        ) if url else None
+        return (
+            re.sub(
+                r"^(.*/)(\w+)-([-a-zA-Z0-9]+)-([a-z0-9]+)\.(jpg|png|gif).*$",
+                r"\1\2-\3-t{x}x{y}.\5".format(x=size, y=size),
+                url,
+            )
+            if url
+            else None
+        )
 
     @staticmethod
     def _chunks(lst, size):
         for i in range(0, len(lst), size):
-            yield lst[i:i + size]
+            yield lst[i : i + size]

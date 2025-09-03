@@ -45,7 +45,9 @@ class Items:
         items = []
 
         # New search
-        list_item = xbmcgui.ListItem(label=format_bold(self.addon.getLocalizedString(30201)))
+        list_item = xbmcgui.ListItem(
+            label=format_bold(self.addon.getLocalizedString(30201))
+        )
         url = self.addon_base + PATH_SEARCH + "?action=new"
         items.append((url, list_item, True))
 
@@ -53,9 +55,12 @@ class Items:
         history = self.search_history.get()
         for k in sorted(list(history), reverse=True):
             list_item = xbmcgui.ListItem(label=history[k].get("query"))
-            url = self.addon_base + PATH_SEARCH + "?" + urllib.parse.urlencode({
-                "query": history[k].get("query")
-            })
+            url = (
+                self.addon_base
+                + PATH_SEARCH
+                + "?"
+                + urllib.parse.urlencode({"query": history[k].get("query")})
+            )
             items.append((url, list_item, True))
 
         return items
@@ -64,27 +69,39 @@ class Items:
         items = []
 
         # People
-        list_item = xbmcgui.ListItem(label=format_bold(self.addon.getLocalizedString(30211)))
-        url = self.addon_base + PATH_SEARCH + "?" + urllib.parse.urlencode({
-            "action": "people",
-            "query": query
-        })
+        list_item = xbmcgui.ListItem(
+            label=format_bold(self.addon.getLocalizedString(30211))
+        )
+        url = (
+            self.addon_base
+            + PATH_SEARCH
+            + "?"
+            + urllib.parse.urlencode({"action": "people", "query": query})
+        )
         items.append((url, list_item, True))
 
         # Albums
-        list_item = xbmcgui.ListItem(label=format_bold(self.addon.getLocalizedString(30212)))
-        url = self.addon_base + PATH_SEARCH + "?" + urllib.parse.urlencode({
-            "action": "albums",
-            "query": query
-        })
+        list_item = xbmcgui.ListItem(
+            label=format_bold(self.addon.getLocalizedString(30212))
+        )
+        url = (
+            self.addon_base
+            + PATH_SEARCH
+            + "?"
+            + urllib.parse.urlencode({"action": "albums", "query": query})
+        )
         items.append((url, list_item, True))
 
         # Playlists
-        list_item = xbmcgui.ListItem(label=format_bold(self.addon.getLocalizedString(30213)))
-        url = self.addon_base + PATH_SEARCH + "?" + urllib.parse.urlencode({
-            "action": "playlists",
-            "query": query
-        })
+        list_item = xbmcgui.ListItem(
+            label=format_bold(self.addon.getLocalizedString(30213))
+        )
+        url = (
+            self.addon_base
+            + PATH_SEARCH
+            + "?"
+            + urllib.parse.urlencode({"action": "playlists", "query": query})
+        )
         items.append((url, list_item, True))
 
         return items
@@ -93,27 +110,45 @@ class Items:
         items = []
 
         # Albums
-        list_item = xbmcgui.ListItem(label=format_bold(self.addon.getLocalizedString(30212)))
-        url = self.addon_base + "/?" + urllib.parse.urlencode({
-            "action": "call",
-            "call": "/users/{id}/albums".format(id=id)
-        })
+        list_item = xbmcgui.ListItem(
+            label=format_bold(self.addon.getLocalizedString(30212))
+        )
+        url = (
+            self.addon_base
+            + "/?"
+            + urllib.parse.urlencode(
+                {"action": "call", "call": "/users/{id}/albums".format(id=id)}
+            )
+        )
         items.append((url, list_item, True))
 
         # Playlists
-        list_item = xbmcgui.ListItem(label=format_bold(self.addon.getLocalizedString(30213)))
-        url = self.addon_base + "/?" + urllib.parse.urlencode({
-            "action": "call",
-            "call": "/users/{id}/playlists_without_albums".format(id=id)
-        })
+        list_item = xbmcgui.ListItem(
+            label=format_bold(self.addon.getLocalizedString(30213))
+        )
+        url = (
+            self.addon_base
+            + "/?"
+            + urllib.parse.urlencode(
+                {
+                    "action": "call",
+                    "call": "/users/{id}/playlists_without_albums".format(id=id),
+                }
+            )
+        )
         items.append((url, list_item, True))
 
         # Spotlight
-        list_item = xbmcgui.ListItem(label=format_bold(self.addon.getLocalizedString(30214)))
-        url = self.addon_base + "/?" + urllib.parse.urlencode({
-            "action": "call",
-            "call": "/users/{id}/spotlight".format(id=id)
-        })
+        list_item = xbmcgui.ListItem(
+            label=format_bold(self.addon.getLocalizedString(30214))
+        )
+        url = (
+            self.addon_base
+            + "/?"
+            + urllib.parse.urlencode(
+                {"action": "call", "call": "/users/{id}/spotlight".format(id=id)}
+            )
+        )
         items.append((url, list_item, True))
 
         return items
@@ -122,17 +157,27 @@ class Items:
         items = []
 
         # Top 50
-        list_item = xbmcgui.ListItem(label=format_bold(self.addon.getLocalizedString(30301)))
-        url = self.addon_base + PATH_CHARTS + "?" + urllib.parse.urlencode({
-            "action": "top"
-        })
+        list_item = xbmcgui.ListItem(
+            label=format_bold(self.addon.getLocalizedString(30301))
+        )
+        url = (
+            self.addon_base
+            + PATH_CHARTS
+            + "?"
+            + urllib.parse.urlencode({"action": "top"})
+        )
         items.append((url, list_item, True))
 
         # Trending
-        list_item = xbmcgui.ListItem(label=format_bold(self.addon.getLocalizedString(30302)))
-        url = self.addon_base + PATH_CHARTS + "?" + urllib.parse.urlencode({
-            "action": "trending"
-        })
+        list_item = xbmcgui.ListItem(
+            label=format_bold(self.addon.getLocalizedString(30302))
+        )
+        url = (
+            self.addon_base
+            + PATH_CHARTS
+            + "?"
+            + urllib.parse.urlencode({"action": "trending"})
+        )
         items.append((url, list_item, True))
 
         return items
@@ -145,10 +190,13 @@ class Items:
 
         if collection.next_href:
             next_item = xbmcgui.ListItem(label=self.addon.getLocalizedString(30901))
-            url = self.addon_base + "/?" + urllib.parse.urlencode({
-                "action": "call",
-                "call": collection.next_href
-            })
+            url = (
+                self.addon_base
+                + "/?"
+                + urllib.parse.urlencode(
+                    {"action": "call", "call": collection.next_href}
+                )
+            )
             items.append((url, next_item, True))
 
         return items
