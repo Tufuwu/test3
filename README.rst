@@ -1,322 +1,108 @@
-ClickHouse SQLAlchemy
-=====================
+Incremental
+===========
 
-ClickHouse dialect for SQLAlchemy to `ClickHouse database <https://clickhouse.yandex/>`_.
+|travis|
+|pypi|
+|coverage|
 
+Incremental is a small library that versions your Python projects.
 
-.. image:: https://img.shields.io/pypi/v/clickhouse-sqlalchemy.svg
-    :target: https://pypi.org/project/clickhouse-sqlalchemy
+API documentation can be found `here <https://twisted.github.io/incremental/docs/>`_.
 
-.. image:: https://coveralls.io/repos/github/xzkostyan/clickhouse-sqlalchemy/badge.svg?branch=master
-    :target: https://coveralls.io/github/xzkostyan/clickhouse-sqlalchemy?branch=master
 
-.. image:: https://img.shields.io/pypi/l/clickhouse-sqlalchemy.svg
-    :target: https://pypi.org/project/clickhouse-sqlalchemy
+Quick Start
+-----------
 
-.. image:: https://img.shields.io/pypi/pyversions/clickhouse-sqlalchemy.svg
-    :target: https://pypi.org/project/clickhouse-sqlalchemy
+Add this to your ``setup.py``\ 's ``setup()`` call, removing any other versioning arguments:
 
-.. image:: https://img.shields.io/pypi/dm/clickhouse-sqlalchemy.svg
-    :target: https://pypi.org/project/clickhouse-sqlalchemy
+.. code::
 
-.. image:: https://github.com/xzkostyan/clickhouse-sqlalchemy/actions/workflows/actions.yml/badge.svg
-   :target: https://github.com/xzkostyan/clickhouse-sqlalchemy/actions/workflows/actions.yml
+   setup(
+       use_incremental=True,
+       setup_requires=['incremental'],
+       install_requires=['incremental'], # along with any other install dependencies
+       ...
+   }
 
-Installation
-============
 
-The package can be installed using ``pip``:
+Install Incremental to your local environment with ``pip install incremental[scripts]``.
+Then run ``python -m incremental.update <projectname> --create``.
+It will create a file in your package named ``_version.py`` and look like this:
 
-    .. code-block:: bash
+.. code::
 
-       pip install clickhouse-sqlalchemy
+   from incremental import Version
 
-Interfaces support
-------------------
+   __version__ = Version("widgetbox", 17, 1, 0)
+   __all__ = ["__version__"]
 
-- **native** [recommended] (TCP) via `clickhouse-driver <https://github.com/mymarilyn/clickhouse-driver>`_
-- **http** via requests
 
+Then, so users of your project can find your version, in your root package's ``__init__.py`` add:
 
-Connection Parameters
-=====================
+.. code::
 
-ClickHouse SQLAlchemy uses the following syntax for the connection string:
+   from ._version import __version__
 
-    .. code-block:: python
 
-     'clickhouse+<driver>://<user>:<password>@<host>:<port>/<database>[?key=value..]'
+Subsequent installations of your project will then use Incremental for versioning.
 
-Where:
 
-- *driver* is driver to use. Possible choices: ``http``, ``native``. ``http`` is default.
-- *database* is database connect to. Default is ``default``.
+Incremental Versions
+--------------------
 
+``incremental.Version`` is a class that represents a version of a given project.
+It is made up of the following elements (which are given during instantiation):
 
-Drivers options
-===============
+- ``package`` (required), the name of the package this ``Version`` represents.
+- ``major``, ``minor``, ``micro`` (all required), the X.Y.Z of your project's ``Version``.
+- ``release_candidate`` (optional), set to 0 or higher to mark this ``Version`` being of a release candidate (also sometimes called a "prerelease").
+- ``post`` (optional), set to 0 or higher to mark this ``Version`` as a postrelease.
+- ``dev`` (optional), set to 0 or higher to mark this ``Version`` as a development release.
 
-There are several options can be specified in query string.
+You can extract a PEP-440 compatible version string by using the ``.public()`` method, which returns a ``str`` containing the full version. This is the version you should provide to users, or publicly use. An example output would be ``"13.2.0"``, ``"17.1.2dev1"``, or ``"18.8.0rc2"``.
 
-HTTP
-----
+Calling ``repr()`` with a ``Version`` will give a Python-source-code representation of it, and calling ``str()`` with a ``Version`` will provide a string similar to ``'[Incremental, version 16.10.1]'``.
 
-- *port* is port ClickHouse server is bound to. Default is ``8123``.
-- *timeout* in seconds. There is no timeout by default.
-- *protocol* to use. Possible choices: ``http``, ``https``. ``http`` is default.
 
-Connection string to database `test` in default ClickHouse installation:
+Updating
+--------
 
-    .. code-block:: python
+Incremental includes a tool to automate updating your Incremental-using project's version called ``incremental.update``.
+It updates the ``_version.py`` file and automatically updates some uses of Incremental versions from an indeterminate version to the current one.
+It requires ``click`` from PyPI.
 
-         'clickhouse://default:@localhost/test'
+``python -m incremental.update <projectname>`` will perform updates on that package.
+The commands that can be given after that will determine what the next version is.
 
+- ``--newversion=<version>``, to set the project version to a fully-specified version (like 1.2.3, or 17.1.0dev1).
+- ``--rc``, to set the project version to ``<year-2000>.<month>.0rc1`` if the current version is not a release candidate, or bump the release candidate number by 1 if it is.
+- ``--dev``, to set the project development release number to 0 if it is not a development release, or bump the development release number by 1 if it is.
+- ``--patch``, to increment the patch number of the release. This will also reset the release candidate number, pass ``--rc`` at the same time to increment the patch number and make it a release candidate.
+- ``--post``, to set the project postrelease number to 0 if it is not a postrelease, or bump the postrelease number by 1 if it is. This will also reset the release candidate and development release numbers.
 
-When you are using `nginx` as proxy server for ClickHouse server connection string might look like:
+If you give no arguments, it will strip the release candidate number, making it a "full release".
 
-    .. code-block:: python
+Incremental supports "indeterminate" versions, as a stand-in for the next "full" version. This can be used when the version which will be displayed to the end-user is unknown (for example "introduced in" or "deprecated in"). Incremental supports the following indeterminate versions:
 
-         'clickhouse://user:password@example.com:8124/test?protocol=https'
+- ``Version("<projectname>", "NEXT", 0, 0)``
+- ``<projectname> NEXT``
 
-Where ``8124`` is proxy port.
+When you run ``python -m incremental.update <projectname> --rc``, these will be updated to real versions (assuming the target final version is 17.1.0):
 
-If you need control over the underlying HTTP connection, pass a `requests.Session
-<https://requests.readthedocs.io/en/master/user/advanced/#session-objects>`_ instance
-to ``create_engine()``, like so:
+- ``Version("<projectname>", 17, 1, 0, release_candidate=1)``
+- ``<projectname> 17.1.0rc1``
 
-    .. code-block:: python
+Once the final version is made, it will become:
 
-        from sqlalchemy import create_engine
-        from requests import Session
+- ``Version("<projectname>", 17, 1, 0)``
+- ``<projectname> 17.1.0``
 
-        uri = 'clickhouse://default:@localhost/test'
 
-        engine = create_engine(uri, connect_args={'http_session': Session()})
+.. |coverage| image:: https://codecov.io/github/twisted/incremental/coverage.svg?branch=master
+.. _coverage: https://codecov.io/github/twisted/incremental
 
+.. |travis| image:: https://travis-ci.org/twisted/incremental.svg?branch=master
+.. _travis: https://travis-ci.org/twisted/incremental
 
-Native
-------
-
-Please note that native connection **is not encrypted**. All data including
-user/password is transferred in plain text. You should use this connection over
-SSH or VPN (for example) while communicating over untrusted network.
-
-Connection string to database `test` in default ClickHouse installation:
-
-    .. code-block:: python
-
-         'clickhouse+native://default:@localhost/test'
-
-All connection string parameters are proxied to `clickhouse-driver`.
-See it's `parameters <https://clickhouse-driver.readthedocs.io/en/latest/api.html#clickhouse_driver.connection.Connection>`_.
-
-
-Features
-========
-
-SQLAlchemy declarative support
-------------------------------
-
-Both declarative and constructor-style tables support:
-
-    .. code-block:: python
-
-        from sqlalchemy import create_engine, Column, MetaData, literal
-
-        from clickhouse_sqlalchemy import Table, make_session, get_declarative_base, types, engines
-
-        uri = 'clickhouse://default:@localhost/test'
-
-        engine = create_engine(uri)
-        session = make_session(engine)
-        metadata = MetaData(bind=engine)
-
-        Base = get_declarative_base(metadata=metadata)
-
-        class Rate(Base):
-            day = Column(types.Date, primary_key=True)
-            value = Column(types.Int32)
-            other_value = Column(
-                types.DateTime,
-                clickhouse_codec=('DoubleDelta', 'ZSTD'),
-            )
-
-            __table_args__ = (
-                engines.Memory(),
-            )
-
-        another_table = Table('another_rate', metadata,
-            Column('day', types.Date, primary_key=True),
-            Column('value', types.Int32, server_default=literal(1)),
-            engines.Memory()
-        )
-
-Tables created in declarative way have lowercase with words separated by underscores naming convention.
-But you can easy set you own via SQLAlchemy ``__tablename__`` attribute.
-
-Basic DDL support
------------------
-
-You can emit simple DDL. Example ``CREATE/DROP`` table:
-
-    .. code-block:: python
-
-        table = Rate.__table__
-        table.create()
-        another_table.create()
-
-
-        another_table.drop()
-        table.drop()
-
-
-Basic INSERT clause support
----------------------------
-
-Simple batch INSERT:
-
-    .. code-block:: python
-
-        from datetime import date, timedelta
-        from sqlalchemy import func
-
-        today = date.today()
-        rates = [{'day': today - timedelta(i), 'value': 200 - i} for i in range(100)]
-
-        # Emits single INSERT statement.
-        session.execute(table.insert(), rates)
-
-
-Common SQLAlchemy query method chaining
----------------------------------------
-
-``order_by``, ``filter``, ``limit``, ``offset``, etc. are supported:
-
-    .. code-block:: python
-
-        session.query(func.count(Rate.day)) \
-            .filter(Rate.day > today - timedelta(20)) \
-            .scalar()
-
-        session.query(Rate.value) \
-            .order_by(Rate.day.desc()) \
-            .first()
-
-        session.query(Rate.value) \
-            .order_by(Rate.day) \
-            .limit(10) \
-            .all()
-
-        session.query(func.sum(Rate.value)) \
-            .scalar()
-
-
-Advanced INSERT clause support
-------------------------------
-INSERT FROM SELECT statement:
-
-    .. code-block:: python
-
-        from sqlalchemy import cast
-
-        # Labels must be present.
-        select_query = session.query(
-            Rate.day.label('day'),
-            cast(Rate.value * 1.5, types.Int32).label('value')
-        ).subquery()
-
-        # Emits single INSERT FROM SELECT statement
-        session.execute(
-            another_table.insert()
-            .from_select(['day', 'value'], select_query)
-        )
-
-
-Many but not all of SQLAlchemy features are supported out of the box.
-
-UNION ALL example:
-
-    .. code-block:: python
-
-        from sqlalchemy import union_all
-
-        select_rate = session.query(
-            Rate.day.label('date'),
-            Rate.value.label('x')
-        )
-        select_another_rate = session.query(
-            another_table.c.day.label('date'),
-            another_table.c.value.label('x')
-        )
-
-        union_all(select_rate, select_another_rate).execute().fetchone()
-
-
-External data for query processing
-----------------------------------
-
-Currently can be used with native interface.
-
-    .. code-block:: python
-
-        ext = Table(
-            'ext', metadata, Column('x', types.Int32),
-            clickhouse_data=[(101, ), (103, ), (105, )], extend_existing=True
-        )
-
-        rv = session.query(Rate) \
-            .filter(Rate.value.in_(session.query(ext.c.x))) \
-            .execution_options(external_tables=[ext]) \
-            .all()
-
-        print(rv)
-
-Supported ClickHouse-specific SQL
----------------------------------
-
-- ``SELECT`` query:
-    - ``WITH TOTALS``
-    - ``SAMPLE``
-    - lambda functions: ``x -> expr``
-    - ``JOIN``
-
-See `tests <https://github.com/xzkostyan/clickhouse-sqlalchemy/tree/master/tests>`_ for examples.
-
-
-Overriding default query settings
----------------------------------
-
-Set lower priority to query and limit max number threads to execute the request.
-
-    .. code-block:: python
-
-        rv = session.query(func.sum(Rate.value)) \
-            .execution_options(settings={'max_threads': 2, 'priority': 10}) \
-            .scalar()
-
-        print(rv)
-
-
-Running tests
-=============
-
-    .. code-block:: bash
-
-        mkvirtualenv testenv && python setup.py test
-
-``pip`` will automatically install all required modules for testing.
-
-
-License
-=======
-
-ClickHouse SQLAlchemy is distributed under the `MIT license
-<http://www.opensource.org/licenses/mit-license.php>`_.
-
-How to Contribute
-=================
-
-#. Check for open issues or open a fresh issue to start a discussion around a feature idea or a bug.
-#. Fork `the repository <https://github.com/xzkostyan/clickhouse-sqlalchemy>`_ on GitHub to start making your changes to the **master** branch (or branch off of it).
-#. Write a test which shows that the bug was fixed or that the feature works as expected.
-#. Send a pull request and bug the maintainer until it gets merged and published.
+.. |pypi| image:: http://img.shields.io/pypi/v/incremental.svg
+.. _pypi: https://pypi.python.org/pypi/incremental
