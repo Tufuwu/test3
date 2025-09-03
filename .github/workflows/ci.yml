@@ -35,9 +35,9 @@ jobs:
 
     - name: Install Linting Tools
       run: pipenv install pycodestyle
-      
+
     - name: Lint
-      run: pipenv run pycodestyle .
+      run: pipenv run lint .
 
     - name: Test
       run: pipenv run test
