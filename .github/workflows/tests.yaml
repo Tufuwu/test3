@@ -1,46 +1,54 @@
-name: tests
-on: push
+name: Python package
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
 jobs:
-    build:
-        runs-on: ubuntu-latest
-        strategy:
-            matrix:
-                include:
-                - python: 3.x
-                  toxenv: pep8
-                - python: 3.7
-                  toxenv: placement
-                - python: 3.6
-                  toxenv: py36
-                - python: 3.7
-                  toxenv: py37
-                - python: 3.8
-                  toxenv: py38
-                - python: 3.9
-                  toxenv: py39
-                - python: pypy3
-                  toxenv: pypy3
-                - python: 3.6
-                  toxenv: py36-pytest
-                - python: 3.7
-                  toxenv: py37-pytest
-                - python: 3.8
-                  toxenv: py38-pytest
-                - python: 3.9
-                  toxenv: py39-pytest
-                - python: 3.8
-                  toxenv: py38-failskip
-                - python: 3.8
-                  toxenv: py38-limit
-                - python: 3.8
-                  toxenv: py38-prefix
-        name: ${{ matrix.toxenv }} on Python ${{ matrix.python }}
-        steps:
-        - uses: actions/checkout@v2
-        - uses: actions/setup-python@v2
-          with:
-              python-version: ${{ matrix.python }}
-        - run: pip install tox
-        - run: tox
-          env:
-              TOXENV: ${{ matrix.toxenv }}
+  build:
+    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        include:
+          - python-version: 3.8
+            env: 
+              TOXENV: placement
+          - python-version: pypy-3.8
+            env: 
+              TOXENV: pypy-3.8
+          - python-version: 3.8
+            env: 
+              TOXENV: py38
+          - python-version: 3.8
+            env: 
+              TOXENV: py38-pytest
+          - python-version: 3.8
+            env: 
+              TOXENV: py38-failskip
+          - python-version: 3.8
+            env: 
+              TOXENV: py38-limit
+          - python-version: 3.8
+            env: 
+              TOXENV: py38-prefix
+          - env: 
+              TOXENV: pep8
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install tox
+    - name: Run tests
+      env:
+        TOXENV: ${{ matrix.env.TOXENV }}
+      run: tox
