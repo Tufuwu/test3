@@ -14,7 +14,7 @@ jobs:
     strategy:
       matrix:
         include:
-          - python-version: 3.7
+          - python-version: 3.8
             env: 
               TOXENV: placement
           - python-version: pypy-3.8
