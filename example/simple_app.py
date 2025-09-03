@@ -43,7 +43,10 @@ messages = {
 }
 
 # I'm not sure what the appropriate naming convention is here.
-simple_login = SimpleLogin(app, login_checker=check_my_users, messages=messages)
+simple_login = SimpleLogin(
+    app,
+    login_checker=check_my_users,
+    messages=messages)
 simple_login.disable_messages("login_success", "logout")
 
 
