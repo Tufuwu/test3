@@ -44,18 +44,14 @@ isolated_build = true
 envlist = py39, py38, py37, py36
 
 [testenv]
-allowlist_externals = poetry
+whitelist_externals = poetry
 commands =
     poetry install -v
     poetry run flake8 --ignore E501,W503 example/
     poetry run flake8 --ignore E501,W503 tests/
-    poetry run pytest   
+    poetry run pytest
 """
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
-
-[tool.flake8]
-max-line-length = 88
-extend-ignore = E203,W503
