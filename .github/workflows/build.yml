@@ -4,36 +4,43 @@ on:
   push:
     branches:
       - main
-      - 'v*.*.*'  # Matches version tags
   pull_request:
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
-
     strategy:
       matrix:
-        python-version: [3.8]
-
+        python-version: [3.8, 3.9]
     steps:
-    - uses: actions/checkout@v2
+      - uses: actions/checkout@v2
 
-    - name: Install dependencies
-      run: |
-        sudo apt-get -qq update
-        sudo apt-get install -y libicu-dev
-        pip install -e .
-        pip install pyicu coverage nose twine
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Run tests
+        run: pytest
+      - name: Run mypy
+        run: mypy pyteal
+      - name: Check init script
+        run: python3 -c "import pyteal" scripts/generate_init.py --check
+      - name: Check code formatting
+        run: black --check .
 
-    - name: Run tests
-      run: |
-        nosetests --with-coverage --cover-package=fingerprints --cover-erase
-
-    - name: Build and publish
-      if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
-      env:
-        TWINE_USERNAME: ${{ secrets.TWINE_USERNAME }}
-        TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
-      run: |
-        python setup.py sdist bdist_wheel
-        twine upload dist/*
+  release:
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.9
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Build and publish
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
+        run: |
+          python setup.py sdist bdist_wheel
+          twine upload dist/*
