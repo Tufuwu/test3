@@ -37,3 +37,10 @@ jobs:
       run: |
         ulimit -c unlimited
         tox -e ${{ matrix.tox-env }}
+    - name: Display core dump
+      if: failure()
+      run: |
+        for file in $(find . -name 'core*'); do
+          echo "Core dump found: $file"
+          gdb -q -c "$file" /usr/bin/python3 -ex "bt" -ex "quit"
+        done
