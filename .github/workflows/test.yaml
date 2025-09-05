@@ -12,8 +12,8 @@ jobs:
   build:
     strategy:
       matrix:
-        python-version: [3.8]
-        tox-env: [py38]
+        python-version: [3.9]
+        tox-env: [py39]
 
     runs-on: ubuntu-latest
 
