@@ -34,4 +34,6 @@ jobs:
     - name: Run tests
       env:
         PYTHONUNBUFFERED: 1
-      run: tox -e ${{ matrix.tox-env }}
+      run: |
+        ulimit -c unlimited
+        tox -e ${{ matrix.tox-env }}
