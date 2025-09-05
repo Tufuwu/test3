@@ -1,26 +1,59 @@
 .. _api:
 
-PyTeal Package
-==============
 
-.. automodule:: pyteal
-   :members:
-   :undoc-members:
-   :imported-members:
-   :special-members: __getitem__
-   :show-inheritance:
+API reference
+=============
 
-   .. data:: Txn
-      :annotation: = <pyteal.TxnObject object>
+.. automodule:: pybufrkit
 
-      The current transaction being evaluated. This is an instance of :any:`TxnObject`.
-   
-   .. data:: Gtxn
-      :annotation: = <pyteal.TxnGroup object>
+.. automodule:: pybufrkit.bufr
+    :members:
 
-      The current group of transactions being evaluated. This is an instance of :any:`TxnGroup`.
+.. automodule:: pybufrkit.descriptors
+    :members:
 
-   .. data:: InnerTxn
-      :annotation: = <pyteal.TxnObject object>
+.. automodule:: pybufrkit.tables
+    :members:
 
-      The most recently submitted inner transaction. This is an instance of :any:`TxnObject`.
+.. automodule:: pybufrkit.coder
+    :members:
+
+.. automodule:: pybufrkit.decoder
+    :members:
+
+.. automodule:: pybufrkit.encoder
+    :members:
+
+.. automodule:: pybufrkit.templatecompiler
+    :members:
+
+.. automodule:: pybufrkit.templatedata
+    :members:
+
+.. automodule:: pybufrkit.dataquery
+    :members:
+
+.. automodule:: pybufrkit.mdquery
+    :members:
+
+.. automodule:: pybufrkit.query
+    :members:
+
+.. automodule:: pybufrkit.script
+    :members:
+
+.. automodule:: pybufrkit.renderer
+    :members:
+
+.. automodule:: pybufrkit.bitops
+    :members:
+
+.. automodule:: pybufrkit.commands
+    :members:
+
+.. automodule:: pybufrkit.utils
+    :members:
+
+.. automodule:: pybufrkit.constants
+    :members:
+
