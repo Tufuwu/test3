@@ -29,7 +29,7 @@ jobs:
       run: pip install tox
 
     - name: Install additional dependencies
-      run: pip install Twisted[tls]>=17
+      run: pip install 'Twisted[tls]>=17'
 
     - name: Run tests
       run: tox -e ${{ matrix.tox-env }}
