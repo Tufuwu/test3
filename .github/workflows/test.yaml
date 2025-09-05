@@ -6,27 +6,30 @@ on:
       - main
   pull_request:
     branches:
-      - master
+      - main
 
 jobs:
   build:
     strategy:
       matrix:
-        python-version: [3.9]
-        tox-env: [py39]
+        python-version: [3.8]
+        tox-env: [py38]
 
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v2
 
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python-version }}
 
     - name: Install dependencies
       run: pip install tox
+
+    - name: Install additional dependencies
+      run: pip install Twisted[tls]>=17
 
     - name: Run tests
       run: tox -e ${{ matrix.tox-env }}
