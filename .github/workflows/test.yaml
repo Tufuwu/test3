@@ -32,4 +32,6 @@ jobs:
       run: pip install 'Twisted[tls]>=17'
 
     - name: Run tests
+      env:
+        PYTHONUNBUFFERED: 1
       run: tox -e ${{ matrix.tox-env }}
